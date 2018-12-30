@@ -19,6 +19,14 @@ describe Athena::Get do
     end
   end
 
+  describe "with a route that has a default value" do
+    it "works" do
+      CLIENT.get("/posts/123").body.should eq "123"
+      CLIENT.get("/posts/").body.should eq "99"
+      CLIENT.get("/posts/foo/bvar").body.should eq "foo"
+    end
+  end
+
   describe "param conversion" do
     context "Int" do
       it "Int8" do

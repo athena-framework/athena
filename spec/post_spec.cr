@@ -19,6 +19,13 @@ describe Athena::Post do
     end
   end
 
+  describe "with a route that has a default value" do
+    it "works" do
+      CLIENT.post("/posts/99", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "100"
+      CLIENT.post("/posts/99", body: "100", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "199"
+    end
+  end
+
   describe "body conversion" do
     context "Int" do
       it "Int8" do
@@ -41,75 +48,77 @@ describe Athena::Post do
         CLIENT.post("/int128/", body: "9999999999999999999999", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "9999999999999999999999"
       end
     end
-  end
 
-  context "UInt" do
-    it "UInt8" do
-      CLIENT.post("/uint8", body: "123", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "123"
-    end
-
-    it "UInt16" do
-      CLIENT.post("/uint16", body: "456", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "456"
-    end
-
-    it "UInt32" do
-      CLIENT.post("/uint32", body: "111111", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "111111"
-    end
-
-    it "UInt64" do
-      CLIENT.post("/uint64/", body: "9999999999999999", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "9999999999999999"
-    end
-
-    pending "UInt128" do
-      CLIENT.post("/uint128/", body: "9999999999999999999999", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "9999999999999999999999"
-    end
-  end
-
-  context "Float" do
-    it "Float32" do
-      CLIENT.post("/float32/", body: "-2342.223", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "-2342.223"
-    end
-
-    it "Float64" do
-      CLIENT.post("/float64", body: "2342.234234234223", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "2342.234234234223"
-    end
-  end
-
-  context "Bool" do
-    it "Bool" do
-      CLIENT.post("/bool", body: "true", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "true"
-    end
-  end
-
-  context "String" do
-    it "String" do
-      CLIENT.post("/string", body: "sdfsd", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "sdfsd"
-    end
-  end
-
-  context "Struct" do
-    it "Struct" do
-      CLIENT.post("/struct", body: "123", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "-123"
-    end
-  end
-
-  describe "ParamConverter" do
-    describe "RequestBody" do
-      context "valid" do
-        it "should parse an obj from request body" do
-          CLIENT.post("/users", body: %({"age":99}), headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq %({"age":99})
-        end
+    context "UInt" do
+      it "UInt8" do
+        CLIENT.post("/uint8", body: "123", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "123"
       end
 
-      context "invalid model" do
-        it "should return the validation test failed json object" do
-          CLIENT.post("/users", body: %({"age":-12}), headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq %({"code":400,"message":"Validation tests failed","errors":["'age' should be greater than 0"]})
-        end
+      it "UInt16" do
+        CLIENT.post("/uint16", body: "456", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "456"
       end
 
-      context "invalid param" do
-        it "should return the invalid param json object" do
-          CLIENT.post("/users", body: %({"age": "foo"}), headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq %({"code": 404, "message": "Expected age to be int but got string"})
+      it "UInt32" do
+        CLIENT.post("/uint32", body: "111111", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "111111"
+      end
+
+      it "UInt64" do
+        CLIENT.post("/uint64/", body: "9999999999999999", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "9999999999999999"
+      end
+
+      pending "UInt128" do
+        CLIENT.post("/uint128/", body: "9999999999999999999999", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "9999999999999999999999"
+      end
+    end
+
+    context "Float" do
+      it "Float32" do
+        CLIENT.post("/float32/", body: "-2342.223", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "-2342.223"
+      end
+
+      it "Float64" do
+        CLIENT.post("/float64", body: "2342.234234234223", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "2342.234234234223"
+      end
+    end
+
+    context "Bool" do
+      it "Bool" do
+        CLIENT.post("/bool", body: "true", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "true"
+      end
+    end
+
+    context "String" do
+      it "String" do
+        CLIENT.post("/string", body: "sdfsd", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "sdfsd"
+      end
+    end
+
+    context "Struct" do
+      it "Struct" do
+        CLIENT.post("/struct", body: "123", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "-123"
+      end
+    end
+
+    describe "ParamConverter" do
+      describe "RequestBody" do
+        context "valid" do
+          it "should parse an obj from request body" do
+            CLIENT.post("/users", body: %({"age":99}), headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq %({"age":99})
+          end
+        end
+
+        context "invalid model" do
+          it "should return the validation test failed json object" do
+            CLIENT.post("/users", body: %({"age":-12}), headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq %({"code":400,"message":"Validation tests failed","errors":["'age' should be greater than 0"]})
+          end
+        end
+
+        context "invalid param" do
+          it "should return the invalid param json object" do
+            CLIENT.post("/users", body: %({"age": "foo"}), headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq %({"code": 404, "message": "Expected age to be int but got string"})
+            CLIENT.post("/users", body: %({"age": true}), headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq %({"code": 404, "message": "Expected age to be int but got bool"})
+            CLIENT.post("/users", body: %({"age": null}), headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq %({"code": 404, "message": "Expected age to be int but got null"})
+          end
         end
       end
     end

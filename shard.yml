@@ -15,5 +15,6 @@ license: MIT
 dependencies:
   CrSerializer:
     github: blacksmoke16/CrSerializer
-  radix:
-    github: luislavena/radix
+  amber_router:
+    github: amberframework/amber-router
+    branch: master

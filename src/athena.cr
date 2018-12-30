@@ -1,5 +1,5 @@
 require "http/server"
-require "radix"
+require "amber_router"
 require "json"
 require "CrSerializer"
 

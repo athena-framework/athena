@@ -2,7 +2,7 @@ module Athena
   class Athena::RouteHandler
     include HTTP::Handler
 
-    @tree : Radix::Tree(Action) = Radix::Tree(Action).new
+    @routes : Amber::Router::RouteSet(Action) = Amber::Router::RouteSet(Action).new
 
     def initialize
       {% for c in Athena::ClassController.all_subclasses + Athena::StructController.all_subclasses %}
@@ -24,6 +24,7 @@ module Athena
         {% arg_types = m.args.map(&.restriction) %}
         {% arg_names = m.args.map(&.name) %}
         {% requirements = route_def[:requirements] %}
+        {% arg_default_values = m.args.map { |a| a.default_value || nil } %}
           %proc = ->(vals : Array(String), context : HTTP::Server::Context) do
             {% unless m.args.empty? %}
               arr = Array(Union({{arg_types.splat}})).new
@@ -32,7 +33,11 @@ module Athena
                 {% if converter && converter[:param] == arg_names[idx] %}
                     arr << Athena::Converters::{{converter[:converter]}}({{converter[:type]}}).convert(vals[{{idx}}])
                 {% else %}
-                  arr << Athena::Types.convert_type(vals[{{ idx }}], {{type}})
+                  {% if arg_default_values[idx] == nil %}
+                    arr << Athena::Types.convert_type(vals[{{idx}}], {{type}})
+                 {% else %}
+                    arr << (vals[{{idx}}]? ? Athena::Types.convert_type(vals[{{idx}}], {{type}}) : {{arg_default_values[idx]}})
+                  {% end %}
                 {% end %}
               {% end %}
               ->{{c.name.id}}.{{m.name.id}}({{arg_types.splat}}).call(*Tuple({{arg_types.splat}}).from(arr))
@@ -40,21 +45,21 @@ module Athena
               ->{ {{c.name.id}}.{{m.name.id}} }.call
             {% end %}
           end
-          @tree.add {{path}}, RouteAction(Proc(Array(String), HTTP::Server::Context, {{m.return_type}})).new(%proc, {{path}} {% if requirements %}, {{requirements}} {% end %})
+          @routes.add {{path}}, RouteAction(Proc(Array(String), HTTP::Server::Context, {{m.return_type}})).new(%proc, {{path}} {% if requirements %}, {{requirements}} {% end %})
       {% end %}
     {% end %}
     end
 
     def call(context : HTTP::Server::Context)
       search_key = '/' + context.request.method + context.request.path
-      route = @tree.find search_key
+      route = @routes.find search_key
       unless route.found?
         halt context, 404, %({"code": 404, "message": "No route found for '#{context.request.method} #{context.request.path}'"})
         call_next context
         return
       end
-      action : Action = route.payload
-      params = (context.request.path.split('/') - action.path.split('/'))
+      action : Action = route.payload.not_nil!
+      params = route.params.values.reverse
 
       if context.request.body && context.request.headers["Content-Type"]?.try(&.starts_with?("application/json"))
         params << context.request.body.not_nil!.gets_to_end
@@ -81,16 +86,16 @@ module Athena
       else
         context.response.print response.responds_to?(:serialize) ? response.serialize : response.to_json
       end
+    rescue e : ArgumentError
+      halt context, 400, %({"code": 400, "message": "#{e.message}"})
+    rescue validation_exception : CrSerializer::Exceptions::ValidationException
+      halt context, 400, validation_exception.to_json
     rescue json_parse_exception : JSON::ParseException
       if msg = json_parse_exception.message
         if parts = msg.match(/Expected (\w+) but was (\w+) .*[\r\n]*.+#(\w+)/)
           halt context, 400, %({"code": 404, "message": "Expected #{parts[3]} to be #{parts[1]} but got #{parts[2]}"})
         end
       end
-    rescue e : ArgumentError
-      halt context, 400, %({"code": 400, "message": "#{e.message}"})
-    rescue validation_exception : CrSerializer::Exceptions::ValidationException
-      halt context, 400, validation_exception.to_json
     end
   end
 end

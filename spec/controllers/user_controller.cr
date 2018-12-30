@@ -2,7 +2,7 @@ class User
   include CrSerializer
 
   @[Assert::GreaterThan(value: 0)]
-  property age : Int32 = 12
+  property age : Int32
 
   def self.find(val)
     val == 1 ? self.new : nil
