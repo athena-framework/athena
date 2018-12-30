@@ -13,6 +13,12 @@ describe Athena::Post do
     end
   end
 
+  describe "with a route that doesnt exist" do
+    it "works" do
+      CLIENT.post("/dsfdsf").body.should eq %({"code": 404, "message": "No route found for 'POST /dsfdsf'"})
+    end
+  end
+
   describe "body conversion" do
     context "Int" do
       it "Int8" do
@@ -84,6 +90,28 @@ describe Athena::Post do
   context "Struct" do
     it "Struct" do
       CLIENT.post("/struct", body: "123", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "-123"
+    end
+  end
+
+  describe "ParamConverter" do
+    describe "RequestBody" do
+      context "valid" do
+        it "should parse an obj from request body" do
+          CLIENT.post("/users", body: %({"age":99}), headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq %({"age":99})
+        end
+      end
+
+      context "invalid model" do
+        it "should return the validation test failed json object" do
+          CLIENT.post("/users", body: %({"age":-12}), headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq %({"code":400,"message":"Validation tests failed","errors":["'age' should be greater than 0"]})
+        end
+      end
+
+      context "invalid param" do
+        it "should return the invalid param json object" do
+          CLIENT.post("/users", body: %({"age": "foo"}), headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq %({"code": 404, "message": "Expected age to be int but got string"})
+        end
+      end
     end
   end
 end

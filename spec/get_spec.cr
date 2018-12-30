@@ -13,6 +13,12 @@ describe Athena::Get do
     end
   end
 
+  describe "with a route that doesnt exist" do
+    it "works" do
+      CLIENT.get("/dsfdsf").body.should eq %({"code": 404, "message": "No route found for 'GET /dsfdsf'"})
+    end
+  end
+
   describe "param conversion" do
     context "Int" do
       it "Int8" do

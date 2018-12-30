@@ -25,21 +25,19 @@ module Athena
         {% arg_names = m.args.map(&.name) %}
         {% requirements = route_def[:requirements] %}
           %proc = ->(vals : Array(String), context : HTTP::Server::Context) do
-            {% begin %}
-              {% unless m.args.empty? %}
-                arr = Array(Union({{arg_types.splat}})).new
-                {% for type, idx in arg_types %}
-                  {% converter = m.annotation(ParamConverter) %}
-                  {% if converter && converter[:param] == arg_names[idx] %}
-                      arr << Athena::Converters::{{converter[:converter]}}({{converter[:type]}}).convert(vals[{{idx}}])
-                  {% else %}
-                    arr << Athena::Types.convert_type(vals[{{ idx }}], {{type}})
-                  {% end %}
+            {% unless m.args.empty? %}
+              arr = Array(Union({{arg_types.splat}})).new
+              {% for type, idx in arg_types %}
+                {% converter = m.annotation(ParamConverter) %}
+                {% if converter && converter[:param] == arg_names[idx] %}
+                    arr << Athena::Converters::{{converter[:converter]}}({{converter[:type]}}).convert(vals[{{idx}}])
+                {% else %}
+                  arr << Athena::Types.convert_type(vals[{{ idx }}], {{type}})
                 {% end %}
-                ->{{c.name.id}}.{{m.name.id}}({{arg_types.splat}}).call(*Tuple({{arg_types.splat}}).from(arr))
-              {% else %}
-                ->{ {{c.name.id}}.{{m.name.id}} }.call
               {% end %}
+              ->{{c.name.id}}.{{m.name.id}}({{arg_types.splat}}).call(*Tuple({{arg_types.splat}}).from(arr))
+            {% else %}
+              ->{ {{c.name.id}}.{{m.name.id}} }.call
             {% end %}
           end
           @tree.add {{path}}, RouteAction(Proc(Array(String), HTTP::Server::Context, {{m.return_type}})).new(%proc, {{path}} {% if requirements %}, {{requirements}} {% end %})
@@ -47,7 +45,7 @@ module Athena
     {% end %}
     end
 
-    def call(context)
+    def call(context : HTTP::Server::Context)
       search_key = '/' + context.request.method + context.request.path
       route = @tree.find search_key
       unless route.found?
@@ -82,6 +80,12 @@ module Athena
         context.response.print response
       else
         context.response.print response.responds_to?(:serialize) ? response.serialize : response.to_json
+      end
+    rescue json_parse_exception : JSON::ParseException
+      if msg = json_parse_exception.message
+        if parts = msg.match(/Expected (\w+) but was (\w+) .*[\r\n]*.+#(\w+)/)
+          halt context, 400, %({"code": 404, "message": "Expected #{parts[3]} to be #{parts[1]} but got #{parts[2]}"})
+        end
       end
     rescue e : ArgumentError
       halt context, 400, %({"code": 400, "message": "#{e.message}"})

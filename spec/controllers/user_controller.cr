@@ -9,5 +9,10 @@ class User
   end
 end
 
-# class UserController < Athena::ClassController
-# end
+class UserController < Athena::ClassController
+  @[Athena::Post(path: "users")]
+  @[Athena::ParamConverter(param: "user", type: User, converter: RequestBody)]
+  def self.newUser(user : User) : User
+    user
+  end
+end
