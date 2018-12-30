@@ -1,0 +1,19 @@
+name: athena
+
+description: |
+  Annotation based web framework with built in param conversion.
+
+version: 0.1.0
+
+authors:
+  - Blacksmoke16 <Blacksmoke16@eve.tools>
+
+crystal: 0.27.0
+
+license: MIT
+
+dependencies:
+  CrSerializer:
+    github: blacksmoke16/CrSerializer
+  radix:
+    github: luislavena/radix

@@ -1,6 +1,6 @@
 # athena
 
-TODO: Write a description here
+Annotation based web framework with built in param conversion.
 
 ## Installation
 
@@ -8,7 +8,7 @@ TODO: Write a description here
 ```yaml
 dependencies:
   athena:
-    github: your-github-user/athena
+    github: Blacksmoke16/athena
 ```
 2. Run `shards install`
 
@@ -26,7 +26,7 @@ TODO: Write development instructions here
 
 ## Contributing
 
-1. Fork it (<https://github.com/your-github-user/athena/fork>)
+1. Fork it (<https://github.com/Blacksmoke16/athena/fork>)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
@@ -34,4 +34,4 @@ TODO: Write development instructions here
 
 ## Contributors
 
-- [your-name-here](https://github.com/your-github-user) - creator and maintainer
+- [Blacksmoke16](https://github.com/Blacksmoke16) Blacksmoke16 - creator, maintainer
