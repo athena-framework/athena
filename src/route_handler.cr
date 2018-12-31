@@ -90,10 +90,12 @@ module Athena
       halt context, 400, %({"code": 400, "message": "#{e.message}"})
     rescue validation_exception : CrSerializer::Exceptions::ValidationException
       halt context, 400, validation_exception.to_json
+    rescue not_found_exception : Athena::NotFoundException
+      halt context, 404, not_found_exception.to_json
     rescue json_parse_exception : JSON::ParseException
       if msg = json_parse_exception.message
         if parts = msg.match(/Expected (\w+) but was (\w+) .*[\r\n]*.+#(\w+)/)
-          halt context, 400, %({"code": 404, "message": "Expected #{parts[3]} to be #{parts[1]} but got #{parts[2]}"})
+          halt context, 400, %({"code": 400, "message": "Expected #{parts[3]} to be #{parts[1]} but got #{parts[2]}"})
         end
       end
     end

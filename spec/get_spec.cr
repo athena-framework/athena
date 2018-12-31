@@ -15,7 +15,9 @@ describe Athena::Get do
 
   describe "with a route that doesnt exist" do
     it "works" do
-      CLIENT.get("/dsfdsf").body.should eq %({"code": 404, "message": "No route found for 'GET /dsfdsf'"})
+      response = CLIENT.get("/dsfdsf")
+      response.body.should eq %({"code": 404, "message": "No route found for 'GET /dsfdsf'"})
+      response.status_code.should eq 404
     end
   end
 
@@ -24,6 +26,18 @@ describe Athena::Get do
       CLIENT.get("/posts/123").body.should eq "123"
       CLIENT.get("/posts/").body.should eq "99"
       CLIENT.get("/posts/foo/bvar").body.should eq "foo"
+    end
+  end
+
+  describe "with an Exists param converter" do
+    it "resolves a record that exists" do
+      CLIENT.get("/users/17").body.should eq %({"id":17,"age":123})
+    end
+
+    it "returns correct error if the record does not exist" do
+      response = CLIENT.get("/users/34")
+      response.body.should eq %({"code":404,"message":"An item with the provided ID could not be found."})
+      response.status_code.should eq 404
     end
   end
 

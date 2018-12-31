@@ -28,6 +28,15 @@ module Athena
   annotation Put; end
   annotation ParamConverter; end
 
+  class NotFoundException < Exception
+    def to_json : String
+      {
+        code:    404,
+        message: @message,
+      }.to_json
+    end
+  end
+
   abstract class ClassController; end
 
   abstract struct StructController; end
