@@ -43,6 +43,14 @@ module Athena
 
   abstract struct Action; end
 
+  # Called after the request action is executed and before next handler is called
+  protected def self.onResponse(context : HTTP::Server::Context) : Nil
+  end
+
+  # Called before the request action is executed
+  protected def self.onRequest(context : HTTP::Server::Context) : Nil
+  end
+
   record RouteAction(A) < Action, action : A, path : String, requirements = {} of String => Regex
 
   def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [Athena::RouteHandler.new])

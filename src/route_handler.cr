@@ -21,6 +21,8 @@ module Athena
         {% end %}
 
         {% path = "/" + method + (route_def[:path].stringify.starts_with?('/') ? route_def[:path] : "/" + route_def[:path]) %}
+        {% placeholder_count = path.count(':') %}
+        {% raise "Expected #{c.name}.#{m.name} to have #{placeholder_count} method parameters, got #{m.args.size}.  Route's param count must match action's param count." if placeholder_count != (method == "GET" ? m.args.size : (m.args.size == 0 ? 0 : m.args.size - 1)) %}
         {% arg_types = m.args.map(&.restriction) %}
         {% arg_names = m.args.map(&.name) %}
         {% requirements = route_def[:requirements] %}
@@ -79,6 +81,8 @@ module Athena
         end
       end
 
+      Athena.onRequest(context)
+
       response = action.action.call params, context
 
       if response.is_a?(String)
@@ -86,6 +90,7 @@ module Athena
       else
         context.response.print response.responds_to?(:serialize) ? response.serialize : response.to_json
       end
+      Athena.onResponse(context)
     rescue e : ArgumentError
       halt context, 400, %({"code": 400, "message": "#{e.message}"})
     rescue validation_exception : CrSerializer::Exceptions::ValidationException

@@ -1,7 +1,7 @@
 class User
   include CrSerializer
 
-  property id : Int64
+  property id : Int64?
 
   @[Assert::GreaterThan(value: 0)]
   property age : Int32
@@ -23,6 +23,13 @@ class UserController < Athena::ClassController
   @[Athena::Post(path: "users")]
   @[Athena::ParamConverter(param: "user", type: User, converter: RequestBody)]
   def self.newUser(user : User) : User
+    user.id = 12
+    user
+  end
+
+  @[Athena::Put(path: "users")]
+  @[Athena::ParamConverter(param: "user", type: User, converter: RequestBody)]
+  def self.updateUser(user : User) : User
     user
   end
 

@@ -29,15 +29,17 @@ describe Athena::Get do
     end
   end
 
-  describe "with an Exists param converter" do
-    it "resolves a record that exists" do
-      CLIENT.get("/users/17").body.should eq %({"id":17,"age":123})
-    end
+  describe "ParamConverter" do
+    describe "with an Exists param converter" do
+      it "resolves a record that exists" do
+        CLIENT.get("/users/17").body.should eq %({"id":17,"age":123})
+      end
 
-    it "returns correct error if the record does not exist" do
-      response = CLIENT.get("/users/34")
-      response.body.should eq %({"code":404,"message":"An item with the provided ID could not be found."})
-      response.status_code.should eq 404
+      it "returns correct error if the record does not exist" do
+        response = CLIENT.get("/users/34")
+        response.body.should eq %({"code":404,"message":"An item with the provided ID could not be found."})
+        response.status_code.should eq 404
+      end
     end
   end
 
