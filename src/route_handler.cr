@@ -7,6 +7,22 @@ module Athena
     def initialize
       {% for c in Athena::ClassController.all_subclasses + Athena::StructController.all_subclasses %}
       {% methods = c.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) } %}
+
+        _on_response = [] of Callback
+        _on_request = [] of Callback
+
+        # Set triggers
+        {% for trigger in c.class.methods.select { |m| m.annotation(Trigger) } %}
+          {% trigger_ann = trigger.annotation(Trigger) %}
+          {% only_actions = trigger_ann[:only_actions] || "[] of String" %}
+          {% exclude_actions = trigger_ann[:exclude_actions] || "[] of String" %}
+          {% if trigger_ann[:event].resolve == Athena::Listener::ON_RESPONSE %}
+            _on_response << CallbackEvent(Proc(HTTP::Server::Context, Nil)).new(->{{c.name.id}}.{{trigger.name.id}}(HTTP::Server::Context), {{only_actions.id}}, {{exclude_actions.id}})
+          {% elsif trigger_ann[:event].resolve == Athena::Listener::ON_REQUEST %}
+            _on_request << CallbackEvent(Proc(HTTP::Server::Context, Nil)).new(->{{c.name.id}}.{{trigger.name.id}}(HTTP::Server::Context), {{only_actions.id}}, {{exclude_actions.id}})
+          {% end %}
+        {% end %}
+
       {% for m in methods %}
         {% raise "Route action return type must be set for #{c.name}.#{m.name}" if m.return_type.stringify.empty? %}
         {% if d = m.annotation(Get) %}
@@ -20,7 +36,9 @@ module Athena
           {% route_def = d %}
         {% end %}
 
-        {% path = "/" + method + (route_def[:path].stringify.starts_with?('/') ? route_def[:path] : "/" + route_def[:path]) %}
+
+        # Define route
+        {% path = "/" + method + (route_def[:path].starts_with?('/') ? route_def[:path] : "/" + route_def[:path]) %}
         {% placeholder_count = path.count(':') %}
         {% raise "Expected #{c.name}.#{m.name} to have #{placeholder_count} method parameters, got #{m.args.size}.  Route's param count must match action's param count." if placeholder_count != (method == "GET" ? m.args.size : (m.args.size == 0 ? 0 : m.args.size - 1)) %}
         {% arg_types = m.args.map(&.restriction) %}
@@ -47,7 +65,7 @@ module Athena
               ->{ {{c.name.id}}.{{m.name.id}} }.call
             {% end %}
           end
-          @routes.add {{path}}, RouteAction(Proc(Array(String), HTTP::Server::Context, {{m.return_type}})).new(%proc, {{path}} {% if requirements %}, {{requirements}} {% end %})
+          @routes.add {{path}}, RouteAction(Proc(Array(String), HTTP::Server::Context, {{m.return_type}})).new(%proc, {{path}}, Callbacks.new(_on_response, _on_request), {{m.name.stringify}} {% if requirements %}, {{requirements}} {% end %})
       {% end %}
     {% end %}
     end
@@ -55,12 +73,14 @@ module Athena
     def call(context : HTTP::Server::Context)
       search_key = '/' + context.request.method + context.request.path
       route = @routes.find search_key
+
       unless route.found?
         halt context, 404, %({"code": 404, "message": "No route found for '#{context.request.method} #{context.request.path}'"})
         call_next context
         return
       end
-      action : Action = route.payload.not_nil!
+      action = route.payload.not_nil!
+
       params = route.params.values.reverse
 
       if context.request.body && context.request.headers["Content-Type"]?.try(&.starts_with?("application/json"))
@@ -81,7 +101,11 @@ module Athena
         end
       end
 
-      Athena.onRequest(context)
+      action.callbacks.on_request.each do |ce|
+        if (ce.only_actions.empty? || ce.only_actions.includes?(action.method)) && (ce.exclude_actions.empty? || !ce.exclude_actions.includes?(action.method))
+          ce.event.call(context)
+        end
+      end
 
       response = action.action.call params, context
 
@@ -90,7 +114,12 @@ module Athena
       else
         context.response.print response.responds_to?(:serialize) ? response.serialize : response.to_json
       end
-      Athena.onResponse(context)
+
+      action.callbacks.on_response.each do |ce|
+        if (ce.only_actions.empty? || ce.only_actions.includes?(action.method)) && (ce.exclude_actions.empty? || !ce.exclude_actions.includes?(action.method))
+          ce.event.call(context)
+        end
+      end
     rescue e : ArgumentError
       halt context, 400, %({"code": 400, "message": "#{e.message}"})
     rescue validation_exception : CrSerializer::Exceptions::ValidationException

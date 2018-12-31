@@ -43,6 +43,44 @@ describe Athena::Get do
     end
   end
 
+  describe "callbacks" do
+    describe "user endpoint" do
+      it "should set the correct headers" do
+        headers = CLIENT.get("/callback/users").headers
+        headers.includes_word?("X-RESPONSE-ALL-ROUTES", "true").should be_true
+        headers.includes_word?("X-RESPONSE-USER-ROUTE", "true").should be_true
+        headers.includes_word?("X-REQUEST-NOT-POSTS-ROUTE", "true").should be_true
+      end
+    end
+
+    describe "all endpoint" do
+      it "should set the correct headers" do
+        headers = CLIENT.get("/callback/all").headers
+        headers.includes_word?("X-RESPONSE-ALL-ROUTES", "true").should be_true
+        headers.includes_word?("X-RESPONSE-USER-ROUTE", "true").should be_false
+        headers.includes_word?("X-REQUEST-NOT-POSTS-ROUTE", "true").should be_true
+      end
+    end
+
+    describe "posts endpoint" do
+      it "should set the correct headers" do
+        headers = CLIENT.get("/callback/posts").headers
+        headers.includes_word?("X-RESPONSE-ALL-ROUTES", "true").should be_true
+        headers.includes_word?("X-RESPONSE-USER-ROUTE", "true").should be_false
+        headers.includes_word?("X-REQUEST-NOT-POSTS-ROUTE", "true").should be_false
+      end
+    end
+
+    describe "in another controller" do
+      it "should not set the headers" do
+        headers = CLIENT.get("/callback/other").headers
+        headers.includes_word?("X-RESPONSE-ALL-ROUTES", "true").should be_false
+        headers.includes_word?("X-RESPONSE-USER-ROUTE", "true").should be_false
+        headers.includes_word?("X-REQUEST-NOT-POSTS-ROUTE", "true").should be_false
+      end
+    end
+  end
+
   describe "param conversion" do
     context "Int" do
       it "Int8" do

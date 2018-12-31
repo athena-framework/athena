@@ -27,6 +27,7 @@ module Athena
   annotation Post; end
   annotation Put; end
   annotation ParamConverter; end
+  annotation Trigger; end
 
   class NotFoundException < Exception
     def to_json : String
@@ -37,25 +38,29 @@ module Athena
     end
   end
 
+  enum Listener
+    # Executes after the route's handler has been executed
+    ON_RESPONSE
+
+    # Executes before the rotue's handler has been executed
+    ON_REQUEST
+  end
+
   abstract class ClassController; end
 
   abstract struct StructController; end
 
   abstract struct Action; end
 
-  # Called after the request action is executed and before next handler is called
-  protected def self.onResponse(context : HTTP::Server::Context) : Nil
-  end
+  abstract struct Callback; end
 
-  # Called before the request action is executed
-  protected def self.onRequest(context : HTTP::Server::Context) : Nil
-  end
-
-  record RouteAction(A) < Action, action : A, path : String, requirements = {} of String => Regex
+  record RouteAction(A) < Action, action : A, path : String, callbacks : Callbacks, method : String, requirements = {} of String => Regex
+  record Callbacks, on_response : Array(Callback), on_request : Array(Callback)
+  record CallbackEvent(E) < Callback, event : E, only_actions : Array(String), exclude_actions : Array(String)
 
   def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [Athena::RouteHandler.new])
     server : HTTP::Server = HTTP::Server.new handlers
-    puts "Athena is leading the way"
+    puts "Athena is leading the way on #{binding}:#{port}"
 
     unless server.each_address { |_| break true }
       {% if flag?(:without_openssl) %}
