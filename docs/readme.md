@@ -6,10 +6,6 @@ Athena's main focus is for JSON APIs.  Athena is unique in a two key areas:
   * This can allow for added type/compile time safety, and ability to document the API's endpoints; just like a normal method.
 * Parameters - Route path/body params can are automatically casted to the correct types, based on that route's action's parameter types.
 
-
-
-[TOC]
-
 ## Routes
 
 Routes are defined by adding a `@[Athena::{{HTTP_METHOD}}(path: "/")]` annotation to a controller's class method.  The class should inherit from either `Athena::ClassController` or `Athena::StructController` if the controller is a `Class` or `Struct`.
@@ -99,9 +95,9 @@ The `View` annotation controls how the return value of an endpoint is displayed.
 
 Two life-cycle events can be tapped:
 
-* ON_REQUEST - Executes before the route's action has executed.
+* `ON_REQUEST` - Executes before the route's action has executed.
 
-* ON_RESPONSE - Executes after the route's action has executed.
+* `ON_RESPONSE` - Executes after the route's action has executed.
 
 Each event provides the request context in order to have access to the request and response data.
 
@@ -233,7 +229,7 @@ Upon deserialization, objects are validated against [CrSerializer's Validations]
 A custom converter can also be defined to perform special logic.  Simply create a struct, with a generic, that implements a class method `convert(value : String) : T`.  
 
 ```Crystal
-struct MyConverter  
+struct MyConverter(T)
   def self.convert(param_value : String) : T
     # Your custom logic
     model
