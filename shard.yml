@@ -1,7 +1,7 @@
 name: athena
 
 description: |
-  Annotation based web framework with built in param conversion.
+  Annotation based JSON API framework with built in param conversion.
 
 version: 0.1.0
 
@@ -15,6 +15,13 @@ license: MIT
 dependencies:
   CrSerializer:
     github: blacksmoke16/CrSerializer
+    version: ~> 0.5.0
   amber_router:
     github: amberframework/amber-router
     branch: master
+
+development_dependencies:
+  ameba:
+    github: veelenga/ameba
+    version: 0.8.1
+    

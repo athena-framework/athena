@@ -9,7 +9,7 @@ class FloatController < Athena::ClassController
   end
 
   @[Athena::Post(path: "float32/")]
-  def self.float32Post(num : Float32) : Float32
+  def self.float32_post(num : Float32) : Float32
     it "should run correctly" do
       num.should be_a Float32
       num.should eq -2342.223_f32
@@ -27,7 +27,7 @@ class FloatController < Athena::ClassController
   end
 
   @[Athena::Post(path: "float64")]
-  def self.float64Post(num : Float64) : Float64
+  def self.float64_post(num : Float64) : Float64
     it "should run correctly" do
       num.should be_a Float64
       num.should eq 2342.234234234223

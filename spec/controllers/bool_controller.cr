@@ -9,7 +9,7 @@ class BoolController < Athena::ClassController
   end
 
   @[Athena::Post(path: "bool")]
-  def self.boolPost(val : Bool) : Bool
+  def self.bool_post(val : Bool) : Bool
     it "should run correctly" do
       val.should be_a Bool
       val.should eq true

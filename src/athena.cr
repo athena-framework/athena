@@ -6,12 +6,7 @@ require "CrSerializer"
 require "./route_handler"
 require "./converters"
 require "./types"
-
-macro halt(context, status_code = 200, response = "")
-  {{context}}.response.status_code = {{status_code}}
-  {{context}}.response.print {{response}}
-  {{context}}.response.close
-end
+require "./macros"
 
 module Athena
   # :nodoc:
@@ -23,14 +18,91 @@ module Athena
     end
   end
 
+  # Defines a GET endpoint.
+  # ## Fields
+  # * path : `String` - The path for the endpoint.
+  #
+  # ## Example
+  # ```
+  # @[Athena::Get(path: "/users")]
+  # ```
   annotation Get; end
+
+  # Defines a POST endpoint.
+  # ## Fields
+  # * path : `String` - The path for the endpoint.
+  #
+  # ## Example
+  # ```
+  # @[Athena::Post(path: "/users")]
+  # ```
   annotation Post; end
+
+  # Defines a PUT endpoint.
+  # ## Fields
+  # * path : `String` - The path for the endpoint.
+  #
+  # ## Example
+  # ```
+  # @[Athena::Put(path: "/users")]
+  # ```
   annotation Put; end
+
+  # Defines a DELETE endpoint.
+  # ## Fields
+  # * path : `String` - The path for the endpoint.
+  #
+  # ## Example
+  # ```
+  # @[Athena::Delete(path: "/users/:id")]
+  # ```
+  annotation Delete; end
+
+  # Controls how params are converted.
+  # ## Fields
+  # * param : `String` - The param that should go through the conversion.
+  # * type : `T` - The type the param should be converted to.
+  # * converter : `Athena::Converters` - What converter to use for the conversion.  Can be `Converters::RequestBody` or `Converters::Exists`, or a custom defined converter.
+  #
+  # ## Example
+  # ```
+  # @[Athena::ParamConverter(param: "user", type: User, converter: Exists)]
+  # ```
   annotation ParamConverter; end
-  annotation Trigger; end
+
+  # Defines a callback that should be called at a specific point in the request's life-cycle.
+  # ## Fields
+  # * event : `CallbackEvents` - The event that the callback should be executed at.
+  # * only : `Array(String)` - Run the callback only for the provided actions.
+  # * exclude : `Array(String)` - Run the callback for all actions except those provided.
+  #
+  # ## Example
+  # ```
+  # @[Athena::Callback(event: Athena::CallbackEvents::ON_RESPONSE, only: ["users"])]
+  # ```
+  annotation Callback; end
+
+  # Defines how the return value of an endpoint is displayed.
+  # ## Fields
+  # * groups : `Array(String)` - The serialization groups to apply to this endpoint.
+  # See the [CrSerializer Docs](https://github.com/Blacksmoke16/CrSerializer/blob/master/docs/serialization.md) for more info.
+  #
+  # ## Example
+  # ```
+  # @[Athena::View(groups: ["admin", "default"])]
+  # ```
   annotation View; end
 
+  # Raised when a an object could not be found in the `Athena::Converters::Exists` converter.
   class NotFoundException < Exception
+    # Returns a 404 not found JSON error.
+    #
+    # ```
+    # {
+    #   "code":    404,
+    #   "message": "An item with the provided ID could not be found.",
+    # }
+    # ```
     def to_json : String
       {
         code:    404,
@@ -39,26 +111,37 @@ module Athena
     end
   end
 
-  enum Listener
-    # Executes after the route's handler has been executed
-    ON_RESPONSE
-
-    # Executes before the rotue's handler has been executed
+  # Events available during the request's life-cycle.
+  enum CallbackEvents
+    # Executes before the route's action has been executed.
     ON_REQUEST
+
+    # Executes after the route's action has been executed.
+    ON_RESPONSE
   end
 
+  # Parent class for all `Class` based controllers.
   abstract class ClassController; end
 
+  # Parent class for all `Struct` based controllers.
   abstract struct StructController; end
 
-  abstract struct Action; end
+  # :nodoc:
+  private abstract struct Action; end
 
-  abstract struct Callback; end
+  # :nodoc:
+  private abstract struct CallbackBase; end
 
-  record RouteAction(A) < Action, action : A, path : String, callbacks : Callbacks, method : String, groups : Array(String), requirements = {} of String => Regex
-  record Callbacks, on_response : Array(Callback), on_request : Array(Callback)
-  record CallbackEvent(E) < Callback, event : E, only_actions : Array(String), exclude_actions : Array(String)
+  # :nodoc:
+  private record RouteAction(A) < Action, action : A, path : String, callbacks : Callbacks, method : String, groups : Array(String), requirements = {} of String => Regex
 
+  # :nodoc:
+  private record Callbacks, on_response : Array(CallbackBase), on_request : Array(CallbackBase)
+
+  # :nodoc:
+  private record CallbackEvent(E) < CallbackBase, event : E, only_actions : Array(String), exclude_actions : Array(String)
+
+  # Starts the HTTP server with the given *port*, *binding*, *ssl*, and *handlers*.
   def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [Athena::RouteHandler.new])
     server : HTTP::Server = HTTP::Server.new handlers
     puts "Athena is leading the way on #{binding}:#{port}"

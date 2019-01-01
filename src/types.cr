@@ -1,3 +1,4 @@
+# Converters for converting a `String` param into `T`.
 module Athena::Types
   extend self
 

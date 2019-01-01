@@ -1,15 +1,15 @@
 class CallbackController < Athena::ClassController
-  @[Athena::Trigger(event: Listener::ON_RESPONSE)]
+  @[Athena::Callback(event: CallbackEvents::ON_RESPONSE)]
   def self.after_all(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-RESPONSE-ALL-ROUTES", "true"
   end
 
-  @[Athena::Trigger(event: Listener::ON_RESPONSE, only_actions: ["users"])]
+  @[Athena::Callback(event: CallbackEvents::ON_RESPONSE, only: ["users"])]
   def self.after_users(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-RESPONSE-USER-ROUTE", "true"
   end
 
-  @[Athena::Trigger(event: Listener::ON_REQUEST, exclude_actions: ["posts"])]
+  @[Athena::Callback(event: CallbackEvents::ON_REQUEST, exclude: ["posts"])]
   def self.before_except_posts(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-REQUEST-NOT-POSTS-ROUTE", "true"
   end

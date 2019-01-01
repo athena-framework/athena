@@ -9,7 +9,7 @@ class StringController < Athena::ClassController
   end
 
   @[Athena::Post(path: "string")]
-  def self.stringPost(val : String) : String
+  def self.string_post(val : String) : String
     it "should run correctly" do
       val.should be_a String
       val.should eq "sdfsd"
