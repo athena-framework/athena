@@ -53,15 +53,15 @@ describe Athena::Post do
       context "invalid param" do
         it "should return the invalid param json object" do
           response = CLIENT.post("/users", body: %({"age": "foo"}), headers: HTTP::Headers{"content-type" => "application/json"})
-          response.body.should eq %({"code": 400, "message": "Expected age to be int but got string"})
+          response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got string"})
           response.status_code.should eq 400
 
           response = CLIENT.post("/users", body: %({"age": true}), headers: HTTP::Headers{"content-type" => "application/json"})
-          response.body.should eq %({"code": 400, "message": "Expected age to be int but got bool"})
+          response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got bool"})
           response.status_code.should eq 400
 
           response = CLIENT.post("/users", body: %({"age": null}), headers: HTTP::Headers{"content-type" => "application/json"})
-          response.body.should eq %({"code": 400, "message": "Expected age to be int but got null"})
+          response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got null"})
           response.status_code.should eq 400
         end
       end
