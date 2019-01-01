@@ -12,7 +12,7 @@ Routes are defined by adding a `@[Athena::{{HTTP_METHOD}}(path: "/")]` annotatio
 
 **NOTE**: The controller/action names do not currently matter.
 
-```Crysta
+```Crystal
 class TestController < Athena::ClassController
   # A GET endpoint with no params returning a string.
   @[Athena::Get(path: "/me")]
@@ -105,7 +105,7 @@ Each event provides the request context in order to have access to the request a
 
 `Callback` annotations added on a class level controller method are scoped to the routes in that particular controller.  This could be useful for adding headers common to one grouping of routes.
 
-```Crysta
+```Crystal
 class MyController < Athena::ClassController
   @[Athena::Callback(event: CallbackEvents::ON_RESPONSE)]
   def self.my_callback(context : HTTP::Server::Context) : Nil
