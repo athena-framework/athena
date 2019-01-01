@@ -44,7 +44,7 @@ module Athena
 
         # Define routes
         {% path = "/" + method + (route_def[:path].starts_with?('/') ? route_def[:path] : "/" + route_def[:path]) %}
-        {% placeholder_count = path.chars.select { |chr| chr == ':' }.size %}
+        {% placeholder_count = path.chars.select { |chr| chr == ':' }.size %} # ameba:disable Performance/SizeAfterFilter
         {% raise "Expected #{c.name}.#{m.name} to have #{placeholder_count} method parameters, got #{m.args.size}.  Route's param count must match action's param count." if placeholder_count != (method == "GET" ? m.args.size : (m.args.size == 0 ? 0 : m.args.size - 1)) %}
         {% arg_types = m.args.map(&.restriction) %}
         {% arg_names = m.args.map(&.name) %}
