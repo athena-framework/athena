@@ -50,6 +50,7 @@ describe Athena::Get do
         headers.includes_word?("X-RESPONSE-ALL-ROUTES", "true").should be_true
         headers.includes_word?("X-RESPONSE-USER-ROUTE", "true").should be_true
         headers.includes_word?("X-REQUEST-NOT-POSTS-ROUTE", "true").should be_true
+        headers.includes_word?("X-RESPONSE-GLOBAL", "true").should be_true
       end
     end
 
@@ -59,6 +60,7 @@ describe Athena::Get do
         headers.includes_word?("X-RESPONSE-ALL-ROUTES", "true").should be_true
         headers.includes_word?("X-RESPONSE-USER-ROUTE", "true").should be_false
         headers.includes_word?("X-REQUEST-NOT-POSTS-ROUTE", "true").should be_true
+        headers.includes_word?("X-RESPONSE-GLOBAL", "true").should be_true
       end
     end
 
@@ -68,15 +70,22 @@ describe Athena::Get do
         headers.includes_word?("X-RESPONSE-ALL-ROUTES", "true").should be_true
         headers.includes_word?("X-RESPONSE-USER-ROUTE", "true").should be_false
         headers.includes_word?("X-REQUEST-NOT-POSTS-ROUTE", "true").should be_false
+        headers.includes_word?("X-RESPONSE-GLOBAL", "true").should be_false
       end
     end
 
     describe "in another controller" do
-      it "should not set the headers" do
-        headers = CLIENT.get("/callback/other").headers
+      headers = CLIENT.get("/callback/other").headers
+
+      it "should not set the `CallbackController`'s' headers" do
         headers.includes_word?("X-RESPONSE-ALL-ROUTES", "true").should be_false
         headers.includes_word?("X-RESPONSE-USER-ROUTE", "true").should be_false
         headers.includes_word?("X-REQUEST-NOT-POSTS-ROUTE", "true").should be_false
+        headers.includes_word?("X-RESPONSE-GLOBAL", "true").should be_true
+      end
+
+      it "should set the global callback header" do
+        headers.includes_word?("X-RESPONSE-GLOBAL", "true").should be_true
       end
     end
   end

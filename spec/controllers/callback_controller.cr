@@ -1,3 +1,17 @@
+class Athena::ClassController
+  @[Athena::Callback(event: CallbackEvents::ON_RESPONSE, exclude: ["posts"])]
+  def self.global_callback(context : HTTP::Server::Context) : Nil
+    context.response.headers.add "X-RESPONSE-GLOBAL", "true"
+  end
+end
+
+struct Athena::StructController
+  @[Athena::Callback(event: CallbackEvents::ON_RESPONSE, exclude: ["posts"])]
+  def self.global_callback(context : HTTP::Server::Context) : Nil
+    context.response.headers.add "X-RESPONSE-GLOBAL", "true"
+  end
+end
+
 class CallbackController < Athena::ClassController
   @[Athena::Callback(event: CallbackEvents::ON_RESPONSE)]
   def self.after_all(context : HTTP::Server::Context) : Nil

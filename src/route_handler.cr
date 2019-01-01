@@ -90,8 +90,10 @@ module Athena
 
       params = route.params.values.reverse
 
-      if context.request.body && context.request.headers["Content-Type"]?.try(&.starts_with?("application/json"))
-        params << context.request.body.not_nil!.gets_to_end
+      if context.request.body
+        if content_type = context.request.headers["Content-Type"]? || "text/plain"
+          params << context.request.body.not_nil!.gets_to_end if content_type.downcase == "application/json" || content_type.downcase == "text/plain"
+        end
       end
 
       unless params.empty?
@@ -136,7 +138,7 @@ module Athena
     rescue json_parse_exception : JSON::ParseException
       if msg = json_parse_exception.message
         if parts = msg.match(/Expected (\w+) but was (\w+) .*[\r\n]*.+#(\w+)/)
-          halt context, 400, %({"code": 400, "message": "Expected #{parts[3]} to be #{parts[1]} but got #{parts[2]}"})
+          halt context, 400, %({"code": 400, "message": "Expected '#{parts[3]}' to be #{parts[1]} but got #{parts[2]}"})
         end
       end
     end

@@ -47,6 +47,6 @@ module Athena::Types
   end
 
   def convert_type(val : String, t : String.class) : String
-    val
+    val.gsub('"', "")
   end
 end
