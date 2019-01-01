@@ -6,6 +6,9 @@ class User
   @[Assert::GreaterThan(value: 0)]
   property age : Int32
 
+  @[CrSerializer::Options(groups: ["admin"])]
+  property password : String = "monkey"
+
   # Mock out find method to emulate ORM method
   def self.find(val) : User?
     if val == 17
@@ -40,6 +43,33 @@ class UserController < Athena::ClassController
       user.should be_a User
       user.id.should eq 17
       user.age.should eq 123
+      user.age.should eq "monkey"
+    end
+    user
+  end
+
+  @[Athena::Get(path: "admin/users/:id")]
+  @[Athena::View(groups: ["admin"])]
+  @[Athena::ParamConverter(param: "user", type: User, converter: Exists)]
+  def self.getUserAdmin(user : User) : User
+    it "should run correctly" do
+      user.should be_a User
+      user.id.should eq 17
+      user.age.should eq 123
+      user.age.should eq "monkey"
+    end
+    user
+  end
+
+  @[Athena::Get(path: "admin/users/:id/all")]
+  @[Athena::View(groups: ["admin", "default"])]
+  @[Athena::ParamConverter(param: "user", type: User, converter: Exists)]
+  def self.getUserAdminAll(user : User) : User
+    it "should run correctly" do
+      user.should be_a User
+      user.id.should eq 17
+      user.age.should eq 123
+      user.age.should eq "monkey"
     end
     user
   end

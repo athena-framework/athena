@@ -28,6 +28,7 @@ module Athena
   annotation Put; end
   annotation ParamConverter; end
   annotation Trigger; end
+  annotation View; end
 
   class NotFoundException < Exception
     def to_json : String
@@ -54,7 +55,7 @@ module Athena
 
   abstract struct Callback; end
 
-  record RouteAction(A) < Action, action : A, path : String, callbacks : Callbacks, method : String, requirements = {} of String => Regex
+  record RouteAction(A) < Action, action : A, path : String, callbacks : Callbacks, method : String, groups : Array(String), requirements = {} of String => Regex
   record Callbacks, on_response : Array(Callback), on_request : Array(Callback)
   record CallbackEvent(E) < Callback, event : E, only_actions : Array(String), exclude_actions : Array(String)
 
