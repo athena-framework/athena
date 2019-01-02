@@ -148,12 +148,12 @@ module Athena
 
     unless server.each_address { |_| break true }
       {% if flag?(:without_openssl) %}
-        server.bind_tcp(binding, port)
+        server.bind_tcp(binding, port, reuse_port: true)
       {% else %}
         if ssl
           server.bind_tls(binding, port, ssl)
         else
-          server.bind_tcp(binding, port)
+          server.bind_tcp(binding, port, reuse_port: true)
         end
       {% end %}
     end
