@@ -96,22 +96,22 @@ module Athena
         end
       end
 
-      action.callbacks.on_request.each do |ce|
-        if (ce.as(CallbackEvent).only_actions.empty? || ce.as(CallbackEvent).only_actions.includes?(action.method)) && (ce.as(CallbackEvent).exclude_actions.empty? || !ce.as(CallbackEvent).exclude_actions.includes?(action.method))
+      action.as(RouteAction).callbacks.on_request.each do |ce|
+        if (ce.as(CallbackEvent).only_actions.empty? || ce.as(CallbackEvent).only_actions.includes?(action.as(RouteAction).method)) && (ce.as(CallbackEvent).exclude_actions.empty? || !ce.as(CallbackEvent).exclude_actions.includes?(action.method))
           ce.as(CallbackEvent).event.call(context)
         end
       end
 
-      response = action.action.call params, context
+      response = action.as(RouteAction).action.call params, context
 
       if response.is_a?(String)
         context.response.print response
       else
-        context.response.print response.responds_to?(:serialize) ? response.serialize(action.groups) : response.to_json
+        context.response.print response.responds_to?(:serialize) ? response.serialize(action.as(RouteAction).groups) : response.to_json
       end
 
-      action.callbacks.on_response.each do |ce|
-        if (ce.as(CallbackEvent).only_actions.empty? || ce.as(CallbackEvent).only_actions.includes?(action.method)) && (ce.as(CallbackEvent).exclude_actions.empty? || !ce.as(CallbackEvent).exclude_actions.includes?(action.method))
+      action.as(RouteAction).callbacks.on_response.each do |ce|
+        if (ce.as(CallbackEvent).only_actions.empty? || ce.as(CallbackEvent).only_actions.includes?(action.as(RouteAction).method)) && (ce.as(CallbackEvent).exclude_actions.empty? || !ce.as(CallbackEvent).exclude_actions.includes?(action.method))
           ce.as(CallbackEvent).event.call(context)
         end
       end
