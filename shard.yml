@@ -17,11 +17,11 @@ dependencies:
     github: blacksmoke16/CrSerializer
     version: ~> 0.5.0
   amber_router:
-    github: amberframework/amber-router
-    branch: master
+    github: blacksmoke16/amber-router
+    branch: route-requirements
 
 development_dependencies:
   ameba:
     github: veelenga/ameba
-    version: 0.8.1
+    version: ~> 0.8.1
     

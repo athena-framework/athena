@@ -133,7 +133,7 @@ module Athena
   private abstract struct CallbackBase; end
 
   # :nodoc:
-  private record RouteAction(A) < Action, action : A, path : String, callbacks : Callbacks, method : String, groups : Array(String), requirements = {} of String => Regex
+  private record RouteAction(A) < Action, action : A, path : String, callbacks : Callbacks, method : String, groups : Array(String)
 
   # :nodoc:
   private record Callbacks, on_response : Array(CallbackBase), on_request : Array(CallbackBase)

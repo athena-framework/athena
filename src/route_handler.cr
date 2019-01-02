@@ -72,7 +72,7 @@ module Athena
               ->{ {{c.name.id}}.{{m.name.id}} }.call
             {% end %}
           end
-          @routes.add {{path}}, RouteAction(Proc(Array(String), HTTP::Server::Context, {{m.return_type}})).new(%proc, {{path}}, Callbacks.new(_on_response, _on_request), {{m.name.stringify}}, {{groups}}{% if requirements %}, {{requirements}} {% end %})
+          @routes.add {{path}}, RouteAction(Proc(Array(String), HTTP::Server::Context, {{m.return_type}})).new(%proc, {{path}}, Callbacks.new(_on_response, _on_request), {{m.name.stringify}}, {{groups}}){% if requirements %}, {{requirements}} {% end %}
       {% end %}
     {% end %}
     end
@@ -93,20 +93,6 @@ module Athena
       if context.request.body
         if content_type = context.request.headers["Content-Type"]? || "text/plain"
           params << context.request.body.not_nil!.gets_to_end if content_type.downcase == "application/json" || content_type.downcase == "text/plain"
-        end
-      end
-
-      unless params.empty?
-        placeholders = action.path.split('/').select { |str| str.starts_with? ':' }
-
-        placeholders.each_with_index do |p, idx|
-          regex : Regex? = action.requirements[p.lchop(':')]?
-          next if regex.nil?
-          unless params[idx] =~ regex
-            halt context, 404, %({"code": 404, "message": "No route found for '#{context.request.method} #{context.request.path}'"})
-            call_next context
-            return
-          end
         end
       end
 
