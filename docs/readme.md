@@ -1,6 +1,6 @@
 # Documentation
 
-Athena's main focus is for JSON APIs.  Athena is unique in a two key areas:
+Athena is unique in two key areas:
 
 * Route Definition - Defined by adding specific annotations to methods, which acts as the action to the route.  
   * This can allow for added type/compile time safety, and ability to document the API's endpoints; just like a normal method.
@@ -13,6 +13,8 @@ Routes are defined by adding a `@[Athena::{{HTTP_METHOD}}(path: "/")]` annotatio
 **NOTE**: The controller/action names do not currently matter.
 
 ```Crystal
+require "athena"
+
 class TestController < Athena::ClassController
   # A GET endpoint with no params returning a string.
   @[Athena::Get(path: "/me")]
@@ -25,12 +27,30 @@ class TestController < Athena::ClassController
   def self.add(val1 : Int32, val2 : Int32) : Int32
     val1 + val2
   end
+  
+  # A GET endpoint with a param constraints.
+  # The param must match the supplied regex or
+  # it will not match and return a 404 error.
+  @[Athena::Get(path: "/time/:time/", constraints: /\d{2}:\d{2}:\d{2}/)]
+  def self.add(time : String) : String
+    time
+  end
     
   # A POST endpoint with a route param and a body param returning a Bool.
+  #
   # NOTE: The post body param is always the last defined action argument.
-  # NOTE: Query params/form data are not supported at this moment.
   @[Athena::Post(path: "/test/:expected")]
   def self.add(expected : String, actual : String) : Bool
+    expected == actual
+  end
+  
+  # A POST endpoint with form data param.
+  # Form data is returned in the form of an `HTTP::Params` object
+  # as a way to have a singular container for the data.
+  #
+  # NOTE: The post body param is always the last defined action argument.
+  @[Athena::Post(path: "/test/")]
+  def self.add(data : HTTP::Params) : Bool
     expected == actual
   end
 end
@@ -38,6 +58,8 @@ end
 CLIENT = HTTP::Client.new "localhost", 8888
 CLIENT.get "/me" # => Jim
 CLIENT.get "/add/50/25" # => 75
+CLIENT.get "/time/12:45:30" # => "12:45:30"
+CLIENT.get "/time/12:aa:30" # => 404 not found
 
 # If no `Content-Type` header is provided, the type of
 # the body is assumed to be `text/plain`.
@@ -62,6 +84,8 @@ If a request is made to a route that has not been declared, a 404 error is retur
 A default value can be assigned to an action param.  If that route param is declared as optional, that value will be used if the optional param is not given.  
 
 ```Crystal
+require "athena"
+
 class MyController < Athena::ClassController 
   @[Athena::Get(path: "/posts/(:page)")]
   def self.default_value(page : Int32 = 99) : Int32
@@ -74,19 +98,90 @@ CLIENT.get "/posts" # => 99
 CLIENT.get "/posts/12" # => 12
 ```
 
-**NOTE:** This suffers from the same limitation as a Radix tree in that two routes cannot share the same route, where one route has an optional param at the same place another has a required param.
+**NOTE:** This suffers from the same limitation as a Radix tree in that two routes cannot share the same route, where one route has an optional param at the same place another has a required param.  However it would be considered a bad practice if two routes matched two different actions, especially with route constraints.
 
 ### Route View
 
-The `View` annotation controls how the return value of an endpoint is displayed.  The `groups` field is used to specify which serialization groups this route should use.  See [CrSerializer Serialization Groups](https://github.com/Blacksmoke16/CrSerializer/blob/master/docs/serialization.md#serialization-groups) for more information.
+The `View` annotation controls how the return value of an endpoint is displayed. 
+
+#### Groups
+
+The `groups` field is used to specify which serialization groups this route should use.  See [CrSerializer Serialization Groups](https://github.com/Blacksmoke16/CrSerializer/blob/master/docs/serialization.md#serialization-groups) for more information.
 
 ```Crystal
-  @[Athena::Get(path: "admin/users/:id")]
-  @[Athena::View(groups: ["admin"])]
+require "athena"
+
+@[Athena::Get(path: "admin/users/:id")]
+@[Athena::View(groups: ["admin"])]
+@[Athena::ParamConverter(param: "user", type: User, converter: Exists)]
+def self.get_user_admin(user : User) : User
+  user
+end
+```
+
+#### Renderer
+
+A renderer controls how the object/value is serialized.  By default the object/value is serialized as JSON.  Athena also has built in support for `YAML` and `ECR`.  
+
+##### YAML
+
+The `YAMLRenderer` requires that the object has a `to_yaml` method, either from `YAML::Serializable` or a custom implementation.  
+
+```Crystal
+require "athena"
+
+class UserController < Athena::ClassController
+  # Assuming the found user's age is 17, name Bob, and password is abc123
+  @[Athena::Get(path: "users/yaml/:id")]
   @[Athena::ParamConverter(param: "user", type: User, converter: Exists)]
-  def self.get_user_admin(user : User) : User
+  @[Athena::View(renderer: YAMLRenderer)]
+  def self.get_user_yaml(user : User) : User
     user
   end
+end  
+GET /users/yaml/1 # => ---\age: 17\nname: Bob\npassword: abc123\n
+```
+
+##### ECR
+
+The `ECRRenderer` requires that the returned object implements a `to_s` method using `ECR.def_to_s`.  This allows for a simple way to render model specific pages.
+
+```Crystal
+require "athena"
+
+class UserController < Athena::ClassController
+  # Assuming the found user's age is 17, and name Bob.
+  # Requires the return object implements `to_s` method using `ECR.def_to_s "user.ecr"`
+  @[Athena::Get(path: "users/ecr/:id")]
+  @[Athena::ParamConverter(param: "user", type: User, converter: Exists)]
+  @[Athena::View(renderer: ECRRenderer)]
+  def self.get_user_ecr(user : User) : User
+    user
+  end
+end  
+
+user.ecr
+User <%= @name %> is <%= @age %> years old.
+
+GET /users/ecr/1 # => User Bob is 17 years old.
+```
+
+
+#### String Return Type
+
+Actions that return a string are dumped straight into the response body, without going through any processing by any renderer.  This allows for a route to render a ECR file.  However, all required values for the ECR file must be supplied within the route's action.
+
+```Crystal
+require "athena"
+
+class Test < Athena::ClassController
+  # This return `Hello foo!` when that route is requested.
+  @[Athena::Get(path: "/foo")]
+  def self.foo : String
+    name = "foo"
+    ECR.render "./src/greeting.ecr"
+  end
+end
 ```
 
 
@@ -95,9 +190,9 @@ The `View` annotation controls how the return value of an endpoint is displayed.
 
 Two life-cycle events can be tapped:
 
-* `ON_REQUEST` - Executes before the route's action has executed.
+* `OnRequest` - Executes before the route's action has executed.
 
-* `ON_RESPONSE` - Executes after the route's action has executed.
+* `OnResponse` - Executes after the route's action has executed.
 
 Each event provides the request context in order to have access to the request and response data.
 
@@ -106,8 +201,10 @@ Each event provides the request context in order to have access to the request a
 `Callback` annotations added on a class level controller method are scoped to the routes in that particular controller.  This could be useful for adding headers common to one grouping of routes.
 
 ```Crystal
+require "athena"
+
 class MyController < Athena::ClassController
-  @[Athena::Callback(event: CallbackEvents::ON_RESPONSE)]
+  @[Athena::Callback(event: CallbackEvents::OnResponse)]
   def self.my_callback(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-MyController-Header", "true"
   end
@@ -119,11 +216,11 @@ end
 A callback can be set to only run on specific actions, or to exclude specific actions.  This can be achieved by add an `only`, or `excluded` field to the `Callback` annotation.  The value to these fields is a `Array(String)` where each string is the name of an action.
 
 ```Crystal
-@[Athena::Callback(event: CallbackEvents::ON_RESPONSE, only: ["get_all_users"])]
+@[Athena::Callback(event: CallbackEvents::OnResponse, only: ["get_all_users"])]
 ```
 
 ```Crystal
-@[Athena::Callback(event: CallbackEvents::ON_RESPONSE, exclude: ["my_route"])]
+@[Athena::Callback(event: CallbackEvents::OnResponse, exclude: ["my_route"])]
 ```
 
 The first callback would only run for the route who's action has the name `get_all_users`.  The second callback would run for all routes in that controller, except the route who's action has the name `my_route`.  
@@ -137,8 +234,10 @@ This is most useful for adding `Content-Type` response headers, or CORs.
 Global callbacks can also be filtered if you wanted to exclude a specific route.
 
 ```Crystal
+require "athena"
+
 class Athena::ClassController
-  @[Athena::Callback(event: CallbackEvents::ON_RESPONSE)]
+  @[Athena::Callback(event: CallbackEvents::OnResponse)]
   def self.global_callback(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-RESPONSE-GLOBAL", "true"
   end
@@ -155,9 +254,11 @@ All basic types, such as `Int`, `Float`, `String`, `Bool`, are natively converte
 
 The `Exists` converter takes a route param and attempts to resolve an object of `T` with that ID.  If no object is found a 404 JSON error is thrown/returned.
 
-This converter assumes that there is a *find* method on `T` that either returns the corresponding object, or nil.  This can either be from an ORM library, or defined manually on the class.
+This converter requires that there is a `self.find(val : String) : self` method on `T` that either returns the corresponding object, or nil.  This can either be from an ORM library, or defined manually on the class.
 
 ```Crystal
+require "athena"
+
 class UserController < Athena::ClassController
   @[Athena::Get(path: "users/:id")]
   @[Athena::ParamConverter(param: "user", type: User, converter: Exists)]
@@ -184,7 +285,11 @@ If the *find* method returns nil, indicating a record was not found, a 404 error
 
 The `RequestBody` converter will attempt to deserialize the JSON body of a request, into an object of `T`.
 
+This converter requires that there is a `self.deserialize(body : String) : self` method on `T` that will return an instance of `T` from the string body of the request.  This, by default, is from `CrSerializer` but could also be something manually defined on the class.
+
 ```Crystal
+require "athena"
+
 class UserController < Athena::ClassController
   @[Athena::Post(path: "users/")]
   @[Athena::ParamConverter(param: "user", type: User, converter: RequestBody)]
@@ -221,8 +326,39 @@ Upon deserialization, objects are validated against [CrSerializer's Validations]
   ]
 }
 ```
+### FormData
 
+The `FormData` converter will attempt to deserialize the request's form data, into an object of `T`.
 
+This converter requires that there is a `self.from_form_data(body : String) : self` method on `T` that will return an instance of `T` from the string body of the request.  This, by default, is from `CrSerializer` but could also be something manually defined on the class.
+
+```Crystal
+require "athena"
+
+class User
+  ...
+  
+  def self.from_form_data(form_data : HTTP::Params) : self
+    obj = new
+    obj.age = form_data["age"].to_i
+    obj.name = form_data["name"]
+    obj
+  end
+end
+
+class UserController < Athena::ClassController
+  # Form data: age=19&name=Jim
+  @[Athena::Post(path: "users/")]
+  @[Athena::ParamConverter(param: "user", type: User, converter: FormData)]
+  def self.new_user(user : User) : User
+    user.name # => "Jim"
+    user.age # => 19
+    user
+  end
+end
+```
+
+While this is not as clean as using JSON, it provides a decent way to handle form data for legacy or other reasons.
 
 ### Custom Converter
 

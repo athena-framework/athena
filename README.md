@@ -1,7 +1,7 @@
 # Athena
 [![Build Status](https://travis-ci.org/Blacksmoke16/athena.svg?branch=master)](https://travis-ci.org/Blacksmoke16/athena)
 
-Annotation based JSON API web framework with built in param conversion inspired by [Symfony Routing](https://symfony.com/doc/current/routing.html).
+Annotation based JSON API web framework with built in param conversion inspired by [Symfony Routing](https://symfony.com/doc/current/routing.html).  Also supports form data and ECR rendering.
 
 ## Goals
 

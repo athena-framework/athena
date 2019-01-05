@@ -63,7 +63,7 @@ module Athena
   # ## Fields
   # * param : `String` - The param that should go through the conversion.
   # * type : `T` - The type the param should be converted to.
-  # * converter : `Athena::Converters` - What converter to use for the conversion.  Can be `Converters::RequestBody` or `Converters::Exists`, or a custom defined converter.
+  # * converter : `Athena::Converters` - What converter to use for the conversion.  Can be `Converters::RequestBody`, `Converters::Exists`, `Converters::FormData`, or a custom defined converter.
   #
   # ## Example
   # ```
@@ -79,7 +79,7 @@ module Athena
   #
   # ## Example
   # ```
-  # @[Athena::Callback(event: Athena::CallbackEvents::ON_RESPONSE, only: ["users"])]
+  # @[Athena::Callback(event: Athena::CallbackEvents::OnResponse, only: ["users"])]
   # ```
   annotation Callback; end
 
@@ -87,6 +87,7 @@ module Athena
   # ## Fields
   # * groups : `Array(String)` - The serialization groups to apply to this endpoint.
   # See the [CrSerializer Docs](https://github.com/Blacksmoke16/CrSerializer/blob/master/docs/serialization.md) for more info.
+  # * renderer : `Athena::Renderers` - What renderer to use for the return value/object.  Default is `Athena::Renderers::JSONRenderer`
   #
   # ## Example
   # ```
