@@ -14,10 +14,26 @@ describe Athena::Get do
   end
 
   describe "with a route that doesnt exist" do
-    it "works" do
+    it "returns correct error" do
       response = CLIENT.get("/dsfdsf")
       response.body.should eq %({"code": 404, "message": "No route found for 'GET /dsfdsf'"})
       response.status_code.should eq 404
+    end
+  end
+
+  describe "route constraints" do
+    context "that is valid" do
+      it "works" do
+        CLIENT.get("/get/constraints/4:5:6").body.should eq "4:5:6"
+      end
+    end
+
+    context "that is invalid" do
+      it "returns correct error" do
+        response = CLIENT.get("/get/constraints/4:a:6")
+        response.body.should eq %({"code": 404, "message": "No route found for 'GET /get/constraints/4:a:6'"})
+        response.status_code.should eq 404
+      end
     end
   end
 
@@ -39,6 +55,20 @@ describe Athena::Get do
         response = CLIENT.get("/users/34")
         response.body.should eq %({"code":404,"message":"An item with the provided ID could not be found."})
         response.status_code.should eq 404
+      end
+    end
+  end
+
+  describe "renderers" do
+    describe "yaml" do
+      it "should render correctly" do
+        CLIENT.get("/users/yaml/17").body.should eq %(---\nid: 17\nage: 123\npassword: monkey\n)
+      end
+    end
+
+    describe "ecr" do
+      it "should render correctly" do
+        CLIENT.get("/users/ecr/17").body.should eq %(User 17 is 123 years old.)
       end
     end
   end

@@ -14,10 +14,24 @@ describe Athena::Post do
   end
 
   describe "with a route that doesnt exist" do
-    it "works" do
+    it "returns correct error" do
       response = CLIENT.post("/dsfdsf")
       response.body.should eq %({"code": 404, "message": "No route found for 'POST /dsfdsf'"})
       response.status_code.should eq 404
+    end
+  end
+
+  describe "invalid Content-Type" do
+    context "not supported" do
+      it "returns correct error" do
+        CLIENT.post("/posts/99", body: "100", headers: HTTP::Headers{"content-type" => "application/foo"}).body.should eq %({"code": 415, "message": "Invalid Content-Type: 'application/foo'"})
+      end
+    end
+
+    context "missing" do
+      it "should default to text/plain" do
+        CLIENT.post("/posts/99", body: "100").body.should eq "199"
+      end
     end
   end
 
@@ -38,7 +52,7 @@ describe Athena::Post do
 
       context "valid existing model" do
         it "should parse an obj from request body" do
-          CLIENT.put("/users", body: %({"id":17,"age":45}), headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq %({"id":17,"age":45})
+          CLIENT.put("/users", body: %({"id":17,"age":99}), headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq %({"id":17,"age":99})
         end
       end
 
@@ -63,6 +77,14 @@ describe Athena::Post do
           response = CLIENT.post("/users", body: %({"age": null}), headers: HTTP::Headers{"content-type" => "application/json"})
           response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got null"})
           response.status_code.should eq 400
+        end
+      end
+    end
+
+    describe "FormData" do
+      context "valid new model" do
+        it "should parse an obj from request body" do
+          CLIENT.post("/users/form", body: %(age=1&id=99), headers: HTTP::Headers{"content-type" => "application/x-www-form-urlencoded"}).body.should eq %({"id":99,"age":1})
         end
       end
     end

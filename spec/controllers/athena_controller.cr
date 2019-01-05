@@ -43,6 +43,11 @@ class AthenaController < Athena::ClassController
     val1 + val2
   end
 
+  @[Athena::Get(path: "get/constraints/:time", constraints: {"time" => /\d:\d:\d/})]
+  def self.route_constraints(time : String) : String
+    time
+  end
+
   @[Athena::Post(path: "noParamsPost")]
   def self.no_params_post : String
     "foobar"

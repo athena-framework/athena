@@ -7,4 +7,4 @@ CLIENT = HTTP::Client.new "localhost", 8888
 
 spawn Athena.run
 
-sleep 3
+sleep 1.5

@@ -1,29 +1,29 @@
 class Athena::ClassController
-  @[Athena::Callback(event: CallbackEvents::ON_RESPONSE, exclude: ["posts"])]
+  @[Athena::Callback(event: CallbackEvents::OnResponse, exclude: ["posts"])]
   def self.global_callback(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-RESPONSE-GLOBAL", "true"
   end
 end
 
 struct Athena::StructController
-  @[Athena::Callback(event: CallbackEvents::ON_RESPONSE, exclude: ["posts"])]
+  @[Athena::Callback(event: CallbackEvents::OnResponse, exclude: ["posts"])]
   def self.global_callback(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-RESPONSE-GLOBAL", "true"
   end
 end
 
 class CallbackController < Athena::ClassController
-  @[Athena::Callback(event: CallbackEvents::ON_RESPONSE)]
+  @[Athena::Callback(event: CallbackEvents::OnResponse)]
   def self.after_all(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-RESPONSE-ALL-ROUTES", "true"
   end
 
-  @[Athena::Callback(event: CallbackEvents::ON_RESPONSE, only: ["users"])]
+  @[Athena::Callback(event: CallbackEvents::OnResponse, only: ["users"])]
   def self.after_users(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-RESPONSE-USER-ROUTE", "true"
   end
 
-  @[Athena::Callback(event: CallbackEvents::ON_REQUEST, exclude: ["posts"])]
+  @[Athena::Callback(event: CallbackEvents::OnRequest, exclude: ["posts"])]
   def self.before_except_posts(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-REQUEST-NOT-POSTS-ROUTE", "true"
   end

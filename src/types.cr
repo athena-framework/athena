@@ -49,4 +49,8 @@ module Athena::Types
   def convert_type(val : String, t : String.class) : String
     val.gsub('"', "")
   end
+
+  def convert_type(val : String, t : HTTP::Params.class) : HTTP::Params.class
+    HTTP::Params.new val
+  end
 end

@@ -7,6 +7,7 @@ require "./route_handler"
 require "./converters"
 require "./types"
 require "./macros"
+require "./renderers"
 
 module Athena
   # :nodoc:
@@ -114,10 +115,10 @@ module Athena
   # Events available during the request's life-cycle.
   enum CallbackEvents
     # Executes before the route's action has been executed.
-    ON_REQUEST
+    OnRequest
 
     # Executes after the route's action has been executed.
-    ON_RESPONSE
+    OnResponse
   end
 
   # Parent class for all `Class` based controllers.
@@ -133,7 +134,7 @@ module Athena
   private abstract struct CallbackBase; end
 
   # :nodoc:
-  private record RouteAction(A) < Action, action : A, path : String, callbacks : Callbacks, method : String, groups : Array(String)
+  private record RouteAction(A, R) < Action, action : A, path : String, callbacks : Callbacks, method : String, groups : Array(String), renderer : R.class = R
 
   # :nodoc:
   private record Callbacks, on_response : Array(CallbackBase), on_request : Array(CallbackBase)
@@ -148,12 +149,12 @@ module Athena
 
     unless server.each_address { |_| break true }
       {% if flag?(:without_openssl) %}
-        server.bind_tcp(binding, port, reuse_port: true)
+        server.bind_tcp(binding, port)
       {% else %}
         if ssl
           server.bind_tls(binding, port, ssl)
         else
-          server.bind_tcp(binding, port, reuse_port: true)
+          server.bind_tcp(binding, port)
         end
       {% end %}
     end
