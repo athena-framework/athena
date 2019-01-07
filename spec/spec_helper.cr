@@ -6,3 +6,5 @@ require "./controllers/*"
 CLIENT = HTTP::Client.new "localhost", 8888
 
 spawn Athena.run
+
+sleep 1.5

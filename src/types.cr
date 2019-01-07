@@ -1,3 +1,4 @@
+# Converters for converting a `String` param into `T`.
 module Athena::Types
   extend self
 
@@ -46,6 +47,10 @@ module Athena::Types
   end
 
   def convert_type(val : String, t : String.class) : String
-    val
+    val.gsub('"', "")
+  end
+
+  def convert_type(val : String, t : HTTP::Params.class) : HTTP::Params.class
+    HTTP::Params.new val
   end
 end

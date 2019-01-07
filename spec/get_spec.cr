@@ -13,6 +13,133 @@ describe Athena::Get do
     end
   end
 
+  describe "with a route that doesnt exist" do
+    it "returns correct error" do
+      response = CLIENT.get("/dsfdsf")
+      response.body.should eq %({"code": 404, "message": "No route found for 'GET /dsfdsf'"})
+      response.status_code.should eq 404
+    end
+  end
+
+  describe "route constraints" do
+    context "that is valid" do
+      it "works" do
+        CLIENT.get("/get/constraints/4:5:6").body.should eq "4:5:6"
+      end
+    end
+
+    context "that is invalid" do
+      it "returns correct error" do
+        response = CLIENT.get("/get/constraints/4:a:6")
+        response.body.should eq %({"code": 404, "message": "No route found for 'GET /get/constraints/4:a:6'"})
+        response.status_code.should eq 404
+      end
+    end
+  end
+
+  describe "with a route that has a default value" do
+    it "works" do
+      CLIENT.get("/posts/123").body.should eq "123"
+      CLIENT.get("/posts/").body.should eq "99"
+      CLIENT.get("/posts/foo/bvar").body.should eq "foo"
+    end
+  end
+
+  describe "ParamConverter" do
+    describe "with an Exists param converter" do
+      it "resolves a record that exists" do
+        CLIENT.get("/users/17").body.should eq %({"id":17,"age":123})
+      end
+
+      it "returns correct error if the record does not exist" do
+        response = CLIENT.get("/users/34")
+        response.body.should eq %({"code":404,"message":"An item with the provided ID could not be found."})
+        response.status_code.should eq 404
+      end
+    end
+  end
+
+  describe "renderers" do
+    describe "yaml" do
+      it "should render correctly" do
+        CLIENT.get("/users/yaml/17").body.should eq %(---\nid: 17\nage: 123\npassword: monkey\n)
+      end
+    end
+
+    describe "ecr" do
+      it "should render correctly" do
+        CLIENT.get("/users/ecr/17").body.should eq %(User 17 is 123 years old.)
+      end
+    end
+  end
+
+  describe "callbacks" do
+    describe "user endpoint" do
+      it "should set the correct headers" do
+        headers = CLIENT.get("/callback/users").headers
+        headers.includes_word?("X-RESPONSE-ALL-ROUTES", "true").should be_true
+        headers.includes_word?("X-RESPONSE-USER-ROUTE", "true").should be_true
+        headers.includes_word?("X-REQUEST-NOT-POSTS-ROUTE", "true").should be_true
+        headers.includes_word?("X-RESPONSE-GLOBAL", "true").should be_true
+      end
+    end
+
+    describe "all endpoint" do
+      it "should set the correct headers" do
+        headers = CLIENT.get("/callback/all").headers
+        headers.includes_word?("X-RESPONSE-ALL-ROUTES", "true").should be_true
+        headers.includes_word?("X-RESPONSE-USER-ROUTE", "true").should be_false
+        headers.includes_word?("X-REQUEST-NOT-POSTS-ROUTE", "true").should be_true
+        headers.includes_word?("X-RESPONSE-GLOBAL", "true").should be_true
+      end
+    end
+
+    describe "posts endpoint" do
+      it "should set the correct headers" do
+        headers = CLIENT.get("/callback/posts").headers
+        headers.includes_word?("X-RESPONSE-ALL-ROUTES", "true").should be_true
+        headers.includes_word?("X-RESPONSE-USER-ROUTE", "true").should be_false
+        headers.includes_word?("X-REQUEST-NOT-POSTS-ROUTE", "true").should be_false
+        headers.includes_word?("X-RESPONSE-GLOBAL", "true").should be_false
+      end
+    end
+
+    describe "in another controller" do
+      headers = CLIENT.get("/callback/other").headers
+
+      it "should not set the `CallbackController`'s' headers" do
+        headers.includes_word?("X-RESPONSE-ALL-ROUTES", "true").should be_false
+        headers.includes_word?("X-RESPONSE-USER-ROUTE", "true").should be_false
+        headers.includes_word?("X-REQUEST-NOT-POSTS-ROUTE", "true").should be_false
+        headers.includes_word?("X-RESPONSE-GLOBAL", "true").should be_true
+      end
+
+      it "should set the global callback header" do
+        headers.includes_word?("X-RESPONSE-GLOBAL", "true").should be_true
+      end
+    end
+  end
+
+  describe "with a view" do
+    describe "default group" do
+      it "should serialize correctly" do
+        CLIENT.get("/users/17").body.should eq %({"id":17,"age":123})
+      end
+    end
+
+    describe "admin group" do
+      it "should serialize correctly" do
+        CLIENT.get("/admin/users/17").body.should eq %({"password":"monkey"})
+      end
+    end
+
+    describe "admin + default" do
+      it "should serialize correctly" do
+        CLIENT.get("/admin/users/17/all").body.should eq %({"id":17,"age":123,"password":"monkey"})
+      end
+    end
+  end
+
   describe "param conversion" do
     context "Int" do
       it "Int8" do

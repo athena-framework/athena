@@ -1,1 +1,18 @@
 language: crystal
+install:
+  - shards install
+
+script:
+  - bin/ameba
+  - crystal spec
+  - crystal docs
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  keep-history: false
+  local-dir: docs
+  on:
+    branch: master
+    condition: "$TRAVIS_EVENT_TYPE != cron"

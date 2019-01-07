@@ -13,6 +13,83 @@ describe Athena::Post do
     end
   end
 
+  describe "with a route that doesnt exist" do
+    it "returns correct error" do
+      response = CLIENT.post("/dsfdsf")
+      response.body.should eq %({"code": 404, "message": "No route found for 'POST /dsfdsf'"})
+      response.status_code.should eq 404
+    end
+  end
+
+  describe "invalid Content-Type" do
+    context "not supported" do
+      it "returns correct error" do
+        CLIENT.post("/posts/99", body: "100", headers: HTTP::Headers{"content-type" => "application/foo"}).body.should eq %({"code": 415, "message": "Invalid Content-Type: 'application/foo'"})
+      end
+    end
+
+    context "missing" do
+      it "should default to text/plain" do
+        CLIENT.post("/posts/99", body: "100").body.should eq "199"
+      end
+    end
+  end
+
+  describe "with a route that has a default value" do
+    it "works" do
+      CLIENT.post("/posts/99", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "100"
+      CLIENT.post("/posts/99", body: "100", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "199"
+    end
+  end
+
+  describe "ParamConverter" do
+    describe "RequestBody" do
+      context "valid new model" do
+        it "should parse an obj from request body" do
+          CLIENT.post("/users", body: %({"age":99}), headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq %({"id":12,"age":99})
+        end
+      end
+
+      context "valid existing model" do
+        it "should parse an obj from request body" do
+          CLIENT.put("/users", body: %({"id":17,"age":99}), headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq %({"id":17,"age":99})
+        end
+      end
+
+      context "invalid model" do
+        it "should return the validation test failed json object" do
+          response = CLIENT.post("/users", body: %({"age":-12}), headers: HTTP::Headers{"content-type" => "application/json"})
+          response.body.should eq %({"code":400,"message":"Validation tests failed","errors":["'age' should be greater than 0"]})
+          response.status_code.should eq 400
+        end
+      end
+
+      context "invalid param" do
+        it "should return the invalid param json object" do
+          response = CLIENT.post("/users", body: %({"age": "foo"}), headers: HTTP::Headers{"content-type" => "application/json"})
+          response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got string"})
+          response.status_code.should eq 400
+
+          response = CLIENT.post("/users", body: %({"age": true}), headers: HTTP::Headers{"content-type" => "application/json"})
+          response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got bool"})
+          response.status_code.should eq 400
+
+          response = CLIENT.post("/users", body: %({"age": null}), headers: HTTP::Headers{"content-type" => "application/json"})
+          response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got null"})
+          response.status_code.should eq 400
+        end
+      end
+    end
+
+    describe "FormData" do
+      context "valid new model" do
+        it "should parse an obj from request body" do
+          CLIENT.post("/users/form", body: %(age=1&id=99), headers: HTTP::Headers{"content-type" => "application/x-www-form-urlencoded"}).body.should eq %({"id":99,"age":1})
+        end
+      end
+    end
+  end
+
   describe "body conversion" do
     context "Int" do
       it "Int8" do
@@ -35,55 +112,55 @@ describe Athena::Post do
         CLIENT.post("/int128/", body: "9999999999999999999999", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "9999999999999999999999"
       end
     end
-  end
 
-  context "UInt" do
-    it "UInt8" do
-      CLIENT.post("/uint8", body: "123", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "123"
+    context "UInt" do
+      it "UInt8" do
+        CLIENT.post("/uint8", body: "123", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "123"
+      end
+
+      it "UInt16" do
+        CLIENT.post("/uint16", body: "456", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "456"
+      end
+
+      it "UInt32" do
+        CLIENT.post("/uint32", body: "111111", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "111111"
+      end
+
+      it "UInt64" do
+        CLIENT.post("/uint64/", body: "9999999999999999", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "9999999999999999"
+      end
+
+      pending "UInt128" do
+        CLIENT.post("/uint128/", body: "9999999999999999999999", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "9999999999999999999999"
+      end
     end
 
-    it "UInt16" do
-      CLIENT.post("/uint16", body: "456", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "456"
+    context "Float" do
+      it "Float32" do
+        CLIENT.post("/float32/", body: "-2342.223", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "-2342.223"
+      end
+
+      it "Float64" do
+        CLIENT.post("/float64", body: "2342.234234234223", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "2342.234234234223"
+      end
     end
 
-    it "UInt32" do
-      CLIENT.post("/uint32", body: "111111", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "111111"
+    context "Bool" do
+      it "Bool" do
+        CLIENT.post("/bool", body: "true", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "true"
+      end
     end
 
-    it "UInt64" do
-      CLIENT.post("/uint64/", body: "9999999999999999", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "9999999999999999"
+    context "String" do
+      it "String" do
+        CLIENT.post("/string", body: "sdfsd", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "sdfsd"
+      end
     end
 
-    pending "UInt128" do
-      CLIENT.post("/uint128/", body: "9999999999999999999999", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "9999999999999999999999"
-    end
-  end
-
-  context "Float" do
-    it "Float32" do
-      CLIENT.post("/float32/", body: "-2342.223", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "-2342.223"
-    end
-
-    it "Float64" do
-      CLIENT.post("/float64", body: "2342.234234234223", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "2342.234234234223"
-    end
-  end
-
-  context "Bool" do
-    it "Bool" do
-      CLIENT.post("/bool", body: "true", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "true"
-    end
-  end
-
-  context "String" do
-    it "String" do
-      CLIENT.post("/string", body: "sdfsd", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "sdfsd"
-    end
-  end
-
-  context "Struct" do
-    it "Struct" do
-      CLIENT.post("/struct", body: "123", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "-123"
+    context "Struct" do
+      it "Struct" do
+        CLIENT.post("/struct", body: "123", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "-123"
+      end
     end
   end
 end

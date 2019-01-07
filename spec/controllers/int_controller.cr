@@ -9,7 +9,7 @@ class IntController < Athena::ClassController
   end
 
   @[Athena::Post(path: "int8")]
-  def self.int8Post(num : Int8) : Int8
+  def self.int8_post(num : Int8) : Int8
     it "should run correctly" do
       num.should be_a Int8
       num.should eq 123
@@ -27,7 +27,7 @@ class IntController < Athena::ClassController
   end
 
   @[Athena::Post(path: "int16/")]
-  def self.int16Post(num : Int16) : Int16
+  def self.int16_post(num : Int16) : Int16
     it "should run correctly" do
       num.should be_a Int16
       num.should eq 456
@@ -45,7 +45,7 @@ class IntController < Athena::ClassController
   end
 
   @[Athena::Post(path: "int32")]
-  def self.int32Post(num : Int32) : Int32
+  def self.int32_post(num : Int32) : Int32
     it "should run correctly" do
       num.should be_a Int32
       num.should eq 111111
@@ -63,7 +63,7 @@ class IntController < Athena::ClassController
   end
 
   @[Athena::Post(path: "int64")]
-  def self.int64Post(num : Int64) : Int64
+  def self.int64_post(num : Int64) : Int64
     it "should run correctly" do
       num.should be_a Int64
       num.should eq 9999999999999999
@@ -81,7 +81,7 @@ class IntController < Athena::ClassController
   # end
 
   # @[Athena::Post(path: "int128/:num")]
-  # def self.int128Post(num : Int128) : Int128
+  # def self.int128_post(num : Int128) : Int128
   #   it "should run correctly" do
   #     num.should be_a Int128
   #     num.should eq 9999999999999999
@@ -99,7 +99,7 @@ class IntController < Athena::ClassController
   end
 
   @[Athena::Post(path: "uint8/")]
-  def self.uint8Post(num : UInt8) : UInt8
+  def self.uint8_post(num : UInt8) : UInt8
     it "should run correctly" do
       num.should be_a UInt8
       num.should eq 123
@@ -117,7 +117,7 @@ class IntController < Athena::ClassController
   end
 
   @[Athena::Post(path: "uint16")]
-  def self.uint1Post(num : UInt16) : UInt16
+  def self.uint1_post(num : UInt16) : UInt16
     it "should run correctly" do
       num.should be_a UInt16
       num.should eq 456
@@ -135,7 +135,7 @@ class IntController < Athena::ClassController
   end
 
   @[Athena::Post(path: "uint32")]
-  def self.uint32Post(num : UInt32) : UInt32
+  def self.uint32_post(num : UInt32) : UInt32
     it "should run correctly" do
       num.should be_a UInt32
       num.should eq 111111
@@ -153,7 +153,7 @@ class IntController < Athena::ClassController
   end
 
   @[Athena::Post(path: "uint64/")]
-  def self.uint64Post(num : UInt64) : UInt64
+  def self.uint64_post(num : UInt64) : UInt64
     it "should run correctly" do
       num.should be_a UInt64
       num.should eq 9999999999999999
@@ -171,7 +171,7 @@ class IntController < Athena::ClassController
   # end
 
   # @[Athena::Post(path: "uint128")]
-  # def self.uint128Post(num : UInt128) : UInt128
+  # def self.uint128_post(num : UInt128) : UInt128
   #   it "should run correctly" do
   #     num.should be_a UInt128
   #     num.should eq 9999999999999999

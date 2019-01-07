@@ -1,6 +1,6 @@
 struct SController < Athena::StructController
   @[Athena::Get(path: "struct/:val")]
-  def self.doWork(val : Int32) : Int32
+  def self.do_work(val : Int32) : Int32
     it "should run correctly" do
       val.should be_a Int32
       val.should eq 123
@@ -9,7 +9,7 @@ struct SController < Athena::StructController
   end
 
   @[Athena::Post(path: "struct")]
-  def self.doWorkPost(val : Int32) : Int32
+  def self.do_work_post(val : Int32) : Int32
     it "should run correctly" do
       val.should be_a Int32
       val.should eq 123
