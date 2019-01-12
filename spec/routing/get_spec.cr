@@ -1,6 +1,6 @@
-require "./spec_helper"
+require "./routing_spec_helper"
 
-describe Athena::Get do
+describe Athena::Routing::Get do
   describe "with an no params" do
     it "works" do
       CLIENT.get("/noParamsGet").body.should eq "foobar"

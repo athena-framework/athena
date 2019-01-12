@@ -1,6 +1,6 @@
-require "./spec_helper"
+require "./routing_spec_helper"
 
-describe Athena::Post do
+describe Athena::Routing::Post do
   describe "with an no params" do
     it "works" do
       CLIENT.post("/noParamsPost").body.should eq "foobar"

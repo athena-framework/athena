@@ -1,10 +1,2 @@
-require "spec"
-require "http/client"
-require "../src/athena"
-require "./controllers/*"
-
-CLIENT = HTTP::Client.new "localhost", 8888
-
-spawn Athena.run
-
-sleep 1.5
+require "./routing/routing_spec_helper"
+require "./cli/cli_spec_helper"

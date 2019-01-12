@@ -3,11 +3,11 @@ require "amber_router"
 require "json"
 require "CrSerializer"
 
-require "./route_handler"
-require "./converters"
-require "./types"
-require "./macros"
-require "./renderers"
+require "./routing/route_handler"
+require "./routing/converters"
+require "./routing/macros"
+require "./routing/renderers"
+require "./common/types"
 
 module Athena
   # :nodoc:

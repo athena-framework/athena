@@ -16,9 +16,9 @@ class User
       user : self = new
       user.id = 17
       user.age = 123
-      return user
+      user
     else
-      return nil
+      nil
     end
   end
 
@@ -29,19 +29,19 @@ class User
     obj
   end
 
-  ECR.def_to_s "spec/user.ecr"
+  ECR.def_to_s "spec/routing/user.ecr"
 end
 
-class UserController < Athena::ClassController
-  @[Athena::Post(path: "users")]
-  @[Athena::ParamConverter(param: "user", type: User, converter: RequestBody)]
+class UserController < Athena::Routing::ClassController
+  @[Athena::Routing::Post(path: "users")]
+  @[Athena::Routing::ParamConverter(param: "user", type: User, converter: RequestBody)]
   def self.new_user(user : User) : User
     user.id = 12
     user
   end
 
-  @[Athena::Post(path: "users/form")]
-  @[Athena::ParamConverter(param: "user", type: User, converter: FormData)]
+  @[Athena::Routing::Post(path: "users/form")]
+  @[Athena::Routing::ParamConverter(param: "user", type: User, converter: FormData)]
   def self.new_form_user(user : User) : User
     it "should run correctly" do
       user.should be_a User
@@ -52,8 +52,8 @@ class UserController < Athena::ClassController
     user
   end
 
-  @[Athena::Put(path: "users")]
-  @[Athena::ParamConverter(param: "user", type: User, converter: RequestBody)]
+  @[Athena::Routing::Put(path: "users")]
+  @[Athena::Routing::ParamConverter(param: "user", type: User, converter: RequestBody)]
   def self.update_user(user : User) : User
     it "should run correctly" do
       user.should be_a User
@@ -64,22 +64,22 @@ class UserController < Athena::ClassController
     user
   end
 
-  @[Athena::Get(path: "users/yaml/:id")]
-  @[Athena::ParamConverter(param: "user", type: User, converter: Exists)]
-  @[Athena::View(renderer: YAMLRenderer)]
+  @[Athena::Routing::Get(path: "users/yaml/:id")]
+  @[Athena::Routing::ParamConverter(param: "user", type: User, converter: Exists)]
+  @[Athena::Routing::View(renderer: YAMLRenderer)]
   def self.get_user_yaml(user : User) : User
     user
   end
 
-  @[Athena::Get(path: "users/ecr/:id")]
-  @[Athena::ParamConverter(param: "user", type: User, converter: Exists)]
-  @[Athena::View(renderer: ECRRenderer)]
+  @[Athena::Routing::Get(path: "users/ecr/:id")]
+  @[Athena::Routing::ParamConverter(param: "user", type: User, converter: Exists)]
+  @[Athena::Routing::View(renderer: ECRRenderer)]
   def self.get_user_ecr(user : User) : User
     user
   end
 
-  @[Athena::Get(path: "users/:id")]
-  @[Athena::ParamConverter(param: "user", type: User, converter: Exists)]
+  @[Athena::Routing::Get(path: "users/:id")]
+  @[Athena::Routing::ParamConverter(param: "user", type: User, converter: Exists)]
   def self.get_user(user : User) : User
     it "should run correctly" do
       user.should be_a User
@@ -90,9 +90,9 @@ class UserController < Athena::ClassController
     user
   end
 
-  @[Athena::Get(path: "admin/users/:id")]
-  @[Athena::View(groups: ["admin"])]
-  @[Athena::ParamConverter(param: "user", type: User, converter: Exists)]
+  @[Athena::Routing::Get(path: "admin/users/:id")]
+  @[Athena::Routing::View(groups: ["admin"])]
+  @[Athena::Routing::ParamConverter(param: "user", type: User, converter: Exists)]
   def self.get_user_admin(user : User) : User
     it "should run correctly" do
       user.should be_a User
@@ -103,9 +103,9 @@ class UserController < Athena::ClassController
     user
   end
 
-  @[Athena::Get(path: "admin/users/:id/all")]
-  @[Athena::View(groups: ["admin", "default"])]
-  @[Athena::ParamConverter(param: "user", type: User, converter: Exists)]
+  @[Athena::Routing::Get(path: "admin/users/:id/all")]
+  @[Athena::Routing::View(groups: ["admin", "default"])]
+  @[Athena::Routing::ParamConverter(param: "user", type: User, converter: Exists)]
   def self.get_user_admin_all(user : User) : User
     it "should run correctly" do
       user.should be_a User

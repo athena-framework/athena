@@ -1,10 +1,10 @@
-class AthenaController < Athena::ClassController
-  @[Athena::Get(path: "noParamsGet")]
+class AthenaController < Athena::Routing::ClassController
+  @[Athena::Routing::Get(path: "noParamsGet")]
   def self.no_params_get : String
     "foobar"
   end
 
-  @[Athena::Get(path: "/posts/(:page)")]
+  @[Athena::Routing::Get(path: "/posts/(:page)")]
   def self.default_value(page : Int32 = 99) : Int32
     it "should run correctly" do
       page.should be_a Int32
@@ -13,7 +13,7 @@ class AthenaController < Athena::ClassController
     page
   end
 
-  @[Athena::Get(path: "/posts/:value/bvar")]
+  @[Athena::Routing::Get(path: "/posts/:value/bvar")]
   def self.same_path(value : String) : String
     it "should run correctly" do
       value.should be_a String
@@ -22,7 +22,7 @@ class AthenaController < Athena::ClassController
     value
   end
 
-  @[Athena::Post(path: "/posts/:page")]
+  @[Athena::Routing::Post(path: "/posts/:page")]
   def self.default_value_post(page : Int32, body : Int32 = 1) : Int32
     it "should run correctly" do
       page.should be_a Int32
@@ -32,7 +32,7 @@ class AthenaController < Athena::ClassController
     page + body
   end
 
-  @[Athena::Get(path: "double/:val1/:val2")]
+  @[Athena::Routing::Get(path: "double/:val1/:val2")]
   def self.double_params(val1 : Int32, val2 : Int32) : Int32
     it "should run correctly" do
       val1.should be_a Int32
@@ -43,17 +43,17 @@ class AthenaController < Athena::ClassController
     val1 + val2
   end
 
-  @[Athena::Get(path: "get/constraints/:time", constraints: {"time" => /\d:\d:\d/})]
+  @[Athena::Routing::Get(path: "get/constraints/:time", constraints: {"time" => /\d:\d:\d/})]
   def self.route_constraints(time : String) : String
     time
   end
 
-  @[Athena::Post(path: "noParamsPost")]
+  @[Athena::Routing::Post(path: "noParamsPost")]
   def self.no_params_post : String
     "foobar"
   end
 
-  @[Athena::Post(path: "double/:val")]
+  @[Athena::Routing::Post(path: "double/:val")]
   def self.double_params_post(val1 : Int32, val2 : Int32) : Int32
     it "should run correctly" do
       val1.should be_a Int32
