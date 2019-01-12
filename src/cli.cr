@@ -5,6 +5,8 @@ require "./common/types"
 require "./cli/command"
 require "./cli/registry"
 
+# Athena module containg elements for:
+# * `Command` - Define CLI commands
 module Athena::Cli
   # :nodoc:
   private abstract struct Arg; end
@@ -21,7 +23,7 @@ module Athena::Cli
       parser.on("-c NAME", "--command=NAME", "Runs a command with the given name") do |name|
         commandClass : Athena::Cli::Command.class | Nil = Athena::Cli::Registry.commands.find { |c| c.command_name == name }
         raise "No command with the name #{name} has been registered" if commandClass.nil?
-        commandClass.run ARGV, commandClass
+        commandClass.execute.call ARGV
         exit
       end
     end

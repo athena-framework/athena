@@ -3,12 +3,18 @@ require "amber_router"
 require "json"
 require "CrSerializer"
 
+require "./common/types"
+
 require "./routing/route_handler"
 require "./routing/converters"
 require "./routing/macros"
 require "./routing/renderers"
 require "./common/types"
 
+# Athena module containg elements for:
+# * `Routing` - Define Get/Post/Put/Delete routes/actions
+# * `Converters` - Convert request route params, body, or form data into `T`
+# * `Renderers` - Alter how the response body is serialized
 module Athena::Routing
   # :nodoc:
   module HTTP::Handler

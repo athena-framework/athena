@@ -1,7 +1,7 @@
 require "../cli_spec_helper"
 
 struct MultiParamCommand < Athena::Cli::Command
-  def self.execute(one : String, two : Int8, three : Float64) : Nil
+  def self.execute(one : String, two : Int8, three : Float64) : String
     it "should pass params correctly" do
       one.should be_a String
       one.should eq "foo"
@@ -11,8 +11,7 @@ struct MultiParamCommand < Athena::Cli::Command
 
       three.should be_a Float64
       three.should eq 3.14
-
-      SpecHelper.logger.info "MultiParamCommand Success"
     end
+    "#{one} is #{two + three}"
   end
 end

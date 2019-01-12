@@ -4,25 +4,13 @@ describe Athena::Cli::Command do
   describe "when parsing args from a command" do
     describe "with one param" do
       it "should convert correctly" do
-        IO.pipe do |r, w|
-          SpecHelper.logger = Logger.new w
-
-          CreateUserCommand.run ["--id=123"], CreateUserCommand
-
-          r.gets.should match /I, \[.*\]  INFO -- : CreateUserCommand Success/
-        end
+        CreateUserCommand.execute.call(["--id=123"]).should eq 100
       end
     end
 
     describe "with multiple params" do
       it "should convert correctly" do
-        IO.pipe do |r, w|
-          SpecHelper.logger = Logger.new w
-
-          MultiParamCommand.run ["--one=foo", "--two=8", "--three=3.14"], MultiParamCommand
-
-          r.gets.should match /I, \[.*\]  INFO -- : MultiParamCommand Success/
-        end
+        MultiParamCommand.execute.call(["--one=foo", "--two=8", "--three=3.14"]).should eq "foo is 11.14"
       end
     end
   end

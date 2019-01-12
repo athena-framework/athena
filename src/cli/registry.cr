@@ -2,7 +2,7 @@ module Athena::Cli
   # Stores the commands avalaible.
   class Registry
     macro finished
-      class_getter commands : Array(Athena::Cli::Command.class) = {{Athena::Cli::Command.subclasses}} of Athena::Cli::Command.class
+      class_getter commands : Array(Athena::Cli::Command.class) = {{Athena::Cli::Command.subclasses}}{% if Athena::Cli::Command.subclasses.size > 0 %} of Athena::Cli::Command.class {% end %}
     end
 
     # Displays the avalaible commands.
