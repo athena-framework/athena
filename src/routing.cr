@@ -11,10 +11,11 @@ require "./routing/macros"
 require "./routing/renderers"
 require "./common/types"
 
-# Athena module containg elements for:
-# * `Routing` - Define Get/Post/Put/Delete routes/actions
-# * `Converters` - Convert request route params, body, or form data into `T`
-# * `Renderers` - Alter how the response body is serialized
+# Athena module containing elements for:
+# * Defining routes.
+# * Defining life-cycle callbacks.
+# * Manage response serialization.
+# * Handle param conversion.
 module Athena::Routing
   # :nodoc:
   module HTTP::Handler
@@ -31,7 +32,7 @@ module Athena::Routing
   #
   # ## Example
   # ```
-  # @[Athena::Get(path: "/users")]
+  # @[Athena::Routing::Get(path: "/users")]
   # ```
   annotation Get; end
 
@@ -41,7 +42,7 @@ module Athena::Routing
   #
   # ## Example
   # ```
-  # @[Athena::Post(path: "/users")]
+  # @[Athena::Routing::Post(path: "/users")]
   # ```
   annotation Post; end
 
@@ -51,7 +52,7 @@ module Athena::Routing
   #
   # ## Example
   # ```
-  # @[Athena::Put(path: "/users")]
+  # @[Athena::Routing::Put(path: "/users")]
   # ```
   annotation Put; end
 
@@ -61,7 +62,7 @@ module Athena::Routing
   #
   # ## Example
   # ```
-  # @[Athena::Delete(path: "/users/:id")]
+  # @[Athena::Routing::Delete(path: "/users/:id")]
   # ```
   annotation Delete; end
 
@@ -69,15 +70,15 @@ module Athena::Routing
   # ## Fields
   # * param : `String` - The param that should go through the conversion.
   # * type : `T` - The type the param should be converted to.
-  # * converter : `Athena::Converters` - What converter to use for the conversion.  Can be `Converters::RequestBody`, `Converters::Exists`, `Converters::FormData`, or a custom defined converter.
+  # * converter : `Athena::Routing::Converters` - What converter to use for the conversion.  Can be `Converters::RequestBody`, `Converters::Exists`, `Converters::FormData`, or a custom defined converter.
   #
   # ## Example
   # ```
-  # @[Athena::ParamConverter(param: "user", type: User, converter: Exists)]
+  # @[Athena::Routing::ParamConverter(param: "user", type: User, converter: Exists)]
   # ```
   annotation ParamConverter; end
 
-  # Defines a callback that should be called at a specific point in the request's life-cycle.
+  # Defines a callback that should be executed at a specific point in the request's life-cycle.
   # ## Fields
   # * event : `CallbackEvents` - The event that the callback should be executed at.
   # * only : `Array(String)` - Run the callback only for the provided actions.
@@ -85,7 +86,7 @@ module Athena::Routing
   #
   # ## Example
   # ```
-  # @[Athena::Callback(event: Athena::CallbackEvents::OnResponse, only: ["users"])]
+  # @[Athena::Routing::Callback(event: Athena::Routing::CallbackEvents::OnResponse, only: ["users"])]
   # ```
   annotation Callback; end
 
@@ -93,15 +94,15 @@ module Athena::Routing
   # ## Fields
   # * groups : `Array(String)` - The serialization groups to apply to this endpoint.
   # See the [CrSerializer Docs](https://github.com/Blacksmoke16/CrSerializer/blob/master/docs/serialization.md) for more info.
-  # * renderer : `Athena::Renderers` - What renderer to use for the return value/object.  Default is `Athena::Renderers::JSONRenderer`
+  # * renderer : `Athena::Routing::Renderers` - What renderer to use for the return value/object.  Default is `Renderers::JSONRenderer`.
   #
   # ## Example
   # ```
-  # @[Athena::View(groups: ["admin", "default"])]
+  # @[Athena::Routing::View(groups: ["admin", "default"])]
   # ```
   annotation View; end
 
-  # Raised when a an object could not be found in the `Athena::Converters::Exists` converter.
+  # Raised when a an object could not be found in the `Athena::Routing::Converters::Exists` converter.
   class NotFoundException < Exception
     # Returns a 404 not found JSON error.
     #

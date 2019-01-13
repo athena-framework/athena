@@ -1,6 +1,9 @@
 require "../cli_spec_helper"
 
 struct MultiParamCommand < Athena::Cli::Command
+  self.command_name = "multi"
+  self.description = "Has multiple required params"
+
   def self.execute(one : String, two : Int8, three : Float64) : String
     it "should pass params correctly" do
       one.should be_a String

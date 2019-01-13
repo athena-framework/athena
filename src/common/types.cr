@@ -1,9 +1,10 @@
 require "http/params"
 
-# Converters for converting a `String` param into `T`.
+# Converters for converting `String` arguments into `T`.
 module Athena::Types
   extend self
 
+  # :nodoc:
   TYPES = {
     Int8    => ".to_i8",
     Int16   => ".to_i16",
@@ -20,15 +21,28 @@ module Athena::Types
   }
 
   {% for type, method in TYPES %}
+    # Converts a `String` to `{{type}}`.
     def convert_type(val : String, t : {{type.id}}.class) : {{type.id}}
       val{{method.id}}
     end
 
-    def convert_type(val : String, t : Array({{type.id}})) : Array({{type.id}})
+    # Converts a `String` to `{{type}}?`.
+    def convert_type(val : String, t : {{type.id}}?.class) : {{type.id}}?
+      val{{method.id}}
+    end
+
+    # Converts an `Array(String)` to `Array({{type.id}})`.
+    def convert_type(val : String, t : Array({{type.id}}).class) : Array({{type.id}})
+      val.split(',').map { |v| convert_type v, {{type.id}} }
+    end
+
+    # Converts an `Array(String)` to `Array({{type.id}})?`.
+    def convert_type(val : String, t : Array({{type.id}})?.class) : Array({{type.id}})?
       val.split(',').map { |v| convert_type v, {{type.id}} }
     end
   {% end %}
 
+  # Converts a `String` to `HTTP::Params`.
   def convert_type(val : String, t : HTTP::Params.class) : HTTP::Params.class
     HTTP::Params.new val
   end

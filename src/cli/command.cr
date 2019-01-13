@@ -10,13 +10,12 @@ module Athena::Cli
     macro inherited
       macro finished
         \{% begin %}
+          \{% raise "#{@type.name} must implement a `self.execute` method." unless @type.class.methods.any? { |m| m.name.stringify == "execute"} %}
           \{% for method in @type.class.methods %}
             \{% if method.name.stringify == "execute" %}
-              # Arguments that the command takes.  Automatically generated based on the names/types of the `self.execute` method.  Nilable parameters are considered optional to the command.
-              class_property arguments = [\{{method.args.map { |a| "Athena::Cli::Argument(#{a.restriction}).new(#{a.name.stringify}, #{a.restriction.is_a?(Path) ? a.restriction.resolve.nilable? : a.restriction.types.any? { |t| t.resolve.nilable? } })".id }.splat}}]
 
-              # Executer for the command `MyClass.execute.call(args)`.
-              class_getter execute : Proc(Array(String), \{{method.return_type}}) = ->(args : Array(String)) do
+              # Executer for the command `MyClass.command.call(args : Array(String))`.
+              class_getter command : Proc(Array(String), \{{method.return_type}}) = ->(args : Array(String)) do
               \{% arg_types = method.args.map(&.restriction) %}
                 params = Array(Union(\{{arg_types.splat}}) | Nil).new
 
@@ -26,6 +25,7 @@ module Athena::Cli
                       params << Athena::Types.convert_type val[1], \{{arg.restriction}}
                     end
                   else
+                    raise "Required argument '#{\{{arg.name.stringify}}}' was not supplied." unless (\{{arg.restriction}}).nilable?
                     params << nil
                   end
                \{% end %}
