@@ -20,9 +20,9 @@ module Athena::Cli
     #
     # Raises if no command has that name.
     def self.find(name : String) : Athena::Cli::Command.class
-      commandClass = @@commands.find { |c| c.command_name == name }
-      raise "No command with the name '#{name}' has been registered" if commandClass.nil?
-      commandClass
+      command_class = @@commands.find { |c| c.command_name == name }
+      raise "No command with the name '#{name}' has been registered" if command_class.nil?
+      command_class
     end
   end
 end
