@@ -373,3 +373,14 @@ end
 ```
 
 This then can be used like `@[Athena::Routing::ParamConverter(param: "user", type: User, converter: MyConverter)]`
+
+## Static File Handling
+
+Athena supports static file handling via Crystal's `HTTP::StaticFileHandler`.  An instance of this class can be supplied to Athena to control how static files are handled.  By default static file handling is disabled.
+
+```Crystal
+require "athena/routing"
+
+Athena::Routing.static_file_hander =HTTP::StaticFileHandler.new("public", directory_listing: false)
+```
+
