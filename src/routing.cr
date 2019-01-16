@@ -26,6 +26,9 @@ module Athena::Routing
     end
   end
 
+  # Enable static file handling.  Disabled by default.
+  class_property static_file_handler : HTTP::StaticFileHandler? = nil
+
   # Defines a GET endpoint.
   # ## Fields
   # * path : `String` - The path for the endpoint.
@@ -151,7 +154,12 @@ module Athena::Routing
   private record CallbackEvent(E) < CallbackBase, event : E, only_actions : Array(String), exclude_actions : Array(String)
 
   # Starts the HTTP server with the given *port*, *binding*, *ssl*, and *handlers*.
-  def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [Athena::Routing::RouteHandler.new])
+  def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [Athena::Routing::RouteHandler.new] of HTTP::Handler)
+
+    if sfh = self.static_file_handler
+      handlers.unshift sfh
+    end
+
     server : HTTP::Server = HTTP::Server.new handlers
     puts "Athena is leading the way on #{binding}:#{port}"
 

@@ -8,7 +8,7 @@ Athena takes a modular approach to its feature set.  Each feature is encapsulate
   * [Manage response serialization](./routing.md#route-view)
   * [Handle param conversion](./routing.md#paramconverter)
 * [CLI](./cli.md) `require "athena/cli"` - _done_:
-  * [Creating CLI commands](./cli.md#creating-commands)
+  * [Creating CLI commands](./cli.md#commands)
 * Security - _todo_:
   * TBD
 * Documentation - _todo_:

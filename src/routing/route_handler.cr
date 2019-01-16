@@ -127,7 +127,7 @@ module Athena::Routing
 
       response = action.as(RouteAction).action.call params
 
-      context.response.print response.is_a?(String) ? response : action.renderer.render response, action, context
+      context.response.print response.is_a?(String) ? response : action.as(RouteAction).renderer.render response, action, context
 
       action.as(RouteAction).callbacks.on_response.each do |ce|
         if (ce.as(CallbackEvent).only_actions.empty? || ce.as(CallbackEvent).only_actions.includes?(action.as(RouteAction).method)) && (ce.as(CallbackEvent).exclude_actions.empty? || !ce.as(CallbackEvent).exclude_actions.includes?(action.method))

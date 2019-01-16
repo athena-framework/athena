@@ -2,7 +2,7 @@
 
 ## Commands
 
-Athena makes it easy to define CLI commands.  These commands are included when you build your program; which can be used for data migration, disable/enable user accounts, or other commonly used developer related tasks.
+Athena makes it easy to define CLI commands.  These commands are included when you build your program; which can be used for data migration, disable/enable user accounts, or other commonly used developer related tasks with the added benefit of being testable, reusable and can be documented.
 
 A command is created by defining a struct that inherits from `Athena::Cli::Command`.
 
