@@ -1,4 +1,4 @@
-module Athena::Renderers
+module Athena::Routing::Renderers
   # Serializes `T` as `JSON`, and sets the response's *Content-Type* header.
   struct JSONRenderer(T)
     def self.render(response : T, action : Action, context : HTTP::Server::Context) : String forall T

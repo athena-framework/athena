@@ -1,4 +1,4 @@
-module Athena::Converters
+module Athena::Routing::Converters
   # Resolves the request body into type `T`.
   struct RequestBody(T)
     # Deserializes the request body into an object of `T`.

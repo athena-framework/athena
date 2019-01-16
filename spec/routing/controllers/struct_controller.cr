@@ -1,5 +1,5 @@
-struct SController < Athena::StructController
-  @[Athena::Get(path: "struct/:val")]
+struct SController < Athena::Routing::StructController
+  @[Athena::Routing::Get(path: "struct/:val")]
   def self.do_work(val : Int32) : Int32
     it "should run correctly" do
       val.should be_a Int32
@@ -8,7 +8,7 @@ struct SController < Athena::StructController
     -val
   end
 
-  @[Athena::Post(path: "struct")]
+  @[Athena::Routing::Post(path: "struct")]
   def self.do_work_post(val : Int32) : Int32
     it "should run correctly" do
       val.should be_a Int32

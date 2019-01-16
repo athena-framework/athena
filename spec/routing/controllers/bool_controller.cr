@@ -1,5 +1,5 @@
-class BoolController < Athena::ClassController
-  @[Athena::Get(path: "bool/:val")]
+class BoolController < Athena::Routing::ClassController
+  @[Athena::Routing::Get(path: "bool/:val")]
   def self.bool(val : Bool) : Bool
     it "should run correctly" do
       val.should be_a Bool
@@ -8,7 +8,7 @@ class BoolController < Athena::ClassController
     val
   end
 
-  @[Athena::Post(path: "bool")]
+  @[Athena::Routing::Post(path: "bool")]
   def self.bool_post(val : Bool) : Bool
     it "should run correctly" do
       val.should be_a Bool

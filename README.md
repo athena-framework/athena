@@ -1,15 +1,15 @@
 # Athena
 [![Build Status](https://travis-ci.org/Blacksmoke16/athena.svg?branch=master)](https://travis-ci.org/Blacksmoke16/athena)
 
-Annotation based JSON API web framework with built in param conversion inspired by [Symfony Routing](https://symfony.com/doc/current/routing.html).  Also supports form data and ECR rendering.
+Modular annotation based web framework with built in param conversion inspired by [Symfony Routing](https://symfony.com/doc/current/routing.html).
 
 ## Goals
 
-- Extensible and customizable to fit all use cases
-- Make working with JSON APIs in Crystal much easier
-- Be easy to adopt and start using effectively
-- Remove unneeded boilerplate code to convert route/body params to correct type
-- Easy serialization via [CrSerializer](https://github.com/Blacksmoke16/CrSerializer)
+- Extensible and customizable to fit all use cases.
+- Be easy to adopt and start using effectively.
+- Remove unneeded boilerplate code to convert route/body params to correct type.
+- Easy serialization via [CrSerializer](https://github.com/Blacksmoke16/CrSerializer).
+- Decrease bloat.  Only include what you need.
 
 ## Documentation
 

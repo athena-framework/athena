@@ -1,12 +1,12 @@
-module Athena
+module Athena::Routing
   # Handles routing and param conversion on each request.
-  class Athena::RouteHandler
+  class RouteHandler
     include HTTP::Handler
 
     @routes : Amber::Router::RouteSet(Action) = Amber::Router::RouteSet(Action).new
 
     def initialize
-      {% for c in Athena::ClassController.all_subclasses + Athena::StructController.all_subclasses %}
+      {% for c in Athena::Routing::ClassController.all_subclasses + Athena::Routing::StructController.all_subclasses %}
         {% methods = c.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
         {% instance_methods = c.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
 
@@ -19,13 +19,13 @@ module Athena
         _on_request = [] of CallbackBase
 
         # Set controller/global triggers
-        {% for trigger in c.class.methods.select { |m| m.annotation(Callback) } + Athena::ClassController.class.methods.select { |m| m.annotation(Callback) } + Athena::StructController.class.methods.select { |m| m.annotation(Callback) } %}
+        {% for trigger in c.class.methods.select { |m| m.annotation(Callback) } + Athena::Routing::ClassController.class.methods.select { |m| m.annotation(Callback) } + Athena::Routing::StructController.class.methods.select { |m| m.annotation(Callback) } %}
           {% trigger_ann = trigger.annotation(Callback) %}
           {% only_actions = trigger_ann[:only] || "[] of String" %}
           {% exclude_actions = trigger_ann[:exclude] || "[] of String" %}
-          {% if trigger_ann[:event].resolve == Athena::CallbackEvents::OnResponse %}
+          {% if trigger_ann[:event].resolve == Athena::Routing::CallbackEvents::OnResponse %}
             _on_response << CallbackEvent(Proc(HTTP::Server::Context, Nil)).new(->{{c.name.id}}.{{trigger.name.id}}(HTTP::Server::Context), {{only_actions.id}}, {{exclude_actions.id}})
-          {% elsif trigger_ann[:event].resolve == Athena::CallbackEvents::OnRequest %}
+          {% elsif trigger_ann[:event].resolve == Athena::Routing::CallbackEvents::OnRequest %}
             _on_request << CallbackEvent(Proc(HTTP::Server::Context, Nil)).new(->{{c.name.id}}.{{trigger.name.id}}(HTTP::Server::Context), {{only_actions.id}}, {{exclude_actions.id}})
           {% end %}
         {% end %}
@@ -77,7 +77,7 @@ module Athena
                 arr = Array(Union({{arg_types.splat}})).new
                 {% for type, idx in arg_types %}
                   {% if param_converter && param_converter[:converter] && param_converter[:type] && param_converter[:param] == arg_names[idx] %}
-                      arr << Athena::Converters::{{param_converter[:converter]}}({{param_converter[:type]}}).convert(vals[{{idx}}])
+                      arr << Athena::Routing::Converters::{{param_converter[:converter]}}({{param_converter[:type]}}).convert(vals[{{idx}}])
                   {% else %}
                     {% if arg_default_values[idx] == nil %}
                       arr << Athena::Types.convert_type(vals[{{idx}}], {{type}})
@@ -91,7 +91,7 @@ module Athena
                 ->{ {{c.name.id}}.{{m.name.id}} }.call
               {% end %}
             end
-            @routes.add {{path}}, RouteAction(Proc(Array(String), {{m.return_type}}), Athena::Renderers::{{renderer}}({{m.return_type}})).new(%proc, {{path}}, Callbacks.new(_on_response, _on_request), {{m.name.stringify}}, {{groups}}){% if constraints %}, {{constraints}} {% end %}
+            @routes.add {{path}}, RouteAction(Proc(Array(String), {{m.return_type}}), Athena::Routing::Renderers::{{renderer}}({{m.return_type}})).new(%proc, {{path}}, Callbacks.new(_on_response, _on_request), {{m.name.stringify}}, {{groups}}){% if constraints %}, {{constraints}} {% end %}
         {% end %}
       {% end %}
     end
@@ -127,7 +127,7 @@ module Athena
 
       response = action.as(RouteAction).action.call params
 
-      context.response.print response.is_a?(String) ? response : action.renderer.render response, action, context
+      context.response.print response.is_a?(String) ? response : action.as(RouteAction).renderer.render response, action, context
 
       action.as(RouteAction).callbacks.on_response.each do |ce|
         if (ce.as(CallbackEvent).only_actions.empty? || ce.as(CallbackEvent).only_actions.includes?(action.as(RouteAction).method)) && (ce.as(CallbackEvent).exclude_actions.empty? || !ce.as(CallbackEvent).exclude_actions.includes?(action.method))
@@ -138,7 +138,7 @@ module Athena
       halt context, 400, %({"code": 400, "message": "#{e.message}"})
     rescue validation_exception : CrSerializer::Exceptions::ValidationException
       halt context, 400, validation_exception.to_json
-    rescue not_found_exception : Athena::NotFoundException
+    rescue not_found_exception : Athena::Routing::NotFoundException
       halt context, 404, not_found_exception.to_json
     rescue json_parse_exception : JSON::ParseException
       if msg = json_parse_exception.message

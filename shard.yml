@@ -3,7 +3,7 @@ name: athena
 description: |
   Annotation based JSON API framework with built in param conversion.
 
-version: 0.1.0
+version: 0.2.0
 
 authors:
   - Blacksmoke16 <Blacksmoke16@eve.tools>
@@ -23,5 +23,5 @@ dependencies:
 development_dependencies:
   ameba:
     github: veelenga/ameba
-    version: ~> 0.8.1
+    version: ~> 0.9.0
     

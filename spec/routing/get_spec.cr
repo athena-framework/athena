@@ -1,6 +1,6 @@
-require "./spec_helper"
+require "./routing_spec_helper"
 
-describe Athena::Get do
+describe Athena::Routing::Get do
   describe "with an no params" do
     it "works" do
       CLIENT.get("/noParamsGet").body.should eq "foobar"
@@ -161,6 +161,12 @@ describe Athena::Get do
       pending "Int128" do
         CLIENT.get("/int128/9999999999999999999999").body.should eq "9999999999999999999999"
       end
+
+      it "invalid" do
+        response = CLIENT.get("/int32/1.00")
+        response.body.should eq %({"code": 400, "message": "Invalid Int32: 1.00"})
+        response.status_code.should eq 400
+      end
     end
 
     context "UInt" do
@@ -183,6 +189,12 @@ describe Athena::Get do
       pending "UInt128" do
         CLIENT.get("/uint128/9999999999999999999999").body.should eq "9999999999999999999999"
       end
+
+      it "invalid" do
+        response = CLIENT.get("/uint8/256")
+        response.body.should eq %({"code": 400, "message": "Invalid UInt8: 256"})
+        response.status_code.should eq 400
+      end
     end
 
     context "Float" do
@@ -192,6 +204,12 @@ describe Athena::Get do
 
       it "Float64" do
         CLIENT.get("/float64/2342.234234234223").body.should eq "2342.234234234223"
+      end
+
+      it "invalid" do
+        response = CLIENT.get("/float64/foo")
+        response.body.should eq %({"code": 400, "message": "Invalid Float64: foo"})
+        response.status_code.should eq 400
       end
     end
 

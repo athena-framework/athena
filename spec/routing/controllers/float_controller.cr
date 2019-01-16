@@ -1,5 +1,5 @@
-class FloatController < Athena::ClassController
-  @[Athena::Get(path: "float32/:num")]
+class FloatController < Athena::Routing::ClassController
+  @[Athena::Routing::Get(path: "float32/:num")]
   def self.float32(num : Float32) : Float32
     it "should run correctly" do
       num.should be_a Float32
@@ -8,7 +8,7 @@ class FloatController < Athena::ClassController
     num
   end
 
-  @[Athena::Post(path: "float32/")]
+  @[Athena::Routing::Post(path: "float32/")]
   def self.float32_post(num : Float32) : Float32
     it "should run correctly" do
       num.should be_a Float32
@@ -17,7 +17,7 @@ class FloatController < Athena::ClassController
     num
   end
 
-  @[Athena::Get(path: "float64/:num")]
+  @[Athena::Routing::Get(path: "float64/:num")]
   def self.float64(num : Float64) : Float64
     it "should run correctly" do
       num.should be_a Float64
@@ -26,7 +26,7 @@ class FloatController < Athena::ClassController
     num
   end
 
-  @[Athena::Post(path: "float64")]
+  @[Athena::Routing::Post(path: "float64")]
   def self.float64_post(num : Float64) : Float64
     it "should run correctly" do
       num.should be_a Float64
