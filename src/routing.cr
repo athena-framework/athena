@@ -145,13 +145,19 @@ module Athena::Routing
   private abstract struct CallbackBase; end
 
   # :nodoc:
-  private record RouteAction(A, R) < Action, action : A, path : String, callbacks : Callbacks, method : String, groups : Array(String), renderer : R.class = R
+  private abstract struct Param; end
+
+  # :nodoc:
+  private record RouteAction(A, R) < Action, action : A, path : String, callbacks : Callbacks, method : String, groups : Array(String), query_params : Array(Param), renderer : R.class = R
 
   # :nodoc:
   private record Callbacks, on_response : Array(CallbackBase), on_request : Array(CallbackBase)
 
   # :nodoc:
   private record CallbackEvent(E) < CallbackBase, event : E, only_actions : Array(String), exclude_actions : Array(String)
+
+  # :nodoc:
+  private record QueryParam(T) < Param, name : String, pattern : Regex? = nil, type : T.class = T
 
   # Starts the HTTP server with the given *port*, *binding*, *ssl*, and *handlers*.
   def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [Athena::Routing::RouteHandler.new] of HTTP::Handler)

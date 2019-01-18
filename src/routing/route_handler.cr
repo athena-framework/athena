@@ -63,27 +63,37 @@ module Athena::Routing
           {% end %}
 
           {% path = "/" + method + (route_def[:path].starts_with?('/') ? route_def[:path] : "/" + route_def[:path]) %}
-          {% placeholder_count = path.chars.select { |chr| chr == ':' }.size %} # ameba:disable Performance/SizeAfterFilter
-          {% raise "Expected #{c.name}.#{m.name} to have #{placeholder_count} method parameters, got #{m.args.size}.  Route's param count must match action's param count." if placeholder_count != (method == "GET" ? m.args.size : (m.args.size == 0 ? 0 : m.args.size - 1)) %}
+
+          {% arg_names = m.args.map(&.name.stringify) %}
+          {% query_params = route_def[:query] ? route_def[:query].keys : "[]".id %}
+          {% route_params = route_def[:path].split('/').select { |p| p.starts_with?(':') }.map { |v| v.tr(":", "") } %}
+          {% arg_names.all? { |pa| (query_params + route_params).any? { |v| v == pa } || raise "#{c.name}.#{m.name} parameter '#{pa.id}' is not defined in route or query parameters." }  %}
+          {% raise "#{c.name}.#{m.name} has #{arg_names.size} parameters defined, while there are #{(query_params + route_params).size} route and query parameters defined.  Did you forget to add one?" if arg_names.size != (query_params + route_params).size %}
+
           {% arg_types = m.args.map(&.restriction) %}
-          {% arg_names = m.args.map(&.name) %}
           {% arg_default_values = m.args.map { |a| a.default_value || nil } %}
           {% constraints = route_def[:constraints] %}
+          {% query_params = [] of Param %}
+          {% if route_def && route_def[:query] %}
+            {% for name, pattern, idx in route_def[:query] %}
+              {% query_params << "QueryParam(#{arg_types[-(idx+1)]}).new(#{name}, #{pattern})".id %}
+            {% end %}
+          {% end %}
           {% groups = view_ann && view_ann[:groups] ? view_ann[:groups] : ["default"] %}
           {% renderer = view_ann && view_ann[:renderer] ? view_ann[:renderer] : "JSONRenderer".id %}
 
-            %proc = ->(vals : Array(String)) do
+            %proc = ->(vals : Hash(String, String?)) do
               {% unless m.args.empty? %}
-                arr = Array(Union({{arg_types.splat}})).new
+                arr = Array(Union({{arg_types.splat}}, Nil)).new
                 {% for type, idx in arg_types %}
                   {% if param_converter && param_converter[:converter] && param_converter[:type] && param_converter[:param] == arg_names[idx] %}
-                      arr << Athena::Routing::Converters::{{param_converter[:converter]}}({{param_converter[:type]}}).convert(vals[{{idx}}])
+                      arr << Athena::Routing::Converters::{{param_converter[:converter]}}({{param_converter[:type]}}).convert(vals[{{arg_names[idx].stringify}}])
                   {% else %}
-                    {% if arg_default_values[idx] == nil %}
-                      arr << Athena::Types.convert_type(vals[{{idx}}], {{type}})
-                   {% else %}
-                      arr << (vals[{{idx}}]? ? Athena::Types.convert_type(vals[{{idx}}], {{type}}) : {{arg_default_values[idx]}})
-                    {% end %}
+                    arr << if val = vals[{{arg_names[idx].stringify}}]?
+                       Athena::Types.convert_type(val, {{type}})
+                    else
+                      {{arg_default_values[idx]}}
+                    end
                   {% end %}
                 {% end %}
                 ->{{c.name.id}}.{{m.name.id}}({{arg_types.splat}}).call(*Tuple({{arg_types.splat}}).from(arr))
@@ -91,7 +101,7 @@ module Athena::Routing
                 ->{ {{c.name.id}}.{{m.name.id}} }.call
               {% end %}
             end
-            @routes.add {{path}}, RouteAction(Proc(Array(String), {{m.return_type}}), Athena::Routing::Renderers::{{renderer}}({{m.return_type}})).new(%proc, {{path}}, Callbacks.new(_on_response, _on_request), {{m.name.stringify}}, {{groups}}){% if constraints %}, {{constraints}} {% end %}
+            @routes.add {{path}}, RouteAction(Proc(Hash(String, String?), {{m.return_type}}), Athena::Routing::Renderers::{{renderer}}({{m.return_type}})).new(%proc, {{path}}, Callbacks.new(_on_response, _on_request), {{m.name.stringify}}, {{groups}}, {{query_params}} of Param){% if constraints %}, {{constraints}} {% end %}
         {% end %}
       {% end %}
     end
@@ -105,17 +115,35 @@ module Athena::Routing
       end
       action = route.payload.not_nil!
 
-      params = route.params.values.reverse
+      params = Hash(String, String?).new
+
+       params.merge! route.params
 
       if context.request.body
         if content_type = context.request.headers["Content-Type"]? || "text/plain"
           body : String = context.request.body.not_nil!.gets_to_end
           case content_type.downcase
           when "application/json", "text/plain", "application/x-www-form-urlencoded"
-            params << body
+            params["body"] = body
           else
             halt context, 415, %({"code": 415, "message": "Invalid Content-Type: '#{content_type.downcase}'"})
           end
+        end
+      end
+
+      if reuest_params = context.request.query
+        query_params = HTTP::Params.parse reuest_params
+        action.query_params.each do |qp|
+          if val = query_params[qp.name]?
+            params[qp.name] = (pat = qp.pattern) ? (val =~ pat ? val : nil) : val
+          else
+            halt context, 400, %({"code": 400, "message": "Required query param '#{qp.name}' was not supplied."}) unless qp.type.nilable?
+          end
+        end
+      else
+        action.query_params.each do |qp|
+          halt context, 400, %({"code": 400, "message": "Required query param '#{qp.name}' was not supplied."}) unless qp.type.nilable? 
+          params[qp.name] = nil
         end
       end
 
