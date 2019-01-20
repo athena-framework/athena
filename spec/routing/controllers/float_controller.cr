@@ -9,12 +9,12 @@ class FloatController < Athena::Routing::ClassController
   end
 
   @[Athena::Routing::Post(path: "float32/")]
-  def self.float32_post(num : Float32) : Float32
+  def self.float32_post(body : Float32) : Float32
     it "should run correctly" do
-      num.should be_a Float32
-      num.should eq -2342.223_f32
+      body.should be_a Float32
+      body.should eq -2342.223_f32
     end
-    num
+    body
   end
 
   @[Athena::Routing::Get(path: "float64/:num")]
@@ -27,11 +27,11 @@ class FloatController < Athena::Routing::ClassController
   end
 
   @[Athena::Routing::Post(path: "float64")]
-  def self.float64_post(num : Float64) : Float64
+  def self.float64_post(body : Float64) : Float64
     it "should run correctly" do
-      num.should be_a Float64
-      num.should eq 2342.234234234223
+      body.should be_a Float64
+      body.should eq 2342.234234234223
     end
-    num
+    body
   end
 end

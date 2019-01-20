@@ -9,11 +9,11 @@ class BoolController < Athena::Routing::ClassController
   end
 
   @[Athena::Routing::Post(path: "bool")]
-  def self.bool_post(val : Bool) : Bool
+  def self.bool_post(body : Bool) : Bool
     it "should run correctly" do
-      val.should be_a Bool
-      val.should eq true
+      body.should be_a Bool
+      body.should eq true
     end
-    val
+    body
   end
 end

@@ -9,11 +9,11 @@ struct SController < Athena::Routing::StructController
   end
 
   @[Athena::Routing::Post(path: "struct")]
-  def self.do_work_post(val : Int32) : Int32
+  def self.do_work_post(body : Int32) : Int32
     it "should run correctly" do
-      val.should be_a Int32
-      val.should eq 123
+      body.should be_a Int32
+      body.should eq 123
     end
-    -val
+    -body
   end
 end

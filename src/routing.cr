@@ -148,7 +148,7 @@ module Athena::Routing
   private abstract struct Param; end
 
   # :nodoc:
-  private record RouteAction(A, R) < Action, action : A, path : String, callbacks : Callbacks, method : String, groups : Array(String), query_params : Array(Param), renderer : R.class = R
+  private record RouteAction(A, R, B) < Action, action : A, path : String, callbacks : Callbacks, method : String, groups : Array(String), query_params : Array(Param), body_type : B.class = B, renderer : R.class = R
 
   # :nodoc:
   private record Callbacks, on_response : Array(CallbackBase), on_request : Array(CallbackBase)
@@ -161,7 +161,6 @@ module Athena::Routing
 
   # Starts the HTTP server with the given *port*, *binding*, *ssl*, and *handlers*.
   def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [Athena::Routing::RouteHandler.new] of HTTP::Handler)
-
     if sfh = self.static_file_handler
       handlers.unshift sfh
     end

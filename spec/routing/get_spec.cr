@@ -51,6 +51,10 @@ describe Athena::Routing::Get do
         CLIENT.get("/users/17").body.should eq %({"id":17,"age":123})
       end
 
+      it "resolves a record that exists with a String PK" do
+        CLIENT.get("/users/str/71").body.should eq %({"id":71,"age":321})
+      end
+
       it "returns correct error if the record does not exist" do
         response = CLIENT.get("/users/34")
         response.body.should eq %({"code":404,"message":"An item with the provided ID could not be found."})
@@ -62,7 +66,7 @@ describe Athena::Routing::Get do
   describe "renderers" do
     describe "yaml" do
       it "should render correctly" do
-        CLIENT.get("/users/yaml/17").body.should eq %(---\nid: 17\nage: 123\npassword: monkey\n)
+        CLIENT.get("/users/yaml/17").body.should eq %(---\nid: 17\nage: 123\n)
       end
     end
 

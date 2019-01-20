@@ -9,12 +9,12 @@ class IntController < Athena::Routing::ClassController
   end
 
   @[Athena::Routing::Post(path: "int8")]
-  def self.int8_post(num : Int8) : Int8
+  def self.int8_post(body : Int8) : Int8
     it "should run correctly" do
-      num.should be_a Int8
-      num.should eq 123
+      body.should be_a Int8
+      body.should eq 123
     end
-    num
+    body
   end
 
   @[Athena::Routing::Get(path: "int16/:num")]
@@ -27,12 +27,12 @@ class IntController < Athena::Routing::ClassController
   end
 
   @[Athena::Routing::Post(path: "int16/")]
-  def self.int16_post(num : Int16) : Int16
+  def self.int16_post(body : Int16) : Int16
     it "should run correctly" do
-      num.should be_a Int16
-      num.should eq 456
+      body.should be_a Int16
+      body.should eq 456
     end
-    num
+    body
   end
 
   @[Athena::Routing::Get(path: "int32/:num")]
@@ -45,12 +45,12 @@ class IntController < Athena::Routing::ClassController
   end
 
   @[Athena::Routing::Post(path: "int32")]
-  def self.int32_post(num : Int32) : Int32
+  def self.int32_post(body : Int32) : Int32
     it "should run correctly" do
-      num.should be_a Int32
-      num.should eq 111111
+      body.should be_a Int32
+      body.should eq 111111
     end
-    num
+    body
   end
 
   @[Athena::Routing::Get(path: "int64/:num")]
@@ -63,12 +63,12 @@ class IntController < Athena::Routing::ClassController
   end
 
   @[Athena::Routing::Post(path: "int64")]
-  def self.int64_post(num : Int64) : Int64
+  def self.int64_post(body : Int64) : Int64
     it "should run correctly" do
-      num.should be_a Int64
-      num.should eq 9999999999999999
+      body.should be_a Int64
+      body.should eq 9999999999999999
     end
-    num
+    body
   end
 
   # @[Athena::Routing::Get(path: "int128/:num")]
@@ -99,12 +99,12 @@ class IntController < Athena::Routing::ClassController
   end
 
   @[Athena::Routing::Post(path: "uint8/")]
-  def self.uint8_post(num : UInt8) : UInt8
+  def self.uint8_post(body : UInt8) : UInt8
     it "should run correctly" do
-      num.should be_a UInt8
-      num.should eq 123
+      body.should be_a UInt8
+      body.should eq 123
     end
-    num
+    body
   end
 
   @[Athena::Routing::Get(path: "uint16/:num")]
@@ -117,12 +117,12 @@ class IntController < Athena::Routing::ClassController
   end
 
   @[Athena::Routing::Post(path: "uint16")]
-  def self.uint1_post(num : UInt16) : UInt16
+  def self.uint1_post(body : UInt16) : UInt16
     it "should run correctly" do
-      num.should be_a UInt16
-      num.should eq 456
+      body.should be_a UInt16
+      body.should eq 456
     end
-    num
+    body
   end
 
   @[Athena::Routing::Get(path: "uint32/:num")]
@@ -135,12 +135,12 @@ class IntController < Athena::Routing::ClassController
   end
 
   @[Athena::Routing::Post(path: "uint32")]
-  def self.uint32_post(num : UInt32) : UInt32
+  def self.uint32_post(body : UInt32) : UInt32
     it "should run correctly" do
-      num.should be_a UInt32
-      num.should eq 111111
+      body.should be_a UInt32
+      body.should eq 111111
     end
-    num
+    body
   end
 
   @[Athena::Routing::Get(path: "uint64/:num")]
@@ -153,12 +153,12 @@ class IntController < Athena::Routing::ClassController
   end
 
   @[Athena::Routing::Post(path: "uint64/")]
-  def self.uint64_post(num : UInt64) : UInt64
+  def self.uint64_post(body : UInt64) : UInt64
     it "should run correctly" do
-      num.should be_a UInt64
-      num.should eq 9999999999999999
+      body.should be_a UInt64
+      body.should eq 9999999999999999
     end
-    num
+    body
   end
 
   # @[Athena::Routing::Get(path: "uint128/:num")]

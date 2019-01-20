@@ -9,11 +9,11 @@ class StringController < Athena::Routing::ClassController
   end
 
   @[Athena::Routing::Post(path: "string")]
-  def self.string_post(val : String) : String
+  def self.string_post(body : String) : String
     it "should run correctly" do
-      val.should be_a String
-      val.should eq "sdfsd"
+      body.should be_a String
+      body.should eq "sdfsd"
     end
-    val
+    body
   end
 end

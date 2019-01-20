@@ -1,9 +1,19 @@
 require "./routing_spec_helper"
 
 describe Athena::Routing::Post do
-  describe "with an no params" do
-    it "works" do
-      CLIENT.post("/noParamsPost").body.should eq "foobar"
+  describe "with only body param" do
+    describe "that is optional" do
+      it "should return normally" do
+        CLIENT.post("/noParamsPostOptional").body.should eq "foobar"
+      end
+    end
+
+    describe "that is required" do
+      it "returns correct error" do
+        response = CLIENT.post("/noParamsPostRequired")
+        response.body.should eq %({"code": 400, "message": "Request body was not supplied."})
+        response.status_code.should eq 400
+      end
     end
   end
 

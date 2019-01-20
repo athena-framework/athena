@@ -22,14 +22,18 @@ class AthenaController < Athena::Routing::ClassController
     value
   end
 
-  @[Athena::Routing::Post(path: "/posts/:page")]
-  def self.default_value_post(page : Int32, body : Int32 = 1) : Int32
+  @[Athena::Routing::Post(path: "/posts/(:page)")]
+  def self.default_value_post(page : Int32, body : Int32? = 1) : Int32?
     it "should run correctly" do
       page.should be_a Int32
       page.should eq 99
-      [1, 100].should contain body
+      if b = body
+        [1, 100].should contain b
+      end
     end
-    page + body
+    if b = body
+      page + b
+    end
   end
 
   @[Athena::Routing::Get(path: "double/:val1/:val2")]
@@ -48,19 +52,24 @@ class AthenaController < Athena::Routing::ClassController
     time
   end
 
-  @[Athena::Routing::Post(path: "noParamsPost")]
-  def self.no_params_post : String
+  @[Athena::Routing::Post(path: "noParamsPostRequired")]
+  def self.no_params_post_required(body : String) : String
     "foobar"
   end
 
-  @[Athena::Routing::Post(path: "double/:val")]
-  def self.double_params_post(val1 : Int32, val2 : Int32) : Int32
+  @[Athena::Routing::Post(path: "noParamsPostOptional")]
+  def self.no_params_post_optional(body : String?) : String
+    "foobar"
+  end
+
+  @[Athena::Routing::Post(path: "double/:val1")]
+  def self.double_params_post(body : Int32, val1 : Int32) : Int32
     it "should run correctly" do
       val1.should be_a Int32
-      val2.should be_a Int32
+      body.should be_a Int32
       val1.should eq 750
-      val2.should eq 250
+      body.should eq 250
     end
-    val1 + val2
+    val1 + body
   end
 end

@@ -3,7 +3,7 @@ module Athena::Routing::Renderers
   struct JSONRenderer(T)
     def self.render(response : T, action : Action, context : HTTP::Server::Context) : String forall T
       context.response.headers.add "Content-Type", "application/json"
-      response.responds_to?(:serialize) ? response.serialize(action.groups) : response.to_json
+      response.to_json action.groups
     end
   end
 
@@ -11,7 +11,7 @@ module Athena::Routing::Renderers
   struct YAMLRenderer(T)
     def self.render(response : T, action : Action, context : HTTP::Server::Context) : String forall T
       context.response.headers.add "Content-Type", "text/x-yaml"
-      response.to_yaml
+      response.to_yaml action.groups
     end
   end
 

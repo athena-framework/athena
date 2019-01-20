@@ -1,5 +1,4 @@
 class User
-  include YAML::Serializable
   include CrSerializer
 
   property id : Int64?
@@ -12,10 +11,14 @@ class User
 
   # Mock out find method to emulate ORM method
   def self.find(val) : User?
-    if val == 17
-      user : self = new
+    user : self = new
+    if val.to_i == 17
       user.id = 17
       user.age = 123
+      user
+    elsif val == "71"
+      user.id = 71
+      user.age = 321
       user
     else
       nil
@@ -34,52 +37,52 @@ end
 
 class UserController < Athena::Routing::ClassController
   @[Athena::Routing::Post(path: "users")]
-  @[Athena::Routing::ParamConverter(param: "user", type: User, converter: RequestBody)]
-  def self.new_user(user : User) : User
-    user.id = 12
-    user
+  @[Athena::Routing::ParamConverter(param: "body", type: User, converter: RequestBody)]
+  def self.new_user(body : User) : User
+    body.id = 12
+    body
   end
 
   @[Athena::Routing::Post(path: "users/form")]
-  @[Athena::Routing::ParamConverter(param: "user", type: User, converter: FormData)]
-  def self.new_form_user(user : User) : User
+  @[Athena::Routing::ParamConverter(param: "body", type: User, converter: FormData)]
+  def self.new_form_user(body : User) : User
     it "should run correctly" do
-      user.should be_a User
-      user.id.should eq 99
-      user.age.should eq 1
-      user.password.should eq "monkey"
+      body.should be_a User
+      body.id.should eq 99
+      body.age.should eq 1
+      body.password.should eq "monkey"
     end
-    user
+    body
   end
 
   @[Athena::Routing::Put(path: "users")]
-  @[Athena::Routing::ParamConverter(param: "user", type: User, converter: RequestBody)]
-  def self.update_user(user : User) : User
+  @[Athena::Routing::ParamConverter(param: "body", type: User, converter: RequestBody)]
+  def self.update_user(body : User) : User
     it "should run correctly" do
-      user.should be_a User
-      user.id.should eq 17_i64
-      user.age.should eq 99
-      user.password.should eq "monkey"
+      body.should be_a User
+      body.id.should eq 17_i64
+      body.age.should eq 99
+      body.password.should eq "monkey"
     end
-    user
+    body
   end
 
-  @[Athena::Routing::Get(path: "users/yaml/:id")]
-  @[Athena::Routing::ParamConverter(param: "user", type: User, converter: Exists)]
+  @[Athena::Routing::Get(path: "users/yaml/:user_id")]
+  @[Athena::Routing::ParamConverter(param: "user", param_type: Int64, type: User, converter: Exists)]
   @[Athena::Routing::View(renderer: YAMLRenderer)]
   def self.get_user_yaml(user : User) : User
     user
   end
 
-  @[Athena::Routing::Get(path: "users/ecr/:id")]
-  @[Athena::Routing::ParamConverter(param: "user", type: User, converter: Exists)]
+  @[Athena::Routing::Get(path: "users/ecr/:user_id")]
+  @[Athena::Routing::ParamConverter(param: "user", param_type: Int64, type: User, converter: Exists)]
   @[Athena::Routing::View(renderer: ECRRenderer)]
   def self.get_user_ecr(user : User) : User
     user
   end
 
-  @[Athena::Routing::Get(path: "users/:id")]
-  @[Athena::Routing::ParamConverter(param: "user", type: User, converter: Exists)]
+  @[Athena::Routing::Get(path: "users/:user_id")]
+  @[Athena::Routing::ParamConverter(param: "user", param_type: Int64, type: User, converter: Exists)]
   def self.get_user(user : User) : User
     it "should run correctly" do
       user.should be_a User
@@ -90,9 +93,21 @@ class UserController < Athena::Routing::ClassController
     user
   end
 
-  @[Athena::Routing::Get(path: "admin/users/:id")]
+  @[Athena::Routing::Get(path: "users/str/:user_id")]
+  @[Athena::Routing::ParamConverter(param: "user", param_type: String, type: User, converter: Exists)]
+  def self.get_user_string(user : User) : User
+    it "should run correctly" do
+      user.should be_a User
+      user.id.should eq 71
+      user.age.should eq 321
+      user.password.should eq "monkey"
+    end
+    user
+  end
+
+  @[Athena::Routing::Get(path: "admin/users/:user_id")]
   @[Athena::Routing::View(groups: ["admin"])]
-  @[Athena::Routing::ParamConverter(param: "user", type: User, converter: Exists)]
+  @[Athena::Routing::ParamConverter(param: "user", param_type: Int64, type: User, converter: Exists)]
   def self.get_user_admin(user : User) : User
     it "should run correctly" do
       user.should be_a User
@@ -103,9 +118,9 @@ class UserController < Athena::Routing::ClassController
     user
   end
 
-  @[Athena::Routing::Get(path: "admin/users/:id/all")]
+  @[Athena::Routing::Get(path: "admin/users/:user_id/all")]
   @[Athena::Routing::View(groups: ["admin", "default"])]
-  @[Athena::Routing::ParamConverter(param: "user", type: User, converter: Exists)]
+  @[Athena::Routing::ParamConverter(param: "user", param_type: Int64, type: User, converter: Exists)]
   def self.get_user_admin_all(user : User) : User
     it "should run correctly" do
       user.should be_a User
