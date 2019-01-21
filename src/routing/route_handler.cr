@@ -153,9 +153,17 @@ module Athena::Routing
         query_params = HTTP::Params.parse reuest_params
         action.query_params.each do |qp|
           next if qp.name == "placeholder"
-
           if val = query_params[qp.as(QueryParam).name]?
-            params[qp.as(QueryParam).name] = (pat = qp.as(QueryParam).pattern) ? (val =~ pat ? val : nil) : val
+            params[qp.as(QueryParam).name] = if pat = qp.as(QueryParam).pattern
+                                               if val =~ pat
+                                                 val
+                                               else
+                                                 halt context, 400, %({"code": 400, "message": "Expected query param '#{qp.as(QueryParam).name}' to match '#{pat}' but got '#{val}'"}) unless qp.as(QueryParam).type.nilable?
+                                                 nil
+                                               end
+                                             else
+                                               val
+                                             end
           else
             halt context, 400, %({"code": 400, "message": "Required query param '#{qp.as(QueryParam).name}' was not supplied."}) unless qp.as(QueryParam).type.nilable?
           end

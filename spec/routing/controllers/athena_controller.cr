@@ -72,4 +72,24 @@ class AthenaController < Athena::Routing::ClassController
     end
     val1 + body
   end
+
+  @[Athena::Routing::Get(path: "get/query_param_constraint_required", query: {"time" => /\d:\d:\d/})]
+  def self.query_param_constraint_required(time : String) : String
+    time
+  end
+
+  @[Athena::Routing::Get(path: "get/query_param_required", query: {"time" => nil})]
+  def self.query_param_required(time : String) : String
+    time
+  end
+
+  @[Athena::Routing::Get(path: "get/query_params_constraint_optional", query: {"time" => /\d:\d:\d/})]
+  def self.query_param_optional_constraint(time : String?) : String?
+    time
+  end
+
+  @[Athena::Routing::Get(path: "get/query_params_optional", query: {"time" => nil})]
+  def self.query_param_optional(time : String?) : String?
+    time
+  end
 end
