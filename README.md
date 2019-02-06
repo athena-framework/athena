@@ -13,7 +13,7 @@ Modular annotation based web framework with built in param conversion inspired b
 
 ## Documentation
 
-[Documentation](docs/)
+[Documentation](https://github.com/Blacksmoke16/athena/tree/master/docs)
 
 ## Installation
 
