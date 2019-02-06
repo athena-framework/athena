@@ -63,6 +63,13 @@ class AthenaController < Athena::Routing::ClassController
     val1 + body
   end
 
+  @[Athena::Routing::Get(path: "ecr_html")]
+  @[Athena::Routing::View(renderer: ECRRenderer)]
+  def self.ecr_html : String
+    name = "John"
+    ECR.render "spec/routing/greeting.ecr"
+  end
+
   @[Athena::Routing::Get(path: "get/query_param_constraint_required", query: {"time" => /\d:\d:\d/})]
   def self.query_param_constraint_required(time : String) : String
     time
