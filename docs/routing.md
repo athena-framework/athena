@@ -15,6 +15,8 @@ Routes are defined by adding a `@[Athena::Routing::{{HTTP_METHOD}}(path: "/")]` 
 ```Crystal
 require "athena/routing"
 
+# The `Controller` annotation can be applied to set a prefix to use for all routes within `self`
+@[Athena::Routing::Controller(prefix: "athena")]
 class TestController < Athena::Routing::ClassController
   # A GET endpoint with no params returning a string.
   # By default, responses automatically include a
@@ -60,16 +62,16 @@ class TestController < Athena::Routing::ClassController
 end
 
 CLIENT = HTTP::Client.new "localhost", 8888
-CLIENT.get "/me"                         # => "Jim"
-CLIENT.get "/add/50/25"                  # => 75
-CLIENT.get "/event/foobar?time=1:1:1"    # => "foobar occured at 1:1:1"
-CLIENT.get "/time/12:45:30"              # => "12:45:30"
-CLIENT.get "/time/12:aa:30"              # => 404 not found
+CLIENT.get "/athena/me"                         # => "Jim"
+CLIENT.get "/athena/add/50/25"                  # => 75
+CLIENT.get "/athena/event/foobar?time=1:1:1"    # => "foobar occured at 1:1:1"
+CLIENT.get "/athena/time/12:45:30"              # => "12:45:30"
+CLIENT.get "/athena/time/12:aa:30"              # => 404 not found
 
 # If no `Content-Type` header is provided, the type of
 # the body is assumed to be `text/plain`.
-CLIENT.post "/test/foo", body: "foo"     # => true
-CLIENT.post "/formData/foo", body: "foo" # => true
+CLIENT.post "/athena/test/foo", body: "foo"     # => true
+CLIENT.post "/athena/formData/foo", body: "foo" # => true
 ```
 
 Note that the return type of each action is an actual type, not just a `String`.  Serialization is handled by `CrSerializer`.  This allows the actions to be clean and only focus on accomplishing the task of that action, while letting the serialization happen behind the scenes.

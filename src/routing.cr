@@ -106,6 +106,23 @@ module Athena::Routing
   # ```
   annotation View; end
 
+  # Defines options that affect the whole controller.
+  # ## Fields
+  # * prefix : String - Apply a prefix to all actions within `self`.
+  #
+  # ## Example
+  # ```
+  # @[Athena::Routing::Controller(prefix: "calendar")]
+  # class CalendarController < Athena::Routing::ClassController
+  #   # The rotue of this action would be `GET /calendar/events`
+  #   @[Athena::Routing::Get(path: "events")]
+  #   def self.events : String
+  #     "events"
+  #   end
+  # end
+  # ```
+  annotation Controller; end
+
   # Raised when a an object could not be found in the `Athena::Routing::Converters::Exists` converter.
   class NotFoundException < Exception
     # Returns a 404 not found JSON error.

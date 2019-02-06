@@ -9,6 +9,7 @@ module Athena::Routing
       {% for c in Athena::Routing::ClassController.all_subclasses + Athena::Routing::StructController.all_subclasses %}
         {% methods = c.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
         {% instance_methods = c.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
+        {% class_ann = c.annotation(Athena::Routing::Controller) %}
 
         # Raise compile time exception if a route is defined on a instance method.
         {% unless instance_methods.empty? %}
@@ -62,7 +63,9 @@ module Athena::Routing
             {% route_def = d %}
           {% end %}
 
-          {% path = "/" + method + (route_def[:path].starts_with?('/') ? route_def[:path] : "/" + route_def[:path]) %}
+
+          {% prefix = class_ann && class_ann[:prefix] != nil ? (class_ann[:prefix].starts_with?('/') ? class_ann[:prefix] : "/" + class_ann[:prefix]) : "" %}
+          {% path = "/" + method + prefix + (route_def[:path].starts_with?('/') ? route_def[:path] : "/" + route_def[:path]) %}
 
           {% arg_names = m.args.map(&.name.stringify) %}
           {% query_params = route_def[:query] ? route_def[:query].keys : [] of String %}

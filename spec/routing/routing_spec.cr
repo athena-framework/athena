@@ -34,6 +34,13 @@ describe Athena::Routing do
     end
   end
 
+  describe "with a prefix" do
+    it "should route correctly" do
+      CLIENT.get("/calendar/events").body.should eq "\"events\""
+      CLIENT.get("/calendar/external").body.should eq "\"calendars\""
+    end
+  end
+
   describe "with a route that doesnt exist" do
     it "returns correct error" do
       response = CLIENT.get("/dsfdsf")
