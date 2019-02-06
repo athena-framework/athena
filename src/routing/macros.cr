@@ -7,8 +7,3 @@ macro halt(ctx, status_code = 200, body = "")
   call_next ctx
   return
 end
-
-# Dummy function to get `Top Level Namespace` to render.
-#
-# TODO: Remove once [this issue](https://github.com/crystal-lang/crystal/issues/6637) is resolved.
-def foo; end

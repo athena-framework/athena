@@ -66,6 +66,7 @@ class AthenaController < Athena::Routing::ClassController
   @[Athena::Routing::Get(path: "ecr_html")]
   @[Athena::Routing::View(renderer: ECRRenderer)]
   def self.ecr_html : String
+    # ameba:disable Lint/UselessAssign
     name = "John"
     ECR.render "spec/routing/greeting.ecr"
   end

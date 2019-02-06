@@ -212,11 +212,11 @@ Actions that return a string are dumped straight into the response body, without
 require "athena/routing"
 
 class Test < Athena::Routing::ClassController
-  # This return `Hello foo!` when that route is requested.
   @[Athena::Routing::Get(path: "/foo")]
+  @[Athena::Routing::View(renderer: ECRRenderer)]
   def self.foo : String
     name = "foo"
-    ECR.render "./src/greeting.ecr"
+    ECR.render "src/greeting.ecr"
   end
 end
 ```
