@@ -19,9 +19,9 @@ require "./common/types"
 module Athena::Routing
   # :nodoc:
   module HTTP::Handler
-    def call_next(context : HTTP::Server::Context)
+    def call_next(ctx : HTTP::Server::Context)
       if next_handler = @next
-        next_handler.call(context)
+        next_handler.call(ctx)
       end
     end
   end
@@ -74,10 +74,11 @@ module Athena::Routing
   # * param : `String` - The param that should go through the conversion.
   # * type : `T` - The type the param should be converted to.
   # * converter : `Athena::Routing::Converters` - What converter to use for the conversion.  Can be `Converters::RequestBody`, `Converters::Exists`, `Converters::FormData`, or a custom defined converter.
+  # * [id_type] : `P` - The type the id should be resolved to before calling `T.find`.  Only required for `Converters::Exists`.
   #
   # ## Example
   # ```
-  # @[Athena::Routing::ParamConverter(param: "user", type: User, converter: Exists)]
+  # @[Athena::Routing::ParamConverter(param: "user", id_type: Int32, type: User, converter: Exists)]
   # ```
   annotation ParamConverter; end
 

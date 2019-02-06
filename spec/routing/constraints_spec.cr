@@ -3,7 +3,7 @@ require "./routing_spec_helper"
 describe "Constraints" do
   context "that is valid" do
     it "works" do
-      CLIENT.get("/get/constraints/4:5:6").body.should eq "4:5:6"
+      CLIENT.get("/get/constraints/4:5:6").body.should eq "\"4:5:6\""
     end
   end
 

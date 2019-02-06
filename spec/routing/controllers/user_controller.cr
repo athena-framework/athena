@@ -1,3 +1,10 @@
+class Customer
+  include CrSerializer
+
+  property name : String = "MyCust"
+  property id : Int32 = 1
+end
+
 class User
   include CrSerializer
 
@@ -8,6 +15,13 @@ class User
 
   @[CrSerializer::Options(groups: ["admin"])]
   property password : String = "monkey"
+
+  @[CrSerializer::Expandable]
+  property customer : Customer?
+
+  def customer : Customer
+    Customer.new
+  end
 
   # Mock out find method to emulate ORM method
   def self.find(val) : User?
@@ -46,24 +60,20 @@ class UserController < Athena::Routing::ClassController
   @[Athena::Routing::Post(path: "users/form")]
   @[Athena::Routing::ParamConverter(param: "body", type: User, converter: FormData)]
   def self.new_form_user(body : User) : User
-    it "should run correctly" do
-      body.should be_a User
-      body.id.should eq 99
-      body.age.should eq 1
-      body.password.should eq "monkey"
-    end
+    body.should be_a User
+    body.id.should eq 99
+    body.age.should eq 1
+    body.password.should eq "monkey"
     body
   end
 
   @[Athena::Routing::Put(path: "users")]
   @[Athena::Routing::ParamConverter(param: "body", type: User, converter: RequestBody)]
   def self.update_user(body : User) : User
-    it "should run correctly" do
-      body.should be_a User
-      body.id.should eq 17_i64
-      body.age.should eq 99
-      body.password.should eq "monkey"
-    end
+    body.should be_a User
+    body.id.should eq 17_i64
+    body.age.should eq 99
+    body.password.should eq "monkey"
     body
   end
 
@@ -84,24 +94,20 @@ class UserController < Athena::Routing::ClassController
   @[Athena::Routing::Get(path: "users/:user_id")]
   @[Athena::Routing::ParamConverter(param: "user", param_type: Int64, type: User, converter: Exists)]
   def self.get_user(user : User) : User
-    it "should run correctly" do
-      user.should be_a User
-      user.id.should eq 17
-      user.age.should eq 123
-      user.password.should eq "monkey"
-    end
+    user.should be_a User
+    user.id.should eq 17
+    user.age.should eq 123
+    user.password.should eq "monkey"
     user
   end
 
   @[Athena::Routing::Get(path: "users/str/:user_id")]
   @[Athena::Routing::ParamConverter(param: "user", param_type: String, type: User, converter: Exists)]
   def self.get_user_string(user : User) : User
-    it "should run correctly" do
-      user.should be_a User
-      user.id.should eq 71
-      user.age.should eq 321
-      user.password.should eq "monkey"
-    end
+    user.should be_a User
+    user.id.should eq 71
+    user.age.should eq 321
+    user.password.should eq "monkey"
     user
   end
 
@@ -109,12 +115,10 @@ class UserController < Athena::Routing::ClassController
   @[Athena::Routing::View(groups: ["admin"])]
   @[Athena::Routing::ParamConverter(param: "user", param_type: Int64, type: User, converter: Exists)]
   def self.get_user_admin(user : User) : User
-    it "should run correctly" do
-      user.should be_a User
-      user.id.should eq 17
-      user.age.should eq 123
-      user.password.should eq "monkey"
-    end
+    user.should be_a User
+    user.id.should eq 17
+    user.age.should eq 123
+    user.password.should eq "monkey"
     user
   end
 
@@ -122,12 +126,10 @@ class UserController < Athena::Routing::ClassController
   @[Athena::Routing::View(groups: ["admin", "default"])]
   @[Athena::Routing::ParamConverter(param: "user", param_type: Int64, type: User, converter: Exists)]
   def self.get_user_admin_all(user : User) : User
-    it "should run correctly" do
-      user.should be_a User
-      user.id.should eq 17
-      user.age.should eq 123
-      user.password.should eq "monkey"
-    end
+    user.should be_a User
+    user.id.should eq 17
+    user.age.should eq 123
+    user.password.should eq "monkey"
     user
   end
 end

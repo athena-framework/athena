@@ -4,7 +4,7 @@ describe Athena::Routing do
   describe "with no params" do
     describe "GET" do
       it "works" do
-        CLIENT.get("/noParamsGet").body.should eq "foobar"
+        CLIENT.get("/noParamsGet").body.should eq "\"foobar\""
       end
     end
 
@@ -12,7 +12,7 @@ describe Athena::Routing do
       describe "with only post body" do
         describe "that is optional" do
           it "should return normally" do
-            CLIENT.post("/noParamsPostOptional").body.should eq "foobar"
+            CLIENT.post("/noParamsPostOptional").body.should eq "\"foobar\""
           end
         end
 
@@ -50,7 +50,7 @@ describe Athena::Routing do
     it "works" do
       CLIENT.get("/posts/123").body.should eq "123"
       CLIENT.get("/posts/").body.should eq "99"
-      CLIENT.get("/posts/foo/bvar").body.should eq "foo"
+      CLIENT.get("/posts/foo/bvar").body.should eq "\"foo\""
 
       CLIENT.post("/posts/99", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "100"
       CLIENT.post("/posts/99", body: "100", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "199"

@@ -122,35 +122,34 @@ module Athena::Routing
       {% end %}
     end
 
-    def call(context : HTTP::Server::Context)
-      search_key = '/' + context.request.method + context.request.path
+    def call(ctx : HTTP::Server::Context)
+      search_key = '/' + ctx.request.method + ctx.request.path
       route = @routes.find search_key
 
-      unless route.found?
-        halt context, 404, %({"code": 404, "message": "No route found for '#{context.request.method} #{context.request.path}'"})
-      end
-      action = route.payload.not_nil!
+      halt ctx, 404, %({"code": 404, "message": "No route found for '#{ctx.request.method} #{ctx.request.path}'"}) unless route.found?
 
+      action = route.payload.not_nil!
       params = Hash(String, String?).new
 
       params.merge! route.params
 
-      if context.request.body
-        if content_type = context.request.headers["Content-Type"]? || "text/plain"
-          body : String = context.request.body.not_nil!.gets_to_end
+      if ctx.request.body
+        if content_type = ctx.request.headers["Content-Type"]? || "text/plain"
+          body : String = ctx.request.body.not_nil!.gets_to_end
           case content_type.downcase
           when "application/json", "text/plain", "application/x-www-form-urlencoded"
             params["body"] = body
           else
-            halt context, 415, %({"code": 415, "message": "Invalid Content-Type: '#{content_type.downcase}'"})
+            halt ctx, 415, %({"code": 415, "message": "Invalid Content-Type: '#{content_type.downcase}'"})
           end
         end
       else
-        halt context, 400, %({"code": 400, "message": "Request body was not supplied."}) if !action.body_type.nilable? && action.body_type != Nil
+        halt ctx, 400, %({"code": 400, "message": "Request body was not supplied."}) if !action.body_type.nilable? && action.body_type != Nil
       end
 
-      if reuest_params = context.request.query
+      if reuest_params = ctx.request.query
         query_params = HTTP::Params.parse reuest_params
+
         action.query_params.each do |qp|
           next if qp.name == "placeholder"
           if val = query_params[qp.as(QueryParam).name]?
@@ -158,49 +157,48 @@ module Athena::Routing
                                                if val =~ pat
                                                  val
                                                else
-                                                 halt context, 400, %({"code": 400, "message": "Expected query param '#{qp.as(QueryParam).name}' to match '#{pat}' but got '#{val}'"}) unless qp.as(QueryParam).type.nilable?
-                                                 nil
+                                                 halt ctx, 400, %({"code": 400, "message": "Expected query param '#{qp.as(QueryParam).name}' to match '#{pat}' but got '#{val}'"}) unless qp.as(QueryParam).type.nilable?
                                                end
                                              else
                                                val
                                              end
           else
-            halt context, 400, %({"code": 400, "message": "Required query param '#{qp.as(QueryParam).name}' was not supplied."}) unless qp.as(QueryParam).type.nilable?
+            halt ctx, 400, %({"code": 400, "message": "Required query param '#{qp.as(QueryParam).name}' was not supplied."}) unless qp.as(QueryParam).type.nilable?
           end
         end
       else
         action.query_params.each do |qp|
           next if qp.name == "placeholder"
-          halt context, 400, %({"code": 400, "message": "Required query param '#{qp.as(QueryParam).name}' was not supplied."}) unless qp.as(QueryParam).type.nilable?
+          halt ctx, 400, %({"code": 400, "message": "Required query param '#{qp.as(QueryParam).name}' was not supplied."}) unless qp.as(QueryParam).type.nilable?
           params[qp.as(QueryParam).name] = nil
         end
       end
 
       action.as(RouteAction).callbacks.on_request.each do |ce|
         if (ce.as(CallbackEvent).only_actions.empty? || ce.as(CallbackEvent).only_actions.includes?(action.as(RouteAction).method)) && (ce.as(CallbackEvent).exclude_actions.empty? || !ce.as(CallbackEvent).exclude_actions.includes?(action.method))
-          ce.as(CallbackEvent).event.call(context)
+          ce.as(CallbackEvent).event.call(ctx)
         end
       end
 
       response = action.as(RouteAction).action.call params
 
-      context.response.print response.is_a?(String) ? response : action.as(RouteAction).renderer.render response, action, context
+      ctx.response.print action.as(RouteAction).renderer.render response, ctx, action.groups
 
       action.as(RouteAction).callbacks.on_response.each do |ce|
         if (ce.as(CallbackEvent).only_actions.empty? || ce.as(CallbackEvent).only_actions.includes?(action.as(RouteAction).method)) && (ce.as(CallbackEvent).exclude_actions.empty? || !ce.as(CallbackEvent).exclude_actions.includes?(action.method))
-          ce.as(CallbackEvent).event.call(context)
+          ce.as(CallbackEvent).event.call(ctx)
         end
       end
     rescue e : ArgumentError
-      halt context, 400, %({"code": 400, "message": "#{e.message}"})
+      halt ctx, 400, %({"code": 400, "message": "#{e.message}"})
     rescue validation_exception : CrSerializer::Exceptions::ValidationException
-      halt context, 400, validation_exception.to_json
+      halt ctx, 400, validation_exception.to_json
     rescue not_found_exception : Athena::Routing::NotFoundException
-      halt context, 404, not_found_exception.to_json
+      halt ctx, 404, not_found_exception.to_json
     rescue json_parse_exception : JSON::ParseException
       if msg = json_parse_exception.message
         if parts = msg.match(/Expected (\w+) but was (\w+) .*[\r\n]*.+#(\w+)/)
-          halt context, 400, %({"code": 400, "message": "Expected '#{parts[3]}' to be #{parts[1]} but got #{parts[2]}"})
+          halt ctx, 400, %({"code": 400, "message": "Expected '#{parts[3]}' to be #{parts[1]} but got #{parts[2]}"})
         end
       end
     end

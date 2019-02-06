@@ -94,8 +94,8 @@ describe "param conversion" do
 
   context "String" do
     it "String" do
-      CLIENT.get("/string/sdfsd").body.should eq "sdfsd"
-      CLIENT.post("/string", body: "sdfsd", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "sdfsd"
+      CLIENT.get("/string/sdfsd").body.should eq "\"sdfsd\""
+      CLIENT.post("/string", body: "sdfsd", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "\"sdfsd\""
     end
   end
 

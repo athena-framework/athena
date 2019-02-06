@@ -6,30 +6,24 @@ class AthenaController < Athena::Routing::ClassController
 
   @[Athena::Routing::Get(path: "/posts/(:page)")]
   def self.default_value(page : Int32 = 99) : Int32
-    it "should run correctly" do
-      page.should be_a Int32
-      [123, 99].should contain page
-    end
+    page.should be_a Int32
+    [123, 99].should contain page
     page
   end
 
   @[Athena::Routing::Get(path: "/posts/:value/bvar")]
   def self.same_path(value : String) : String
-    it "should run correctly" do
-      value.should be_a String
-      value.should eq "foo"
-    end
+    value.should be_a String
+    value.should eq "foo"
     value
   end
 
   @[Athena::Routing::Post(path: "/posts/(:page)")]
   def self.default_value_post(page : Int32, body : Int32? = 1) : Int32?
-    it "should run correctly" do
-      page.should be_a Int32
-      page.should eq 99
-      if b = body
-        [1, 100].should contain b
-      end
+    page.should be_a Int32
+    page.should eq 99
+    if b = body
+      [1, 100].should contain b
     end
     if b = body
       page + b
@@ -38,12 +32,10 @@ class AthenaController < Athena::Routing::ClassController
 
   @[Athena::Routing::Get(path: "double/:val1/:val2")]
   def self.double_params(val1 : Int32, val2 : Int32) : Int32
-    it "should run correctly" do
-      val1.should be_a Int32
-      val2.should be_a Int32
-      val1.should eq 1000
-      val2.should eq 9000
-    end
+    val1.should be_a Int32
+    val2.should be_a Int32
+    val1.should eq 1000
+    val2.should eq 9000
     val1 + val2
   end
 
@@ -64,12 +56,10 @@ class AthenaController < Athena::Routing::ClassController
 
   @[Athena::Routing::Post(path: "double/:val1")]
   def self.double_params_post(body : Int32, val1 : Int32) : Int32
-    it "should run correctly" do
-      val1.should be_a Int32
-      body.should be_a Int32
-      val1.should eq 750
-      body.should eq 250
-    end
+    val1.should be_a Int32
+    body.should be_a Int32
+    val1.should eq 750
+    body.should eq 250
     val1 + body
   end
 
@@ -88,8 +78,18 @@ class AthenaController < Athena::Routing::ClassController
     time
   end
 
+  @[Athena::Routing::Get(path: "get/query_params_constraint_optional_default", query: {"time" => /\d:\d:\d/})]
+  def self.query_param_optional_constraint_default(time : String? = "foo") : String?
+    time
+  end
+
   @[Athena::Routing::Get(path: "get/query_params_optional", query: {"time" => nil})]
   def self.query_param_optional(time : String?) : String?
     time
+  end
+
+  @[Athena::Routing::Get(path: "get/query_params_optional_default", query: {"page" => nil})]
+  def self.query_param_optional_default(page : Int32? = 999) : Int32?
+    page
   end
 end

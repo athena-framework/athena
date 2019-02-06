@@ -13,7 +13,7 @@ describe "QueryParams" do
 
       describe "that is supplied" do
         it "should return the value" do
-          CLIENT.get("/get/query_param_constraint_required?time=1:2:3").body.should eq "1:2:3"
+          CLIENT.get("/get/query_param_constraint_required?time=1:2:3").body.should eq "\"1:2:3\""
         end
       end
 
@@ -37,7 +37,7 @@ describe "QueryParams" do
 
       describe "that is supplied" do
         it "should return the value" do
-          CLIENT.get("/get/query_param_required?time=1:2:3").body.should eq "1:2:3"
+          CLIENT.get("/get/query_param_required?time=1:2:3").body.should eq "\"1:2:3\""
         end
       end
     end
@@ -53,13 +53,19 @@ describe "QueryParams" do
 
       describe "that is supplied" do
         it "should return the value" do
-          CLIENT.get("/get/query_params_constraint_optional?time=1:2:3").body.should eq "1:2:3"
+          CLIENT.get("/get/query_params_constraint_optional?time=1:2:3").body.should eq "\"1:2:3\""
         end
       end
 
       describe "that is supplied but doesn't match" do
         it "should return nil" do
           CLIENT.get("/get/query_params_constraint_optional").body.should eq "null"
+        end
+      end
+
+      describe "that is not supplied but has a default value" do
+        it "should return the default value" do
+          CLIENT.get("/get/query_params_constraint_optional_default").body.should eq "\"foo\""
         end
       end
     end
@@ -73,7 +79,21 @@ describe "QueryParams" do
 
       describe "that is supplied" do
         it "should return the value" do
-          CLIENT.get("/get/query_params_optional?time=1:2:3").body.should eq "1:2:3"
+          CLIENT.get("/get/query_params_optional?time=1:2:3").body.should eq "\"1:2:3\""
+        end
+      end
+    end
+
+    context "with a default value" do
+      describe "that is not provided " do
+        it "should return the default value" do
+          CLIENT.get("/get/query_params_optional_default").body.should eq "999"
+        end
+      end
+
+      describe "that is supplied" do
+        it "should return the value" do
+          CLIENT.get("/get/query_params_optional_default?page=13").body.should eq "13"
         end
       end
     end

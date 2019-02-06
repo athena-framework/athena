@@ -4,7 +4,7 @@ Athena's routing is unique in two key areas:
 
 * Route Definition - Defined by adding specific annotations to methods, which acts as the action to the route.  
   * This can allow for added type/compile time safety, and ability to document the API's endpoints; just like a normal method.
-* Parameters - Route path/body params can are automatically casted to the correct types, based on that route's action's parameter types.
+* Parameters - Route path/body/query params are automatically casted to the correct types, based on that route's action's parameter types.
 
 ## Defining Routes
 
@@ -17,6 +17,8 @@ require "athena/routing"
 
 class TestController < Athena::Routing::ClassController
   # A GET endpoint with no params returning a string.
+  # By default, responses automatically include a
+  # `content-type: application/json` header
   @[Athena::Routing::Get(path: "/me")]
   def self.get_me : String
     "Jim"
@@ -27,46 +29,82 @@ class TestController < Athena::Routing::ClassController
   def self.add(val1 : Int32, val2 : Int32) : Int32
     val1 + val2
   end
-  
+
+  # A GET endpoint with an String rotue param, a required string query param returning a String.
+  @[Athena::Routing::Get(path: "/event/:event_name/", query: {"time" => /\d:\d:\d/})]
+  def self.event_time(event_name : String, time : String) : String
+    "#{event_name} occured at #{time}"
+  end
+
   # A GET endpoint with a param constraints.
   # The param must match the supplied regex or
   # it will not match and return a 404 error.
-  @[Athena::Routing::Get(path: "/time/:time/", constraints: /\d{2}:\d{2}:\d{2}/)]
-  def self.add(time : String) : String
+  @[Athena::Routing::Get(path: "/time/:time/", constraints: {"time" => /\d{2}:\d{2}:\d{2}/})]
+  def self.get_constraint(time : String) : String
     time
   end
-    
+
   # A POST endpoint with a route param and a body param returning a Bool.
-  #
-  # NOTE: The post body param is always the last defined action argument.
   @[Athena::Routing::Post(path: "/test/:expected")]
-  def self.add(expected : String, actual : String) : Bool
-    expected == actual
+  def self.post_body(expected : String, body : String) : Bool
+    expected == body
   end
-  
+
   # A POST endpoint with form data param.
-  # Form data is returned in the form of an `HTTP::Params` object
+  # Form data is supplied in the form of an `HTTP::Params` object
   # as a way to have a singular container for the data.
-  #
-  # NOTE: The post body param is always the last defined action argument.
-  @[Athena::Routing::Post(path: "/test/")]
-  def self.add(data : HTTP::Params) : Bool
-    expected == actual
+  @[Athena::Routing::Post(path: "/formData/:expected")]
+  def self.form_data(body : HTTP::Params, expected : String) : Bool
+    expected == body["name"]
   end
 end
 
 CLIENT = HTTP::Client.new "localhost", 8888
-CLIENT.get "/me" # => Jim
-CLIENT.get "/add/50/25" # => 75
-CLIENT.get "/time/12:45:30" # => "12:45:30"
-CLIENT.get "/time/12:aa:30" # => 404 not found
+CLIENT.get "/me"                         # => "Jim"
+CLIENT.get "/add/50/25"                  # => 75
+CLIENT.get "/event/foobar?time=1:1:1"    # => "foobar occured at 1:1:1"
+CLIENT.get "/time/12:45:30"              # => "12:45:30"
+CLIENT.get "/time/12:aa:30"              # => 404 not found
 
 # If no `Content-Type` header is provided, the type of
 # the body is assumed to be `text/plain`.
-CLIENT.post "/test/foo", body: "foo" # => true
+CLIENT.post "/test/foo", body: "foo"     # => true
+CLIENT.post "/formData/foo", body: "foo" # => true
 ```
 
 Note that the return type of each action is an actual type, not just a `String`.  Serialization is handled by `CrSerializer`.  This allows the actions to be clean and only focus on accomplishing the task of that action, while letting the serialization happen behind the scenes.
+
+The param placeholder names **_MUST_** match the parameter names of the action.  The order in which the action's parameters are defined does not matter.
+
+### Query Params
+
+Query param are defined in the route annotation using the `query` field of type `Hash(String, Regex?)`.
+
+```Crystal
+require "athena/routing"
+
+class TestController < Athena::Routing::ClassController
+  # An optional query param `time` with a default value and a constraint
+  @[Athena::Routing::Get(path: "/event/:event_name/", query: {"time" => /\d:\d:\d/})]
+  def self.event_time(event_name : String, time : String? = "1:1:1") : String
+    "#{event_name} occured at #{time}"
+  end
+  
+  # A required query param `query` without a constraint
+  @[Athena::Routing::Get(path: "/event/:event_name/", query: {"query" => nil})]
+  def self.event(event_name : String, query : String) : String
+    "#{event_name} occured at #{query}"
+  end
+end
+```
+
+#### Optionality 
+
+If a query param's type is nilable in the route's action parameters, it is considered to be optional.  If no default value is supplied, its value will simply be `nil` if it is not supplied.  If a query param's type is _not_ nilable; it is considered required and will raise a 400 if not supplied.
+
+#### Constraints
+
+A query param can have a `Regex` pattern attached to it.  If the query param is required and the pattern does not match, a 400 error will be raised.  If the param is optional and does not match, if no default value is supplied, its value will be `nil`.
 
 ### Undefined Route
 
@@ -81,7 +119,7 @@ If a request is made to a route that has not been declared, a 404 error is retur
 
 ### Default Route Values
 
-A default value can be assigned to an action param.  If that route param is declared as optional, that value will be used if the optional param is not given.  
+A default value can be assigned to an action param.  If that route param is declared as optional, that value will be used if value is not supplied.  
 
 ```Crystal
 require "athena/routing"
@@ -113,7 +151,7 @@ require "athena/routing"
 
 @[Athena::Routing::Get(path: "admin/users/:id")]
 @[Athena::Routing::View(groups: ["admin"])]
-@[Athena::Routing::ParamConverter(param: "user", type: User, converter: Exists)]
+@[Athena::Routing::ParamConverter(param: "user", id_type: Int32, type: User, converter: Exists)]
 def self.get_user_admin(user : User) : User
   user
 end
@@ -133,7 +171,7 @@ require "athena/routing"
 class UserController < Athena::Routing::ClassController
   # Assuming the found user's age is 17, name Bob, and password is abc123
   @[Athena::Routing::Get(path: "users/yaml/:id")]
-  @[Athena::Routing::ParamConverter(param: "user", type: User, converter: Exists)]
+  @[Athena::Routing::ParamConverter(param: "user", id_type: Int32, type: User, converter: Exists)]
   @[Athena::Routing::View(renderer: YAMLRenderer)]
   def self.get_user_yaml(user : User) : User
     user
@@ -153,7 +191,7 @@ class UserController < Athena::Routing::ClassController
   # Assuming the found user's age is 17, and name Bob.
   # Requires the return object implements `to_s` method using `ECR.def_to_s "user.ecr"`
   @[Athena::Routing::Get(path: "users/ecr/:id")]
-  @[Athena::Routing::ParamConverter(param: "user", type: User, converter: Exists)]
+  @[Athena::Routing::ParamConverter(param: "user", id_type: Int32, type: User, converter: Exists)]
   @[Athena::Routing::View(renderer: ECRRenderer)]
   def self.get_user_ecr(user : User) : User
     user
@@ -259,7 +297,7 @@ require "athena/routing"
 
 class UserController < Athena::Routing::ClassController
   @[Athena::Routing::Get(path: "users/:id")]
-  @[Athena::Routing::ParamConverter(param: "user", type: User, converter: Exists)]
+  @[Athena::Routing::ParamConverter(param: "user", id_type: Int32, type: User, converter: Exists)]
   def self.get_user(user : User) : String
     "This user is #{user.age} years old"
   end
