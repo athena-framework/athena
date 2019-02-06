@@ -43,7 +43,7 @@ module Athena::Types
   {% end %}
 
   # Converts a `String` to `HTTP::Params`.
-  def convert_type(val : String, t : HTTP::Params.class) : HTTP::Params.class
-    HTTP::Params.new val
+  def convert_type(val : String, t : HTTP::Params.class) : HTTP::Params
+    HTTP::Params.parse val
   end
 end

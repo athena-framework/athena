@@ -19,9 +19,9 @@ require "./common/types"
 module Athena::Routing
   # :nodoc:
   module HTTP::Handler
-    def call_next(context : HTTP::Server::Context)
+    def call_next(ctx : HTTP::Server::Context)
       if next_handler = @next
-        next_handler.call(context)
+        next_handler.call(ctx)
       end
     end
   end
@@ -74,10 +74,11 @@ module Athena::Routing
   # * param : `String` - The param that should go through the conversion.
   # * type : `T` - The type the param should be converted to.
   # * converter : `Athena::Routing::Converters` - What converter to use for the conversion.  Can be `Converters::RequestBody`, `Converters::Exists`, `Converters::FormData`, or a custom defined converter.
+  # * [id_type] : `P` - The type the id should be resolved to before calling `T.find`.  Only required for `Converters::Exists`.
   #
   # ## Example
   # ```
-  # @[Athena::Routing::ParamConverter(param: "user", type: User, converter: Exists)]
+  # @[Athena::Routing::ParamConverter(param: "user", id_type: Int32, type: User, converter: Exists)]
   # ```
   annotation ParamConverter; end
 
@@ -104,6 +105,23 @@ module Athena::Routing
   # @[Athena::Routing::View(groups: ["admin", "default"])]
   # ```
   annotation View; end
+
+  # Defines options that affect the whole controller.
+  # ## Fields
+  # * prefix : String - Apply a prefix to all actions within `self`.
+  #
+  # ## Example
+  # ```
+  # @[Athena::Routing::Controller(prefix: "calendar")]
+  # class CalendarController < Athena::Routing::ClassController
+  #   # The rotue of this action would be `GET /calendar/events`
+  #   @[Athena::Routing::Get(path: "events")]
+  #   def self.events : String
+  #     "events"
+  #   end
+  # end
+  # ```
+  annotation Controller; end
 
   # Raised when a an object could not be found in the `Athena::Routing::Converters::Exists` converter.
   class NotFoundException < Exception
@@ -145,7 +163,10 @@ module Athena::Routing
   private abstract struct CallbackBase; end
 
   # :nodoc:
-  private record RouteAction(A, R) < Action, action : A, path : String, callbacks : Callbacks, method : String, groups : Array(String), renderer : R.class = R
+  private abstract struct Param; end
+
+  # :nodoc:
+  private record RouteAction(A, R, B) < Action, action : A, path : String, callbacks : Callbacks, method : String, groups : Array(String), query_params : Array(Param), body_type : B.class = B, renderer : R.class = R
 
   # :nodoc:
   private record Callbacks, on_response : Array(CallbackBase), on_request : Array(CallbackBase)
@@ -153,9 +174,11 @@ module Athena::Routing
   # :nodoc:
   private record CallbackEvent(E) < CallbackBase, event : E, only_actions : Array(String), exclude_actions : Array(String)
 
+  # :nodoc:
+  private record QueryParam(T) < Param, name : String, pattern : Regex? = nil, type : T.class = T
+
   # Starts the HTTP server with the given *port*, *binding*, *ssl*, and *handlers*.
   def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [Athena::Routing::RouteHandler.new] of HTTP::Handler)
-
     if sfh = self.static_file_handler
       handlers.unshift sfh
     end
