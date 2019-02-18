@@ -16,8 +16,8 @@ module Athena::Routing
           {% raise "Routes can only be defined on class methods.  Did you mean 'self.#{instance_methods.first.name}'?" %}
         {% end %}
 
-        _on_response = [] of CallbackBase
-        _on_request = [] of CallbackBase
+        {% _on_response = [] of CallbackBase %}
+        {% _on_request = [] of CallbackBase %}
 
         # Build out the class's parent's callbacks
         {% parent_callbacks = [] of Def %}
@@ -33,9 +33,9 @@ module Athena::Routing
           {% only_actions = trigger_ann[:only] || "[] of String" %}
           {% exclude_actions = trigger_ann[:exclude] || "[] of String" %}
           {% if trigger_ann[:event].resolve == Athena::Routing::CallbackEvents::OnResponse %}
-            _on_response << CallbackEvent(Proc(HTTP::Server::Context, Nil)).new(->{{c.name.id}}.{{trigger.name.id}}(HTTP::Server::Context), {{only_actions.id}}, {{exclude_actions.id}})
+            {% _on_response << "CallbackEvent(Proc(HTTP::Server::Context, Nil)).new(->#{c.name.id}.#{trigger.name.id}(HTTP::Server::Context), #{only_actions.id}, #{exclude_actions.id})".id %}
           {% elsif trigger_ann[:event].resolve == Athena::Routing::CallbackEvents::OnRequest %}
-            _on_request << CallbackEvent(Proc(HTTP::Server::Context, Nil)).new(->{{c.name.id}}.{{trigger.name.id}}(HTTP::Server::Context), {{only_actions.id}}, {{exclude_actions.id}})
+            {% _on_request << "CallbackEvent(Proc(HTTP::Server::Context, Nil)).new(->#{c.name.id}.#{trigger.name.id}(HTTP::Server::Context), #{only_actions.id}, #{exclude_actions.id})".id %}
           {% end %}
         {% end %}
 
@@ -128,7 +128,7 @@ module Athena::Routing
                 ->{ {{c.name.id}}.{{m.name.id}} }.call
               {% end %}
             end
-            @routes.add {{path}}, RouteAction(Proc(Hash(String, String?), {{m.return_type}}), Athena::Routing::Renderers::{{renderer}}({{m.return_type}}), {{body_type}}).new(%proc, {{path}}, Callbacks.new(_on_response.uniq, _on_request.uniq), {{m.name.stringify}}, {{groups}}, {{query_params}} of Param){% if constraints %}, {{constraints}} {% end %}
+            @routes.add {{path}}, RouteAction(Proc(Hash(String, String?), {{m.return_type}}), Athena::Routing::Renderers::{{renderer}}({{m.return_type}}), {{body_type}}).new(%proc, {{path}}, Callbacks.new({{_on_response.uniq}} of CallbackBase, {{_on_request.uniq}} of CallbackBase), {{m.name.stringify}}, {{groups}}, {{query_params}} of Param){% if constraints %}, {{constraints}} {% end %}
         {% end %}
       {% end %}
     end
