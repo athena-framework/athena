@@ -45,4 +45,42 @@ describe Athena::Routing::Callback do
       headers.includes_word?("X-RESPONSE-GLOBAL", "true").should be_true
     end
   end
+
+  describe "inheritence" do
+    context "parent" do
+      it "should have just the parent header" do
+        headers = CLIENT.get("/callback/nested/parent").headers
+        headers.includes_word?("X-RESPONSE-PARENT", "true").should be_true
+        headers.includes_word?("X-RESPONSE-CHILD1", "true").should be_false
+        headers.includes_word?("X-RESPONSE-CHILD2", "true").should be_false
+      end
+    end
+
+    context "child1" do
+      it "should have the parent and child1 headers" do
+        headers = CLIENT.get("/callback/nested/child").headers
+        headers.includes_word?("X-RESPONSE-PARENT", "true").should be_true
+        headers.includes_word?("X-RESPONSE-CHILD1", "true").should be_true
+        headers.includes_word?("X-RESPONSE-CHILD2", "true").should be_false
+      end
+    end
+
+    context "child2" do
+      it "should have the parent, child1 and child2 headers" do
+        headers = CLIENT.get("/callback/nested/child2").headers
+        headers.includes_word?("X-RESPONSE-PARENT", "true").should be_true
+        headers.includes_word?("X-RESPONSE-CHILD1", "true").should be_true
+        headers.includes_word?("X-RESPONSE-CHILD2", "true").should be_true
+      end
+    end
+
+    context "child3" do
+      it "should have the parent header" do
+        headers = CLIENT.get("/callback/nested/child3").headers
+        headers.includes_word?("X-RESPONSE-PARENT", "true").should be_true
+        headers.includes_word?("X-RESPONSE-CHILD1", "true").should be_false
+        headers.includes_word?("X-RESPONSE-CHILD2", "true").should be_false
+      end
+    end
+  end
 end

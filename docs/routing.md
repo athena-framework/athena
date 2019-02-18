@@ -76,7 +76,7 @@ CLIENT.post "/athena/formData/foo", body: "foo" # => true
 
 Note that the return type of each action is an actual type, not just a `String`.  Serialization is handled by `CrSerializer`.  This allows the actions to be clean and only focus on accomplishing the task of that action, while letting the serialization happen behind the scenes.
 
-The param placeholder names **_MUST_** match the parameter names of the action.  The order in which the action's parameters are defined does not matter.
+The param placeholder names **_MUST_** match the parameter names of the action.  The order in which the action's parameters are defined does not matter.
 
 ### Query Params
 
@@ -102,7 +102,7 @@ end
 
 #### Optionality 
 
-If a query param's type is nilable in the route's action parameters, it is considered to be optional.  If no default value is supplied, its value will simply be `nil` if it is not supplied.  If a query param's type is _not_ nilable; it is considered required and will raise a 400 if not supplied.
+If a query param's type is nilable in the route's action parameters, it is considered to be optional.  If no default value is supplied, its value will simply be `nil` if it is not supplied.  If a query param's type is _not_ nilable; it is considered required and will raise a 400 if not supplied.
 
 #### Constraints
 
@@ -151,7 +151,7 @@ The `groups` field is used to specify which serialization groups this route shou
 ```Crystal
 require "athena/routing"
 
-@[Athena::Routing::Get(path: "admin/users/:id")]
+@[Athena::Routing::Get(path: "admin/users/:user_id")]
 @[Athena::Routing::View(groups: ["admin"])]
 @[Athena::Routing::ParamConverter(param: "user", id_type: Int32, type: User, converter: Exists)]
 def self.get_user_admin(user : User) : User
@@ -172,7 +172,7 @@ require "athena/routing"
 
 class UserController < Athena::Routing::ClassController
   # Assuming the found user's age is 17, name Bob, and password is abc123
-  @[Athena::Routing::Get(path: "users/yaml/:id")]
+  @[Athena::Routing::Get(path: "users/yaml/:user_id")]
   @[Athena::Routing::ParamConverter(param: "user", id_type: Int32, type: User, converter: Exists)]
   @[Athena::Routing::View(renderer: YAMLRenderer)]
   def self.get_user_yaml(user : User) : User
@@ -192,7 +192,7 @@ require "athena/routing"
 class UserController < Athena::Routing::ClassController
   # Assuming the found user's age is 17, and name Bob.
   # Requires the return object implements `to_s` method using `ECR.def_to_s "user.ecr"`
-  @[Athena::Routing::Get(path: "users/ecr/:id")]
+  @[Athena::Routing::Get(path: "users/ecr/:user_id")]
   @[Athena::Routing::ParamConverter(param: "user", id_type: Int32, type: User, converter: Exists)]
   @[Athena::Routing::View(renderer: ECRRenderer)]
   def self.get_user_ecr(user : User) : User
@@ -263,6 +263,12 @@ A callback can be set to only run on specific actions, or to exclude specific ac
 
 The first callback would only run for the route who's action has the name `get_all_users`.  The second callback would run for all routes in that controller, except the route who's action has the name `my_route`.  
 
+####  Inheritance
+
+When a controller is inherited from, all callbacks defined on that controller will also be inherited.  This allows developers to smartly define their controllers to make use of inheritance to share common callbacks, such as for setting headers for public vs private routes.
+
+The same idea also applies to methods.  Class methods can be defined on parent classes so that each child controller has those methods defined.  Such as a `current_user` method that pulls an auth token from a header and look up the user to allow all controller actions to have access to the current user.
+
 ### Global Callbacks
 
 Callbacks can also be defined to run on _all_ routes no matter which controller they are in.  This can be achieved by adding a callback action to the parent controller classes: `Athena::Routing::Routing::ClassController` or `Athena::StructController`.  
@@ -298,7 +304,7 @@ This converter requires that there is a `self.find(val : String) : self` method 
 require "athena/routing"
 
 class UserController < Athena::Routing::ClassController
-  @[Athena::Routing::Get(path: "users/:id")]
+  @[Athena::Routing::Get(path: "users/:user_id")]
   @[Athena::Routing::ParamConverter(param: "user", id_type: Int32, type: User, converter: Exists)]
   def self.get_user(user : User) : String
     "This user is #{user.age} years old"
