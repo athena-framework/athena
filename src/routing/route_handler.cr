@@ -19,8 +19,16 @@ module Athena::Routing
         _on_response = [] of CallbackBase
         _on_request = [] of CallbackBase
 
+        # Build out the class's parent's callbacks
+        {% parent_callbacks = [] of Def %}
+        {% for parent in c.class.ancestors %}
+          {% for callback in parent.methods.select { |me| me.annotation(Callback) } %}
+            {% parent_callbacks << callback %}
+          {% end %}
+        {% end %}
+
         # Set controller/global triggers
-        {% for trigger in c.class.methods.select { |m| m.annotation(Callback) } + Athena::Routing::ClassController.class.methods.select { |m| m.annotation(Callback) } + Athena::Routing::StructController.class.methods.select { |m| m.annotation(Callback) } %}
+        {% for trigger in c.class.methods.select { |m| m.annotation(Callback) } + parent_callbacks + Athena::Routing::ClassController.class.methods.select { |m| m.annotation(Callback) } + Athena::Routing::StructController.class.methods.select { |m| m.annotation(Callback) } %}
           {% trigger_ann = trigger.annotation(Callback) %}
           {% only_actions = trigger_ann[:only] || "[] of String" %}
           {% exclude_actions = trigger_ann[:exclude] || "[] of String" %}
@@ -120,7 +128,7 @@ module Athena::Routing
                 ->{ {{c.name.id}}.{{m.name.id}} }.call
               {% end %}
             end
-            @routes.add {{path}}, RouteAction(Proc(Hash(String, String?), {{m.return_type}}), Athena::Routing::Renderers::{{renderer}}({{m.return_type}}), {{body_type}}).new(%proc, {{path}}, Callbacks.new(_on_response, _on_request), {{m.name.stringify}}, {{groups}}, {{query_params}} of Param){% if constraints %}, {{constraints}} {% end %}
+            @routes.add {{path}}, RouteAction(Proc(Hash(String, String?), {{m.return_type}}), Athena::Routing::Renderers::{{renderer}}({{m.return_type}}), {{body_type}}).new(%proc, {{path}}, Callbacks.new(_on_response.uniq, _on_request.uniq), {{m.name.stringify}}, {{groups}}, {{query_params}} of Param){% if constraints %}, {{constraints}} {% end %}
         {% end %}
       {% end %}
     end
