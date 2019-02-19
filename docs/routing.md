@@ -61,6 +61,8 @@ class TestController < Athena::Routing::ClassController
   end
 end
 
+Athena::Routing.run
+
 CLIENT = HTTP::Client.new "localhost", 8888
 CLIENT.get "/athena/me"                         # => "Jim"
 CLIENT.get "/athena/add/50/25"                  # => 75
@@ -98,6 +100,8 @@ class TestController < Athena::Routing::ClassController
     "#{event_name} occured at #{query}"
   end
 end
+
+Athena::Routing.run
 ```
 
 #### Optionality 
@@ -133,6 +137,8 @@ class MyController < Athena::Routing::ClassController
   end
 end
 
+Athena::Routing.run
+
 CLIENT = HTTP::Client.new "localhost", 8888
 CLIENT.get "/posts" # => 99
 CLIENT.get "/posts/12" # => 12
@@ -151,12 +157,16 @@ The `groups` field is used to specify which serialization groups this route shou
 ```Crystal
 require "athena/routing"
 
-@[Athena::Routing::Get(path: "admin/users/:user_id")]
-@[Athena::Routing::View(groups: ["admin"])]
-@[Athena::Routing::ParamConverter(param: "user", id_type: Int32, type: User, converter: Exists)]
-def self.get_user_admin(user : User) : User
-  user
-end
+struct UserController < Athena::Routing::StructController
+  @[Athena::Routing::Get(path: "admin/users/:user_id")]
+  @[Athena::Routing::View(groups: ["admin"])]
+  @[Athena::Routing::ParamConverter(param: "user", id_type: Int32, type: User, converter: Exists)]
+  def self.get_user_admin(user : User) : User
+    user
+  end
+end 
+
+Athena::Routing.run
 ```
 
 #### Renderer
@@ -179,6 +189,9 @@ class UserController < Athena::Routing::ClassController
     user
   end
 end  
+
+Athena::Routing.run
+
 GET /users/yaml/1 # => ---\age: 17\nname: Bob\npassword: abc123\n
 ```
 
@@ -200,6 +213,8 @@ class UserController < Athena::Routing::ClassController
   end
 end  
 
+Athena::Routing.run
+
 user.ecr
 User <%= @name %> is <%= @age %> years old.
 
@@ -213,7 +228,7 @@ Actions that return a string are dumped straight into the response body, without
 ```Crystal
 require "athena/routing"
 
-class Test < Athena::Routing::ClassController
+class TestController < Athena::Routing::ClassController
   @[Athena::Routing::Get(path: "/foo")]
   @[Athena::Routing::View(renderer: ECRRenderer)]
   def self.foo : String
@@ -221,9 +236,9 @@ class Test < Athena::Routing::ClassController
     ECR.render "src/greeting.ecr"
   end
 end
+
+Athena::Routing.run
 ```
-
-
 
 ## Request Life-cycle Events
 
@@ -247,6 +262,8 @@ class MyController < Athena::Routing::ClassController
     context.response.headers.add "X-MyController-Header", "true"
   end
 end
+
+Athena::Routing.run
 ```
 
 #### Filtering
@@ -286,6 +303,8 @@ class Athena::Routing::ClassController
     context.response.headers.add "X-RESPONSE-GLOBAL", "true"
   end
 end
+
+Athena::Routing.run
 ```
 
 Additional methods may be added to the parent class/struct that would be available to all route actions.  
@@ -310,6 +329,8 @@ class UserController < Athena::Routing::ClassController
     "This user is #{user.age} years old"
   end
 end
+
+Athena::Routing.run
 ```
 
 The beauty of this is if you sent a request, `GET /users/123`, it would execute `User.find 123`, which would allow for the actual user object to be injected into the action.  It's that easy.  This removes a lot of boilerplate that would otherwise be required to handle the lookup/validation of ORM models from string route params.
@@ -329,7 +350,7 @@ If the *find* method returns nil, indicating a record was not found, a 404 error
 
 The `RequestBody` converter will attempt to deserialize the JSON body of a request, into an object of `T`.
 
-This converter requires that there is a `self.deserialize(body : String) : self` method on `T` that will return an instance of `T` from the string body of the request.  This, by default, is from `CrSerializer` but could also be something manually defined on the class.
+This converter requires that there is a `self.from_json(body : String) : self` method on `T` that will return an instance of `T` from the JSON string body of the request.  This, by default, is from `CrSerializer` but could also be something manually defined on the class.
 
 ```Crystal
 require "athena/routing"
@@ -342,6 +363,8 @@ class UserController < Athena::Routing::ClassController
     user
   end
 end
+
+Athena::Routing.run
 ```
 
 The beauty of this is mainly intended for POST/PUT endpoints as you would be able to set the body as a JSON representation of the user (from a front end form for example), have it auto deserialized into a `User` object for use within the action.  In order to save the user you would just have to call `user.save`.   This would work for both new and already persisted records.
@@ -375,7 +398,7 @@ Upon deserialization, objects are validated against [CrSerializer's Validations]
 
 The `FormData` converter will attempt to deserialize the request's form data, into an object of `T`.
 
-This converter requires that there is a `self.from_form_data(body : String) : self` method on `T` that will return an instance of `T` from the string body of the request.  This, by default, is from `CrSerializer` but could also be something manually defined on the class.
+This converter requires that there is a `self.from_form_data(params : HTTP::Params) : self` method on `T` that will return an instance of `T` from `HTTP::Params` object parsed from the request body.
 
 ```Crystal
 require "athena/routing"
@@ -401,6 +424,8 @@ class UserController < Athena::Routing::ClassController
     user
   end
 end
+
+Athena::Routing.run
 ```
 
 While this is not as clean as using JSON, it provides a decent way to handle form data for legacy or other reasons.
@@ -428,5 +453,7 @@ Athena supports static file handling via Crystal's `HTTP::StaticFileHandler`.  A
 require "athena/routing"
 
 Athena::Routing.static_file_hander =HTTP::StaticFileHandler.new("public", directory_listing: false)
+
+...
 ```
 
