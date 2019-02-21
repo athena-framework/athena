@@ -41,6 +41,14 @@ describe Athena::Routing do
     end
   end
 
+  describe "that throws a custom exception" do
+    it "gets rendered correctly" do
+      response = CLIENT.get("/get/custom_error")
+      response.body.should eq %({"code":418,"message":"teapot"})
+      response.status_code.should eq 418
+    end
+  end
+
   describe "with a route that doesnt exist" do
     it "returns correct error" do
       response = CLIENT.get("/dsfdsf")
@@ -74,6 +82,34 @@ describe Athena::Routing do
     context "missing" do
       it "should default to text/plain" do
         CLIENT.post("/posts/99", body: "100").body.should eq "199"
+      end
+    end
+  end
+
+  describe "for a struct" do
+    describe ".get_response" do
+      it "has access to the response object" do
+        CLIENT.get("/get/struct/response").headers.includes_word?("Foo", "Bar").should be_true
+      end
+    end
+
+    describe ".get_request" do
+      it "has access to the request object" do
+        CLIENT.get("/get/struct/request").body.should eq "\"/get/struct/request\""
+      end
+    end
+  end
+
+  describe "for a class" do
+    describe ".get_response" do
+      it "has access to the response object" do
+        CLIENT.get("/get/class/response").headers.includes_word?("Foo", "Bar").should be_true
+      end
+    end
+
+    describe ".get_request" do
+      it "has access to the request object" do
+        CLIENT.get("/get/class/request").body.should eq "\"/get/class/request\""
       end
     end
   end

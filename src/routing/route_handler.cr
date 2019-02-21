@@ -128,7 +128,7 @@ module Athena::Routing
                 ->{ {{c.name.id}}.{{m.name.id}} }.call
               {% end %}
             end
-            @routes.add {{path}}, RouteAction(Proc(Hash(String, String?), {{m.return_type}}), Athena::Routing::Renderers::{{renderer}}({{m.return_type}}), {{body_type}}).new(%proc, {{path}}, Callbacks.new({{_on_response.uniq}} of CallbackBase, {{_on_request.uniq}} of CallbackBase), {{m.name.stringify}}, {{groups}}, {{query_params}} of Param){% if constraints %}, {{constraints}} {% end %}
+            @routes.add {{path}}, RouteAction(Proc(Hash(String, String?), {{m.return_type}}), Athena::Routing::Renderers::{{renderer}}({{m.return_type}}), {{body_type}}, {{c.id}}).new(%proc, {{path}}, Callbacks.new({{_on_response.uniq}} of CallbackBase, {{_on_request.uniq}} of CallbackBase), {{m.name.stringify}}, {{groups}}, {{query_params}} of Param){% if constraints %}, {{constraints}} {% end %}
         {% end %}
       {% end %}
     end
@@ -141,6 +141,10 @@ module Athena::Routing
 
       action = route.payload.not_nil!
       params = Hash(String, String?).new
+
+      # Set the current request/response on the controller
+      action.controller.request = ctx.request
+      action.controller.response = ctx.response
 
       params.merge! route.params
 
@@ -193,23 +197,29 @@ module Athena::Routing
 
       response = action.as(RouteAction).action.call params
 
-      ctx.response.print action.as(RouteAction).renderer.render response, ctx, action.groups
-
       action.as(RouteAction).callbacks.on_response.each do |ce|
         if (ce.as(CallbackEvent).only_actions.empty? || ce.as(CallbackEvent).only_actions.includes?(action.as(RouteAction).method)) && (ce.as(CallbackEvent).exclude_actions.empty? || !ce.as(CallbackEvent).exclude_actions.includes?(action.method))
           ce.as(CallbackEvent).event.call(ctx)
         end
       end
+
+      ctx.response.print action.as(RouteAction).renderer.render response, ctx, action.groups
+    rescue athena_exception : AthenaException
+      halt ctx, athena_exception.code, athena_exception.to_json
     rescue e : ArgumentError
       halt ctx, 400, %({"code": 400, "message": "#{e.message}"})
     rescue validation_exception : CrSerializer::Exceptions::ValidationException
       halt ctx, 400, validation_exception.to_json
-    rescue not_found_exception : Athena::Routing::NotFoundException
-      halt ctx, 404, not_found_exception.to_json
     rescue json_parse_exception : JSON::ParseException
       if msg = json_parse_exception.message
         if parts = msg.match(/Expected (\w+) but was (\w+) .*[\r\n]*.+#(\w+)/)
           halt ctx, 400, %({"code": 400, "message": "Expected '#{parts[3]}' to be #{parts[1]} but got #{parts[2]}"})
+        end
+      end
+    rescue nil_exception : Exception
+      if msg = nil_exception.message
+        if parts = msg.match(/.*\#(.*) cannot be nil/)
+          halt ctx, 400, %({"code": 400, "message": "'#{parts[1]}' cannot be null"})
         end
       end
     end

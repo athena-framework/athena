@@ -123,19 +123,23 @@ module Athena::Routing
   # ```
   annotation Controller; end
 
-  # Raised when a an object could not be found in the `Athena::Routing::Converters::Exists` converter.
-  class NotFoundException < Exception
-    # Returns a 404 not found JSON error.
+  # A generic exception that can be thrown with  to render consistent exception responses with the given code and messsage.
+  class AthenaException < Exception
+    getter code : Int32
+
+    def initialize(@code : Int32, @message); end
+
+    # Serializes the exception into a JSON object with the given *code* and *message*.
     #
     # ```
     # {
-    #   "code":    404,
-    #   "message": "An item with the provided ID could not be found.",
+    #   "code":    409,
+    #   "message": "A user with this email already exists.",
     # }
     # ```
     def to_json : String
       {
-        code:    404,
+        code:    @code,
         message: @message,
       }.to_json
     end
@@ -151,10 +155,42 @@ module Athena::Routing
   end
 
   # Parent class for all `Class` based controllers.
-  abstract class ClassController; end
+  abstract class ClassController
+    # :nodoc:
+    class_property request : HTTP::Request? = nil
+
+    # :nodoc:
+    class_property response : HTTP::Server::Response? = nil
+
+    # Returns the request object for the current request
+    def self.get_request : HTTP::Request
+      @@request.not_nil!
+    end
+
+    # Returns the response object for the current request
+    def self.get_response : HTTP::Server::Response
+      @@response.not_nil!
+    end
+  end
 
   # Parent class for all `Struct` based controllers.
-  abstract struct StructController; end
+  abstract struct StructController
+    # :nodoc:
+    class_property request : HTTP::Request? = nil
+
+    # :nodoc:
+    class_property response : HTTP::Server::Response? = nil
+
+    # Returns the request object for the current request
+    def self.get_request : HTTP::Request
+      @@request.not_nil!
+    end
+
+    # Returns the response object for the current request
+    def self.get_response : HTTP::Server::Response
+      @@response.not_nil!
+    end
+  end
 
   # :nodoc:
   private abstract struct Action; end
@@ -166,7 +202,7 @@ module Athena::Routing
   private abstract struct Param; end
 
   # :nodoc:
-  private record RouteAction(A, R, B) < Action, action : A, path : String, callbacks : Callbacks, method : String, groups : Array(String), query_params : Array(Param), body_type : B.class = B, renderer : R.class = R
+  private record RouteAction(A, R, B, C) < Action, action : A, path : String, callbacks : Callbacks, method : String, groups : Array(String), query_params : Array(Param), body_type : B.class = B, renderer : R.class = R, controller : C.class = C
 
   # :nodoc:
   private record Callbacks, on_response : Array(CallbackBase), on_request : Array(CallbackBase)
