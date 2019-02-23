@@ -47,14 +47,17 @@ module Athena::Routing
           {% param_converter = m.annotation(ParamConverter) %}
 
           # Ensure `type` implements the required method
-          {% if param_converter && param_converter[:type] && param_converter[:param_type] && param_converter[:converter] %}
+          {% if param_converter && param_converter[:param] && param_converter[:type] && param_converter[:converter] %}
             {% if param_converter[:converter].stringify == "Exists" %}
-               {% raise "#{param_converter[:type]} must implement a `self.find(id)` method to use the Exists converter." unless param_converter[:type].resolve.class.has_method?("find") %}
+              {% raise "#{param_converter[:type]} must implement a `self.find(id)` method to use the Exists converter." unless param_converter[:type].resolve.class.has_method?("find") %}
+              {% raise "#{c.name}.#{m.name} #{param_converter[:converter]} converter requires a `id_type` to be defined." unless param_converter[:id_type] %} 
             {% elsif param_converter[:converter].stringify == "RequestBody" %}
-               {% raise "#{param_converter[:type]} must `include CrSerializer` or implement a `self.deserialize(body) : self` method to use the RequestBody converter." unless param_converter[:type].resolve.class.has_method?("deserialize") %}
+              {% raise "#{param_converter[:type]} must `include CrSerializer` or implement a `self.from_json(body : String) : self` method to use the RequestBody converter." unless param_converter[:type].resolve.class.has_method?("from_json") %}
             {% elsif param_converter[:converter].stringify == "FormData" %}
-               {% raise "#{param_converter[:type]} implement a `self.from_form_data(form_data : HTTP::Params) : self` method to use the FormData converter." unless param_converter[:type].resolve.class.has_method?("from_form_data") %}
+              {% raise "#{param_converter[:type]} implement a `self.from_form_data(form_data : HTTP::Params) : self` method to use the FormData converter." unless param_converter[:type].resolve.class.has_method?("from_form_data") %}
             {% end %}
+          {% elsif param_converter %}
+            {% raise "#{c.name}.#{m.name} ParamConverter annotation is missing a required field.  Must specifiy `param`, `type`, and `converter`." %}
           {% end %}
 
           {% if d = m.annotation(Get) %}
@@ -104,7 +107,7 @@ module Athena::Routing
           {% groups = view_ann && view_ann[:groups] ? view_ann[:groups] : ["default"] %}
           {% renderer = view_ann && view_ann[:renderer] ? view_ann[:renderer] : "JSONRenderer".id %}
 
-            %proc = ->(vals : Hash(String, String?)) do
+            %proc = ->(ctx : HTTP::Server::Context, vals : Hash(String, String?)) do
               {% unless m.args.empty? %}
                 arr = Array(Union({{arg_types.splat}}, Nil)).new
                 {% for type, idx in arg_types %}
@@ -115,7 +118,7 @@ module Athena::Routing
                     end
                     arr << if val = vals[key]?
                     {% if param_converter && param_converter[:converter] && param_converter[:type] && param_converter[:param] == arg_names[idx] %}
-                      Athena::Routing::Converters::{{param_converter[:converter]}}({{param_converter[:type]}}, {{param_converter[:param_type] ? param_converter[:param_type] : Nil}}).convert val
+                      Athena::Routing::Converters::{{param_converter[:converter]}}({{param_converter[:type]}}, {{param_converter[:id_type] ? param_converter[:id_type] : Nil}}).convert ctx, val
                     {% else %}
                       Athena::Types.convert_type val, {{type}}
                     {% end %}
@@ -128,7 +131,7 @@ module Athena::Routing
                 ->{ {{c.name.id}}.{{m.name.id}} }.call
               {% end %}
             end
-            @routes.add {{path}}, RouteAction(Proc(Hash(String, String?), {{m.return_type}}), Athena::Routing::Renderers::{{renderer}}({{m.return_type}}), {{body_type}}, {{c.id}}).new(%proc, {{path}}, Callbacks.new({{_on_response.uniq}} of CallbackBase, {{_on_request.uniq}} of CallbackBase), {{m.name.stringify}}, {{groups}}, {{query_params}} of Param){% if constraints %}, {{constraints}} {% end %}
+            @routes.add {{path}}, RouteAction(Proc(HTTP::Server::Context, Hash(String, String?), {{m.return_type}}), Athena::Routing::Renderers::{{renderer}}({{m.return_type}}), {{body_type}}, {{c.id}}).new(%proc, {{path}}, Callbacks.new({{_on_response.uniq}} of CallbackBase, {{_on_request.uniq}} of CallbackBase), {{m.name.stringify}}, {{groups}}, {{query_params}} of Param){% if constraints %}, {{constraints}} {% end %}
         {% end %}
       {% end %}
     end
@@ -195,7 +198,7 @@ module Athena::Routing
         end
       end
 
-      response = action.as(RouteAction).action.call params
+      response = action.as(RouteAction).action.call ctx, params
 
       action.as(RouteAction).callbacks.on_response.each do |ce|
         if (ce.as(CallbackEvent).only_actions.empty? || ce.as(CallbackEvent).only_actions.includes?(action.as(RouteAction).method)) && (ce.as(CallbackEvent).exclude_actions.empty? || !ce.as(CallbackEvent).exclude_actions.includes?(action.method))

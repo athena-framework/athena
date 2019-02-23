@@ -4,8 +4,8 @@ module Athena::Routing::Converters
     # Deserializes the request body into an object of `T`.
     # Raises a `CrSerializer::Exceptions::ValidationException` if the object is not valid.
     #
-    # NOTE: Requires `T` to include `CrSerializer` or implements a `self.deserialize(body : String) : self` method to instantiate the object from the request body.
-    def self.convert(body : String) : T
+    # NOTE: Requires `T` to include `CrSerializer` or implements a `self.from_json(body : String) : self` method to instantiate the object from the request body.
+    def self.convert(ctx : HTTP::Server::Context, body : String) : T
       model : T = T.from_json body
       raise CrSerializer::Exceptions::ValidationException.new model.validator unless model.validator.valid?
       model
@@ -18,7 +18,7 @@ module Athena::Routing::Converters
     # Raises a `NotFoundException` if the *find* method returns nil.
     #
     # NOTE: Requires `T` implements a `self.find(val : String) : self` method that returns the corresponding record, or nil.
-    def self.convert(id : String) : T
+    def self.convert(ctx : HTTP::Server::Context, id : String) : T
       model = T.find Athena::Types.convert_type id, P
       raise AthenaException.new 404, "An item with the provided ID could not be found." if model.nil?
       model
@@ -30,7 +30,7 @@ module Athena::Routing::Converters
     # Deserializes the form data into an object of `T`.
     #
     # NOTE: Requires `T` implements a `self.from_form_data(form_data : HTTP::Params) : self` method to instantiate the object from the form data.
-    def self.convert(form_data : String) : T
+    def self.convert(ctx : HTTP::Server::Context, form_data : String) : T
       T.from_form_data HTTP::Params.parse form_data
     end
   end

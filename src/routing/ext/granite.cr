@@ -1,14 +1,23 @@
 module Athena::Routing::Converters
   # Resolves the request body into type `T`.
   struct RequestBody(T, P)
-    # Deserializes the request body into an object of `T`.
-    # Raises a `CrSerializer::Exceptions::ValidationException` if the object is not valid.
+    # Special override for Granite ORM to check for existence of a record, and set the deserialized model as not a new record.  Will also handle non Granite classes.
     #
-    # NOTE: Requires `T` to include `CrSerializer` or implements a `self.deserialize(body : String) : self` method to instantiate the object from the request body.
-    def self.convert(body : String) : T
-      model : T = T.from_json body
-      raise CrSerializer::Exceptions::ValidationException.new model.validator unless model.validator.valid?
-      model.new_record = false
+    # Will check the given record exists on PUT, returning a 404 error if it does not exist, or primary_key is not provided.
+    def self.convert(ctx : HTTP::Server::Context, body : String) : T
+      model = previous_def
+
+      {% if T <= Granite::Base %}
+        if "PUT" == ctx.request.method
+          primary_key = JSON.parse(body)[T.primary_name]?
+          raise AthenaException.new 404, "An item with the provided ID could not be found." unless primary_key
+          primary_value = Athena::Types.convert_type(primary_key.to_s, T.primary_type)
+          raise AthenaException.new 404, "An item with the provided ID could not be found." unless T.find(primary_value)
+          model.id = primary_value
+          model.new_record = false
+        end
+      {% end %}
+
       model
     end
   end
@@ -19,7 +28,7 @@ module Athena::Routing::Converters
     # Raises a `NotFoundException` if the *find* method returns nil.
     #
     # NOTE: Requires `T` implements a `self.find(val : String) : self` method that returns the corresponding record, or nil.
-    def self.convert(id : String) : T
+    def self.convert(ctx : HTTP::Server::Context, id : String) : T
       model = T.find Athena::Types.convert_type id, P
       raise AthenaException.new 404, "An item with the provided ID could not be found." if model.nil?
       model.new_record = false
