@@ -23,7 +23,7 @@ class Article
 end
 
 class ArticleController < Athena::Routing::ClassController
-  @[Athena::Routing::Get(path: "article/:article_instance_id")]
+  @[Athena::Routing::Get(path: "article/:article_identity_id")]
   @[Athena::Routing::ParamConverter(param: "article_identity", id_type: Int64, type: Article, converter: Exists)]
   def self.get_article(article_identity : Article) : Article
     article_identity
