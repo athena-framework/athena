@@ -50,7 +50,7 @@ module Athena::Routing
           {% if param_converter && param_converter[:param] && param_converter[:type] && param_converter[:converter] %}
             {% if param_converter[:converter].stringify == "Exists" %}
               {% raise "#{param_converter[:type]} must implement a `self.find(id)` method to use the Exists converter." unless param_converter[:type].resolve.class.has_method?("find") %}
-              {% raise "#{c.name}.#{m.name} #{param_converter[:converter]} converter requires a `id_type` to be defined." unless param_converter[:id_type] %} 
+              {% raise "#{c.name}.#{m.name} #{param_converter[:converter]} converter requires a `id_type` to be defined." unless param_converter[:id_type] %}
             {% elsif param_converter[:converter].stringify == "RequestBody" %}
               {% raise "#{param_converter[:type]} must `include CrSerializer` or implement a `self.from_json(body : String) : self` method to use the RequestBody converter." unless param_converter[:type].resolve.class.has_method?("from_json") %}
             {% elsif param_converter[:converter].stringify == "FormData" %}
@@ -82,7 +82,7 @@ module Athena::Routing
           {% query_params = route_def[:query] ? route_def[:query].keys : [] of String %}
           {% route_params = route_def[:path].split('/').select { |p| p.starts_with?(':') || (p.starts_with?("(:") && p.ends_with?(')')) }.map { |v| v.includes?('(') ? v.tr("(:", "").tr(")", "") : v.tr(":", "") } %}
           {% route_params << "body" if %w(POST PUT).includes? method %}
-          {% arg_names.all? { |pa| (query_params + route_params).any? { |v| v == pa || v.tr("_id", "") == pa } || raise "#{c.name}.#{m.name} parameter '#{pa.id}' is not defined in route or query parameters." } %}
+          {% arg_names.all? { |pa| (query_params + route_params).any? { |v| v == pa || v.gsub(/_id$/, "") == pa } || raise "#{c.name}.#{m.name} parameter '#{pa.id}' is not defined in route or query parameters." } %}
           {% raise "#{c.name}.#{m.name} has #{arg_names.size} parameters defined, while there are #{(query_params + route_params).size} route and query parameters defined.  Did you forget to add one?" if (query_params + route_params).size != arg_names.size %}
 
           {% arg_types = m.args.map(&.restriction) %}
