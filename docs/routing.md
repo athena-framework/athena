@@ -146,6 +146,24 @@ CLIENT.get "/posts/12" # => 12
 
 **NOTE:** This suffers from the same limitation as a Radix tree in that two routes cannot share the same route, where one route has an optional param at the same place another has a required param.  However it would be considered a bad practice if two routes matched two different actions, especially with route constraints.
 
+### Accessing Request/Response
+The current request/response can be accessed from within a controller action via the `get_request` and `get_response` methods inherited from Athena's parent class/struct.
+
+This can be used to add custom headers, to set a token in a cookie for example, within any action; without having to set a callback scoped to that specific action.
+
+### Exception handling
+Athena provides an `AthenaException` exception that can be used for raising custom exceptions with consistent JSON output, as well as setting the response status code.
+
+```crystal
+raise AthenaException.new 404, "User not found"
+```
+
+Athena also provides common 4xx level exceptions as convience exception classes that optionally take a message.  A full list can be found in the [API Docs](https://blacksmoke16.github.io/athena/Athena/Routing/Exceptions.html).
+
+```crystal
+raise NotFoundException.new "User not found"
+```
+
 ### Route View
 
 The `View` annotation controls how the return value of an endpoint is displayed. 
@@ -284,7 +302,7 @@ The first callback would only run for the route who's action has the name `get_a
 
 When a controller is inherited from, all callbacks defined on that controller will also be inherited.  This allows developers to smartly define their controllers to make use of inheritance to share common callbacks, such as for setting headers for public vs private routes.
 
-The same idea also applies to methods.  Class methods can be defined on parent classes so that each child controller has those methods defined.  Such as a `current_user` method that pulls an auth token from a header and look up the user to allow all controller actions to have access to the current user.
+The same idea also applies to methods.  Class methods can be defined on parent classes so that each child controller has those methods defined.  Such as a `current_user` method that pulls an auth token from a header and look up the user to allow all controller actions to have access to the current user.
 
 ### Global Callbacks
 
@@ -318,6 +336,8 @@ All basic types, such as `Int`, `Float`, `String`, `Bool`, are natively converte
 The `Exists` converter takes a route param and attempts to resolve an object of `T` with that ID.  If no object is found a 404 JSON error is thrown/returned.
 
 This converter requires that there is a `self.find(val : String) : self` method on `T` that either returns the corresponding object, or nil.  This can either be from an ORM library, or defined manually on the class.
+
+**NOTE:** The `Exists` converter requires an extra annotation field `pk_type`.  This should be set to the type of the primary key, or unique identifier, of the model/class.  This is used to convert the string value to the correct type for the `find` query.
 
 ```Crystal
 require "athena/routing"
