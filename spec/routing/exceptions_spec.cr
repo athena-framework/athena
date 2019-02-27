@@ -8,7 +8,7 @@ describe Athena::Routing::Exceptions do
     describe {{code.id}} do
       it "should raise proper exception with proper default exception" do
         expect_raises {{exception.id}}, {{exception}} do
-          raise {{exception.id}}.new 
+          raise {{exception.id}}.new
        end
       end
 
