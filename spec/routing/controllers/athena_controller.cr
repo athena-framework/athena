@@ -103,7 +103,7 @@ class AthenaController < Athena::Routing::ClassController
 
   @[Athena::Routing::Get(path: "get/custom_error")]
   def self.custom_error : Nil
-    raise Athena::Routing::AthenaException.new 418, "teapot"
+    raise Athena::Routing::Exceptions::ImATeapotException.new "teapot"
   end
 
   @[Athena::Routing::Get(path: "get/class/response")]

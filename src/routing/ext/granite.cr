@@ -10,9 +10,9 @@ module Athena::Routing::Converters
       {% if T <= Granite::Base %}
         if "PUT" == ctx.request.method
           primary_key = JSON.parse(body)[T.primary_name]?
-          raise AthenaException.new 404, "An item with the provided ID could not be found." unless primary_key
+          raise Athena::Routing::Exceptions::NotFoundException.new "An item with the provided ID could not be found." unless primary_key
           primary_value = Athena::Types.convert_type(primary_key.to_s, T.primary_type)
-          raise AthenaException.new 404, "An item with the provided ID could not be found." unless T.find(primary_value)
+          raise Athena::Routing::Exceptions::NotFoundException.new "An item with the provided ID could not be found." unless T.find(primary_value)
           model.id = primary_value
           model.new_record = false
         end
@@ -30,7 +30,7 @@ module Athena::Routing::Converters
     # NOTE: Requires `T` implements a `self.find(val : String) : self` method that returns the corresponding record, or nil.
     def self.convert(ctx : HTTP::Server::Context, id : String) : T
       model = T.find Athena::Types.convert_type id, P
-      raise AthenaException.new 404, "An item with the provided ID could not be found." if model.nil?
+      raise Athena::Routing::Exceptions::NotFoundException.new "An item with the provided ID could not be found." if model.nil?
       model.new_record = false
       model
     end

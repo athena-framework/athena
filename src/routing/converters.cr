@@ -20,7 +20,7 @@ module Athena::Routing::Converters
     # NOTE: Requires `T` implements a `self.find(val : String) : self` method that returns the corresponding record, or nil.
     def self.convert(ctx : HTTP::Server::Context, id : String) : T
       model = T.find Athena::Types.convert_type id, P
-      raise AthenaException.new 404, "An item with the provided ID could not be found." if model.nil?
+      raise Athena::Routing::Exceptions::NotFoundException.new "An item with the provided ID could not be found." if model.nil?
       model
     end
   end

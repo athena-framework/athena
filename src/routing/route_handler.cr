@@ -50,7 +50,7 @@ module Athena::Routing
           {% if param_converter && param_converter[:param] && param_converter[:type] && param_converter[:converter] %}
             {% if param_converter[:converter].stringify == "Exists" %}
               {% raise "#{param_converter[:type]} must implement a `self.find(id)` method to use the Exists converter." unless param_converter[:type].resolve.class.has_method?("find") %}
-              {% raise "#{c.name}.#{m.name} #{param_converter[:converter]} converter requires a `id_type` to be defined." unless param_converter[:id_type] %}
+              {% raise "#{c.name}.#{m.name} #{param_converter[:converter]} converter requires a `pk_type` to be defined." unless param_converter[:pk_type] %}
             {% elsif param_converter[:converter].stringify == "RequestBody" %}
               {% raise "#{param_converter[:type]} must `include CrSerializer` or implement a `self.from_json(body : String) : self` method to use the RequestBody converter." unless param_converter[:type].resolve.class.has_method?("from_json") %}
             {% elsif param_converter[:converter].stringify == "FormData" %}
@@ -118,7 +118,7 @@ module Athena::Routing
                     end
                     arr << if val = vals[key]?
                     {% if param_converter && param_converter[:converter] && param_converter[:type] && param_converter[:param] == arg_names[idx] %}
-                      Athena::Routing::Converters::{{param_converter[:converter]}}({{param_converter[:type]}}, {{param_converter[:id_type] ? param_converter[:id_type] : Nil}}).convert ctx, val
+                      Athena::Routing::Converters::{{param_converter[:converter]}}({{param_converter[:type]}}, {{param_converter[:pk_type] ? param_converter[:pk_type] : Nil}}).convert ctx, val
                     {% else %}
                       Athena::Types.convert_type val, {{type}}
                     {% end %}
@@ -207,7 +207,7 @@ module Athena::Routing
       end
 
       ctx.response.print action.as(RouteAction).renderer.render response, ctx, action.groups
-    rescue athena_exception : AthenaException
+    rescue athena_exception : Athena::Routing::Exceptions::AthenaException
       halt ctx, athena_exception.code, athena_exception.to_json
     rescue e : ArgumentError
       halt ctx, 400, %({"code": 400, "message": "#{e.message}"})

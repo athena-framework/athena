@@ -5,11 +5,12 @@ require "CrSerializer"
 
 require "./common/types"
 
-require "./routing/route_handler"
+require "./common/types"
 require "./routing/converters"
+require "./routing/exceptions"
 require "./routing/macros"
 require "./routing/renderers"
-require "./common/types"
+require "./routing/route_handler"
 
 # Athena module containing elements for:
 # * Defining routes.
@@ -74,11 +75,11 @@ module Athena::Routing
   # * param : `String` - The param that should go through the conversion.
   # * type : `T` - The type the param should be converted to.
   # * converter : `Athena::Routing::Converters` - What converter to use for the conversion.  Can be `Converters::RequestBody`, `Converters::Exists`, `Converters::FormData`, or a custom defined converter.
-  # * [id_type] : `P` - The type the id should be resolved to before calling `T.find`.  Only required for `Converters::Exists`.
+  # * [pk_type] : `P` - The type the id should be resolved to before calling `T.find`.  Only required for `Converters::Exists`.
   #
   # ## Example
   # ```
-  # @[Athena::Routing::ParamConverter(param: "user", id_type: Int32, type: User, converter: Exists)]
+  # @[Athena::Routing::ParamConverter(param: "user", pk_type: Int32, type: User, converter: Exists)]
   # ```
   annotation ParamConverter; end
 
@@ -122,28 +123,6 @@ module Athena::Routing
   # end
   # ```
   annotation Controller; end
-
-  # A generic exception that can be thrown with  to render consistent exception responses with the given code and messsage.
-  class AthenaException < Exception
-    getter code : Int32
-
-    def initialize(@code : Int32, @message); end
-
-    # Serializes the exception into a JSON object with the given *code* and *message*.
-    #
-    # ```
-    # {
-    #   "code":    409,
-    #   "message": "A user with this email already exists.",
-    # }
-    # ```
-    def to_json : String
-      {
-        code:    @code,
-        message: @message,
-      }.to_json
-    end
-  end
 
   # Events available during the request's life-cycle.
   enum CallbackEvents

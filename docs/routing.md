@@ -160,7 +160,7 @@ require "athena/routing"
 struct UserController < Athena::Routing::StructController
   @[Athena::Routing::Get(path: "admin/users/:user_id")]
   @[Athena::Routing::View(groups: ["admin"])]
-  @[Athena::Routing::ParamConverter(param: "user", id_type: Int32, type: User, converter: Exists)]
+  @[Athena::Routing::ParamConverter(param: "user", pk_type: Int32, type: User, converter: Exists)]
   def self.get_user_admin(user : User) : User
     user
   end
@@ -183,7 +183,7 @@ require "athena/routing"
 class UserController < Athena::Routing::ClassController
   # Assuming the found user's age is 17, name Bob, and password is abc123
   @[Athena::Routing::Get(path: "users/yaml/:user_id")]
-  @[Athena::Routing::ParamConverter(param: "user", id_type: Int32, type: User, converter: Exists)]
+  @[Athena::Routing::ParamConverter(param: "user", pk_type: Int32, type: User, converter: Exists)]
   @[Athena::Routing::View(renderer: YAMLRenderer)]
   def self.get_user_yaml(user : User) : User
     user
@@ -206,7 +206,7 @@ class UserController < Athena::Routing::ClassController
   # Assuming the found user's age is 17, and name Bob.
   # Requires the return object implements `to_s` method using `ECR.def_to_s "user.ecr"`
   @[Athena::Routing::Get(path: "users/ecr/:user_id")]
-  @[Athena::Routing::ParamConverter(param: "user", id_type: Int32, type: User, converter: Exists)]
+  @[Athena::Routing::ParamConverter(param: "user", pk_type: Int32, type: User, converter: Exists)]
   @[Athena::Routing::View(renderer: ECRRenderer)]
   def self.get_user_ecr(user : User) : User
     user
@@ -324,7 +324,7 @@ require "athena/routing"
 
 class UserController < Athena::Routing::ClassController
   @[Athena::Routing::Get(path: "users/:user_id")]
-  @[Athena::Routing::ParamConverter(param: "user", id_type: Int32, type: User, converter: Exists)]
+  @[Athena::Routing::ParamConverter(param: "user", pk_type: Int32, type: User, converter: Exists)]
   def self.get_user(user : User) : String
     "This user is #{user.age} years old"
   end
