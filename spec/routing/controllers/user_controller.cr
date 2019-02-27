@@ -78,21 +78,21 @@ class UserController < Athena::Routing::ClassController
   end
 
   @[Athena::Routing::Get(path: "users/yaml/:user_id")]
-  @[Athena::Routing::ParamConverter(param: "user", param_type: Int64, type: User, converter: Exists)]
+  @[Athena::Routing::ParamConverter(param: "user", pk_type: Int64, type: User, converter: Exists)]
   @[Athena::Routing::View(renderer: YAMLRenderer)]
   def self.get_user_yaml(user : User) : User
     user
   end
 
   @[Athena::Routing::Get(path: "users/ecr/:user_id")]
-  @[Athena::Routing::ParamConverter(param: "user", param_type: Int64, type: User, converter: Exists)]
+  @[Athena::Routing::ParamConverter(param: "user", pk_type: Int64, type: User, converter: Exists)]
   @[Athena::Routing::View(renderer: ECRRenderer)]
   def self.get_user_ecr(user : User) : User
     user
   end
 
   @[Athena::Routing::Get(path: "users/:user_id")]
-  @[Athena::Routing::ParamConverter(param: "user", param_type: Int64, type: User, converter: Exists)]
+  @[Athena::Routing::ParamConverter(param: "user", pk_type: Int64, type: User, converter: Exists)]
   def self.get_user(user : User) : User
     user.should be_a User
     user.id.should eq 17
@@ -102,7 +102,7 @@ class UserController < Athena::Routing::ClassController
   end
 
   @[Athena::Routing::Get(path: "users/str/:user_id")]
-  @[Athena::Routing::ParamConverter(param: "user", param_type: String, type: User, converter: Exists)]
+  @[Athena::Routing::ParamConverter(param: "user", pk_type: String, type: User, converter: Exists)]
   def self.get_user_string(user : User) : User
     user.should be_a User
     user.id.should eq 71
@@ -113,7 +113,7 @@ class UserController < Athena::Routing::ClassController
 
   @[Athena::Routing::Get(path: "admin/users/:user_id")]
   @[Athena::Routing::View(groups: ["admin"])]
-  @[Athena::Routing::ParamConverter(param: "user", param_type: Int64, type: User, converter: Exists)]
+  @[Athena::Routing::ParamConverter(param: "user", pk_type: Int64, type: User, converter: Exists)]
   def self.get_user_admin(user : User) : User
     user.should be_a User
     user.id.should eq 17
@@ -124,7 +124,7 @@ class UserController < Athena::Routing::ClassController
 
   @[Athena::Routing::Get(path: "admin/users/:user_id/all")]
   @[Athena::Routing::View(groups: ["admin", "default"])]
-  @[Athena::Routing::ParamConverter(param: "user", param_type: Int64, type: User, converter: Exists)]
+  @[Athena::Routing::ParamConverter(param: "user", pk_type: Int64, type: User, converter: Exists)]
   def self.get_user_admin_all(user : User) : User
     user.should be_a User
     user.id.should eq 17

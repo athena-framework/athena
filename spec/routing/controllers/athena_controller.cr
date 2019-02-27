@@ -100,4 +100,19 @@ class AthenaController < Athena::Routing::ClassController
   def self.query_param_optional_default(page : Int32? = 999) : Int32?
     page
   end
+
+  @[Athena::Routing::Get(path: "get/custom_error")]
+  def self.custom_error : Nil
+    raise Athena::Routing::Exceptions::ImATeapotException.new "teapot"
+  end
+
+  @[Athena::Routing::Get(path: "get/class/response")]
+  def self.response : Nil
+    get_response.headers.add "Foo", "Bar"
+  end
+
+  @[Athena::Routing::Get(path: "get/class/request")]
+  def self.request : String
+    get_request.path
+  end
 end

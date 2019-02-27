@@ -47,14 +47,17 @@ module Athena::Routing
           {% param_converter = m.annotation(ParamConverter) %}
 
           # Ensure `type` implements the required method
-          {% if param_converter && param_converter[:type] && param_converter[:param_type] && param_converter[:converter] %}
+          {% if param_converter && param_converter[:param] && param_converter[:type] && param_converter[:converter] %}
             {% if param_converter[:converter].stringify == "Exists" %}
-               {% raise "#{param_converter[:type]} must implement a `self.find(id)` method to use the Exists converter." unless param_converter[:type].resolve.class.has_method?("find") %}
+              {% raise "#{param_converter[:type]} must implement a `self.find(id)` method to use the Exists converter." unless param_converter[:type].resolve.class.has_method?("find") %}
+              {% raise "#{c.name}.#{m.name} #{param_converter[:converter]} converter requires a `pk_type` to be defined." unless param_converter[:pk_type] %}
             {% elsif param_converter[:converter].stringify == "RequestBody" %}
-               {% raise "#{param_converter[:type]} must `include CrSerializer` or implement a `self.deserialize(body) : self` method to use the RequestBody converter." unless param_converter[:type].resolve.class.has_method?("deserialize") %}
+              {% raise "#{param_converter[:type]} must `include CrSerializer` or implement a `self.from_json(body : String) : self` method to use the RequestBody converter." unless param_converter[:type].resolve.class.has_method?("from_json") %}
             {% elsif param_converter[:converter].stringify == "FormData" %}
-               {% raise "#{param_converter[:type]} implement a `self.from_form_data(form_data : HTTP::Params) : self` method to use the FormData converter." unless param_converter[:type].resolve.class.has_method?("from_form_data") %}
+              {% raise "#{param_converter[:type]} implement a `self.from_form_data(form_data : HTTP::Params) : self` method to use the FormData converter." unless param_converter[:type].resolve.class.has_method?("from_form_data") %}
             {% end %}
+          {% elsif param_converter %}
+            {% raise "#{c.name}.#{m.name} ParamConverter annotation is missing a required field.  Must specifiy `param`, `type`, and `converter`." %}
           {% end %}
 
           {% if d = m.annotation(Get) %}
@@ -79,7 +82,7 @@ module Athena::Routing
           {% query_params = route_def[:query] ? route_def[:query].keys : [] of String %}
           {% route_params = route_def[:path].split('/').select { |p| p.starts_with?(':') || (p.starts_with?("(:") && p.ends_with?(')')) }.map { |v| v.includes?('(') ? v.tr("(:", "").tr(")", "") : v.tr(":", "") } %}
           {% route_params << "body" if %w(POST PUT).includes? method %}
-          {% arg_names.all? { |pa| (query_params + route_params).any? { |v| v == pa || v.tr("_id", "") == pa } || raise "#{c.name}.#{m.name} parameter '#{pa.id}' is not defined in route or query parameters." } %}
+          {% arg_names.all? { |pa| (query_params + route_params).any? { |v| v == pa || v.gsub(/_id$/, "") == pa } || raise "#{c.name}.#{m.name} parameter '#{pa.id}' is not defined in route or query parameters." } %}
           {% raise "#{c.name}.#{m.name} has #{arg_names.size} parameters defined, while there are #{(query_params + route_params).size} route and query parameters defined.  Did you forget to add one?" if (query_params + route_params).size != arg_names.size %}
 
           {% arg_types = m.args.map(&.restriction) %}
@@ -104,7 +107,7 @@ module Athena::Routing
           {% groups = view_ann && view_ann[:groups] ? view_ann[:groups] : ["default"] %}
           {% renderer = view_ann && view_ann[:renderer] ? view_ann[:renderer] : "JSONRenderer".id %}
 
-            %proc = ->(vals : Hash(String, String?)) do
+            %proc = ->(ctx : HTTP::Server::Context, vals : Hash(String, String?)) do
               {% unless m.args.empty? %}
                 arr = Array(Union({{arg_types.splat}}, Nil)).new
                 {% for type, idx in arg_types %}
@@ -115,7 +118,7 @@ module Athena::Routing
                     end
                     arr << if val = vals[key]?
                     {% if param_converter && param_converter[:converter] && param_converter[:type] && param_converter[:param] == arg_names[idx] %}
-                      Athena::Routing::Converters::{{param_converter[:converter]}}({{param_converter[:type]}}, {{param_converter[:param_type] ? param_converter[:param_type] : Nil}}).convert val
+                      Athena::Routing::Converters::{{param_converter[:converter]}}({{param_converter[:type]}}, {{param_converter[:pk_type] ? param_converter[:pk_type] : Nil}}).convert ctx, val
                     {% else %}
                       Athena::Types.convert_type val, {{type}}
                     {% end %}
@@ -128,7 +131,7 @@ module Athena::Routing
                 ->{ {{c.name.id}}.{{m.name.id}} }.call
               {% end %}
             end
-            @routes.add {{path}}, RouteAction(Proc(Hash(String, String?), {{m.return_type}}), Athena::Routing::Renderers::{{renderer}}({{m.return_type}}), {{body_type}}).new(%proc, {{path}}, Callbacks.new({{_on_response.uniq}} of CallbackBase, {{_on_request.uniq}} of CallbackBase), {{m.name.stringify}}, {{groups}}, {{query_params}} of Param){% if constraints %}, {{constraints}} {% end %}
+            @routes.add {{path}}, RouteAction(Proc(HTTP::Server::Context, Hash(String, String?), {{m.return_type}}), Athena::Routing::Renderers::{{renderer}}({{m.return_type}}), {{body_type}}, {{c.id}}).new(%proc, {{path}}, Callbacks.new({{_on_response.uniq}} of CallbackBase, {{_on_request.uniq}} of CallbackBase), {{m.name.stringify}}, {{groups}}, {{query_params}} of Param){% if constraints %}, {{constraints}} {% end %}
         {% end %}
       {% end %}
     end
@@ -141,6 +144,10 @@ module Athena::Routing
 
       action = route.payload.not_nil!
       params = Hash(String, String?).new
+
+      # Set the current request/response on the controller
+      action.controller.request = ctx.request
+      action.controller.response = ctx.response
 
       params.merge! route.params
 
@@ -191,25 +198,31 @@ module Athena::Routing
         end
       end
 
-      response = action.as(RouteAction).action.call params
-
-      ctx.response.print action.as(RouteAction).renderer.render response, ctx, action.groups
+      response = action.as(RouteAction).action.call ctx, params
 
       action.as(RouteAction).callbacks.on_response.each do |ce|
         if (ce.as(CallbackEvent).only_actions.empty? || ce.as(CallbackEvent).only_actions.includes?(action.as(RouteAction).method)) && (ce.as(CallbackEvent).exclude_actions.empty? || !ce.as(CallbackEvent).exclude_actions.includes?(action.method))
           ce.as(CallbackEvent).event.call(ctx)
         end
       end
+
+      ctx.response.print action.as(RouteAction).renderer.render response, ctx, action.groups
+    rescue athena_exception : Athena::Routing::Exceptions::AthenaException
+      halt ctx, athena_exception.code, athena_exception.to_json
     rescue e : ArgumentError
       halt ctx, 400, %({"code": 400, "message": "#{e.message}"})
     rescue validation_exception : CrSerializer::Exceptions::ValidationException
       halt ctx, 400, validation_exception.to_json
-    rescue not_found_exception : Athena::Routing::NotFoundException
-      halt ctx, 404, not_found_exception.to_json
     rescue json_parse_exception : JSON::ParseException
       if msg = json_parse_exception.message
         if parts = msg.match(/Expected (\w+) but was (\w+) .*[\r\n]*.+#(\w+)/)
           halt ctx, 400, %({"code": 400, "message": "Expected '#{parts[3]}' to be #{parts[1]} but got #{parts[2]}"})
+        end
+      end
+    rescue nil_exception : Exception
+      if msg = nil_exception.message
+        if parts = msg.match(/.*\#(.*) cannot be nil/)
+          halt ctx, 400, %({"code": 400, "message": "'#{parts[1]}' cannot be null"})
         end
       end
     end

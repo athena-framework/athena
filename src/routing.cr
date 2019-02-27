@@ -5,11 +5,12 @@ require "CrSerializer"
 
 require "./common/types"
 
-require "./routing/route_handler"
+require "./common/types"
 require "./routing/converters"
+require "./routing/exceptions"
 require "./routing/macros"
 require "./routing/renderers"
-require "./common/types"
+require "./routing/route_handler"
 
 # Athena module containing elements for:
 # * Defining routes.
@@ -74,11 +75,11 @@ module Athena::Routing
   # * param : `String` - The param that should go through the conversion.
   # * type : `T` - The type the param should be converted to.
   # * converter : `Athena::Routing::Converters` - What converter to use for the conversion.  Can be `Converters::RequestBody`, `Converters::Exists`, `Converters::FormData`, or a custom defined converter.
-  # * [id_type] : `P` - The type the id should be resolved to before calling `T.find`.  Only required for `Converters::Exists`.
+  # * [pk_type] : `P` - The type the id should be resolved to before calling `T.find`.  Only required for `Converters::Exists`.
   #
   # ## Example
   # ```
-  # @[Athena::Routing::ParamConverter(param: "user", id_type: Int32, type: User, converter: Exists)]
+  # @[Athena::Routing::ParamConverter(param: "user", pk_type: Int32, type: User, converter: Exists)]
   # ```
   annotation ParamConverter; end
 
@@ -123,24 +124,6 @@ module Athena::Routing
   # ```
   annotation Controller; end
 
-  # Raised when a an object could not be found in the `Athena::Routing::Converters::Exists` converter.
-  class NotFoundException < Exception
-    # Returns a 404 not found JSON error.
-    #
-    # ```
-    # {
-    #   "code":    404,
-    #   "message": "An item with the provided ID could not be found.",
-    # }
-    # ```
-    def to_json : String
-      {
-        code:    404,
-        message: @message,
-      }.to_json
-    end
-  end
-
   # Events available during the request's life-cycle.
   enum CallbackEvents
     # Executes before the route's action has been executed.
@@ -151,10 +134,42 @@ module Athena::Routing
   end
 
   # Parent class for all `Class` based controllers.
-  abstract class ClassController; end
+  abstract class ClassController
+    # :nodoc:
+    class_property request : HTTP::Request? = nil
+
+    # :nodoc:
+    class_property response : HTTP::Server::Response? = nil
+
+    # Returns the request object for the current request
+    def self.get_request : HTTP::Request
+      @@request.not_nil!
+    end
+
+    # Returns the response object for the current request
+    def self.get_response : HTTP::Server::Response
+      @@response.not_nil!
+    end
+  end
 
   # Parent class for all `Struct` based controllers.
-  abstract struct StructController; end
+  abstract struct StructController
+    # :nodoc:
+    class_property request : HTTP::Request? = nil
+
+    # :nodoc:
+    class_property response : HTTP::Server::Response? = nil
+
+    # Returns the request object for the current request
+    def self.get_request : HTTP::Request
+      @@request.not_nil!
+    end
+
+    # Returns the response object for the current request
+    def self.get_response : HTTP::Server::Response
+      @@response.not_nil!
+    end
+  end
 
   # :nodoc:
   private abstract struct Action; end
@@ -166,7 +181,7 @@ module Athena::Routing
   private abstract struct Param; end
 
   # :nodoc:
-  private record RouteAction(A, R, B) < Action, action : A, path : String, callbacks : Callbacks, method : String, groups : Array(String), query_params : Array(Param), body_type : B.class = B, renderer : R.class = R
+  private record RouteAction(A, R, B, C) < Action, action : A, path : String, callbacks : Callbacks, method : String, groups : Array(String), query_params : Array(Param), body_type : B.class = B, renderer : R.class = R, controller : C.class = C
 
   # :nodoc:
   private record Callbacks, on_response : Array(CallbackBase), on_request : Array(CallbackBase)

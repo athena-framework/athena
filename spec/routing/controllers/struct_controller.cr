@@ -12,4 +12,14 @@ struct SController < Athena::Routing::StructController
     body.should eq 123
     -body
   end
+
+  @[Athena::Routing::Get(path: "get/struct/response")]
+  def self.response : Nil
+    get_response.headers.add "Foo", "Bar"
+  end
+
+  @[Athena::Routing::Get(path: "get/struct/request")]
+  def self.request : String
+    get_request.path
+  end
 end

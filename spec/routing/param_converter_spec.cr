@@ -15,6 +15,10 @@ describe Athena::Routing::ParamConverter do
       response.body.should eq %({"code":404,"message":"An item with the provided ID could not be found."})
       response.status_code.should eq 404
     end
+
+    it "resolves a record that has the characters '_id' in it" do
+      CLIENT.get("/article/17").body.should eq %({"id":17,"title":"Int"})
+    end
   end
 
   describe "RequestBody" do
