@@ -113,7 +113,7 @@ module Athena::Routing
   #
   # ## Example
   # ```
-  # @[Athena::Routing::Controller(prefix: "calendar")]
+  # @[Athena::Routing::ControllerOptions(prefix: "calendar")]
   # struct CalendarController < Athena::Routing::Controller
   #   # The rotue of this action would be `GET /calendar/events`
   #   @[Athena::Routing::Get(path: "events")]
@@ -122,7 +122,7 @@ module Athena::Routing
   #   end
   # end
   # ```
-  annotation Controller; end
+  annotation ControllerOptions; end
 
   # Events available during the request's life-cycle.
   enum CallbackEvents

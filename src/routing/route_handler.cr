@@ -9,7 +9,7 @@ module Athena::Routing
       {% for c in Athena::Routing::Controller.all_subclasses %}
         {% methods = c.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
         {% instance_methods = c.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
-        {% class_ann = c.annotation(Athena::Routing::Controller) %}
+        {% class_ann = c.annotation(Athena::Routing::ControllerOptions) %}
 
         # Raise compile time exception if a route is defined on a instance method.
         {% unless instance_methods.empty? %}
@@ -23,19 +23,19 @@ module Athena::Routing
         {% parent_callbacks = [] of Def %}
         {% for parent in c.class.ancestors %}
           {% for callback in parent.methods.select { |me| me.annotation(Callback) } %}
-            {% parent_callbacks << callback %}
+            {% parent_callbacks.unshift callback %}
           {% end %}
         {% end %}
 
-        # Set controller/global triggers
-        {% for trigger in parent_callbacks + c.class.methods.select { |m| m.annotation(Callback) } + Athena::Routing::Controller.class.methods.select { |m| m.annotation(Callback) } %}
-          {% trigger_ann = trigger.annotation(Callback) %}
-          {% only_actions = trigger_ann[:only] || "[] of String" %}
-          {% exclude_actions = trigger_ann[:exclude] || "[] of String" %}
-          {% if trigger_ann[:event].resolve == Athena::Routing::CallbackEvents::OnResponse %}
-            {% _on_response << "CallbackEvent(Proc(HTTP::Server::Context, Nil)).new(->#{c.name.id}.#{trigger.name.id}(HTTP::Server::Context), #{only_actions.id}, #{exclude_actions.id})".id %}
-          {% elsif trigger_ann[:event].resolve == Athena::Routing::CallbackEvents::OnRequest %}
-            {% _on_request << "CallbackEvent(Proc(HTTP::Server::Context, Nil)).new(->#{c.name.id}.#{trigger.name.id}(HTTP::Server::Context), #{only_actions.id}, #{exclude_actions.id})".id %}
+        # Set Global > Parent > Controller callbacks
+        {% for callback in (Athena::Routing::Controller.class.methods.select { |m| m.annotation(Callback) } + parent_callbacks + c.class.methods.select { |m| m.annotation(Callback) }) %}
+          {% callback_ann = callback.annotation(Callback) %}
+          {% only_actions = callback_ann[:only] || "[] of String" %}
+          {% exclude_actions = callback_ann[:exclude] || "[] of String" %}
+          {% if callback_ann[:event].resolve == Athena::Routing::CallbackEvents::OnResponse %}
+            {% _on_response << "CallbackEvent(Proc(HTTP::Server::Context, Nil)).new(->#{c.name.id}.#{callback.name.id}(HTTP::Server::Context), #{only_actions.id}, #{exclude_actions.id})".id %}
+          {% elsif callback_ann[:event].resolve == Athena::Routing::CallbackEvents::OnRequest %}
+            {% _on_request << "CallbackEvent(Proc(HTTP::Server::Context, Nil)).new(->#{c.name.id}.#{callback.name.id}(HTTP::Server::Context), #{only_actions.id}, #{exclude_actions.id})".id %}
           {% end %}
         {% end %}
 
