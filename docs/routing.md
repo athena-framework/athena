@@ -8,7 +8,7 @@ Athena's routing is unique in two key areas:
 
 ## Defining Routes
 
-Routes are defined by adding a `@[Athena::Routing::{{HTTP_METHOD}}(path: "/")]` annotation to a controller's class method.  The controller should be a struct that inherits from `Athena::Routing::StructController`.
+Routes are defined by adding a `@[Athena::Routing::{{HTTP_METHOD}}(path: "/")]` annotation to a controller's class method.  The controller should be a struct that inherits from `Athena::Routing::Controller`.
 
 **NOTE**: The controller/action names do not currently matter.
 
@@ -17,7 +17,7 @@ require "athena/routing"
 
 # The `Controller` annotation can be applied to set a prefix to use for all routes within `self`
 @[Athena::Routing::Controller(prefix: "athena")]
-struct TestController < Athena::Routing::StructController
+struct TestController < Athena::Routing::Controller
   # A GET endpoint with no params returning a string.
   # By default, responses automatically include a
   # `content-type: application/json` header
@@ -87,7 +87,7 @@ Query param are defined in the route annotation using the `query` field of type 
 ```Crystal
 require "athena/routing"
 
-struct TestController < Athena::Routing::StructController
+struct TestController < Athena::Routing::Controller
   # An optional query param `time` with a default value and a constraint
   @[Athena::Routing::Get(path: "/event/:event_name/", query: {"time" => /\d:\d:\d/})]
   def self.event_time(event_name : String, time : String? = "1:1:1") : String
@@ -130,7 +130,7 @@ A default value can be assigned to an action param.  If that route param is decl
 ```Crystal
 require "athena/routing"
 
-struct MyController < Athena::Routing::StructController 
+struct MyController < Athena::Routing::Controller 
   @[Athena::Routing::Get(path: "/posts/(:page)")]
   def self.default_value(page : Int32 = 99) : Int32
     page
@@ -175,7 +175,7 @@ The `groups` field is used to specify which serialization groups this route shou
 ```Crystal
 require "athena/routing"
 
-struct UserController < Athena::Routing::StructController
+struct UserController < Athena::Routing::Controller
   @[Athena::Routing::Get(path: "admin/users/:user_id")]
   @[Athena::Routing::View(groups: ["admin"])]
   @[Athena::Routing::ParamConverter(param: "user", pk_type: Int32, type: User, converter: Exists)]
@@ -198,7 +198,7 @@ The `YAMLRenderer` requires that the object has a `to_yaml` method, either from 
 ```Crystal
 require "athena/routing"
 
-struct UserController < Athena::Routing::StructController
+struct UserController < Athena::Routing::Controller
   # Assuming the found user's age is 17, name Bob, and password is abc123
   @[Athena::Routing::Get(path: "users/yaml/:user_id")]
   @[Athena::Routing::ParamConverter(param: "user", pk_type: Int32, type: User, converter: Exists)]
@@ -220,7 +220,7 @@ The `ECRRenderer` requires that the returned object implements a `to_s` method u
 ```Crystal
 require "athena/routing"
 
-struct UserController < Athena::Routing::StructController
+struct UserController < Athena::Routing::Controller
   # Assuming the found user's age is 17, and name Bob.
   # Requires the return object implements `to_s` method using `ECR.def_to_s "user.ecr"`
   @[Athena::Routing::Get(path: "users/ecr/:user_id")]
@@ -246,7 +246,7 @@ Actions that return a string are dumped straight into the response body, without
 ```Crystal
 require "athena/routing"
 
-struct TestController < Athena::Routing::StructController
+struct TestController < Athena::Routing::Controller
   @[Athena::Routing::Get(path: "/foo")]
   @[Athena::Routing::View(renderer: ECRRenderer)]
   def self.foo : String
@@ -274,7 +274,7 @@ Each event provides the request context in order to have access to the request a
 ```Crystal
 require "athena/routing"
 
-struct MyController < Athena::Routing::StructController
+struct MyController < Athena::Routing::Controller
   @[Athena::Routing::Callback(event: Athena::Routing::CallbackEvents::OnResponse)]
   def self.my_callback(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-MyController-Header", "true"
@@ -306,7 +306,7 @@ The same idea also applies to methods.  Class methods can be defined on parent s
 
 ### Global Callbacks
 
-Callbacks can also be defined to run on _all_ routes no matter which controller they are in.  This can be achieved by adding a callback action to the parent controller struct: `Athena::Routing::StructController`.  
+Callbacks can also be defined to run on _all_ routes no matter which controller they are in.  This can be achieved by adding a callback action to the parent controller struct: `Athena::Routing::Controller`.  
 
 This is most useful for adding `Content-Type` response headers, or CORs.  
 
@@ -315,7 +315,7 @@ Global callbacks can also be filtered if you wanted to exclude a specific route.
 ```Crystal
 require "athena/routing"
 
-struct Athena::Routing::StructController
+struct Athena::Routing::Controller
   @[Athena::Routing::Callback(event: Athena::Routing::CallbackEvents::OnResponse)]
   def self.global_callback(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-RESPONSE-GLOBAL", "true"
@@ -342,7 +342,7 @@ This converter requires that there is a `self.find(val : String) : self` method 
 ```Crystal
 require "athena/routing"
 
-struct UserController < Athena::Routing::StructController
+struct UserController < Athena::Routing::Controller
   @[Athena::Routing::Get(path: "users/:user_id")]
   @[Athena::Routing::ParamConverter(param: "user", pk_type: Int32, type: User, converter: Exists)]
   def self.get_user(user : User) : String
@@ -375,7 +375,7 @@ This converter requires that there is a `self.from_json(body : String) : self` m
 ```Crystal
 require "athena/routing"
 
-struct UserController < Athena::Routing::StructController
+struct UserController < Athena::Routing::Controller
   @[Athena::Routing::Post(path: "users/")]
   @[Athena::Routing::ParamConverter(param: "user", type: User, converter: RequestBody)]
   def self.new_user(user : User) : User
@@ -434,7 +434,7 @@ class User
   end
 end
 
-struct UserController < Athena::Routing::StructController
+struct UserController < Athena::Routing::Controller
   # Form data: age=19&name=Jim
   @[Athena::Routing::Post(path: "users/")]
   @[Athena::Routing::ParamConverter(param: "user", type: User, converter: FormData)]

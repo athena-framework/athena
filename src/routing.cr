@@ -114,7 +114,7 @@ module Athena::Routing
   # ## Example
   # ```
   # @[Athena::Routing::Controller(prefix: "calendar")]
-  # struct CalendarController < Athena::Routing::StructController
+  # struct CalendarController < Athena::Routing::Controller
   #   # The rotue of this action would be `GET /calendar/events`
   #   @[Athena::Routing::Get(path: "events")]
   #   def self.events : String
@@ -134,7 +134,7 @@ module Athena::Routing
   end
 
   # Parent struct for all controllers.
-  abstract struct StructController
+  abstract struct Controller
     # :nodoc:
     class_property request : HTTP::Request? = nil
 

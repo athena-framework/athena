@@ -1,18 +1,18 @@
-struct Athena::Routing::StructController
+struct Athena::Routing::Controller
   @[Athena::Routing::Callback(event: CallbackEvents::OnResponse, exclude: ["posts"])]
   def self.global_callback(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-RESPONSE-GLOBAL", "true"
   end
 end
 
-struct Athena::Routing::StructController
+struct Athena::Routing::Controller
   @[Athena::Routing::Callback(event: CallbackEvents::OnResponse, exclude: ["posts"])]
   def self.global_callback(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-RESPONSE-GLOBAL", "true"
   end
 end
 
-struct CallbackController < Athena::Routing::StructController
+struct CallbackController < Athena::Routing::Controller
   @[Athena::Routing::Callback(event: CallbackEvents::OnResponse)]
   def self.after_all(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-RESPONSE-ALL-ROUTES", "true"
@@ -44,7 +44,7 @@ struct CallbackController < Athena::Routing::StructController
   end
 end
 
-struct OtherCallbackController < Athena::Routing::StructController
+struct OtherCallbackController < Athena::Routing::Controller
   @[Athena::Routing::Get(path: "/callback/other")]
   def self.other : String
     "other"
@@ -53,7 +53,7 @@ end
 
 # Nested to test callback inheritence
 
-abstract struct NestedCallbackController < Athena::Routing::StructController
+abstract struct NestedCallbackController < Athena::Routing::Controller
   def self.current_user
     User.new
   end

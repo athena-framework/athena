@@ -1,5 +1,5 @@
 @[Athena::Routing::Controller(prefix: "calendar")]
-struct CalendarController < Athena::Routing::StructController
+struct CalendarController < Athena::Routing::Controller
   @[Athena::Routing::Get(path: "events")]
   def self.events : String
     "events"

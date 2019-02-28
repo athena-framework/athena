@@ -1,4 +1,4 @@
-struct StringController < Athena::Routing::StructController
+struct StringController < Athena::Routing::Controller
   @[Athena::Routing::Get(path: "string/:val")]
   def self.string(val : String) : String
     val.should be_a String

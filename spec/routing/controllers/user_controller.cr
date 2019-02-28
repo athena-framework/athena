@@ -49,7 +49,7 @@ class User
   ECR.def_to_s "spec/routing/user.ecr"
 end
 
-struct UserController < Athena::Routing::StructController
+struct UserController < Athena::Routing::Controller
   @[Athena::Routing::Post(path: "users")]
   @[Athena::Routing::ParamConverter(param: "body", type: User, converter: RequestBody)]
   def self.new_user(body : User) : User
