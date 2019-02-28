@@ -1,4 +1,4 @@
-class IntController < Athena::Routing::ClassController
+struct IntController < Athena::Routing::StructController
   @[Athena::Routing::Get(path: "int8/:num")]
   def self.int8(num : Int8) : Int8
     num.should be_a Int8

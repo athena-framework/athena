@@ -8,7 +8,7 @@ Athena's routing is unique in two key areas:
 
 ## Defining Routes
 
-Routes are defined by adding a `@[Athena::Routing::{{HTTP_METHOD}}(path: "/")]` annotation to a controller's class method.  The class should inherit from either `Athena::Routing::ClassController` or `Athena::Routing::StructController` if the controller is a `Class` or `Struct`.
+Routes are defined by adding a `@[Athena::Routing::{{HTTP_METHOD}}(path: "/")]` annotation to a controller's class method.  The controller should be a struct that inherits from `Athena::Routing::StructController`.
 
 **NOTE**: The controller/action names do not currently matter.
 
@@ -17,7 +17,7 @@ require "athena/routing"
 
 # The `Controller` annotation can be applied to set a prefix to use for all routes within `self`
 @[Athena::Routing::Controller(prefix: "athena")]
-class TestController < Athena::Routing::ClassController
+struct TestController < Athena::Routing::StructController
   # A GET endpoint with no params returning a string.
   # By default, responses automatically include a
   # `content-type: application/json` header
@@ -87,7 +87,7 @@ Query param are defined in the route annotation using the `query` field of type 
 ```Crystal
 require "athena/routing"
 
-class TestController < Athena::Routing::ClassController
+struct TestController < Athena::Routing::StructController
   # An optional query param `time` with a default value and a constraint
   @[Athena::Routing::Get(path: "/event/:event_name/", query: {"time" => /\d:\d:\d/})]
   def self.event_time(event_name : String, time : String? = "1:1:1") : String
@@ -130,7 +130,7 @@ A default value can be assigned to an action param.  If that route param is decl
 ```Crystal
 require "athena/routing"
 
-class MyController < Athena::Routing::ClassController 
+struct MyController < Athena::Routing::StructController 
   @[Athena::Routing::Get(path: "/posts/(:page)")]
   def self.default_value(page : Int32 = 99) : Int32
     page
@@ -147,7 +147,7 @@ CLIENT.get "/posts/12" # => 12
 **NOTE:** This suffers from the same limitation as a Radix tree in that two routes cannot share the same route, where one route has an optional param at the same place another has a required param.  However it would be considered a bad practice if two routes matched two different actions, especially with route constraints.
 
 ### Accessing Request/Response
-The current request/response can be accessed from within a controller action via the `get_request` and `get_response` methods inherited from Athena's parent class/struct.
+The current request/response can be accessed from within a controller action via the `get_request` and `get_response` methods inherited from Athena's parent struct.
 
 This can be used to add custom headers, to set a token in a cookie for example, within any action; without having to set a callback scoped to that specific action.
 
@@ -198,7 +198,7 @@ The `YAMLRenderer` requires that the object has a `to_yaml` method, either from 
 ```Crystal
 require "athena/routing"
 
-class UserController < Athena::Routing::ClassController
+struct UserController < Athena::Routing::StructController
   # Assuming the found user's age is 17, name Bob, and password is abc123
   @[Athena::Routing::Get(path: "users/yaml/:user_id")]
   @[Athena::Routing::ParamConverter(param: "user", pk_type: Int32, type: User, converter: Exists)]
@@ -220,7 +220,7 @@ The `ECRRenderer` requires that the returned object implements a `to_s` method u
 ```Crystal
 require "athena/routing"
 
-class UserController < Athena::Routing::ClassController
+struct UserController < Athena::Routing::StructController
   # Assuming the found user's age is 17, and name Bob.
   # Requires the return object implements `to_s` method using `ECR.def_to_s "user.ecr"`
   @[Athena::Routing::Get(path: "users/ecr/:user_id")]
@@ -246,7 +246,7 @@ Actions that return a string are dumped straight into the response body, without
 ```Crystal
 require "athena/routing"
 
-class TestController < Athena::Routing::ClassController
+struct TestController < Athena::Routing::StructController
   @[Athena::Routing::Get(path: "/foo")]
   @[Athena::Routing::View(renderer: ECRRenderer)]
   def self.foo : String
@@ -274,7 +274,7 @@ Each event provides the request context in order to have access to the request a
 ```Crystal
 require "athena/routing"
 
-class MyController < Athena::Routing::ClassController
+struct MyController < Athena::Routing::StructController
   @[Athena::Routing::Callback(event: Athena::Routing::CallbackEvents::OnResponse)]
   def self.my_callback(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-MyController-Header", "true"
@@ -302,11 +302,11 @@ The first callback would only run for the route who's action has the name `get_a
 
 When a controller is inherited from, all callbacks defined on that controller will also be inherited.  This allows developers to smartly define their controllers to make use of inheritance to share common callbacks, such as for setting headers for public vs private routes.
 
-The same idea also applies to methods.  Class methods can be defined on parent classes so that each child controller has those methods defined.  Such as a `current_user` method that pulls an auth token from a header and look up the user to allow all controller actions to have access to the current user.
+The same idea also applies to methods.  Class methods can be defined on parent structs so that each child controller has those methods defined.  Such as a `current_user` method that pulls an auth token from a header and look up the user to allow all controller actions to have access to the current user.
 
 ### Global Callbacks
 
-Callbacks can also be defined to run on _all_ routes no matter which controller they are in.  This can be achieved by adding a callback action to the parent controller classes: `Athena::Routing::Routing::ClassController` or `Athena::StructController`.  
+Callbacks can also be defined to run on _all_ routes no matter which controller they are in.  This can be achieved by adding a callback action to the parent controller struct: `Athena::Routing::StructController`.  
 
 This is most useful for adding `Content-Type` response headers, or CORs.  
 
@@ -315,7 +315,7 @@ Global callbacks can also be filtered if you wanted to exclude a specific route.
 ```Crystal
 require "athena/routing"
 
-class Athena::Routing::ClassController
+struct Athena::Routing::StructController
   @[Athena::Routing::Callback(event: Athena::Routing::CallbackEvents::OnResponse)]
   def self.global_callback(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-RESPONSE-GLOBAL", "true"
@@ -325,7 +325,7 @@ end
 Athena::Routing.run
 ```
 
-Additional methods may be added to the parent class/struct that would be available to all route actions.  
+Additional methods may be added to the parent struct that would be available to all route actions.  
 
 ## ParamConverter
 
@@ -335,14 +335,14 @@ All basic types, such as `Int`, `Float`, `String`, `Bool`, are natively converte
 
 The `Exists` converter takes a route param and attempts to resolve an object of `T` with that ID.  If no object is found a 404 JSON error is thrown/returned.
 
-This converter requires that there is a `self.find(val : String) : self` method on `T` that either returns the corresponding object, or nil.  This can either be from an ORM library, or defined manually on the class.
+This converter requires that there is a `self.find(val : String) : self` method on `T` that either returns the corresponding object, or nil.  This can either be from an ORM library, or defined manually.
 
 **NOTE:** The `Exists` converter requires an extra annotation field `pk_type`.  This should be set to the type of the primary key, or unique identifier, of the model/class.  This is used to convert the string value to the correct type for the `find` query.
 
 ```Crystal
 require "athena/routing"
 
-class UserController < Athena::Routing::ClassController
+struct UserController < Athena::Routing::StructController
   @[Athena::Routing::Get(path: "users/:user_id")]
   @[Athena::Routing::ParamConverter(param: "user", pk_type: Int32, type: User, converter: Exists)]
   def self.get_user(user : User) : String
@@ -370,12 +370,12 @@ If the *find* method returns nil, indicating a record was not found, a 404 error
 
 The `RequestBody` converter will attempt to deserialize the JSON body of a request, into an object of `T`.
 
-This converter requires that there is a `self.from_json(body : String) : self` method on `T` that will return an instance of `T` from the JSON string body of the request.  This, by default, is from `CrSerializer` but could also be something manually defined on the class.
+This converter requires that there is a `self.from_json(body : String) : self` method on `T` that will return an instance of `T` from the JSON string body of the request.  This, by default, is from `CrSerializer` but could also be something manually defined.
 
 ```Crystal
 require "athena/routing"
 
-class UserController < Athena::Routing::ClassController
+struct UserController < Athena::Routing::StructController
   @[Athena::Routing::Post(path: "users/")]
   @[Athena::Routing::ParamConverter(param: "user", type: User, converter: RequestBody)]
   def self.new_user(user : User) : User
@@ -434,7 +434,7 @@ class User
   end
 end
 
-class UserController < Athena::Routing::ClassController
+struct UserController < Athena::Routing::StructController
   # Form data: age=19&name=Jim
   @[Athena::Routing::Post(path: "users/")]
   @[Athena::Routing::ParamConverter(param: "user", type: User, converter: FormData)]

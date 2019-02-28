@@ -1,4 +1,4 @@
-class AthenaController < Athena::Routing::ClassController
+struct AthenaController < Athena::Routing::StructController
   @[Athena::Routing::Get(path: "noParamsGet")]
   def self.no_params_get : String
     "foobar"

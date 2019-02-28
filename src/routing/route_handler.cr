@@ -6,7 +6,7 @@ module Athena::Routing
     @routes : Amber::Router::RouteSet(Action) = Amber::Router::RouteSet(Action).new
 
     def initialize
-      {% for c in Athena::Routing::ClassController.all_subclasses + Athena::Routing::StructController.all_subclasses %}
+      {% for c in Athena::Routing::StructController.all_subclasses %}
         {% methods = c.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
         {% instance_methods = c.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
         {% class_ann = c.annotation(Athena::Routing::Controller) %}
@@ -28,7 +28,7 @@ module Athena::Routing
         {% end %}
 
         # Set controller/global triggers
-        {% for trigger in c.class.methods.select { |m| m.annotation(Callback) } + parent_callbacks + Athena::Routing::ClassController.class.methods.select { |m| m.annotation(Callback) } + Athena::Routing::StructController.class.methods.select { |m| m.annotation(Callback) } %}
+        {% for trigger in parent_callbacks + c.class.methods.select { |m| m.annotation(Callback) } + Athena::Routing::StructController.class.methods.select { |m| m.annotation(Callback) } %}
           {% trigger_ann = trigger.annotation(Callback) %}
           {% only_actions = trigger_ann[:only] || "[] of String" %}
           {% exclude_actions = trigger_ann[:exclude] || "[] of String" %}

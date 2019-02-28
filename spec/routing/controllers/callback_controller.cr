@@ -1,4 +1,4 @@
-class Athena::Routing::ClassController
+struct Athena::Routing::StructController
   @[Athena::Routing::Callback(event: CallbackEvents::OnResponse, exclude: ["posts"])]
   def self.global_callback(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-RESPONSE-GLOBAL", "true"
@@ -12,7 +12,7 @@ struct Athena::Routing::StructController
   end
 end
 
-class CallbackController < Athena::Routing::ClassController
+struct CallbackController < Athena::Routing::StructController
   @[Athena::Routing::Callback(event: CallbackEvents::OnResponse)]
   def self.after_all(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-RESPONSE-ALL-ROUTES", "true"
@@ -44,7 +44,7 @@ class CallbackController < Athena::Routing::ClassController
   end
 end
 
-class OtherCallbackController < Athena::Routing::ClassController
+struct OtherCallbackController < Athena::Routing::StructController
   @[Athena::Routing::Get(path: "/callback/other")]
   def self.other : String
     "other"
@@ -53,7 +53,7 @@ end
 
 # Nested to test callback inheritence
 
-class NestedCallbackController < Athena::Routing::ClassController
+abstract struct NestedCallbackController < Athena::Routing::StructController
   def self.current_user
     User.new
   end
@@ -69,7 +69,7 @@ class NestedCallbackController < Athena::Routing::ClassController
   end
 end
 
-class NestedCallback2Controller < NestedCallbackController
+abstract struct NestedCallback2Controller < NestedCallbackController
   @[Athena::Routing::Callback(event: CallbackEvents::OnResponse)]
   def self.child1(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-RESPONSE-CHILD1", "true"
@@ -81,7 +81,7 @@ class NestedCallback2Controller < NestedCallbackController
   end
 end
 
-class NestedCallback3Controller < NestedCallback2Controller
+abstract struct NestedCallback3Controller < NestedCallback2Controller
   @[Athena::Routing::Callback(event: CallbackEvents::OnResponse)]
   def self.child2(context : HTTP::Server::Context) : Nil
     context.response.headers.add "X-RESPONSE-CHILD2", "true"
@@ -93,7 +93,7 @@ class NestedCallback3Controller < NestedCallback2Controller
   end
 end
 
-class NestedCallback4Controller < NestedCallbackController
+struct NestedCallback4Controller < NestedCallbackController
   @[Athena::Routing::Get(path: "/callback/nested/child3")]
   def self.child : String
     "child3"

@@ -1,4 +1,4 @@
-class FloatController < Athena::Routing::ClassController
+struct FloatController < Athena::Routing::StructController
   @[Athena::Routing::Get(path: "float32/:num")]
   def self.float32(num : Float32) : Float32
     num.should be_a Float32

@@ -114,7 +114,7 @@ module Athena::Routing
   # ## Example
   # ```
   # @[Athena::Routing::Controller(prefix: "calendar")]
-  # class CalendarController < Athena::Routing::ClassController
+  # class CalendarController < Athena::Routing::StructController
   #   # The rotue of this action would be `GET /calendar/events`
   #   @[Athena::Routing::Get(path: "events")]
   #   def self.events : String
@@ -133,26 +133,7 @@ module Athena::Routing
     OnResponse
   end
 
-  # Parent class for all `Class` based controllers.
-  abstract class ClassController
-    # :nodoc:
-    class_property request : HTTP::Request? = nil
-
-    # :nodoc:
-    class_property response : HTTP::Server::Response? = nil
-
-    # Returns the request object for the current request
-    def self.get_request : HTTP::Request
-      @@request.not_nil!
-    end
-
-    # Returns the response object for the current request
-    def self.get_response : HTTP::Server::Response
-      @@response.not_nil!
-    end
-  end
-
-  # Parent class for all `Struct` based controllers.
+  # Parent struct for all controllers.
   abstract struct StructController
     # :nodoc:
     class_property request : HTTP::Request? = nil
