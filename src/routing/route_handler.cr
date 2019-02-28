@@ -207,24 +207,8 @@ module Athena::Routing
       end
 
       ctx.response.print action.as(RouteAction).renderer.render response, ctx, action.groups
-    rescue athena_exception : Athena::Routing::Exceptions::AthenaException
-      halt ctx, athena_exception.code, athena_exception.to_json
-    rescue e : ArgumentError
-      halt ctx, 400, %({"code": 400, "message": "#{e.message}"})
-    rescue validation_exception : CrSerializer::Exceptions::ValidationException
-      halt ctx, 400, validation_exception.to_json
-    rescue json_parse_exception : JSON::ParseException
-      if msg = json_parse_exception.message
-        if parts = msg.match(/Expected (\w+) but was (\w+) .*[\r\n]*.+#(\w+)/)
-          halt ctx, 400, %({"code": 400, "message": "Expected '#{parts[3]}' to be #{parts[1]} but got #{parts[2]}"})
-        end
-      end
-    rescue nil_exception : Exception
-      if msg = nil_exception.message
-        if parts = msg.match(/.*\#(.*) cannot be nil/)
-          halt ctx, 400, %({"code": 400, "message": "'#{parts[1]}' cannot be null"})
-        end
-      end
+    rescue ex
+      action.not_nil!.controller.handle_exception ex, ctx
     end
   end
 end

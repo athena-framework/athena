@@ -114,7 +114,7 @@ module Athena::Routing
   # ## Example
   # ```
   # @[Athena::Routing::Controller(prefix: "calendar")]
-  # class CalendarController < Athena::Routing::StructController
+  # struct CalendarController < Athena::Routing::StructController
   #   # The rotue of this action would be `GET /calendar/events`
   #   @[Athena::Routing::Get(path: "events")]
   #   def self.events : String
@@ -149,6 +149,39 @@ module Athena::Routing
     # Returns the response object for the current request
     def self.get_response : HTTP::Server::Response
       @@response.not_nil!
+    end
+
+    # Handles exceptions that could occur when using Athena.
+    # Throws a 500 if the error does not match any handler.
+    #
+    # Method can be defined on child classes for controller specific error handling.
+    def self.handle_exception(exception : Exception, ctx : HTTP::Server::Context)
+      # Handle core AthenaExceptions
+      if exception.is_a? Athena::Routing::Exceptions::AthenaException
+        halt ctx, exception.code, exception.to_json
+      end
+
+      # Handle validation errors
+      if exception.is_a? CrSerializer::Exceptions::ValidationException
+        halt ctx, 400, exception.to_json
+      end
+
+      # Handle param conversion errors
+      if exception.is_a? ArgumentError
+        halt ctx, 400, %({"code": 400, "message": "#{exception.message}"})
+      end
+
+      # Handle JSON parse errors
+      if exception.is_a? JSON::ParseException
+        if msg = exception.message
+          if parts = msg.match(/Expected (\w+) but was (\w+) .*[\r\n]*.+#(\w+)/)
+            halt ctx, 400, %({"code": 400, "message": "Expected '#{parts[3]}' to be #{parts[1]} but got #{parts[2]}"})
+          end
+        end
+      end
+
+      # Otherwise throw a 500 if no other exception handlers are defined on any children
+      halt ctx, 500, %({"code": 500, "message": "Internal Server Error"})
     end
   end
 

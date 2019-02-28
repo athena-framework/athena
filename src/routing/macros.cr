@@ -4,6 +4,5 @@ macro halt(ctx, status_code = 200, body = "")
   {{ctx}}.response.print {{body}}
   {{ctx}}.response.headers.add "Content-Type", "application/json"
   {{ctx}}.response.close
-  call_next ctx
   return
 end
