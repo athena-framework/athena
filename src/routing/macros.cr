@@ -1,8 +1,9 @@
 # Closes the request with the given *status_code* and *body*.
-macro halt(ctx, status_code = 200, body = "")
-  {{ctx}}.response.status_code = {{status_code}}
-  {{ctx}}.response.print {{body}}
-  {{ctx}}.response.headers.add "Content-Type", "application/json"
-  {{ctx}}.response.close
+macro throw(status_code = 200, body = "")
+  response = get_response
+  response.status_code = {{status_code}}
+  response.print {{body}}
+  response.headers.add "Content-Type", "application/json"
+  response.close
   return
 end

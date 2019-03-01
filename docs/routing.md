@@ -8,7 +8,7 @@ Athena's routing is unique in two key areas:
 
 ## Defining Routes
 
-Routes are defined by adding a `@[Athena::Routing::{{HTTP_METHOD}}(path: "/")]` annotation to a controller's class method.  The controller should be a struct that inherits from `Athena::Routing::Controller`.
+Routes are defined by adding a `@[Athena::Routing::{{HTTP_METHOD}}(path: "/")]` annotation to a controller class method.  The controller should be a struct that inherits from `Athena::Routing::Controller`.
 
 **NOTE**: The controller/action names do not currently matter.
 
@@ -16,7 +16,7 @@ Routes are defined by adding a `@[Athena::Routing::{{HTTP_METHOD}}(path: "/")]` 
 require "athena/routing"
 
 # The `Controller` annotation can be applied to set a prefix to use for all routes within `self`
-@[Athena::Routing::Controller(prefix: "athena")]
+@[Athena::Routing::ControllerOptions(prefix: "athena")]
 struct TestController < Athena::Routing::Controller
   # A GET endpoint with no params returning a string.
   # By default, responses automatically include a
@@ -80,38 +80,6 @@ Note that the return type of each action is an actual type, not just a `String`.
 
 The param placeholder names **_MUST_** match the parameter names of the action.  The order in which the action's parameters are defined does not matter.
 
-### Query Params
-
-Query param are defined in the route annotation using the `query` field of type `Hash(String, Regex?)`.
-
-```Crystal
-require "athena/routing"
-
-struct TestController < Athena::Routing::Controller
-  # An optional query param `time` with a default value and a constraint
-  @[Athena::Routing::Get(path: "/event/:event_name/", query: {"time" => /\d:\d:\d/})]
-  def self.event_time(event_name : String, time : String? = "1:1:1") : String
-    "#{event_name} occured at #{time}"
-  end
-  
-  # A required query param `query` without a constraint
-  @[Athena::Routing::Get(path: "/event/:event_name/", query: {"query" => nil})]
-  def self.event(event_name : String, query : String) : String
-    "#{event_name} occured at #{query}"
-  end
-end
-
-Athena::Routing.run
-```
-
-#### Optionality 
-
-If a query param's type is nilable in the route's action parameters, it is considered to be optional.  If no default value is supplied, its value will simply be `nil` if it is not supplied.  If a query param's type is _not_ nilable; it is considered required and will raise a 400 if not supplied.
-
-#### Constraints
-
-A query param can have a `Regex` pattern attached to it.  If the query param is required and the pattern does not match, a 400 error will be raised.  If the param is optional and does not match, if no default value is supplied, its value will be `nil`.
-
 ### Undefined Route
 
 If a request is made to a route that has not been declared, a 404 error is returned with a body like:
@@ -151,8 +119,61 @@ The current request/response can be accessed from within a controller action via
 
 This can be used to add custom headers, to set a token in a cookie for example, within any action; without having to set a callback scoped to that specific action.
 
-### Exception handling
-Athena provides an `AthenaException` exception that can be used for raising custom exceptions with consistent JSON output, as well as setting the response status code.
+### Exception Handling
+
+Athena provides an `AthenaException` class that can be used for raising custom exceptions with consistent JSON output, as well as setting the response status code.
+
+By default, Athena will catch and handle most errors related to param conversion, validation, JSON parsing, and `AthenaException`.  If the exception is not one of these, Athena will throw a 500 Internal Server Error.
+
+Custom error handling can be defined on a controller, or group of controllers by utilizing inheritance.  For example.
+
+```crysatl
+struct FakeController < Athena::Routing::Controller
+  def self.handle_exception(exception : Exception, action : String)
+    if exception.is_a? DivisionByZeroError
+      throw 400, %({"code": 400, "message": "#{exception.message}"})
+    end
+
+    super
+  end
+end
+```
+
+The method accepts the exception that has been raised, and the name of the action the exception occurred in.  (A future iteration could be passing an action object to get params, action/controller name etc.).
+
+Any exceptions that happen within `FakeController` will first pass through the `handle_exception` method, returning a response with given *status code* and *body* if the exception is a `DivisionByZeroError`. Otherwise, if the exception does not "match" any logic in the custom handler, calling `super` would call the parent's error handler, in this case Athena's default (but could also be another inherited controller), which would pass the exception to Athena to process.  If the exception does not "match" any rescued exceptions there either, then a 500 Internal Server Error would be thrown.
+
+### Query Params
+
+Query param are defined in the route annotation using the `query` field of type `Hash(String, Regex?)`.
+
+```Crystal
+require "athena/routing"
+
+struct TestController < Athena::Routing::Controller
+  # An optional query param `time` with a default value and a constraint
+  @[Athena::Routing::Get(path: "/event/:event_name/", query: {"time" => /\d:\d:\d/})]
+  def self.event_time(event_name : String, time : String? = "1:1:1") : String
+    "#{event_name} occured at #{time}"
+  end
+  
+  # A required query param `query` without a constraint
+  @[Athena::Routing::Get(path: "/event/:event_name/", query: {"query" => nil})]
+  def self.event(event_name : String, query : String) : String
+    "#{event_name} occured at #{query}"
+  end
+end
+
+Athena::Routing.run
+```
+
+#### Optionality 
+
+If a query param's type is nilable in the route's action parameters, it is considered to be optional.  If no default value is supplied, its value will simply be `nil` if it is not supplied.  If a query param's type is _not_ nilable; it is considered required and will raise a 400 if not supplied.
+
+#### Constraints
+
+A query param can have a `Regex` pattern attached to it.  If the query param is required and the pattern does not match, a 400 error will be raised.  If the param is optional and does not match, if no default value is supplied, its value will be `nil`.
 
 ```crystal
 raise AthenaException.new 404, "User not found"
@@ -337,7 +358,7 @@ The `Exists` converter takes a route param and attempts to resolve an object of 
 
 This converter requires that there is a `self.find(val : String) : self` method on `T` that either returns the corresponding object, or nil.  This can either be from an ORM library, or defined manually.
 
-**NOTE:** The `Exists` converter requires an extra annotation field `pk_type`.  This should be set to the type of the primary key, or unique identifier, of the model/class.  This is used to convert the string value to the correct type for the `find` query.
+**NOTE:** The `Exists` converter requires an extra annotation field `pk_type`.  This should be set to the type of the primary key, or unique identifier, of the model/class.  This is used to convert the string value to the correct type for the `find` query.
 
 ```Crystal
 require "athena/routing"

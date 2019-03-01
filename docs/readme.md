@@ -4,6 +4,7 @@ Athena takes a modular approach to its feature set.  Each feature is encapsulate
 
 * [Routing](./routing.md) `require "athena/routing"` - _done_:
   * [Defining routes](./routing.md#defining-routes)
+  * [Exception Handling](./routing.md#exception-handling)
   * [Defining Query Params](./routing.md#query-params)
   * [Defining life-cycle callbacks](./routing.md#request-life-cycle-events)
   * [Manage response serialization](./routing.md#route-view)

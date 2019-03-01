@@ -1,3 +1,12 @@
+# :nodoc:
+private macro halt(response, status_code, body)
+  {{response}}.status_code = {{status_code}}
+  {{response}}.print {{body}}
+  {{response}}.headers.add "Content-Type", "application/json"
+  {{response}}.close
+  return
+end
+
 module Athena::Routing
   # Handles routing and param conversion on each request.
   class RouteHandler
@@ -140,7 +149,7 @@ module Athena::Routing
       search_key = '/' + ctx.request.method + ctx.request.path
       route = @routes.find search_key
 
-      halt ctx, 404, %({"code": 404, "message": "No route found for '#{ctx.request.method} #{ctx.request.path}'"}) unless route.found?
+      halt ctx.response, 404, %({"code": 404, "message": "No route found for '#{ctx.request.method} #{ctx.request.path}'"}) unless route.found?
 
       action = route.payload.not_nil!
       params = Hash(String, String?).new
@@ -158,11 +167,11 @@ module Athena::Routing
           when "application/json", "text/plain", "application/x-www-form-urlencoded"
             params["body"] = body
           else
-            halt ctx, 415, %({"code": 415, "message": "Invalid Content-Type: '#{content_type.downcase}'"})
+            halt ctx.response, 415, %({"code": 415, "message": "Invalid Content-Type: '#{content_type.downcase}'"})
           end
         end
       else
-        halt ctx, 400, %({"code": 400, "message": "Request body was not supplied."}) if !action.body_type.nilable? && action.body_type != Nil
+        halt ctx.response, 400, %({"code": 400, "message": "Request body was not supplied."}) if !action.body_type.nilable? && action.body_type != Nil
       end
 
       if reuest_params = ctx.request.query
@@ -175,19 +184,19 @@ module Athena::Routing
                                                if val =~ pat
                                                  val
                                                else
-                                                 halt ctx, 400, %({"code": 400, "message": "Expected query param '#{qp.as(QueryParam).name}' to match '#{pat}' but got '#{val}'"}) unless qp.as(QueryParam).type.nilable?
+                                                 halt ctx.response, 400, %({"code": 400, "message": "Expected query param '#{qp.as(QueryParam).name}' to match '#{pat}' but got '#{val}'"}) unless qp.as(QueryParam).type.nilable?
                                                end
                                              else
                                                val
                                              end
           else
-            halt ctx, 400, %({"code": 400, "message": "Required query param '#{qp.as(QueryParam).name}' was not supplied."}) unless qp.as(QueryParam).type.nilable?
+            halt ctx.response, 400, %({"code": 400, "message": "Required query param '#{qp.as(QueryParam).name}' was not supplied."}) unless qp.as(QueryParam).type.nilable?
           end
         end
       else
         action.query_params.each do |qp|
           next if qp.name == "placeholder"
-          halt ctx, 400, %({"code": 400, "message": "Required query param '#{qp.as(QueryParam).name}' was not supplied."}) unless qp.as(QueryParam).type.nilable?
+          halt ctx.response, 400, %({"code": 400, "message": "Required query param '#{qp.as(QueryParam).name}' was not supplied."}) unless qp.as(QueryParam).type.nilable?
           params[qp.as(QueryParam).name] = nil
         end
       end
@@ -208,7 +217,7 @@ module Athena::Routing
 
       ctx.response.print action.as(RouteAction).renderer.render response, ctx, action.groups
     rescue ex
-      action.not_nil!.controller.handle_exception ex, ctx
+      action.not_nil!.controller.handle_exception ex, action.not_nil!.method
     end
   end
 end
