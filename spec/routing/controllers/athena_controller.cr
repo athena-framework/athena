@@ -64,7 +64,7 @@ struct AthenaController < Athena::Routing::Controller
   end
 
   @[Athena::Routing::Get(path: "ecr_html")]
-  @[Athena::Routing::View(renderer: ECRRenderer)]
+  @[Athena::Routing::View(renderer: Athena::Routing::Renderers::ECRRenderer)]
   def self.ecr_html : String
     # ameba:disable Lint/UselessAssign
     name = "John"

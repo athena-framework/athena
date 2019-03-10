@@ -18,7 +18,7 @@ require "athena/routing"
 # The `Controller` annotation can be applied to set a prefix to use for all routes within `self`
 @[Athena::Routing::ControllerOptions(prefix: "athena")]
 struct TestController < Athena::Routing::Controller
-  # A GET endpoint with no params returning a string.
+  # A GET endpoint with no params returning a `String`.
   # By default, responses automatically include a
   # `content-type: application/json` header
   @[Athena::Routing::Get(path: "/me")]
@@ -26,13 +26,13 @@ struct TestController < Athena::Routing::Controller
     "Jim"
   end
 
-  # A GET endpoint with two Int params returning an Int32.
+  # A GET endpoint with two `Int32` params returning an `Int32`.
   @[Athena::Routing::Get(path: "/add/:val1/:val2")]
   def self.add(val1 : Int32, val2 : Int32) : Int32
     val1 + val2
   end
 
-  # A GET endpoint with an String rotue param, a required string query param returning a String.
+  # A GET endpoint with an `String` route param, a required string query param returning a String.
   @[Athena::Routing::Get(path: "/event/:event_name/", query: {"time" => /\d:\d:\d/})]
   def self.event_time(event_name : String, time : String) : String
     "#{event_name} occured at #{time}"
@@ -46,7 +46,7 @@ struct TestController < Athena::Routing::Controller
     time
   end
 
-  # A POST endpoint with a route param and a body param returning a Bool.
+  # A POST endpoint with a route param and a body param returning a `Bool`.
   @[Athena::Routing::Post(path: "/test/:expected")]
   def self.post_body(expected : String, body : String) : Bool
     expected == body
@@ -100,7 +100,7 @@ require "athena/routing"
 
 struct MyController < Athena::Routing::Controller 
   @[Athena::Routing::Get(path: "/posts/(:page)")]
-  def self.default_value(page : Int32 = 99) : Int32
+  def self.default_value(page : Int32? = 99) : Int32?
     page
   end
 end
@@ -112,7 +112,7 @@ CLIENT.get "/posts" # => 99
 CLIENT.get "/posts/12" # => 12
 ```
 
-**NOTE:** This suffers from the same limitation as a Radix tree in that two routes cannot share the same route, where one route has an optional param at the same place another has a required param.  However it would be considered a bad practice if two routes matched two different actions, especially with route constraints.
+**NOTE:** This suffers from the same limitation as a Radix tree in that two routes cannot share the same route, where one route has an optional param at the same place another has a required param.  However, it would be considered a bad practice if two routes matched two different actions, especially with route constraints.
 
 ### Accessing Request/Response
 The current request/response can be accessed from within a controller action via the `get_request` and `get_response` methods inherited from Athena's parent struct.
@@ -121,7 +121,11 @@ This can be used to add custom headers, to set a token in a cookie for example, 
 
 ### Exception Handling
 
-Athena provides an `AthenaException` class that can be used for raising custom exceptions with consistent JSON output, as well as setting the response status code.
+Athena provides an `AthenaException` class that can be used for raising custom exceptions with consistent JSON output, as well as setting the response status code.  Athena also provides convenience exception classes for common HTTP errors.  A full list can be found in the [API Docs](https://blacksmoke16.github.io/athena/Athena/Routing/Exceptions.html). 
+
+```crystal
+raise Athena::Routing::Exceptions::NotFoundException.new "User not found"
+```
 
 By default, Athena will catch and handle most errors related to param conversion, validation, JSON parsing, and `AthenaException`.  If the exception is not one of these, Athena will throw a 500 Internal Server Error.
 
@@ -141,7 +145,7 @@ end
 
 The method accepts the exception that has been raised, and the name of the action the exception occurred in.  (A future iteration could be passing an action object to get params, action/controller name etc.).
 
-Any exceptions that happen within `FakeController` will first pass through the `handle_exception` method, returning a response with given *status code* and *body* if the exception is a `DivisionByZeroError`. Otherwise, if the exception does not "match" any logic in the custom handler, calling `super` would call the parent's error handler, in this case Athena's default (but could also be another inherited controller), which would pass the exception to Athena to process.  If the exception does not "match" any rescued exceptions there either, then a 500 Internal Server Error would be thrown.
+Any exceptions that happen within `FakeController` will first pass through  `FakeController.handle_exception`, returning a response with given *status code* and *body* if the exception is a `DivisionByZeroError`. Otherwise, if the exception does not "match" any logic in the custom handler, calling `super` would call the parent's error handler, in this case Athena's default (but could also be another inherited controller), which would pass the exception to Athena to process.  If the exception does not "match" any rescued exceptions there either, then a 500 Internal Server Error would be thrown.
 
 ### Query Params
 
@@ -175,16 +179,6 @@ If a query param's type is nilable in the route's action parameters, it is consi
 
 A query param can have a `Regex` pattern attached to it.  If the query param is required and the pattern does not match, a 400 error will be raised.  If the param is optional and does not match, if no default value is supplied, its value will be `nil`.
 
-```crystal
-raise AthenaException.new 404, "User not found"
-```
-
-Athena also provides common 4xx level exceptions as convience exception classes that optionally take a message.  A full list can be found in the [API Docs](https://blacksmoke16.github.io/athena/Athena/Routing/Exceptions.html).
-
-```crystal
-raise NotFoundException.new "User not found"
-```
-
 ### Route View
 
 The `View` annotation controls how the return value of an endpoint is displayed. 
@@ -210,11 +204,11 @@ Athena::Routing.run
 
 #### Renderer
 
-A renderer controls how the object/value is serialized.  By default the object/value is serialized as JSON.  Athena also has built in support for `YAML` and `ECR`.  
+A renderer controls how the object/value is serialized.  By default the object/value is serialized as JSON, with an `application/json` `Content-Type` header included by default.  Athena also has built in support for `YAML` and `ECR`.  
 
 ##### YAML
 
-The `YAMLRenderer` requires that the object has a `to_yaml` method, either from `YAML::Serializable` or a custom implementation.  
+The `YAMLRenderer` defines a `text/x-yaml` `Content-Type` header by default and requires that the object has a `to_yaml` method, either from `YAML::Serializable` or a custom implementation.  
 
 ```Crystal
 require "athena/routing"
@@ -223,7 +217,7 @@ struct UserController < Athena::Routing::Controller
   # Assuming the found user's age is 17, name Bob, and password is abc123
   @[Athena::Routing::Get(path: "users/yaml/:user_id")]
   @[Athena::Routing::ParamConverter(param: "user", pk_type: Int32, type: User, converter: Exists)]
-  @[Athena::Routing::View(renderer: YAMLRenderer)]
+  @[Athena::Routing::View(renderer: Athena::Routing::Renderers::YAMLRenderer)]
   def self.get_user_yaml(user : User) : User
     user
   end
@@ -236,7 +230,7 @@ GET /users/yaml/1 # => ---\age: 17\nname: Bob\npassword: abc123\n
 
 ##### ECR
 
-The `ECRRenderer` requires that the returned object implements a `to_s` method using `ECR.def_to_s`.  This allows for a simple way to render model specific pages.
+The `ECRRenderer` defines a `text/html` `Content-Type` header by default and requires that the returned object implements a `to_s` method using `ECR.def_to_s`.  This allows for a simple way to render model specific pages.
 
 ```Crystal
 require "athena/routing"
@@ -246,7 +240,7 @@ struct UserController < Athena::Routing::Controller
   # Requires the return object implements `to_s` method using `ECR.def_to_s "user.ecr"`
   @[Athena::Routing::Get(path: "users/ecr/:user_id")]
   @[Athena::Routing::ParamConverter(param: "user", pk_type: Int32, type: User, converter: Exists)]
-  @[Athena::Routing::View(renderer: ECRRenderer)]
+  @[Athena::Routing::View(renderer: Athena::Routing::Renderers::ECRRenderer)]
   def self.get_user_ecr(user : User) : User
     user
   end
@@ -260,6 +254,32 @@ User <%= @name %> is <%= @age %> years old.
 GET /users/ecr/1 # => User Bob is 17 years old.
 ```
 
+#### Custom Renderers
+If none of the built in renders does what is needed, custom renderers can be used by simply creating a struct that implements a `self.render(response : T, ctx : HTTP::Server::Context, groups : Array(String)) : String` method.
+
+```crystal
+require "athena/routing"
+
+struct MyRenderer
+  def self.render(response : T, ctx : HTTP::Server::Context, groups : Array(String) = [] of String) : String forall T    
+    # Your custom logic
+    # Add custom Content-Type headers
+    # Handle object serialization
+  end
+end
+
+struct UserController < Athena::Routing::Controller
+  @[Athena::Routing::Get(path: "users/custom/:user_id")]
+  @[Athena::Routing::ParamConverter(param: "user", pk_type: Int64, type: User, converter: Exists)]
+  @[Athena::Routing::View(renderer: MyRenderer)]
+  def self.get_user_custom(user : User) : User
+    user
+  end
+end
+
+Athena::Routing.run
+```
+
 #### String Return Type
 
 Actions that return a string are dumped straight into the response body, without going through any processing by any renderer.  This allows for a route to render a ECR file.  However, all required values for the ECR file must be supplied within the route's action.
@@ -267,9 +287,22 @@ Actions that return a string are dumped straight into the response body, without
 ```Crystal
 require "athena/routing"
 
+greeting.ecr
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Hello <%= name %>!</h1>
+
+<p>My first paragraph.</p>
+
+</body>
+</html>
+
+test_controller.cr
 struct TestController < Athena::Routing::Controller
   @[Athena::Routing::Get(path: "/foo")]
-  @[Athena::Routing::View(renderer: ECRRenderer)]
+  @[Athena::Routing::View(renderer: Athena::Routing::Renderers::ECRRenderer)]
   def self.foo : String
     name = "foo"
     ECR.render "src/greeting.ecr"
@@ -277,6 +310,8 @@ struct TestController < Athena::Routing::Controller
 end
 
 Athena::Routing.run
+
+GET /foo # =>  <!DOCTYPE html><html><body><h1>Hello foo!</h1><p>My first paragraph.</p></body></html>
 ```
 
 ## Request Life-cycle Events
@@ -307,7 +342,7 @@ Athena::Routing.run
 
 #### Filtering
 
-A callback can be set to only run on specific actions, or to exclude specific actions.  This can be achieved by add an `only`, or `excluded` field to the `Callback` annotation.  The value to these fields is a `Array(String)` where each string is the name of an action.
+A callback can be set to only run on specific actions, or to exclude specific actions.  This can be achieved by adding an `only`, or `excluded` field to the `Callback` annotation.  The value to these fields is a `Array(String)` where each string is the name of an action.
 
 ```Crystal
 @[Athena::Routing::Callback(event: Athena::Routing::CallbackEvents::OnResponse, only: ["get_all_users"])]
@@ -323,11 +358,9 @@ The first callback would only run for the route who's action has the name `get_a
 
 When a controller is inherited from, all callbacks defined on that controller will also be inherited.  This allows developers to smartly define their controllers to make use of inheritance to share common callbacks, such as for setting headers for public vs private routes.
 
-The same idea also applies to methods.  Class methods can be defined on parent structs so that each child controller has those methods defined.  Such as a `current_user` method that pulls an auth token from a header and look up the user to allow all controller actions to have access to the current user.
+The same idea also applies to methods.  Class methods can be defined on parent controllers so that each child controller has those methods defined.  Such as the `get_request`/`get_response` methods Athena defines by default.
 
-### Global Callbacks
-
-Callbacks can also be defined to run on _all_ routes no matter which controller they are in.  This can be achieved by adding a callback action to the parent controller struct: `Athena::Routing::Controller`.  
+Callbacks can also be defined to run on _all_ routes no matter which controller they are in.  This can be achieved by adding a callback action to the parent controller: `Athena::Routing::Controller`.  
 
 This is most useful for adding `Content-Type` response headers, or CORs.  
 
@@ -345,8 +378,6 @@ end
 
 Athena::Routing.run
 ```
-
-Additional methods may be added to the parent struct that would be available to all route actions.  
 
 ## ParamConverter
 
@@ -488,7 +519,7 @@ This then can be used like `@[Athena::Routing::ParamConverter(param: "user", typ
 
 ## Static File Handling
 
-Athena supports static file handling via Crystal's `HTTP::StaticFileHandler`.  An instance of this class can be supplied to Athena to control how static files are handled.  By default static file handling is disabled.
+Athena supports static file handling via Crystal's `HTTP::StaticFileHandler`.  An instance of this class can be supplied to Athena to control how static files are handled.  By default, static file handling is disabled.
 
 ```Crystal
 require "athena/routing"
