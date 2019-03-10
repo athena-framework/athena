@@ -131,7 +131,7 @@ By default, Athena will catch and handle most errors related to param conversion
 
 Custom error handling can be defined on a controller, or group of controllers by utilizing inheritance.  For example.
 
-```crysatl
+```crystal
 struct FakeController < Athena::Routing::Controller
   def self.handle_exception(exception : Exception, action : String)
     if exception.is_a? DivisionByZeroError
