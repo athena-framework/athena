@@ -15,12 +15,12 @@ Routes are defined by adding a `@[Athena::Routing::{{HTTP_METHOD}}(path: "/")]` 
 ```Crystal
 require "athena/routing"
 
-# The `Controller` annotation can be applied to set a prefix to use for all routes within `self`
+# The `ControllerOptions` annotation can be applied to a controller to define a prefix to use for all routes within `self`.
 @[Athena::Routing::ControllerOptions(prefix: "athena")]
 struct TestController < Athena::Routing::Controller
   # A GET endpoint with no params returning a `String`.
   # By default, responses automatically include a
-  # `content-type: application/json` header
+  # `content-type: application/json` header.
   @[Athena::Routing::Get(path: "/me")]
   def self.get_me : String
     "Jim"
@@ -32,7 +32,7 @@ struct TestController < Athena::Routing::Controller
     val1 + val2
   end
 
-  # A GET endpoint with an `String` route param, a required string query param returning a String.
+  # A GET endpoint with an `String` route param, a required string query param returning a `String`.
   @[Athena::Routing::Get(path: "/event/:event_name/", query: {"time" => /\d:\d:\d/})]
   def self.event_time(event_name : String, time : String) : String
     "#{event_name} occured at #{time}"
@@ -117,7 +117,7 @@ CLIENT.get "/posts/12" # => 12
 ### Accessing Request/Response
 The current request/response can be accessed from within a controller action via the `get_request` and `get_response` methods inherited from Athena's parent struct.
 
-This can be used to add custom headers, to set a token in a cookie for example, within any action; without having to set a callback scoped to that specific action.
+This can be used to add custom headers, or to set a token in a cookie for example, within any action; without having to set a callback scoped to that specific action.
 
 ### Exception Handling
 
@@ -143,9 +143,9 @@ struct FakeController < Athena::Routing::Controller
 end
 ```
 
-The method accepts the exception that has been raised, and the name of the action the exception occurred in.  (A future iteration could be passing an action object to get params, action/controller name etc.).
+The method accepts the exception that has been raised, and the name of the action the exception occurred in.  (A future iteration could be passing an action object to get params, action/controller name etc.).  This allows for centralized exception handling of custom exceptions, allowing errors to be handled at different levels, while still allowing action specific `begin/rescue` blocks. 
 
-Any exceptions that happen within `FakeController` will first pass through  `FakeController.handle_exception`, returning a response with given *status code* and *body* if the exception is a `DivisionByZeroError`. Otherwise, if the exception does not "match" any logic in the custom handler, calling `super` would call the parent's error handler, in this case Athena's default (but could also be another inherited controller), which would pass the exception to Athena to process.  If the exception does not "match" any rescued exceptions there either, then a 500 Internal Server Error would be thrown.
+Any exceptions that happen within `FakeController` will first pass through  `FakeController.handle_exception`, which handles the `DivisionByZeroError`.  The `throw` macro is used to return a response with given *status code* and *body*, if it is of that type.  Otherwise, if the exception does not "match" any logic in the custom handler, calling `super` would call the parent's error handler, in this case Athena's default (but could also be another inherited controller), which would pass the exception to Athena to process.  If the exception does not "match" any rescued exceptions there either, then a 500 Internal Server Error would be thrown.
 
 ### Query Params
 
@@ -155,13 +155,13 @@ Query param are defined in the route annotation using the `query` field of type 
 require "athena/routing"
 
 struct TestController < Athena::Routing::Controller
-  # An optional query param `time` with a default value and a constraint
+  # An optional query param *time* with a default value and a constraint.
   @[Athena::Routing::Get(path: "/event/:event_name/", query: {"time" => /\d:\d:\d/})]
   def self.event_time(event_name : String, time : String? = "1:1:1") : String
     "#{event_name} occured at #{time}"
   end
   
-  # A required query param `query` without a constraint
+  # A required query param *query* without a constraint.
   @[Athena::Routing::Get(path: "/event/:event_name/", query: {"query" => nil})]
   def self.event(event_name : String, query : String) : String
     "#{event_name} occured at #{query}"
@@ -208,7 +208,7 @@ A renderer controls how the object/value is serialized.  By default the object/v
 
 ##### YAML
 
-The `YAMLRenderer` defines a `text/x-yaml` `Content-Type` header by default and requires that the object has a `to_yaml` method, either from `YAML::Serializable` or a custom implementation.  
+The `YAMLRenderer` defines a `text/x-yaml` `Content-Type` header and requires that the object has a `to_yaml` method, either from `YAML::Serializable` or a custom implementation.  
 
 ```Crystal
 require "athena/routing"
@@ -230,7 +230,7 @@ GET /users/yaml/1 # => ---\age: 17\nname: Bob\npassword: abc123\n
 
 ##### ECR
 
-The `ECRRenderer` defines a `text/html` `Content-Type` header by default and requires that the returned object implements a `to_s` method using `ECR.def_to_s`.  This allows for a simple way to render model specific pages.
+The `ECRRenderer` defines a `text/html` `Content-Type` header and requires that the returned object implements a `to_s` method using `ECR.def_to_s`.  This allows for a simple way to render model specific pages.
 
 ```Crystal
 require "athena/routing"
@@ -254,35 +254,9 @@ User <%= @name %> is <%= @age %> years old.
 GET /users/ecr/1 # => User Bob is 17 years old.
 ```
 
-#### Custom Renderers
-If none of the built in renders does what is needed, custom renderers can be used by simply creating a struct that implements a `self.render(response : T, ctx : HTTP::Server::Context, groups : Array(String)) : String` method.
+###### ECR Files
 
-```crystal
-require "athena/routing"
-
-struct MyRenderer
-  def self.render(response : T, ctx : HTTP::Server::Context, groups : Array(String) = [] of String) : String forall T    
-    # Your custom logic
-    # Add custom Content-Type headers
-    # Handle object serialization
-  end
-end
-
-struct UserController < Athena::Routing::Controller
-  @[Athena::Routing::Get(path: "users/custom/:user_id")]
-  @[Athena::Routing::ParamConverter(param: "user", pk_type: Int64, type: User, converter: Exists)]
-  @[Athena::Routing::View(renderer: MyRenderer)]
-  def self.get_user_custom(user : User) : User
-    user
-  end
-end
-
-Athena::Routing.run
-```
-
-#### String Return Type
-
-Actions that return a string are dumped straight into the response body, without going through any processing by any renderer.  This allows for a route to render a ECR file.  However, all required values for the ECR file must be supplied within the route's action.
+ECR files can simply be rented by calling `ECR.render filename` as the return value of the action.  The action's return type must be declared as `String` and all required values for the ECR file must be supplied within the route's action.
 
 ```Crystal
 require "athena/routing"
@@ -312,6 +286,32 @@ end
 Athena::Routing.run
 
 GET /foo # =>  <!DOCTYPE html><html><body><h1>Hello foo!</h1><p>My first paragraph.</p></body></html>
+```
+
+#### Custom Renderers
+If none of the built in renders does what is needed, custom renderers can be used by simply creating a struct that implements a `self.render(response : T, ctx : HTTP::Server::Context, groups : Array(String)) : String` method.
+
+```crystal
+require "athena/routing"
+
+struct MyRenderer
+  def self.render(response : T, ctx : HTTP::Server::Context, groups : Array(String) = [] of String) : String forall T    
+    # Your custom logic
+    # Add custom Content-Type headers
+    # Handle object serialization
+  end
+end
+
+struct UserController < Athena::Routing::Controller
+  @[Athena::Routing::Get(path: "users/custom/:user_id")]
+  @[Athena::Routing::ParamConverter(param: "user", pk_type: Int64, type: User, converter: Exists)]
+  @[Athena::Routing::View(renderer: MyRenderer)]
+  def self.get_user_custom(user : User) : User
+    user
+  end
+end
+
+Athena::Routing.run
 ```
 
 ## Request Life-cycle Events
@@ -385,7 +385,7 @@ All basic types, such as `Int`, `Float`, `String`, `Bool`, are natively converte
 
 ### Exists
 
-The `Exists` converter takes a route param and attempts to resolve an object of `T` with that ID.  If no object is found a 404 JSON error is thrown/returned.
+The `Exists` converter takes a route param and attempts to resolve an object of `T` with that ID.  If no object is found a 404 JSON error is returned.
 
 This converter requires that there is a `self.find(val : String) : self` method on `T` that either returns the corresponding object, or nil.  This can either be from an ORM library, or defined manually.
 
