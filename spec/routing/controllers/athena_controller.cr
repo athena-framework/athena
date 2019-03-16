@@ -1,4 +1,4 @@
-class AthenaController < Athena::Routing::ClassController
+struct AthenaController < Athena::Routing::Controller
   @[Athena::Routing::Get(path: "noParamsGet")]
   def self.no_params_get : String
     "foobar"
@@ -64,7 +64,7 @@ class AthenaController < Athena::Routing::ClassController
   end
 
   @[Athena::Routing::Get(path: "ecr_html")]
-  @[Athena::Routing::View(renderer: ECRRenderer)]
+  @[Athena::Routing::View(renderer: Athena::Routing::Renderers::ECRRenderer)]
   def self.ecr_html : String
     # ameba:disable Lint/UselessAssign
     name = "John"

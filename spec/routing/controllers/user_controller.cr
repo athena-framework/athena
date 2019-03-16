@@ -1,3 +1,5 @@
+require "xml"
+
 class Customer
   include CrSerializer
 
@@ -39,6 +41,14 @@ class User
     end
   end
 
+  def to_xml
+    XML.build do |xml|
+      xml.element("user", id: 17) do
+        xml.element("age") { xml.text @age.to_s }
+      end
+    end
+  end
+
   def self.from_form_data(form_data : HTTP::Params) : self
     obj = new
     obj.age = form_data["age"].to_i
@@ -49,7 +59,15 @@ class User
   ECR.def_to_s "spec/routing/user.ecr"
 end
 
-class UserController < Athena::Routing::ClassController
+struct CustomRenderer
+  def self.render(response : T, ctx : HTTP::Server::Context, groups : Array(String) = [] of String) : String forall T
+    ctx.response.headers.add "Content-Type", "X-CUSTOM-TYPE"
+    # Since not all types implement a `to_xml` method, I have to tell compiler its a `User` type.
+    response.as(User).to_xml
+  end
+end
+
+struct UserController < Athena::Routing::Controller
   @[Athena::Routing::Post(path: "users")]
   @[Athena::Routing::ParamConverter(param: "body", type: User, converter: RequestBody)]
   def self.new_user(body : User) : User
@@ -79,15 +97,22 @@ class UserController < Athena::Routing::ClassController
 
   @[Athena::Routing::Get(path: "users/yaml/:user_id")]
   @[Athena::Routing::ParamConverter(param: "user", pk_type: Int64, type: User, converter: Exists)]
-  @[Athena::Routing::View(renderer: YAMLRenderer)]
+  @[Athena::Routing::View(renderer: Athena::Routing::Renderers::YAMLRenderer)]
   def self.get_user_yaml(user : User) : User
     user
   end
 
   @[Athena::Routing::Get(path: "users/ecr/:user_id")]
   @[Athena::Routing::ParamConverter(param: "user", pk_type: Int64, type: User, converter: Exists)]
-  @[Athena::Routing::View(renderer: ECRRenderer)]
+  @[Athena::Routing::View(renderer: Athena::Routing::Renderers::ECRRenderer)]
   def self.get_user_ecr(user : User) : User
+    user
+  end
+
+  @[Athena::Routing::Get(path: "users/custom/:user_id")]
+  @[Athena::Routing::ParamConverter(param: "user", pk_type: Int64, type: User, converter: Exists)]
+  @[Athena::Routing::View(renderer: CustomRenderer)]
+  def self.get_user_custom(user : User) : User
     user
   end
 

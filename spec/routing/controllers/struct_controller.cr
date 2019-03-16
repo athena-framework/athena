@@ -1,4 +1,4 @@
-struct SController < Athena::Routing::StructController
+struct SController < Athena::Routing::Controller
   @[Athena::Routing::Get(path: "struct/:val")]
   def self.do_work(val : Int32) : Int32
     val.should be_a Int32

@@ -113,8 +113,8 @@ module Athena::Routing
   #
   # ## Example
   # ```
-  # @[Athena::Routing::Controller(prefix: "calendar")]
-  # class CalendarController < Athena::Routing::ClassController
+  # @[Athena::Routing::ControllerOptions(prefix: "calendar")]
+  # struct CalendarController < Athena::Routing::Controller
   #   # The rotue of this action would be `GET /calendar/events`
   #   @[Athena::Routing::Get(path: "events")]
   #   def self.events : String
@@ -122,7 +122,7 @@ module Athena::Routing
   #   end
   # end
   # ```
-  annotation Controller; end
+  annotation ControllerOptions; end
 
   # Events available during the request's life-cycle.
   enum CallbackEvents
@@ -133,8 +133,8 @@ module Athena::Routing
     OnResponse
   end
 
-  # Parent class for all `Class` based controllers.
-  abstract class ClassController
+  # Parent struct for all controllers.
+  abstract struct Controller
     # :nodoc:
     class_property request : HTTP::Request? = nil
 
@@ -150,24 +150,26 @@ module Athena::Routing
     def self.get_response : HTTP::Server::Response
       @@response.not_nil!
     end
-  end
 
-  # Parent class for all `Struct` based controllers.
-  abstract struct StructController
-    # :nodoc:
-    class_property request : HTTP::Request? = nil
-
-    # :nodoc:
-    class_property response : HTTP::Server::Response? = nil
-
-    # Returns the request object for the current request
-    def self.get_request : HTTP::Request
-      @@request.not_nil!
-    end
-
-    # Returns the response object for the current request
-    def self.get_response : HTTP::Server::Response
-      @@response.not_nil!
+    # Handles exceptions that could occur when using Athena.
+    # Throws a 500 if the error does not match any handler.
+    #
+    # Method can be defined on child classes for controller specific error handling.
+    def self.handle_exception(exception : Exception, action : String)
+      case exception
+      when Athena::Routing::Exceptions::AthenaException  then throw exception.code, exception.to_json
+      when CrSerializer::Exceptions::ValidationException then throw 400, exception.to_json
+      when ArgumentError                                 then throw 400, %({"code": 400, "message": "#{exception.message}"})
+      when JSON::ParseException
+        if msg = exception.message
+          if parts = msg.match(/Expected (\w+) but was (\w+) .*[\r\n]*.+#(\w+)/)
+            throw 400, %({"code": 400, "message": "Expected '#{parts[3]}' to be #{parts[1]} but got #{parts[2]}"})
+          end
+        end
+      else
+        # Otherwise throw a 500 if no other exception handlers are defined on any children
+        throw 500, %({"code": 500, "message": "Internal Server Error"})
+      end
     end
   end
 

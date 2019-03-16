@@ -1,3 +1,12 @@
+# :nodoc:
+private macro halt(response, status_code, body)
+  {{response}}.status_code = {{status_code}}
+  {{response}}.print {{body}}
+  {{response}}.headers.add "Content-Type", "application/json"
+  {{response}}.close
+  return
+end
+
 module Athena::Routing
   # Handles routing and param conversion on each request.
   class RouteHandler
@@ -6,10 +15,10 @@ module Athena::Routing
     @routes : Amber::Router::RouteSet(Action) = Amber::Router::RouteSet(Action).new
 
     def initialize
-      {% for c in Athena::Routing::ClassController.all_subclasses + Athena::Routing::StructController.all_subclasses %}
+      {% for c in Athena::Routing::Controller.all_subclasses %}
         {% methods = c.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
         {% instance_methods = c.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
-        {% class_ann = c.annotation(Athena::Routing::Controller) %}
+        {% class_ann = c.annotation(Athena::Routing::ControllerOptions) %}
 
         # Raise compile time exception if a route is defined on a instance method.
         {% unless instance_methods.empty? %}
@@ -23,19 +32,19 @@ module Athena::Routing
         {% parent_callbacks = [] of Def %}
         {% for parent in c.class.ancestors %}
           {% for callback in parent.methods.select { |me| me.annotation(Callback) } %}
-            {% parent_callbacks << callback %}
+            {% parent_callbacks.unshift callback %}
           {% end %}
         {% end %}
 
-        # Set controller/global triggers
-        {% for trigger in c.class.methods.select { |m| m.annotation(Callback) } + parent_callbacks + Athena::Routing::ClassController.class.methods.select { |m| m.annotation(Callback) } + Athena::Routing::StructController.class.methods.select { |m| m.annotation(Callback) } %}
-          {% trigger_ann = trigger.annotation(Callback) %}
-          {% only_actions = trigger_ann[:only] || "[] of String" %}
-          {% exclude_actions = trigger_ann[:exclude] || "[] of String" %}
-          {% if trigger_ann[:event].resolve == Athena::Routing::CallbackEvents::OnResponse %}
-            {% _on_response << "CallbackEvent(Proc(HTTP::Server::Context, Nil)).new(->#{c.name.id}.#{trigger.name.id}(HTTP::Server::Context), #{only_actions.id}, #{exclude_actions.id})".id %}
-          {% elsif trigger_ann[:event].resolve == Athena::Routing::CallbackEvents::OnRequest %}
-            {% _on_request << "CallbackEvent(Proc(HTTP::Server::Context, Nil)).new(->#{c.name.id}.#{trigger.name.id}(HTTP::Server::Context), #{only_actions.id}, #{exclude_actions.id})".id %}
+        # Set Global > Parent > Controller callbacks
+        {% for callback in (Athena::Routing::Controller.class.methods.select { |m| m.annotation(Callback) } + parent_callbacks + c.class.methods.select { |m| m.annotation(Callback) }) %}
+          {% callback_ann = callback.annotation(Callback) %}
+          {% only_actions = callback_ann[:only] || "[] of String" %}
+          {% exclude_actions = callback_ann[:exclude] || "[] of String" %}
+          {% if callback_ann[:event].resolve == Athena::Routing::CallbackEvents::OnResponse %}
+            {% _on_response << "CallbackEvent(Proc(HTTP::Server::Context, Nil)).new(->#{c.name.id}.#{callback.name.id}(HTTP::Server::Context), #{only_actions.id}, #{exclude_actions.id})".id %}
+          {% elsif callback_ann[:event].resolve == Athena::Routing::CallbackEvents::OnRequest %}
+            {% _on_request << "CallbackEvent(Proc(HTTP::Server::Context, Nil)).new(->#{c.name.id}.#{callback.name.id}(HTTP::Server::Context), #{only_actions.id}, #{exclude_actions.id})".id %}
           {% end %}
         {% end %}
 
@@ -105,7 +114,7 @@ module Athena::Routing
           {% end %}
 
           {% groups = view_ann && view_ann[:groups] ? view_ann[:groups] : ["default"] %}
-          {% renderer = view_ann && view_ann[:renderer] ? view_ann[:renderer] : "JSONRenderer".id %}
+          {% renderer = view_ann && view_ann[:renderer] ? view_ann[:renderer] : "Athena::Routing::Renderers::JSONRenderer".id %}
 
             %proc = ->(ctx : HTTP::Server::Context, vals : Hash(String, String?)) do
               {% unless m.args.empty? %}
@@ -131,7 +140,7 @@ module Athena::Routing
                 ->{ {{c.name.id}}.{{m.name.id}} }.call
               {% end %}
             end
-            @routes.add {{path}}, RouteAction(Proc(HTTP::Server::Context, Hash(String, String?), {{m.return_type}}), Athena::Routing::Renderers::{{renderer}}({{m.return_type}}), {{body_type}}, {{c.id}}).new(%proc, {{path}}, Callbacks.new({{_on_response.uniq}} of CallbackBase, {{_on_request.uniq}} of CallbackBase), {{m.name.stringify}}, {{groups}}, {{query_params}} of Param){% if constraints %}, {{constraints}} {% end %}
+            @routes.add {{path}}, RouteAction(Proc(HTTP::Server::Context, Hash(String, String?), {{m.return_type}}), {{renderer}}, {{body_type}}, {{c.id}}).new(%proc, {{path}}, Callbacks.new({{_on_response.uniq}} of CallbackBase, {{_on_request.uniq}} of CallbackBase), {{m.name.stringify}}, {{groups}}, {{query_params}} of Param){% if constraints %}, {{constraints}} {% end %}
         {% end %}
       {% end %}
     end
@@ -140,7 +149,7 @@ module Athena::Routing
       search_key = '/' + ctx.request.method + ctx.request.path
       route = @routes.find search_key
 
-      halt ctx, 404, %({"code": 404, "message": "No route found for '#{ctx.request.method} #{ctx.request.path}'"}) unless route.found?
+      halt ctx.response, 404, %({"code": 404, "message": "No route found for '#{ctx.request.method} #{ctx.request.path}'"}) unless route.found?
 
       action = route.payload.not_nil!
       params = Hash(String, String?).new
@@ -158,11 +167,11 @@ module Athena::Routing
           when "application/json", "text/plain", "application/x-www-form-urlencoded"
             params["body"] = body
           else
-            halt ctx, 415, %({"code": 415, "message": "Invalid Content-Type: '#{content_type.downcase}'"})
+            halt ctx.response, 415, %({"code": 415, "message": "Invalid Content-Type: '#{content_type.downcase}'"})
           end
         end
       else
-        halt ctx, 400, %({"code": 400, "message": "Request body was not supplied."}) if !action.body_type.nilable? && action.body_type != Nil
+        halt ctx.response, 400, %({"code": 400, "message": "Request body was not supplied."}) if !action.body_type.nilable? && action.body_type != Nil
       end
 
       if reuest_params = ctx.request.query
@@ -175,19 +184,19 @@ module Athena::Routing
                                                if val =~ pat
                                                  val
                                                else
-                                                 halt ctx, 400, %({"code": 400, "message": "Expected query param '#{qp.as(QueryParam).name}' to match '#{pat}' but got '#{val}'"}) unless qp.as(QueryParam).type.nilable?
+                                                 halt ctx.response, 400, %({"code": 400, "message": "Expected query param '#{qp.as(QueryParam).name}' to match '#{pat}' but got '#{val}'"}) unless qp.as(QueryParam).type.nilable?
                                                end
                                              else
                                                val
                                              end
           else
-            halt ctx, 400, %({"code": 400, "message": "Required query param '#{qp.as(QueryParam).name}' was not supplied."}) unless qp.as(QueryParam).type.nilable?
+            halt ctx.response, 400, %({"code": 400, "message": "Required query param '#{qp.as(QueryParam).name}' was not supplied."}) unless qp.as(QueryParam).type.nilable?
           end
         end
       else
         action.query_params.each do |qp|
           next if qp.name == "placeholder"
-          halt ctx, 400, %({"code": 400, "message": "Required query param '#{qp.as(QueryParam).name}' was not supplied."}) unless qp.as(QueryParam).type.nilable?
+          halt ctx.response, 400, %({"code": 400, "message": "Required query param '#{qp.as(QueryParam).name}' was not supplied."}) unless qp.as(QueryParam).type.nilable?
           params[qp.as(QueryParam).name] = nil
         end
       end
@@ -207,24 +216,8 @@ module Athena::Routing
       end
 
       ctx.response.print action.as(RouteAction).renderer.render response, ctx, action.groups
-    rescue athena_exception : Athena::Routing::Exceptions::AthenaException
-      halt ctx, athena_exception.code, athena_exception.to_json
-    rescue e : ArgumentError
-      halt ctx, 400, %({"code": 400, "message": "#{e.message}"})
-    rescue validation_exception : CrSerializer::Exceptions::ValidationException
-      halt ctx, 400, validation_exception.to_json
-    rescue json_parse_exception : JSON::ParseException
-      if msg = json_parse_exception.message
-        if parts = msg.match(/Expected (\w+) but was (\w+) .*[\r\n]*.+#(\w+)/)
-          halt ctx, 400, %({"code": 400, "message": "Expected '#{parts[3]}' to be #{parts[1]} but got #{parts[2]}"})
-        end
-      end
-    rescue nil_exception : Exception
-      if msg = nil_exception.message
-        if parts = msg.match(/.*\#(.*) cannot be nil/)
-          halt ctx, 400, %({"code": 400, "message": "'#{parts[1]}' cannot be null"})
-        end
-      end
+    rescue ex
+      action.not_nil!.controller.handle_exception ex, action.not_nil!.method
     end
   end
 end
