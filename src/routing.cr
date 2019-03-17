@@ -3,14 +3,15 @@ require "amber_router"
 require "json"
 require "CrSerializer"
 
-require "./common/types"
+require "./config/config"
 
 require "./common/types"
+
 require "./routing/converters"
 require "./routing/exceptions"
 require "./routing/macros"
 require "./routing/renderers"
-require "./routing/route_handler"
+require "./routing/handlers/*"
 
 # Athena module containing elements for:
 # * Defining routes.
@@ -18,11 +19,21 @@ require "./routing/route_handler"
 # * Manage response serialization.
 # * Handle param conversion.
 module Athena::Routing
-  # :nodoc:
+  # # :nodoc:
   module HTTP::Handler
-    def call_next(ctx : HTTP::Server::Context)
+    # def call(ctx : HTTP::Server::Context, actions : Amber::Router::RouteSet(Action), config : Athena::Config)
+
+    def call(ctx : HTTP::Server::Context); end
+
+    def call_next(ctx : HTTP::Server::Context, routes : Amber::Router::RouteSet(Athena::Routing::Action), config : Athena::Config::Config)
       if next_handler = @next
-        next_handler.call(ctx)
+        if next_handler.responds_to? :call_handler
+          # Handle Athena handlers
+          next_handler.call_handler ctx, routes, config
+        else
+          # Handle default HTTP handlers
+          next_handler.call ctx
+        end
       end
     end
   end
@@ -174,7 +185,7 @@ module Athena::Routing
   end
 
   # :nodoc:
-  private abstract struct Action; end
+  abstract struct Action; end
 
   # :nodoc:
   private abstract struct CallbackBase; end
@@ -195,9 +206,23 @@ module Athena::Routing
   private record QueryParam(T) < Param, name : String, pattern : Regex? = nil, type : T.class = T
 
   # Starts the HTTP server with the given *port*, *binding*, *ssl*, and *handlers*.
-  def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [Athena::Routing::RouteHandler.new] of HTTP::Handler)
-    if sfh = self.static_file_handler
-      handlers.unshift sfh
+  def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [] of HTTP::Handler)
+    config : Athena::Config::Config = Athena::Config::Config.from_yaml ECR.render "athena.yml"
+
+    if handlers.empty?
+      handlers = [
+        Athena::Routing::RouteHandler.new(config),
+        Athena::Routing::CorsHandler.new,
+        Athena::Routing::ActionHandler.new,
+      ] of HTTP::Handler
+
+      if sfh = self.static_file_handler
+        handlers.insert 1, sfh
+      end
+    end
+
+    unless handlers.first.is_a? Athena::Routing::RouteHandler
+      raise "First handler must be 'Athena::Routing::RouteHandler'."
     end
 
     server : HTTP::Server = HTTP::Server.new handlers

@@ -12,6 +12,13 @@ crystal: 0.27.2
 
 license: MIT
 
+targets:
+  init:
+    main: src/config/init.cr
+
+scripts:
+  postinstall: shards build --release --production && ./bin/init
+
 dependencies:
   CrSerializer:
     github: blacksmoke16/CrSerializer
