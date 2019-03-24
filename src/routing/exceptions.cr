@@ -1,5 +1,6 @@
 module Athena::Routing::Exceptions
   COMMON_EXCEPTIONS = {
+    400 => "Bad Request",
     401 => "Unauthorized",
     402 => "Payment Required",
     403 => "Forbidden",

@@ -1,5 +1,5 @@
-module Athena::Routing
-  # Handles routing and param conversion on each request.
+module Athena::Routing::Handlers
+  # Initializes the application's routes and kicks off the application's handlers.
   class RouteHandler
     include HTTP::Handler
 
@@ -74,70 +74,97 @@ module Athena::Routing
             {% route_def = d %}
           {% end %}
 
-
           {% prefix = class_ann && class_ann[:prefix] != nil ? (class_ann[:prefix].starts_with?('/') ? class_ann[:prefix] : "/" + class_ann[:prefix]) : "" %}
           {% path = "/" + method + prefix + (route_def[:path].starts_with?('/') ? route_def[:path] : "/" + route_def[:path]) %}
 
+          {% params = [] of Param %}
+
           {% arg_names = m.args.map(&.name.stringify) %}
-          {% query_params = route_def[:query] ? route_def[:query].keys : [] of String %}
-          {% route_params = route_def[:path].split('/').select { |p| p.starts_with?(':') || (p.starts_with?("(:") && p.ends_with?(')')) }.map { |v| v.includes?('(') ? v.tr("(:", "").tr(")", "") : v.tr(":", "") } %}
-          {% route_params << "body" if %w(POST PUT).includes? method %}
-          {% arg_names.all? { |pa| (query_params + route_params).any? { |v| v == pa || v.gsub(/_id$/, "") == pa } || raise "#{c.name}.#{m.name} parameter '#{pa.id}' is not defined in route or query parameters." } %}
-          {% raise "#{c.name}.#{m.name} has #{arg_names.size} parameters defined, while there are #{(query_params + route_params).size} route and query parameters defined.  Did you forget to add one?" if (query_params + route_params).size != arg_names.size %}
+          {% query_params = route_def[:query] ? route_def[:query] : [] of String %}
 
-          {% arg_types = m.args.map(&.restriction) %}
-          {% arg_default_values = m.args.map { |a| a.default_value || nil } %}
-          {% constraints = route_def[:constraints] %}
-          {% query_params = ["QueryParam(Nil).new(\"placeholder\", nil)".id] %}
-
-          {% if body_param = m.args.find { |a| a.name.stringify == "body" } %}
-            {% body_type = body_param.restriction %}
-          {% else %}
-            {% body_type = Nil %}
-          {% end %}
-
-          {% if route_def && route_def[:query] %}
-            {% for name, pattern, idx in route_def[:query] %}
-              {% if arg = m.args.find { |a| a.name.stringify == name } %}
-                  {% query_params << "QueryParam(#{arg.restriction}).new(#{name}, #{pattern})".id %}
+          # Build out the params array
+          {% for arg in m.args %}
+            # Path params
+            {% for segment, idx in route_def[:path].split('/') %}
+              {% if segment =~ (/:\w+/) %}
+                {% param_name = (segment.starts_with?(':') ? segment[1..-1] : (segment.starts_with?('(') ? segment[0..-2][2..-1] : segment)) %}
+                {% if arg.name == param_name || arg.name == param_name.gsub(/_id$/, "") %}
+                  {% params << "PathParam(#{arg.restriction}).new(#{param_name}, #{idx})".id %}
+              {% end %}
               {% end %}
             {% end %}
+
+            # Query params
+            {% for name, pattern in query_params %}
+              {% if arg.name == name %}
+                {% params << "QueryParam(#{arg.restriction}).new(#{name}, #{pattern})".id %}
+              {% end %}
+            {% end %}
+
+            # Body
+            {% params << "BodyParam(#{arg.restriction}).new(\"body\")".id if arg.name == "body" && {"POST", "PUT"}.includes? method %}
           {% end %}
+
+          {% constraints = route_def[:constraints] %}
+          {% arg_types = m.args.map(&.restriction) %}
 
           {% groups = view_ann && view_ann[:groups] ? view_ann[:groups] : ["default"] %}
           {% renderer = view_ann && view_ann[:renderer] ? view_ann[:renderer] : "Athena::Routing::Renderers::JSONRenderer".id %}
 
-            %proc = ->(ctx : HTTP::Server::Context, vals : Hash(String, String?)) do
+            %action = ->(ctx : HTTP::Server::Context, vals : Hash(String, String?)) do
+              # If there are no args, just call the action.  Otherwise build out an array of values to pass to the action.
               {% unless m.args.empty? %}
                 arr = Array(Union({{arg_types.splat}}, Nil)).new
-                {% for type, idx in arg_types %}
-                    key = if vals.has_key? {{arg_names[idx]}}
-                      {{arg_names[idx]}}
-                    elsif vals.has_key? {{arg_names[idx] + "_id"}}
-                      {{arg_names[idx] + "_id"}}
+                {% for arg in m.args %}
+                    key = if vals.has_key? {{arg.name.stringify}}
+                      {{arg.name.stringify}}
+                    elsif vals.has_key? {{arg.name.stringify + "_id"}}
+                      {{arg.name.stringify + "_id"}}
                     end
                     arr << if val = vals[key]?
-                    {% if param_converter && param_converter[:converter] && param_converter[:type] && param_converter[:param] == arg_names[idx] %}
+                    {% if param_converter && param_converter[:converter] && param_converter[:type] && param_converter[:param] == arg.name.stringify %}
                       Athena::Routing::Converters::{{param_converter[:converter]}}({{param_converter[:type]}}, {{param_converter[:pk_type] ? param_converter[:pk_type] : Nil}}).convert ctx, val
                     {% else %}
-                      Athena::Types.convert_type val, {{type}}
+                      Athena::Types.convert_type val, {{arg.restriction}}
                     {% end %}
                     else
-                      {{arg_default_values[idx]}}
+                      {{arg.default_value || nil}}
                     end
-                {% end %}
+                    {% end %}
+                    pp arr
                 ->{{c.name.id}}.{{m.name.id}}({{arg_types.splat}}).call(*Tuple({{arg_types.splat}}).from(arr))
               {% else %}
                 ->{ {{c.name.id}}.{{m.name.id}} }.call
               {% end %}
             end
-            @routes.add {{path}}, RouteAction(Proc(HTTP::Server::Context, Hash(String, String?), {{m.return_type}}), {{renderer}}, {{body_type}}, {{c.id}}).new(%proc, {{path}}, Callbacks.new({{_on_response.uniq}} of CallbackBase, {{_on_request.uniq}} of CallbackBase), {{m.name.stringify}}, {{groups}}, {{query_params}} of Param){% if constraints %}, {{constraints}} {% end %}
+            @routes.add {{path}}, RouteAction(
+              Proc(HTTP::Server::Context, Hash(String, String?), {{m.return_type}}), {{renderer}}, {{c.id}})
+              .new(
+                %action,
+                {{path}},
+                Callbacks.new({{_on_response.uniq}} of CallbackBase, {{_on_request.uniq}} of CallbackBase),
+                {{m.name.stringify}},
+                {{groups}},
+                {{params}} of Param
+              ){% if constraints %}, {{constraints}} {% end %}
         {% end %}
+        {{debug}}
       {% end %}
     end
 
     def call(ctx : HTTP::Server::Context)
-      call_next ctx, @routes, @config
+      # If this is a OPTIONS request change the method to the requested method to access the actual action that will be invoked.
+      method : String = if (header = ctx.request.headers["Access-Control-Request-Method"]?) && ctx.request.method == "OPTIONS"
+        header
+      else
+        ctx.request.method
+      end
+
+      search_key = '/' + method + ctx.request.path
+      route = @routes.find search_key
+
+      action = route.found? ? route.payload.not_nil! : nil
+      call_next ctx, action, @config
     end
   end
 end

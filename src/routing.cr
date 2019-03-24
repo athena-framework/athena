@@ -9,8 +9,8 @@ require "./common/types"
 
 require "./routing/converters"
 require "./routing/exceptions"
-require "./routing/macros"
 require "./routing/renderers"
+require "./routing/handlers/handler"
 require "./routing/handlers/*"
 
 # Athena module containing elements for:
@@ -19,28 +19,6 @@ require "./routing/handlers/*"
 # * Manage response serialization.
 # * Handle param conversion.
 module Athena::Routing
-  # # :nodoc:
-  module HTTP::Handler
-    # def call(ctx : HTTP::Server::Context, actions : Amber::Router::RouteSet(Action), config : Athena::Config)
-
-    def call(ctx : HTTP::Server::Context); end
-
-    def call_next(ctx : HTTP::Server::Context, routes : Amber::Router::RouteSet(Athena::Routing::Action), config : Athena::Config::Config)
-      if next_handler = @next
-        if next_handler.responds_to? :call_handler
-          # Handle Athena handlers
-          next_handler.call_handler ctx, routes, config
-        else
-          # Handle default HTTP handlers
-          next_handler.call ctx
-        end
-      end
-    end
-  end
-
-  # Enable static file handling.  Disabled by default.
-  class_property static_file_handler : HTTP::StaticFileHandler? = nil
-
   # Defines a GET endpoint.
   # ## Fields
   # * path : `String` - The path for the endpoint.
@@ -146,6 +124,12 @@ module Athena::Routing
 
   # Parent struct for all controllers.
   abstract struct Controller
+    # Exists the request with the given *status_code* and *body*.
+    macro throw(status_code = 200, body = "")
+      # Actual macro is declared on top level namespace
+      # but documented here.
+    end
+
     # :nodoc:
     class_property request : HTTP::Request? = nil
 
@@ -188,13 +172,40 @@ module Athena::Routing
   abstract struct Action; end
 
   # :nodoc:
+  abstract struct Param
+    getter name : String
+
+    def initialize(@name : String); end
+  end
+
+  # :nodoc:
   private abstract struct CallbackBase; end
 
   # :nodoc:
-  private abstract struct Param; end
+  private record RouteAction(A, R, C) < Action,
+    # action that gets executed for the route.
+    action : A,
 
-  # :nodoc:
-  private record RouteAction(A, R, B, C) < Action, action : A, path : String, callbacks : Callbacks, method : String, groups : Array(String), query_params : Array(Param), body_type : B.class = B, renderer : R.class = R, controller : C.class = C
+    # Path that corresponds with this action.
+    path : String,
+
+    # Any callbacks declared for this action.
+    callbacks : Callbacks,
+
+    # Method of the action.
+    method : String,
+
+    # Serialization groups set on this action.
+    groups : Array(String),
+
+    # Array of parameters defined on this path/action.
+    params : Array(Param) = [] of Param,
+
+    # Renderer to use for the response of this action.
+    renderer : R.class = R,
+
+    # Controller this action belongs to.
+    controller : C.class = C
 
   # :nodoc:
   private record Callbacks, on_response : Array(CallbackBase), on_request : Array(CallbackBase)
@@ -202,28 +213,56 @@ module Athena::Routing
   # :nodoc:
   private record CallbackEvent(E) < CallbackBase, event : E, only_actions : Array(String), exclude_actions : Array(String)
 
-  # :nodoc:
-  private record QueryParam(T) < Param, name : String, pattern : Regex? = nil, type : T.class = T
+  struct QueryParam(T) < Param
+    getter pattern : Regex?
+
+    def initialize(name : String, @pattern : Regex? = nil, @type : T.class = T)
+      super name
+    end
+  end
+
+  struct PathParam(T) < Param
+    getter segment_index : Int32
+
+    def initialize(name : String, @segment_index : Int32, @type : T.class = T)
+      super name
+    end
+  end
+
+  struct BodyParam(T) < Param
+    def initialize(name : String, @type : T.class = T)
+      super
+    end
+  end
+
+  # # :nodoc:
+  # private record QueryParam(T) < Param, name : String, pattern : Regex? = nil, type : T.class = T, in : String = "query"
+
+  # # :nodoc:
+  # private record PathParam(T) < Param, name : String, segment_index : Int32, type : T.class = T, in : String = "path"
+
+  # # :nodoc:
+  # private record BodyParam(T) < Param, name : String = "body", type : T.class = T, in : String = "body"
 
   # Starts the HTTP server with the given *port*, *binding*, *ssl*, and *handlers*.
   def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [] of HTTP::Handler)
     config : Athena::Config::Config = Athena::Config::Config.from_yaml ECR.render "athena.yml"
 
+    # If no handlers are passed to `.run`; build out the default handlers.
+    # Otherwise just use user supplied handlers.
     if handlers.empty?
       handlers = [
-        Athena::Routing::RouteHandler.new(config),
-        Athena::Routing::CorsHandler.new,
-        Athena::Routing::ActionHandler.new,
+        Athena::Routing::Handlers::CorsHandler.new,
+        Athena::Routing::Handlers::ActionHandler.new,
       ] of HTTP::Handler
-
-      if sfh = self.static_file_handler
-        handlers.insert 1, sfh
-      end
     end
 
-    unless handlers.first.is_a? Athena::Routing::RouteHandler
-      raise "First handler must be 'Athena::Routing::RouteHandler'."
-    end
+    # Insert the RouteHandler automatically so the user does not have to deal with the config file.
+    handlers.unshift Athena::Routing::Handlers::RouteHandler.new(config)
+
+    # Validate the two required handlers are included.
+    raise "First handler must be 'Athena::Routing::Handlers::RouteHandler'." unless handlers.first.is_a? Athena::Routing::Handlers::RouteHandler
+    raise "Handlers must include 'Athena::Routing::Handlers::ActionHandler'." if handlers.none? &.is_a? Athena::Routing::Handlers::ActionHandler
 
     server : HTTP::Server = HTTP::Server.new handlers
     puts "Athena is leading the way on #{binding}:#{port}"
@@ -240,6 +279,20 @@ module Athena::Routing
       {% end %}
     end
 
+    # Signal::INT.trap do
+    #   spawn { server.close }
+    #   exit
+    # end
+
     server.listen
   end
 end
+
+struct TestController < Athena::Routing::Controller
+  @[Athena::Routing::Get(path: "/users/")]
+  def self.test : String
+    "sdf"
+  end
+end
+
+Athena::Routing.run
