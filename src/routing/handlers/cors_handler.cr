@@ -1,12 +1,3 @@
-# :nodoc:
-private macro halt(response, status_code, body)
-  {{response}}.status_code = {{status_code}}
-  {{response}}.print {{body}}
-  {{response}}.headers.add "Content-Type", "application/json; charset=utf-8"
-  {{response}}.close
-  return
-end
-
 module Athena::Routing::Handlers
   # Handles routing and param conversion on each request.
   class CorsHandler < Athena::Routing::Handlers::Handler

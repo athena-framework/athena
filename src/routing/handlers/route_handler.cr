@@ -5,6 +5,7 @@ module Athena::Routing::Handlers
 
     @routes : Amber::Router::RouteSet(Action) = Amber::Router::RouteSet(Action).new
 
+    # ameba:disable Metrics/CyclomaticComplexity
     def initialize(@config : Athena::Config::Config)
       {% for c in Athena::Routing::Controller.all_subclasses %}
         {% methods = c.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
@@ -78,8 +79,6 @@ module Athena::Routing::Handlers
           {% path = "/" + method + prefix + (route_def[:path].starts_with?('/') ? route_def[:path] : "/" + route_def[:path]) %}
 
           {% params = [] of Param %}
-
-          {% arg_names = m.args.map(&.name.stringify) %}
           {% query_params = route_def[:query] ? route_def[:query] : [] of String %}
 
           # Build out the params array
@@ -89,7 +88,7 @@ module Athena::Routing::Handlers
               {% if segment =~ (/:\w+/) %}
                 {% param_name = (segment.starts_with?(':') ? segment[1..-1] : (segment.starts_with?('(') ? segment[0..-2][2..-1] : segment)) %}
                 {% if arg.name == param_name || arg.name == param_name.gsub(/_id$/, "") %}
-                  {% params << "PathParam(#{arg.restriction}).new(#{param_name}, #{idx})".id %}
+                  {% params << "Athena::Routing::Parameters::PathParameter(#{arg.restriction}).new(#{param_name}, #{idx})".id %}
               {% end %}
               {% end %}
             {% end %}
@@ -97,12 +96,12 @@ module Athena::Routing::Handlers
             # Query params
             {% for name, pattern in query_params %}
               {% if arg.name == name %}
-                {% params << "QueryParam(#{arg.restriction}).new(#{name}, #{pattern})".id %}
+                {% params << "Athena::Routing::Parameters::QueryParameter(#{arg.restriction}).new(#{name}, #{pattern})".id %}
               {% end %}
             {% end %}
 
             # Body
-            {% params << "BodyParam(#{arg.restriction}).new(\"body\")".id if arg.name == "body" && {"POST", "PUT"}.includes? method %}
+            {% params << "Athena::Routing::Parameters::BodyParameter(#{arg.restriction}).new(\"body\")".id if arg.name == "body" && {"POST", "PUT"}.includes? method %}
           {% end %}
 
           {% constraints = route_def[:constraints] %}
@@ -145,7 +144,7 @@ module Athena::Routing::Handlers
                 Callbacks.new({{_on_response.uniq}} of CallbackBase, {{_on_request.uniq}} of CallbackBase),
                 {{m.name.stringify}},
                 {{groups}},
-                {{params}} of Param
+                {{params}} of Athena::Routing::Parameters::Param
               ){% if constraints %}, {{constraints}} {% end %}
         {% end %}
         {{debug}}

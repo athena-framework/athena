@@ -12,6 +12,17 @@ require "./routing/exceptions"
 require "./routing/renderers"
 require "./routing/handlers/handler"
 require "./routing/handlers/*"
+require "./routing/parameters/parameter"
+require "./routing/parameters/*"
+
+# :nodoc:
+macro halt(response, status_code, body)
+  {{response}}.status_code = {{status_code}}
+  {{response}}.print {{body}}
+  {{response}}.headers.add "Content-Type", "application/json; charset=utf-8"
+  {{response}}.close
+  return
+end
 
 # Athena module containing elements for:
 # * Defining routes.
@@ -172,13 +183,6 @@ module Athena::Routing
   abstract struct Action; end
 
   # :nodoc:
-  abstract struct Param
-    getter name : String
-
-    def initialize(@name : String); end
-  end
-
-  # :nodoc:
   private abstract struct CallbackBase; end
 
   # :nodoc:
@@ -199,7 +203,7 @@ module Athena::Routing
     groups : Array(String),
 
     # Array of parameters defined on this path/action.
-    params : Array(Param) = [] of Param,
+    params : Array(Athena::Routing::Parameters::Param) = [] of Athena::Routing::Parameters::Param,
 
     # Renderer to use for the response of this action.
     renderer : R.class = R,
@@ -212,37 +216,6 @@ module Athena::Routing
 
   # :nodoc:
   private record CallbackEvent(E) < CallbackBase, event : E, only_actions : Array(String), exclude_actions : Array(String)
-
-  struct QueryParam(T) < Param
-    getter pattern : Regex?
-
-    def initialize(name : String, @pattern : Regex? = nil, @type : T.class = T)
-      super name
-    end
-  end
-
-  struct PathParam(T) < Param
-    getter segment_index : Int32
-
-    def initialize(name : String, @segment_index : Int32, @type : T.class = T)
-      super name
-    end
-  end
-
-  struct BodyParam(T) < Param
-    def initialize(name : String, @type : T.class = T)
-      super
-    end
-  end
-
-  # # :nodoc:
-  # private record QueryParam(T) < Param, name : String, pattern : Regex? = nil, type : T.class = T, in : String = "query"
-
-  # # :nodoc:
-  # private record PathParam(T) < Param, name : String, segment_index : Int32, type : T.class = T, in : String = "path"
-
-  # # :nodoc:
-  # private record BodyParam(T) < Param, name : String = "body", type : T.class = T, in : String = "body"
 
   # Starts the HTTP server with the given *port*, *binding*, *ssl*, and *handlers*.
   def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [] of HTTP::Handler)
@@ -279,20 +252,20 @@ module Athena::Routing
       {% end %}
     end
 
-    # Signal::INT.trap do
-    #   spawn { server.close }
-    #   exit
-    # end
+    Signal::INT.trap do
+      spawn { server.close }
+      exit
+    end
 
     server.listen
   end
 end
 
-struct TestController < Athena::Routing::Controller
-  @[Athena::Routing::Get(path: "/users/")]
-  def self.test : String
-    "sdf"
-  end
-end
+# struct TestController < Athena::Routing::Controller
+#   @[Athena::Routing::Get(path: "/users/:id", query: {"bar" => nil})]
+#   def self.test(bar : String, id : Int32) : Int32
+#     id
+#   end
+# end
 
-Athena::Routing.run
+# Athena::Routing.run
