@@ -16,7 +16,7 @@ module Athena::Routing::Parameters
             val
           else
             # Return a 400 if the query param was required and does not match the pattern.
-            halt ctx.response, 400, %({"code": 400, "message": "Expected query param '#{@name}' to match '#{pat}' but got '#{val}'"}) if required?
+            raise Athena::Routing::Exceptions::BadRequestException.new "Expected query param '#{@name}' to match '#{pat}' but got '#{val}'" if required?
           end
         else
           # Just return the value if there is no pattern set.
@@ -24,7 +24,7 @@ module Athena::Routing::Parameters
         end
       else
         # Return a 400 if the query param was required and not supplied.
-        halt ctx.response, 400, %({"code": 400, "message": "Required query param '#{@name}' was not supplied."}) if required?
+        raise Athena::Routing::Exceptions::BadRequestException.new "Required query param '#{@name}' was not supplied." if required?
       end
     end
   end

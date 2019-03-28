@@ -11,12 +11,12 @@ module Athena::Routing::Parameters
             body
           else
             # Return a 415 if an unsupported content type is used.
-            halt ctx.response, 415, %({"code": 415, "message": "Invalid Content-Type: '#{content_type.downcase}'"})
+            raise Athena::Routing::Exceptions::UnsupportedMediaTypeException.new "Invalid Content-Type: '#{content_type.downcase}'"
           end
         end
       else
         # Return a 400 if body was required and not supplied.
-        halt ctx.response, 400, %({"code": 400, "message": "Request body was not supplied."}) if required?
+        raise Athena::Routing::Exceptions::BadRequestException.new "Request body was not supplied." if required?
       end
     end
   end

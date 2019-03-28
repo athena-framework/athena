@@ -1,7 +1,7 @@
 # :nodoc:
 module HTTP::Handler
   # :nodoc:
-  def call_next(ctx : HTTP::Server::Context, action : Athena::Routing::Action?, config : Athena::Config::Config) : Nil
+  def call_next(ctx : HTTP::Server::Context, action : Athena::Routing::Action, config : Athena::Config::Config) : Nil
     if next_handler = @next
       if next_handler.responds_to? :handle
         next_handler.handle ctx, action, config
@@ -19,7 +19,7 @@ module Athena::Routing::Handlers
     def call(ctx : HTTP::Server::Context); end
 
     # Method that gets executed to handle some logic.
-    abstract def handle(ctx : HTTP::Server::Context, action : Action?, config : Athena::Config::Config) : Nil
+    abstract def handle(ctx : HTTP::Server::Context, action : Action, config : Athena::Config::Config) : Nil
 
     # Runs the next handler.
     macro handle_next

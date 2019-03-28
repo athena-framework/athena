@@ -7,7 +7,7 @@ describe "Static files" do
 
   it "should 404 if file is missing" do
     response = CLIENT.get("/foo.txt")
-    response.body.should eq %({"code": 404, "message": "No route found for 'GET /foo.txt'"})
+    response.body.should eq %({"code":404,"message":"No route found for 'GET /foo.txt'"})
     response.status_code.should eq 404
   end
 end

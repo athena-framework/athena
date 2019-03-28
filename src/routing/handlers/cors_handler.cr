@@ -1,7 +1,7 @@
 module Athena::Routing::Handlers
   # Handles routing and param conversion on each request.
   class CorsHandler < Athena::Routing::Handlers::Handler
-    def handle(ctx : HTTP::Server::Context, action : Action?, config : Athena::Config::Config)
+    def handle(ctx : HTTP::Server::Context, action : Action, config : Athena::Config::Config)
       handle_next; return # unless config.routing.enable_cors
 
       #   cors_config : Athena::Config::CorsConfig = config.routing.cors

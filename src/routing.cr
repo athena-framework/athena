@@ -24,6 +24,16 @@ macro halt(response, status_code, body)
   return
 end
 
+# :nodoc:
+macro throw(status_code, body)
+  response = get_response
+  response.status_code = {{status_code}}
+  response.print {{body}}
+  response.headers.add "Content-Type", "application/json"
+  response.close
+  return
+end
+
 # Athena module containing elements for:
 # * Defining routes.
 # * Defining life-cycle callbacks.
@@ -135,10 +145,17 @@ module Athena::Routing
 
   # Parent struct for all controllers.
   abstract struct Controller
-    # Exists the request with the given *status_code* and *body*.
-    macro throw(status_code = 200, body = "")
-      # Actual macro is declared on top level namespace
-      # but documented here.
+    # Exits the request with the given *status_code* and *body*.
+    #
+    # NOTE: declared on top level namespace but documented here
+    # to be in the `Athena::Routing` module.
+    macro throw(status_code, body)
+      response = get_response
+      response.status_code = {{status_code}}
+      response.print {{body}}
+      response.headers.add "Content-Type", "application/json"
+      response.close
+      return
     end
 
     # :nodoc:
@@ -212,7 +229,23 @@ module Athena::Routing
     controller : C.class = C
 
   # :nodoc:
-  private record Callbacks, on_response : Array(CallbackBase), on_request : Array(CallbackBase)
+  private record Callbacks, on_response : Array(CallbackBase) = [] of CallbackBase, on_request : Array(CallbackBase) = [] of CallbackBase do
+    def run_on_request_callbacks(ctx : HTTP::Server::Context, action : Action) : Nil
+      @on_request.each do |ce|
+        if (ce.as(CallbackEvent).only_actions.empty? || ce.as(CallbackEvent).only_actions.includes?(action.method)) && (ce.as(CallbackEvent).exclude_actions.empty? || !ce.as(CallbackEvent).exclude_actions.includes?(action.method))
+          ce.as(CallbackEvent).event.call(ctx)
+        end
+      end
+    end
+
+    def run_on_response_callbacks(ctx : HTTP::Server::Context, action : Action) : Nil
+      @on_response.each do |ce|
+        if (ce.as(CallbackEvent).only_actions.empty? || ce.as(CallbackEvent).only_actions.includes?(action.method)) && (ce.as(CallbackEvent).exclude_actions.empty? || !ce.as(CallbackEvent).exclude_actions.includes?(action.method))
+          ce.as(CallbackEvent).event.call(ctx)
+        end
+      end
+    end
+  end
 
   # :nodoc:
   private record CallbackEvent(E) < CallbackBase, event : E, only_actions : Array(String), exclude_actions : Array(String)
@@ -260,12 +293,3 @@ module Athena::Routing
     server.listen
   end
 end
-
-# struct TestController < Athena::Routing::Controller
-#   @[Athena::Routing::Get(path: "/users/:id", query: {"bar" => nil})]
-#   def self.test(bar : String, id : Int32) : Int32
-#     id
-#   end
-# end
-
-# Athena::Routing.run

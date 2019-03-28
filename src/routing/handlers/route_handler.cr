@@ -76,7 +76,8 @@ module Athena::Routing::Handlers
           {% end %}
 
           {% prefix = class_ann && class_ann[:prefix] != nil ? (class_ann[:prefix].starts_with?('/') ? class_ann[:prefix] : "/" + class_ann[:prefix]) : "" %}
-          {% path = "/" + method + prefix + (route_def[:path].starts_with?('/') ? route_def[:path] : "/" + route_def[:path]) %}
+          {% path = (route_def[:path].starts_with?('/') ? route_def[:path] : "/" + route_def[:path]) %}
+          {% full_path = "/" + method + prefix + path %}
 
           {% params = [] of Param %}
           {% query_params = route_def[:query] ? route_def[:query] : [] of String %}
@@ -84,7 +85,7 @@ module Athena::Routing::Handlers
           # Build out the params array
           {% for arg in m.args %}
             # Path params
-            {% for segment, idx in route_def[:path].split('/') %}
+            {% for segment, idx in path.split('/') %}
               {% if segment =~ (/:\w+/) %}
                 {% param_name = (segment.starts_with?(':') ? segment[1..-1] : (segment.starts_with?('(') ? segment[0..-2][2..-1] : segment)) %}
                 {% if arg.name == param_name || arg.name == param_name.gsub(/_id$/, "") %}
@@ -130,24 +131,22 @@ module Athena::Routing::Handlers
                       {{arg.default_value || nil}}
                     end
                     {% end %}
-                    pp arr
                 ->{{c.name.id}}.{{m.name.id}}({{arg_types.splat}}).call(*Tuple({{arg_types.splat}}).from(arr))
               {% else %}
                 ->{ {{c.name.id}}.{{m.name.id}} }.call
               {% end %}
             end
-            @routes.add {{path}}, RouteAction(
+            @routes.add {{full_path}}, RouteAction(
               Proc(HTTP::Server::Context, Hash(String, String?), {{m.return_type}}), {{renderer}}, {{c.id}})
               .new(
                 %action,
-                {{path}},
+                {{full_path}},
                 Callbacks.new({{_on_response.uniq}} of CallbackBase, {{_on_request.uniq}} of CallbackBase),
                 {{m.name.stringify}},
                 {{groups}},
                 {{params}} of Athena::Routing::Parameters::Param
               ){% if constraints %}, {{constraints}} {% end %}
         {% end %}
-        {{debug}}
       {% end %}
     end
 
@@ -162,8 +161,23 @@ module Athena::Routing::Handlers
       search_key = '/' + method + ctx.request.path
       route = @routes.find search_key
 
-      action = route.found? ? route.payload.not_nil! : nil
+      if route.found?
+        action = route.payload.not_nil!
+        action.controller.request = ctx.request
+        action.controller.response = ctx.response
+      else
+        Athena::Routing::Controller.request = ctx.request
+        Athena::Routing::Controller.response = ctx.response
+        raise Athena::Routing::Exceptions::NotFoundException.new "No route found for '#{ctx.request.method} #{ctx.request.path}'"
+      end
+
       call_next ctx, action, @config
+    rescue ex
+      if a = action
+        a.controller.handle_exception ex, a.method
+      else
+        Athena::Routing::Controller.handle_exception ex, ctx.request.method
+      end
     end
   end
 end

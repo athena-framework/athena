@@ -1,13 +1,3 @@
-# :nodoc:
-macro throw(status_code = 200, body = "")
-  response = get_response
-  response.status_code = {{status_code}}
-  response.print {{body}}
-  response.headers.add "Content-Type", "application/json"
-  response.close
-  return
-end
-
 module Athena::Routing::Handlers
   # Executes the controller action for the given route.
   class ActionHandler < Athena::Routing::Handlers::Handler
@@ -29,28 +19,18 @@ module Athena::Routing::Handlers
       end
 
       # Run `OnRequest` callbacks.
-      action.callbacks.on_request.each do |ce|
-        if (ce.as(CallbackEvent).only_actions.empty? || ce.as(CallbackEvent).only_actions.includes?(action.as(RouteAction).method)) && (ce.as(CallbackEvent).exclude_actions.empty? || !ce.as(CallbackEvent).exclude_actions.includes?(action.method))
-          ce.as(CallbackEvent).event.call(ctx)
-        end
-      end
+      action.callbacks.run_on_request_callbacks ctx, action
 
       # Call the action.
       response = action.action.call ctx, params
 
       # Run the `OnResponse` callbacks.
-      action.callbacks.on_response.each do |ce|
-        if (ce.as(CallbackEvent).only_actions.empty? || ce.as(CallbackEvent).only_actions.includes?(action.as(RouteAction).method)) && (ce.as(CallbackEvent).exclude_actions.empty? || !ce.as(CallbackEvent).exclude_actions.includes?(action.method))
-          ce.as(CallbackEvent).event.call(ctx)
-        end
-      end
+      action.callbacks.run_on_response_callbacks ctx, action
 
       # Render the response.
       ctx.response.print action.renderer.render response, ctx, action.groups
     rescue ex
-      if a = action
-        a.not_nil!.controller.handle_exception ex, a.method
-      end
+      action.controller.handle_exception ex, action.method
     end
   end
 end

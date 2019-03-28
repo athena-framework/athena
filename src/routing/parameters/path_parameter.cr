@@ -8,7 +8,8 @@ module Athena::Routing::Parameters
 
     def process(ctx : HTTP::Server::Context) : String?
       # If the query param was defined.
-      ctx.request.path.split('/')[@segment_index]
+      val = ctx.request.path.split('/')[@segment_index]
+      val.blank? ? nil : val
     end
   end
 end

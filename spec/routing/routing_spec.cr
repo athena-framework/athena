@@ -19,7 +19,7 @@ describe Athena::Routing do
         describe "that is required" do
           it "returns correct error" do
             response = CLIENT.post("/noParamsPostRequired")
-            response.body.should eq %({"code": 400, "message": "Request body was not supplied."})
+            response.body.should eq %({"code":400,"message":"Request body was not supplied."})
             response.status_code.should eq 400
           end
         end
@@ -52,30 +52,45 @@ describe Athena::Routing do
   describe "with a route that doesnt exist" do
     it "returns correct error" do
       response = CLIENT.get("/dsfdsf")
-      response.body.should eq %({"code": 404, "message": "No route found for 'GET /dsfdsf'"})
+      response.body.should eq %({"code":404,"message":"No route found for 'GET /dsfdsf'"})
       response.status_code.should eq 404
 
       response = CLIENT.post("/dsfdsf")
-      response.body.should eq %({"code": 404, "message": "No route found for 'POST /dsfdsf'"})
+      response.body.should eq %({"code":404,"message":"No route found for 'POST /dsfdsf'"})
       response.status_code.should eq 404
     end
   end
 
   describe "with a route that has a default value" do
-    it "works" do
-      CLIENT.get("/posts/123").body.should eq "123"
-      CLIENT.get("/posts/").body.should eq "99"
-      CLIENT.get("/posts/foo/bvar").body.should eq "\"foo\""
+    context "GET" do
+      it "returns the provided value" do
+        CLIENT.get("/posts/123").body.should eq "123"
+      end
 
-      CLIENT.post("/posts/99", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "100"
-      CLIENT.post("/posts/99", body: "100", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "199"
+      it "returns the default value" do
+        CLIENT.get("/posts/").body.should eq "99"
+      end
+
+      it "does not conflict" do
+        CLIENT.get("/posts/foo/bvar").body.should eq "\"foo\""
+      end
+    end
+
+    context "POST" do
+      it "adds using the default value" do
+        CLIENT.post("/posts/99", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "100"
+      end
+
+      it "adds using the provided value" do
+        CLIENT.post("/posts/99", body: "100", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "199"
+      end
     end
   end
 
   describe "invalid Content-Type" do
     context "not supported" do
       it "returns correct error" do
-        CLIENT.post("/posts/99", body: "100", headers: HTTP::Headers{"content-type" => "application/foo"}).body.should eq %({"code": 415, "message": "Invalid Content-Type: 'application/foo'"})
+        CLIENT.post("/posts/99", body: "100", headers: HTTP::Headers{"content-type" => "application/foo"}).body.should eq %({"code":415,"message":"Invalid Content-Type: 'application/foo'"})
       end
     end
 

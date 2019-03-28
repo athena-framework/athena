@@ -6,7 +6,7 @@ describe "QueryParams" do
       describe "that is not provided " do
         it "should raise proper error" do
           response = CLIENT.get("/get/query_param_constraint_required")
-          response.body.should eq %({"code": 400, "message": "Required query param 'time' was not supplied."})
+          response.body.should eq %({"code":400,"message":"Required query param 'time' was not supplied."})
           response.status_code.should eq 400
         end
       end
@@ -20,7 +20,7 @@ describe "QueryParams" do
       describe "that is supplied but doesn't match" do
         it "should raise proper error" do
           response = CLIENT.get("/get/query_param_constraint_required?time=1:a:3")
-          response.body.should eq %({"code": 400, "message": "Expected query param 'time' to match '(?-imsx:\\d:\\d:\\d)' but got '1:a:3'"})
+          response.body.should eq %q({"code":400,"message":"Expected query param 'time' to match '(?-imsx:\\d:\\d:\\d)' but got '1:a:3'"})
           response.status_code.should eq 400
         end
       end
@@ -30,7 +30,7 @@ describe "QueryParams" do
       describe "that is not provided " do
         it "should raise proper error" do
           response = CLIENT.get("/get/query_param_required")
-          response.body.should eq %({"code": 400, "message": "Required query param 'time' was not supplied."})
+          response.body.should eq %({"code":400,"message":"Required query param 'time' was not supplied."})
           response.status_code.should eq 400
         end
       end
