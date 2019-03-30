@@ -1,6 +1,5 @@
 require "http/server"
 require "amber_router"
-require "json"
 require "CrSerializer"
 
 require "./config/config"
@@ -202,13 +201,15 @@ module Athena::Routing
   # :nodoc:
   private abstract struct CallbackBase; end
 
+  private record RouteDefinition, path : String, cors_group : String | Bool | Nil = nil
+
   # :nodoc:
   private record RouteAction(A, R, C) < Action,
-    # action that gets executed for the route.
+    # Action that gets executed for the route.
     action : A,
 
-    # Path that corresponds with this action.
-    path : String,
+    # `RouteDefinition` for the route.
+    route : RouteDefinition,
 
     # Any callbacks declared for this action.
     callbacks : Callbacks,
@@ -291,5 +292,7 @@ module Athena::Routing
     end
 
     server.listen
+  rescue ex : CrSerializer::Exceptions::ValidationException
+    raise ex.to_s
   end
 end

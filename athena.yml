@@ -1,8 +1,9 @@
 # Config file for Athena.
 ---
 routing:
-  enable_cors: false
   cors:
+    enabled: true
+    strategy: blacklist
     defaults: &defaults
       allow_origin: https://yourdomain.com
       expose_headers: []

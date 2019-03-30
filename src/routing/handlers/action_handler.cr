@@ -1,10 +1,9 @@
 module Athena::Routing::Handlers
   # Executes the controller action for the given route.
   class ActionHandler < Athena::Routing::Handlers::Handler
-    # ameba:disable Metrics/CyclomaticComplexity
     def handle(ctx : HTTP::Server::Context, action : Action?, config : Athena::Config::Config) : Nil
       handle_next; return if ctx.request.method == "OPTIONS"
-      halt ctx.response, 404, %({"code": 404, "message": "No route found for '#{ctx.request.method} #{ctx.request.path}'"}) if action.nil?
+      raise Athena::Routing::Exceptions::NotFoundException.new "No route found for '#{ctx.request.method} #{ctx.request.path}'" if action.nil?
 
       # Set the current request/response on the controller
       # since it can now be assured an action was found.

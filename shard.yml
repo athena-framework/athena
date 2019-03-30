@@ -22,7 +22,7 @@ scripts:
 dependencies:
   CrSerializer:
     github: blacksmoke16/CrSerializer
-    version: ~> 0.6.0
+    version: ~> 0.6.1
   amber_router:
     github: amberframework/amber-router
     version: ~> 0.2.1

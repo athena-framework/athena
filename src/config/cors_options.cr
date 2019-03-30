@@ -1,13 +1,12 @@
 module Athena::Config
   # Config properties related to CORS.
   struct CorsOptions
-    include YAML::Serializable
+    include CrSerializer
 
     @[YAML::Field(ignore: true)]
     @default : Bool = false
 
     # :nodoc:
-    # TODO Remove after https://github.com/crystal-lang/crystal/issues/7557 is resolved.
     def initialize(@default : Bool = false); end
 
     # Origin to allow requests from. Can be to set to `"*"` to allow *all* origins.

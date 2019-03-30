@@ -78,6 +78,7 @@ module Athena::Routing::Handlers
           {% prefix = class_ann && class_ann[:prefix] != nil ? (class_ann[:prefix].starts_with?('/') ? class_ann[:prefix] : "/" + class_ann[:prefix]) : "" %}
           {% path = (route_def[:path].starts_with?('/') ? route_def[:path] : "/" + route_def[:path]) %}
           {% full_path = "/" + method + prefix + path %}
+          {% cors_group = (route_def && route_def[:cors] ? route_def[:cors] : (class_ann && class_ann[:cors] ? class_ann[:cors] : nil)) %}
 
           {% params = [] of Param %}
           {% query_params = route_def[:query] ? route_def[:query] : [] of String %}
@@ -140,7 +141,7 @@ module Athena::Routing::Handlers
               Proc(HTTP::Server::Context, Hash(String, String?), {{m.return_type}}), {{renderer}}, {{c.id}})
               .new(
                 %action,
-                {{full_path}},
+                RouteDefinition.new({{full_path}}, {{cors_group}}),
                 Callbacks.new({{_on_response.uniq}} of CallbackBase, {{_on_request.uniq}} of CallbackBase),
                 {{m.name.stringify}},
                 {{groups}},
