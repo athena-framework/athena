@@ -9,8 +9,6 @@ module Athena::Routing::Handlers
 
       cors_options : Athena::Config::CorsOptions = action.route.cors_group.nil? ? config.routing.cors.defaults : config.routing.cors.groups[action.route.cors_group]
 
-      pp action if action.method == "cors_defaults"
-
       ctx.response.headers["Access-Control-Allow-Origin"] = cors_options.allow_origin
 
       # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin#CORS_and_caching

@@ -4,9 +4,9 @@ do_with_config do
   describe Athena::Routing::Renderers do
     describe "custom" do
       it "should render correctly" do
-        r = CLIENT.get("/users/custom/17")
-        r.body.should eq "<?xml version=\"1.0\"?>\n<user id=\"17\"><age>123</age></user>\n"
-        r.headers.includes_word?("Content-Type", "X-CUSTOM-TYPE").should be_true
+        response = CLIENT.get("/users/custom/17")
+        response.body.should eq "<?xml version=\"1.0\"?>\n<user id=\"17\"><age>123</age></user>\n"
+        response.headers.includes_word?("Content-Type", "X-CUSTOM-TYPE").should be_true
       end
     end
 

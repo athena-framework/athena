@@ -6,7 +6,6 @@ do_with_config(CORS_CONFIG) do
       describe "GET" do
         it "should add the allow origin header" do
           response = CLIENT.get("/defaults")
-          pp response
           response.headers["Access-Control-Allow-Origin"]?.should eq "DEFAULT_DOMAIN"
           response.headers["Vary"]?.should eq "Origin"
         end
