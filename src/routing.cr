@@ -39,6 +39,8 @@ end
 # * Manage response serialization.
 # * Handle param conversion.
 module Athena::Routing
+  @@server : HTTP::Server?
+
   # Defines a GET endpoint.
   # ## Fields
   # * path : `String` - The path for the endpoint.
@@ -251,9 +253,17 @@ module Athena::Routing
   # :nodoc:
   private record CallbackEvent(E) < CallbackBase, event : E, only_actions : Array(String), exclude_actions : Array(String)
 
+  def self.stop
+    if server = @@server
+      server.close unless server.closed?
+    else
+      raise "Server not set"
+    end
+  end
+
   # Starts the HTTP server with the given *port*, *binding*, *ssl*, and *handlers*.
-  def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [] of HTTP::Handler)
-    config : Athena::Config::Config = Athena::Config::Config.from_yaml ECR.render "athena.yml"
+  def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [] of HTTP::Handler, config_path : String = "athena.yml")
+    config : Athena::Config::Config = Athena::Config::Config.from_yaml File.read config_path
 
     # If no handlers are passed to `.run`; build out the default handlers.
     # Otherwise just use user supplied handlers.
@@ -271,27 +281,22 @@ module Athena::Routing
     raise "First handler must be 'Athena::Routing::Handlers::RouteHandler'." unless handlers.first.is_a? Athena::Routing::Handlers::RouteHandler
     raise "Handlers must include 'Athena::Routing::Handlers::ActionHandler'." if handlers.none? &.is_a? Athena::Routing::Handlers::ActionHandler
 
-    server : HTTP::Server = HTTP::Server.new handlers
+    @@server = HTTP::Server.new handlers
     puts "Athena is leading the way on #{binding}:#{port}"
 
-    unless server.each_address { |_| break true }
+    unless @@server.not_nil!.each_address { |_| break true }
       {% if flag?(:without_openssl) %}
-        server.bind_tcp(binding, port)
+        @@server.not_nil!.bind_tcp(binding, port)
       {% else %}
         if ssl
-          server.bind_tls(binding, port, ssl)
+          @@server.not_nil!.bind_tls(binding, port, ssl)
         else
-          server.bind_tcp(binding, port)
+          @@server.not_nil!.bind_tcp(binding, port)
         end
       {% end %}
     end
 
-    Signal::INT.trap do
-      spawn { server.close }
-      exit
-    end
-
-    server.listen
+    @@server.not_nil!.listen
   rescue ex : CrSerializer::Exceptions::ValidationException
     raise ex.to_s
   end

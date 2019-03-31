@@ -1,3 +1,4 @@
+require "CrSerializer"
 require "./routing_config"
 
 # Wrapper for the `athena.yml` config file.

@@ -2,45 +2,50 @@ module Athena::Routing::Handlers
   # Handles routing and param conversion on each request.
   class CorsHandler < Athena::Routing::Handlers::Handler
     def handle(ctx : HTTP::Server::Context, action : Action, config : Athena::Config::Config)
-      handle_next; return # unless config.routing.enable_cors
+      # Run the next handler and return if CORS is globally not enabled, not enabled for a specific controller/action, or strategy is whitelist and cors_group is nil.
+      if !config.routing.cors.enabled || action.route.cors_group == false || (config.routing.cors.strategy == "whitelist" && action.route.cors_group.nil?)
+        handle_next; return
+      end
 
-      #   cors_config : Athena::Config::CorsConfig = config.routing.cors
+      cors_options : Athena::Config::CorsOptions = action.route.cors_group.nil? ? config.routing.cors.defaults : config.routing.cors.groups[action.route.cors_group]
 
-      #   ctx.response.headers["Access-Control-Allow-Origin"] = cors_config.allow_origin
+      pp action if action.method == "cors_defaults"
 
-      #   # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin#CORS_and_caching
-      #   if cors_config.allow_origin != '*'
-      #     ctx.response.headers["Vary"] = "Origin"
-      #   end
+      ctx.response.headers["Access-Control-Allow-Origin"] = cors_options.allow_origin
 
-      #   ctx.response.headers["Access-Control-Allow-Credentials"] = "true" if cors_config.allow_credentials
-      #   ctx.response.headers["Access-Control-Expose-Headers"] = cors_config.expose_headers.join(',') unless cors_config.expose_headers.empty?
+      # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin#CORS_and_caching
+      if cors_options.allow_origin != '*'
+        ctx.response.headers["Vary"] = "Origin"
+      end
 
-      #   # Skip the preflight processing if request is not a preflight
-      #   return unless ctx.request.method == "OPTIONS"
+      ctx.response.headers["Access-Control-Allow-Credentials"] = "true" if cors_options.allow_credentials
+      ctx.response.headers["Access-Control-Expose-Headers"] = cors_options.expose_headers.join(',') unless cors_options.expose_headers.empty?
 
-      #   if requested_method = ctx.request.headers["Access-Control-Request-Method"]?
-      #     if cors_config.allow_methods.includes?(requested_method)
-      #       ctx.response.headers["Access-Control-Allow-Methods"] = cors_config.allow_methods.join(',')
-      #     else
-      #       halt ctx.response, 405, %({"code":405,"message":"Method '#{requested_method}' is not allowed."})
-      #     end
-      #   else
-      #     halt ctx.response, 403, %({"code":403,"message":"Preflight request header 'Access-Control-Request-Method' is missing."})
-      #   end
+      # Skip the preflight processing if request is not a preflight
+      return unless ctx.request.method == "OPTIONS"
 
-      #   if requested_headers = ctx.request.headers["Access-Control-Request-Headers"]?
-      #     requested_headers.split(',').each do |requested_header|
-      #       unless cors_config.allow_headers.includes?(requested_header.downcase)
-      #         halt ctx.response, 403, %({"code":403,"message":"Request header '#{requested_header}' is not allowed."})
-      #       end
-      #     end
-      #     ctx.response.headers["Access-Control-Allow-Headers"] = cors_config.allow_headers.join(',')
-      #   else
-      #     halt ctx.response, 403, %({"code":403,"message":"Preflight request header 'Access-Control-Request-Headers' is missing."})
-      #   end
+      if requested_method = ctx.request.headers["Access-Control-Request-Method"]?
+        if cors_options.allow_methods.map(&.downcase).includes?(requested_method.downcase)
+          ctx.response.headers["Access-Control-Allow-Methods"] = cors_options.allow_methods.join(',')
+        else
+          raise Athena::Routing::Exceptions::MethodNotAllowedException.new "Request method '#{requested_method}' is not allowed."
+        end
+      end
 
-      #   ctx.response.headers["Access-Control-Max-Age"] = cors_config.max_age.to_s if cors_config.max_age > 0
+      if requested_headers = ctx.request.headers["Access-Control-Request-Headers"]?
+        requested_headers.split(',').each do |requested_header|
+          unless cors_options.allow_headers.map(&.downcase).includes?(requested_header.downcase)
+            raise Athena::Routing::Exceptions::ForbiddenException.new "Request header '#{requested_header}' is not allowed."
+          end
+        end
+        ctx.response.headers["Access-Control-Allow-Headers"] = cors_options.allow_headers.join(',')
+      else
+        raise Athena::Routing::Exceptions::ForbiddenException.new "Preflight request header 'Access-Control-Request-Headers' is missing."
+      end
+
+      ctx.response.headers["Access-Control-Max-Age"] = cors_options.max_age.to_s if cors_options.max_age > 0
+    rescue ex
+      action.controller.handle_exception ex, action.method
     end
   end
 end

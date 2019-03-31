@@ -78,7 +78,7 @@ module Athena::Routing::Handlers
           {% prefix = class_ann && class_ann[:prefix] != nil ? (class_ann[:prefix].starts_with?('/') ? class_ann[:prefix] : "/" + class_ann[:prefix]) : "" %}
           {% path = (route_def[:path].starts_with?('/') ? route_def[:path] : "/" + route_def[:path]) %}
           {% full_path = "/" + method + prefix + path %}
-          {% cors_group = (route_def && route_def[:cors] ? route_def[:cors] : (class_ann && class_ann[:cors] ? class_ann[:cors] : nil)) %}
+          {% cors_group = (route_def && route_def[:cors] != nil ? route_def[:cors] : (class_ann && class_ann[:cors] != nil ? class_ann[:cors] : nil)) %}
 
           {% params = [] of Param %}
           {% query_params = route_def[:query] ? route_def[:query] : [] of String %}
@@ -153,8 +153,12 @@ module Athena::Routing::Handlers
 
     def call(ctx : HTTP::Server::Context)
       # If this is a OPTIONS request change the method to the requested method to access the actual action that will be invoked.
-      method : String = if (header = ctx.request.headers["Access-Control-Request-Method"]?) && ctx.request.method == "OPTIONS"
-        header
+      method : String = if ctx.request.method == "OPTIONS"
+        if header = ctx.request.headers["Access-Control-Request-Method"]?
+          header
+        else
+          raise Athena::Routing::Exceptions::ForbiddenException.new "Preflight request header 'Access-Control-Request-Method' is missing."
+        end
       else
         ctx.request.method
       end
@@ -167,8 +171,6 @@ module Athena::Routing::Handlers
         action.controller.request = ctx.request
         action.controller.response = ctx.response
       else
-        Athena::Routing::Controller.request = ctx.request
-        Athena::Routing::Controller.response = ctx.response
         raise Athena::Routing::Exceptions::NotFoundException.new "No route found for '#{ctx.request.method} #{ctx.request.path}'"
       end
 
@@ -177,6 +179,8 @@ module Athena::Routing::Handlers
       if a = action
         a.controller.handle_exception ex, a.method
       else
+        Athena::Routing::Controller.request = ctx.request
+        Athena::Routing::Controller.response = ctx.response
         Athena::Routing::Controller.handle_exception ex, ctx.request.method
       end
     end

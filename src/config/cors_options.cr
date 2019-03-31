@@ -28,7 +28,7 @@ module Athena::Config
     getter allow_headers : Array(String) = [] of String
 
     # :nodoc:
-    def to_yaml(builder : YAML::Nodes::Builder)
+    def to_yaml(builder : YAML::Nodes::Builder, serialization_groups : Array(String), expand : Array(String))
       builder.mapping(anchor: @default ? "defaults" : "") do
         builder.scalar "allow_origin"
         builder.scalar @allow_origin
