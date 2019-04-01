@@ -3,18 +3,14 @@ require "http/client"
 require "../../src/routing"
 require "./controllers/*"
 
-CLIENT = HTTP::Client.new "localhost", 8888
-
 DEFAULT_CONFIG = "athena.yml"
 CORS_CONFIG    = "spec/routing/athena.yml"
 
-def do_with_config(path : String = DEFAULT_CONFIG, &block) : Nil
+def do_with_config(path : String = DEFAULT_CONFIG, &block : HTTP::Client -> Nil) : Nil
+  client = HTTP::Client.new "localhost", 8888
   begin
-    spawn do
-      Athena::Routing.run(8888, config_path: path)
-    end
-    Fiber.yield
-    yield
+    spawn { Athena::Routing.run(8888, config_path: path) }
+    yield client
   ensure
     Athena::Routing.stop
   end

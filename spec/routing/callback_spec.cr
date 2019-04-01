@@ -1,10 +1,10 @@
 require "./routing_spec_helper"
 
-do_with_config do
+do_with_config do |client|
   describe Athena::Routing::Callback do
     describe "user endpoint" do
       it "should set the correct headers" do
-        headers = CLIENT.get("/callback/users").headers
+        headers = client.get("/callback/users").headers
         headers.includes_word?("X-RESPONSE-ALL-ROUTES", "true").should be_true
         headers.includes_word?("X-RESPONSE-USER-ROUTE", "true").should be_true
         headers.includes_word?("X-REQUEST-NOT-POSTS-ROUTE", "true").should be_true
@@ -14,7 +14,7 @@ do_with_config do
 
     describe "all endpoint" do
       it "should set the correct headers" do
-        headers = CLIENT.get("/callback/all").headers
+        headers = client.get("/callback/all").headers
         headers.includes_word?("X-RESPONSE-ALL-ROUTES", "true").should be_true
         headers.includes_word?("X-RESPONSE-USER-ROUTE", "true").should be_false
         headers.includes_word?("X-REQUEST-NOT-POSTS-ROUTE", "true").should be_true
@@ -24,7 +24,7 @@ do_with_config do
 
     describe "for an excluded endpoint" do
       it "should set the correct headers" do
-        headers = CLIENT.get("/callback/posts").headers
+        headers = client.get("/callback/posts").headers
         headers.includes_word?("X-RESPONSE-ALL-ROUTES", "true").should be_true
         headers.includes_word?("X-RESPONSE-USER-ROUTE", "true").should be_false
         headers.includes_word?("X-REQUEST-NOT-POSTS-ROUTE", "true").should be_false
@@ -34,7 +34,7 @@ do_with_config do
 
     describe "in another controller" do
       it "should not set the `CallbackController`'s' headers" do
-        headers = CLIENT.get("/callback/other").headers
+        headers = client.get("/callback/other").headers
         headers.includes_word?("X-RESPONSE-ALL-ROUTES", "true").should be_false
         headers.includes_word?("X-RESPONSE-USER-ROUTE", "true").should be_false
         headers.includes_word?("X-REQUEST-NOT-POSTS-ROUTE", "true").should be_false
@@ -42,7 +42,7 @@ do_with_config do
       end
 
       it "should set the global callback header" do
-        headers = CLIENT.get("/callback/other").headers
+        headers = client.get("/callback/other").headers
         headers.get?("X-RESPONSE-GLOBAL").should_not be_nil
       end
     end
@@ -50,7 +50,7 @@ do_with_config do
     describe "inheritence" do
       context "parent" do
         it "should have just the parent header" do
-          headers = CLIENT.get("/callback/nested/parent").headers
+          headers = client.get("/callback/nested/parent").headers
           global_header = headers.get("X-RESPONSE-GLOBAL")
           global_header.should_not be_nil
 
@@ -66,7 +66,7 @@ do_with_config do
 
       context "child1" do
         it "should have the parent and child1 headers" do
-          headers = CLIENT.get("/callback/nested/child").headers
+          headers = client.get("/callback/nested/child").headers
           global_header = headers.get("X-RESPONSE-GLOBAL")
           global_header.should_not be_nil
 
@@ -85,7 +85,7 @@ do_with_config do
 
       context "child2" do
         it "should have the parent, child1 and child2 headers" do
-          headers = CLIENT.get("/callback/nested/child2").headers
+          headers = client.get("/callback/nested/child2").headers
           global_header = headers.get("X-RESPONSE-GLOBAL")
           global_header.should_not be_nil
 
@@ -104,7 +104,7 @@ do_with_config do
 
       context "child3" do
         it "should have the parent header" do
-          headers = CLIENT.get("/callback/nested/child3").headers
+          headers = client.get("/callback/nested/child3").headers
           global_header = headers.get("X-RESPONSE-GLOBAL")
           global_header.should_not be_nil
 

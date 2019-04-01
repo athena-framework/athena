@@ -1,6 +1,6 @@
 require "./routing_spec_helper"
 
-do_with_config do
+do_with_config do |client|
   describe Athena::Routing::Exceptions do
     describe Athena::Routing::Exceptions::AthenaException do
       {% for exception, index in Athena::Routing::Exceptions::AthenaException.subclasses %}
@@ -32,7 +32,7 @@ do_with_config do
       describe "for a controller that has a custom handler defined" do
         context "that handles the given error" do
           it "should use that handler" do
-            response = CLIENT.get("/exception/custom")
+            response = client.get("/exception/custom")
             response.status_code.should eq 666
             response.body.should eq %({"code": 666, "message": "Division by 0"})
           end
@@ -40,7 +40,7 @@ do_with_config do
 
         context "that does not handle the given error" do
           it "should use use the default handler" do
-            response = CLIENT.get("/exception/no_match")
+            response = client.get("/exception/no_match")
             response.status_code.should eq 500
             response.body.should eq %({"code": 500, "message": "Internal Server Error"})
           end
@@ -49,7 +49,7 @@ do_with_config do
 
       describe "for a controller that does not have custom handler defined" do
         it "should use use the default handler" do
-          response = CLIENT.get("/exception/default")
+          response = client.get("/exception/default")
           response.status_code.should eq 500
           response.body.should eq %({"code": 500, "message": "Internal Server Error"})
         end
