@@ -1,6 +1,7 @@
 module Athena::Routing::Handlers
   # Handles routing and param conversion on each request.
   class CorsHandler < Athena::Routing::Handlers::Handler
+    # ameba:disable Metrics/CyclomaticComplexity
     def handle(ctx : HTTP::Server::Context, action : Action, config : Athena::Config::Config)
       # Run the next handler and return if CORS is globally not enabled, not enabled for a specific controller/action, or strategy is whitelist and cors_group is nil.
       if !config.routing.cors.enabled || action.route.cors_group == false || (config.routing.cors.strategy == "whitelist" && action.route.cors_group.nil?)
