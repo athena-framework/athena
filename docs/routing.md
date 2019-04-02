@@ -517,6 +517,86 @@ end
 
 This then can be used like `@[Athena::Routing::ParamConverter(param: "user", type: User, converter: MyConverter)]`
 
+## CORS
+
+Athena provides an easy, flexible way to enable CORS for your application's endpoints.  To enable cors, set `enabled` to `true` in your `athena.yml` file in the root of your problem.  If a config file was not created upon installing Athena, created before CORS support was released for example, an example file is available [here](<https://github.com/Blacksmoke16/athena/blob/master/athena.yml). 
+
+By default the file should be named `athena.yml` and be located at the root of the project.  This can be overridden by providing a path when starting Athena. 
+
+```crystal
+Athena::Routing.run(config_path: "path/to/config")
+```
+A recommended option would be to have multiple config files for each environment, then use an ENV variable to supply the path.  
+### Strategy
+
+The `strategy` determines how CORS settings get applied.  
+
+* blacklist (default) - Will apply the defaults to _ALL_ routes, unless explicitly disabled or overridden.  
+* whitelist - Will _NOT_ apply the defaults to _ANY_ routes, unless explicitly set with a group.
+
+### Groups
+
+CORS groups are similar to [CrSerializer Serialization Groups](https://github.com/Blacksmoke16/CrSerializer/blob/master/docs/serialization.md#serialization-groups), but for CORS.  They give the ability to share settings with `defaults` but override some settings to be specific to that group.
+
+```yaml
+# Config file for Athena.
+---
+routing:
+  cors:
+    enabled: true
+    strategy: blacklist
+    defaults: &defaults
+      allow_origin: DEFAULT_DOMAIN
+      expose_headers:
+        - DEFAULT1_EH
+        - DEFAULT2_EH
+      max_age: 123
+      allow_credentials: false
+      allow_methods:
+        - GET
+      allow_headers:
+        - DEFAULT_AH
+    groups:
+      class_overload:
+        <<: *defaults
+        allow_origin: OVERLOAD_DOMAIN
+      action_overload:
+        <<: *defaults
+        allow_origin: ACTION_DOMAIN
+        allow_credentials: true
+```
+
+In this example we have two custom groups `class_overload` and `action_overload`.  Both are inherited from the `defaults`.  `class_overload` overrides the `allow_origin` header value, while `action_overload` overrides both the `allow_origin` and `allow_credentials` headers.
+
+A `cors_group` can be added to any controller/action.  
+
+```crystal
+@[Athena::Routing::ControllerOptions(cors: "class_overload")]
+struct OverloadController < Athena::Routing::Controller
+  @[Athena::Routing::Get(path: "class_overload")]
+  def self.cors_class_overload : String
+    "class_overload"
+  end
+
+  @[Athena::Routing::Get(path: "action_overload", cors: "action_overload")]
+  def self.cors_action_overload : String
+    "action_overload"
+  end
+
+  @[Athena::Routing::Get(path: "disable_overload", cors: false)]
+  def self.cors_disable_overload : String
+    "disable_overload"
+  end
+end
+```
+
+In this example, `cors_class_overload` `cors_group` will be applied to _ALL_ routes within the controller, unless a specific action overrides it.  `cors_action_overload` would use the `action_overload` `cors_group`, while `cors_disable_overload` has CORS disabled.
+
+The order of precedence is `action > controller > defaults`, where a `cors_group` on an action would override the group of the controller; and the group on the controller would override the defaults.
+
+The easiest setup would be to update the `defaults` with your settings and use the `blacklist` `strategy`. 
+
+
 ## Custom Handlers
 
 By default Athena sets up the required handlers behind the scenes if no custom handlers are supplied.  
