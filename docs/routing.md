@@ -517,15 +517,46 @@ end
 
 This then can be used like `@[Athena::Routing::ParamConverter(param: "user", type: User, converter: MyConverter)]`
 
-## Static File Handling
+## Custom Handlers
 
-Athena supports static file handling via Crystal's `HTTP::StaticFileHandler`.  An instance of this class can be supplied to Athena to control how static files are handled.  By default, static file handling is disabled.
+By default Athena sets up the required handlers behind the scenes if no custom handlers are supplied.  
 
-```Crystal
+In order to use custom handlers, first create a class that inherits from `Athena::Routing::Handlers::Handler` and implements a `def handle(ctx : HTTP::Server::Context, action : Athena::Routing::Action, config : Athena::Config::Config) : Nil`.  The base Athena Handler class extends the default `HTTP::Handler` class to expose extra information for use.  Each handler has access to the server context, the action that was matched, and the config object from the config file.
+
+```crystal
 require "athena/routing"
 
-Athena::Routing.static_file_hander =HTTP::StaticFileHandler.new("public", directory_listing: false)
+class MyHandler < Athena::Routing::Handlers::Handler
+  def handle(ctx : HTTP::Server::Context, action : Athena::Routing::Action, config : Athena::Config::Config) : Nil
+    # Do custom logic here such as:
+    # * Add unique id to response
+    # * Set response time
+    # * Parse auth headers
+      
+    # Call this to call the next handler
+    handle_next
+  rescue ex
+    # Call the action's exception handler on error.
+    action.controller.handle_exception ex, action.method
+  end
+end
 
+# Other setup
 ...
+
+# Run the server with the custom defines handlers.
+# The first handler in the array will run first.
+Athena::Routing.run(
+  handlers: [
+    # Create a new instance of the handler.
+    MyHandler.new,
+    # Optional but required if CORS is enabled in the config,
+    # also free to implement your own CORS handler.
+    Athena::Routing::Handlers::CorsHandler.new,
+    # This handler is required, but can be placed where ever you want.
+    # This is what executes the route's action.
+    Athena::Routing::Handlers::ActionHandler.new,
+  ]
+)
 ```
 

@@ -37,6 +37,7 @@ end
 # * Manage response serialization.
 # * Handle param conversion.
 module Athena::Routing
+  # :nodoc:
   @@server : HTTP::Server?
 
   # Defines a GET endpoint.
@@ -251,6 +252,7 @@ module Athena::Routing
   # :nodoc:
   private record CallbackEvent(E) < CallbackBase, event : E, only_actions : Array(String), exclude_actions : Array(String)
 
+  # Stops the server.
   def self.stop
     if server = @@server
       server.close unless server.closed?

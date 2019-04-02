@@ -3,7 +3,7 @@ require "./handler"
 module Athena::Routing::Handlers
   # Executes the controller action for the given route.
   class ActionHandler < Athena::Routing::Handlers::Handler
-    def handle(ctx : HTTP::Server::Context, action : Action?, config : Athena::Config::Config) : Nil
+    def handle(ctx : HTTP::Server::Context, action : Action, config : Athena::Config::Config) : Nil
       handle_next; return if ctx.request.method == "OPTIONS"
       raise Athena::Routing::Exceptions::NotFoundException.new "No route found for '#{ctx.request.method} #{ctx.request.path}'" if action.nil?
 
@@ -32,6 +32,8 @@ module Athena::Routing::Handlers
 
       # Render the response.
       ctx.response.print action.renderer.render response, ctx, action.groups
+
+      handle_next
     rescue ex
       action.controller.handle_exception ex, action.method
     end

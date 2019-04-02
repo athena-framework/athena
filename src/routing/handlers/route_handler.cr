@@ -2,10 +2,10 @@ require "./handler"
 
 module Athena::Routing::Handlers
   # Initializes the application's routes and kicks off the application's handlers.
-  class RouteHandler
-    include HTTP::Handler
-
+  class RouteHandler < Athena::Routing::Handlers::Handler
     @routes : Amber::Router::RouteSet(Action) = Amber::Router::RouteSet(Action).new
+
+    def handle(ctx : HTTP::Server::Context, action : Action, config : Athena::Config::Config) : Nil; end
 
     # ameba:disable Metrics/CyclomaticComplexity
     def initialize(@config : Athena::Config::Config)
