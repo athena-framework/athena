@@ -9,9 +9,7 @@ require "./common/types"
 require "./routing/converters"
 require "./routing/exceptions"
 require "./routing/renderers"
-require "./routing/handlers/handler"
 require "./routing/handlers/*"
-require "./routing/parameters/parameter"
 require "./routing/parameters/*"
 
 # :nodoc:

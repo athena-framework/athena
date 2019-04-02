@@ -1,3 +1,5 @@
+require "./parameter"
+
 module Athena::Routing::Parameters
   abstract struct Param
     # :nodoc:

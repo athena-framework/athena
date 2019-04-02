@@ -1,3 +1,5 @@
+require "./parameter"
+
 module Athena::Routing::Parameters
   struct BodyParameter(T) < Parameter(T)
     # Validates the request body.

@@ -16,8 +16,10 @@ module Athena::Config
     @[Assert::Choice(choices: ["blacklist", "whitelist"], message: "'{{actual}}' is not a valid strategy. Valid strategies are: {{choices}}")]
     getter strategy : String = "blacklist"
 
+    # The base CORS settings.
     getter defaults : CorsOptions = Athena::Config::CorsOptions.new(true)
 
+    # A map of defines CORS settings, extended from the defaults.
     getter groups : Hash(String, CorsOptions) = {} of String => Athena::Config::CorsOptions
   end
 end

@@ -18,7 +18,7 @@ module Athena::Config
     # Number of seconds that the results of a preflight request can be cached.
     getter max_age : Int32 = 0
 
-    # Indicates whether or not the response to the request can be exposed when the `credentials` flag is true.
+    # Indicates whether the response to the request can be exposed when the `credentials` flag is true.
     getter allow_credentials : Bool = false
 
     # The method or methods allowed when accessing the resource.

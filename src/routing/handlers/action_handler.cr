@@ -1,3 +1,5 @@
+require "./handler"
+
 module Athena::Routing::Handlers
   # Executes the controller action for the given route.
   class ActionHandler < Athena::Routing::Handlers::Handler

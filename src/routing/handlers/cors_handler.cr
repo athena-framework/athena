@@ -1,3 +1,5 @@
+require "./handler"
+
 module Athena::Routing::Handlers
   # Handles routing and param conversion on each request.
   class CorsHandler < Athena::Routing::Handlers::Handler

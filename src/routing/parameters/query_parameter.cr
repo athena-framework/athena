@@ -1,3 +1,5 @@
+require "./parameter"
+
 module Athena::Routing::Parameters
   struct QueryParameter(T) < Parameter(T)
     # The pattern to test the value again if present.

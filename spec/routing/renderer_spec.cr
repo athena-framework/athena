@@ -10,23 +10,37 @@ do_with_config do |client|
       end
     end
 
-    describe "ecr" do
+    describe "ECR" do
       context ".def_to_s" do
         it "should render correctly" do
-          client.get("/users/ecr/17").body.should eq "User 17 is 123 years old."
+          response = client.get("/users/ecr/17")
+          response.body.should eq "User 17 is 123 years old."
+          response.headers["Content-Type"].should eq "text/html; charset=utf-8"
         end
       end
 
       context ".render" do
         it "should render correctly" do
-          client.get("/ecr_html").body.should eq "<!DOCTYPE html>\n<html>\n<body>\n\n<h1>Hello John!</h1>\n\n<p>My first paragraph.</p>\n\n</body>\n</html>"
+          response = client.get("/ecr_html")
+          response.body.should eq "<!DOCTYPE html>\n<html>\n<body>\n\n<h1>Hello John!</h1>\n\n<p>My first paragraph.</p>\n\n</body>\n</html>"
+          response.headers["Content-Type"].should eq "text/html; charset=utf-8"
         end
       end
     end
 
-    describe "yaml" do
+    describe "YAML" do
       it "should render correctly" do
-        client.get("/users/yaml/17").body.should eq "---\nid: 17\nage: 123\n"
+        response = client.get("/users/yaml/17")
+        response.body.should eq "---\nid: 17\nage: 123\n"
+        response.headers["Content-Type"].should eq "text/x-yaml; charset=utf-8"
+      end
+    end
+
+    describe "JSON" do
+      it "should render correctly" do
+        response = client.get("/users/17")
+        response.body.should eq %({"id":17,"age":123})
+        response.headers["Content-Type"].should eq "application/json; charset=utf-8"
       end
     end
   end

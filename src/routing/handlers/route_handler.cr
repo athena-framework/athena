@@ -1,3 +1,5 @@
+require "./handler"
+
 module Athena::Routing::Handlers
   # Initializes the application's routes and kicks off the application's handlers.
   class RouteHandler
