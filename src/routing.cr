@@ -223,7 +223,7 @@ module Athena::Routing
     groups : Array(String),
 
     # Array of parameters defined on this path/action.
-    params : Array(Athena::Routing::Parameters::Param) = [] of Athena::Routing::Parameters::Param,
+    params : Array(Athena::Routing::Parameters::Param)? = nil,
 
     # Renderer to use for the response of this action.
     renderer : R.class = R,

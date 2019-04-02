@@ -13,8 +13,10 @@ module Athena::Routing::Handlers
       params = Hash(String, String?).new
 
       # Process action's parameters.
-      action.params.each do |param|
-        params[param.name] = param.process ctx
+      if parameters = action.params
+        parameters.each do |p|
+          params[p.name] = p.process ctx
+        end
       end
 
       # Run `OnRequest` callbacks.

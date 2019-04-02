@@ -1,11 +1,13 @@
 module Athena::Routing::Parameters
   struct QueryParameter(T) < Parameter(T)
+    # The pattern to test the value again if present.
     getter pattern : Regex?
 
     def initialize(name : String, @pattern : Regex? = nil)
       super name
     end
 
+    # Extracts the param from the request query_params and optionally validates it again `pattern`.
     def process(ctx : HTTP::Server::Context) : String?
       # If the query param was defined.
       if val = ctx.request.query_params[@name]?

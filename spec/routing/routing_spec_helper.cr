@@ -10,6 +10,7 @@ def do_with_config(path : String = DEFAULT_CONFIG, &block : HTTP::Client -> Nil)
   client = HTTP::Client.new "localhost", 8888
   begin
     spawn { Athena::Routing.run(8888, config_path: path) }
+    sleep 0.5
     yield client
   ensure
     Athena::Routing.stop

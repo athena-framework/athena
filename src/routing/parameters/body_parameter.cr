@@ -1,5 +1,6 @@
 module Athena::Routing::Parameters
   struct BodyParameter(T) < Parameter(T)
+    # Validates the request body.
     def process(ctx : HTTP::Server::Context) : String?
       # If a body is included in the request
       if ctx.request.body

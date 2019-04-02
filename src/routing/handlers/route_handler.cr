@@ -80,30 +80,47 @@ module Athena::Routing::Handlers
           {% full_path = "/" + method + prefix + path %}
           {% cors_group = (route_def && route_def[:cors] != nil ? route_def[:cors] : (class_ann && class_ann[:cors] != nil ? class_ann[:cors] : nil)) %}
 
+          {% param_names = [] of String %}
           {% params = [] of Param %}
           {% query_params = route_def[:query] ? route_def[:query] : [] of String %}
 
           # Build out the params array
           {% for arg in m.args %}
+            {% found = false %}
             # Path params
             {% for segment, idx in path.split('/') %}
               {% if segment =~ (/:\w+/) %}
                 {% param_name = (segment.starts_with?(':') ? segment[1..-1] : (segment.starts_with?('(') ? segment[0..-2][2..-1] : segment)) %}
+                {% param_names << param_name %}
                 {% if arg.name == param_name || arg.name == param_name.gsub(/_id$/, "") %}
                   {% params << "Athena::Routing::Parameters::PathParameter(#{arg.restriction}).new(#{param_name}, #{idx})".id %}
-              {% end %}
+                  {% found = true %}
+                {% end %}
               {% end %}
             {% end %}
 
             # Query params
-            {% for name, pattern in query_params %}
+            {% for name, pattern, idx in query_params %}
+            {% param_names << name %}
               {% if arg.name == name %}
                 {% params << "Athena::Routing::Parameters::QueryParameter(#{arg.restriction}).new(#{name}, #{pattern})".id %}
+                {% found = true %}
               {% end %}
             {% end %}
 
             # Body
-            {% params << "Athena::Routing::Parameters::BodyParameter(#{arg.restriction}).new(\"body\")".id if arg.name == "body" && {"POST", "PUT"}.includes? method %}
+            {% if {"POST", "PUT"}.includes? method %}
+              {% param_names << "body" %}
+              {% if arg.name == "body" %}
+                {% params << "Athena::Routing::Parameters::BodyParameter(#{arg.restriction}).new(\"body\")".id %}
+                {% found = true %}
+              {% end %}
+            {% end %}
+            {% raise "'#{arg.name}' is defined in #{c.name}.#{m.name} action arguments but is missing from path/query parameters." unless found %}
+          {% end %}
+
+          {% for p in param_names %}
+            {% raise "#{p} is defined in #{c.name}.#{m.name} path/query parameters but is missing from action arguments." unless m.args.map(&.name.stringify).includes?(p.gsub(/_id$/, "")) %}
           {% end %}
 
           {% constraints = route_def[:constraints] %}
@@ -145,7 +162,7 @@ module Athena::Routing::Handlers
                 Callbacks.new({{_on_response.uniq}} of CallbackBase, {{_on_request.uniq}} of CallbackBase),
                 {{m.name.stringify}},
                 {{groups}},
-                {{params}} of Athena::Routing::Parameters::Param
+                {% unless params.empty? %} {{params}} of Athena::Routing::Parameters::Param {% end %}
               ){% if constraints %}, {{constraints}} {% end %}
         {% end %}
       {% end %}
