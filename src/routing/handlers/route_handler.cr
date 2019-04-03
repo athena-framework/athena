@@ -90,7 +90,7 @@ module Athena::Routing::Handlers
           {% for arg in m.args %}
             {% found = false %}
             # Path params
-            {% for segment, idx in path.split('/') %}
+            {% for segment, idx in (prefix + path).split('/') %}
               {% if segment =~ (/:\w+/) %}
                 {% param_name = (segment.starts_with?(':') ? segment[1..-1] : (segment.starts_with?('(') ? segment[0..-2][2..-1] : segment)) %}
                 {% param_names << param_name %}

@@ -40,6 +40,12 @@ do_with_config do |client|
         client.get("/calendar/events").body.should eq "\"events\""
         client.get("/calendar/external").body.should eq "\"calendars\""
       end
+
+      describe "and a path param" do
+        it "should route correctly" do
+          client.get("/calendar/external/99999999").body.should eq "99999999"
+        end
+      end
     end
 
     describe "that throws a custom exception" do
