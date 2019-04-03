@@ -203,7 +203,7 @@ do_with_config(CORS_CONFIG) do |client|
       end
     end
 
-    pending "inheritence" do
+    describe "inheritence" do
       it "should add the allow origin header" do
         response = client.get("/inheritence")
         response.headers["Access-Control-Allow-Origin"]?.should eq "OVERLOAD_DOMAIN"

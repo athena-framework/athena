@@ -592,7 +592,7 @@ end
 
 In this example, `cors_class_overload` `cors_group` will be applied to _ALL_ routes within the controller, unless a specific action overrides it.  `cors_action_overload` would use the `action_overload` `cors_group`, while `cors_disable_overload` has CORS disabled.
 
-The order of precedence is `action > controller > defaults`, where a `cors_group` on an action would override the group of the controller; and the group on the controller would override the defaults.
+The order of precedence is `action > controller > defaults`, where a `cors_group` on an action would override the group of the controller; and the group on the controller would override the defaults.  Inheritance also works.  `cors_groups` added to a parent controller, will also be the group for child controllers, unless overridden on an action or a controller that is further down.
 
 The easiest setup would be to update the `defaults` with your settings and use the `blacklist` `strategy`. 
 

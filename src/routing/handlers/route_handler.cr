@@ -21,11 +21,16 @@ module Athena::Routing::Handlers
 
         {% _on_response = [] of CallbackBase %}
         {% _on_request = [] of CallbackBase %}
+        {% cors_group = nil %}
 
         # Build out the class's parent's callbacks
         {% parent_callbacks = [] of Def %}
-        {% for parent in c.class.ancestors %}
-          {% for callback in parent.methods.select { |me| me.annotation(Callback) } %}
+        {% for parent in c.ancestors %}
+          {% parent_ann = parent.annotation(Athena::Routing::ControllerOptions) %}
+          {% if cors_group == nil && parent_ann && parent_ann[:cors] != nil %}
+            {% cors_group = parent_ann[:cors] %}
+          {% end %}
+          {% for callback in parent.class.methods.select { |me| me.annotation(Callback) } %}
             {% parent_callbacks.unshift callback %}
           {% end %}
         {% end %}
@@ -80,7 +85,7 @@ module Athena::Routing::Handlers
           {% prefix = class_ann && class_ann[:prefix] != nil ? (class_ann[:prefix].starts_with?('/') ? class_ann[:prefix] : "/" + class_ann[:prefix]) : "" %}
           {% path = (route_def[:path].starts_with?('/') ? route_def[:path] : "/" + route_def[:path]) %}
           {% full_path = "/" + method + prefix + path %}
-          {% cors_group = (route_def && route_def[:cors] != nil ? route_def[:cors] : (class_ann && class_ann[:cors] != nil ? class_ann[:cors] : nil)) %}
+          {% cors_group = (route_def && route_def[:cors] != nil ? route_def[:cors] : (class_ann && class_ann[:cors] != nil ? class_ann[:cors] : cors_group)) %}
 
           {% param_names = [] of String %}
           {% params = [] of Param %}
