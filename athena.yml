@@ -1,0 +1,14 @@
+# Config file for Athena.
+---
+routing:
+  cors:
+    enabled: false
+    strategy: blacklist
+    defaults:
+      allow_origin: https://yourdomain.com
+      expose_headers: []
+      max_age: 0
+      allow_credentials: false
+      allow_methods: []
+      allow_headers: []
+    groups: {}

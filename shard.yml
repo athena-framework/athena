@@ -12,10 +12,17 @@ crystal: 0.27.2
 
 license: MIT
 
+targets:
+  init:
+    main: src/config/init.cr
+
+scripts:
+  postinstall: shards build --release --production && ./bin/init
+
 dependencies:
   CrSerializer:
     github: blacksmoke16/CrSerializer
-    version: ~> 0.6.0
+    version: ~> 0.6.3
   amber_router:
     github: amberframework/amber-router
     version: ~> 0.2.1

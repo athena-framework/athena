@@ -1,16 +1,35 @@
 require "http/server"
 require "amber_router"
-require "json"
 require "CrSerializer"
 
-require "./common/types"
+require "./config/config"
 
 require "./common/types"
+
 require "./routing/converters"
 require "./routing/exceptions"
-require "./routing/macros"
 require "./routing/renderers"
-require "./routing/route_handler"
+require "./routing/handlers/*"
+require "./routing/parameters/*"
+
+# :nodoc:
+macro halt(response, status_code, body)
+  {{response}}.status_code = {{status_code}}
+  {{response}}.print {{body}}
+  {{response}}.headers.add "Content-Type", "application/json; charset=utf-8"
+  {{response}}.close
+  return
+end
+
+# :nodoc:
+macro throw(status_code, body)
+  response = get_response
+  response.status_code = {{status_code}}
+  response.print {{body}}
+  response.headers.add "Content-Type", "application/json"
+  response.close
+  return
+end
 
 # Athena module containing elements for:
 # * Defining routes.
@@ -19,16 +38,7 @@ require "./routing/route_handler"
 # * Handle param conversion.
 module Athena::Routing
   # :nodoc:
-  module HTTP::Handler
-    def call_next(ctx : HTTP::Server::Context)
-      if next_handler = @next
-        next_handler.call(ctx)
-      end
-    end
-  end
-
-  # Enable static file handling.  Disabled by default.
-  class_property static_file_handler : HTTP::StaticFileHandler? = nil
+  @@server : HTTP::Server?
 
   # Defines a GET endpoint.
   # ## Fields
@@ -135,6 +145,19 @@ module Athena::Routing
 
   # Parent struct for all controllers.
   abstract struct Controller
+    # Exits the request with the given *status_code* and *body*.
+    #
+    # NOTE: declared on top level namespace but documented here
+    # to be in the `Athena::Routing` module.
+    macro throw(status_code, body)
+      response = get_response
+      response.status_code = {{status_code}}
+      response.print {{body}}
+      response.headers.add "Content-Type", "application/json"
+      response.close
+      return
+    end
+
     # :nodoc:
     class_property request : HTTP::Request? = nil
 
@@ -174,47 +197,107 @@ module Athena::Routing
   end
 
   # :nodoc:
-  private abstract struct Action; end
+  abstract struct Action; end
 
   # :nodoc:
   private abstract struct CallbackBase; end
 
-  # :nodoc:
-  private abstract struct Param; end
+  private record RouteDefinition, path : String, cors_group : String | Bool | Nil = nil
 
   # :nodoc:
-  private record RouteAction(A, R, B, C) < Action, action : A, path : String, callbacks : Callbacks, method : String, groups : Array(String), query_params : Array(Param), body_type : B.class = B, renderer : R.class = R, controller : C.class = C
+  private record RouteAction(A, R, C) < Action,
+    # Action that gets executed for the route.
+    action : A,
+
+    # `RouteDefinition` for the route.
+    route : RouteDefinition,
+
+    # Any callbacks declared for this action.
+    callbacks : Callbacks,
+
+    # Method of the action.
+    method : String,
+
+    # Serialization groups set on this action.
+    groups : Array(String),
+
+    # Array of parameters defined on this path/action.
+    params : Array(Athena::Routing::Parameters::Param)? = nil,
+
+    # Renderer to use for the response of this action.
+    renderer : R.class = R,
+
+    # Controller this action belongs to.
+    controller : C.class = C
 
   # :nodoc:
-  private record Callbacks, on_response : Array(CallbackBase), on_request : Array(CallbackBase)
+  private record Callbacks, on_response : Array(CallbackBase) = [] of CallbackBase, on_request : Array(CallbackBase) = [] of CallbackBase do
+    def run_on_request_callbacks(ctx : HTTP::Server::Context, action : Action) : Nil
+      @on_request.each do |ce|
+        if (ce.as(CallbackEvent).only_actions.empty? || ce.as(CallbackEvent).only_actions.includes?(action.method)) && (ce.as(CallbackEvent).exclude_actions.empty? || !ce.as(CallbackEvent).exclude_actions.includes?(action.method))
+          ce.as(CallbackEvent).event.call(ctx)
+        end
+      end
+    end
+
+    def run_on_response_callbacks(ctx : HTTP::Server::Context, action : Action) : Nil
+      @on_response.each do |ce|
+        if (ce.as(CallbackEvent).only_actions.empty? || ce.as(CallbackEvent).only_actions.includes?(action.method)) && (ce.as(CallbackEvent).exclude_actions.empty? || !ce.as(CallbackEvent).exclude_actions.includes?(action.method))
+          ce.as(CallbackEvent).event.call(ctx)
+        end
+      end
+    end
+  end
 
   # :nodoc:
   private record CallbackEvent(E) < CallbackBase, event : E, only_actions : Array(String), exclude_actions : Array(String)
 
-  # :nodoc:
-  private record QueryParam(T) < Param, name : String, pattern : Regex? = nil, type : T.class = T
+  # Stops the server.
+  def self.stop
+    if server = @@server
+      server.close unless server.closed?
+    else
+      raise "Server not set"
+    end
+  end
 
   # Starts the HTTP server with the given *port*, *binding*, *ssl*, and *handlers*.
-  def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [Athena::Routing::RouteHandler.new] of HTTP::Handler)
-    if sfh = self.static_file_handler
-      handlers.unshift sfh
+  def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [] of HTTP::Handler, config_path : String = "athena.yml")
+    config : Athena::Config::Config = Athena::Config::Config.from_yaml File.read config_path
+
+    # If no handlers are passed to `.run`; build out the default handlers.
+    # Otherwise just use user supplied handlers.
+    if handlers.empty?
+      handlers = [
+        Athena::Routing::Handlers::CorsHandler.new,
+        Athena::Routing::Handlers::ActionHandler.new,
+      ] of HTTP::Handler
     end
 
-    server : HTTP::Server = HTTP::Server.new handlers
+    # Insert the RouteHandler automatically so the user does not have to deal with the config file.
+    handlers.unshift Athena::Routing::Handlers::RouteHandler.new(config)
+
+    # Validate the two required handlers are included.
+    raise "First handler must be 'Athena::Routing::Handlers::RouteHandler'." unless handlers.first.is_a? Athena::Routing::Handlers::RouteHandler
+    raise "Handlers must include 'Athena::Routing::Handlers::ActionHandler'." if handlers.none? &.is_a? Athena::Routing::Handlers::ActionHandler
+
+    @@server = HTTP::Server.new handlers
     puts "Athena is leading the way on #{binding}:#{port}"
 
-    unless server.each_address { |_| break true }
+    unless @@server.not_nil!.each_address { |_| break true }
       {% if flag?(:without_openssl) %}
-        server.bind_tcp(binding, port)
+        @@server.not_nil!.bind_tcp(binding, port)
       {% else %}
         if ssl
-          server.bind_tls(binding, port, ssl)
+          @@server.not_nil!.bind_tls(binding, port, ssl)
         else
-          server.bind_tcp(binding, port)
+          @@server.not_nil!.bind_tcp(binding, port)
         end
       {% end %}
     end
 
-    server.listen
+    @@server.not_nil!.listen
+  rescue ex : CrSerializer::Exceptions::ValidationException
+    raise ex.to_s
   end
 end

@@ -9,4 +9,9 @@ struct CalendarController < Athena::Routing::Controller
   def self.calendars : String
     "calendars"
   end
+
+  @[Athena::Routing::Get(path: "external/:id")]
+  def self.calendar(id : Int64) : Int64
+    id
+  end
 end
