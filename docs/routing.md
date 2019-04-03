@@ -519,7 +519,7 @@ This then can be used like `@[Athena::Routing::ParamConverter(param: "user", typ
 
 ## CORS
 
-Athena provides an easy, flexible way to enable CORS for your application's endpoints.  To enable cors, set `enabled` to `true` in your `athena.yml` file in the root of your problem.  If a config file was not created upon installing Athena, created before CORS support was released for example, an example file is available [here](<https://github.com/Blacksmoke16/athena/blob/master/athena.yml). 
+Athena provides an easy, flexible way to enable CORS for your application's endpoints.  To enable cors, set `enabled` to `true` in your `athena.yml` file in the root of your problem.  If a config file was not created upon installing Athena, created before CORS support was released for example, an example file is available [here](https://github.com/Blacksmoke16/athena/blob/master/athena.yml). 
 
 By default the file should be named `athena.yml` and be located at the root of the project.  This can be overridden by providing a path when starting Athena. 
 

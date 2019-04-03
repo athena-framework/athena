@@ -202,5 +202,38 @@ do_with_config(CORS_CONFIG) do |client|
         response.headers["Access-Control-Max-Age"]?.should be_nil
       end
     end
+
+    pending "inheritence" do
+      it "should add the allow origin header" do
+        response = client.get("/inheritence")
+        response.headers["Access-Control-Allow-Origin"]?.should eq "OVERLOAD_DOMAIN"
+        response.headers["Vary"]?.should eq "Origin"
+      end
+
+      it "should not add the credentials header" do
+        response = client.get("/inheritence")
+        response.headers["Access-Control-Allow-Credentials"]?.should be_nil
+      end
+
+      it "should add the credentials header" do
+        response = client.get("/inheritence")
+        response.headers["Access-Control-Expose-Headers"]?.should eq "DEFAULT1_EH,DEFAULT2_EH"
+      end
+
+      it "should not add the allow methods header" do
+        response = client.get("/inheritence")
+        response.headers["Access-Control-Allow-Methods"]?.should be_nil
+      end
+
+      it "should not add the allow headers header" do
+        response = client.get("/inheritence")
+        response.headers["Access-Control-Allow-Headers"]?.should be_nil
+      end
+
+      it "should not add the max age header" do
+        response = client.get("/inheritence")
+        response.headers["Access-Control-Max-Age"]?.should be_nil
+      end
+    end
   end
 end

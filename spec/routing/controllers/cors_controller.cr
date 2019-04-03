@@ -11,7 +11,7 @@ struct DefaultController < Athena::Routing::Controller
 end
 
 @[Athena::Routing::ControllerOptions(cors: "class_overload")]
-struct OverloadController < Athena::Routing::Controller
+abstract struct OverloadController < Athena::Routing::Controller
   @[Athena::Routing::Get(path: "class_overload")]
   def self.cors_class_overload : String
     "class_overload"
@@ -25,5 +25,17 @@ struct OverloadController < Athena::Routing::Controller
   @[Athena::Routing::Get(path: "disable_overload", cors: false)]
   def self.cors_disable_overload : String
     "disable_overload"
+  end
+end
+
+struct InheritenceController < OverloadController
+  @[Athena::Routing::Get(path: "inheritence")]
+  def self.inheritence : String
+    "inheritence"
+  end
+
+  @[Athena::Routing::Get(path: "inheritence_overload", cors: false)]
+  def self.inheritence_overload : String
+    "inheritence_overload"
   end
 end
