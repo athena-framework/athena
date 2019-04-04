@@ -13,11 +13,14 @@ crystal: 0.27.2
 license: MIT
 
 targets:
-  init:
-    main: src/config/init.cr
+  athena:
+    main: src/athena.cr
 
 scripts:
-  postinstall: shards build --release --production && ./bin/init
+  postinstall: "shards build --release --production && ./bin/athena -c athena:generate:config_file"
+
+executables:
+  - athena
 
 dependencies:
   CrSerializer:
