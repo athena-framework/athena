@@ -17,7 +17,7 @@ targets:
     main: src/athena.cr
 
 scripts:
-  postinstall: "shards build --release --production && ./bin/athena -c athena:generate:config_file"
+  postinstall: "shards build --release --production && ./bin/athena -c athena:generate:config_file" --path=../../athena.yml
 
 executables:
   - athena
