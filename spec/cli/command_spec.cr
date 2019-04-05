@@ -28,6 +28,16 @@ describe Athena::Cli::Command do
         end
       end
 
+      context "with a default value" do
+        it "should use default value if no value is given" do
+          DefaultValueCommand.command.call([] of String).should eq "./"
+        end
+
+        it "should use given value" do
+          DefaultValueCommand.command.call(["--path=/user/config"]).should eq "/user/config"
+        end
+      end
+
       context "with an array param" do
         it "should convert correctly" do
           ArrayBoolCommand.command.call(["--bools=true,false,false,true"]).should eq [true, false, false, true]

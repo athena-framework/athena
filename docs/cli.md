@@ -54,7 +54,7 @@ All primitive data types are supported including:  `Int32`, `Bool`, `Float64`, e
 
 ### Required/Optional Parameters
 
-Non-nilable parameters are considered required and will raise an exception if not supplied.  Nilable parameters are considered optional and will be nil if not supplied.
+Non-nilable parameters are considered required and will raise an exception if not supplied, without a default value.  Nilable parameters are considered optional and will be nil if not supplied, without a default value.
 
 
 

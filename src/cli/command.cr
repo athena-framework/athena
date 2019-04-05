@@ -25,12 +25,12 @@ module Athena::Cli
                       params << Athena::Types.convert_type val[1], \{{arg.restriction}}
                     end
                   else
-                    if \{{arg.default_value.stringify}}.blank?
+                    \{% if arg.default_value.is_a? Nop %}
                        raise "Required argument '#{\{{arg.name.stringify}}}' was not supplied." unless (\{{arg.restriction}}).nilable?
                        params << nil
-                    else
+                    \{% else %}
                       params << \{{arg.default_value}}
-                    end
+                    \{% end %}
                   end
                \{% end %}
                 ->\{{@type}}.execute(\{{arg_types.splat}}).call *Tuple(\{{arg_types.splat}}).from params
