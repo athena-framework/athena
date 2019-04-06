@@ -1,7 +1,7 @@
 name: athena
 
 description: |
-  Annotation based JSON API framework with built in param conversion.
+  Modular, annotation based, API oriented framework with built in param conversion.
 
 version: 0.4.0
 
