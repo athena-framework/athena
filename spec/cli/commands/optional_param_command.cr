@@ -1,7 +1,7 @@
 require "../cli_spec_helper"
 
 struct OptionalParamCommand < Athena::Cli::Command
-  self.command_name = "optional"
+  self.name = "optional"
   self.description = "optional string"
 
   def self.execute(u : String?, g : Array(Float32)?) : Nil

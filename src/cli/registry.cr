@@ -9,9 +9,14 @@ module Athena::Cli
     # Displays the available commands.
     def self.to_s : String
       String.build do |str|
-        str.puts "Registered commands:"
-        @@commands.each do |command|
-          str.puts "\t#{command.command_name} - #{command.description}"
+        groups = @@commands.group_by { |g| g.name.count(':').zero? ? "" : g.name.split(':').first }
+
+        str.puts "Registered Commands:"
+        groups.keys.sort { |a, b| (a.empty? || b.empty?) ? 0 : a <=> b }.each do |group|
+          str.puts "\t#{group.empty? ? "Ungrouped" : group}"
+          groups[group].sort_by(&.name).each do |c|
+            str.puts "\t\t#{c.name} - #{c.description}"
+          end
         end
       end
     end
@@ -20,7 +25,7 @@ module Athena::Cli
     #
     # Raises if no command has that name.
     def self.find(name : String) : Athena::Cli::Command.class
-      command_class = @@commands.find { |c| c.command_name == name }
+      command_class = @@commands.find { |c| c.name == name }
       raise "No command with the name '#{name}' has been registered" if command_class.nil?
       command_class
     end

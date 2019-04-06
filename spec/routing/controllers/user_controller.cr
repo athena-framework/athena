@@ -98,8 +98,8 @@ struct UserController < Athena::Routing::Controller
   @[Athena::Routing::Get(path: "users/yaml/:user_id")]
   @[Athena::Routing::ParamConverter(param: "user", pk_type: Int64, type: User, converter: Exists)]
   @[Athena::Routing::View(renderer: Athena::Routing::Renderers::YAMLRenderer)]
-  def self.get_user_yaml(user : User) : User
-    user
+  def self.get_user_yaml(user_id : User) : User
+    user_id
   end
 
   @[Athena::Routing::Get(path: "users/ecr/:user_id")]

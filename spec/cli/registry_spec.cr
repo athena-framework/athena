@@ -3,7 +3,7 @@ require "./cli_spec_helper"
 describe Athena::Cli::Registry do
   describe "for valid commands" do
     it "should be able to find by name" do
-      command = Athena::Cli::Registry.commands.find { |c| c.command_name == "user" }
+      command = Athena::Cli::Registry.commands.find { |c| c.name == "user" }
       command.should_not be_nil
       command.not_nil!.description.should eq "Creates a user with the given id"
     end

@@ -6,6 +6,7 @@ describe Athena::Cli::Command do
       context "with one param" do
         it "should convert correctly" do
           CreateUserCommand.command.call(["--id=123"]).should eq 100
+          CreateUserCommand.command.call(["--id 123"]).should eq 100
         end
 
         it "should raise if missing" do
@@ -18,6 +19,7 @@ describe Athena::Cli::Command do
       context "with multiple params" do
         it "should convert correctly" do
           MultiParamCommand.command.call(["--one=foo", "--three=3.14", "--two=8"]).should eq "foo is 11.14"
+          MultiParamCommand.command.call(["--one=foo", "--three 3.14", "--two=8"]).should eq "foo is 11.14"
         end
 
         it "should raise if missing" do
@@ -35,12 +37,14 @@ describe Athena::Cli::Command do
 
         it "should use given value" do
           DefaultValueCommand.command.call(["--path=/user/config"]).should eq "/user/config"
+          DefaultValueCommand.command.call(["--path /user/config"]).should eq "/user/config"
         end
       end
 
       context "with an array param" do
         it "should convert correctly" do
           ArrayBoolCommand.command.call(["--bools=true,false,false,true"]).should eq [true, false, false, true]
+          ArrayBoolCommand.command.call(["--bools true,false,false,true"]).should eq [true, false, false, true]
         end
 
         it "should raise if missing" do
