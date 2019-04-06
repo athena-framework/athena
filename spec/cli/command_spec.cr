@@ -1,5 +1,16 @@
 require "./cli_spec_helper"
 
+to_s = <<-TOS
+Command
+\tto_s - Command to test .to_s on
+Usage
+\t./YOUR_BINARY -c to_s [arguments]
+Arguments
+\t--optional : (String | Nil)
+\t--required : Bool
+\t--path : String = "./"\n
+TOS
+
 describe Athena::Cli::Command do
   describe "when parsing args from a command" do
     describe "that are required" do
@@ -64,6 +75,12 @@ describe Athena::Cli::Command do
         OptionalParamCommand.command.call(["--foo"]).should be_nil
         OptionalParamCommand.command.call(["--g=1.2,1.1"]).should be_nil
       end
+    end
+  end
+
+  describe ".to_s" do
+    it "should print correctly" do
+      ToSCommand.to_s.should eq to_s
     end
   end
 end

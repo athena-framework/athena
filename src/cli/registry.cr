@@ -12,8 +12,8 @@ module Athena::Cli
         groups = @@commands.group_by { |g| g.name.count(':').zero? ? "" : g.name.split(':').first }
 
         str.puts "Registered Commands:"
-        groups.keys.sort { |a, b| (a.empty? || b.empty?) ? 0 : a <=> b }.each do |group|
-          str.puts "\t#{group.empty? ? "Ungrouped" : group}"
+        ((groups.keys.reject(&.==(""))).sort << "").each do |group|
+          str.puts "\t#{group.empty? ? "ungrouped" : group}"
           groups[group].sort_by(&.name).each do |c|
             str.puts "\t\t#{c.name} - #{c.description}"
           end
