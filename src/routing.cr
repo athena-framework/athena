@@ -43,6 +43,7 @@ module Athena::Routing
   # Defines a GET endpoint.
   # ## Fields
   # * path : `String` - The path for the endpoint.
+  # * cors : `String|Bool|Nil` - The `cors_group` to use for this specific action, or `false` to disable CORS.
   #
   # ## Example
   # ```
@@ -53,6 +54,7 @@ module Athena::Routing
   # Defines a POST endpoint.
   # ## Fields
   # * path : `String` - The path for the endpoint.
+  # * cors : `String|Bool|Nil` - The `cors_group` to use for this specific action, or `false` to disable CORS.
   #
   # ## Example
   # ```
@@ -63,6 +65,7 @@ module Athena::Routing
   # Defines a PUT endpoint.
   # ## Fields
   # * path : `String` - The path for the endpoint.
+  # * cors : `String|Bool|Nil` - The `cors_group` to use for this specific action, or `false` to disable CORS.
   #
   # ## Example
   # ```
@@ -73,6 +76,7 @@ module Athena::Routing
   # Defines a DELETE endpoint.
   # ## Fields
   # * path : `String` - The path for the endpoint.
+  # * cors : `String|Bool|Nil` - The `cors_group` to use for this specific action, or `false` to disable CORS.
   #
   # ## Example
   # ```
@@ -120,6 +124,7 @@ module Athena::Routing
   # Defines options that affect the whole controller.
   # ## Fields
   # * prefix : String - Apply a prefix to all actions within `self`.
+  # * cors : `String|Bool|Nil` - The `cors_group` to use for all actions within this controller, or `false` to disable CORS for all actions.
   #
   # ## Example
   # ```

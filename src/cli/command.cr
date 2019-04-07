@@ -14,6 +14,7 @@ module Athena::Cli
           \{% for method in @type.class.methods %}
             \{% if method.name.stringify == "execute" %}
 
+              # Displays more detailed information about `self`.
               def self.to_s : String
                 String.build do |str|
                   str.puts "Command"
@@ -22,7 +23,7 @@ module Athena::Cli
                   str.puts "\t./YOUR_BINARY -c #{@@name} [arguments]"
                   str.puts "Arguments"
                   \{% for arg in method.args %}
-                    str.puts "\t--#{\{{arg.name.stringify}}} : #{\{{arg.restriction}}}#{\{{arg.default_value.is_a?(Nop) ? "" : " = " + arg.default_value.stringify}}}"
+                    str.puts "\t#{\{{arg.name.stringify}}} : #{\{{arg.restriction}}}#{\{{arg.default_value.is_a?(Nop) ? "" : " = " + arg.default_value.stringify}}}"
                   \{% end %}
                 end
               end

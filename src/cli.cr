@@ -8,12 +8,6 @@ require "./cli/registry"
 # Athena module containing elements for:
 # * Creating CLI commands.
 module Athena::Cli
-  # :nodoc:
-  private abstract struct Arg; end
-
-  # :nodoc:
-  private record Argument(T) < Arg, name : String, optional : Bool, type : T.class = T
-
   # Defines an option parser interface for Athena CLI commands.
   macro register_commands
     OptionParser.parse! do |parser|

@@ -6,9 +6,9 @@ Command
 Usage
 \t./YOUR_BINARY -c to_s [arguments]
 Arguments
-\t--optional : (String | Nil)
-\t--required : Bool
-\t--path : String = "./"\n
+\toptional : (String | Nil)
+\trequired : Bool
+\tpath : String = "./"\n
 TOS
 
 describe Athena::Cli::Command do

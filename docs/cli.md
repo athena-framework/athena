@@ -10,7 +10,7 @@ A command is created by defining a struct that inherits from `Athena::Cli::Comma
 require "athena/cli"
 
 struct MigrateEventsCommand < Athena::Cli::Command
-  self.command_name = "migrate:events"
+  self.name = "migrate:events"
   self.description = "Migrates legacy events for a given customer"
 
   def self.execute(customer_id : Int32, event_ids : Array(Int64)) : Nil
@@ -37,11 +37,25 @@ end
 
 Then, after building the program.
 
-```Text
+```bash
 ./MyApp -c migrate:events --customer_id=83726 --event_ids=1,2,3,4,5
 ./MyApp -l
 Registered commands:
+	migrate
+		migrate:events - Migrates legacy events for a given customer
+```
+
+the `-l` or `--list` argument will list the available commands that can be executed via the binary.  The commands are grouped based on the first part of the command name, separated by `:`.  The `-e NAME` or `--explain NAME` can be used to get more detailed information about a given command.
+
+```bash
+./MyApp -e migrate:events
+Command
 	migrate:events - Migrates legacy events for a given customer
+Usage
+	./YOUR_BINARY -c migrate:events [arguments]
+Arguments
+	customer_id : Int32
+	event_ids : Array(Int64)
 ```
 
 ### Parameters
