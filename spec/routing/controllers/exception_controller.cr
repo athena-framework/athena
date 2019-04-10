@@ -14,7 +14,7 @@ class Parent2 < Athena::Routing::Controller
 end
 
 class Parent3 < Athena::Routing::Controller
-  def handle_exception(exception : Exception, ctx : HTTP::Server::Context)
+  def self.handle_exception(exception : Exception, ctx : HTTP::Server::Context)
     if exception.is_a? DivisionByZeroError
       throw 400, %({"code": 400, "message": "#{exception.message}"})
     end
