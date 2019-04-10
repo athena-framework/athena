@@ -19,7 +19,7 @@ module Athena::Cli
         exit
        end
       parser.on("-c NAME", "--command=NAME", "Run a command with the given name") do |name|
-        Athena::Cli::Registry.find(name).command.call ARGV
+        Athena::Cli::Registry.find(name).run_command ARGV
         exit
       end
     end

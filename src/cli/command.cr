@@ -28,27 +28,30 @@ module Athena::Cli
                 end
               end
 
-              # Executer for the command `MyClass.command.call(args : Array(String))`.
-              class_getter command : Proc(Array(String), \{{method.return_type}}) = ->(args : Array(String)) do
-              \{% arg_types = method.args.map(&.restriction) %}
-                params = Array(Union(\{{arg_types.splat}}) | Nil).new
+              def self.run_command(args : Array(String)) : \{{method.return_type}}
+                \{% if method.args.empty? %}
+                  ->{ \{{@type}}.execute }.call
+                \{% else %}
+                  \{% arg_types = method.args.map(&.restriction) %}
+                    params = Array(Union(\{{arg_types.splat}}) | Nil).new
 
-                \{% for arg in method.args %}
-                  if arg = args.find { |a| a =~ /--\{{arg.name}}[=\s].+/ }
-                    if val = arg.match /--\{{arg.name}}[=\s](.+)/
-                      params << Athena::Types.convert_type val[1], \{{arg.restriction}}
-                    end
-                  else
-                    \{% if arg.default_value.is_a? Nop %}
-                       raise "Required argument '#{\{{arg.name.stringify}}}' was not supplied." unless (\{{arg.restriction}}).nilable?
-                       params << nil
-                    \{% else %}
-                      params << \{{arg.default_value}}
-                    \{% end %}
-                  end
-               \{% end %}
-                ->\{{@type}}.execute(\{{arg_types.splat}}).call *Tuple(\{{arg_types.splat}}).from params
-               end
+                    \{% for arg in method.args %}
+                      if arg = args.find { |a| a =~ /--\{{arg.name}}[=\s].+/ }
+                        if val = arg.match /--\{{arg.name}}[=\s](.+)/
+                          params << Athena::Types.convert_type val[1], \{{arg.restriction}}
+                        end
+                      else
+                        \{% if arg.default_value.is_a? Nop %}
+                           raise "Required argument '#{\{{arg.name.stringify}}}' was not supplied." unless (\{{arg.restriction}}).nilable?
+                           params << nil
+                        \{% else %}
+                          params << \{{arg.default_value}}
+                        \{% end %}
+                      end
+                   \{% end %}
+                  ->\{{@type}}.execute(\{{arg_types.splat}}).call *Tuple(\{{arg_types.splat}}).from params
+                \{% end %}
+              end
             \{% end %}
           \{% end %}
         \{% end %}

@@ -9,6 +9,7 @@ Registered Commands:
 \t\tparams:multi - Has multiple required params
 \t\tparams:optional - optional string
 \tungrouped
+\t\tno_params - No params
 \t\tto_s - Command to test .to_s on
 \t\tuser - Creates a user with the given id\n
 LIST
