@@ -59,7 +59,7 @@ class User
   ECR.def_to_s "spec/routing/user.ecr"
 end
 
-struct CustomRenderer
+class CustomRenderer
   def self.render(response : T, ctx : HTTP::Server::Context, groups : Array(String) = [] of String) : String forall T
     ctx.response.headers.add "Content-Type", "X-CUSTOM-TYPE"
     # Since not all types implement a `to_xml` method, I have to tell compiler its a `User` type.
@@ -67,17 +67,17 @@ struct CustomRenderer
   end
 end
 
-struct UserController < Athena::Routing::Controller
+class UserController < Athena::Routing::Controller
   @[Athena::Routing::Post(path: "users")]
   @[Athena::Routing::ParamConverter(param: "body", type: User, converter: RequestBody)]
-  def self.new_user(body : User) : User
+  def new_user(body : User) : User
     body.id = 12
     body
   end
 
   @[Athena::Routing::Post(path: "users/form")]
   @[Athena::Routing::ParamConverter(param: "body", type: User, converter: FormData)]
-  def self.new_form_user(body : User) : User
+  def new_form_user(body : User) : User
     body.should be_a User
     body.id.should eq 99
     body.age.should eq 1
@@ -87,7 +87,7 @@ struct UserController < Athena::Routing::Controller
 
   @[Athena::Routing::Put(path: "users")]
   @[Athena::Routing::ParamConverter(param: "body", type: User, converter: RequestBody)]
-  def self.update_user(body : User) : User
+  def update_user(body : User) : User
     body.should be_a User
     body.id.should eq 17_i64
     body.age.should eq 99
@@ -98,27 +98,27 @@ struct UserController < Athena::Routing::Controller
   @[Athena::Routing::Get(path: "users/yaml/:user_id")]
   @[Athena::Routing::ParamConverter(param: "user", pk_type: Int64, type: User, converter: Exists)]
   @[Athena::Routing::View(renderer: Athena::Routing::Renderers::YAMLRenderer)]
-  def self.get_user_yaml(user : User) : User
+  def get_user_yaml(user : User) : User
     user
   end
 
   @[Athena::Routing::Get(path: "users/ecr/:user_id")]
   @[Athena::Routing::ParamConverter(param: "user", pk_type: Int64, type: User, converter: Exists)]
   @[Athena::Routing::View(renderer: Athena::Routing::Renderers::ECRRenderer)]
-  def self.get_user_ecr(user : User) : User
+  def get_user_ecr(user : User) : User
     user
   end
 
   @[Athena::Routing::Get(path: "users/custom/:user_id")]
   @[Athena::Routing::ParamConverter(param: "user", pk_type: Int64, type: User, converter: Exists)]
   @[Athena::Routing::View(renderer: CustomRenderer)]
-  def self.get_user_custom(user : User) : User
+  def get_user_custom(user : User) : User
     user
   end
 
   @[Athena::Routing::Get(path: "users/:user_id")]
   @[Athena::Routing::ParamConverter(param: "user", pk_type: Int64, type: User, converter: Exists)]
-  def self.get_user(user : User) : User
+  def get_user(user : User) : User
     user.should be_a User
     user.id.should eq 17
     user.age.should eq 123
@@ -128,7 +128,7 @@ struct UserController < Athena::Routing::Controller
 
   @[Athena::Routing::Get(path: "users/str/:user_id")]
   @[Athena::Routing::ParamConverter(param: "user", pk_type: String, type: User, converter: Exists)]
-  def self.get_user_string(user : User) : User
+  def get_user_string(user : User) : User
     user.should be_a User
     user.id.should eq 71
     user.age.should eq 321
@@ -139,7 +139,7 @@ struct UserController < Athena::Routing::Controller
   @[Athena::Routing::Get(path: "admin/users/:user_id")]
   @[Athena::Routing::View(groups: ["admin"])]
   @[Athena::Routing::ParamConverter(param: "user", pk_type: Int64, type: User, converter: Exists)]
-  def self.get_user_admin(user : User) : User
+  def get_user_admin(user : User) : User
     user.should be_a User
     user.id.should eq 17
     user.age.should eq 123
@@ -150,7 +150,7 @@ struct UserController < Athena::Routing::Controller
   @[Athena::Routing::Get(path: "admin/users/:user_id/all")]
   @[Athena::Routing::View(groups: ["admin", "default"])]
   @[Athena::Routing::ParamConverter(param: "user", pk_type: Int64, type: User, converter: Exists)]
-  def self.get_user_admin_all(user : User) : User
+  def get_user_admin_all(user : User) : User
     user.should be_a User
     user.id.should eq 17
     user.age.should eq 123

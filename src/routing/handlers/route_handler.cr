@@ -10,13 +10,25 @@ module Athena::Routing::Handlers
     # ameba:disable Metrics/CyclomaticComplexity
     def initialize(@config : Athena::Config::Config)
       {% for c in Athena::Routing::Controller.all_subclasses %}
-        {% methods = c.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
-        {% instance_methods = c.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
+        {% methods = c.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
+        {% class_actions = c.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
         {% class_ann = c.annotation(Athena::Routing::ControllerOptions) %}
 
-        # Raise compile time exception if a route is defined on a instance method.
-        {% unless instance_methods.empty? %}
-          {% raise "Routes can only be defined on class methods.  Did you mean 'self.#{instance_methods.first.name}'?" %}
+        # Raise compile time exception if a route is defined as a class method.
+        {% unless class_actions.empty? %}
+          {% raise "Routes can only be defined as instance methods.  Did you mean '#{class_actions.first.name}' within #{c.name}?" %}
+        {% end %}
+
+        {% instance_callbacks = c.methods.select { |m| m.annotation(Callback) } %}
+
+        # Raise compile time exception if a callback is defined as an instance method.
+        {% unless instance_callbacks.empty? %}
+          {% raise "Controller callbacks can only be defined as class methods.  Did you mean 'self.#{instance_callbacks.first.name}' within #{c.name}?" %}
+        {% end %}
+
+        # Raise compile time exception if handle_exceptions is defined as an instance method.
+        {% if c.methods.map(&.name.stringify).includes? "handle_exception" %}
+          {% raise "Exception handlers can only be defined as class methods. Did you mean 'self.handle_exception' within #{c.name}?" %}
         {% end %}
 
         {% _on_response = [] of CallbackBase %}
@@ -137,6 +149,7 @@ module Athena::Routing::Handlers
           {% renderer = view_ann && view_ann[:renderer] ? view_ann[:renderer] : "Athena::Routing::Renderers::JSONRenderer".id %}
 
             %action = ->(ctx : HTTP::Server::Context, vals : Hash(String, String?)) do
+              instance = {{c.id}}.new(ctx)
               # If there are no args, just call the action.  Otherwise build out an array of values to pass to the action.
               {% unless m.args.empty? %}
                 arr = Array(Union({{arg_types.splat}}, Nil)).new
@@ -156,9 +169,9 @@ module Athena::Routing::Handlers
                       {{arg.default_value || nil}}
                     end
                     {% end %}
-                ->{{c.name.id}}.{{m.name.id}}({{arg_types.splat}}).call(*Tuple({{arg_types.splat}}).from(arr))
+                ->instance.{{m.name.id}}({{arg_types.splat}}).call(*Tuple({{arg_types.splat}}).from(arr))
               {% else %}
-                ->{ {{c.name.id}}.{{m.name.id}} }.call
+                ->{ instance.{{m.name.id}} }.call
               {% end %}
             end
             @routes.add {{full_path}}, RouteAction(
@@ -189,23 +202,14 @@ module Athena::Routing::Handlers
 
       search_key = '/' + method + ctx.request.path
       route = @routes.find search_key
-
-      if route.found?
-        action = route.payload.not_nil!
-        action.controller.request = ctx.request
-        action.controller.response = ctx.response
-      else
-        raise Athena::Routing::Exceptions::NotFoundException.new "No route found for '#{ctx.request.method} #{ctx.request.path}'"
-      end
+      action = route.found? ? route.payload.not_nil! : raise Athena::Routing::Exceptions::NotFoundException.new "No route found for '#{ctx.request.method} #{ctx.request.path}'"
 
       call_next ctx, action, @config
     rescue ex
       if a = action
-        a.controller.handle_exception ex, a.method
+        a.controller.handle_exception ex, ctx
       else
-        Athena::Routing::Controller.request = ctx.request
-        Athena::Routing::Controller.response = ctx.response
-        Athena::Routing::Controller.handle_exception ex, ctx.request.method
+        Athena::Routing::Controller.handle_exception ex, ctx
       end
     end
   end
