@@ -15,3 +15,11 @@ class CalendarController < Athena::Routing::Controller
     id
   end
 end
+
+@[Athena::Routing::ControllerOptions(prefix: "/:app_name")]
+class CalendarChildController < CalendarController
+  @[Athena::Routing::Get(path: "child1")]
+  def calendar(app_name : String) : String
+    "child1 + #{app_name}"
+  end
+end

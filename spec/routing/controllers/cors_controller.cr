@@ -5,7 +5,7 @@ class DefaultController < Athena::Routing::Controller
   end
 
   @[Athena::Routing::Post(path: "defaults")]
-  def cors_defaults_post : String
+  def cors_defaults_post(body : String?) : String
     "default_post"
   end
 end
