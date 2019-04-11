@@ -59,7 +59,7 @@ class User
   ECR.def_to_s "spec/routing/user.ecr"
 end
 
-class CustomRenderer
+struct CustomRenderer
   def self.render(response : T, ctx : HTTP::Server::Context, groups : Array(String) = [] of String) : String forall T
     ctx.response.headers.add "Content-Type", "X-CUSTOM-TYPE"
     # Since not all types implement a `to_xml` method, I have to tell compiler its a `User` type.
