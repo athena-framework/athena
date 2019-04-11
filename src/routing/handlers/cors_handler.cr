@@ -46,7 +46,7 @@ module Athena::Routing::Handlers
 
       ctx.response.headers["Access-Control-Max-Age"] = cors_options.max_age.to_s if cors_options.max_age > 0
     rescue ex
-      action.controller.handle_exception ex, action.method
+      action.controller.handle_exception ex, ctx
     end
   end
 end

@@ -35,19 +35,6 @@ do_with_config do |client|
       end
     end
 
-    describe "with a prefix" do
-      it "should route correctly" do
-        client.get("/calendar/events").body.should eq "\"events\""
-        client.get("/calendar/external").body.should eq "\"calendars\""
-      end
-
-      describe "and a path param" do
-        it "should route correctly" do
-          client.get("/calendar/external/99999999").body.should eq "99999999"
-        end
-      end
-    end
-
     describe "that throws a custom exception" do
       it "gets rendered correctly" do
         response = client.get("/get/custom_error")
@@ -108,32 +95,24 @@ do_with_config do |client|
       end
     end
 
-    describe "for a struct" do
-      describe ".get_response" do
-        it "has access to the response object" do
-          client.get("/get/struct/response").headers.includes_word?("Foo", "Bar").should be_true
-        end
-      end
-
-      describe ".get_request" do
-        it "has access to the request object" do
-          client.get("/get/struct/request").body.should eq "\"/get/struct/request\""
-        end
+    describe ".get_response" do
+      it "has access to the response object" do
+        client.get("/get/response").headers.includes_word?("Foo", "Bar").should be_true
       end
     end
 
-    describe "for a class" do
-      describe ".get_response" do
-        it "has access to the response object" do
-          client.get("/get/class/response").headers.includes_word?("Foo", "Bar").should be_true
-        end
+    describe ".get_request" do
+      it "has access to the request object" do
+        client.get("/get/request").body.should eq "\"/get/request\""
       end
+    end
 
-      describe ".get_request" do
-        it "has access to the request object" do
-          client.get("/get/class/request").body.should eq "\"/get/class/request\""
-        end
+    it "is concurrently safe" do
+      spawn do
+        sleep 1
+        HTTP::Client.get("http://localhost:8888/get/safe?bar").body.should eq %("safe")
       end
+      client.get("/get/safe?foo").body.should eq %("safe")
     end
   end
 end

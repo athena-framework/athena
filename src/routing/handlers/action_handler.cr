@@ -7,11 +7,6 @@ module Athena::Routing::Handlers
       handle_next; return if ctx.request.method == "OPTIONS"
       raise Athena::Routing::Exceptions::NotFoundException.new "No route found for '#{ctx.request.method} #{ctx.request.path}'" if action.nil?
 
-      # Set the current request/response on the controller
-      # since it can now be assured an action was found.
-      action.controller.request = ctx.request
-      action.controller.response = ctx.response
-
       params = Hash(String, String?).new
 
       # Process action's parameters.
@@ -35,7 +30,7 @@ module Athena::Routing::Handlers
 
       handle_next
     rescue ex
-      action.controller.handle_exception ex, action.method
+      action.controller.handle_exception ex, ctx
     end
   end
 end

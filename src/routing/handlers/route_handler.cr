@@ -10,18 +10,32 @@ module Athena::Routing::Handlers
     # ameba:disable Metrics/CyclomaticComplexity
     def initialize(@config : Athena::Config::Config)
       {% for c in Athena::Routing::Controller.all_subclasses %}
-        {% methods = c.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
-        {% instance_methods = c.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
+        {% methods = c.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
+        {% class_actions = c.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
         {% class_ann = c.annotation(Athena::Routing::ControllerOptions) %}
 
-        # Raise compile time exception if a route is defined on a instance method.
-        {% unless instance_methods.empty? %}
-          {% raise "Routes can only be defined on class methods.  Did you mean 'self.#{instance_methods.first.name}'?" %}
+        # Raise compile time exception if a route is defined as a class method.
+        {% unless class_actions.empty? %}
+          {% raise "Routes can only be defined as instance methods.  Did you mean '#{class_actions.first.name}' within #{c.name}?" %}
+        {% end %}
+
+        {% instance_callbacks = c.methods.select { |m| m.annotation(Callback) } %}
+
+        # Raise compile time exception if a callback is defined as an instance method.
+        {% unless instance_callbacks.empty? %}
+          {% raise "Controller callbacks can only be defined as class methods.  Did you mean 'self.#{instance_callbacks.first.name}' within #{c.name}?" %}
+        {% end %}
+
+        # Raise compile time exception if handle_exceptions is defined as an instance method.
+        {% if c.methods.map(&.name.stringify).includes? "handle_exception" %}
+          {% raise "Exception handlers can only be defined as class methods. Did you mean 'self.handle_exception' within #{c.name}?" %}
         {% end %}
 
         {% _on_response = [] of CallbackBase %}
         {% _on_request = [] of CallbackBase %}
         {% cors_group = nil %}
+
+        {% parent_prefix = "" %}
 
         # Build out the class's parent's callbacks
         {% parent_callbacks = [] of Def %}
@@ -29,6 +43,9 @@ module Athena::Routing::Handlers
           {% parent_ann = parent.annotation(Athena::Routing::ControllerOptions) %}
           {% if cors_group == nil && parent_ann && parent_ann[:cors] != nil %}
             {% cors_group = parent_ann[:cors] %}
+          {% end %}
+          {% if parent_ann && parent_ann[:prefix] != nil %}
+            {% parent_prefix = (parent_ann[:prefix].starts_with?('/') ? parent_ann[:prefix] : "/" + parent_ann[:prefix]) + parent_prefix %}
           {% end %}
           {% for callback in parent.class.methods.select { |me| me.annotation(Callback) } %}
             {% parent_callbacks.unshift callback %}
@@ -82,14 +99,28 @@ module Athena::Routing::Handlers
             {% route_def = d %}
           {% end %}
 
-          {% prefix = class_ann && class_ann[:prefix] != nil ? (class_ann[:prefix].starts_with?('/') ? class_ann[:prefix] : "/" + class_ann[:prefix]) : "" %}
+          {% prefix = class_ann && class_ann[:prefix] ? parent_prefix + (class_ann[:prefix].starts_with?('/') ? class_ann[:prefix] : "/" + class_ann[:prefix]) : parent_prefix %}
+
+          # Normalize the path
           {% path = (route_def[:path].starts_with?('/') ? route_def[:path] : "/" + route_def[:path]) %}
+
+          # Build out full path
           {% full_path = "/" + method + prefix + path %}
+
+          # Set the cors_group if defined, otherwise use parent's
           {% cors_group = (route_def && route_def[:cors] != nil ? route_def[:cors] : (class_ann && class_ann[:cors] != nil ? class_ann[:cors] : cors_group)) %}
 
-          {% param_names = [] of String %}
+          # Get array of path/query params for error handling
+          {% route_params = (prefix + path).split('/').select { |p| p =~ (/:(\w+)/) }.map { |p| p.tr("(:)", "") } %}
+          {% query_params = route_def[:query] ? route_def[:query] : {} of String => Regex? %}
+
+          {% action_params = m.args.map(&.name.stringify) %}
+
+          {% for p in (query_params.keys + route_params + ({"POST", "PUT"}.includes?(method) ? ["body"] : [] of String)) %}
+            {% raise "'#{p.id}' is defined in #{c.name}.#{m.name} path/query parameters but is missing from action arguments." if !(action_params.includes?(p.gsub(/_id$/, "")) || action_params.includes?(p)) %}
+          {% end %}
+
           {% params = [] of Param %}
-          {% query_params = route_def[:query] ? route_def[:query] : [] of String %}
 
           # Build out the params array
           {% for arg in m.args %}
@@ -98,7 +129,6 @@ module Athena::Routing::Handlers
             {% for segment, idx in (prefix + path).split('/') %}
               {% if segment =~ (/:\w+/) %}
                 {% param_name = (segment.starts_with?(':') ? segment[1..-1] : (segment.starts_with?('(') ? segment[0..-2][2..-1] : segment)) %}
-                {% param_names << param_name %}
                 {% if arg.name == param_name || arg.name == param_name.gsub(/_id$/, "") %}
                   {% params << "Athena::Routing::Parameters::PathParameter(#{arg.restriction}).new(#{param_name}, #{idx})".id %}
                   {% found = true %}
@@ -108,7 +138,6 @@ module Athena::Routing::Handlers
 
             # Query params
             {% for name, pattern, idx in query_params %}
-            {% param_names << name %}
               {% if arg.name == name %}
                 {% params << "Athena::Routing::Parameters::QueryParameter(#{arg.restriction}).new(#{name}, #{pattern})".id %}
                 {% found = true %}
@@ -117,7 +146,6 @@ module Athena::Routing::Handlers
 
             # Body
             {% if {"POST", "PUT"}.includes? method %}
-              {% param_names << "body" %}
               {% if arg.name == "body" %}
                 {% params << "Athena::Routing::Parameters::BodyParameter(#{arg.restriction}).new(\"body\")".id %}
                 {% found = true %}
@@ -125,11 +153,6 @@ module Athena::Routing::Handlers
             {% end %}
             {% raise "'#{arg.name}' is defined in #{c.name}.#{m.name} action arguments but is missing from path/query parameters." unless found %}
           {% end %}
-
-          {% for p in param_names %}
-            {% raise "#{p} is defined in #{c.name}.#{m.name} path/query parameters but is missing from action arguments." unless m.args.map(&.name.stringify).includes?(p.gsub(/_id$/, "")) %}
-          {% end %}
-
           {% constraints = route_def[:constraints] %}
           {% arg_types = m.args.map(&.restriction) %}
 
@@ -137,6 +160,7 @@ module Athena::Routing::Handlers
           {% renderer = view_ann && view_ann[:renderer] ? view_ann[:renderer] : "Athena::Routing::Renderers::JSONRenderer".id %}
 
             %action = ->(ctx : HTTP::Server::Context, vals : Hash(String, String?)) do
+              instance = {{c.id}}.new(ctx)
               # If there are no args, just call the action.  Otherwise build out an array of values to pass to the action.
               {% unless m.args.empty? %}
                 arr = Array(Union({{arg_types.splat}}, Nil)).new
@@ -156,9 +180,9 @@ module Athena::Routing::Handlers
                       {{arg.default_value || nil}}
                     end
                     {% end %}
-                ->{{c.name.id}}.{{m.name.id}}({{arg_types.splat}}).call(*Tuple({{arg_types.splat}}).from(arr))
+                ->instance.{{m.name.id}}({{arg_types.splat}}).call(*Tuple({{arg_types.splat}}).from(arr))
               {% else %}
-                ->{ {{c.name.id}}.{{m.name.id}} }.call
+                ->{ instance.{{m.name.id}} }.call
               {% end %}
             end
             @routes.add {{full_path}}, RouteAction(
@@ -189,23 +213,14 @@ module Athena::Routing::Handlers
 
       search_key = '/' + method + ctx.request.path
       route = @routes.find search_key
-
-      if route.found?
-        action = route.payload.not_nil!
-        action.controller.request = ctx.request
-        action.controller.response = ctx.response
-      else
-        raise Athena::Routing::Exceptions::NotFoundException.new "No route found for '#{ctx.request.method} #{ctx.request.path}'"
-      end
+      action = route.found? ? route.payload.not_nil! : raise Athena::Routing::Exceptions::NotFoundException.new "No route found for '#{ctx.request.method} #{ctx.request.path}'"
 
       call_next ctx, action, @config
     rescue ex
       if a = action
-        a.controller.handle_exception ex, a.method
+        a.controller.handle_exception ex, ctx
       else
-        Athena::Routing::Controller.request = ctx.request
-        Athena::Routing::Controller.response = ctx.response
-        Athena::Routing::Controller.handle_exception ex, ctx.request.method
+        Athena::Routing::Controller.handle_exception ex, ctx
       end
     end
   end

@@ -37,7 +37,7 @@ module Athena::Routing::Converters
   end
 end
 
-struct Athena::Routing::Controller
+class Athena::Routing::Controller
   def self.handle_exception(execption : Exception, ctx : HTTP::Server::Context)
     if msg = execption.message
       if parts = msg.match(/.*\#(.*) cannot be nil/)
