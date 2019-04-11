@@ -88,15 +88,27 @@ describe Athena::Routing do
   end
 
   describe "route actions" do
-    describe "that is an instance method action" do
+    describe "that is a class method action" do
       it "should not compile" do
-        assert_error "routing/compiler/actions/instance_method_action.cr", "Routes can only be defined on class methods.  Did you mean 'self.instance_method'?"
+        assert_error "routing/compiler/actions/class_method_action.cr", "Routes can only be defined as instance methods.  Did you mean 'class_method' within CompileController?"
       end
     end
 
     describe "without a return type" do
       it "should not compile" do
         assert_error "routing/compiler/actions/no_return_type.cr", "Route action return type must be set for 'CompileController.no_return_type'"
+      end
+    end
+
+    describe "that has a callback defined as an instance method" do
+      it "should not compile" do
+        assert_error "routing/compiler/actions/callback_instance_method.cr", "Controller callbacks can only be defined as class methods.  Did you mean 'self.teapot_callback' within CompileController?"
+      end
+    end
+
+    describe "that has an exception handler defined as an instance method" do
+      it "should not compile" do
+        assert_error "routing/compiler/actions/handle_exception_instance_method.cr", "Exception handlers can only be defined as class methods. Did you mean 'self.handle_exception' within CompileController?"
       end
     end
   end
