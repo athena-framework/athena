@@ -23,7 +23,7 @@ end
 
 # :nodoc:
 macro throw(status_code, body)
-  response = get_response
+  response = ctx.response
   response.status_code = {{status_code}}
   response.print {{body}}
   response.headers.add "Content-Type", "application/json"
@@ -149,13 +149,13 @@ module Athena::Routing
   end
 
   # Parent struct for all controllers.
-  abstract struct Controller
+  abstract class Controller
     # Exits the request with the given *status_code* and *body*.
     #
     # NOTE: declared on top level namespace but documented here
     # to be in the `Athena::Routing` module.
     macro throw(status_code, body)
-      response = get_response
+      response = ctx.response
       response.status_code = {{status_code}}
       response.print {{body}}
       response.headers.add "Content-Type", "application/json"
@@ -163,27 +163,23 @@ module Athena::Routing
       return
     end
 
-    # :nodoc:
-    class_property request : HTTP::Request? = nil
-
-    # :nodoc:
-    class_property response : HTTP::Server::Response? = nil
+    def initialize(@ctx : HTTP::Server::Context); end
 
     # Returns the request object for the current request
-    def self.get_request : HTTP::Request
-      @@request.not_nil!
+    def get_request : HTTP::Request
+      @ctx.request
     end
 
     # Returns the response object for the current request
-    def self.get_response : HTTP::Server::Response
-      @@response.not_nil!
+    def get_response : HTTP::Server::Response
+      @ctx.response
     end
 
     # Handles exceptions that could occur when using Athena.
     # Throws a 500 if the error does not match any handler.
     #
     # Method can be defined on child classes for controller specific error handling.
-    def self.handle_exception(exception : Exception, action : String)
+    def self.handle_exception(exception : Exception, ctx : HTTP::Server::Context)
       case exception
       when Athena::Routing::Exceptions::AthenaException  then throw exception.code, exception.to_json
       when CrSerializer::Exceptions::ValidationException then throw 400, exception.to_json
