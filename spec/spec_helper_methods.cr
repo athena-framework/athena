@@ -12,7 +12,7 @@ end
 # Runs the the binary with the given *name* and *args*.
 def run_binary(name : String = "bin/athena", args : Array(String) = [] of String, &block : String -> Nil)
   buffer = IO::Memory.new
-  result = Process.run(name, args, error: buffer, output: buffer)
+  Process.run(name, args, error: buffer, output: buffer)
   yield buffer.to_s
   buffer.close
 end

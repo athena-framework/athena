@@ -40,7 +40,7 @@ describe Athena do
         describe "when the config file already exists" do
           it "should not recreate the file" do
             created = File.info "athena.yml"
-            run_binary(args: ["-c", "athena:generate:config_file"]) do |output|
+            run_binary(args: ["-c", "athena:generate:config_file"]) do |_output|
               modified = File.info "athena.yml"
               created.modification_time.should eq modified.modification_time
             end
@@ -50,7 +50,7 @@ describe Athena do
         describe "when using the override flag" do
           it "should recreate the file" do
             original = File.info "athena.yml"
-            run_binary(args: ["-c", "athena:generate:config_file", "--override=true"]) do |output|
+            run_binary(args: ["-c", "athena:generate:config_file", "--override=true"]) do |_output|
               new = File.info "athena.yml"
               (original.modification_time < new.modification_time).should be_true
             end
@@ -60,7 +60,7 @@ describe Athena do
         describe "when using the path flag" do
           it "should create the file at the given location" do
             File.exists?("#{Dir.tempdir}/athena.yml").should be_false
-            run_binary(args: ["-c", "athena:generate:config_file", "--path=#{Dir.tempdir}/athena.yml"]) do |output|
+            run_binary(args: ["-c", "athena:generate:config_file", "--path=#{Dir.tempdir}/athena.yml"]) do |_output|
               File.exists?("#{Dir.tempdir}/athena.yml").should be_true
               File.delete("#{Dir.tempdir}/athena.yml")
             end
