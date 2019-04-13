@@ -17,6 +17,7 @@ module Athena::Cli
         group_names.each do |group|
           str.puts "\t#{group.empty? ? "ungrouped" : group}"
           groups[group].sort_by(&.name).each do |c|
+            next if c.name.blank? || c.description.blank?
             str.puts "\t\t#{c.name} - #{c.description}"
           end
         end
