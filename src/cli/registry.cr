@@ -3,7 +3,7 @@ module Athena::Cli
   struct Registry
     macro finished
       # Array of available commands.  Auto registered at compile time.
-      class_getter commands : Array(Athena::Cli::Command.class) = {% if Athena::Cli::Command.subclasses.size > 0 %}{{Athena::Cli::Command.subclasses}} of Athena::Cli::Command.class {% else %} [] of Athena::Cli::Command.class {% end %}
+      class_getter commands : Array(Athena::Cli::Command.class) = {% if Athena::Cli::Command.subclasses.size > 0 %}{{Athena::Cli::Command.subclasses}} {% else %} [] {% end %} of Athena::Cli::Command.class
     end
 
     # Displays the available commands.

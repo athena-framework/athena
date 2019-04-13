@@ -38,14 +38,16 @@ end
 Then, after building the program.
 
 ```bash
-./MyApp -c migrate:events --customer_id=83726 --event_ids=1,2,3,4,5
 ./MyApp -l
 Registered commands:
 	migrate
 		migrate:events - Migrates legacy events for a given customer
+./MyApp -c migrate:events --customer_id=83726 --event_ids 1,2,3,4,5
 ```
 
 the `-l` or `--list` argument will list the available commands that can be executed via the binary.  The commands are grouped based on the first part of the command name, separated by `:`.  The `-e NAME` or `--explain NAME` can be used to get more detailed information about a given command.
+
+Commands are executed by using the `--command NAME` or `-c NAME` syntax; where `NAME` is the name of the command.  Arguments are passed via the `--key=value` or `--key value` format, where `key` matches the argument name from the `self.execute` method.
 
 ```bash
 ./MyApp -e migrate:events

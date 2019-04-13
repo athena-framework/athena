@@ -4,7 +4,7 @@ require "../cli"
 module Athena::Commands
   # Generates the Athena config file.
   # ## Usage
-  # `./MyApp -c athena:generate:config_file --path /path/to/destination --override true`
+  # `./bin/athena -c athena:generate:config_file --path /path/to/destination --override true`
   # ## Arguments
   # * override : Bool - Whether to override the existing config file.
   # * path : String - The path that the config file should be generated at.

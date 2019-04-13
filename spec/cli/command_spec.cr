@@ -53,7 +53,9 @@ describe Athena::Cli::Command do
         it "should use default value if no value is given" do
           DefaultValueCommand.run_command([] of String).should eq "./"
         end
+      end
 
+      context "without a default value" do
         it "should use given value" do
           DefaultValueCommand.run_command(["--path=/user/config"]).should eq "/user/config"
           DefaultValueCommand.run_command(["--path /user/config"]).should eq "/user/config"

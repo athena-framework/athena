@@ -66,7 +66,7 @@ module Athena::Routing::Handlers
 
         # Build out the routes
         {% for m in methods %}
-          {% raise "Route action return type must be set for '#{c.name}.#{m.name}'" if m.return_type.stringify.empty? %}
+          {% raise "Route action return type must be set for '#{c.name}##{m.name}'" if m.return_type.stringify.empty? %}
 
           {% view_ann = m.annotation(View) %}
           {% param_converter = m.annotation(ParamConverter) %}
@@ -118,7 +118,7 @@ module Athena::Routing::Handlers
           {% action_params = m.args.map(&.name.stringify) %}
 
           {% for p in (query_params.keys + route_params + ({"POST", "PUT"}.includes?(method) ? ["body"] : [] of String)) %}
-            {% raise "'#{p.id}' is defined in #{c.name}.#{m.name} path/query parameters but is missing from action arguments." if !(action_params.includes?(p.gsub(/_id$/, "")) || action_params.includes?(p)) %}
+            {% raise "'#{p.id}' is defined in #{c.name}##{m.name} path/query parameters but is missing from action arguments." if !(action_params.includes?(p.gsub(/_id$/, "")) || action_params.includes?(p)) %}
           {% end %}
 
           {% params = [] of Param %}
@@ -152,7 +152,7 @@ module Athena::Routing::Handlers
                 {% found = true %}
               {% end %}
             {% end %}
-            {% raise "'#{arg.name}' is defined in #{c.name}.#{m.name} action arguments but is missing from path/query parameters." unless found %}
+            {% raise "'#{arg.name}' is defined in #{c.name}##{m.name} action arguments but is missing from path/query parameters." unless found %}
           {% end %}
 
           {% constraints = route_def[:constraints] %}
