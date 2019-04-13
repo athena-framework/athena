@@ -1,7 +1,7 @@
 require "./handler"
 
 module Athena::Routing::Handlers
-  # Handles routing and param conversion on each request.
+  # Handles CORS for the given action.
   class CorsHandler < Athena::Routing::Handlers::Handler
     # ameba:disable Metrics/CyclomaticComplexity
     def handle(ctx : HTTP::Server::Context, action : Action, config : Athena::Config::Config)

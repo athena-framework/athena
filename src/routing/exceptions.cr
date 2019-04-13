@@ -56,7 +56,7 @@ module Athena::Routing::Exceptions
     {% for code, exception in COMMON_EXCEPTIONS %}
       {% class_name = exception.gsub(/[\s\']/, "") %}
 
-      # Raises a {{exception}} exception with code {{code}}
+      # Raises a {{exception}} exception with code {{code}}.
       class {{class_name.id}}Exception < Athena::Routing::Exceptions::AthenaException
         def initialize(message : String = {{exception}})
           super {{code.id}}, message

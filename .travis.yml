@@ -1,9 +1,11 @@
 language: crystal
 install:
   - shards install
+  - shards build
 
 script:
   - bin/ameba
+  - crystal tool format --check
   - crystal spec
   - crystal docs
 

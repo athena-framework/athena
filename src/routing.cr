@@ -43,6 +43,7 @@ module Athena::Routing
   # Defines a GET endpoint.
   # ## Fields
   # * path : `String` - The path for the endpoint.
+  # * cors : `String|Bool|Nil` - The `cors_group` to use for this specific action, or `false` to disable CORS.
   #
   # ## Example
   # ```
@@ -53,6 +54,7 @@ module Athena::Routing
   # Defines a POST endpoint.
   # ## Fields
   # * path : `String` - The path for the endpoint.
+  # * cors : `String|Bool|Nil` - The `cors_group` to use for this specific action, or `false` to disable CORS.
   #
   # ## Example
   # ```
@@ -63,6 +65,7 @@ module Athena::Routing
   # Defines a PUT endpoint.
   # ## Fields
   # * path : `String` - The path for the endpoint.
+  # * cors : `String|Bool|Nil` - The `cors_group` to use for this specific action, or `false` to disable CORS.
   #
   # ## Example
   # ```
@@ -73,6 +76,7 @@ module Athena::Routing
   # Defines a DELETE endpoint.
   # ## Fields
   # * path : `String` - The path for the endpoint.
+  # * cors : `String|Bool|Nil` - The `cors_group` to use for this specific action, or `false` to disable CORS.
   #
   # ## Example
   # ```
@@ -120,11 +124,12 @@ module Athena::Routing
   # Defines options that affect the whole controller.
   # ## Fields
   # * prefix : String - Apply a prefix to all actions within `self`.
+  # * cors : `String|Bool|Nil` - The `cors_group` to use for all actions within this controller, or `false` to disable CORS for all actions.
   #
   # ## Example
   # ```
   # @[Athena::Routing::ControllerOptions(prefix: "calendar")]
-  # struct CalendarController < Athena::Routing::Controller
+  # class CalendarController < Athena::Routing::Controller
   #   # The rotue of this action would be `GET /calendar/events`
   #   @[Athena::Routing::Get(path: "events")]
   #   def self.events : String
@@ -143,7 +148,7 @@ module Athena::Routing
     OnResponse
   end
 
-  # Parent struct for all controllers.
+  # Parent class for all controllers.
   abstract class Controller
     # Exits the request with the given *status_code* and *body*.
     #
@@ -158,6 +163,7 @@ module Athena::Routing
       return
     end
 
+    # Initializes a controller with the current `HTTP::Server::Context`.
     def initialize(@ctx : HTTP::Server::Context); end
 
     # Returns the request object for the current request
@@ -198,7 +204,13 @@ module Athena::Routing
   # :nodoc:
   private abstract struct CallbackBase; end
 
-  private record RouteDefinition, path : String, cors_group : String | Bool | Nil = nil
+  # :nodoc:
+  private record RouteDefinition,
+    # The path that this action is responsible for.
+    path : String,
+
+    # The `cors_group` to use for this action.
+    cors_group : String | Bool | Nil = nil
 
   # :nodoc:
   private record RouteAction(A, R, C) < Action,
@@ -257,7 +269,7 @@ module Athena::Routing
     end
   end
 
-  # Starts the HTTP server with the given *port*, *binding*, *ssl*, and *handlers*.
+  # Starts the HTTP server with the given *port*, *binding*, *ssl*, *handlers*, and *path*.
   def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [] of HTTP::Handler, config_path : String = "athena.yml")
     config : Athena::Config::Config = Athena::Config::Config.from_yaml File.read config_path
 

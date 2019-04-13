@@ -12,6 +12,7 @@ end
 
 # Handlers that will be executed within each request's life-cycle.
 module Athena::Routing::Handlers
+  # Base class for request handlers.  Can be inherited to implement custom logic for each request.
   abstract class Handler
     include HTTP::Handler
 

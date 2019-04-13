@@ -5,6 +5,7 @@ module Athena::Routing::Handlers
   class RouteHandler < Athena::Routing::Handlers::Handler
     @routes : Amber::Router::RouteSet(Action) = Amber::Router::RouteSet(Action).new
 
+    # :nodoc:
     def handle(ctx : HTTP::Server::Context, action : Action, config : Athena::Config::Config) : Nil; end
 
     # ameba:disable Metrics/CyclomaticComplexity
@@ -66,7 +67,7 @@ module Athena::Routing::Handlers
 
         # Build out the routes
         {% for m in methods %}
-          {% raise "Route action return type must be set for #{c.name}.#{m.name}" if m.return_type.stringify.empty? %}
+          {% raise "Route action return type must be set for '#{c.name}##{m.name}'" if m.return_type.stringify.empty? %}
 
           {% view_ann = m.annotation(View) %}
           {% param_converter = m.annotation(ParamConverter) %}
@@ -77,9 +78,9 @@ module Athena::Routing::Handlers
               {% raise "#{param_converter[:type]} must implement a `self.find(id)` method to use the Exists converter." unless param_converter[:type].resolve.class.has_method?("find") %}
               {% raise "#{c.name}.#{m.name} #{param_converter[:converter]} converter requires a `pk_type` to be defined." unless param_converter[:pk_type] %}
             {% elsif param_converter[:converter].stringify == "RequestBody" %}
-              {% raise "#{param_converter[:type]} must `include CrSerializer` or implement a `self.from_json(body : String) : self` method to use the RequestBody converter." unless param_converter[:type].resolve.class.has_method?("from_json") %}
+              {% raise "#{param_converter[:type]} must `include CrSerializer` to use the RequestBody converter." unless param_converter[:type].resolve.class.has_method?("from_json") %}
             {% elsif param_converter[:converter].stringify == "FormData" %}
-              {% raise "#{param_converter[:type]} implement a `self.from_form_data(form_data : HTTP::Params) : self` method to use the FormData converter." unless param_converter[:type].resolve.class.has_method?("from_form_data") %}
+              {% raise "#{param_converter[:type]} must implement a `self.from_form_data(form_data : HTTP::Params) : self` method to use the FormData converter." unless param_converter[:type].resolve.class.has_method?("from_form_data") %}
             {% end %}
           {% elsif param_converter %}
             {% raise "#{c.name}.#{m.name} ParamConverter annotation is missing a required field.  Must specifiy `param`, `type`, and `converter`." %}
@@ -99,6 +100,7 @@ module Athena::Routing::Handlers
             {% route_def = d %}
           {% end %}
 
+          # Set and normalize the prefix if one exists
           {% prefix = class_ann && class_ann[:prefix] ? parent_prefix + (class_ann[:prefix].starts_with?('/') ? class_ann[:prefix] : "/" + class_ann[:prefix]) : parent_prefix %}
 
           # Normalize the path
@@ -117,7 +119,7 @@ module Athena::Routing::Handlers
           {% action_params = m.args.map(&.name.stringify) %}
 
           {% for p in (query_params.keys + route_params + ({"POST", "PUT"}.includes?(method) ? ["body"] : [] of String)) %}
-            {% raise "'#{p.id}' is defined in #{c.name}.#{m.name} path/query parameters but is missing from action arguments." if !(action_params.includes?(p.gsub(/_id$/, "")) || action_params.includes?(p)) %}
+            {% raise "'#{p.id}' is defined in #{c.name}##{m.name} path/query parameters but is missing from action arguments." if !(action_params.includes?(p.gsub(/_id$/, "")) || action_params.includes?(p)) %}
           {% end %}
 
           {% params = [] of Param %}
@@ -151,8 +153,9 @@ module Athena::Routing::Handlers
                 {% found = true %}
               {% end %}
             {% end %}
-            {% raise "'#{arg.name}' is defined in #{c.name}.#{m.name} action arguments but is missing from path/query parameters." unless found %}
+            {% raise "'#{arg.name}' is defined in #{c.name}##{m.name} action arguments but is missing from path/query parameters." unless found %}
           {% end %}
+
           {% constraints = route_def[:constraints] %}
           {% arg_types = m.args.map(&.restriction) %}
 
@@ -199,6 +202,7 @@ module Athena::Routing::Handlers
       {% end %}
     end
 
+    # Entrypoint of a request.
     def call(ctx : HTTP::Server::Context)
       # If this is a OPTIONS request change the method to the requested method to access the actual action that will be invoked.
       method : String = if ctx.request.method == "OPTIONS"

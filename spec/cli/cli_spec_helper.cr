@@ -1,5 +1,4 @@
-require "spec"
-
+require "../spec_helper_methods"
 require "../../src/cli"
 require "./commands/*"
 

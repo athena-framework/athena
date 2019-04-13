@@ -4,7 +4,7 @@ routing:
   cors:
     enabled: false
     strategy: blacklist
-    defaults:
+    defaults: &defaults
       allow_origin: https://yourdomain.com
       expose_headers: []
       max_age: 0

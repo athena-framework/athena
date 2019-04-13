@@ -1,7 +1,7 @@
 require "../cli_spec_helper"
 
 struct ArrayBoolCommand < Athena::Cli::Command
-  self.command_name = "array"
+  self.name = "aa:array"
   self.description = "Array of bools"
 
   def self.execute(bools : Array(Bool)) : Array(Bool)
