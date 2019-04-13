@@ -5,6 +5,7 @@ module Athena::Routing::Handlers
   class RouteHandler < Athena::Routing::Handlers::Handler
     @routes : Amber::Router::RouteSet(Action) = Amber::Router::RouteSet(Action).new
 
+    # :nodoc:
     def handle(ctx : HTTP::Server::Context, action : Action, config : Athena::Config::Config) : Nil; end
 
     # ameba:disable Metrics/CyclomaticComplexity
@@ -201,6 +202,7 @@ module Athena::Routing::Handlers
       {% end %}
     end
 
+    # Entrypoint of a request.
     def call(ctx : HTTP::Server::Context)
       # If this is a OPTIONS request change the method to the requested method to access the actual action that will be invoked.
       method : String = if ctx.request.method == "OPTIONS"

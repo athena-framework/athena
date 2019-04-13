@@ -6,19 +6,19 @@ describe Athena::Routing do
       context "query" do
         describe "with no action parameters" do
           it "should not compile" do
-            assert_error "routing/compiler/parameters/action/no_action_one_query.cr", "'bar' is defined in CompileController.no_action_one_query path/query parameters but is missing from action arguments."
+            assert_error "routing/compiler/parameters/action/no_action_one_query.cr", "'bar' is defined in CompileController#no_action_one_query path/query parameters but is missing from action arguments."
           end
         end
 
         describe "with one action parameter" do
           it "should not compile" do
-            assert_error "routing/compiler/parameters/action/one_action_two_query.cr", "'bar' is defined in CompileController.one_action_two_query path/query parameters but is missing from action arguments."
+            assert_error "routing/compiler/parameters/action/one_action_two_query.cr", "'bar' is defined in CompileController#one_action_two_query path/query parameters but is missing from action arguments."
           end
         end
 
         describe "with *_id action parameter and non *_id query" do
           it "should not compile" do
-            assert_error "routing/compiler/parameters/action/one_action_id_one_query.cr", "'num' is defined in CompileController.one_action_id_one_query path/query parameters but is missing from action arguments."
+            assert_error "routing/compiler/parameters/action/one_action_id_one_query.cr", "'num' is defined in CompileController#one_action_id_one_query path/query parameters but is missing from action arguments."
           end
         end
       end
@@ -26,19 +26,19 @@ describe Athena::Routing do
       context "path parameters" do
         describe "with no action parameters" do
           it "should not compile" do
-            assert_error "routing/compiler/parameters/action/no_action_one_path.cr", "'value' is defined in CompileController.no_action_one_path path/query parameters but is missing from action arguments."
+            assert_error "routing/compiler/parameters/action/no_action_one_path.cr", "'value' is defined in CompileController#no_action_one_path path/query parameters but is missing from action arguments."
           end
         end
 
         describe "with one action parameter" do
           it "should not compile" do
-            assert_error "routing/compiler/parameters/action/one_action_two_path.cr", "'bar' is defined in CompileController.one_action_two_path path/query parameters but is missing from action arguments."
+            assert_error "routing/compiler/parameters/action/one_action_two_path.cr", "'bar' is defined in CompileController#one_action_two_path path/query parameters but is missing from action arguments."
           end
         end
 
         describe "with *_id action parameter and non *_id path" do
           it "should not compile" do
-            assert_error "routing/compiler/parameters/action/one_action_id_one_path.cr", "'num' is defined in CompileController.one_action_id_one_path path/query parameters but is missing from action arguments."
+            assert_error "routing/compiler/parameters/action/one_action_id_one_path.cr", "'num' is defined in CompileController#one_action_id_one_path path/query parameters but is missing from action arguments."
           end
         end
       end
@@ -46,13 +46,13 @@ describe Athena::Routing do
       context "path + query parameters" do
         describe "with missing query" do
           it "should not compile" do
-            assert_error "routing/compiler/parameters/action/one_action_one_query_one_path_query.cr", "'bar' is defined in CompileController.one_action_one_query_one_path_query path/query parameters but is missing from action arguments."
+            assert_error "routing/compiler/parameters/action/one_action_one_query_one_path_query.cr", "'bar' is defined in CompileController#one_action_one_query_one_path_query path/query parameters but is missing from action arguments."
           end
         end
 
         describe "with missing path" do
           it "should not compile" do
-            assert_error "routing/compiler/parameters/action/one_action_one_query_one_path_path.cr", "'bar' is defined in CompileController.one_action_one_query_one_path_path path/query parameters but is missing from action arguments."
+            assert_error "routing/compiler/parameters/action/one_action_one_query_one_path_path.cr", "'bar' is defined in CompileController#one_action_one_query_one_path_path path/query parameters but is missing from action arguments."
           end
         end
       end
@@ -61,13 +61,13 @@ describe Athena::Routing do
     describe "query parameters" do
       describe "with one action parameter" do
         it "should not compile" do
-          assert_error "routing/compiler/parameters/query/one_action_no_query.cr", "'foo' is defined in CompileController.one_action_no_query action arguments but is missing from path/query parameters."
+          assert_error "routing/compiler/parameters/query/one_action_no_query.cr", "'foo' is defined in CompileController#one_action_no_query action arguments but is missing from path/query parameters."
         end
       end
 
       describe "with two action parameters" do
         it "should not compile" do
-          assert_error "routing/compiler/parameters/query/two_action_one_query.cr", "'bar' is defined in CompileController.two_action_one_query action arguments but is missing from path/query parameters."
+          assert_error "routing/compiler/parameters/query/two_action_one_query.cr", "'bar' is defined in CompileController#two_action_one_query action arguments but is missing from path/query parameters."
         end
       end
     end
@@ -75,13 +75,13 @@ describe Athena::Routing do
     describe "path parameters" do
       describe "with one action parameter" do
         it "should not compile" do
-          assert_error "routing/compiler/parameters/path/one_action_no_path.cr", "'foo' is defined in CompileController.one_action_no_path action arguments but is missing from path/query parameters."
+          assert_error "routing/compiler/parameters/path/one_action_no_path.cr", "'foo' is defined in CompileController#one_action_no_path action arguments but is missing from path/query parameters."
         end
       end
 
       describe "with two action parameters" do
         it "should not compile" do
-          assert_error "routing/compiler/parameters/path/two_action_one_path.cr", "'bar' is defined in CompileController.two_action_one_path action arguments but is missing from path/query parameters."
+          assert_error "routing/compiler/parameters/path/two_action_one_path.cr", "'bar' is defined in CompileController#two_action_one_path action arguments but is missing from path/query parameters."
         end
       end
     end
@@ -96,7 +96,7 @@ describe Athena::Routing do
 
     describe "without a return type" do
       it "should not compile" do
-        assert_error "routing/compiler/actions/no_return_type.cr", "Route action return type must be set for 'CompileController.no_return_type'"
+        assert_error "routing/compiler/actions/no_return_type.cr", "Route action return type must be set for 'CompileController#no_return_type'"
       end
     end
 

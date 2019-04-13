@@ -28,6 +28,7 @@ module Athena::Cli
                 end
               end
 
+              # :nodoc:
               def self.run_command(args : Array(String)) : \{{method.return_type}}
                 \{% if method.args.empty? %}
                   ->{ \{{@type}}.execute }.call
