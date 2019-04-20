@@ -25,6 +25,14 @@ class TestController < Athena::Routing::Controller
   def get_me : String
     "Jim"
   end
+    
+  # A GET endpoint with no params returning `Nil`.
+  # `Nil` return types are returned with a status
+  # of 204 no content
+  @[Athena::Routing::Get(path: "/no_content")]
+  def get_no_content : Nil
+    # Do stuff
+  end
 
   # A GET endpoint with two `Int32` params returning an `Int32`.
   @[Athena::Routing::Get(path: "/add/:val1/:val2")]
@@ -69,6 +77,7 @@ CLIENT.get "/athena/add/50/25"                  # => 75
 CLIENT.get "/athena/event/foobar?time=1:1:1"    # => "foobar occured at 1:1:1"
 CLIENT.get "/athena/time/12:45:30"              # => "12:45:30"
 CLIENT.get "/athena/time/12:aa:30"              # => 404 not found
+CLIENT.get "/no_content"                        # => 204 no content
 
 # If no `Content-Type` header is provided, the type of
 # the body is assumed to be `text/plain`.
@@ -381,7 +390,7 @@ Athena::Routing.run
 
 ## ParamConverter
 
-All basic types, such as `Int`, `Float`, `String`, `Bool`, are natively converted from the request's params.  However in order to convert more complex types, such as a `User`, a `ParamConverter` must be specified on the action to specify how to resolve that type.  
+All basic types, such as `Int`, `Float`, `String`, `Bool`, are natively converted from the request's params.  However in order to convert more complex types, such as a `User`, a `ParamConverter` must be specified on the action to specify how to resolve that type.  Multiple `ParamConverter` are also supported.
 
 ### Exists
 

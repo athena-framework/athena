@@ -3,12 +3,12 @@ name: athena
 description: |
   Modular, annotation based, API oriented framework with built in param conversion.
 
-version: 0.5.0
+version: 0.6.0
 
 authors:
   - Blacksmoke16 <Blacksmoke16@eve.tools>
 
-crystal: 0.27.2
+crystal: 0.28.0
 
 license: MIT
 
