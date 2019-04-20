@@ -6,7 +6,7 @@ install:
 script:
   - bin/ameba
   - crystal tool format --check
-  - crystal spec
+  - crystal spec --warnings all --error-on-warnings
   - crystal docs
 
 deploy:

@@ -56,7 +56,7 @@ do_with_config do |client|
     end
 
     describe "with a route that has a default value" do
-      context "GET" do
+      describe "GET" do
         it "returns the provided value" do
           client.get("/posts/123").body.should eq "123"
         end
@@ -70,7 +70,7 @@ do_with_config do |client|
         end
       end
 
-      context "POST" do
+      describe "POST" do
         it "adds using the default value" do
           client.post("/posts/99", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "100"
         end
@@ -82,13 +82,13 @@ do_with_config do |client|
     end
 
     describe "invalid Content-Type" do
-      context "not supported" do
+      describe "not supported" do
         it "returns correct error" do
           client.post("/posts/99", body: "100", headers: HTTP::Headers{"content-type" => "application/foo"}).body.should eq %({"code":415,"message":"Invalid Content-Type: 'application/foo'"})
         end
       end
 
-      context "missing" do
+      describe "missing" do
         it "should default to text/plain" do
           client.post("/posts/99", body: "100").body.should eq "199"
         end

@@ -2,7 +2,7 @@ require "./routing_spec_helper"
 
 do_with_config do |client|
   describe "param conversion" do
-    context "Int" do
+    describe "Int" do
       it "Int8" do
         client.get("/int8/123").body.should eq "123"
         client.post("/int8", body: "123", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "123"
@@ -35,7 +35,7 @@ do_with_config do |client|
       end
     end
 
-    context "UInt" do
+    describe "UInt" do
       it "UInt8" do
         client.get("/uint8/123").body.should eq "123"
         client.post("/uint8", body: "123", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "123"
@@ -68,7 +68,7 @@ do_with_config do |client|
       end
     end
 
-    context "Float" do
+    describe "Float" do
       it "Float32" do
         client.get("/float32/-2342.223").body.should eq "-2342.223"
         client.post("/float32/", body: "-2342.223", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "-2342.223"
@@ -86,21 +86,21 @@ do_with_config do |client|
       end
     end
 
-    context "Bool" do
+    describe "Bool" do
       it "Bool" do
         client.get("/bool/true").body.should eq "true"
         client.post("/bool", body: "true", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "true"
       end
     end
 
-    context "String" do
+    describe "String" do
       it "String" do
         client.get("/string/sdfsd").body.should eq "\"sdfsd\""
         client.post("/string", body: "sdfsd", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "\"sdfsd\""
       end
     end
 
-    context "Negative values" do
+    describe "Negative values" do
       it "should return properly" do
         client.get("/negative/123").body.should eq "-123"
         client.post("/negative", body: "123", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "-123"

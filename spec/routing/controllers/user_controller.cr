@@ -157,4 +157,18 @@ class UserController < Athena::Routing::Controller
     user.password.should eq "monkey"
     user
   end
+
+  @[Athena::Routing::Get(path: "users/:user_id/articles/:article_id")]
+  @[Athena::Routing::ParamConverter(param: "article", pk_type: Int64, type: Article, converter: Exists)]
+  @[Athena::Routing::ParamConverter(param: "user", pk_type: Int64, type: User, converter: Exists)]
+  def double_converter_exists(user : User, article : Article) : String
+    "#{user.age} #{article.title}"
+  end
+
+  @[Athena::Routing::Post(path: "users/articles/:article_id")]
+  @[Athena::Routing::ParamConverter(param: "article", pk_type: Int64, type: Article, converter: Exists)]
+  @[Athena::Routing::ParamConverter(param: "body", type: User, converter: RequestBody)]
+  def double_converter_exists_and_body(body : User, article : Article) : String
+    "#{body.age} #{article.title}"
+  end
 end

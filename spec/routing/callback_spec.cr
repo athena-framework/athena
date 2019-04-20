@@ -48,7 +48,7 @@ do_with_config do |client|
     end
 
     describe "inheritence" do
-      context "parent" do
+      describe "parent" do
         it "should have just the parent header" do
           headers = client.get("/callback/nested/parent").headers
           global_header = headers.get("X-RESPONSE-GLOBAL")
@@ -64,7 +64,7 @@ do_with_config do |client|
         end
       end
 
-      context "child1" do
+      describe "child1" do
         it "should have the parent and child1 headers" do
           headers = client.get("/callback/nested/child").headers
           global_header = headers.get("X-RESPONSE-GLOBAL")
@@ -83,7 +83,7 @@ do_with_config do |client|
         end
       end
 
-      context "child2" do
+      describe "child2" do
         it "should have the parent, child1 and child2 headers" do
           headers = client.get("/callback/nested/child2").headers
           global_header = headers.get("X-RESPONSE-GLOBAL")
@@ -102,7 +102,7 @@ do_with_config do |client|
         end
       end
 
-      context "child3" do
+      describe "child3" do
         it "should have the parent header" do
           headers = client.get("/callback/nested/child3").headers
           global_header = headers.get("X-RESPONSE-GLOBAL")

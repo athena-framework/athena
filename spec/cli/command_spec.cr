@@ -22,7 +22,7 @@ describe Athena::Cli::Command do
     end
 
     describe "that are required" do
-      context "with one param" do
+      describe "with one param" do
         it "should convert correctly" do
           CreateUserCommand.run_command(["--id=123"]).should eq 100
           CreateUserCommand.run_command(["--id 123"]).should eq 100
@@ -35,7 +35,7 @@ describe Athena::Cli::Command do
         end
       end
 
-      context "with multiple params" do
+      describe "with multiple params" do
         it "should convert correctly" do
           MultiParamCommand.run_command(["--one=foo", "--three=3.14", "--two=8"]).should eq "foo is 11.14"
           MultiParamCommand.run_command(["--one=foo", "--three 3.14", "--two=8"]).should eq "foo is 11.14"
@@ -49,20 +49,20 @@ describe Athena::Cli::Command do
         end
       end
 
-      context "with a default value" do
+      describe "with a default value" do
         it "should use default value if no value is given" do
           DefaultValueCommand.run_command([] of String).should eq "./"
         end
       end
 
-      context "without a default value" do
+      describe "without a default value" do
         it "should use given value" do
           DefaultValueCommand.run_command(["--path=/user/config"]).should eq "/user/config"
           DefaultValueCommand.run_command(["--path /user/config"]).should eq "/user/config"
         end
       end
 
-      context "with an array param" do
+      describe "with an array param" do
         it "should convert correctly" do
           ArrayBoolCommand.run_command(["--bools=true,false,false,true"]).should eq [true, false, false, true]
           ArrayBoolCommand.run_command(["--bools true,false,false,true"]).should eq [true, false, false, true]

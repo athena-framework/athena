@@ -20,22 +20,28 @@ do_with_config do |client|
       it "resolves a record that has the characters '_id' in it" do
         client.get("/article/17").body.should eq %({"id":17,"title":"Int"})
       end
+
+      describe "with two Exists converters" do
+        it "resolves two records" do
+          client.get("/users/17/articles/17").body.should eq "\"123 Int\""
+        end
+      end
     end
 
     describe "RequestBody" do
-      context "valid new model" do
+      describe "valid new model" do
         it "should parse an obj from request body" do
           client.post("/users", body: %({"age":99}), headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq %({"id":12,"age":99})
         end
       end
 
-      context "valid existing model" do
+      describe "valid existing model" do
         it "should parse an obj from request body" do
           client.put("/users", body: %({"id":17,"age":99}), headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq %({"id":17,"age":99})
         end
       end
 
-      context "invalid model" do
+      describe "invalid model" do
         it "should return the validation test failed json object" do
           response = client.post("/users", body: %({"age":-12}), headers: HTTP::Headers{"content-type" => "application/json"})
           response.body.should eq %({"code":400,"message":"Validation tests failed","errors":["'age' should be greater than 0"]})
@@ -43,7 +49,7 @@ do_with_config do |client|
         end
       end
 
-      context "invalid param" do
+      describe "invalid param" do
         it "should return the invalid param json object" do
           response = client.post("/users", body: %({"age": "foo"}), headers: HTTP::Headers{"content-type" => "application/json"})
           response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got string"})
@@ -58,10 +64,16 @@ do_with_config do |client|
           response.status.should eq HTTP::Status::BAD_REQUEST
         end
       end
+
+      describe "with an Exists and RequestBody converter" do
+        it "should resolve correctly" do
+          client.post("/users/articles/17", body: %({"age":90210}), headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "\"90210 Int\""
+        end
+      end
     end
 
     describe "FormData" do
-      context "valid new model" do
+      describe "valid new model" do
         it "should parse an obj from request body" do
           client.post("/users/form", body: %(age=1&id=99), headers: HTTP::Headers{"content-type" => "application/x-www-form-urlencoded"}).body.should eq %({"id":99,"age":1})
         end

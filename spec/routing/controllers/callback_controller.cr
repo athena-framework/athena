@@ -1,7 +1,7 @@
 class Athena::Routing::Controller
   @[Athena::Routing::Callback(event: CallbackEvents::OnResponse, exclude: ["posts"])]
   def self.global_callback(context : HTTP::Server::Context) : Nil
-    context.response.headers.add "X-RESPONSE-GLOBAL", Time.utc_now.to_unix.to_s
+    context.response.headers.add "X-RESPONSE-GLOBAL", Time.utc.to_unix.to_s
   end
 end
 
@@ -49,7 +49,7 @@ end
 class ZestedCallbackController < Athena::Routing::Controller
   @[Athena::Routing::Callback(event: CallbackEvents::OnResponse)]
   def self.parent_callback(context : HTTP::Server::Context) : Nil
-    context.response.headers.add "X-RESPONSE-PARENT", Time.utc_now.to_unix.to_s
+    context.response.headers.add "X-RESPONSE-PARENT", Time.utc.to_unix.to_s
     sleep 1
   end
 
@@ -62,7 +62,7 @@ end
 class AestedCallback2Controller < ZestedCallbackController
   @[Athena::Routing::Callback(event: CallbackEvents::OnResponse)]
   def self.child1_callback(context : HTTP::Server::Context) : Nil
-    context.response.headers.add "X-RESPONSE-CHILD1", Time.utc_now.to_unix.to_s
+    context.response.headers.add "X-RESPONSE-CHILD1", Time.utc.to_unix.to_s
     sleep 1
   end
 
@@ -75,7 +75,7 @@ end
 class NestedCallback3Controller < AestedCallback2Controller
   @[Athena::Routing::Callback(event: CallbackEvents::OnResponse)]
   def self.child2_callback(context : HTTP::Server::Context) : Nil
-    context.response.headers.add "X-RESPONSE-CHILD2", Time.utc_now.to_unix.to_s
+    context.response.headers.add "X-RESPONSE-CHILD2", Time.utc.to_unix.to_s
     sleep 1
   end
 

@@ -3,7 +3,7 @@ require "./routing_spec_helper"
 describe Athena::Routing do
   describe "With missing" do
     describe "action parameters" do
-      context "query" do
+      describe "query" do
         describe "with no action parameters" do
           it "should not compile" do
             assert_error "routing/compiler/parameters/action/no_action_one_query.cr", "'bar' is defined in CompileController#no_action_one_query path/query parameters but is missing from action arguments."
@@ -23,7 +23,7 @@ describe Athena::Routing do
         end
       end
 
-      context "path parameters" do
+      describe "path parameters" do
         describe "with no action parameters" do
           it "should not compile" do
             assert_error "routing/compiler/parameters/action/no_action_one_path.cr", "'value' is defined in CompileController#no_action_one_path path/query parameters but is missing from action arguments."
@@ -43,7 +43,7 @@ describe Athena::Routing do
         end
       end
 
-      context "path + query parameters" do
+      describe "path + query parameters" do
         describe "with missing query" do
           it "should not compile" do
             assert_error "routing/compiler/parameters/action/one_action_one_query_one_path_query.cr", "'bar' is defined in CompileController#one_action_one_query_one_path_query path/query parameters but is missing from action arguments."
@@ -132,7 +132,7 @@ describe Athena::Routing do
       end
     end
 
-    context "Exists" do
+    describe "Exists" do
       describe "that does not implement a .find method" do
         it "should not compile" do
           assert_error "routing/compiler/converters/exists/no_find.cr", "NoFind must implement a `self.find(id)` method to use the Exists converter."
@@ -146,7 +146,7 @@ describe Athena::Routing do
       end
     end
 
-    context "FormData" do
+    describe "FormData" do
       describe "that does not implement a .from_form_data method" do
         it "should not compile" do
           assert_error "routing/compiler/converters/form_data/no_from_form_data.cr", "NoFormData must implement a `self.from_form_data(form_data : HTTP::Params) : self` method to use the FormData converter."
