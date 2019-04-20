@@ -114,6 +114,12 @@ describe Athena::Routing do
   end
 
   describe "param converters" do
+    describe "with one that is invalid" do
+      it "should not compile" do
+        assert_error "routing/compiler/converters/one_invalid.cr", "CompileController.one_invalid_converter Exists converter requires a `pk_type` to be defined."
+      end
+    end
+
     describe "with a missing param field" do
       it "should not compile" do
         assert_error "routing/compiler/converters/no_param.cr", "CompileController.no_param ParamConverter annotation is missing a required field.  Must specifiy `param`, `type`, and `converter`."
