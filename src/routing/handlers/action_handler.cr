@@ -25,13 +25,13 @@ module Athena::Routing::Handlers
       # Run the `OnResponse` callbacks.
       action.callbacks.run_on_response_callbacks ctx, action
 
-      # If the response is not a `Noop`
-      unless response.is_a? Noop
-        # render the response.
-        ctx.response.print action.renderer.render response, ctx, action.groups
-      else
-        # otherwise return 204 no content.
+      # If the response is a `Noop`
+      if response.is_a? Noop
+        # return 204 no content.
         ctx.response.status = HTTP::Status::NO_CONTENT
+      else
+        # otherwise, render the response.
+        ctx.response.print action.renderer.render response, ctx, action.groups
       end
 
       handle_next
