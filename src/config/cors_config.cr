@@ -4,7 +4,7 @@ module Athena::Config
   # Config properties related to CORS.
   @[CrSerializer::ClassOptions(raise_on_invalid: true)]
   struct CorsConfig
-    include CrSerializer
+    include CrSerializer(YAML)
 
     # :nodoc:
     def initialize; end

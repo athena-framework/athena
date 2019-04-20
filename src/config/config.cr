@@ -5,7 +5,7 @@ require "./routing_config"
 module Athena::Config
   # Global config object for Athena.
   struct Config
-    include CrSerializer
+    include CrSerializer(YAML)
 
     # :nodoc:
     def initialize; end

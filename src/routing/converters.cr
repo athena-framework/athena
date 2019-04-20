@@ -7,7 +7,7 @@ module Athena::Routing::Converters
     # NOTE: Requires `T` to include `CrSerializer` or implements a `self.from_json(body : String) : self` method to instantiate the object from the request body.
     def self.convert(ctx : HTTP::Server::Context, body : String) : T
       model : T = T.from_json body
-      raise CrSerializer::Exceptions::ValidationException.new model.validator unless model.validator.valid?
+      raise CrSerializer::Exceptions::ValidationException.new model.@validator unless model.valid?
       model
     end
   end

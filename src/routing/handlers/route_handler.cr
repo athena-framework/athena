@@ -78,7 +78,7 @@ module Athena::Routing::Handlers
               {% raise "#{param_converter[:type]} must implement a `self.find(id)` method to use the Exists converter." unless param_converter[:type].resolve.class.has_method?("find") %}
               {% raise "#{c.name}.#{m.name} #{param_converter[:converter]} converter requires a `pk_type` to be defined." unless param_converter[:pk_type] %}
             {% elsif param_converter[:converter].stringify == "RequestBody" %}
-              {% raise "#{param_converter[:type]} must `include CrSerializer` to use the RequestBody converter." unless param_converter[:type].resolve.class.has_method?("from_json") %}
+              {% raise "#{param_converter[:type]} must `include CrSerializer(TYPE)` to use the RequestBody converter." unless param_converter[:type].resolve.class.has_method?("from_json") %}
             {% elsif param_converter[:converter].stringify == "FormData" %}
               {% raise "#{param_converter[:type]} must implement a `self.from_form_data(form_data : HTTP::Params) : self` method to use the FormData converter." unless param_converter[:type].resolve.class.has_method?("from_form_data") %}
             {% end %}

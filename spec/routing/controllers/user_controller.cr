@@ -1,14 +1,14 @@
 require "xml"
 
 class Customer
-  include CrSerializer
+  include CrSerializer(JSON | YAML)
 
   property name : String = "MyCust"
   property id : Int32 = 1
 end
 
 class User
-  include CrSerializer
+  include CrSerializer(JSON | YAML)
 
   property id : Int64?
 
