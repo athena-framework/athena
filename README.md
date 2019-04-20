@@ -1,5 +1,6 @@
 # Athena
 [![Build Status](https://travis-ci.org/Blacksmoke16/athena.svg?branch=master)](https://travis-ci.org/Blacksmoke16/athena)
+[![Latest release](https://img.shields.io/github/release/Blacksmoke16/athena.svg?style=flat-square)](https://github.com/Blacksmoke16/athena/releases)
 
 Modular annotation based web framework with built in param conversion inspired by [Symfony Routing](https://symfony.com/doc/current/routing.html).
 

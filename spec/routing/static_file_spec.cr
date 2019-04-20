@@ -9,7 +9,7 @@ do_with_config do |client|
     it "should 404 if file is missing" do
       response = client.get("/foo.txt")
       response.body.should eq %({"code":404,"message":"No route found for 'GET /foo.txt'"})
-      response.status_code.should eq 404
+      response.status.should eq HTTP::Status::NOT_FOUND
     end
   end
 end

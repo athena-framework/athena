@@ -2,7 +2,7 @@ require "./routing_spec_helper"
 
 do_with_config do |client|
   describe "param conversion" do
-    context "Int" do
+    describe "Int" do
       it "Int8" do
         client.get("/int8/123").body.should eq "123"
         client.post("/int8", body: "123", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "123"
@@ -31,11 +31,11 @@ do_with_config do |client|
       it "invalid" do
         response = client.get("/int32/1.00")
         response.body.should eq %({"code": 400, "message": "Invalid Int32: 1.00"})
-        response.status_code.should eq 400
+        response.status.should eq HTTP::Status::BAD_REQUEST
       end
     end
 
-    context "UInt" do
+    describe "UInt" do
       it "UInt8" do
         client.get("/uint8/123").body.should eq "123"
         client.post("/uint8", body: "123", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "123"
@@ -64,11 +64,11 @@ do_with_config do |client|
       it "invalid" do
         response = client.get("/uint8/256")
         response.body.should eq %({"code": 400, "message": "Invalid UInt8: 256"})
-        response.status_code.should eq 400
+        response.status.should eq HTTP::Status::BAD_REQUEST
       end
     end
 
-    context "Float" do
+    describe "Float" do
       it "Float32" do
         client.get("/float32/-2342.223").body.should eq "-2342.223"
         client.post("/float32/", body: "-2342.223", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "-2342.223"
@@ -82,28 +82,28 @@ do_with_config do |client|
       it "invalid" do
         response = client.get("/float64/foo")
         response.body.should eq %({"code": 400, "message": "Invalid Float64: foo"})
-        response.status_code.should eq 400
+        response.status.should eq HTTP::Status::BAD_REQUEST
       end
     end
 
-    context "Bool" do
+    describe "Bool" do
       it "Bool" do
         client.get("/bool/true").body.should eq "true"
         client.post("/bool", body: "true", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "true"
       end
     end
 
-    context "String" do
+    describe "String" do
       it "String" do
         client.get("/string/sdfsd").body.should eq "\"sdfsd\""
         client.post("/string", body: "sdfsd", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "\"sdfsd\""
       end
     end
 
-    context "Struct" do
-      it "Struct" do
-        client.get("/struct/123").body.should eq "-123"
-        client.post("/struct", body: "123", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "-123"
+    describe "Negative values" do
+      it "should return properly" do
+        client.get("/negative/123").body.should eq "-123"
+        client.post("/negative", body: "123", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "-123"
       end
     end
   end

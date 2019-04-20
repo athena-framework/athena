@@ -42,7 +42,7 @@ do_with_config(CORS_CONFIG) do |client|
             it "should return the proper error" do
               response = client.options("/defaults")
               response.body.should eq "{\"code\":403,\"message\":\"Preflight request header 'Access-Control-Request-Method' is missing.\"}"
-              response.status_code.should eq 403
+              response.status.should eq HTTP::Status::FORBIDDEN
             end
           end
 
@@ -50,7 +50,7 @@ do_with_config(CORS_CONFIG) do |client|
             it "should return the proper error" do
               response = client.options("/defaults", headers: HTTP::Headers{"Access-Control-Request-Method" => "GET"})
               response.body.should eq "{\"code\":403,\"message\":\"Preflight request header 'Access-Control-Request-Headers' is missing.\"}"
-              response.status_code.should eq 403
+              response.status.should eq HTTP::Status::FORBIDDEN
             end
           end
 
@@ -58,7 +58,7 @@ do_with_config(CORS_CONFIG) do |client|
             it "should return the proper error" do
               response = client.options("/defaults", headers: HTTP::Headers{"Access-Control-Request-Method" => "POST"})
               response.body.should eq "{\"code\":405,\"message\":\"Request method 'POST' is not allowed.\"}"
-              response.status_code.should eq 405
+              response.status.should eq HTTP::Status::METHOD_NOT_ALLOWED
             end
           end
 
@@ -66,7 +66,7 @@ do_with_config(CORS_CONFIG) do |client|
             it "should return the proper error" do
               response = client.options("/defaults", headers: HTTP::Headers{"Access-Control-Request-Method" => "GET", "Access-Control-Request-Headers" => "FOO"})
               response.body.should eq "{\"code\":403,\"message\":\"Request header 'FOO' is not allowed.\"}"
-              response.status_code.should eq 403
+              response.status.should eq HTTP::Status::FORBIDDEN
             end
           end
         end

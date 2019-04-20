@@ -30,7 +30,7 @@ do_with_config do |client|
 
     describe ".handle_exception" do
       describe "for a controller that has a custom handler defined" do
-        context "that handles the given error" do
+        describe "that handles the given error" do
           it "should use that handler" do
             response = client.get("/exception/custom")
             response.status_code.should eq 666
@@ -38,10 +38,10 @@ do_with_config do |client|
           end
         end
 
-        context "that does not handle the given error" do
+        describe "that does not handle the given error" do
           it "should use use the default handler" do
             response = client.get("/exception/no_match")
-            response.status_code.should eq 500
+            response.status.should eq HTTP::Status::INTERNAL_SERVER_ERROR
             response.body.should eq %({"code": 500, "message": "Internal Server Error"})
           end
         end
@@ -50,7 +50,7 @@ do_with_config do |client|
       describe "for a controller that does not have custom handler defined" do
         it "should use use the default handler" do
           response = client.get("/exception/default")
-          response.status_code.should eq 500
+          response.status.should eq HTTP::Status::INTERNAL_SERVER_ERROR
           response.body.should eq %({"code": 500, "message": "Internal Server Error"})
         end
       end

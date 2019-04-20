@@ -1,7 +1,7 @@
 module Athena::Config
   # Config properties related to CORS.
   struct CorsOptions
-    include CrSerializer
+    include CrSerializer(YAML)
 
     @[YAML::Field(ignore: true)]
     @default : Bool = false

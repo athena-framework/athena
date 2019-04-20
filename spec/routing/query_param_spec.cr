@@ -3,12 +3,12 @@ require "./routing_spec_helper"
 do_with_config do |client|
   describe "QueryParams" do
     describe "when it is required" do
-      context "with a constraint" do
+      describe "with a constraint" do
         describe "that is not provided " do
           it "should raise proper error" do
             response = client.get("/get/query_param_constraint_required")
             response.body.should eq %({"code":400,"message":"Required query param 'time' was not supplied."})
-            response.status_code.should eq 400
+            response.status.should eq HTTP::Status::BAD_REQUEST
           end
         end
 
@@ -22,17 +22,17 @@ do_with_config do |client|
           it "should raise proper error" do
             response = client.get("/get/query_param_constraint_required?time=1:a:3")
             response.body.should eq %q({"code":400,"message":"Expected query param 'time' to match '(?-imsx:\\d:\\d:\\d)' but got '1:a:3'"})
-            response.status_code.should eq 400
+            response.status.should eq HTTP::Status::BAD_REQUEST
           end
         end
       end
 
-      context "without a constraint" do
+      describe "without a constraint" do
         describe "that is not provided " do
           it "should raise proper error" do
             response = client.get("/get/query_param_required")
             response.body.should eq %({"code":400,"message":"Required query param 'time' was not supplied."})
-            response.status_code.should eq 400
+            response.status.should eq HTTP::Status::BAD_REQUEST
           end
         end
 
@@ -45,7 +45,7 @@ do_with_config do |client|
     end
 
     describe "when it is optional" do
-      context "with a constraint" do
+      describe "with a constraint" do
         describe "that is not provided " do
           it "should return nil" do
             client.get("/get/query_params_constraint_optional").body.should eq "null"
@@ -71,7 +71,7 @@ do_with_config do |client|
         end
       end
 
-      context "without a constraint" do
+      describe "without a constraint" do
         describe "that is not provided " do
           it "should return nil" do
             client.get("/get/query_params_optional").body.should eq "null"
@@ -85,7 +85,7 @@ do_with_config do |client|
         end
       end
 
-      context "with a default value" do
+      describe "with a default value" do
         describe "that is not provided " do
           it "should return the default value" do
             client.get("/get/query_params_optional_default").body.should eq "999"

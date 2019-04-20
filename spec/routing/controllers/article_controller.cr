@@ -1,5 +1,5 @@
 class Article
-  include CrSerializer
+  include CrSerializer(JSON | YAML)
 
   property id : Int64?
 

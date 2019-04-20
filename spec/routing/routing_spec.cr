@@ -21,7 +21,7 @@ do_with_config do |client|
             it "returns correct error" do
               response = client.post("/noParamsPostRequired")
               response.body.should eq %({"code":400,"message":"Request body was not supplied."})
-              response.status_code.should eq 400
+              response.status.should eq HTTP::Status::BAD_REQUEST
             end
           end
         end
@@ -39,7 +39,7 @@ do_with_config do |client|
       it "gets rendered correctly" do
         response = client.get("/get/custom_error")
         response.body.should eq %({"code":418,"message":"teapot"})
-        response.status_code.should eq 418
+        response.status.should eq HTTP::Status::IM_A_TEAPOT
       end
     end
 
@@ -47,16 +47,16 @@ do_with_config do |client|
       it "returns correct error" do
         response = client.get("/dsfdsf")
         response.body.should eq %({"code":404,"message":"No route found for 'GET /dsfdsf'"})
-        response.status_code.should eq 404
+        response.status.should eq HTTP::Status::NOT_FOUND
 
         response = client.post("/dsfdsf")
         response.body.should eq %({"code":404,"message":"No route found for 'POST /dsfdsf'"})
-        response.status_code.should eq 404
+        response.status.should eq HTTP::Status::NOT_FOUND
       end
     end
 
     describe "with a route that has a default value" do
-      context "GET" do
+      describe "GET" do
         it "returns the provided value" do
           client.get("/posts/123").body.should eq "123"
         end
@@ -70,7 +70,7 @@ do_with_config do |client|
         end
       end
 
-      context "POST" do
+      describe "POST" do
         it "adds using the default value" do
           client.post("/posts/99", headers: HTTP::Headers{"content-type" => "application/json"}).body.should eq "100"
         end
@@ -82,13 +82,13 @@ do_with_config do |client|
     end
 
     describe "invalid Content-Type" do
-      context "not supported" do
+      describe "not supported" do
         it "returns correct error" do
           client.post("/posts/99", body: "100", headers: HTTP::Headers{"content-type" => "application/foo"}).body.should eq %({"code":415,"message":"Invalid Content-Type: 'application/foo'"})
         end
       end
 
-      context "missing" do
+      describe "missing" do
         it "should default to text/plain" do
           client.post("/posts/99", body: "100").body.should eq "199"
         end
@@ -98,6 +98,14 @@ do_with_config do |client|
     describe ".get_response" do
       it "has access to the response object" do
         client.get("/get/response").headers.includes_word?("Foo", "Bar").should be_true
+      end
+    end
+
+    describe "nil return type" do
+      it "should return 204 no content" do
+        response = client.get("/get/nil_return")
+        response.status.should eq HTTP::Status::NO_CONTENT
+        response.body.should be_empty
       end
     end
 

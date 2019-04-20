@@ -11,7 +11,7 @@ do_with_config do |client|
     end
 
     describe "ECR" do
-      context ".def_to_s" do
+      describe ".def_to_s" do
         it "should render correctly" do
           response = client.get("/users/ecr/17")
           response.body.should eq "User 17 is 123 years old."
@@ -19,7 +19,7 @@ do_with_config do |client|
         end
       end
 
-      context ".render" do
+      describe ".render" do
         it "should render correctly" do
           response = client.get("/ecr_html")
           response.body.should eq "<!DOCTYPE html>\n<html>\n<body>\n\n<h1>Hello John!</h1>\n\n<p>My first paragraph.</p>\n\n</body>\n</html>"

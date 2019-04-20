@@ -10,26 +10,26 @@ module Athena::Routing::Handlers
 
     # ameba:disable Metrics/CyclomaticComplexity
     def initialize(@config : Athena::Config::Config)
-      {% for c in Athena::Routing::Controller.all_subclasses %}
-        {% methods = c.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
-        {% class_actions = c.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
-        {% class_ann = c.annotation(Athena::Routing::ControllerOptions) %}
+      {% for klass in Athena::Routing::Controller.all_subclasses %}
+        {% methods = klass.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
+        {% class_actions = klass.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
+        {% class_ann = klass.annotation(Athena::Routing::ControllerOptions) %}
 
         # Raise compile time exception if a route is defined as a class method.
         {% unless class_actions.empty? %}
-          {% raise "Routes can only be defined as instance methods.  Did you mean '#{class_actions.first.name}' within #{c.name}?" %}
+          {% raise "Routes can only be defined as instance methods.  Did you mean '#{class_actions.first.name}' within #{klass.name}?" %}
         {% end %}
 
-        {% instance_callbacks = c.methods.select { |m| m.annotation(Callback) } %}
+        {% instance_callbacks = klass.methods.select { |m| m.annotation(Callback) } %}
 
         # Raise compile time exception if a callback is defined as an instance method.
         {% unless instance_callbacks.empty? %}
-          {% raise "Controller callbacks can only be defined as class methods.  Did you mean 'self.#{instance_callbacks.first.name}' within #{c.name}?" %}
+          {% raise "Controller callbacks can only be defined as class methods.  Did you mean 'self.#{instance_callbacks.first.name}' within #{klass.name}?" %}
         {% end %}
 
         # Raise compile time exception if handle_exceptions is defined as an instance method.
-        {% if c.methods.map(&.name.stringify).includes? "handle_exception" %}
-          {% raise "Exception handlers can only be defined as class methods. Did you mean 'self.handle_exception' within #{c.name}?" %}
+        {% if klass.methods.map(&.name.stringify).includes? "handle_exception" %}
+          {% raise "Exception handlers can only be defined as class methods. Did you mean 'self.handle_exception' within #{klass.name}?" %}
         {% end %}
 
         {% _on_response = [] of CallbackBase %}
@@ -40,7 +40,7 @@ module Athena::Routing::Handlers
 
         # Build out the class's parent's callbacks
         {% parent_callbacks = [] of Def %}
-        {% for parent in c.ancestors %}
+        {% for parent in klass.ancestors %}
           {% parent_ann = parent.annotation(Athena::Routing::ControllerOptions) %}
           {% if cors_group == nil && parent_ann && parent_ann[:cors] != nil %}
             {% cors_group = parent_ann[:cors] %}
@@ -54,36 +54,38 @@ module Athena::Routing::Handlers
         {% end %}
 
         # Set Global > Parent > Controller callbacks
-        {% for callback in (Athena::Routing::Controller.class.methods.select { |m| m.annotation(Callback) } + parent_callbacks + c.class.methods.select { |m| m.annotation(Callback) }) %}
+        {% for callback in (Athena::Routing::Controller.class.methods.select { |m| m.annotation(Callback) } + parent_callbacks + klass.class.methods.select { |m| m.annotation(Callback) }) %}
           {% callback_ann = callback.annotation(Callback) %}
           {% only_actions = callback_ann[:only] || "[] of String" %}
           {% exclude_actions = callback_ann[:exclude] || "[] of String" %}
           {% if callback_ann[:event].resolve == Athena::Routing::CallbackEvents::OnResponse %}
-            {% _on_response << "CallbackEvent(Proc(HTTP::Server::Context, Nil)).new(->#{c.name.id}.#{callback.name.id}(HTTP::Server::Context), #{only_actions.id}, #{exclude_actions.id})".id %}
+            {% _on_response << "CallbackEvent(Proc(HTTP::Server::Context, Nil)).new(->#{klass.name.id}.#{callback.name.id}(HTTP::Server::Context), #{only_actions.id}, #{exclude_actions.id})".id %}
           {% elsif callback_ann[:event].resolve == Athena::Routing::CallbackEvents::OnRequest %}
-            {% _on_request << "CallbackEvent(Proc(HTTP::Server::Context, Nil)).new(->#{c.name.id}.#{callback.name.id}(HTTP::Server::Context), #{only_actions.id}, #{exclude_actions.id})".id %}
+            {% _on_request << "CallbackEvent(Proc(HTTP::Server::Context, Nil)).new(->#{klass.name.id}.#{callback.name.id}(HTTP::Server::Context), #{only_actions.id}, #{exclude_actions.id})".id %}
           {% end %}
         {% end %}
 
         # Build out the routes
         {% for m in methods %}
-          {% raise "Route action return type must be set for '#{c.name}##{m.name}'" if m.return_type.stringify.empty? %}
+          {% raise "Route action return type must be set for '#{klass.name}##{m.name}'" if m.return_type.is_a? Nop %}
 
           {% view_ann = m.annotation(View) %}
-          {% param_converter = m.annotation(ParamConverter) %}
+          {% param_converters = m.annotations(ParamConverter) %}
 
-          # Ensure `type` implements the required method
-          {% if param_converter && param_converter[:param] && param_converter[:type] && param_converter[:converter] %}
-            {% if param_converter[:converter].stringify == "Exists" %}
-              {% raise "#{param_converter[:type]} must implement a `self.find(id)` method to use the Exists converter." unless param_converter[:type].resolve.class.has_method?("find") %}
-              {% raise "#{c.name}.#{m.name} #{param_converter[:converter]} converter requires a `pk_type` to be defined." unless param_converter[:pk_type] %}
-            {% elsif param_converter[:converter].stringify == "RequestBody" %}
-              {% raise "#{param_converter[:type]} must `include CrSerializer` to use the RequestBody converter." unless param_converter[:type].resolve.class.has_method?("from_json") %}
-            {% elsif param_converter[:converter].stringify == "FormData" %}
-              {% raise "#{param_converter[:type]} must implement a `self.from_form_data(form_data : HTTP::Params) : self` method to use the FormData converter." unless param_converter[:type].resolve.class.has_method?("from_form_data") %}
+          {% for converter in param_converters %}
+            # Ensure each converter implements required propertyes and `type` implements the required methods.
+            {% if converter && converter[:param] && converter[:type] && converter[:converter] %}
+              {% if converter[:converter].stringify == "Exists" %}
+                {% raise "#{converter[:type]} must implement a `self.find(id)` method to use the Exists converter." unless converter[:type].resolve.class.has_method?("find") %}
+                {% raise "#{klass.name}.#{m.name} #{converter[:converter]} converter requires a `pk_type` to be defined." unless converter[:pk_type] %}
+              {% elsif converter[:converter].stringify == "RequestBody" %}
+                {% raise "#{converter[:type]} must `include CrSerializer(TYPE)` to use the RequestBody converter." unless converter[:type].resolve.class.has_method?("from_json") %}
+              {% elsif converter[:converter].stringify == "FormData" %}
+                {% raise "#{converter[:type]} must implement a `self.from_form_data(form_data : HTTP::Params) : self` method to use the FormData converter." unless converter[:type].resolve.class.has_method?("from_form_data") %}
+              {% end %}
+            {% elsif converter %}
+              {% raise "#{klass.name}.#{m.name} ParamConverter annotation is missing a required field.  Must specifiy `param`, `type`, and `converter`." %}
             {% end %}
-          {% elsif param_converter %}
-            {% raise "#{c.name}.#{m.name} ParamConverter annotation is missing a required field.  Must specifiy `param`, `type`, and `converter`." %}
           {% end %}
 
           {% if d = m.annotation(Get) %}
@@ -119,7 +121,7 @@ module Athena::Routing::Handlers
           {% action_params = m.args.map(&.name.stringify) %}
 
           {% for p in (query_params.keys + route_params + ({"POST", "PUT"}.includes?(method) ? ["body"] : [] of String)) %}
-            {% raise "'#{p.id}' is defined in #{c.name}##{m.name} path/query parameters but is missing from action arguments." if !(action_params.includes?(p.gsub(/_id$/, "")) || action_params.includes?(p)) %}
+            {% raise "'#{p.id}' is defined in #{klass.name}##{m.name} path/query parameters but is missing from action arguments." if !(action_params.includes?(p.gsub(/_id$/, "")) || action_params.includes?(p)) %}
           {% end %}
 
           {% params = [] of Param %}
@@ -153,7 +155,7 @@ module Athena::Routing::Handlers
                 {% found = true %}
               {% end %}
             {% end %}
-            {% raise "'#{arg.name}' is defined in #{c.name}##{m.name} action arguments but is missing from path/query parameters." unless found %}
+            {% raise "'#{arg.name}' is defined in #{klass.name}##{m.name} action arguments but is missing from path/query parameters." unless found %}
           {% end %}
 
           {% constraints = route_def[:constraints] %}
@@ -163,7 +165,7 @@ module Athena::Routing::Handlers
           {% renderer = view_ann && view_ann[:renderer] ? view_ann[:renderer] : "Athena::Routing::Renderers::JSONRenderer".id %}
 
             %action = ->(ctx : HTTP::Server::Context, vals : Hash(String, String?)) do
-              instance = {{c.id}}.new(ctx)
+              instance = {{klass.id}}.new(ctx)
               # If there are no args, just call the action.  Otherwise build out an array of values to pass to the action.
               {% unless m.args.empty? %}
                 arr = Array(Union({{arg_types.splat}}, Nil)).new
@@ -174,22 +176,24 @@ module Athena::Routing::Handlers
                       {{arg.name.stringify + "_id"}}
                     end
                     arr << if val = vals[key]?
-                    {% if param_converter && param_converter[:converter] && param_converter[:type] && param_converter[:param] == arg.name.stringify %}
-                      Athena::Routing::Converters::{{param_converter[:converter]}}({{param_converter[:type]}}, {{param_converter[:pk_type] ? param_converter[:pk_type] : Nil}}).convert ctx, val
+                    {% if converter = param_converters.find { |c| c[:param] == arg.name.stringify } %}
+                      Athena::Routing::Converters::{{converter[:converter]}}({{converter[:type]}}, {{converter[:pk_type] ? converter[:pk_type] : Nil}}).convert ctx, val
                     {% else %}
                       Athena::Types.convert_type val, {{arg.restriction}}
                     {% end %}
                     else
                       {{arg.default_value || nil}}
                     end
-                    {% end %}
-                ->instance.{{m.name.id}}({{arg_types.splat}}).call(*Tuple({{arg_types.splat}}).from(arr))
+                {% end %}
+                instance.{{m.name.id}} *Tuple({{arg_types.splat}}).from(arr)
               {% else %}
-                ->{ instance.{{m.name.id}} }.call
+                instance.{{m.name.id}}
               {% end %}
+              {% if m.return_type.id == Nil.id %} Noop.new {% end %}
             end
             @routes.add {{full_path}}, RouteAction(
-              Proc(HTTP::Server::Context, Hash(String, String?), {{m.return_type}}), {{renderer}}, {{c.id}})
+              # Map Nil return type to Noop to avoid https://github.com/crystal-lang/crystal/issues/7698
+              Proc(HTTP::Server::Context, Hash(String, String?), {{m.return_type.id == Nil.id ? Noop : m.return_type}}), {{renderer}}, {{klass.id}})
               .new(
                 %action,
                 RouteDefinition.new({{full_path}}, {{cors_group}}),
