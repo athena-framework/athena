@@ -182,14 +182,16 @@ module Athena::Routing::Handlers
                     else
                       {{arg.default_value || nil}}
                     end
-                    {% end %}
-                ->instance.{{m.name.id}}({{arg_types.splat}}).call(*Tuple({{arg_types.splat}}).from(arr))
+                {% end %}
+                instance.{{m.name.id}} *Tuple({{arg_types.splat}}).from(arr)
               {% else %}
-                ->{ instance.{{m.name.id}} }.call
+                instance.{{m.name.id}}
               {% end %}
+              {% if m.return_type.id == Nil.id %} Noop.new {% end %}
             end
             @routes.add {{full_path}}, RouteAction(
-              Proc(HTTP::Server::Context, Hash(String, String?), {{m.return_type}}), {{renderer}}, {{c.id}})
+              # Map Nil return type to Noop to avoid https://github.com/crystal-lang/crystal/issues/7698
+              Proc(HTTP::Server::Context, Hash(String, String?), {{m.return_type.id == Nil.id ? Noop : m.return_type}}), {{renderer}}, {{c.id}})
               .new(
                 %action,
                 RouteDefinition.new({{full_path}}, {{cors_group}}),

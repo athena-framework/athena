@@ -130,4 +130,23 @@ class AthenaController < Athena::Routing::Controller
   def request : String
     get_request.path
   end
+
+  @[Athena::Routing::Get(path: "negative/:val")]
+  def do_work(val : Int32) : Int32
+    val.should be_a Int32
+    val.should eq 123
+    -val
+  end
+
+  @[Athena::Routing::Post(path: "negative")]
+  def do_work_post(body : Int32) : Int32
+    body.should be_a Int32
+    body.should eq 123
+    -body
+  end
+
+  @[Athena::Routing::Get(path: "get/nil_return")]
+  def nil_return : Nil
+    123
+  end
 end

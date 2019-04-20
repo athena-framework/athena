@@ -41,7 +41,7 @@ class User
     end
   end
 
-  def to_xml
+  def to_xml : String
     XML.build do |xml|
       xml.element("user", id: 17) do
         xml.element("age") { xml.text @age.to_s }

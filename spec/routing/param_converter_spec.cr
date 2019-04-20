@@ -14,7 +14,7 @@ do_with_config do |client|
       it "returns correct error if the record does not exist" do
         response = client.get("/users/34")
         response.body.should eq %({"code":404,"message":"An item with the provided ID could not be found."})
-        response.status_code.should eq 404
+        response.status.should eq HTTP::Status::NOT_FOUND
       end
 
       it "resolves a record that has the characters '_id' in it" do
@@ -39,7 +39,7 @@ do_with_config do |client|
         it "should return the validation test failed json object" do
           response = client.post("/users", body: %({"age":-12}), headers: HTTP::Headers{"content-type" => "application/json"})
           response.body.should eq %({"code":400,"message":"Validation tests failed","errors":["'age' should be greater than 0"]})
-          response.status_code.should eq 400
+          response.status.should eq HTTP::Status::BAD_REQUEST
         end
       end
 
@@ -47,15 +47,15 @@ do_with_config do |client|
         it "should return the invalid param json object" do
           response = client.post("/users", body: %({"age": "foo"}), headers: HTTP::Headers{"content-type" => "application/json"})
           response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got string"})
-          response.status_code.should eq 400
+          response.status.should eq HTTP::Status::BAD_REQUEST
 
           response = client.post("/users", body: %({"age": true}), headers: HTTP::Headers{"content-type" => "application/json"})
           response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got bool"})
-          response.status_code.should eq 400
+          response.status.should eq HTTP::Status::BAD_REQUEST
 
           response = client.post("/users", body: %({"age": null}), headers: HTTP::Headers{"content-type" => "application/json"})
           response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got null"})
-          response.status_code.should eq 400
+          response.status.should eq HTTP::Status::BAD_REQUEST
         end
       end
     end

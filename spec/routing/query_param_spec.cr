@@ -8,7 +8,7 @@ do_with_config do |client|
           it "should raise proper error" do
             response = client.get("/get/query_param_constraint_required")
             response.body.should eq %({"code":400,"message":"Required query param 'time' was not supplied."})
-            response.status_code.should eq 400
+            response.status.should eq HTTP::Status::BAD_REQUEST
           end
         end
 
@@ -22,7 +22,7 @@ do_with_config do |client|
           it "should raise proper error" do
             response = client.get("/get/query_param_constraint_required?time=1:a:3")
             response.body.should eq %q({"code":400,"message":"Expected query param 'time' to match '(?-imsx:\\d:\\d:\\d)' but got '1:a:3'"})
-            response.status_code.should eq 400
+            response.status.should eq HTTP::Status::BAD_REQUEST
           end
         end
       end
@@ -32,7 +32,7 @@ do_with_config do |client|
           it "should raise proper error" do
             response = client.get("/get/query_param_required")
             response.body.should eq %({"code":400,"message":"Required query param 'time' was not supplied."})
-            response.status_code.should eq 400
+            response.status.should eq HTTP::Status::BAD_REQUEST
           end
         end
 

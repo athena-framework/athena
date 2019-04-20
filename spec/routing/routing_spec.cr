@@ -21,7 +21,7 @@ do_with_config do |client|
             it "returns correct error" do
               response = client.post("/noParamsPostRequired")
               response.body.should eq %({"code":400,"message":"Request body was not supplied."})
-              response.status_code.should eq 400
+              response.status.should eq HTTP::Status::BAD_REQUEST
             end
           end
         end
@@ -39,7 +39,7 @@ do_with_config do |client|
       it "gets rendered correctly" do
         response = client.get("/get/custom_error")
         response.body.should eq %({"code":418,"message":"teapot"})
-        response.status_code.should eq 418
+        response.status.should eq HTTP::Status::IM_A_TEAPOT
       end
     end
 
@@ -47,11 +47,11 @@ do_with_config do |client|
       it "returns correct error" do
         response = client.get("/dsfdsf")
         response.body.should eq %({"code":404,"message":"No route found for 'GET /dsfdsf'"})
-        response.status_code.should eq 404
+        response.status.should eq HTTP::Status::NOT_FOUND
 
         response = client.post("/dsfdsf")
         response.body.should eq %({"code":404,"message":"No route found for 'POST /dsfdsf'"})
-        response.status_code.should eq 404
+        response.status.should eq HTTP::Status::NOT_FOUND
       end
     end
 
@@ -98,6 +98,14 @@ do_with_config do |client|
     describe ".get_response" do
       it "has access to the response object" do
         client.get("/get/response").headers.includes_word?("Foo", "Bar").should be_true
+      end
+    end
+
+    describe "nil return type" do
+      it "should return 204 no content" do
+        response = client.get("/get/nil_return")
+        response.status.should eq HTTP::Status::NO_CONTENT
+        response.body.should be_empty
       end
     end
 
