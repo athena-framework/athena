@@ -95,23 +95,31 @@ do_with_config do |client|
       end
     end
 
-    describe ".get_response" do
-      it "has access to the response object" do
-        client.get("/get/response").headers.includes_word?("Foo", "Bar").should be_true
-      end
-    end
-
     describe "nil return type" do
       it "should return 204 no content" do
         response = client.get("/get/nil_return")
         response.status.should eq HTTP::Status::NO_CONTENT
         response.body.should be_empty
       end
+
+      describe "and the response status was changed in the action" do
+        it "should not use no content" do
+          response = client.get("/get/nil_return/updated_status")
+          response.status.should eq HTTP::Status::IM_A_TEAPOT
+          response.body.should be_empty
+        end
+      end
     end
 
-    describe ".get_request" do
+    describe "#get_request" do
       it "has access to the request object" do
         client.get("/get/request").body.should eq "\"/get/request\""
+      end
+    end
+
+    describe "#get_response" do
+      it "has access to the response object" do
+        client.get("/get/response").headers.includes_word?("Foo", "Bar").should be_true
       end
     end
 
@@ -120,7 +128,7 @@ do_with_config do |client|
         sleep 1
         HTTP::Client.get("http://localhost:8888/get/safe?bar").body.should eq %("safe")
       end
-      client.get("/get/safe?foo").body.should eq %("safe")
+      client.get("/get/safe?foo").body.should eq "\"safe\""
     end
   end
 end
