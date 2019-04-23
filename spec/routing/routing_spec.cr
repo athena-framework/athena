@@ -2,6 +2,22 @@ require "./routing_spec_helper"
 
 do_with_config do |client|
   describe Athena::Routing do
+    describe ".run" do
+      describe "with custom handlers" do
+        describe "when missing the action handler" do
+          it "should throw an exception" do
+            expect_raises Exception, "Handlers must include 'Athena::Routing::Handlers::ActionHandler'." do
+              Athena::Routing.run(
+                handlers: [
+                  Athena::Routing::Handlers::CorsHandler.new,
+                ] of HTTP::Handler
+              )
+            end
+          end
+        end
+      end
+    end
+
     describe "with no params" do
       describe "GET" do
         it "works" do

@@ -290,8 +290,7 @@ module Athena::Routing
     # Insert the RouteHandler automatically so the user does not have to deal with the config file.
     handlers.unshift Athena::Routing::Handlers::RouteHandler.new(config)
 
-    # Validate the two required handlers are included.
-    raise "First handler must be 'Athena::Routing::Handlers::RouteHandler'." unless handlers.first.is_a? Athena::Routing::Handlers::RouteHandler
+    # Validate the action handler is included.
     raise "Handlers must include 'Athena::Routing::Handlers::ActionHandler'." if handlers.none? &.is_a? Athena::Routing::Handlers::ActionHandler
 
     @@server = HTTP::Server.new handlers
