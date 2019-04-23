@@ -23,7 +23,7 @@ module Athena::Routing::Handlers
       ctx.response.headers["Access-Control-Expose-Headers"] = cors_options.expose_headers.join(',') unless cors_options.expose_headers.empty?
 
       # Skip the preflight processing if request is not a preflight
-      return unless ctx.request.method == "OPTIONS"
+      handle_next; return unless ctx.request.method == "OPTIONS"
 
       if requested_method = ctx.request.headers["Access-Control-Request-Method"]?
         if cors_options.allow_methods.map(&.downcase).includes?(requested_method.downcase)
@@ -45,6 +45,8 @@ module Athena::Routing::Handlers
       end
 
       ctx.response.headers["Access-Control-Max-Age"] = cors_options.max_age.to_s if cors_options.max_age > 0
+
+      handle_next
     rescue ex
       action.controller.handle_exception ex, ctx
     end
