@@ -33,16 +33,10 @@ class AthenaController < Athena::Routing::Controller
   @[Athena::Routing::Get(path: "get/safe")]
   def safe_request_check : String
     initial_query = get_request.query
-    if initial_query == "foo"
-      sleep 2
-    end
+    sleep 2 if initial_query == "foo"
     check_query = get_request.query
 
-    if initial_query == check_query
-      "safe"
-    else
-      "unsafe"
-    end
+    initial_query == check_query ? "safe" : "unsafe"
   end
 
   @[Athena::Routing::Get(path: "double/:val1/:val2")]
@@ -147,6 +141,12 @@ class AthenaController < Athena::Routing::Controller
 
   @[Athena::Routing::Get(path: "get/nil_return")]
   def nil_return : Nil
+    123
+  end
+
+  @[Athena::Routing::Get(path: "get/nil_return/updated_status")]
+  def nil_return_updated_satus : Nil
+    get_response.status = HTTP::Status::IM_A_TEAPOT
     123
   end
 end
