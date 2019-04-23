@@ -40,9 +40,9 @@ module Athena::Routing
   # :nodoc:
   @@server : HTTP::Server?
 
+  # :nodoc:
   # Fictional type representing no return.
   # See https://github.com/crystal-lang/crystal/issues/7698
-  # :nodoc:
   private record Noop
 
   # Defines a GET endpoint.

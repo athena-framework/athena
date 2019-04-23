@@ -5,7 +5,6 @@ module Athena::Routing::Handlers
   class ActionHandler < Athena::Routing::Handlers::Handler
     def handle(ctx : HTTP::Server::Context, action : Action, config : Athena::Config::Config) : Nil
       handle_next; return if ctx.request.method == "OPTIONS"
-      raise Athena::Routing::Exceptions::NotFoundException.new "No route found for '#{ctx.request.method} #{ctx.request.path}'" if action.nil?
 
       params = Hash(String, String?).new
 
