@@ -390,7 +390,7 @@ Athena::Routing.run
 
 ## ParamConverter
 
-All basic types, such as `Int`, `Float`, `String`, `Bool`, are natively converted from the request's params.  However in order to convert more complex types, such as a `User`, a `ParamConverter` must be specified on the action to specify how to resolve that type.  Multiple `ParamConverter` are also supported.
+All basic types, such as `Int`, `Float`, `String`, `Bool`, are natively converted from the request's params.  However in order to convert more complex types, such as a `User`, a `ParamConverter` must be specified on the action to specify how to resolve that type.  Multiple `ParamConverter` are also supported.
 
 ### Exists
 
@@ -528,14 +528,8 @@ This then can be used like `@[Athena::Routing::ParamConverter(param: "user", typ
 
 ## CORS
 
-Athena provides an easy, flexible way to enable CORS for your application's endpoints.  To enable cors, set `enabled` to `true` in your `athena.yml` file in the root of your problem.  If a config file was not created upon installing Athena, created before CORS support was released for example, an example file is available [here](https://github.com/Blacksmoke16/athena/blob/master/athena.yml). 
+Athena provides an easy, flexible way to enable CORS for your application's endpoints.  To enable cors, set `enabled` to `true` in your configuration file.  For additional information on configuring your application, see the [configuration](../readmen.md#configuration) section.
 
-By default the file should be named `athena.yml` and be located at the root of the project.  This can be overridden by providing a path when starting Athena. 
-
-```crystal
-Athena::Routing.run(config_path: "path/to/config")
-```
-A recommended option would be to have multiple config files for each environment, then use an ENV variable to supply the path.  
 ### Strategy
 
 The `strategy` determines how CORS settings get applied.  

@@ -69,4 +69,27 @@ describe Athena do
       end
     end
   end
+
+  describe ".config" do
+    describe "with the default path" do
+      it "shoudl return the standard object" do
+        config = Athena.config
+        config.routing.cors.enabled.should be_false
+        config.routing.cors.groups.empty?.should be_true
+        config.routing.cors.defaults.allow_origin.should eq "https://yourdomain.com"
+        config.routing.cors.strategy.should eq "blacklist"
+      end
+    end
+
+    describe "with a provided path" do
+      it "shoudl return the standard object" do
+        config = Athena.config "spec/routing/athena.yml"
+        config.routing.cors.enabled.should be_true
+        config.routing.cors.groups.has_key?("class_overload").should be_true
+        config.routing.cors.groups.has_key?("action_overload").should be_true
+        config.routing.cors.defaults.allow_origin.should eq "DEFAULT_DOMAIN"
+        config.routing.cors.strategy.should eq "blacklist"
+      end
+    end
+  end
 end
