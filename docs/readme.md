@@ -12,15 +12,13 @@ Athena uses a YAML file in the root of your application to store settings relate
 
 ### Accessing the Configuration
 
-The `Athena.config` method will return an [`Athena::Config::Config`](<https://blacksmoke16.github.io/athena/Athena/Config/Config.html>) object instantiated from the `athena.yml` file.  The method also accepts a *config_path* parameter that would return a config object from the confg file at the end of the path.  
+The `Athena.config` method will return an [`Athena::Config::Config`](<https://blacksmoke16.github.io/athena/Athena/Config/Config.html>) object instantiated from the `athena.yml` file.  The method also accepts a *config_path* parameter that returns the config from file at the end of the path.  This method allows the application's configuration to be usable from within HTTP handlers, CLI commands, etc.  
 
 A recommended option is to have multiple config files for each environment, then use an ENV variable that determines which one to use. 
 
 ```crystal
 config = Athena.config "athena_#{ENV["ENV"].downcase}.yml"
 ```
-
-Or something along those lines.
 
 ### Custom Settings
 
@@ -37,7 +35,7 @@ custom_settings:
     password: password
 ```
 
-The specific settings are defined by creating a `CustomSettings` struct in your application.  Getters defined on this struct will be read from the configuration files `custom_settings` object.  Methods/sub objects can also be used.  
+The specific settings are defined by creating a `CustomSettings` struct in your application.  Getters defined on this struct will be read from the configuration file's `custom_settings` object.  Methods and nested objects can also be used.  
 
 ```crystal
 struct Aws
@@ -65,7 +63,7 @@ gold = player.gold * Athena.config.custom_settings.gold_multiplier
 aws_client = Athena.config.custom_settings.aws.get_client
 ```
 
-**NOTE:** There are no safety measures around the `custom_settings` object.  Be sure to properly type the getters, make sure the properties are included in the config file, or use defaults values if needed.  Exceptions will be thrown if a key is missing that doesn't have a default value, or if the `custom_settings` key isn't defined in the configuration file.
+**NOTE:** There are no safety measures around the `custom_settings` object.  Be sure to properly type the getters, make sure the properties are included in the config file, or use defaults values if needed.  Exceptions will be thrown if a key is missing that doesn't have a default value, or if the `custom_settings` key isn't defined in the configuration file.
 
 ## Modules
 
