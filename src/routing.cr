@@ -4,9 +4,12 @@ require "CrSerializer"
 
 require "./config/config"
 
+require "./di"
+
 require "./common/types"
 
 require "./routing/converters"
+require "./routing/request_stack"
 require "./routing/exceptions"
 require "./routing/renderers"
 require "./routing/handlers/*"
@@ -168,19 +171,6 @@ module Athena::Routing
       return
     end
 
-    # Initializes a controller with the current `HTTP::Server::Context`.
-    def initialize(@ctx : HTTP::Server::Context); end
-
-    # Returns the request object for the current request
-    def get_request : HTTP::Request
-      @ctx.request
-    end
-
-    # Returns the response object for the current request
-    def get_response : HTTP::Server::Response
-      @ctx.response
-    end
-
     # Handles exceptions that could occur when using Athena.
     # Throws a 500 if the error does not match any handler.
     #
@@ -313,3 +303,45 @@ module Athena::Routing
     raise ex.to_s
   end
 end
+
+# @[Athena::DI::Register]
+# struct Store < Athena::DI::Service
+#   property uuid : String = "bar"
+# end
+
+# @[Athena::DI::Register(Store.new)]
+# struct StringFactory < Athena::DI::Service
+#   include Athena::DI::Injectable
+
+#   def initialize(@store : Store); end
+
+#   def up
+#     @store.uuid.upcase
+#   end
+# end
+
+# @[Athena::DI::Register("GOOGLE", "Google", name: "google")]
+# @[Athena::DI::Register("FACEBOOK", "Facebook", name: "facebook")]
+# struct FeedPartner < Service
+#   getter id : String
+#   getter name : String
+
+#   def initialize(@id : String, @name : String); end
+# end
+
+# class AthenaController < Athena::Routing::Controller
+#   include Athena::DI::Injectable
+
+#   def initialize(@partners : StringFactory); end
+
+#   @[Athena::Routing::Get(path: "noParamsGet")]
+#   def no_params_get : String
+#     # pp @request_stack.requests.size
+#     # pp Athena::Routing.container
+
+#     pp @partners.up
+#     "foobar"
+#   end
+# end
+
+# Athena::Routing.run
