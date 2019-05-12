@@ -225,7 +225,7 @@ module Athena::Routing::Handlers
       # Make sure there is an action to handle the incoming request
       action = route.found? ? route.payload.not_nil! : raise Athena::Routing::Exceptions::NotFoundException.new "No route found for '#{ctx.request.method} #{ctx.request.path}'"
 
-      # Set the continer to a copy of the container
+      # Initialize a new container for this request. Has to be set here so that keep-alive requests will get a new container.
       Fiber.current.container = Athena::DI::ServiceContainer.new
 
       # DI isn't initalized until this point, so get the request_stack directly from the container after setting the container

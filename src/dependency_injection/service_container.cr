@@ -15,7 +15,7 @@ module Athena::DI
           {% for service_definition in service.annotations(Athena::DI::Register) %}
             {% key = service_definition[:name] ? service_definition[:name] : service.name.stringify.split("::").last.underscore %}
             {% tags = service_definition[:tags] ? service_definition[:tags] : "[]".id %}
-            {% arg_list = !method || method.args.empty? ? [] of Object : 0...method.args.size.map { |idx| service_definition[idx] } %}
+            {% arg_list = !method || method.args.empty? ? [] of Object : (0...method.args.size).map { |idx| service_definition[idx] } %}
             services_hash[{{key}}] = Athena::DI::Definition({{service.id}}).new(service: {{service.id}}.new({{arg_list.splat}}), tags: {{tags}} of String)
           {% end %}
         {% end %}
@@ -36,17 +36,17 @@ module Athena::DI
       # end
 
       # Attempt to resolve the service based on the type
-      services_for_type = @services.values.select &.service_class.==(type_restriction)
+      services_for_type = @services.values.select &.as(Definition).service_class.==(type_restriction)
 
       # Raise if there was not one defined
       raise "No service with type '#{type_restriction}' has been registered." if services_for_type.size.zero?
 
       # return the service if there is only one
-      return services_for_type.first.service if services_for_type.size == 1
+      return services_for_type.first.as(Definition).service if services_for_type.size == 1
 
       # otherwise also use the name to resolve the service
       services_for_type.each do |s|
-        return s.service if name == @services.key_for s
+        return s.as(Definition).service if name == @services.key_for s
       end
 
       # finally throw an exception if it could not be resolved

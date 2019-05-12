@@ -57,7 +57,9 @@ module Athena::DI
   end
 
   # The container that all objects live in.
-  class_getter container : Athena::DI::ServiceContainer = Athena::DI::ServiceContainer.new
+  def self.container
+    @@container ||= Athena::DI::ServiceContainer.new
+  end
 
   # Returns the container for the current fiber.
   #
@@ -85,4 +87,4 @@ module Athena::DI
 end
 
 # Set the container on the current (main) fiber so its available project wide from start.
-Fiber.current.container = Athena::DI.container
+Fiber.current.container = Athena::DI::ServiceContainer.new if Fiber.current.name == ""
