@@ -24,7 +24,7 @@ module Athena::DI
   # With no initializer.
   # ```
   # @[Athena::DI::Register]
-  # class Store < Athena::DI::Service
+  # class Store < Athena::DI::ClassService
   #   property uuid : String? = nil
   # end
   # ```
@@ -33,7 +33,7 @@ module Athena::DI
   # ```
   # @[Athena::DI::Register("GOOGLE", "Google", name: "google")]
   # @[Athena::DI::Register("FACEBOOK", "Facebook", name: "facebook")]
-  # struct FeedPartner < Athena::DI::Service
+  # struct FeedPartner < Athena::DI::StructService
   #   getter id : String
   #   getter name : String
   #
