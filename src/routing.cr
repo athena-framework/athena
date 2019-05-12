@@ -278,7 +278,7 @@ module Athena::Routing
     end
 
     # Insert the RouteHandler automatically so the user does not have to deal with the config file.
-    handlers.unshift Athena::Routing::Handlers::RouteHandler.new(config)
+    handlers.unshift Athena::Routing::Handlers::RouteHandler.new config
 
     # Validate the action handler is included.
     raise "Handlers must include 'Athena::Routing::Handlers::ActionHandler'." if handlers.none? &.is_a? Athena::Routing::Handlers::ActionHandler
@@ -303,45 +303,3 @@ module Athena::Routing
     raise ex.to_s
   end
 end
-
-# @[Athena::DI::Register]
-# struct Store < Athena::DI::Service
-#   property uuid : String = "bar"
-# end
-
-# @[Athena::DI::Register(Store.new)]
-# struct StringFactory < Athena::DI::Service
-#   include Athena::DI::Injectable
-
-#   def initialize(@store : Store); end
-
-#   def up
-#     @store.uuid.upcase
-#   end
-# end
-
-# @[Athena::DI::Register("GOOGLE", "Google", name: "google")]
-# @[Athena::DI::Register("FACEBOOK", "Facebook", name: "facebook")]
-# struct FeedPartner < Service
-#   getter id : String
-#   getter name : String
-
-#   def initialize(@id : String, @name : String); end
-# end
-
-# class AthenaController < Athena::Routing::Controller
-#   include Athena::DI::Injectable
-
-#   def initialize(@partners : StringFactory); end
-
-#   @[Athena::Routing::Get(path: "noParamsGet")]
-#   def no_params_get : String
-#     # pp @request_stack.requests.size
-#     # pp Athena::Routing.container
-
-#     pp @partners.up
-#     "foobar"
-#   end
-# end
-
-# Athena::Routing.run

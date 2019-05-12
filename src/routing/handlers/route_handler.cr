@@ -221,22 +221,26 @@ module Athena::Routing::Handlers
 
       search_key = '/' + method + ctx.request.path
       route = @routes.find search_key
+
+      # Make sure there is an action to handle the incoming request
       action = route.found? ? route.payload.not_nil! : raise Athena::Routing::Exceptions::NotFoundException.new "No route found for '#{ctx.request.method} #{ctx.request.path}'"
-      Fiber.current.container = Athena::DI.container
 
-      # @request_stack.requests << ctx
+      # Set the continer to a copy of the container
+      Fiber.current.container = Athena::DI::ServiceContainer.new
 
+      # DI isn't initalized until this point, so get the request_stack directly from the container after setting the container
+      request_stack = Athena::DI.get_container.get("request_stack").as(RequestStack)
+
+      # Push the new request into the stack
+      request_stack.requests << ctx
+
+      # Handle the request
       call_next ctx, action, @config
 
-      # @request_stack.requests.pop
-
-
+      # Pop the request from the stack since it is finished
+      request_stack.requests.pop
     rescue ex
-      if a = action
-        a.controller.handle_exception ex, ctx
-      else
-        Athena::Routing::Controller.handle_exception ex, ctx
-      end
+      (a = action) ? a.controller.handle_exception ex, ctx : Athena::Routing::Controller.handle_exception ex, ctx
     end
   end
 end

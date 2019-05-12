@@ -1,7 +1,6 @@
-require "uuid"
-
 module Athena::Routing
-  class RequestStack
+  @[Athena::DI::Register]
+  class RequestStack < Athena::DI::ClassService
     getter requests = [] of HTTP::Server::Context
 
     # Returns the current request in the stack.

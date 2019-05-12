@@ -7,29 +7,16 @@ module Athena::DI
     def initialize
       services_hash = nil
       {% begin %}
-        {% services = Service.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } %}
+        {% services = Athena::DI::StructService.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } + Athena::DI::ClassService.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } %}
         services_hash = Hash(String, ServiceDefinition).new nil, {{services.reduce(0) { |acc, s| acc + s.annotations(Athena::DI::Register).size }}}
 
         {% for service in services %}
           {% method = service.methods.find { |m| m.name == "initialize" } %}
-          {% service_definitions = service.annotations(Athena::DI::Register) %}
-
-          {% for service_definition in service_definitions %}
-            {% key = service_definition && service_definition[:name] ? service_definition[:name] : service.name.stringify.split("::").last.underscore %}
-            {% tags = service_definition && service_definition[:tags] ? service_definition[:tags] : "[]".id %}
-            {% shared = service_definition && service_definition[:shared] ? service_definition[:shared] : true %}
-
-            # If there is no initalize method assume there are no dependencies for it
-            {% unless method %}
-              services_hash[{{key}}] = Definition({{service.id}}).new(service: {{service.id}}.new, tags: {{tags}} of String, shared: {{shared}})
-            # Otherwise register based on args from annotations
-            {% else %}
-              {% arg_list = [] of Object %}
-              {% for idx in 0...method.args.size %}
-                {% arg_list << service_definition[idx] %}
-              {% end %}
-              services_hash[{{key}}] = Definition({{service.id}}).new(service: {{service.id}}.new({{arg_list.splat}}), tags: {{tags}} of String, shared: {{shared}})
-            {% end %}
+          {% for service_definition in service.annotations(Athena::DI::Register) %}
+            {% key = service_definition[:name] ? service_definition[:name] : service.name.stringify.split("::").last.underscore %}
+            {% tags = service_definition[:tags] ? service_definition[:tags] : "[]".id %}
+            {% arg_list = !method || method.args.empty? ? [] of Object : 0...method.args.size.map { |idx| service_definition[idx] } %}
+            services_hash[{{key}}] = Athena::DI::Definition({{service.id}}).new(service: {{service.id}}.new({{arg_list.splat}}), tags: {{tags}} of String)
           {% end %}
         {% end %}
       {% end %}
@@ -37,7 +24,7 @@ module Athena::DI
     end
 
     # Returns the service with the proided *name*.
-    def get(name : String) : Service
+    def get(name : String) : Athena::DI::Service
       @services[name].service
     end
 
@@ -49,7 +36,7 @@ module Athena::DI
       # end
 
       # Attempt to resolve the service based on the type
-      services_for_type = @services.values.select &.service_klass.==(type_restriction)
+      services_for_type = @services.values.select &.service_class.==(type_restriction)
 
       # Raise if there was not one defined
       raise "No service with type '#{type_restriction}' has been registered." if services_for_type.size.zero?
@@ -67,7 +54,7 @@ module Athena::DI
     end
 
     # Returns services
-    def tagged(tag : String) : Array(Service)
+    def tagged(tag : String) : Array(Athena::DI::Service)
       @services.values.select(&.tags.includes?(tag)).map(&.service)
     end
   end
