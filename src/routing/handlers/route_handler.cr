@@ -73,7 +73,7 @@ module Athena::Routing::Handlers
           {% param_converters = m.annotations(ParamConverter) %}
 
           {% for converter in param_converters %}
-            # Ensure each converter implements required propertyes and `type` implements the required methods.
+            # Ensure each converter implements required properties and `type` implements the required methods.
             {% if converter && converter[:param] && converter[:type] && converter[:converter] %}
               {% if converter[:converter].stringify == "Exists" %}
                 {% raise "#{converter[:type]} must implement a `self.find(id)` method to use the Exists converter." unless converter[:type].resolve.class.has_method?("find") %}
@@ -206,7 +206,7 @@ module Athena::Routing::Handlers
       {% end %}
     end
 
-    # Entrypoint of a request.
+    # Entry-point of a request.
     def call(ctx : HTTP::Server::Context)
       # If this is a OPTIONS request change the method to the requested method to access the actual action that will be invoked.
       method : String = if ctx.request.method == "OPTIONS"
@@ -228,7 +228,7 @@ module Athena::Routing::Handlers
       # Initialize a new container for this request. Has to be set here so that keep-alive requests will get a new container.
       Fiber.current.container = Athena::DI::ServiceContainer.new
 
-      # DI isn't initalized until this point, so get the request_stack directly from the container after setting the container
+      # DI isn't initialized until this point, so get the request_stack directly from the container after setting the container
       request_stack = Athena::DI.get_container.get("request_stack").as(RequestStack)
 
       # Push the new request into the stack

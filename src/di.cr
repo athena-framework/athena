@@ -19,7 +19,7 @@ module Athena::DI
   # * name : `String`- The name that should be used for the service.  Defaults to the type name snake cased.
   # * tags : `Array(String)` - Tags that should be assigned to the service.
   #
-  # ## Example
+  # ## Examples
   #
   # With no initializer.
   # ```
@@ -41,6 +41,22 @@ module Athena::DI
   # end
   # ```
   annotation Register; end
+
+  # Used to inject an array of registered services of type `T`.
+  #
+  # ## Example
+  # ```
+  # def initialize(@partners : OfType(FeedPartner)); end
+  # ```
+  module OfType(T)
+    # :nodoc:
+    def self.type
+      T
+    end
+  end
+
+  # Used to inject an array of services with the provided *tag*.
+  record Tagged, tag : String
 
   # :nodoc:
   module Service
