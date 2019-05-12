@@ -56,7 +56,7 @@ describe Athena::DI::ServiceContainer do
   describe "#get" do
     describe "when the service exists" do
       it "should return the service with the given name" do
-        service = CONTAINER.get("fake_service").should be_a FakeService
+        CONTAINER.get("fake_service").should be_a FakeService
       end
     end
 
