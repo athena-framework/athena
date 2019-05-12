@@ -103,4 +103,4 @@ module Athena::DI
 end
 
 # Set the container on the current (main) fiber so its available project wide from start.
-Fiber.current.container = Athena::DI::ServiceContainer.new if Fiber.current.name == ""
+Fiber.current.container = Athena::DI::ServiceContainer.new if Fiber.current.name == "main"
