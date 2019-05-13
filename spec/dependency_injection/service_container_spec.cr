@@ -80,15 +80,26 @@ describe Athena::DI::ServiceContainer do
   end
 
   describe "#get" do
-    describe "when the service exists" do
-      it "should return the service with the given name" do
-        CONTAINER.get("fake_service").should be_a FakeService
+    describe "by type and name" do
+      describe "when the service exists" do
+        it "should return the service with the given name" do
+          CONTAINER.get("fake_service").should be_a FakeService
+        end
+      end
+
+      describe "when the service does not exist" do
+        it "should throw an exception" do
+          expect_raises Exception, "No service with the name 'foobar' has been registered." { CONTAINER.get "foobar" }
+        end
       end
     end
 
-    describe "when the service does not exist" do
-      it "should throw an exception" do
-        expect_raises Exception, "No service with the name 'foobar' has been registered." { CONTAINER.get "foobar" }
+    describe "by type" do
+      it "should return an array of services with that type" do
+        services = CONTAINER.get FakeServices
+        services.size.should eq 2
+        services[0].should be_a FakeService
+        services[1].should be_a CustomFooFakeService
       end
     end
   end
@@ -119,26 +130,6 @@ describe Athena::DI::ServiceContainer do
           service.should be_a FeedPartner
           service.id.should eq "GOOGLE"
         end
-      end
-    end
-
-    pending Athena::DI::OfType do
-      it "should return an array of services with that type" do
-        services = CONTAINER.resolve Athena::DI::OfType(FakeServices), "foo"
-        services.size.should eq 2
-        services[0].should be_a FakeService
-        services[1].should be_a CustomFooFakeService
-      end
-    end
-
-    pending Athena::DI::Tagged do
-      it "should return an array of services with that tag" do
-        services = CONTAINER.resolve Athena::DI::Tagged.new "feed_partner"
-        services.size.should eq 1
-
-        google = services[0].as(FeedPartner)
-        google.should be_a FeedPartner
-        google.id.should eq "GOOGLE"
       end
     end
   end
@@ -191,16 +182,6 @@ describe Athena::DI::ServiceContainer do
         klass.id.should eq "FOO"
         klass.store.should be_a FakeStore
         klass.store.name.should eq "TEST"
-      end
-    end
-
-    pending Athena::DI::OfType do
-      it "should inject an array of the specified type" do
-      end
-    end
-
-    pending Athena::DI::Tagged do
-      it "should inject an array of the given tag" do
       end
     end
   end

@@ -1,6 +1,6 @@
 # Dependency Injection
 
-Athena's Dependency Injection (DI) module adds a service container layer to your project.  This allows a project to share useful objects, aka services, throughout the project.  These objects live in a special class called the Service Container (SC) .   Object instances can be retrieved from the container, or even injected directly into classes as a form of constructor DI.
+Athena's Dependency Injection (DI) module adds a service container layer to your project.  This allows a project to share useful objects, aka services, throughout the project.  These objects live in a special class called the Service Container (SC).  Object instances can be retrieved from the container, or even injected directly into classes as a form of constructor DI.
 
 By default, the SC is added to the main fiber of the project.  This allows the SC to be retrieved anywhere within the project.  The `Athena::DI.get_container` method will return the SC for the current fiber.  Since the SC is defined on fibers, it allows for each fiber to have its own SC.  This can be useful for web frameworks as each request would have its own SC scoped to that request.  This however, is up to the each project to implement. 
 
@@ -31,7 +31,7 @@ If a class has an initializer, the arguments to use can be specified within the 
 require "athena/di"
 
 # The arguments are defined in the same order as the initialize method.
-@[Athena::DI::Register("FACEBOOK", "Facebook")]
+@[Athena::DI::Register("GOOGLE", "Google")]
 struct FeedPartner < Athena::DI::StructService
   getter id : String
   getter name : String
@@ -90,8 +90,6 @@ struct FeedPartner < Athena::DI::StructService
 end
 ```
 
-
-
 ## Retrieving Services
 
 Once services have been registered they are available within the SC.
@@ -106,9 +104,17 @@ store = Athena::DI.get_container.get("store")
 store.name # => "Jim"
 ```
 
+The other variant of the `get` command accepts a `Athena::DI::Service.class` argument and will return all services of that type.
+
+```crystal
+# Assuming we've registered the services above
+feed_partners = Athena::DI.get FeedPartner
+feed_partners # => [FeedPartner(@id="GOOGLE", @name="Google"), FeedPartner(@id="FACEBOOK", @name="Facebook")]
+```
+
 ### Tagged
 
-The `tagged` method can be used to retrieve an array of services that have been a specific tag.
+The `tagged` method can be used to retrieve an array of services that have a specific tag.
 
 ```crystal
 # Assuming we've registered the services above
@@ -135,6 +141,36 @@ some_class = SomeClass.new
 ```
 
 Thats it.  This class will then have access to a shared `Store` object.  Any changes made to it within `SomeClass` would be reflected in other classes it was also injected into.  
+
+Service lookup is based on the type of the restriction and the name of the variable.
+
+```crystal
+require "athena/di"
+
+class SomeClass
+  include Athena::DI::Injectable
+
+  def initialize(@partners : FeedPartner); end
+end
+
+# This would fail with the error 
+# "Could not resolve a service with type 'FeedPartner' and name of 'partners'."
+# since it was not able to resolve the type and name combo into a singular service.
+some_class = SomeClass.new
+```
+
+```crystal
+require "athena/di"
+
+class SomeClass
+  include Athena::DI::Injectable
+
+  def initialize(@google : FeedPartner); end
+end
+
+# This would inject the service of type `FeedPartner` with the name `google`.
+some_class = SomeClass.new
+```
 
 If a class's `initialize` method has other arguments that are not part of the SC, they can be specified by name.
 

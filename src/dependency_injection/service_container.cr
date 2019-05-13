@@ -28,14 +28,9 @@ module Athena::DI
       (s = @services[name]?) ? s.service : raise "No service with the name '#{name}' has been registered."
     end
 
-    # Returns an array of services of the provided tag.
-    def resolve(tag : Tagged, name : String? = nil) : Array(Service)
-      tagged tag.tag
-    end
-
-    # Returns an array of services of the provided type.
-    def resolve(of_type : OfType.class, name : String? = nil) : Array(Service)
-      get_definitions_for_type(of_type.type).map &.service
+    # Returns an array of services of the provided *type*.
+    def get(type : Service.class) : Array(Service)
+      get_definitions_for_type(type).map &.service
     end
 
     # Returns the service of the given *type* and *name*.
