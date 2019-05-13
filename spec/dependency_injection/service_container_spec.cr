@@ -23,10 +23,36 @@ struct FeedPartner < Athena::DI::StructService
   def initialize(@id : String, @name : String); end
 end
 
+@[Athena::DI::Register]
+class Store < Athena::DI::ClassService
+  property name : String = "Jim"
+end
+
+class FakeStore < Store
+  property name : String = "TEST"
+end
+
+class SomeClass
+  include Athena::DI::Injectable
+
+  getter store : Store
+
+  def initialize(@store : Store); end
+end
+
+class OtherClass
+  include Athena::DI::Injectable
+
+  getter store : Store
+  getter id : String
+
+  def initialize(@store : Store, @id : String); end
+end
+
 describe Athena::DI::ServiceContainer do
   describe "#initialize" do
     it "should add the annotated services" do
-      CONTAINER.services.size.should eq 4
+      CONTAINER.services.size.should eq 5
       CONTAINER.services.has_key?("fake_service").should be_true
       fake_service = CONTAINER.services["fake_service"]
       fake_service.should be_a Athena::DI::Definition
@@ -96,16 +122,16 @@ describe Athena::DI::ServiceContainer do
       end
     end
 
-    describe Athena::DI::OfType do
+    pending Athena::DI::OfType do
       it "should return an array of services with that type" do
-        services = CONTAINER.resolve Athena::DI::OfType(FakeServices)
+        services = CONTAINER.resolve Athena::DI::OfType(FakeServices), "foo"
         services.size.should eq 2
         services[0].should be_a FakeService
         services[1].should be_a CustomFooFakeService
       end
     end
 
-    describe Athena::DI::Tagged do
+    pending Athena::DI::Tagged do
       it "should return an array of services with that tag" do
         services = CONTAINER.resolve Athena::DI::Tagged.new "feed_partner"
         services.size.should eq 1
@@ -138,6 +164,44 @@ describe Athena::DI::ServiceContainer do
       google = services[0].as(FeedPartner)
       google.should be_a FeedPartner
       google.id.should eq "GOOGLE"
+    end
+  end
+
+  describe "auto injection" do
+    describe "with only services" do
+      it "should inject an instance of the Store class" do
+        klass = SomeClass.new
+        klass.store.should be_a Store
+        klass.store.name.should eq "Jim"
+      end
+    end
+
+    describe "with a non service argument" do
+      it "should auto inject the store" do
+        klass = OtherClass.new id: "FOO"
+        klass.id.should eq "FOO"
+        klass.store.should be_a Store
+        klass.store.name.should eq "Jim"
+      end
+    end
+
+    describe "when overriding the service" do
+      it "should use the mocked service" do
+        klass = OtherClass.new id: "FOO", store: FakeStore.new
+        klass.id.should eq "FOO"
+        klass.store.should be_a FakeStore
+        klass.store.name.should eq "TEST"
+      end
+    end
+
+    pending Athena::DI::OfType do
+      it "should inject an array of the specified type" do
+      end
+    end
+
+    pending Athena::DI::Tagged do
+      it "should inject an array of the given tag" do
+      end
     end
   end
 end

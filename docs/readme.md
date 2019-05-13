@@ -78,6 +78,10 @@ aws_client = Athena.config.custom_settings.aws.get_client
   * [Custom HTTP Handlers](./routing.md#custom-handlers)
 * [CLI](./cli.md) `require "athena/cli"` - _done_:
   * [Creating CLI commands](./cli.md#commands)
+* [Dependency Injection](./dependency_injection.md) `require "athena/di"` - done:
+  * [Registering Services](./dependency_injection.md#registering-services)
+  * [Retrieving Services](./dependency_injection.md#retrieving-services)
+  * [Auto Injection](./dependency_injection.md#auto-injection)
 * Security - _todo_:
   * TBD
 * Documentation - _todo_:
