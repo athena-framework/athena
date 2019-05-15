@@ -1,6 +1,6 @@
 require "./dependency_injection_spec_helper"
 
-class Foo < Athena::DI::ClassService
+class UnknownService < Athena::DI::ClassService
 end
 
 abstract class FakeServices < Athena::DI::ClassService
@@ -49,10 +49,45 @@ class OtherClass
   def initialize(@store : Store, @id : String); end
 end
 
+@[Athena::DI::Register("@blah", "a_string", "@a_service")]
+class AService2 < Athena::DI::ClassService
+  getter blah : Blah
+  getter foo : String
+  getter ase : AService
+
+  def initialize(@blah : Blah, @foo : String, @ase : AService); end
+end
+
+@[Athena::DI::Register("@blah", "@some_service")]
+class AService < Athena::DI::ClassService
+  def initialize(@blah : Blah, @foo : Foo); end
+end
+
+@[Athena::DI::Register("@some_service", 99_i64)]
+class Blah < Athena::DI::ClassService
+  getter foo : Foo
+  getter val : Int64
+
+  def initialize(@foo : Foo, @val : Int64); end
+end
+
+@[Athena::DI::Register(name: "some_service")]
+class Foo < Athena::DI::ClassService
+  property name = "Bob"
+end
+
+class FooBar
+  include Athena::DI::Injectable
+
+  getter serv : AService2
+
+  def initialize(@serv : AService2); end
+end
+
 describe Athena::DI::ServiceContainer do
   describe "#initialize" do
     it "should add the annotated services" do
-      CONTAINER.services.size.should eq 5
+      CONTAINER.services.size.should eq 9
       CONTAINER.services.has_key?("fake_service").should be_true
       fake_service = CONTAINER.services["fake_service"]
       fake_service.should be_a Athena::DI::Definition
@@ -76,6 +111,19 @@ describe Athena::DI::ServiceContainer do
       fakebook.should be_a Athena::DI::Definition
       fakebook.service.should be_a FeedPartner
       fakebook.tags.should eq ["partner"]
+
+      CONTAINER.services.has_key?("blah").should be_true
+      blah = CONTAINER.services["blah"]
+      blah.service.should be_a Blah
+      blah.service.as(Blah).val.should eq 99_i64
+      blah.service.as(Blah).foo.should be_a Foo
+      blah.service.as(Blah).foo.name.should eq "Bob"
+
+      CONTAINER.services.has_key?("a_service2").should be_true
+      a_service2 = CONTAINER.services["a_service2"]
+      a_service2.should be_a Athena::DI::Definition
+      a_service2.service.should be_a AService2
+      a_service2.tags.should eq [] of String
     end
   end
 
@@ -107,7 +155,7 @@ describe Athena::DI::ServiceContainer do
   describe "#resolve" do
     describe "when there are no services with the type" do
       it "should raise an exception" do
-        expect_raises Exception, "No service with type 'Foo' has been registered." { CONTAINER.resolve Foo, "foo" }
+        expect_raises Exception, "No service with type 'UnknownService' has been registered." { CONTAINER.resolve UnknownService, "unknown_service" }
       end
     end
 
@@ -182,6 +230,15 @@ describe Athena::DI::ServiceContainer do
         klass.id.should eq "FOO"
         klass.store.should be_a FakeStore
         klass.store.name.should eq "TEST"
+      end
+    end
+
+    describe "with other required services" do
+      it "should inject an instance of the Store class" do
+        klass = FooBar.new
+        klass.serv.blah.should be_a Blah
+        klass.serv.foo.should eq "a_string"
+        klass.serv.ase.should be_a AService
       end
     end
   end

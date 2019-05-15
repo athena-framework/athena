@@ -203,4 +203,33 @@ some_other_store = ...
 some_class = SomeClass.new id: "FOO", store: some_other_store
 ```
 
-This is useful as `Store` could be a parent class that multiple types of stores inherit from.  Alternatively, the mock store could inherit from the actual store, but mocking out data within the mock.  This is useful for tests as it allows the dependencies of a class to not interfere with the testing of that specific class.
+If a service depends on another service, a string can be included in the `Athena::DI::Register` annotation prepended with an `@` symbol, where the string is the name of the service to inject.
+
+```crystal
+@[Athena::DI::Register]
+class Store < Athena::DI::ClassService
+  property name : String = "Jim"
+end
+
+@[Athena::DI::Register("@store")]
+class AService < Athena::DI::ClassService
+  def initialize(@store : Store); end
+end
+
+class SomeClass
+  include Athena::DI::Injectable
+
+  getter a_service : AService
+
+  def initialize(@a_service : AService); end
+end
+
+a_class = SomeClass.new
+a_class.a_service.name # => "Jim"
+```
+
+### Testing
+
+Since the type restrictions of the initializer arguments can be set to "interfaces", this can be utilized to mock out classes to pass to the service.  The main use of this would be for unit testing the services; allowing the service to use mocked instances as to not depend on external dependencies.
+
+This could either be a new class that inherits from the actual one, or a new class that inherits/includes a class/module of that type.
