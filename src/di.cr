@@ -42,22 +42,6 @@ module Athena::DI
   # ```
   annotation Register; end
 
-  # Used to inject an array of registered services of type `T`.
-  #
-  # ## Example
-  # ```
-  # def initialize(@partners : OfType(FeedPartner)); end
-  # ```
-  module OfType(T)
-    # :nodoc:
-    def self.type
-      T
-    end
-  end
-
-  # Used to inject an array of services with the provided *tag*.
-  record Tagged, tag : String
-
   # :nodoc:
   module Service
   end
@@ -70,11 +54,6 @@ module Athena::DI
   # Parent class of services that will inject the same instance.
   abstract class ClassService
     include Service
-  end
-
-  # The container that all objects live in.
-  def self.container
-    @@container ||= Athena::DI::ServiceContainer.new
   end
 
   # Returns the container for the current fiber.
