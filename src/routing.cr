@@ -275,7 +275,7 @@ module Athena::Routing
   end
 
   # Starts the HTTP server with the given *port*, *binding*, *ssl*, *handlers*, and *path*.
-  def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [] of HTTP::Handler, config_path : String = "athena.yml")
+  def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, reuse_port : Bool = false, handlers : Array(HTTP::Handler) = [] of HTTP::Handler, config_path : String = "athena.yml")
     config : Athena::Config::Config = Athena::Config::Config.from_yaml File.read config_path
 
     # If no handlers are passed to `.run`; build out the default handlers.
@@ -298,12 +298,12 @@ module Athena::Routing
 
     unless @@server.not_nil!.each_address { |_| break true }
       {% if flag?(:without_openssl) %}
-        @@server.not_nil!.bind_tcp(binding, port)
+        @@server.not_nil!.bind_tcp(binding, port, reuse_port: reuse_port)
       {% else %}
         if ssl
-          @@server.not_nil!.bind_tls(binding, port, ssl)
+          @@server.not_nil!.bind_tls(binding, port, ssl, reuse_port: reuse_port)
         else
-          @@server.not_nil!.bind_tcp(binding, port)
+          @@server.not_nil!.bind_tcp(binding, port, reuse_port: reuse_port)
         end
       {% end %}
     end
