@@ -1,5 +1,6 @@
 # Config file for Athena.
 ---
+environment: development
 routing:
   cors:
     enabled: false

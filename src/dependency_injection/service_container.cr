@@ -1,9 +1,11 @@
 module Athena::DI
   # :nodoc:
-  private abstract struct AbstractServiceDefinition; end
+  module AbstractServiceDefinition; end
 
   # :nodoc:
-  private record ServiceDefinition(ServiceKlass, ServiceArgs, AnnotationArgs) < AbstractServiceDefinition, annotation_args : AnnotationArgs, tags : Array(String) do
+  private record ServiceDefinition(ServiceKlass, ServiceArgs, AnnotationArgs), annotation_args : AnnotationArgs, tags : Array(String) do
+    include AbstractServiceDefinition
+
     def construct_service(services : Hash(String, Athena::DI::Service)) : ServiceKlass
       ServiceKlass.new *ServiceArgs.from get_args(services)
     end

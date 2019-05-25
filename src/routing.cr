@@ -4,9 +4,10 @@ require "CrSerializer"
 
 require "./config/config"
 
-require "./di"
-
 require "./common/types"
+require "./common/logger"
+
+require "./di"
 
 require "./routing/converters"
 require "./routing/request_stack"
@@ -29,7 +30,7 @@ macro throw(status_code, body)
   response = ctx.response
   response.status_code = {{status_code}}
   response.print {{body}}
-  response.headers.add "Content-Type", "application/json"
+  response.headers.add "Content-Type", "application/json; charset=utf-8"
   response.close
   return
 end
@@ -171,11 +172,12 @@ module Athena::Routing
       return
     end
 
-    # Handles exceptions that could occur when using Athena.
+    # Handles exceptions that could occur when using Athena.  Will try to insert a *location* of the *exception* based on action name.
+    # Otherwise location is unknown.
     # Throws a 500 if the error does not match any handler.
     #
     # Method can be defined on child classes for controller specific error handling.
-    def self.handle_exception(exception : Exception, ctx : HTTP::Server::Context)
+    def self.handle_exception(exception : Exception, ctx : HTTP::Server::Context, location : String = "unknown")
       case exception
       when Athena::Routing::Exceptions::AthenaException  then throw exception.code, exception.to_json
       when CrSerializer::Exceptions::ValidationException then throw 400, exception.to_json
@@ -187,6 +189,7 @@ module Athena::Routing
           end
         end
       else
+        Crylog.logger.critical "Unhandled exception: #{exception.message} in #{self.name} at #{location}", Crylog::LogContext{"cause" => exception.cause.try(&.message), "cause_class" => exception.cause.class.name}
         # Otherwise throw a 500 if no other exception handlers are defined on any children
         throw 500, %({"code": 500, "message": "Internal Server Error"})
       end
@@ -267,6 +270,11 @@ module Athena::Routing
   # Starts the HTTP server with the given *port*, *binding*, *ssl*, *handlers*, and *path*.
   def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [] of HTTP::Handler, config_path : String = "athena.yml")
     config : Athena::Config::Config = Athena::Config::Config.from_yaml File.read config_path
+
+    Signal::INT.trap do
+      Athena::Routing.stop
+      exit
+    end
 
     # If no handlers are passed to `.run`; build out the default handlers.
     # Otherwise just use user supplied handlers.

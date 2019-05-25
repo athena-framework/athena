@@ -1,8 +1,9 @@
+*.dwarf
+/.shards/
+/bin/
 /doc/
 /lib/
-/bin/
-/.shards/
-*.dwarf
+/logs/
 
 # Libraries don't need dependency lock
 # Dependencies will be locked in application that uses them

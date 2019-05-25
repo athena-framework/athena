@@ -3,7 +3,7 @@ require "./handler"
 module Athena::Routing::Handlers
   # Executes the controller action for the given route.
   class ActionHandler < Athena::Routing::Handlers::Handler
-    def handle(ctx : HTTP::Server::Context, action : Action, config : Athena::Config::Config) : Nil
+    def handle(ctx : HTTP::Server::Context, action : Athena::Routing::Action, config : Athena::Config::Config) : Nil
       handle_next; return if ctx.request.method == "OPTIONS"
 
       params = Hash(String, String?).new
@@ -35,7 +35,16 @@ module Athena::Routing::Handlers
 
       handle_next
     rescue ex
-      action.controller.handle_exception ex, ctx
+      location = "unknown"
+
+      # Try to parse the location of the exception from the backtrace.
+      if trace = ex.backtrace.find { |t| t.includes? action.method }
+        if match = trace.match(/(.*) in/)
+          location = match[1]
+        end
+      end
+
+      action.controller.handle_exception ex, ctx, location
     end
   end
 end

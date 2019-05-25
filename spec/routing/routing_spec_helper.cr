@@ -3,8 +3,8 @@ require "http/client"
 require "../../src/routing"
 require "./controllers/*"
 
-DEFAULT_CONFIG = "athena.yml"
-CORS_CONFIG    = "spec/routing/athena.yml"
+DEFAULT_CONFIG = "spec/routing/athena.yml"
+CORS_CONFIG    = "spec/routing/cors_athena.yml"
 
 # Spawns a server with the given confg file path, runs the block, then stops the server.
 def do_with_config(path : String = DEFAULT_CONFIG, &block : HTTP::Client -> Nil) : Nil

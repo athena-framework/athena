@@ -17,6 +17,9 @@ module Athena
       # :nodoc:
       def initialize; end
 
+      # The environment of the configuration.
+      getter environment : String = "development"
+
       # Config properties related to `Athena::Routing` module.
       getter routing : RoutingConfig = Athena::Config::RoutingConfig.new
 

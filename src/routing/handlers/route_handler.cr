@@ -228,6 +228,9 @@ module Athena::Routing::Handlers
       # Initialize a new container for this request. Has to be set here so that keep-alive requests will get a new container.
       Fiber.current.container = Athena::DI::ServiceContainer.new
 
+      # Configure the logger for this request.
+      Athena.configure_logger
+
       # DI isn't initialized until this point, so get the request_stack directly from the container after setting the container
       request_stack = Athena::DI.get_container.get("request_stack").as(RequestStack)
 
@@ -241,6 +244,9 @@ module Athena::Routing::Handlers
       request_stack.requests.pop
     rescue ex
       (a = action) ? a.controller.handle_exception ex, ctx : Athena::Routing::Controller.handle_exception ex, ctx
+    ensure
+      # Close the log handlers so that FD etc are not kept open when there are no requests to process.
+      Crylog::Registry.close
     end
   end
 end
