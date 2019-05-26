@@ -1,7 +1,7 @@
 # Config file for Athena.
 ---
 environments:
-  &development development:
+  development: &development
     routing:
       cors:
         enabled: false
@@ -19,7 +19,7 @@ environments:
       sub_object:
         username: username
         password: password
-  &test test:
+  test: &test
     <<: *development
     custom_settings:
       aws_key: test_key

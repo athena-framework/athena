@@ -22,7 +22,7 @@ EXPLAIN
 DEFAULT_CONFIG_YAML = <<-YAML
 ---
 environments:
-  &development development:
+  development: &development
     routing:
       cors:
         enabled: false
@@ -35,14 +35,19 @@ environments:
           allow_methods: []
           allow_headers: []
         groups: {}
-  &test test:
+  test: &test
     <<: *development
-  &production production:
+  production: &production
     <<: *development\n
 YAML
 
 Spec.before_each { Crylog::Registry.clear }
 Spec.before_each { ENV["ATHENA_ENV"] = "test" }
+
+puts
+puts
+puts "Running Athena Specs"
+puts
 
 describe Athena do
   describe "binary" do
@@ -68,8 +73,7 @@ describe Athena do
           it "should not recreate the file" do
             created = File.info "athena.yml"
             run_binary(args: ["-c", "athena:generate:config_file"]) do |_output|
-              modified = File.info "athena.yml"
-              created.modification_time.should eq modified.modification_time
+              created.modification_time.should eq File.info("athena.yml").modification_time
             end
           end
         end
@@ -78,8 +82,7 @@ describe Athena do
           it "should recreate the file" do
             original = File.info "athena.yml"
             run_binary(args: ["-c", "athena:generate:config_file", "--override=true"]) do |_output|
-              new = File.info "athena.yml"
-              (original.modification_time < new.modification_time).should be_true
+              (original.modification_time < File.info("athena.yml").modification_time).should be_true
             end
           end
         end
@@ -95,7 +98,6 @@ describe Athena do
         end
 
         it "should generate the correct yaml" do
-          ENV["ATHENA_ENV"] = "development"
           Athena::Config::Environments.new.to_yaml.should eq DEFAULT_CONFIG_YAML
         end
       end

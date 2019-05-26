@@ -286,13 +286,16 @@ module Athena::Routing
     # Validate the action handler is included.
     raise "Handlers must include 'Athena::Routing::Handlers::ActionHandler'." if handlers.none? &.is_a? Athena::Routing::Handlers::ActionHandler
 
-    Signal::INT.trap do
-      Athena::Routing.stop
-      exit
-    end
-
     @@server = HTTP::Server.new handlers
-    puts "Athena is leading the way on #{binding}:#{port} in #{Athena.environment} environment"
+
+    if Athena.environment != "test"
+      Signal::INT.trap do
+        Athena::Routing.stop
+        exit
+      end
+
+      puts "Athena is leading the way on #{binding}:#{port} in #{Athena.environment} environment"
+    end
 
     unless @@server.not_nil!.each_address { |_| break true }
       {% if flag?(:without_openssl) %}

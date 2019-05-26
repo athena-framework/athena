@@ -1,7 +1,7 @@
 # Config file for Athena.
 ---
 environments:
-  &test test:
+  test: &test
     routing:
       cors:
         enabled: true

@@ -30,17 +30,20 @@ module Athena
         builder.mapping do
           builder.scalar "environments"
           builder.mapping do
-            builder.scalar "development", anchor: "development", reference: "development"
-            @environments["development"].to_yaml builder, serialization_groups, expand
+            builder.scalar "development"
+            builder.mapping(anchor: "development") do
+              builder.scalar "routing"
+              @environments["development"].routing.to_yaml builder, serialization_groups, expand
+            end
 
-            builder.scalar "test", anchor: "test"
-            builder.mapping do
+            builder.scalar "test"
+            builder.mapping(anchor: "test") do
               builder.scalar "<<"
               builder.scalar "", reference: "development"
             end
 
-            builder.scalar "production", anchor: "production"
-            builder.mapping do
+            builder.scalar "production"
+            builder.mapping(anchor: "production") do
               builder.scalar "<<"
               builder.scalar "", reference: "development"
             end

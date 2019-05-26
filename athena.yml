@@ -1,7 +1,7 @@
 # Config file for Athena.
 ---
 environments:
-  &development development:
+  development: &development
     routing:
       cors:
         enabled: false
@@ -14,7 +14,7 @@ environments:
           allow_methods: []
           allow_headers: []
         groups: {}
-  &test test:
+  test: &test
     <<: *development
-  &production production:
+  production: &production
     <<: *development
