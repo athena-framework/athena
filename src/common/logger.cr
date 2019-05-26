@@ -1,7 +1,7 @@
 require "crylog"
 
 module Athena
-  # Default directory where the logs are stored.
+  # Default directory where the logs are stored relative to the project root.
   LOGS_DIR = "logs"
 
   # Returns a logger with the given *channel*.
@@ -19,11 +19,11 @@ module Athena
       registry.register "main" do |logger|
         handlers = [] of Crylog::Handlers::LogHandler
 
-        if Athena.config.environment == "development"
+        if Athena.environment == "development"
           # Log to STDOUT and development log file if in develop env
           handlers << Crylog::Handlers::IOHandler.new(STDOUT)
           handlers << Crylog::Handlers::IOHandler.new(File.open("#{LOGS_DIR}/development.log", "a"))
-        elsif Athena.config.environment == "production"
+        elsif Athena.environment == "production"
           # Log warnings and higher to production log file if in production env.
           handlers << Crylog::Handlers::IOHandler.new(File.open("#{LOGS_DIR}/production.log", "a"), severity: Crylog::Severity::Warning)
         end

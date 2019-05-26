@@ -1,15 +1,16 @@
 # Config file for Athena.
 ---
-environment: development
-routing:
-  cors:
-    enabled: false
-    strategy: blacklist
-    defaults: &defaults
-      allow_origin: https://yourdomain.com
-      expose_headers: []
-      max_age: 0
-      allow_credentials: false
-      allow_methods: []
-      allow_headers: []
-    groups: {}
+environments:
+  &development development:
+    routing:
+      cors:
+        enabled: false
+        strategy: blacklist
+        defaults: &defaults
+          allow_origin: https://yourdomain.com
+          expose_headers: []
+          max_age: 0
+          allow_credentials: false
+          allow_methods: []
+          allow_headers: []
+        groups: {}

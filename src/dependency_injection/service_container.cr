@@ -24,15 +24,15 @@ module Athena::DI
     getter services : Hash(String, Athena::DI::Service) = Hash(String, Athena::DI::Service).new
 
     # Initializes the container.  Auto registering annotated services.
+    # ameba:disable Metrics/CyclomaticComplexity
     def initialize
       service_definitions = {} of String => AbstractServiceDefinition
       {% begin %}
         {% services = Athena::DI::StructService.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } + Athena::DI::ClassService.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } %}
-        {% registered_services = [] of String %}
         {% service_definitions = {} of String => AbstractServiceDefinition %}
 
         # Next iterate over services that have other services as dependencies.  If their dependencies have been resolved in the last step, register them.  Otherwise add them to be resolved later.
-        {% for service in services %}          
+        {% for service in services %}
           {% method = service.methods.find { |m| m.name == "initialize" } %}
           {% for service_definition in service.annotations(Athena::DI::Register) %}
             {% key = service_definition[:name] ? service_definition[:name] : service.name.stringify.split("::").last.underscore %}
@@ -50,13 +50,13 @@ module Athena::DI
 
       # Resolve services with tags last to make sure required services have been registered
       until service_definitions.empty?
-        service_definitions.each do |name, service_definition|
-          if service_definition.resolved?(@services)
-            @services[name] = service_definition.construct_service(@services)
+        service_definitions.each do |name, service_def|
+          if service_def.resolved?(@services)
+            @services[name] = service_def.construct_service(@services)
             service_definitions.delete name
           else
             # Check for circular dependencies
-            service_args = service_definition.annotation_args
+            service_args = service_def.annotation_args
             circ_dep = service_args.find do |s_arg|
               if s_arg.is_a?(String) && s_arg.starts_with?('@')
                 if service = service_definitions[s_arg.lchop('@')]?
@@ -77,7 +77,7 @@ module Athena::DI
 
     # Returns the service with the provided *name*.
     def get(name : String) : Athena::DI::Service
-      (s = @services[name]?) ? s : raise "No service with the name '#{name}' has been registered."
+      @services[name]? || raise "No service with the name '#{name}' has been registered."
     end
 
     # Returns an array of services of the provided *type*.

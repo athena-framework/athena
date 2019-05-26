@@ -269,12 +269,7 @@ module Athena::Routing
 
   # Starts the HTTP server with the given *port*, *binding*, *ssl*, *handlers*, and *path*.
   def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [] of HTTP::Handler, config_path : String = "athena.yml")
-    config : Athena::Config::Config = Athena::Config::Config.from_yaml File.read config_path
-
-    Signal::INT.trap do
-      Athena::Routing.stop
-      exit
-    end
+    config : Athena::Config::Config = Athena::Config::Environments.from_yaml(File.read config_path).environments[Athena.environment]
 
     # If no handlers are passed to `.run`; build out the default handlers.
     # Otherwise just use user supplied handlers.
@@ -291,8 +286,13 @@ module Athena::Routing
     # Validate the action handler is included.
     raise "Handlers must include 'Athena::Routing::Handlers::ActionHandler'." if handlers.none? &.is_a? Athena::Routing::Handlers::ActionHandler
 
+    Signal::INT.trap do
+      Athena::Routing.stop
+      exit
+    end
+
     @@server = HTTP::Server.new handlers
-    puts "Athena is leading the way on #{binding}:#{port}"
+    puts "Athena is leading the way on #{binding}:#{port} in #{Athena.environment} environment"
 
     unless @@server.not_nil!.each_address { |_| break true }
       {% if flag?(:without_openssl) %}

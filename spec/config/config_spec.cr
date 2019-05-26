@@ -33,5 +33,14 @@ describe Athena::Config::Config do
       config = Athena.config "spec/config/athena.yml"
       config.custom_settings.sub_object.get_auth_header.should eq "dXNlcm5hbWU6cGFzc3dvcmQ="
     end
+
+    describe "when in another env" do
+      ENV["ATHENA_ENV"] = "test"
+
+      it "should use the custom settings of that env" do
+        config = Athena.config "spec/config/athena.yml"
+        config.custom_settings.aws_key.should eq "test_key"
+      end
+    end
   end
 end

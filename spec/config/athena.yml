@@ -1,20 +1,29 @@
 # Config file for Athena.
 ---
-environment: test
-routing:
-  cors:
-    enabled: false
-    strategy: blacklist
-    defaults: &defaults
-      allow_origin: https://yourdomain.com
-      expose_headers: []
-      max_age: 0
-      allow_credentials: false
-      allow_methods: []
-      allow_headers: []
-    groups: {}
-custom_settings:
-  aws_key: abc123
-  sub_object:
-    username: username
-    password: password
+environments:
+  &development development:
+    routing:
+      cors:
+        enabled: false
+        strategy: blacklist
+        defaults: &defaults
+          allow_origin: https://yourdomain.com
+          expose_headers: []
+          max_age: 0
+          allow_credentials: false
+          allow_methods: []
+          allow_headers: []
+        groups: {}
+    custom_settings:
+      aws_key: abc123
+      sub_object:
+        username: username
+        password: password
+
+  test:
+    <<: *development
+    custom_settings:
+      aws_key: test_key
+      sub_object:
+        username: username
+        password: password
