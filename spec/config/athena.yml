@@ -19,7 +19,6 @@ environments:
       sub_object:
         username: username
         password: password
-
   test:
     <<: *development
     custom_settings:

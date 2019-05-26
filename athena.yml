@@ -14,3 +14,7 @@ environments:
           allow_methods: []
           allow_headers: []
         groups: {}
+  test:
+    <<: *development
+  production:
+    <<: *development
