@@ -27,11 +27,23 @@ module Athena
 
       # :nodoc:
       def to_yaml(builder : YAML::Nodes::Builder, serialization_groups : Array(String), expand : Array(String))
-        builder.mapping(reference: self) do
+        builder.mapping do
           builder.scalar "environments"
           builder.mapping do
             builder.scalar "development", anchor: "development", reference: "development"
             @environments["development"].to_yaml builder, serialization_groups, expand
+
+            builder.scalar "test", anchor: "test"
+            builder.mapping do
+              builder.scalar "<<"
+              builder.scalar "", reference: "development"
+            end
+
+            builder.scalar "production", anchor: "production"
+            builder.mapping do
+              builder.scalar "<<"
+              builder.scalar "", reference: "development"
+            end
           end
         end
       end

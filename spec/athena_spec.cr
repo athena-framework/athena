@@ -1,6 +1,8 @@
 require "./spec_helper_methods"
 require "../src/athena"
 
+require "file_utils"
+
 COMMANDS = <<-COMMANDS
 Registered Commands:
 \tathena
@@ -14,13 +16,38 @@ Usage
 \t./YOUR_BINARY -c athena:generate:config_file [arguments]
 Arguments
 \toverride : Bool = false
-\tpath : String = "./athena.yml"\n
+\tpath : String = "athena.yml"\n
 EXPLAIN
+
+DEFAULT_CONFIG_YAML = <<-YAML
+---
+environments:
+  &development development:
+    routing:
+      cors:
+        enabled: false
+        strategy: blacklist
+        defaults: &defaults
+          allow_origin: https://yourdomain.com
+          expose_headers: []
+          max_age: 0
+          allow_credentials: false
+          allow_methods: []
+          allow_headers: []
+        groups: {}
+  &test test:
+    <<: *development
+  &production production:
+    <<: *development\n
+YAML
+
+Spec.before_each { Crylog::Registry.clear }
+Spec.before_each { ENV["ATHENA_ENV"] = "test" }
 
 describe Athena do
   describe "binary" do
     describe "--list -l" do
-      it "should list avaliable commands" do
+      it "should list available commands" do
         run_binary(args: ["-l"]) do |output|
           output.should eq COMMANDS
         end
@@ -66,13 +93,19 @@ describe Athena do
             end
           end
         end
+
+        it "should generate the correct yaml" do
+          ENV["ATHENA_ENV"] = "development"
+          Athena::Config::Environments.new.to_yaml.should eq DEFAULT_CONFIG_YAML
+        end
       end
     end
   end
 
   describe ".config" do
     describe "with the default path" do
-      it "shoudl return the standard object" do
+      it "should return the standard object" do
+        ENV["ATHENA_ENV"] = "test"
         config = Athena.config
         config.routing.cors.enabled.should be_false
         config.routing.cors.groups.empty?.should be_true
@@ -82,13 +115,58 @@ describe Athena do
     end
 
     describe "with a provided path" do
-      it "shoudl return the standard object" do
+      it "should return the standard object" do
+        ENV["ATHENA_ENV"] = "test"
         config = Athena.config "spec/routing/athena.yml"
         config.routing.cors.enabled.should be_true
         config.routing.cors.groups.has_key?("class_overload").should be_true
         config.routing.cors.groups.has_key?("action_overload").should be_true
         config.routing.cors.defaults.allow_origin.should eq "DEFAULT_DOMAIN"
         config.routing.cors.strategy.should eq "blacklist"
+      end
+    end
+  end
+
+  describe ".configure_logger" do
+    describe "and the logs dir does not exist" do
+      it "should create the directory" do
+        Athena.logs_dir = "#{Dir.tempdir}/logs"
+        FileUtils.rm_rf Athena.logs_dir
+        Dir.exists?("#{Dir.tempdir}/logs").should be_false
+        Athena.configure_logger
+        Dir.exists?("#{Dir.tempdir}/logs").should be_true
+      end
+    end
+
+    describe "in the development env" do
+      it "should add STDOUT and development handlers to the main logger" do
+        ENV["ATHENA_ENV"] = "development"
+        Athena.configure_logger
+        Crylog::Registry.loggers.has_key?("main").should be_true
+        main_logger = Athena.logger
+        main_logger.channel.should eq "main"
+        main_logger.handlers.size.should eq 2
+      end
+    end
+
+    describe "and we're in the production env" do
+      it "should add a single production handler to the main logger" do
+        ENV["ATHENA_ENV"] = "production"
+        Athena.configure_logger
+        Crylog::Registry.loggers.has_key?("main").should be_true
+        main_logger = Athena.logger
+        main_logger.channel.should eq "main"
+        main_logger.handlers.size.should eq 1
+      end
+    end
+
+    describe "and we're in the test env" do
+      it "should add no handlers" do
+        Athena.configure_logger
+        Crylog::Registry.loggers.has_key?("main").should be_true
+        main_logger = Athena.logger
+        main_logger.channel.should eq "main"
+        main_logger.handlers.should be_empty
       end
     end
   end

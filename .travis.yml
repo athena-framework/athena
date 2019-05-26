@@ -7,6 +7,7 @@ script:
   - bin/ameba
   - crystal tool format --check
   # Run specs on their own to isolate scope of each spec.
+  - crystal spec spec/athena_spec.cr --warnings all --error-on-warnings
   - crystal spec spec/cli --warnings all --error-on-warnings
   - crystal spec spec/config --warnings all --error-on-warnings
   - crystal spec spec/dependency_injection --warnings all --error-on-warnings

@@ -19,7 +19,7 @@ environments:
       sub_object:
         username: username
         password: password
-  test:
+  &test test:
     <<: *development
     custom_settings:
       aws_key: test_key
