@@ -23,6 +23,9 @@ module Athena::DI
     # The registered service mapped by name.
     getter services : Hash(String, Athena::DI::Service) = Hash(String, Athena::DI::Service).new
 
+    # Mapping of tag name to services with that tag.
+    getter tags : Hash(String, Array(String)) = Hash(String, Array(String)).new
+
     # Initializes the container.  Auto registering annotated services.
     # ameba:disable Metrics/CyclomaticComplexity
     def initialize
@@ -39,6 +42,9 @@ module Athena::DI
             {% tags = service_definition[:tags] ? service_definition[:tags] : "[]".id %}
             {% if !method || method.args.size == 0 %}
               @services[{{key}}] = {{service.id}}.new
+              ({{tags}} of String).each do |tag|
+                (@tags[tag] ||= Array(String).new) << {{key}}
+              end
             {% else %}
               {% service_args = (0...method.args.size).map { |idx| service_definition[idx] } %}
               {% service_definitions[key] = "ServiceDefinition(#{service.id}, Tuple(#{method.args.map(&.restriction).splat}), typeof(#{service_args})).new(#{service_args}, #{tags} of String)".id %}
@@ -54,6 +60,11 @@ module Athena::DI
           if service_def.resolved?(@services)
             @services[name] = service_def.construct_service(@services)
             service_definitions.delete name
+
+            # Add tags
+            service_def.tags.each do |tag|
+              (@tags[tag] ||= Array(String).new) << name
+            end
           else
             # Check for circular dependencies
             service_args = service_def.annotation_args

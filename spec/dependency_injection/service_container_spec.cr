@@ -163,7 +163,7 @@ describe Athena::DI::ServiceContainer do
     end
   end
 
-  pending "#tagged" do
+  describe "#tagged" do
     it "should return the service with the given tag" do
       services = CONTAINER.tagged("partner")
       services.size.should eq 2
@@ -184,6 +184,10 @@ describe Athena::DI::ServiceContainer do
       google = services[0].as(FeedPartner)
       google.should be_a FeedPartner
       google.id.should eq "GOOGLE"
+    end
+
+    it "should return the service with the given tag" do
+      CONTAINER.tagged("fake_tag").should eq [] of Athena::DI::Service
     end
   end
 
