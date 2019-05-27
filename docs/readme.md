@@ -8,7 +8,7 @@ Upon install, Athena will build and add an `athena` executable to your projects 
 
 ## Configuration
 
-Athena uses a YAML file in the root of your application to store settings related to the application, called `athena.yml`.  If a config file was not created upon installing Athena, created before it was added automatically for example, an example file is available [here](https://github.com/Blacksmoke16/athena/blob/master/athena.yml).  The configuration file can be stored somewhere else if so desired.  Just be sure to pass the path of the file to the `Athena::Routing.run`'s `config_path` argument.
+Athena uses a YAML file in the root of your application to store settings related to the application, called `athena.yml`.  If a config file was not created upon installing Athena, created before it was added automatically for example, an example file is available [here](https://github.com/Blacksmoke16/athena/blob/master/athena.yml).  The configuration file can be stored somewhere else if so desired.  Just be sure to pass the path of the file to the `Athena::Routing.run`'s `config_path` argument.
 
 By default, the configuration file contains the default settings for the `development` environment in addition to the other two standard environments: `test` and `production`.  The `test` and `production` environments inherit the settings of the `development` environment.  However, environment specific settings can be defined by simply changing the values that you wish to be changed.
 
@@ -38,7 +38,7 @@ environments:
           allow_origin: https://api.yourdomain.com
 ```
 
-This would inherit the settings from the `development` environment, but change the `allow_origin` domain.
+This would inherit the settings from the `development` environment, but change the `allow_origin` domain.
 
 ### Environments
 Athena uses the environmental variable `ATHENA_ENV` to determine the current environment.  This variable determines which log handlers are enabled by default, and which configuration object to use.  If no ENV variable is defined, the default environment is `development`. The method `Athena.environment` can be used to return the application's current environment.  Custom environments can also be used, just be sure to add it to your `athena.yml`.  
@@ -89,7 +89,7 @@ struct CustomSettings
 end
 ```
 
-This, combined with the `Athena.config` method, would allow for these to be used within the application.  The value of the `gold_multiplier`, in this example, would be dependent on the current environment.
+This, combined with the `Athena.config` method, would allow for these to be used within the application.  The value of the `gold_multiplier`, in this example, would be dependent on the current environment.
 
 ```crystal
 gold = player.gold * Athena.config.custom_settings.gold_multiplier
@@ -97,6 +97,28 @@ aws_client = Athena.config.custom_settings.aws.get_client
 ```
 
 **NOTE:** There are no safety measures around the `custom_settings` object.  Be sure to properly type the getters, make sure the properties are included in the config file, or use defaults values if needed.  Exceptions will be thrown if a key is missing that doesn't have a default value, or if the `custom_settings` key isn't defined in the configuration file.
+
+## Logging
+
+Athena utilizes [Crylog](https://github.com/blacksmoke16/crylog) for its logging.  The default logging configuration depends on the current environment.  In the `development` environment Athena will log messages to `logs/development.log` as well as `STDOUT`.  The `production` environment will log to `logs/production.log` but only for warnings or higher.  Logging is disabled within the `test` environment.
+
+### Using the logger
+
+The default logger can be retrieved via the `Athena.logger` method, which wraps `Crylog.logger(channel : String)` for convenience purposes.  For additional usage information, take a look at the [Crylog Documentation](https://github.com/Blacksmoke16/crylog/tree/master/docs#logger).
+
+### Custom Logger
+
+If you wish to customize the logger(s) for your application, you can override the `Athena.configure_logger` method.
+
+```crystal
+def Athena.configure_logger
+  Crylog.configure do |registry|
+    # Configure your loggers
+  end
+end
+```
+
+For additional usage information on the configuration options, take a look at the [Crylog Documentation](https://github.com/Blacksmoke16/crylog/tree/master/docs).
 
 ## Modules
 
