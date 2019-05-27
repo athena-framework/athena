@@ -106,6 +106,16 @@ Athena utilizes [Crylog](https://github.com/blacksmoke16/crylog) for its logging
 
 The default logger can be retrieved via the `Athena.logger` method, which wraps `Crylog.logger(channel : String)` for convenience purposes.  For additional usage information, take a look at the [Crylog Documentation](https://github.com/Blacksmoke16/crylog/tree/master/docs#logger).
 
+```crystal
+user = ...
+
+main_logger = Athena.logger
+other_logger = Athena.logger "other"
+
+main_logger.info "User logged in", Crylog::LogContext{"name" => user.name, "id" => user.id}
+other_logger.emergency "DB is down!"
+```
+
 ### Custom Logger
 
 If you wish to customize the logger(s) for your application, you can override the `Athena.configure_logger` method.
