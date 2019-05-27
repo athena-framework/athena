@@ -39,13 +39,13 @@ module Athena
             builder.scalar "test"
             builder.mapping(anchor: "test") do
               builder.scalar "<<"
-              builder.scalar "", reference: "development"
+              builder.alias "development"
             end
 
             builder.scalar "production"
             builder.mapping(anchor: "production") do
               builder.scalar "<<"
-              builder.scalar "", reference: "development"
+              builder.alias "development"
             end
           end
         end
@@ -71,5 +71,15 @@ module Athena
         @custom_settings.not_nil!
       end
     end
+  end
+end
+
+# :nodoc:
+#
+# Required until crystal-lang/crystal#7821 is resolved which will add an alias/extend method the nodes builder.
+class YAML::Nodes::Builder
+  def alias(anchor : String)
+    node = Alias.new(anchor)
+    push_node(node)
   end
 end
