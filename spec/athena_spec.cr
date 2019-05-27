@@ -119,7 +119,8 @@ describe Athena do
     describe "with a provided path" do
       it "should return the standard object" do
         ENV["ATHENA_ENV"] = "test"
-        config = Athena.config "spec/routing/athena.yml"
+        ENV["ATHENA_CONFIG_PATH"] = "spec/routing/athena.yml"
+        config = Athena.config
         config.routing.cors.enabled.should be_true
         config.routing.cors.groups.has_key?("class_overload").should be_true
         config.routing.cors.groups.has_key?("action_overload").should be_true

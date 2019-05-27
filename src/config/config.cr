@@ -8,9 +8,9 @@ module Athena
     ENV["ATHENA_ENV"] ||= "development"
   end
 
-  # Returns an `Athena::Config::Config` object for the current environment from config file located at *config_path*.
-  def self.config(config_path : String = "athena.yml") : Athena::Config::Config
-    Athena::Config::Environments.from_yaml(File.read config_path).environments[self.environment]
+  # Returns an `Athena::Config::Config` object for the current environment.
+  def self.config : Athena::Config::Config
+    Athena::Config::Environments.from_yaml(File.read ENV["ATHENA_CONFIG_PATH"]? || "athena.yml").environments[self.environment]
   end
 
   # Wrapper for the `athena.yml` config file.

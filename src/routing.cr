@@ -268,25 +268,33 @@ module Athena::Routing
   end
 
   # Starts the HTTP server with the given *port*, *binding*, *ssl*, *handlers*, and *path*.
-  def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers : Array(HTTP::Handler) = [] of HTTP::Handler, config_path : String = "athena.yml")
-    config : Athena::Config::Config = Athena::Config::Environments.from_yaml(File.read config_path).environments[Athena.environment]
+  def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, handlers = nil)
+    # If no handlers are passed to `.run`; use the default classes.
+    # Otherwise just use user supplied handler classes
+    handler_classes = handlers ? handlers : [Athena::Routing::Handlers::CorsHandler, Athena::Routing::Handlers::ActionHandler]
 
-    # If no handlers are passed to `.run`; build out the default handlers.
-    # Otherwise just use user supplied handlers.
-    if handlers.empty?
-      handlers = [
-        Athena::Routing::Handlers::CorsHandler.new,
-        Athena::Routing::Handlers::ActionHandler.new,
-      ] of HTTP::Handler
-    end
-
-    # Insert the RouteHandler automatically so the user does not have to deal with the config file.
-    handlers.unshift Athena::Routing::Handlers::RouteHandler.new config
+    # New up the route handler so that routes do not get re initialized on each request
+    route_handler = [Athena::Routing::Handlers::RouteHandler.new]
 
     # Validate the action handler is included.
-    raise "Handlers must include 'Athena::Routing::Handlers::ActionHandler'." if handlers.none? &.is_a? Athena::Routing::Handlers::ActionHandler
+    raise "Handlers must include 'Athena::Routing::Handlers::ActionHandler.class'." if handler_classes.none? &.is_a? Athena::Routing::Handlers::ActionHandler.class
 
-    @@server = HTTP::Server.new handlers
+    @@server = HTTP::Server.new do |ctx|
+      # New up a new instance of the containerso that
+      # the container objects do not bleed between requests
+      Fiber.current.container = Athena::DI::ServiceContainer.new
+
+      # Configure the logger for this request.
+      Athena.configure_logger
+
+      # Join the route handler with the rest of the supplied handlers
+      # newing up each handler after setting the fiber so DI works correctly
+      handler_instances = route_handler + handler_classes.map(&.new)
+
+      # Build out and kick off the process
+      HTTP::Server.build_middleware(handler_instances, nil)
+      handler_instances.first.call ctx
+    end
 
     if Athena.environment != "test"
       Signal::INT.trap do
@@ -294,7 +302,7 @@ module Athena::Routing
         exit
       end
 
-      puts "Athena is leading the way on #{binding}:#{port} in #{Athena.environment} environment"
+      puts "Athena is leading the way on #{binding}:#{port} in the #{Athena.environment} environment"
     end
 
     unless @@server.not_nil!.each_address { |_| break true }
