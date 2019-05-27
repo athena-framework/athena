@@ -102,7 +102,7 @@ If a request is made to a route that has not been declared, a 404 error is retur
 
 ### Default Route Values
 
-A default value can be assigned to an action param.  If that route param is declared as optional, that value will be used if value is not supplied.  
+A default value can be assigned to an action param.  If that route param is declared as optional, that value will be used if a value is not supplied.  
 
 ```Crystal
 require "athena/routing"
@@ -124,9 +124,19 @@ CLIENT.get "/posts/12" # => 12
 **NOTE:** This suffers from the same limitation as a Radix tree in that two routes cannot share the same route, where one route has an optional param at the same place another has a required param.  However, it would be considered a bad practice if two routes matched two different actions, especially with route constraints.
 
 ### Accessing Request/Response
-The current request/response can be accessed from within a controller action via the `get_request` and `get_response` methods inherited from Athena's parent class.
+The current request/response can be accessed from within a controller (or any other class) by injecting the `Athena::Routing::RequestStack` into the class.
 
-This can be used to add custom headers, or to set a token in a cookie for example, within any action; without having to set a callback scoped to that specific action.
+```crystal
+require "athena/routing"
+
+class MyController < Athena::Routing::Controller
+  include Athena::DI::Injectable
+
+  def initialize(@request_stack : Athena::Routing::RequestStack); end
+end
+```
+
+Then, within any action, the request/response can be retrieved via `@request_stack.request` and `@request_stack.response` respectively. 
 
 ### Exception Handling
 
@@ -142,7 +152,7 @@ Custom error handling can be defined on a controller, or group of controllers by
 
 ```crystal
 class FakeController < Athena::Routing::Controller
-  def self.handle_exception(exception : Exception, ctx : HTTP::Server::Context)
+  def self.handle_exception(exception : Exception, ctx : HTTP::Server::Context, location : String = "unknown")
     if exception.is_a? DivisionByZeroError
       throw 400, %({"code": 400, "message": "#{exception.message}"})
     end
@@ -544,29 +554,31 @@ CORS groups are similar to [CrSerializer Serialization Groups](https://github.co
 ```yaml
 # Config file for Athena.
 ---
-routing:
-  cors:
-    enabled: true
-    strategy: blacklist
-    defaults: &defaults
-      allow_origin: DEFAULT_DOMAIN
-      expose_headers:
-        - DEFAULT1_EH
-        - DEFAULT2_EH
-      max_age: 123
-      allow_credentials: false
-      allow_methods:
-        - GET
-      allow_headers:
-        - DEFAULT_AH
-    groups:
-      class_overload:
-        <<: *defaults
-        allow_origin: OVERLOAD_DOMAIN
-      action_overload:
-        <<: *defaults
-        allow_origin: ACTION_DOMAIN
-        allow_credentials: true
+environments:
+  deveopment: &development
+    routing:
+      cors:
+        enabled: true
+        strategy: blacklist
+        defaults: &defaults
+          allow_origin: DEFAULT_DOMAIN
+          expose_headers:
+            - DEFAULT1_EH
+            - DEFAULT2_EH
+          max_age: 123
+          allow_credentials: false
+          allow_methods:
+            - GET
+          allow_headers:
+            - DEFAULT_AH
+        groups:
+          class_overload:
+            <<: *defaults
+            allow_origin: OVERLOAD_DOMAIN
+          action_overload:
+            <<: *defaults
+            allow_origin: ACTION_DOMAIN
+            allow_credentials: true
 ```
 
 In this example we have two custom groups `class_overload` and `action_overload`.  Both are inherited from the `defaults`.  `class_overload` overrides the `allow_origin` header value, while `action_overload` overrides both the `allow_origin` and `allow_credentials` headers.
@@ -600,11 +612,11 @@ The order of precedence is `action > controller > defaults`, where a `cors_group
 The easiest setup would be to update the `defaults` with your settings and use the `blacklist` `strategy`. 
 
 
-## Custom Handlers
+## Custom HTTP Handlers
 
-By default Athena sets up the required handlers behind the scenes if no custom handlers are supplied.  
+By default Athena sets up the required HTTP handlers behind the scenes if no custom handlers are supplied.  
 
-In order to use custom handlers, first create a class that inherits from `Athena::Routing::Handlers::Handler` and implements a `def handle(ctx : HTTP::Server::Context, action : Athena::Routing::Action, config : Athena::Config::Config) : Nil`.  The base Athena Handler class extends the default `HTTP::Handler` class to expose extra information for use.  Each handler has access to the server context, the action that was matched, and the config object from the config file.
+In order to use custom HTTP handlers, first create a class that inherits from `Athena::Routing::Handlers::Handler` and implements a `def handle(ctx : HTTP::Server::Context, action : Athena::Routing::Action, config : Athena::Config::Config) : Nil`.  The base Athena Handler class extends the default `HTTP::Handler` class to expose extra information for use.  Each handler has access to the server context, the action that was matched, and the config object from the config file.
 
 ```crystal
 require "athena/routing"
