@@ -275,7 +275,7 @@ GET /users/ecr/1 # => User Bob is 17 years old.
 
 ###### ECR Files
 
-ECR files can simply be rented by calling `ECR.render filename` as the return value of the action.  The action's return type must be declared as `String` and all required values for the ECR file must be supplied within the route's action.
+ECR files can simply be rendered by calling `ECR.render filename` as the return value of the action.  The action's return type must be declared as `String` and all required values for the ECR file must be supplied within the route's action.
 
 ```Crystal
 require "athena/routing"
