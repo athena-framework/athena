@@ -6,8 +6,8 @@ do_with_config do |client|
       describe "with custom handlers" do
         describe "when missing the action handler" do
           it "should throw an exception" do
-            expect_raises Exception, "Handlers must include 'Athena::Routing::Handlers::ActionHandler.class'." do
-              Athena::Routing.run(handlers: [Athena::Routing::Handlers::CorsHandler])
+            expect_raises Exception, "Handlers must include 'Athena::Routing::Handlers::ActionHandler'." do
+              Athena::Routing.run(handlers: [Athena::Routing::Handlers::CorsHandler.new] of HTTP::Handler)
             end
           end
         end

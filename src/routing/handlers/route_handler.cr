@@ -232,6 +232,9 @@ module Athena::Routing::Handlers
       # Make sure there is an action to handle the incoming request
       action = route.found? ? route.payload.not_nil! : raise Athena::Routing::Exceptions::NotFoundException.new "No route found for '#{ctx.request.method} #{ctx.request.path}'"
 
+      # Create a new container to use for the request
+      Fiber.current.container = Athena::DI::ServiceContainer.new
+
       # DI isn't initialized until this point, so get the request_stack directly from the container after setting the container
       request_stack = Athena::DI.get_container.get("request_stack").as(RequestStack)
 
@@ -247,9 +250,6 @@ module Athena::Routing::Handlers
       request_stack.actions.pop
     rescue ex
       (a = action) ? a.controller.handle_exception ex, ctx : Athena::Routing::Controller.handle_exception ex, ctx
-    ensure
-      # Close the log handlers so that FD etc are not kept open when there are no requests to process.
-      Crylog::Registry.close
     end
   end
 end

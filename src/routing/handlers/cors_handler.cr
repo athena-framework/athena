@@ -1,14 +1,11 @@
 module Athena::Routing::Handlers
   # Handles CORS for the given action.
   class CorsHandler
-    include Athena::DI::Injectable
     include HTTP::Handler
-
-    def initialize(@request_stack : Athena::Routing::RequestStack); end
 
     # ameba:disable Metrics/CyclomaticComplexity
     def call(ctx : HTTP::Server::Context) : Nil
-      action = @request_stack.action
+      action = Athena::DI.get_container.get("request_stack").as(RequestStack).action
       config = Athena.config
 
       # Run the next handler and return if CORS is globally not enabled, not enabled for a specific controller/action, or strategy is whitelist and cors_group is nil.

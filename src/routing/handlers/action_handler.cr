@@ -1,15 +1,12 @@
 module Athena::Routing::Handlers
   # Executes the controller action for the given route.
   class ActionHandler
-    include Athena::DI::Injectable
     include HTTP::Handler
-
-    def initialize(@request_stack : Athena::Routing::RequestStack); end
 
     def call(ctx : HTTP::Server::Context) : Nil
       call_next ctx; return if ctx.request.method == "OPTIONS"
 
-      action = @request_stack.action
+      action = Athena::DI.get_container.get("request_stack").as(RequestStack).action
       params = Hash(String, String?).new
 
       # Process action's parameters.

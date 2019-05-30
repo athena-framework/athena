@@ -268,33 +268,27 @@ module Athena::Routing
   end
 
   # Starts the HTTP server with the given *port*, *binding*, *ssl*, *handlers*, and *path*.
-  def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, reuse_port : Bool = false, handlers = nil)
-    # If no handlers are passed to `.run`; use the default classes.
-    # Otherwise just use user supplied handler classes
-    handler_classes = handlers ? handlers : [Athena::Routing::Handlers::CorsHandler, Athena::Routing::Handlers::ActionHandler]
-
-    # New up the route handler so that routes do not get re initialized on each request
-    route_handler = [Athena::Routing::Handlers::RouteHandler.new]
+  def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, reuse_port : Bool = false, handlers : Array(HTTP::Handler) = [] of HTTP::Handler, config_path : String = "athena.yml")
+    # If no handlers are passed to `.run`; build out the default handlers.
+    # Otherwise just use user supplied handlers.
+    if handlers.empty?
+      handlers = [
+        Athena::Routing::Handlers::CorsHandler.new,
+        Athena::Routing::Handlers::ActionHandler.new,
+      ] of HTTP::Handler
+    end
 
     # Validate the action handler is included.
-    raise "Handlers must include 'Athena::Routing::Handlers::ActionHandler.class'." if handler_classes.none? &.is_a? Athena::Routing::Handlers::ActionHandler.class
+    raise "Handlers must include 'Athena::Routing::Handlers::ActionHandler'." if handlers.none? &.is_a? Athena::Routing::Handlers::ActionHandler
 
-    @@server = HTTP::Server.new do |ctx|
-      # New up a new instance of the containerso that
-      # the container objects do not bleed between requests
-      Fiber.current.container = Athena::DI::ServiceContainer.new
+    # Insert the RouteHandler automatically.
+    handlers.unshift Athena::Routing::Handlers::RouteHandler.new
 
-      # Configure the logger for this request.
-      Athena.configure_logger
+    # Init the loggers
+    Athena.configure_logger
 
-      # Join the route handler with the rest of the supplied handlers
-      # newing up each handler after setting the fiber so DI works correctly
-      handler_instances = route_handler + handler_classes.map(&.new)
-
-      # Build out and kick off the process
-      HTTP::Server.build_middleware(handler_instances, nil)
-      handler_instances.first.call ctx
-    end
+    # Define the server
+    @@server = HTTP::Server.new handlers
 
     if Athena.environment != "test"
       Signal::INT.trap do
