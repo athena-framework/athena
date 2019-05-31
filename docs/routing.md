@@ -136,7 +136,9 @@ class MyController < Athena::Routing::Controller
 end
 ```
 
-Then, within any action, the request/response can be retrieved via `@request_stack.request` and `@request_stack.response` respectively. 
+Then, within any action, the request/response can be retrieved via `@request_stack.request` and `@request_stack.response` respectively. 
+
+> NOTE: Services can only be auto injected if the class gets instantiated within the request/response cycle.  Classes instantiated outside of it do not have access to the same container and services must be fetched manually.
 
 ### Exception Handling
 
@@ -523,18 +525,18 @@ While this is not as clean as using JSON, it provides a decent way to handle for
 
 ### Custom Converter
 
-A custom converter can also be defined to perform special logic.  Simply create a struct, with a generic, that implements a class method `convert(value : String) : T`.  
+A custom converter can also be defined to perform special logic.  Simply create a struct, with a generic, that implements an instance method `convert(value : String) : T`.  
 
 ```Crystal
 struct MyConverter(T)
-  def self.convert(param_value : String) : T
+  def convert(param_value : String) : T
     # Your custom logic
     model
   end
 end
 ```
 
-This then can be used like `@[Athena::Routing::ParamConverter(param: "user", type: User, converter: MyConverter)]`
+This then can be used like `@[Athena::Routing::ParamConverter(param: "user", type: User, converter: MyConverter)]`.  The converter gets instantiated just before being used; DI auto injection can be used to get the current request/response or some other custom object to use within in the `convert` method.
 
 ## CORS
 
@@ -555,7 +557,7 @@ CORS groups are similar to [CrSerializer Serialization Groups](https://github.co
 # Config file for Athena.
 ---
 environments:
-  deveopment: &development
+  development: &development
     routing:
       cors:
         enabled: true
@@ -616,23 +618,29 @@ The easiest setup would be to update the `defaults` with your settings and use t
 
 By default Athena sets up the required HTTP handlers behind the scenes if no custom handlers are supplied.  
 
-In order to use custom HTTP handlers, first create a class that inherits from `Athena::Routing::Handlers::Handler` and implements a `def handle(ctx : HTTP::Server::Context, action : Athena::Routing::Action, config : Athena::Config::Config) : Nil`.  The base Athena Handler class extends the default `HTTP::Handler` class to expose extra information for use.  Each handler has access to the server context, the action that was matched, and the config object from the config file.
+Custom handlers can be added by simply creating a class that `includes HTTP::Handler` and implements a `call(ctx : HTTP::Server::Context) : Nil` method.
 
 ```crystal
 require "athena/routing"
 
-class MyHandler < Athena::Routing::Handlers::Handler
-  def handle(ctx : HTTP::Server::Context, action : Athena::Routing::Action, config : Athena::Config::Config) : Nil
+class MyHandler
+  include HTTP::Handler
+    
+  def call(ctx : HTTP::Server::Context) : Nil
     # Do custom logic here such as:
     # * Add unique id to response
     # * Set response time
     # * Parse auth headers
+        
+    # The request stack can be used to access the current request/response as 
+    # well as the matched action
+    request_stack = Athena::DI.get_container.get("request_stack").as(RequestStack)
+        
+    # The configuration for the current environment can also be accessed
+    config = Athena.config
       
     # Call this to call the next handler
-    handle_next
-  rescue ex
-    # Call the action's exception handler on error.
-    action.controller.handle_exception ex, action.method
+    call_next ctx
   end
 end
 
