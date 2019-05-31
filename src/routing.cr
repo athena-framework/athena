@@ -267,10 +267,10 @@ module Athena::Routing
     end
   end
 
-  # Starts the HTTP server with the given *port*, *binding*, *ssl*, *handlers*, and *path*.
+  # Starts the HTTP server with the given *port*, *binding*, *ssl*, *reuse_port*, *handlers*, and *path*.
   def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, reuse_port : Bool = false, handlers : Array(HTTP::Handler) = [] of HTTP::Handler, config_path : String = "athena.yml")
-    # If no handlers are passed to `.run`; build out the default handlers.
-    # Otherwise just use user supplied handlers.
+    # If no handlers are passed to `.run`; build out the default handlers,
+    # otherwise just use user supplied handlers
     if handlers.empty?
       handlers = [
         Athena::Routing::Handlers::CorsHandler.new,
@@ -278,17 +278,25 @@ module Athena::Routing
       ] of HTTP::Handler
     end
 
-    # Validate the action handler is included.
+    # Validate the action handler is included
     raise "Handlers must include 'Athena::Routing::Handlers::ActionHandler'." if handlers.none? &.is_a? Athena::Routing::Handlers::ActionHandler
 
-    # Insert the RouteHandler automatically.
+    # Insert the RouteHandler automatically
     handlers.unshift Athena::Routing::Handlers::RouteHandler.new
 
-    # Init the loggers
+    # Configure the loggers
     Athena.configure_logger
 
     # Define the server
-    @@server = HTTP::Server.new handlers
+    @@server = HTTP::Server.new do |ctx|
+      # Instantiate a new instance of the container so that
+      # the container objects do not bleed between requests
+      Fiber.current.container = Athena::DI::ServiceContainer.new
+
+      # Build out and kick off the process
+      HTTP::Server.build_middleware(handlers, nil)
+      handlers.first.call ctx
+    end
 
     if Athena.environment != "test"
       Signal::INT.trap do

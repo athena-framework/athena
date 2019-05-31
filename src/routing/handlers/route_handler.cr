@@ -184,7 +184,7 @@ module Athena::Routing::Handlers
                     end
                     arr << if val = vals[key]?
                     {% if converter = param_converters.find { |c| c[:param] == arg.name.stringify } %}
-                      Athena::Routing::Converters::{{converter[:converter]}}({{converter[:type]}}, {{converter[:pk_type] ? converter[:pk_type] : Nil}}).convert ctx, val
+                      Athena::Routing::Converters::{{converter[:converter]}}({{converter[:type]}}, {{converter[:pk_type] ? converter[:pk_type] : Nil}}).new.convert val
                     {% else %}
                       Athena::Types.convert_type val, {{arg.restriction}}
                     {% end %}
@@ -231,9 +231,6 @@ module Athena::Routing::Handlers
 
       # Make sure there is an action to handle the incoming request
       action = route.found? ? route.payload.not_nil! : raise Athena::Routing::Exceptions::NotFoundException.new "No route found for '#{ctx.request.method} #{ctx.request.path}'"
-
-      # Create a new container to use for the request
-      Fiber.current.container = Athena::DI::ServiceContainer.new
 
       # DI isn't initialized until this point, so get the request_stack directly from the container after setting the container
       request_stack = Athena::DI.get_container.get("request_stack").as(RequestStack)
