@@ -12,7 +12,7 @@ module Athena
   # Default logger configuration.
   #
   # Override this method to define a custom logger configuration.
-  def self.configure_logger : Nil
+  protected def self.configure_logger : Nil
     # Create the logs dir if it doesn't exist already.
     Dir.mkdir Athena.logs_dir unless Dir.exists? Athena.logs_dir
     Crylog.configure do |registry|

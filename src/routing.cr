@@ -210,7 +210,9 @@ module Athena::Routing
     # The `cors_group` to use for this action.
     cors_group : String | Bool | Nil = nil
 
-  # :nodoc:
+  # Contains metadata associated with a specific route.  Such as the controller to use, the required parameters, etc.
+  #
+  # NOTE: See the definition in code for documentation.
   private record RouteAction(A, R, C) < Action,
     # Action that gets executed for the route.
     action : A,
@@ -267,8 +269,8 @@ module Athena::Routing
     end
   end
 
-  # Starts the HTTP server with the given *port*, *binding*, *ssl*, *reuse_port*, *handlers*, and *path*.
-  def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, reuse_port : Bool = false, handlers : Array(HTTP::Handler) = [] of HTTP::Handler, config_path : String = "athena.yml")
+  # Starts the HTTP server with the given *port*, *binding*, *ssl*, *reuse_port*, *handlers*.
+  def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, reuse_port : Bool = false, handlers : Array(HTTP::Handler) = [] of HTTP::Handler)
     # If no handlers are passed to `.run`; build out the default handlers,
     # otherwise just use user supplied handlers
     if handlers.empty?

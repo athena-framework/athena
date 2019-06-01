@@ -112,7 +112,7 @@ module Athena::DI
       raise "Could not resolve a service with type '#{type}' and name of '#{name}'."
     end
 
-    # # Returns services with the specified *tag*.
+    # Returns services with the specified *tag*.
     def tagged(tag : String) : Array(Athena::DI::Service)
       (services = @tags[tag]?) ? services.map { |service| @services[service] } : Array(Athena::DI::Service).new
     end

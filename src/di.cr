@@ -42,7 +42,6 @@ module Athena::DI
   # ```
   annotation Register; end
 
-  # :nodoc:
   module Service
   end
 

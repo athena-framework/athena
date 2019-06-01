@@ -1,6 +1,6 @@
 # Dependency Injection
 
-Athena's Dependency Injection (DI) module adds a service container layer to your project.  This allows a project to share useful objects, aka services, throughout the project.  These objects live in a special class called the Service Container (SC).  Object instances can be retrieved from the container, or even injected directly into classes as a form of constructor DI.
+Athena's Dependency Injection (DI) module adds a service container layer to your project.  This allows a project to share useful objects, aka services, throughout the project.  These objects live in a special struct called the Service Container (SC).  Object instances can be retrieved from the container, or even injected directly into classes as a form of constructor DI.
 
 By default, the SC is added to the main fiber of the project.  This allows the SC to be retrieved anywhere within the project.  The `Athena::DI.get_container` method will return the SC for the current fiber.  Since the SC is defined on fibers, it allows for each fiber to have its own SC.  This can be useful for web frameworks as each request would have its own SC scoped to that request.  This however, is up to the each project to implement. 
 
@@ -12,7 +12,7 @@ A `struct` service, when injected into a class, or retrieved from the SC, will b
 
 A `class` service on the other hand will be a reference to the one in the SC.  This allows it to share state between classes/places within the project.
 
-**NOTE:** In the future the parent `class`/`struct` will be changed to `include Athena::DI::Service`.  Currently there just isn't another way to get an array of services until [this issue](<https://github.com/crystal-lang/crystal/pull/7648>) is merged.
+> **NOTE:** In the future the parent `class`/`struct` will be changed to `include Athena::DI::Service`.  Currently there just isn't another way to get an array of services until [this issue](<https://github.com/crystal-lang/crystal/pull/7648>) is merged.
 
 ```crystal
 require "athena/di"
@@ -124,7 +124,7 @@ feed_partners # => [FeedPartner(@id="GOOGLE", @name="Google"), FeedPartner(@id="
 
 ## Auto Injection
 
-Services can also be injected directly into a class.
+Services can also be injected directly into a class/struct.
 
 Following along from our earlier example, if we wanted to inject the `Store` class into another object we would first define an `initialize` method with `Store` as the type restriction.  Next, `include Athena::DI::Injectable` to tell `Athena::DI` that this class should be auto injected.
 
@@ -230,6 +230,4 @@ a_class.a_service.name # => "Jim"
 
 ### Testing
 
-Since the type restrictions of the initializer arguments can be set to "interfaces", this can be utilized to mock out classes to pass to the service.  The main use of this would be for unit testing the services; allowing the service to use mocked instances as to not depend on external dependencies.
-
-This could either be a new class that inherits from the actual one, or a new class that inherits/includes a class/module of that type.
+Since the type restrictions of the initializer arguments can be set to "interfaces", this can be utilized to mock out classes to pass to the service.  The main use of this would be for unit testing the services; allowing the service to use mocked instances as to not depend on external dependencies.  This could either be a new class that inherits from the actual one, or a new class that inherits/includes a class/module of that type.
