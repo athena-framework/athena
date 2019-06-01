@@ -1,4 +1,8 @@
 class AthenaController < Athena::Routing::Controller
+  include Athena::DI::Injectable
+
+  def initialize(@request_stack : Athena::Routing::RequestStack); end
+
   @[Athena::Routing::Get(path: "noParamsGet")]
   def no_params_get : String
     "foobar"
@@ -32,9 +36,9 @@ class AthenaController < Athena::Routing::Controller
 
   @[Athena::Routing::Get(path: "get/safe")]
   def safe_request_check : String
-    initial_query = get_request.query
+    initial_query = @request_stack.request.query
     sleep 2 if initial_query == "foo"
-    check_query = get_request.query
+    check_query = @request_stack.request.query
 
     initial_query == check_query ? "safe" : "unsafe"
   end
@@ -117,12 +121,12 @@ class AthenaController < Athena::Routing::Controller
 
   @[Athena::Routing::Get(path: "get/response")]
   def response : Nil
-    get_response.headers.add "Foo", "Bar"
+    @request_stack.response.headers.add "Foo", "Bar"
   end
 
   @[Athena::Routing::Get(path: "get/request")]
   def request : String
-    get_request.path
+    @request_stack.request.path
   end
 
   @[Athena::Routing::Get(path: "negative/:val")]
@@ -146,7 +150,7 @@ class AthenaController < Athena::Routing::Controller
 
   @[Athena::Routing::Get(path: "get/nil_return/updated_status")]
   def nil_return_updated_satus : Nil
-    get_response.status = HTTP::Status::IM_A_TEAPOT
+    @request_stack.response.status = HTTP::Status::IM_A_TEAPOT
     123
   end
 end

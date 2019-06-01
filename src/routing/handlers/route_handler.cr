@@ -1,15 +1,22 @@
-require "./handler"
+# :nodoc:
+module HTTP::Handler
+  # :nodoc:
+  def call_next(ctx : HTTP::Server::Context) : Nil
+    if next_handler = @next
+      next_handler.call ctx
+    end
+  end
+end
 
 module Athena::Routing::Handlers
   # Initializes the application's routes and kicks off the application's handlers.
-  class RouteHandler < Athena::Routing::Handlers::Handler
+  class RouteHandler
+    include HTTP::Handler
+
     @routes : Amber::Router::RouteSet(Action) = Amber::Router::RouteSet(Action).new
 
-    # :nodoc:
-    def handle(ctx : HTTP::Server::Context, action : Action, config : Athena::Config::Config) : Nil; end
-
     # ameba:disable Metrics/CyclomaticComplexity
-    def initialize(@config : Athena::Config::Config)
+    def initialize
       {% for klass in Athena::Routing::Controller.all_subclasses %}
         {% methods = klass.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
         {% class_actions = klass.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
@@ -73,7 +80,7 @@ module Athena::Routing::Handlers
           {% param_converters = m.annotations(ParamConverter) %}
 
           {% for converter in param_converters %}
-            # Ensure each converter implements required propertyes and `type` implements the required methods.
+            # Ensure each converter implements required properties and `type` implements the required methods.
             {% if converter && converter[:param] && converter[:type] && converter[:converter] %}
               {% if converter[:converter].stringify == "Exists" %}
                 {% raise "#{converter[:type]} must implement a `self.find(id)` method to use the Exists converter." unless converter[:type].resolve.class.has_method?("find") %}
@@ -165,7 +172,7 @@ module Athena::Routing::Handlers
           {% renderer = view_ann && view_ann[:renderer] ? view_ann[:renderer] : "Athena::Routing::Renderers::JSONRenderer".id %}
 
             %action = ->(ctx : HTTP::Server::Context, vals : Hash(String, String?)) do
-              instance = {{klass.id}}.new(ctx)
+              instance = {{klass.id}}.new
               # If there are no args, just call the action.  Otherwise build out an array of values to pass to the action.
               {% unless m.args.empty? %}
                 arr = Array(Union({{arg_types.splat}}, Nil)).new
@@ -177,7 +184,7 @@ module Athena::Routing::Handlers
                     end
                     arr << if val = vals[key]?
                     {% if converter = param_converters.find { |c| c[:param] == arg.name.stringify } %}
-                      Athena::Routing::Converters::{{converter[:converter]}}({{converter[:type]}}, {{converter[:pk_type] ? converter[:pk_type] : Nil}}).convert ctx, val
+                      Athena::Routing::Converters::{{converter[:converter]}}({{converter[:type]}}, {{converter[:pk_type] ? converter[:pk_type] : Nil}}).new.convert val
                     {% else %}
                       Athena::Types.convert_type val, {{arg.restriction}}
                     {% end %}
@@ -206,7 +213,7 @@ module Athena::Routing::Handlers
       {% end %}
     end
 
-    # Entrypoint of a request.
+    # Entry-point of a request.
     def call(ctx : HTTP::Server::Context)
       # If this is a OPTIONS request change the method to the requested method to access the actual action that will be invoked.
       method : String = if ctx.request.method == "OPTIONS"
@@ -221,15 +228,25 @@ module Athena::Routing::Handlers
 
       search_key = '/' + method + ctx.request.path
       route = @routes.find search_key
+
+      # Make sure there is an action to handle the incoming request
       action = route.found? ? route.payload.not_nil! : raise Athena::Routing::Exceptions::NotFoundException.new "No route found for '#{ctx.request.method} #{ctx.request.path}'"
 
-      call_next ctx, action, @config
+      # DI isn't initialized until this point, so get the request_stack directly from the container after setting the container
+      request_stack = Athena::DI.get_container.get("request_stack").as(RequestStack)
+
+      # Push the new request and action into the stack
+      request_stack.requests << ctx
+      request_stack.actions << action
+
+      # Handle the request
+      call_next ctx
+
+      # Pop the request and action from the stack since it is finished
+      request_stack.requests.pop
+      request_stack.actions.pop
     rescue ex
-      if a = action
-        a.controller.handle_exception ex, ctx
-      else
-        Athena::Routing::Controller.handle_exception ex, ctx
-      end
+      (a = action) ? a.controller.handle_exception ex, ctx : Athena::Routing::Controller.handle_exception ex, ctx
     end
   end
 end

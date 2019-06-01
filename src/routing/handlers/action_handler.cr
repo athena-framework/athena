@@ -1,11 +1,12 @@
-require "./handler"
-
 module Athena::Routing::Handlers
   # Executes the controller action for the given route.
-  class ActionHandler < Athena::Routing::Handlers::Handler
-    def handle(ctx : HTTP::Server::Context, action : Action, config : Athena::Config::Config) : Nil
-      handle_next; return if ctx.request.method == "OPTIONS"
+  class ActionHandler
+    include HTTP::Handler
 
+    def call(ctx : HTTP::Server::Context) : Nil
+      call_next ctx; return if ctx.request.method == "OPTIONS"
+
+      action = Athena::DI.get_container.get("request_stack").as(RequestStack).action
       params = Hash(String, String?).new
 
       # Process action's parameters.
@@ -33,9 +34,18 @@ module Athena::Routing::Handlers
         ctx.response.print action.renderer.render response, ctx, action.groups
       end
 
-      handle_next
+      call_next ctx
     rescue ex
-      action.controller.handle_exception ex, ctx
+      location = "unknown"
+
+      # Try to parse the location of the exception from the backtrace.
+      if trace = ex.backtrace.find { |t| t.includes? action.not_nil!.method }
+        if match = trace.match(/(.*) in/)
+          location = match[1]
+        end
+      end
+
+      action.not_nil!.controller.handle_exception ex, ctx, location
     end
   end
 end

@@ -5,8 +5,12 @@ require "CrSerializer"
 require "./config/config"
 
 require "./common/types"
+require "./common/logger"
+
+require "./di"
 
 require "./routing/converters"
+require "./routing/request_stack"
 require "./routing/exceptions"
 require "./routing/renderers"
 require "./routing/handlers/*"
@@ -26,7 +30,7 @@ macro throw(status_code, body)
   response = ctx.response
   response.status_code = {{status_code}}
   response.print {{body}}
-  response.headers.add "Content-Type", "application/json"
+  response.headers.add "Content-Type", "application/json; charset=utf-8"
   response.close
   return
 end
@@ -168,24 +172,12 @@ module Athena::Routing
       return
     end
 
-    # Initializes a controller with the current `HTTP::Server::Context`.
-    def initialize(@ctx : HTTP::Server::Context); end
-
-    # Returns the request object for the current request
-    def get_request : HTTP::Request
-      @ctx.request
-    end
-
-    # Returns the response object for the current request
-    def get_response : HTTP::Server::Response
-      @ctx.response
-    end
-
-    # Handles exceptions that could occur when using Athena.
+    # Handles exceptions that could occur when using Athena.  Will try to insert a *location* of the *exception* based on action name.
+    # Otherwise location is unknown.
     # Throws a 500 if the error does not match any handler.
     #
     # Method can be defined on child classes for controller specific error handling.
-    def self.handle_exception(exception : Exception, ctx : HTTP::Server::Context)
+    def self.handle_exception(exception : Exception, ctx : HTTP::Server::Context, location : String = "unknown")
       case exception
       when Athena::Routing::Exceptions::AthenaException  then throw exception.code, exception.to_json
       when CrSerializer::Exceptions::ValidationException then throw 400, exception.to_json
@@ -197,6 +189,7 @@ module Athena::Routing
           end
         end
       else
+        Crylog.logger.critical "Unhandled exception: #{exception.message} in #{self.name} at #{location}", Crylog::LogContext{"cause" => exception.cause.try(&.message), "cause_class" => exception.cause.class.name}
         # Otherwise throw a 500 if no other exception handlers are defined on any children
         throw 500, %({"code": 500, "message": "Internal Server Error"})
       end
@@ -217,7 +210,9 @@ module Athena::Routing
     # The `cors_group` to use for this action.
     cors_group : String | Bool | Nil = nil
 
-  # :nodoc:
+  # Contains metadata associated with a specific route.  Such as the controller to use, the required parameters, etc.
+  #
+  # NOTE: See the definition in code for documentation.
   private record RouteAction(A, R, C) < Action,
     # Action that gets executed for the route.
     action : A,
@@ -274,12 +269,10 @@ module Athena::Routing
     end
   end
 
-  # Starts the HTTP server with the given *port*, *binding*, *ssl*, *handlers*, and *path*.
-  def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, reuse_port : Bool = false, handlers : Array(HTTP::Handler) = [] of HTTP::Handler, config_path : String = "athena.yml")
-    config : Athena::Config::Config = Athena::Config::Config.from_yaml File.read config_path
-
-    # If no handlers are passed to `.run`; build out the default handlers.
-    # Otherwise just use user supplied handlers.
+  # Starts the HTTP server with the given *port*, *binding*, *ssl*, *reuse_port*, *handlers*.
+  def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server? | Bool? = nil, reuse_port : Bool = false, handlers : Array(HTTP::Handler) = [] of HTTP::Handler)
+    # If no handlers are passed to `.run`; build out the default handlers,
+    # otherwise just use user supplied handlers
     if handlers.empty?
       handlers = [
         Athena::Routing::Handlers::CorsHandler.new,
@@ -287,14 +280,34 @@ module Athena::Routing
       ] of HTTP::Handler
     end
 
-    # Insert the RouteHandler automatically so the user does not have to deal with the config file.
-    handlers.unshift Athena::Routing::Handlers::RouteHandler.new(config)
-
-    # Validate the action handler is included.
+    # Validate the action handler is included
     raise "Handlers must include 'Athena::Routing::Handlers::ActionHandler'." if handlers.none? &.is_a? Athena::Routing::Handlers::ActionHandler
 
-    @@server = HTTP::Server.new handlers
-    puts "Athena is leading the way on #{binding}:#{port}"
+    # Insert the RouteHandler automatically
+    handlers.unshift Athena::Routing::Handlers::RouteHandler.new
+
+    # Configure the loggers
+    Athena.configure_logger
+
+    # Define the server
+    @@server = HTTP::Server.new do |ctx|
+      # Instantiate a new instance of the container so that
+      # the container objects do not bleed between requests
+      Fiber.current.container = Athena::DI::ServiceContainer.new
+
+      # Build out and kick off the process
+      HTTP::Server.build_middleware(handlers, nil)
+      handlers.first.call ctx
+    end
+
+    if Athena.environment != "test"
+      Signal::INT.trap do
+        Athena::Routing.stop
+        exit
+      end
+
+      puts "Athena is leading the way on #{binding}:#{port} in the #{Athena.environment} environment"
+    end
 
     unless @@server.not_nil!.each_address { |_| break true }
       {% if flag?(:without_openssl) %}

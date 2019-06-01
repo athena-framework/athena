@@ -12,11 +12,11 @@ module Athena::Commands
     self.name = "athena:generate:config_file"
     self.description = "Generates the default config file for Athena"
 
-    def self.execute(override : Bool = false, path : String = "./athena.yml") : Nil
+    def self.execute(override : Bool = false, path : String = "athena.yml") : Nil
       if !File.exists?(path) || override
         File.open path, "w" do |file|
-          file.print "# Config file for Athena.\n"
-          file.print Athena::Config::Config.new.to_yaml
+          file.puts "# Config file for Athena."
+          file.puts Athena::Config::Environments.new.to_yaml
         end
       end
     end

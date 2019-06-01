@@ -10,7 +10,7 @@ Athena's routing is unique in two key areas:
 
 Routes are defined by adding a `@[Athena::Routing::{{HTTP_METHOD}}(path: "/")]` annotation to a controller instance method.  The controller should be a class that inherits from `Athena::Routing::Controller`.
 
-**NOTE**: The controller/action names do not currently matter.
+> **NOTE**: The controller/action names do not currently matter.
 
 ```Crystal
 require "athena/routing"
@@ -102,7 +102,7 @@ If a request is made to a route that has not been declared, a 404 error is retur
 
 ### Default Route Values
 
-A default value can be assigned to an action param.  If that route param is declared as optional, that value will be used if value is not supplied.  
+A default value can be assigned to an action param.  If that route param is declared as optional, that value will be used if a value is not supplied.  
 
 ```Crystal
 require "athena/routing"
@@ -124,25 +124,42 @@ CLIENT.get "/posts/12" # => 12
 **NOTE:** This suffers from the same limitation as a Radix tree in that two routes cannot share the same route, where one route has an optional param at the same place another has a required param.  However, it would be considered a bad practice if two routes matched two different actions, especially with route constraints.
 
 ### Accessing Request/Response
-The current request/response can be accessed from within a controller action via the `get_request` and `get_response` methods inherited from Athena's parent class.
+The current request/response can be accessed from within a controller (or any other class) by injecting the `Athena::Routing::RequestStack` into the class.
 
-This can be used to add custom headers, or to set a token in a cookie for example, within any action; without having to set a callback scoped to that specific action.
+```crystal
+require "athena/routing"
+
+class MyController < Athena::Routing::Controller
+  include Athena::DI::Injectable
+
+  def initialize(@request_stack : Athena::Routing::RequestStack); end
+end
+```
+
+Then, within any action, the request/response can be retrieved via `@request_stack.request` and `@request_stack.response` respectively. 
+
+> NOTE: Services can only be auto injected if the class gets instantiated within the request/response cycle.  Classes instantiated outside of it do not have access to the same container and services must be fetched manually.
 
 ### Exception Handling
 
-Athena provides an `AthenaException` class that can be used for raising custom exceptions with consistent JSON output, as well as setting the response status code.  Athena also provides convenience exception classes for common HTTP errors.  A full list can be found in the [API Docs](https://blacksmoke16.github.io/athena/Athena/Routing/Exceptions.html). 
+Athena provides an `AthenaException` class that can be used for raising custom exceptions with consistent JSON output, as well as setting the response status code.  Athena also provides convenience exception classes for common HTTP errors.  A full list can be found in the [API Docs](https://blacksmoke16.github.io/athena/Athena/Routing/Exceptions.html).
 
 ```crystal
 raise Athena::Routing::Exceptions::NotFoundException.new "User not found"
 ```
+The `Athena::Routing::Exceptions` module can also be included within your project.  This would allow the example above to be rewritten as:
 
-By default, Athena will catch and handle most errors related to param conversion, validation, JSON parsing, and `AthenaException`.  If the exception is not one of these, Athena will throw a 500 Internal Server Error.
+```crystal NotFoundException.new "User not found"
+raise NotFoundException.new "User not found"
+```
+
+By default, Athena will catch and handle most errors related to param conversion, validation, JSON parsing, and `AthenaException`.  If the exception is not one of these, Athena will throw a 500 Internal Server Error, as well as log the exception.
 
 Custom error handling can be defined on a controller, or group of controllers by utilizing inheritance.  For example.
 
 ```crystal
 class FakeController < Athena::Routing::Controller
-  def self.handle_exception(exception : Exception, ctx : HTTP::Server::Context)
+  def self.handle_exception(exception : Exception, ctx : HTTP::Server::Context, location : String = "unknown")
     if exception.is_a? DivisionByZeroError
       throw 400, %({"code": 400, "message": "#{exception.message}"})
     end
@@ -152,9 +169,9 @@ class FakeController < Athena::Routing::Controller
 end
 ```
 
-The method accepts the exception that has been raised, and the server context.  This allows for centralized exception handling of custom exceptions, allowing errors to be handled at different levels, while still allowing action specific `begin/rescue` blocks. 
+The method accepts the exception that has been raised, the server context, and a location string (if you wanted to supply some arbitrary information about where the exception first occurred).  Athena uses this to include the line/column number for exceptions that occur from within a controller action, in the logged messages. The `handle_exception` method allows for centralized exception handling of custom exceptions, allowing errors to be handled at different levels, while still allowing action specific `begin/rescue` blocks. 
 
-Any exceptions that happen within `FakeController` will first pass through  `FakeController.handle_exception`, which handles the `DivisionByZeroError`.  The `throw` macro is used to return a response with given *status code* and *body*, if it is of that type.  Otherwise, if the exception does not "match" any logic in the custom handler, calling `super` would call the parent's error handler, in this case Athena's default (but could also be another inherited controller), which would pass the exception to Athena to process.  If the exception does not "match" any rescued exceptions there either, then a 500 Internal Server Error would be thrown.
+Any exceptions that happen within `FakeController` will first pass through  `FakeController.handle_exception`, which handles the `DivisionByZeroError`.  The `throw` macro is used to return a response with given *status code* and *body*, if it is of that type.  The convenience exception classes mentioned earlier could have also been used.  If the exception does not "match" any logic in the custom handler, calling `super` would call the parent's error handler, in this case Athena's default (but could also be another inherited controller), which would pass the exception to Athena to process.  If the exception does not "match" any rescued exceptions there either, then a 500 Internal Server Error would be thrown, as well as log the exception.
 
 ### Query Params
 
@@ -367,7 +384,7 @@ The first callback would only run for the route who's action has the name `get_a
 
 When a controller is inherited from, all callbacks defined on that controller will also be inherited.  This allows developers to smartly define their controllers to make use of inheritance to share common callbacks, such as for setting headers for public vs private routes.
 
-The same idea also applies to methods.  Class methods can be defined on parent controllers so that each child controller has those methods defined.  Such as the `get_request`/`get_response` methods Athena defines by default.
+The same idea also applies to methods.  Instance methods can be defined on parent controllers so that each child controller has those methods defined.
 
 Callbacks can also be defined to run on _all_ routes no matter which controller they are in.  This can be achieved by adding a callback action to the parent controller: `Athena::Routing::Controller`.  
 
@@ -396,9 +413,9 @@ All basic types, such as `Int`, `Float`, `String`, `Bool`, are natively converte
 
 The `Exists` converter takes a route param and attempts to resolve an object of `T` with that ID.  If no object is found a 404 JSON error is returned.
 
-This converter requires that there is a `self.find(val : String) : self` method on `T` that either returns the corresponding object, or nil.  This can either be from an ORM library, or defined manually.
+This converter requires that there is a `self.find(val : P) : self` method on `T` that either returns the corresponding object, or nil.  This can either be from an ORM library, or defined manually.
 
-**NOTE:** The `Exists` converter requires an extra annotation field `pk_type`.  This should be set to the type of the primary key, or unique identifier, of the model/class.  This is used to convert the string value to the correct type for the `find` query.
+> **NOTE:** The `Exists` converter requires an extra annotation field `pk_type`.  This should be set to the type of the primary key, or unique identifier, of the model/class.  This is used to convert the string value to the correct type (P) for the `find` query.
 
 ```Crystal
 require "athena/routing"
@@ -509,26 +526,26 @@ end
 Athena::Routing.run
 ```
 
-While this is not as clean as using JSON, it provides a decent way to handle form data for legacy or other reasons.
+While this is not as clean as using JSON, it provides a decent, reusable method to handle form data for legacy or other reasons.
 
 ### Custom Converter
 
-A custom converter can also be defined to perform special logic.  Simply create a struct, with a generic, that implements a class method `convert(value : String) : T`.  
+A custom converter can also be defined to perform special logic.  Simply create a struct, with a generic, that implements an instance method `convert(value : String) : T`.  
 
 ```Crystal
 struct MyConverter(T)
-  def self.convert(param_value : String) : T
+  def convert(param_value : String) : T
     # Your custom logic
     model
   end
 end
 ```
 
-This then can be used like `@[Athena::Routing::ParamConverter(param: "user", type: User, converter: MyConverter)]`
+This then can be used like `@[Athena::Routing::ParamConverter(param: "user", type: User, converter: MyConverter)]`.  The converter gets instantiated just before being used; DI auto injection can be used to get the current request/response or some other custom object to use within in the `convert` method.
 
 ## CORS
 
-Athena provides an easy, flexible way to enable CORS for your application's endpoints.  To enable cors, set `enabled` to `true` in your configuration file.  For additional information on configuring your application, see the [configuration](../readmen.md#configuration) section.
+Athena provides an easy, flexible way to enable CORS for your application's endpoints.  To enable cors, set `enabled` to `true` in your configuration file.  For additional information on configuring your application, see the [configuration](./readmen.md#configuration) section.
 
 ### Strategy
 
@@ -544,34 +561,36 @@ CORS groups are similar to [CrSerializer Serialization Groups](https://github.co
 ```yaml
 # Config file for Athena.
 ---
-routing:
-  cors:
-    enabled: true
-    strategy: blacklist
-    defaults: &defaults
-      allow_origin: DEFAULT_DOMAIN
-      expose_headers:
-        - DEFAULT1_EH
-        - DEFAULT2_EH
-      max_age: 123
-      allow_credentials: false
-      allow_methods:
-        - GET
-      allow_headers:
-        - DEFAULT_AH
-    groups:
-      class_overload:
-        <<: *defaults
-        allow_origin: OVERLOAD_DOMAIN
-      action_overload:
-        <<: *defaults
-        allow_origin: ACTION_DOMAIN
-        allow_credentials: true
+environments:
+  development: &development
+    routing:
+      cors:
+        enabled: true
+        strategy: blacklist
+        defaults: &defaults
+          allow_origin: DEFAULT_DOMAIN
+          expose_headers:
+            - DEFAULT1_EH
+            - DEFAULT2_EH
+          max_age: 123
+          allow_credentials: false
+          allow_methods:
+            - GET
+          allow_headers:
+            - DEFAULT_AH
+        groups:
+          class_overload:
+            <<: *defaults
+            allow_origin: OVERLOAD_DOMAIN
+          action_overload:
+            <<: *defaults
+            allow_origin: ACTION_DOMAIN
+            allow_credentials: true
 ```
 
 In this example we have two custom groups `class_overload` and `action_overload`.  Both are inherited from the `defaults`.  `class_overload` overrides the `allow_origin` header value, while `action_overload` overrides both the `allow_origin` and `allow_credentials` headers.
 
-A `cors_group` can be added to any controller/action.  
+A `cors_group` can be added to any controller or action.  
 
 ```crystal
 @[Athena::Routing::ControllerOptions(cors: "class_overload")]
@@ -600,27 +619,33 @@ The order of precedence is `action > controller > defaults`, where a `cors_group
 The easiest setup would be to update the `defaults` with your settings and use the `blacklist` `strategy`. 
 
 
-## Custom Handlers
+## Custom HTTP Handlers
 
-By default Athena sets up the required handlers behind the scenes if no custom handlers are supplied.  
+By default Athena sets up the required HTTP handlers behind the scenes if no custom handlers are supplied.  
 
-In order to use custom handlers, first create a class that inherits from `Athena::Routing::Handlers::Handler` and implements a `def handle(ctx : HTTP::Server::Context, action : Athena::Routing::Action, config : Athena::Config::Config) : Nil`.  The base Athena Handler class extends the default `HTTP::Handler` class to expose extra information for use.  Each handler has access to the server context, the action that was matched, and the config object from the config file.
+Custom handlers can be added by simply creating a class that `includes HTTP::Handler` and implements a `call(ctx : HTTP::Server::Context) : Nil` method.
 
 ```crystal
 require "athena/routing"
 
-class MyHandler < Athena::Routing::Handlers::Handler
-  def handle(ctx : HTTP::Server::Context, action : Athena::Routing::Action, config : Athena::Config::Config) : Nil
+class MyHandler
+  include HTTP::Handler
+    
+  def call(ctx : HTTP::Server::Context) : Nil
     # Do custom logic here such as:
     # * Add unique id to response
     # * Set response time
     # * Parse auth headers
+        
+    # The request stack can be used to access the current 
+    # request/response as well as the matched action
+    request_stack = Athena::DI.get_container.get("request_stack").as(RequestStack)
+        
+    # The configuration for the current environment can also be accessed
+    config = Athena.config
       
-    # Call this to call the next handler
-    handle_next
-  rescue ex
-    # Call the action's exception handler on error.
-    action.controller.handle_exception ex, action.method
+    # Call the next handler
+    call_next ctx
   end
 end
 
@@ -642,4 +667,3 @@ Athena::Routing.run(
   ]
 )
 ```
-

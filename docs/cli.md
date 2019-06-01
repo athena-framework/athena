@@ -47,7 +47,7 @@ Registered commands:
 
 the `-l` or `--list` argument will list the available commands that can be executed via the binary.  The commands are grouped based on the first part of the command name, separated by `:`.  The `-e NAME` or `--explain NAME` can be used to get more detailed information about a given command.
 
-Commands are executed by using the `--command NAME` or `-c NAME` syntax; where `NAME` is the name of the command.  Arguments are passed via the `--key=value` or `--key value` format, where `key` matches the argument name from the `self.execute` method.
+Commands are executed by using the `--command NAME` or `-c NAME` syntax; where `NAME` is the name of the command.  Arguments are passed via the `--key=value` or `--key value` format, where `key` matches the argument name from the `self.execute` method.
 
 ```bash
 ./MyApp -e migrate:events
@@ -72,5 +72,6 @@ All primitive data types are supported including:  `Int32`, `Bool`, `Float64`, e
 
 Non-nilable parameters are considered required and will raise an exception if not supplied, without a default value.  Nilable parameters are considered optional and will be nil if not supplied, without a default value.
 
+## Logging
 
-
+By default, Athena defines a logger that simply logs to STDOUT for CLI commands.  If you wish to customize this behavior, see the [logger docs](./readme.md#custom-logger).

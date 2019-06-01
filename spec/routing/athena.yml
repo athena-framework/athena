@@ -1,25 +1,27 @@
 # Config file for Athena.
 ---
-routing:
-  cors:
-    enabled: true
-    strategy: blacklist
-    defaults: &defaults
-      allow_origin: DEFAULT_DOMAIN
-      expose_headers:
-        - DEFAULT1_EH
-        - DEFAULT2_EH
-      max_age: 123
-      allow_credentials: false
-      allow_methods:
-        - GET
-      allow_headers:
-        - DEFAULT_AH
-    groups:
-      class_overload:
-        <<: *defaults
-        allow_origin: OVERLOAD_DOMAIN
-      action_overload:
-        <<: *defaults
-        allow_origin: ACTION_DOMAIN
-        allow_credentials: true
+environments:
+  test: &test
+    routing:
+      cors:
+        enabled: true
+        strategy: blacklist
+        defaults: &defaults
+          allow_origin: DEFAULT_DOMAIN
+          expose_headers:
+            - DEFAULT1_EH
+            - DEFAULT2_EH
+          max_age: 123
+          allow_credentials: false
+          allow_methods:
+            - GET
+          allow_headers:
+            - DEFAULT_AH
+        groups:
+          class_overload:
+            <<: *defaults
+            allow_origin: OVERLOAD_DOMAIN
+          action_overload:
+            <<: *defaults
+            allow_origin: ACTION_DOMAIN
+            allow_credentials: true

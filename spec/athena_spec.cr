@@ -14,13 +14,43 @@ Usage
 \t./YOUR_BINARY -c athena:generate:config_file [arguments]
 Arguments
 \toverride : Bool = false
-\tpath : String = "./athena.yml"\n
+\tpath : String = "athena.yml"\n
 EXPLAIN
+
+DEFAULT_CONFIG_YAML = <<-YAML
+---
+environments:
+  development: &development
+    routing:
+      cors:
+        enabled: false
+        strategy: blacklist
+        defaults: &defaults
+          allow_origin: https://yourdomain.com
+          expose_headers: []
+          max_age: 0
+          allow_credentials: false
+          allow_methods: []
+          allow_headers: []
+        groups: {}
+  test: &test
+    <<: *development
+  production: &production
+    <<: *development\n
+YAML
+
+Spec.before_each { Crylog::Registry.clear }
+Spec.before_each { ENV["ATHENA_ENV"] = "test" }
+
+puts
+puts
+puts "Running Athena Specs"
+puts
 
 describe Athena do
   describe "binary" do
     describe "--list -l" do
-      it "should list avaliable commands" do
+      it "should list available commands" do
         run_binary(args: ["-l"]) do |output|
           output.should eq COMMANDS
         end
@@ -41,8 +71,7 @@ describe Athena do
           it "should not recreate the file" do
             created = File.info "athena.yml"
             run_binary(args: ["-c", "athena:generate:config_file"]) do |_output|
-              modified = File.info "athena.yml"
-              created.modification_time.should eq modified.modification_time
+              created.modification_time.should eq File.info("athena.yml").modification_time
             end
           end
         end
@@ -51,8 +80,7 @@ describe Athena do
           it "should recreate the file" do
             original = File.info "athena.yml"
             run_binary(args: ["-c", "athena:generate:config_file", "--override=true"]) do |_output|
-              new = File.info "athena.yml"
-              (original.modification_time < new.modification_time).should be_true
+              (original.modification_time < File.info("athena.yml").modification_time).should be_true
             end
           end
         end
@@ -66,13 +94,18 @@ describe Athena do
             end
           end
         end
+
+        it "should generate the correct yaml" do
+          Athena::Config::Environments.new.to_yaml.should eq DEFAULT_CONFIG_YAML
+        end
       end
     end
   end
 
   describe ".config" do
     describe "with the default path" do
-      it "shoudl return the standard object" do
+      it "should return the standard object" do
+        ENV["ATHENA_ENV"] = "test"
         config = Athena.config
         config.routing.cors.enabled.should be_false
         config.routing.cors.groups.empty?.should be_true
@@ -82,8 +115,10 @@ describe Athena do
     end
 
     describe "with a provided path" do
-      it "shoudl return the standard object" do
-        config = Athena.config "spec/routing/athena.yml"
+      it "should return the standard object" do
+        ENV["ATHENA_ENV"] = "test"
+        ENV["ATHENA_CONFIG_PATH"] = "spec/routing/athena.yml"
+        config = Athena.config
         config.routing.cors.enabled.should be_true
         config.routing.cors.groups.has_key?("class_overload").should be_true
         config.routing.cors.groups.has_key?("action_overload").should be_true
