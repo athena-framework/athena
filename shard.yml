@@ -28,7 +28,7 @@ dependencies:
     version: ~> 0.7.0
   crylog:
     github: blacksmoke16/crylog
-    branch: master
+    branch: ~> 0.1.0
   amber_router:
     github: amberframework/amber-router
     version: ~> 0.3.0

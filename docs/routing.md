@@ -169,7 +169,7 @@ class FakeController < Athena::Routing::Controller
 end
 ```
 
-The method accepts the exception that has been raised, the server context, and a location string (if you wanted to supply some arbitrary information about where the exception first occurred).  Athena uses this to include the line/column number for exceptions that occur from within a controller action, in the logged messages. The `handle_exception` method allows for centralized exception handling of custom exceptions, allowing errors to be handled at different levels, while still allowing action specific `begin/rescue` blocks. 
+The method accepts the exception that has been raised, the server context, and a location string (if you wanted to supply some arbitrary information about where the exception first occurred).  Athena uses this to include the line/column number for exceptions that occur from within a controller action, in the logged messages. The `handle_exception` method allows for centralized exception handling of custom exceptions, allowing errors to be handled at different levels, while still allowing action specific `begin/rescue` blocks. 
 
 Any exceptions that happen within `FakeController` will first pass through  `FakeController.handle_exception`, which handles the `DivisionByZeroError`.  The `throw` macro is used to return a response with given *status code* and *body*, if it is of that type.  The convenience exception classes mentioned earlier could have also been used.  If the exception does not "match" any logic in the custom handler, calling `super` would call the parent's error handler, in this case Athena's default (but could also be another inherited controller), which would pass the exception to Athena to process.  If the exception does not "match" any rescued exceptions there either, then a 500 Internal Server Error would be thrown, as well as log the exception.
 
@@ -644,7 +644,7 @@ class MyHandler
     # The configuration for the current environment can also be accessed
     config = Athena.config
       
-    # Call this to call the next handler
+    # Call the next handler
     call_next ctx
   end
 end
