@@ -3,12 +3,18 @@ require "xml"
 class Customer
   include CrSerializer(JSON | YAML)
 
+  # :nodoc:
+  def initialize; end
+
   property name : String = "MyCust"
   property id : Int32 = 1
 end
 
 class User
   include CrSerializer(JSON | YAML)
+
+  # :nodoc:
+  def initialize(@id : Int64?, @age : Int32); end
 
   property id : Int64?
 
@@ -27,15 +33,10 @@ class User
 
   # Mock out find method to emulate ORM method
   def self.find(val) : User?
-    user : self = new
     if val.to_i == 17
-      user.id = 17
-      user.age = 123
-      user
+      new 17, 123
     elsif val == "71"
-      user.id = 71
-      user.age = 321
-      user
+      new 71, 321
     else
       nil
     end
@@ -50,10 +51,7 @@ class User
   end
 
   def self.from_form_data(form_data : HTTP::Params) : self
-    obj = new
-    obj.age = form_data["age"].to_i
-    obj.id = form_data["id"].to_i64
-    obj
+    new form_data["id"].to_i64?, form_data["age"].to_i
   end
 
   ECR.def_to_s "spec/routing/user.ecr"
