@@ -1,5 +1,6 @@
 require "../spec_helper_methods"
 require "http/client"
+require "file_utils"
 require "../../src/routing"
 require "./controllers/*"
 
