@@ -1,4 +1,4 @@
-require "../../../routing_spec_helper"
+require "../../routing_spec_helper"
 
 class CompileController < Athena::Routing::Controller
   @[Athena::Routing::Callback(event: CallbackEvents::OnResponse)]

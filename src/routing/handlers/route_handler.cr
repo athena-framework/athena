@@ -15,7 +15,6 @@ module Athena::Routing::Handlers
 
     @routes : Amber::Router::RouteSet(Action) = Amber::Router::RouteSet(Action).new
 
-    # ameba:disable Metrics/CyclomaticComplexity
     def initialize
       {% for klass in Athena::Routing::Controller.all_subclasses %}
         {% methods = klass.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}

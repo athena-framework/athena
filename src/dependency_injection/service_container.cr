@@ -27,7 +27,6 @@ module Athena::DI
     getter tags : Hash(String, Array(String)) = Hash(String, Array(String)).new
 
     # Initializes the container.  Auto registering annotated services.
-    # ameba:disable Metrics/CyclomaticComplexity
     def initialize
       service_definitions = {} of String => AbstractServiceDefinition
       {% begin %}

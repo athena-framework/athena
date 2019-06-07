@@ -1,21 +1,19 @@
 class Article
   include CrSerializer(JSON | YAML)
 
+  # :nodoc:
+  def initialize(@id : Int64?, @title : String); end
+
   property id : Int64?
 
   property title : String
 
   # Mock out find method to emulate ORM method
   def self.find(val) : Article?
-    user : self = new
     if val.to_i == 17
-      user.id = 17
-      user.title = "Int"
-      user
+      new 17, "Int"
     elsif val == "71"
-      user.id = 71
-      user.title = "String"
-      user
+      new 71, "String"
     else
       nil
     end
