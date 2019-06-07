@@ -3,7 +3,7 @@ name: athena
 description: |
   Modular, annotation based, API oriented framework with built in param conversion.
 
-version: 0.6.1
+version: 0.6.2
 
 authors:
   - Blacksmoke16 <Blacksmoke16@eve.tools>
@@ -25,7 +25,7 @@ executables:
 dependencies:
   CrSerializer:
     github: blacksmoke16/CrSerializer
-    version: ~> 0.7.0
+    version: ~> 0.8.0
   crylog:
     github: blacksmoke16/crylog
     version: ~> 0.1.0
@@ -36,4 +36,4 @@ dependencies:
 development_dependencies:
   ameba:
     github: veelenga/ameba
-    version: ~> 0.9.0
+    version: ~> 0.10.0

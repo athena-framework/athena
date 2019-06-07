@@ -1,4 +1,4 @@
-require "../../../routing_spec_helper"
+require "../../routing_spec_helper"
 
 class CompileController < Athena::Routing::Controller
   def handle_exception(exception : Exception, ctx : HTTP::Server::Context)
