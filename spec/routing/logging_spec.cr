@@ -64,7 +64,7 @@ module Athena
           handler.messages.size.should eq 2
 
           handler.messages[0].formatted.should match /\[#{TIME_REGEX}\] main.INFO: Matched route 'get_default_exception' {"path":"\/exception\/default","method":"GET","remote_address":".*","version":"HTTP\/1\.1","length":null}/
-          handler.messages[1].formatted.should match /\[#{TIME_REGEX}\] main.CRITICAL: Unhandled exception: Nil assertion failed in Test2 at spec\/routing\/controllers\/exception_controller.cr:36:5 {\"cause\":null,\"cause_class\":\"Nil\"}/
+          handler.messages[1].formatted.should match /\[#{TIME_REGEX}\] main.CRITICAL: Unhandled exception: Nil assertion failed in Test2 at spec\/routing\/controllers\/exception_controller.cr:\d+:\d+ {\"cause\":null,\"cause_class\":\"Nil\"}/
         end
       end
 
