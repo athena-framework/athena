@@ -50,18 +50,48 @@ do_with_config do |client|
       end
 
       describe "invalid param" do
-        it "should return the invalid param json object" do
-          response = client.post("/users", body: %({"age": "foo"}), headers: HTTP::Headers{"content-type" => "application/json"})
-          response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got string"})
-          response.status.should eq HTTP::Status::BAD_REQUEST
+        describe "Int32 as String" do
+          it "should return the invalid param json object" do
+            response = client.post("/users", body: %({"age": "foo"}), headers: HTTP::Headers{"content-type" => "application/json"})
+            response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got string"})
+            response.status.should eq HTTP::Status::BAD_REQUEST
+          end
+        end
 
-          response = client.post("/users", body: %({"age": true}), headers: HTTP::Headers{"content-type" => "application/json"})
-          response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got bool"})
-          response.status.should eq HTTP::Status::BAD_REQUEST
+        describe "Int32 as Bool" do
+          it "should return the invalid param json object" do
+            response = client.post("/users", body: %({"age": true}), headers: HTTP::Headers{"content-type" => "application/json"})
+            response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got bool"})
+            response.status.should eq HTTP::Status::BAD_REQUEST
 
-          response = client.post("/users", body: %({"age": null}), headers: HTTP::Headers{"content-type" => "application/json"})
-          response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got null"})
-          response.status.should eq HTTP::Status::BAD_REQUEST
+            response = client.post("/users", body: %({"age": null}), headers: HTTP::Headers{"content-type" => "application/json"})
+            response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got null"})
+            response.status.should eq HTTP::Status::BAD_REQUEST
+          end
+        end
+
+        describe "Int32 as null" do
+          it "should return the invalid param json object" do
+            response = client.post("/users", body: %({"age": null}), headers: HTTP::Headers{"content-type" => "application/json"})
+            response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got null"})
+            response.status.should eq HTTP::Status::BAD_REQUEST
+          end
+        end
+
+        describe "Int64? as String" do
+          it "should return the invalid param json object" do
+            response = client.post("/users", body: %({"id": "123","age": 100}), headers: HTTP::Headers{"content-type" => "application/json"})
+            response.body.should eq %({"code": 400, "message": "Couldn't parse Int64 | Nil from '"123"'"})
+            response.status.should eq HTTP::Status::BAD_REQUEST
+          end
+        end
+
+        describe "Int64? as Bool" do
+          it "should return the invalid param json object" do
+            response = client.post("/users", body: %({"id": true,"age": 100}), headers: HTTP::Headers{"content-type" => "application/json"})
+            response.body.should eq %({"code": 400, "message": "Couldn't parse Int64 | Nil from 'true'"})
+            response.status.should eq HTTP::Status::BAD_REQUEST
+          end
         end
       end
 

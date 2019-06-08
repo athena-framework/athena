@@ -25,21 +25,21 @@ end
 
 class Test1 < Parent1
   @[Athena::Routing::Get(path: "exception/custom")]
-  def get : Nil
+  def get_custom_exception : Nil
     raise DivisionByZeroError.new
   end
 end
 
 class Test2 < Parent2
   @[Athena::Routing::Get(path: "exception/default")]
-  def get : Nil
+  def get_default_exception : Nil
     raise NilAssertionError.new
   end
 end
 
 class Test3 < Parent3
   @[Athena::Routing::Get(path: "exception/no_match")]
-  def get : Nil
+  def get_no_match_exception : Nil
     raise NilAssertionError.new
   end
 end
