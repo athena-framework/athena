@@ -231,6 +231,8 @@ module Athena::Routing::Handlers
       # Make sure there is an action to handle the incoming request
       action = route.found? ? route.payload.not_nil! : raise Athena::Routing::Exceptions::NotFoundException.new "No route found for '#{ctx.request.method} #{ctx.request.path}'"
 
+      Athena.logger.info "Matched route '#{action.method}'", Crylog::LogContext{"path" => ctx.request.resource, "method" => ctx.request.method, "remote_address" => ctx.request.remote_address, "version" => ctx.request.version, "length" => ctx.request.content_length}
+
       # DI isn't initialized until this point, so get the request_stack directly from the container after setting the container
       request_stack = Athena::DI.get_container.get("request_stack").as(RequestStack)
 

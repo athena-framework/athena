@@ -179,13 +179,25 @@ module Athena::Routing
     # Method can be defined on child classes for controller specific error handling.
     def self.handle_exception(exception : Exception, ctx : HTTP::Server::Context, location : String = "unknown")
       case exception
-      when Athena::Routing::Exceptions::AthenaException  then throw exception.code, exception.to_json
-      when CrSerializer::Exceptions::ValidationException then throw 400, exception.to_json
-      when ArgumentError                                 then throw 400, %({"code": 400, "message": "#{exception.message}"})
+      when Athena::Routing::Exceptions::AthenaException
+        Athena.logger.notice "Unhandled AthenaException:", Crylog::LogContext{"code" => exception.code, "message" => exception.to_s}
+        throw exception.code, exception.to_json
+      when CrSerializer::Exceptions::ValidationException
+        Athena.logger.notice exception.to_s
+        throw 400, exception.to_json
+      when ArgumentError
+        Athena.logger.notice "Unhandled ArgumentError: #{exception.message}"
+        throw 400, %({"code": 400, "message": "#{exception.message}"})
       when JSON::ParseException
         if msg = exception.message
           if parts = msg.match(/Expected (\w+) but was (\w+) .*[\r\n]*.+#(\w+)/)
+            Athena.logger.notice "Expected '#{parts[3]}' to be #{parts[1]} but got #{parts[2]}"
             throw 400, %({"code": 400, "message": "Expected '#{parts[3]}' to be #{parts[1]} but got #{parts[2]}"})
+          end
+
+          if parts = msg.match(/Couldn't parse \((.*)\) from (.*) at/)
+            Athena.logger.notice "Couldn't parse #{parts[1]} from '#{parts[2]}'"
+            throw 400, %({"code": 400, "message": "Couldn't parse #{parts[1]} from '#{parts[2]}'"})
           end
         end
       else
