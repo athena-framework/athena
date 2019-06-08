@@ -63,10 +63,6 @@ do_with_config do |client|
             response = client.post("/users", body: %({"age": true}), headers: HTTP::Headers{"content-type" => "application/json"})
             response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got bool"})
             response.status.should eq HTTP::Status::BAD_REQUEST
-
-            response = client.post("/users", body: %({"age": null}), headers: HTTP::Headers{"content-type" => "application/json"})
-            response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got null"})
-            response.status.should eq HTTP::Status::BAD_REQUEST
           end
         end
 
