@@ -29,5 +29,4 @@ deploy:
   keep-history: false
   local-dir: docs
   on:
-    branch: master
     condition: "$TRAVIS_EVENT_TYPE != cron"
