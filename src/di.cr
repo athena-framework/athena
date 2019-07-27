@@ -1,5 +1,4 @@
 require "./dependency_injection/service_container"
-require "./dependency_injection/definition"
 
 # :nodoc:
 class Fiber
