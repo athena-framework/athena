@@ -140,8 +140,8 @@ module Athena::DI
       return services.first if services.size == 1
 
       # # Otherwise, also use the name to resolve the service.
-      services.each do |s|
-        return s if internal_get name
+      if service = internal_get name
+        return service
       end
 
       # Throw an exception if it could not be resolved.
