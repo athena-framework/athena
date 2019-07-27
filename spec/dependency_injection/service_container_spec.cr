@@ -23,6 +23,22 @@ struct FeedPartner < Athena::DI::StructService
   def initialize(@id : String, @name : String); end
 end
 
+@[Athena::DI::Register("!partner")]
+class PartnerManager < Athena::DI::ClassService
+  getter partners
+
+  def initialize(@partners : Array(FeedPartner))
+  end
+end
+
+class PartnerParamConverter
+  include Athena::DI::Injectable
+
+  getter manager
+
+  def initialize(@manager : PartnerManager); end
+end
+
 @[Athena::DI::Register]
 class Store < Athena::DI::ClassService
   property name : String = "Jim"
@@ -87,7 +103,7 @@ end
 describe Athena::DI::ServiceContainer do
   describe "#initialize" do
     it "should add the annotated services" do
-      CONTAINER.services.size.should eq 9
+      CONTAINER.services.size.should eq 10
       CONTAINER.services.has_key?("fake_service").should be_true
       CONTAINER.services["fake_service"].should be_a FakeService
 
@@ -129,6 +145,20 @@ describe Athena::DI::ServiceContainer do
         services.size.should eq 2
         services[0].should be_a FakeService
         services[1].should be_a CustomFooFakeService
+      end
+    end
+  end
+
+  describe "#has" do
+    describe "when the service has been registered" do
+      it "should return true" do
+        CONTAINER.has("blah").should be_true
+      end
+    end
+
+    describe "when the service has been registered" do
+      it "should return false" do
+        CONTAINER.has("i_do_not_exist").should be_false
       end
     end
   end
@@ -224,6 +254,16 @@ describe Athena::DI::ServiceContainer do
         klass.serv.blah.should be_a Blah
         klass.serv.foo.should eq "a_string"
         klass.serv.ase.should be_a AService
+      end
+    end
+
+    describe "when injecting tagged services" do
+      it "should inject all services with that tag" do
+        klass = PartnerParamConverter.new
+        klass.manager.partners.size.should eq 2
+
+        klass.manager.partners[0].id.should eq "GOOGLE"
+        klass.manager.partners[1].id.should eq "FACEBOOK"
       end
     end
   end

@@ -11,8 +11,9 @@ module Athena::DI
     # Initializes the container.  Auto registering annotated services.
     def initialize
       {% begin %}
-        # Array of services that have been registered.  Used to determine if all service dependencies have been already registered.
-        {% registered_services = [] of String %}
+        # Mapping of registered services to their dependencies.  Used to determine if all service dependencies have been already registered and to detect circular dependencies.
+        {% registered_services = {} of String => Array(Nil) %}
+        {% service_list = {} of String => Array(Nil) %}
 
         # Mapping of tag name to services with that tag.
         {% tagged_services = {} of String => Array(String) %}
@@ -23,19 +24,34 @@ module Athena::DI
         # Array of services that have no dependencies.
         {% no_dependency_services = services.select { |service| init = service.methods.find(&.name.==("initialize")); !init || init.args.size == 0 } %}
 
-        # Array of services that do not have any tagged services.  Should try to resolve all other services first.
-        {% services_without_tagged_dependencies = services.select { |service| init = service.methods.find(&.name.==("initialize")); init && service.annotations(Athena::DI::Register).all? { |service_ann| service_ann.pos_args.all? { |arg| (arg.is_a?(StringLiteral) && !arg.starts_with?('!')) || !arg.is_a?(StringLiteral) } } } %}
+        # Array of services that do not have any tagged services.
+        # This includes any service who's arguments are strings and don't start with `!` or are not strings.
+        {% services_without_tagged_dependencies = services.select do |service|
+             initializer = service.methods.find(&.name.==("initialize"))
+             initializer && service.annotations(Athena::DI::Register).all? do |service_ann|
+               (0...initializer.args.size).map { |idx| service_ann[idx] }.all? do |arg|
+                 (arg.is_a?(StringLiteral) && !arg.starts_with?('!')) || !arg.is_a?(StringLiteral)
+               end
+             end
+           end %}
 
         # Array of services with tag argument.  Assuming by now all other services would be registered.
-        {% services_with_tagged_dependencies = services.select { |service| init = service.methods.find(&.name.==("initialize")); init && service.annotations(Athena::DI::Register).any? { |service_ann| service_ann.pos_args.any? { |arg| (arg.is_a?(StringLiteral) && arg.starts_with?('!')) } } } %}
-
+        # This includes any services who has at least one argument that is a string and starts with `!`.
+        {% services_with_tagged_dependencies = services.select do |service|
+             initializer = service.methods.find(&.name.==("initialize"))
+             initializer && service.annotations(Athena::DI::Register).any? do |service_ann|
+               (0...initializer.args.size).map { |idx| service_ann[idx] }.any? do |arg|
+                 (arg.is_a?(StringLiteral) && arg.starts_with?('!'))
+               end
+             end
+           end %}
 
         # Register the services without dependencies first
         {% for service in no_dependency_services %}
           {% for service_ann in service.annotations(Athena::DI::Register) %}
             {% key = service_ann[:name] ? service_ann[:name] : service.name.stringify.split("::").last.underscore %}
             {% tags = service_ann[:tags] ? service_ann[:tags] : [] of String %}
-            {% registered_services << key %}
+            {% registered_services[key] = [] of Nil %}
 
             {% for tag in tags %}
               {% tagged_services[tag] ? tagged_services[tag] << key : (tagged_services[tag] = [] of String; tagged_services[tag] << key) %}
@@ -50,22 +66,29 @@ module Athena::DI
         {% for service in services_without_tagged_dependencies %}
           {% initializer = service.methods.find(&.name.==("initialize")) %}
           {% for service_ann in service.annotations(Register) %}
+            {% pos_args = (0...initializer.args.size).map { |idx| service_ann[idx] } %}
             {% key = service_ann[:name] ? service_ann[:name] : service.name.stringify.split("::").last.underscore %}
             {% tags = service_ann[:tags] ? service_ann[:tags] : [] of String %}
+
+            {% service_list[key] = pos_args %}
+
             {% for tag in tags %}
               {% tagged_services[tag] ? tagged_services[tag] << key : (tagged_services[tag] = [] of String; tagged_services[tag] << key) %}
             {% end %}
 
-            {% if service_ann.pos_args.all? { |arg| arg.is_a?(StringLiteral) && arg.starts_with?('@') ? registered_services.includes?(arg[1..-1]) : true } %}
-              {% registered_services << key %}
+            # If the service is registered and one of its dependencies also depends on it.  It's a circular dependency.
+            {% if pos_args.any? { |dep| dep.is_a?(StringLiteral) && dep.starts_with?('@') ? service_list[dep[1..-1]] && service_list[dep[1..-1]].includes?("@#{key.id}") : false } %}
+              {% raise "Circular dependency detected between '#{service}' and '#{dep[1..-1].camelcase.id}'." %}
+            {% end %}
 
-              @services[{{key}}] = {{service.id}}.new {{(0...initializer.args.size).map { |idx| arg = service_ann.pos_args[idx]; arg.is_a?(StringLiteral) && arg.starts_with?('@') ? "@services[#{arg[1..-1]}].as(#{initializer.args[idx].restriction})".id : arg }.splat}}
+            {% if pos_args.all? { |arg| arg.is_a?(StringLiteral) && arg.starts_with?('@') ? registered_services[arg[1..-1]] : true } %}
+              {% registered_services[key] = pos_args %}
+              @services[{{key}}] = {{service.id}}.new {{(0...initializer.args.size).map { |idx| arg = service_ann[idx]; arg.is_a?(StringLiteral) && arg.starts_with?('@') ? "@services[#{arg[1..-1]}].as(#{initializer.args[idx].restriction})".id : arg }.splat}}
             {% else %}
               {% services_without_tagged_dependencies << service %}
             {% end %}
           {% end %}
         {% end %}
-
 
        # Lastly register services with tags, assuming their dependencies would have been resolved by now.
         {% for service in services_with_tagged_dependencies %}
@@ -74,11 +97,7 @@ module Athena::DI
             {% key = service_ann[:name] ? service_ann[:name] : service.name.stringify.split("::").last.underscore %}
             {% tags = service_ann[:tags] ? service_ann[:tags] : [] of String %}
 
-            {% for tag in tags %}
-              {% tagged_services[tag] ? tagged_services[tag] << key : (tagged_services[tag] = [] of String; tagged_services[tag] << key) %}
-            {% end %}
-
-            @services[{{key}}] = {{service.id}}.new {{(0...initializer.args.size).map { |idx| arg = service_ann.pos_args[idx]; arg.is_a?(StringLiteral) && arg.starts_with?('@') ? "@services[#{arg[1..-1]}].as(#{initializer.args[idx].restriction})".id : arg.is_a?(StringLiteral) && arg.starts_with?('!') ? %(#{tagged_services[arg[1..-1]].map { |ts| "@services[#{ts}].as(#{initializer.args[idx].restriction.type_vars.splat})".id }}.as(#{initializer.args[idx].restriction})).id : arg }.splat}}
+            @services[{{key}}] = {{service.id}}.new {{(0...initializer.args.size).map { |idx| arg = service_ann[idx]; arg.is_a?(StringLiteral) && arg.starts_with?('@') ? "@services[#{arg[1..-1]}].as(#{initializer.args[idx].restriction})".id : arg.is_a?(StringLiteral) && arg.starts_with?('!') ? %(#{tagged_services[arg[1..-1]].map { |ts| "@services[#{ts}].as(#{initializer.args[idx].restriction.type_vars.splat})".id }}.as(#{initializer.args[idx].restriction})).id : arg }.splat}}
           {% end %}
         {% end %}
         @tags = {{tagged_services}} of String => Array(String)
@@ -93,6 +112,11 @@ module Athena::DI
     # Returns an array of services of the provided *type*.
     def get(type : Service.class) : Array(Athena::DI::Service)
       get_services_by_type(type)
+    end
+
+    # Returns `true` if a service with the provided *name* has been registered.
+    def has(name : String) : Bool
+      @services.has_key? name
     end
 
     # Returns the service of the given *type* and *name*.
