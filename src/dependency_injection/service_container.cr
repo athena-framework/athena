@@ -7,11 +7,12 @@ module Athena::DI
 
     macro finished
       {% begin %}
+        # Define a `getter!` in the container for each registered service.
         {% services = Athena::DI::StructService.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } + Athena::DI::ClassService.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } %}
         {% for service in services %}
           {% for service_ann in service.annotations(Athena::DI::Register) %}
             {% key = service_ann[:name] ? service_ann[:name] : service.name.stringify.split("::").last.underscore %}
-            getter! {{key.id}} : {{service.id}}
+            private getter {{key.id}} : {{service.id}}
           {% end %}
         {% end %}
       {% end %}
@@ -19,9 +20,8 @@ module Athena::DI
 
     # Initializes the container.  Auto registering annotated services.
     def initialize
-      {% for ivar in @type.instance_vars.reject &.name.==("tags") %}
-        {{ivar.id}} = nil
-      {% end %}
+      # Work around for https://github.com/crystal-lang/crystal/issues/7975.
+      {{@type}}
 
       {% begin %}
         # Mapping of registered services to their dependencies.  Used to determine if all service dependencies have been already registered and to detect circular dependencies.
@@ -96,7 +96,7 @@ module Athena::DI
 
             {% if pos_args.all? { |arg| arg.is_a?(StringLiteral) && arg.starts_with?('@') ? registered_services[arg[1..-1]] : true } %}
               {% registered_services[key] = pos_args %}
-              @{{key.id}} = {{service.id}}.new {{(0...initializer.args.size).map { |idx| arg = service_ann[idx]; arg.is_a?(StringLiteral) && arg.starts_with?('@') ? "@#{arg[1..-1].id}.not_nil!".id : arg }.splat}}
+              @{{key.id}} = {{service.id}}.new {{(0...initializer.args.size).map { |idx| arg = service_ann[idx]; arg.is_a?(StringLiteral) && arg.starts_with?('@') ? "@#{arg[1..-1].id}".id : arg }.splat}}
             {% else %}
               {% services_without_tagged_dependencies << service %}
             {% end %}
@@ -110,7 +110,7 @@ module Athena::DI
             {% key = service_ann[:name] ? service_ann[:name] : service.name.stringify.split("::").last.underscore %}
             {% tags = service_ann[:tags] ? service_ann[:tags] : [] of String %}
 
-            @{{key.id}} = {{service.id}}.new {{(0...initializer.args.size).map { |idx| arg = service_ann[idx]; arg.is_a?(StringLiteral) && arg.starts_with?('@') ? "@#{arg[1..-1].id}.not_nil!".id : arg.is_a?(StringLiteral) && arg.starts_with?('!') ? %(#{tagged_services[arg[1..-1]].map { |ts| "@#{ts.id}.not_nil!".id }}).id : arg }.splat}}
+            @{{key.id}} = {{service.id}}.new {{(0...initializer.args.size).map { |idx| arg = service_ann[idx]; arg.is_a?(StringLiteral) && arg.starts_with?('@') ? "@#{arg[1..-1].id}".id : arg.is_a?(StringLiteral) && arg.starts_with?('!') ? %(#{tagged_services[arg[1..-1]].map { |ts| "@#{ts.id}".id }}).id : arg }.splat}}
           {% end %}
         {% end %}
         @tags = {{tagged_services}} of String => Array(String)
@@ -124,7 +124,7 @@ module Athena::DI
 
     # Returns an array of services of the provided *type*.
     def get(type : Service.class)
-      get_services_by_type(type)
+      get_services_by_type type
     end
 
     # Returns `true` if a service with the provided *name* has been registered.
@@ -150,7 +150,7 @@ module Athena::DI
 
     # Returns services with the specified *tag*.
     def tagged(tag : String)
-      (service_names = @tags[tag]?) ? service_names.map { |service_name| internal_get service_name } : Array(Athena::DI::Service).new
+      (service_names = @tags[tag]?) ? service_names.map { |service_name| internal_get(service_name).not_nil! } : Array(Athena::DI::Service).new
     end
 
     # Returns an `Array(Athena::DI::Service)` for services of *type*.
@@ -158,10 +158,12 @@ module Athena::DI
       {{{@type.instance_vars.reject(&.name.==("tags")).map(&.id).splat}}}.select(&.class.<=(type))
     end
 
+    # Returns a Tuple of registered service names.
     private def service_names
       {{{@type.instance_vars.reject(&.name.==("tags")).map(&.name.stringify).splat}}}
     end
 
+    # Attemps to resolve the provided *name* into a service.
     private def internal_get(name : String) : Athena::DI::Service?
       {% begin %}
         case name

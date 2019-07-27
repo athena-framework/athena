@@ -41,17 +41,14 @@ module Athena::DI
   # ```
   annotation Register; end
 
-  module Service
-  end
+  alias Service = StructService | ClassService
 
   # Parent struct of services that will inject a new instance.
   abstract struct StructService
-    include Service
   end
 
   # Parent class of services that will inject the same instance.
   abstract class ClassService
-    include Service
   end
 
   # Returns the container for the current fiber.

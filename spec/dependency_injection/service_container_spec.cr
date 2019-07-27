@@ -101,29 +101,6 @@ class FooBar
 end
 
 describe Athena::DI::ServiceContainer do
-  describe "#initialize" do
-    pending "should add the annotated services" do
-      CONTAINER.services.size.should eq 10
-      CONTAINER.services.has_key?("fake_service").should be_true
-      CONTAINER.services["fake_service"].should be_a FakeService
-
-      CONTAINER.services.has_key?("CustomFake").should be_true
-      CONTAINER.services["CustomFake"].should be_a CustomFooFakeService
-
-      CONTAINER.services.has_key?("google").should be_true
-      CONTAINER.services["google"].should be_a FeedPartner
-
-      CONTAINER.services.has_key?("facebook").should be_true
-      CONTAINER.services["facebook"].should be_a FeedPartner
-
-      CONTAINER.services.has_key?("blah").should be_true
-      CONTAINER.services["blah"].should be_a Blah
-
-      CONTAINER.services.has_key?("a_service2").should be_true
-      CONTAINER.services["a_service2"].should be_a AService2
-    end
-  end
-
   describe "#get" do
     describe "by type and name" do
       describe "when the service exists" do
