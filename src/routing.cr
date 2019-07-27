@@ -9,12 +9,13 @@ require "./common/logger"
 
 require "./di"
 
-require "./routing/converters"
 require "./routing/request_stack"
 require "./routing/exceptions"
-require "./routing/renderers"
+
+require "./routing/converters/*"
 require "./routing/handlers/*"
 require "./routing/parameters/*"
+require "./routing/renderers/*"
 
 # :nodoc:
 macro halt(response, status_code, body)

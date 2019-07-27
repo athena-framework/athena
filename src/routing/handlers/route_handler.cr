@@ -183,7 +183,7 @@ module Athena::Routing::Handlers
                     end
                     arr << if val = vals[key]?
                     {% if converter = param_converters.find { |c| c[:param] == arg.name.stringify } %}
-                      Athena::Routing::Converters::{{converter[:converter]}}({{converter[:type]}}, {{converter[:pk_type] ? converter[:pk_type] : Nil}}).new.convert val
+                      {{converter[:converter]}}({{converter[:type]}}, {{converter[:pk_type] ? converter[:pk_type] : Nil}}).new.convert val
                     {% else %}
                       Athena::Types.convert_type val, {{arg.restriction}}
                     {% end %}
