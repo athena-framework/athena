@@ -62,7 +62,7 @@ module Athena::DI
   module Injectable
     macro included
       macro finished
-        \{% for method in @type.methods.select { |m| m.name == "initialize" } %}
+        \{% for method in @type.methods.select &.name.==("initialize") %}
           def self.new(**args)
             new(
               \{% for arg in method.args %}

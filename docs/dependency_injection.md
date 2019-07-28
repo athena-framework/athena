@@ -202,6 +202,7 @@ end
 some_other_store = ...
 some_class = SomeClass.new id: "FOO", store: some_other_store
 ```
+### Service Dependencies
 
 If a service depends on another service, a string can be included in the `Athena::DI::Register` annotation prepended with an `@` symbol, where the string is the name of the service to inject.
 
@@ -227,6 +228,43 @@ end
 a_class = SomeClass.new
 a_class.a_service.name # => "Jim"
 ```
+
+### Inject Tagged Services
+
+A service can also depend upon an array of services with a specific tag.  For example:
+
+```crystal
+@[Athena::DI::Register("GOOGLE", "Google", name: "google", tags: ["feed_partner", "partner"])]
+@[Athena::DI::Register("FACEBOOK", "Facebook", name: "facebook", tags: ["partner"])]
+class Partner < Athena::DI::ClassService
+  getter id : String
+  getter name : String
+
+  def initialize(@id : String, @name : String); end
+end
+
+@[Register("!partner")]
+class PartnerManager < Athena::DI::ClassService
+  def initialize(@partners : Array(Partner))
+  end
+end
+
+class SomeClass
+  include Athena::DI::Injectable
+
+  def initialize(@manager : PartnerManager); end
+end
+
+pp SomeClass.new
+#<SomeClass:0x10a5e6de0
+ @manager=
+  #<PartnerManager:0x10a5e6e80
+   @partners=
+    [#<Partner:0x10a5e6f00 @id="GOOGLE", @name="Google">,
+     #<Partner:0x10a5e6ee0 @id="FACEBOOK", @name="Facebook">]>>
+```
+
+Simply adding a string prefixed with an `!` symbol in the `Athena::DI::Register` annotation; `Athena::DI` knows to inject all services with the specified tag.
 
 ### Testing
 

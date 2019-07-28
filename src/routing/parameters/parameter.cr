@@ -1,17 +1,11 @@
 require "./parameter"
 
 module Athena::Routing::Parameters
-  abstract struct Param
-    # :nodoc:
-    def name : String
-      ""
-    end
+  module Param; end
 
-    # :nodoc:
-    def process(ctx : HTTP::Server::Context) : String?; end
-  end
+  abstract struct Parameter(T)
+    include Param
 
-  abstract struct Parameter(T) < Param
     # The name of the parameter.
     getter name : String
 
