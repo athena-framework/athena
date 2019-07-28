@@ -53,7 +53,7 @@ do_with_config do |client|
         describe "Int32 as String" do
           it "should return the invalid param json object" do
             response = client.post("/users", body: %({"age": "foo"}), headers: HTTP::Headers{"content-type" => "application/json"})
-            response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got string"})
+            response.body.should eq %({"code": 400, "message": "Expected 'age' to be Int but got String"})
             response.status.should eq HTTP::Status::BAD_REQUEST
           end
         end
@@ -61,7 +61,7 @@ do_with_config do |client|
         describe "Int32 as Bool" do
           it "should return the invalid param json object" do
             response = client.post("/users", body: %({"age": true}), headers: HTTP::Headers{"content-type" => "application/json"})
-            response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got bool"})
+            response.body.should eq %({"code": 400, "message": "Expected 'age' to be Int but got Bool"})
             response.status.should eq HTTP::Status::BAD_REQUEST
           end
         end
@@ -69,7 +69,7 @@ do_with_config do |client|
         describe "Int32 as null" do
           it "should return the invalid param json object" do
             response = client.post("/users", body: %({"age": null}), headers: HTTP::Headers{"content-type" => "application/json"})
-            response.body.should eq %({"code": 400, "message": "Expected 'age' to be int but got null"})
+            response.body.should eq %({"code": 400, "message": "Expected 'age' to be Int but got Null"})
             response.status.should eq HTTP::Status::BAD_REQUEST
           end
         end
