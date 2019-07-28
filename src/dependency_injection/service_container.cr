@@ -133,14 +133,14 @@ module Athena::DI
     end
 
     # Returns the service of the given *type* and *name*.
-    def resolve(type : _, name : String)
+    def resolve(type : _, name : String) : Athena::DI::Service
       services = get_services_by_type type
 
       # Return the service if there is only one.
       return services.first if services.size == 1
 
       # # Otherwise, also use the name to resolve the service.
-      if service = internal_get name
+      if (service = internal_get name) && services.includes? service
         return service
       end
 

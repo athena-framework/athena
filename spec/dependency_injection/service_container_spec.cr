@@ -160,6 +160,12 @@ describe Athena::DI::ServiceContainer do
         end
       end
 
+      describe "when the name and type are not related" do
+        it "should raise an exception" do
+          expect_raises Exception, "Could not resolve a service with type 'FakeServices' and name of 'google'." { CONTAINER.resolve FakeServices, "google" }
+        end
+      end
+
       describe "that matches a name" do
         it "should return the service" do
           service = CONTAINER.resolve(FeedPartner, "google").as(FeedPartner)
