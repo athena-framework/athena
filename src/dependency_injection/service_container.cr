@@ -1,110 +1,143 @@
+require "../di"
+
 module Athena::DI
-  # :nodoc:
-  module AbstractServiceDefinition; end
-
-  # :nodoc:
-  private record ServiceDefinition(ServiceKlass, ServiceArgs, AnnotationArgs), annotation_args : AnnotationArgs, tags : Array(String) do
-    include AbstractServiceDefinition
-
-    def construct_service(services : Hash(String, Athena::DI::Service)) : ServiceKlass
-      ServiceKlass.new *ServiceArgs.from get_args(services)
-    end
-
-    def resolved?(services : Hash(String, Athena::DI::Service)) : Bool
-      annotation_args.all? { |a| a.is_a?(String) && a.starts_with?('@') ? services.has_key? a.lchop('@') : true }
-    end
-
-    private def get_args(services : Hash(String, Athena::DI::Service))
-      annotation_args.map { |a| a.is_a?(String) && a.starts_with?('@') ? services[a.lchop('@')] : a }
-    end
-  end
-
   struct ServiceContainer
-    # The registered service mapped by name.
-    getter services : Hash(String, Athena::DI::Service) = Hash(String, Athena::DI::Service).new
-
     # Mapping of tag name to services with that tag.
     getter tags : Hash(String, Array(String)) = Hash(String, Array(String)).new
 
+    macro finished
+      {% begin %}
+        # Define a `getter` in the container for each registered service.
+        {% services = Athena::DI::StructService.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } + Athena::DI::ClassService.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } %}
+        {% for service in services %}
+          {% for service_ann in service.annotations(Athena::DI::Register) %}
+            {% key = service_ann[:name] ? service_ann[:name] : service.name.split("::").last.underscore %}
+            private getter {{key.id}} : {{service.id}}
+          {% end %}
+        {% end %}
+      {% end %}
+    end
+
     # Initializes the container.  Auto registering annotated services.
     def initialize
-      service_definitions = {} of String => AbstractServiceDefinition
-      {% begin %}
-        {% services = Athena::DI::StructService.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } + Athena::DI::ClassService.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } %}
-        {% service_definitions = {} of String => AbstractServiceDefinition %}
+      # Work around for https://github.com/crystal-lang/crystal/issues/7975.
+      {{@type}}
 
-        # Next iterate over services that have other services as dependencies.  If their dependencies have been resolved in the last step, register them.  Otherwise add them to be resolved later.
-        {% for service in services %}
-          {% method = service.methods.find { |m| m.name == "initialize" } %}
-          {% for service_definition in service.annotations(Athena::DI::Register) %}
-            {% key = service_definition[:name] ? service_definition[:name] : service.name.stringify.split("::").last.underscore %}
-            {% tags = service_definition[:tags] ? service_definition[:tags] : "[]".id %}
-            {% if !method || method.args.size == 0 %}
-              @services[{{key}}] = {{service.id}}.new
-              ({{tags}} of String).each do |tag|
-                (@tags[tag] ||= Array(String).new) << {{key}}
-              end
+      {% begin %}
+        # Mapping of registered services to their dependencies.  Used to determine if all service dependencies have been already registered and to detect circular dependencies.
+        {% registered_services = {} of String => Array(Nil) %}
+        {% service_list = {} of String => Array(Nil) %}
+
+        # Mapping of tag name to services with that tag.
+        {% tagged_services = {} of String => Array(String) %}
+
+        # Obtain an array of registered services.
+        {% services = Athena::DI::StructService.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } + Athena::DI::ClassService.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } %}
+
+        # Array of services that have no dependencies.
+        {% no_dependency_services = services.select { |service| init = service.methods.find(&.name.==("initialize")); !init || init.args.size == 0 } %}
+
+        # Array of services that do not have any tagged services.
+        # This includes any service who's arguments are strings and don't start with `!` or are not strings.
+        {% services_without_tagged_dependencies = services.select do |service|
+             initializer = service.methods.find(&.name.==("initialize"))
+             initializer && service.annotations(Athena::DI::Register).all? do |service_ann|
+               service_ann.args.all? do |arg|
+                 (arg.is_a?(StringLiteral) && !arg.starts_with?('!')) || !arg.is_a?(StringLiteral)
+               end
+             end
+           end %}
+
+        # Array of services with tag argument.  Assuming by now all other services would be registered.
+        # This includes any services who has at least one argument that is a string and starts with `!`.
+        {% services_with_tagged_dependencies = services.select do |service|
+             initializer = service.methods.find(&.name.==("initialize"))
+             initializer && service.annotations(Athena::DI::Register).any? do |service_ann|
+               service_ann.args.any? do |arg|
+                 (arg.is_a?(StringLiteral) && arg.starts_with?('!'))
+               end
+             end
+           end %}
+
+        # Register the services without dependencies first
+        {% for service in no_dependency_services %}
+          {% for service_ann in service.annotations(Athena::DI::Register) %}
+            {% key = service_ann[:name] ? service_ann[:name] : service.name.split("::").last.underscore %}
+            {% tags = service_ann[:tags] ? service_ann[:tags] : [] of String %}
+            {% registered_services[key] = [] of Nil %}
+
+            {% for tag in tags %}
+              {% tagged_services[tag] ? tagged_services[tag] << key : (tagged_services[tag] = [] of String; tagged_services[tag] << key) %}
+            {% end %}
+
+            @{{key.id}} = {{service.id}}.new
+          {% end %}
+        {% end %}
+
+        # Register services that do not have tags next.
+        # Iterate until each service's dependencies are satisfied.
+        {% for service in services_without_tagged_dependencies %}
+          {% for service_ann in service.annotations(Register) %}
+            {% key = service_ann[:name] ? service_ann[:name] : service.name.split("::").last.underscore %}
+            {% tags = service_ann[:tags] ? service_ann[:tags] : [] of String %}
+
+            {% service_list[key] = service_ann.args %}
+
+            {% for tag in tags %}
+              {% tagged_services[tag] ? tagged_services[tag] << key : (tagged_services[tag] = [] of String; tagged_services[tag] << key) %}
+            {% end %}
+
+            # If the service is registered and one of its dependencies also depends on it.  It's a circular dependency.
+            {% if service_ann.args.any? { |arg| arg.is_a?(StringLiteral) && arg.starts_with?('@') ? service_list[arg[1..-1]] && service_list[arg[1..-1]].includes?("@#{key.id}") : false } %}
+              {% raise "Circular dependency detected between '#{service}' and '#{arg[1..-1].camelcase.id}'." %}
+            {% end %}
+
+            {% if service_ann.args.all? { |arg| arg.is_a?(StringLiteral) && arg.starts_with?('@') ? registered_services[arg[1..-1]] : true } %}
+              {% registered_services[key] = service_ann.args %}
+              @{{key.id}} = {{service.id}}.new {{service_ann.args.map { |arg| arg.is_a?(StringLiteral) && arg.starts_with?('@') ? "@#{arg[1..-1].id}".id : arg }.splat}}
             {% else %}
-              {% service_args = (0...method.args.size).map { |idx| service_definition[idx] } %}
-              {% service_definitions[key] = "ServiceDefinition(#{service.id}, Tuple(#{method.args.map(&.restriction).splat}), typeof(#{service_args})).new(#{service_args}, #{tags} of String)".id %}
+              {% services_without_tagged_dependencies << service %}
             {% end %}
           {% end %}
         {% end %}
-        service_definitions = {{service_definitions}} of String => AbstractServiceDefinition
+
+        # Lastly register services with tags, assuming their dependencies would have been resolved by now.
+        {% for service in services_with_tagged_dependencies %}
+          {% for service_ann in service.annotations(Register) %}
+            {% key = service_ann[:name] ? service_ann[:name] : service.name.split("::").last.underscore %}
+            {% tags = service_ann[:tags] ? service_ann[:tags] : [] of String %}
+            @{{key.id}} = {{service.id}}.new {{service_ann.args.map { |arg| arg.is_a?(StringLiteral) && arg.starts_with?('@') ? "@#{arg[1..-1].id}".id : arg.is_a?(StringLiteral) && arg.starts_with?('!') ? %(#{tagged_services[arg[1..-1]].map { |ts| "@#{ts.id}".id }}).id : arg }.splat}}
+          {% end %}
+        {% end %}
+        @tags = {{tagged_services}} of String => Array(String)
       {% end %}
-
-      # Resolve services with tags last to make sure required services have been registered
-      until service_definitions.empty?
-        service_definitions.each do |name, service_def|
-          if service_def.resolved?(@services)
-            @services[name] = service_def.construct_service(@services)
-            service_definitions.delete name
-
-            # Add tags
-            service_def.tags.each do |tag|
-              (@tags[tag] ||= Array(String).new) << name
-            end
-          else
-            # Check for circular dependencies
-            service_args = service_def.annotation_args
-            circ_dep = service_args.find do |s_arg|
-              if s_arg.is_a?(String) && s_arg.starts_with?('@')
-                if service = service_definitions[s_arg.lchop('@')]?
-                  service.annotation_args.includes?("@#{name}")
-                else
-                  false
-                end
-              else
-                false
-              end
-            end
-
-            raise "Circular dependency detected between #{name} and #{circ_dep.lchop('@')}." if circ_dep && circ_dep.is_a?(String)
-          end
-        end
-      end
     end
 
     # Returns the service with the provided *name*.
-    def get(name : String) : Athena::DI::Service
-      @services[name]? || raise "No service with the name '#{name}' has been registered."
+    def get(name : String)
+      internal_get(name) || raise "No service with the name '#{name}' has been registered."
     end
 
     # Returns an array of services of the provided *type*.
-    def get(type : Service.class) : Array(Athena::DI::Service)
-      get_services_by_type(type)
+    def get(type : Service.class)
+      get_services_by_type type
+    end
+
+    # Returns `true` if a service with the provided *name* has been registered.
+    def has(name : String) : Bool
+      service_names.includes? name
     end
 
     # Returns the service of the given *type* and *name*.
-    def resolve(type, name : String) : Athena::DI::Service
+    def resolve(type : _, name : String) : Athena::DI::Service
       services = get_services_by_type type
 
       # Return the service if there is only one.
       return services.first if services.size == 1
 
-      # Otherwise, also use the name to resolve the service.
-      services.each do |s|
-        return s if name == @services.key_for s
+      # # Otherwise, also use the name to resolve the service.
+      if (service = internal_get name) && services.includes? service
+        return service
       end
 
       # Throw an exception if it could not be resolved.
@@ -112,13 +145,29 @@ module Athena::DI
     end
 
     # Returns services with the specified *tag*.
-    def tagged(tag : String) : Array(Athena::DI::Service)
-      (services = @tags[tag]?) ? services.map { |service| @services[service] } : Array(Athena::DI::Service).new
+    def tagged(tag : String)
+      (service_names = @tags[tag]?) ? service_names.map { |service_name| internal_get(service_name).not_nil! } : Array(Athena::DI::Service).new
     end
 
     # Returns an `Array(Athena::DI::Service)` for services of *type*.
-    private def get_services_by_type(type) : Array(Athena::DI::Service)
-      @services.values.select(&.class.<=(type))
+    private def get_services_by_type(type : _)
+      {{{@type.instance_vars.reject(&.name.==("tags")).map(&.id).splat}}}.select(&.class.<=(type))
+    end
+
+    # Returns a Tuple of registered service names.
+    private def service_names
+      {{{@type.instance_vars.reject(&.name.==("tags")).map(&.name.stringify).splat}}}
+    end
+
+    # Attemps to resolve the provided *name* into a service.
+    private def internal_get(name : String) : Athena::DI::Service?
+      {% begin %}
+        case name
+        {% for ivar in @type.instance_vars.reject(&.name.==("tags")) %}
+          when {{ivar.name.stringify}} then {{ivar.id}}
+        {% end %}
+        end
+      {% end %}
     end
   end
 end

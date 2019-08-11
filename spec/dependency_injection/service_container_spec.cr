@@ -10,7 +10,7 @@ end
 class FakeService < FakeServices
 end
 
-@[Athena::DI::Register(name: "CustomFake")]
+@[Athena::DI::Register(name: "custom_fake")]
 class CustomFooFakeService < FakeServices
 end
 
@@ -21,6 +21,22 @@ struct FeedPartner < Athena::DI::StructService
   getter name : String
 
   def initialize(@id : String, @name : String); end
+end
+
+@[Athena::DI::Register("!partner")]
+class PartnerManager < Athena::DI::ClassService
+  getter partners
+
+  def initialize(@partners : Array(FeedPartner))
+  end
+end
+
+class PartnerParamConverter
+  include Athena::DI::Injectable
+
+  getter manager
+
+  def initialize(@manager : PartnerManager); end
 end
 
 @[Athena::DI::Register]
@@ -85,29 +101,6 @@ class FooBar
 end
 
 describe Athena::DI::ServiceContainer do
-  describe "#initialize" do
-    it "should add the annotated services" do
-      CONTAINER.services.size.should eq 9
-      CONTAINER.services.has_key?("fake_service").should be_true
-      CONTAINER.services["fake_service"].should be_a FakeService
-
-      CONTAINER.services.has_key?("CustomFake").should be_true
-      CONTAINER.services["CustomFake"].should be_a CustomFooFakeService
-
-      CONTAINER.services.has_key?("google").should be_true
-      CONTAINER.services["google"].should be_a FeedPartner
-
-      CONTAINER.services.has_key?("facebook").should be_true
-      CONTAINER.services["facebook"].should be_a FeedPartner
-
-      CONTAINER.services.has_key?("blah").should be_true
-      CONTAINER.services["blah"].should be_a Blah
-
-      CONTAINER.services.has_key?("a_service2").should be_true
-      CONTAINER.services["a_service2"].should be_a AService2
-    end
-  end
-
   describe "#get" do
     describe "by type and name" do
       describe "when the service exists" do
@@ -133,6 +126,20 @@ describe Athena::DI::ServiceContainer do
     end
   end
 
+  describe "#has" do
+    describe "when the service has been registered" do
+      it "should return true" do
+        CONTAINER.has("blah").should be_true
+      end
+    end
+
+    describe "when the service has been registered" do
+      it "should return false" do
+        CONTAINER.has("i_do_not_exist").should be_false
+      end
+    end
+  end
+
   describe "#resolve" do
     describe "when there are no services with the type" do
       it "should raise an exception" do
@@ -150,6 +157,12 @@ describe Athena::DI::ServiceContainer do
       describe "that does not match the name" do
         it "should raise an exception" do
           expect_raises Exception, "Could not resolve a service with type 'FeedPartner' and name of 'yahoo'." { CONTAINER.resolve FeedPartner, "yahoo" }
+        end
+      end
+
+      describe "when the name and type are not related" do
+        it "should raise an exception" do
+          expect_raises Exception, "Could not resolve a service with type 'FakeServices' and name of 'google'." { CONTAINER.resolve FakeServices, "google" }
         end
       end
 
@@ -224,6 +237,16 @@ describe Athena::DI::ServiceContainer do
         klass.serv.blah.should be_a Blah
         klass.serv.foo.should eq "a_string"
         klass.serv.ase.should be_a AService
+      end
+    end
+
+    describe "when injecting tagged services" do
+      it "should inject all services with that tag" do
+        klass = PartnerParamConverter.new
+        klass.manager.partners.size.should eq 2
+
+        klass.manager.partners[0].id.should eq "GOOGLE"
+        klass.manager.partners[1].id.should eq "FACEBOOK"
       end
     end
   end

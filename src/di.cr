@@ -1,5 +1,4 @@
 require "./dependency_injection/service_container"
-require "./dependency_injection/definition"
 
 # :nodoc:
 class Fiber
@@ -42,17 +41,14 @@ module Athena::DI
   # ```
   annotation Register; end
 
-  module Service
-  end
+  alias Service = StructService | ClassService
 
   # Parent struct of services that will inject a new instance.
   abstract struct StructService
-    include Service
   end
 
   # Parent class of services that will inject the same instance.
   abstract class ClassService
-    include Service
   end
 
   # Returns the container for the current fiber.
@@ -66,7 +62,7 @@ module Athena::DI
   module Injectable
     macro included
       macro finished
-        \{% for method in @type.methods.select { |m| m.name == "initialize" } %}
+        \{% for method in @type.methods.select &.name.==("initialize") %}
           def self.new(**args)
             new(
               \{% for arg in method.args %}

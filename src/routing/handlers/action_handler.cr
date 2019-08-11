@@ -31,7 +31,7 @@ module Athena::Routing::Handlers
         ctx.response.status = HTTP::Status::NO_CONTENT if ctx.response.status.ok?
       else
         # otherwise render the response.
-        ctx.response.print action.renderer.render response, ctx, action.groups
+        ctx.response.print action.renderer.new.render response, action.groups
       end
 
       call_next ctx

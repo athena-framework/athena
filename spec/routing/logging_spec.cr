@@ -138,7 +138,7 @@ module Athena
             handler.messages.size.should eq 2
 
             handler.messages[0].formatted.should match /\[#{TIME_REGEX}\] main.INFO: Matched route 'new_user' {"path":"\/users","method":"POST","remote_address":".*","version":"HTTP\/1\.1","length":13}/
-            handler.messages[1].formatted.should match /\[#{TIME_REGEX}\] main.NOTICE: Expected 'age' to be int but got bool/
+            handler.messages[1].formatted.should match /\[#{TIME_REGEX}\] main.NOTICE: Expected 'age' to be Int but got Bool/
           end
         end
 
