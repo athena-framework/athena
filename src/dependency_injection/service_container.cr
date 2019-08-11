@@ -11,7 +11,7 @@ module Athena::DI
         {% services = Athena::DI::StructService.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } + Athena::DI::ClassService.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } %}
         {% for service in services %}
           {% for service_ann in service.annotations(Athena::DI::Register) %}
-            {% key = service_ann[:name] ? service_ann[:name] : service.name.stringify.split("::").last.underscore %}
+            {% key = service_ann[:name] ? service_ann[:name] : service.name.split("::").last.underscore %}
             private getter {{key.id}} : {{service.id}}
           {% end %}
         {% end %}
@@ -42,7 +42,7 @@ module Athena::DI
         {% services_without_tagged_dependencies = services.select do |service|
              initializer = service.methods.find(&.name.==("initialize"))
              initializer && service.annotations(Athena::DI::Register).all? do |service_ann|
-               (0...initializer.args.size).map { |idx| service_ann[idx] }.all? do |arg|
+               service_ann.args.all? do |arg|
                  (arg.is_a?(StringLiteral) && !arg.starts_with?('!')) || !arg.is_a?(StringLiteral)
                end
              end
@@ -53,7 +53,7 @@ module Athena::DI
         {% services_with_tagged_dependencies = services.select do |service|
              initializer = service.methods.find(&.name.==("initialize"))
              initializer && service.annotations(Athena::DI::Register).any? do |service_ann|
-               (0...initializer.args.size).map { |idx| service_ann[idx] }.any? do |arg|
+               service_ann.args.any? do |arg|
                  (arg.is_a?(StringLiteral) && arg.starts_with?('!'))
                end
              end
@@ -62,7 +62,7 @@ module Athena::DI
         # Register the services without dependencies first
         {% for service in no_dependency_services %}
           {% for service_ann in service.annotations(Athena::DI::Register) %}
-            {% key = service_ann[:name] ? service_ann[:name] : service.name.stringify.split("::").last.underscore %}
+            {% key = service_ann[:name] ? service_ann[:name] : service.name.split("::").last.underscore %}
             {% tags = service_ann[:tags] ? service_ann[:tags] : [] of String %}
             {% registered_services[key] = [] of Nil %}
 
@@ -77,40 +77,36 @@ module Athena::DI
         # Register services that do not have tags next.
         # Iterate until each service's dependencies are satisfied.
         {% for service in services_without_tagged_dependencies %}
-          {% initializer = service.methods.find(&.name.==("initialize")) %}
           {% for service_ann in service.annotations(Register) %}
-            {% pos_args = (0...initializer.args.size).map { |idx| service_ann[idx] } %}
-            {% key = service_ann[:name] ? service_ann[:name] : service.name.stringify.split("::").last.underscore %}
+            {% key = service_ann[:name] ? service_ann[:name] : service.name.split("::").last.underscore %}
             {% tags = service_ann[:tags] ? service_ann[:tags] : [] of String %}
 
-            {% service_list[key] = pos_args %}
+            {% service_list[key] = service_ann.args %}
 
             {% for tag in tags %}
               {% tagged_services[tag] ? tagged_services[tag] << key : (tagged_services[tag] = [] of String; tagged_services[tag] << key) %}
             {% end %}
 
             # If the service is registered and one of its dependencies also depends on it.  It's a circular dependency.
-            {% if pos_args.any? { |dep| dep.is_a?(StringLiteral) && dep.starts_with?('@') ? service_list[dep[1..-1]] && service_list[dep[1..-1]].includes?("@#{key.id}") : false } %}
-              {% raise "Circular dependency detected between '#{service}' and '#{dep[1..-1].camelcase.id}'." %}
+            {% if service_ann.args.any? { |arg| arg.is_a?(StringLiteral) && arg.starts_with?('@') ? service_list[arg[1..-1]] && service_list[arg[1..-1]].includes?("@#{key.id}") : false } %}
+              {% raise "Circular dependency detected between '#{service}' and '#{arg[1..-1].camelcase.id}'." %}
             {% end %}
 
-            {% if pos_args.all? { |arg| arg.is_a?(StringLiteral) && arg.starts_with?('@') ? registered_services[arg[1..-1]] : true } %}
-              {% registered_services[key] = pos_args %}
-              @{{key.id}} = {{service.id}}.new {{(0...initializer.args.size).map { |idx| arg = service_ann[idx]; arg.is_a?(StringLiteral) && arg.starts_with?('@') ? "@#{arg[1..-1].id}".id : arg }.splat}}
+            {% if service_ann.args.all? { |arg| arg.is_a?(StringLiteral) && arg.starts_with?('@') ? registered_services[arg[1..-1]] : true } %}
+              {% registered_services[key] = service_ann.args %}
+              @{{key.id}} = {{service.id}}.new {{service_ann.args.map { |arg| arg.is_a?(StringLiteral) && arg.starts_with?('@') ? "@#{arg[1..-1].id}".id : arg }.splat}}
             {% else %}
               {% services_without_tagged_dependencies << service %}
             {% end %}
           {% end %}
         {% end %}
 
-       # Lastly register services with tags, assuming their dependencies would have been resolved by now.
+        # Lastly register services with tags, assuming their dependencies would have been resolved by now.
         {% for service in services_with_tagged_dependencies %}
-          {% initializer = service.methods.find(&.name.==("initialize")) %}
           {% for service_ann in service.annotations(Register) %}
-            {% key = service_ann[:name] ? service_ann[:name] : service.name.stringify.split("::").last.underscore %}
+            {% key = service_ann[:name] ? service_ann[:name] : service.name.split("::").last.underscore %}
             {% tags = service_ann[:tags] ? service_ann[:tags] : [] of String %}
-
-            @{{key.id}} = {{service.id}}.new {{(0...initializer.args.size).map { |idx| arg = service_ann[idx]; arg.is_a?(StringLiteral) && arg.starts_with?('@') ? "@#{arg[1..-1].id}".id : arg.is_a?(StringLiteral) && arg.starts_with?('!') ? %(#{tagged_services[arg[1..-1]].map { |ts| "@#{ts.id}".id }}).id : arg }.splat}}
+            @{{key.id}} = {{service.id}}.new {{service_ann.args.map { |arg| arg.is_a?(StringLiteral) && arg.starts_with?('@') ? "@#{arg[1..-1].id}".id : arg.is_a?(StringLiteral) && arg.starts_with?('!') ? %(#{tagged_services[arg[1..-1]].map { |ts| "@#{ts.id}".id }}).id : arg }.splat}}
           {% end %}
         {% end %}
         @tags = {{tagged_services}} of String => Array(String)
