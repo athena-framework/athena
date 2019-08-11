@@ -7,7 +7,7 @@ module Athena::DI
 
     macro finished
       {% begin %}
-        # Define a `getter!` in the container for each registered service.
+        # Define a `getter` in the container for each registered service.
         {% services = Athena::DI::StructService.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } + Athena::DI::ClassService.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } %}
         {% for service in services %}
           {% for service_ann in service.annotations(Athena::DI::Register) %}
