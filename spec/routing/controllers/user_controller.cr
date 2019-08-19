@@ -73,6 +73,11 @@ class UserController < Athena::Routing::Controller
     body
   end
 
+  @[Athena::Routing::Post(path: "users/string")]
+  def new_string_user(body : String) : JSON::Any
+    JSON.parse body
+  end
+
   @[Athena::Routing::Post(path: "users/form")]
   @[Athena::Routing::ParamConverter(param: "body", type: User, converter: Athena::Routing::Converters::FormData)]
   def new_form_user(body : User) : User

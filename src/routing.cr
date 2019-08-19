@@ -201,6 +201,9 @@ module Athena::Routing
             throw 400, %({"code": 400, "message": "Couldn't parse #{parts[1]} from '#{parts[2]}'"})
           end
         end
+
+        Athena.logger.notice "Unhandled JSON::ParseException: #{exception.message}"
+        throw 400, %({"code": 400, "message": "#{exception.message}"})
       else
         Crylog.logger.critical "Unhandled exception: #{exception.message} in #{self.name} at #{location}", Crylog::LogContext{"cause" => exception.cause.try(&.message), "cause_class" => exception.cause.class.name}
         # Otherwise throw a 500 if no other exception handlers are defined on any children
