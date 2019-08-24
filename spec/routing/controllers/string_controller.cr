@@ -12,4 +12,9 @@ class StringController < Athena::Routing::Controller
     body.should eq "sdfsd"
     body
   end
+
+  @[Athena::Routing::Post(path: "json/string")]
+  def json_string_post(body : String) : JSON::Any
+    JSON.parse(body)
+  end
 end

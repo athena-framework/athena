@@ -17,7 +17,7 @@ module Athena::Types
     Float32 => ".to_f32",
     Float64 => ".to_f",
     Bool    => %( == "true"),
-    String  => %(.gsub('"', "")),
+    String  => %(), # Leave strings as is
   }
 
   {% for type, method in TYPES %}
