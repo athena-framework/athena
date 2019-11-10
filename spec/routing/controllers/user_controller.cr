@@ -65,7 +65,7 @@ struct CustomRenderer < Athena::Routing::Renderers::Renderer
   end
 end
 
-class UserController < Athena::Routing::Controller
+struct UserController < Athena::Routing::Controller
   @[Athena::Routing::Post(path: "users")]
   @[Athena::Routing::ParamConverter(param: "body", type: User, converter: Athena::Routing::Converters::RequestBody)]
   def new_user(body : User) : User

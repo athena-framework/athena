@@ -94,6 +94,12 @@ describe Athena::Routing do
       end
     end
 
+    describe "where controller does not have any non abstract children" do
+      it "should not compile" do
+        assert_error "routing/compiler/actions/no_non_abstract_children.cr", "ParentController does not have any non abstract children."
+      end
+    end
+
     describe "without a return type" do
       it "should not compile" do
         assert_error "routing/compiler/actions/no_return_type.cr", "Route action return type must be set for 'CompileController#no_return_type'"

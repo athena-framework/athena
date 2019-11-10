@@ -171,7 +171,10 @@ module Athena::Routing::Handlers
           {% renderer = view_ann && view_ann[:renderer] ? view_ann[:renderer] : "Athena::Routing::Renderers::JSONRenderer".id %}
 
             %action = ->(ctx : HTTP::Server::Context, vals : Hash(String, String?)) do
-              instance = {{klass.id}}.new
+              {% concrete_klass = klass.abstract? ? klass.all_subclasses.find { |sc| !sc.abstract? } : klass %}
+              {% raise "#{klass.name} does not have any non abstract children." unless concrete_klass %}
+
+              instance = {{concrete_klass.id}}.new
               # If there are no args, just call the action.  Otherwise build out an array of values to pass to the action.
               {% unless m.args.empty? %}
                 arr = Array(Union({{arg_types.splat}}, Nil)).new

@@ -1,5 +1,5 @@
 @[Athena::Routing::ControllerOptions(prefix: "calendar")]
-class CalendarController < Athena::Routing::Controller
+abstract struct CalendarController < Athena::Routing::Controller
   @[Athena::Routing::Get(path: "events")]
   def events : String
     "events"
@@ -17,9 +17,9 @@ class CalendarController < Athena::Routing::Controller
 end
 
 @[Athena::Routing::ControllerOptions(prefix: "/:app_name")]
-class CalendarChildController < CalendarController
+struct CalendarChildController < CalendarController
   @[Athena::Routing::Get(path: "child1")]
-  def calendar(app_name : String) : String
+  def calendar_app(app_name : String) : String
     "child1 + #{app_name}"
   end
 end

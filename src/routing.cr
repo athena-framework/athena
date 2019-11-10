@@ -158,8 +158,8 @@ module Athena::Routing
     OnResponse
   end
 
-  # Parent class for all controllers.
-  abstract class Controller
+  # Parent struct for all controllers.
+  abstract struct Controller
     # Exits the request with the given *status_code* and *body*.
     #
     # NOTE: declared on top level namespace but documented here

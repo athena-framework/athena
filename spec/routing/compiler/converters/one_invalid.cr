@@ -1,14 +1,14 @@
 require "../../routing_spec_helper"
 
-class NoPk
+struct NoPk
   def self.find(id); end
 end
 
-class Model
+struct Model
   def self.find(id); end
 end
 
-class CompileController < Athena::Routing::Controller
+struct CompileController < Athena::Routing::Controller
   @[Athena::Routing::Post(path: "/:pk_id")]
   @[Athena::Routing::ParamConverter(param: "body", type: Model, converter: RequestBody)]
   @[Athena::Routing::ParamConverter(param: "body", type: NoPk, converter: Exists)]
