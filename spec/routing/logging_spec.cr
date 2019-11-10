@@ -49,7 +49,9 @@ module Athena
       end
     end
 
-    do_with_config do |client|
+    describe "exception handling" do
+      do_with_config
+
       describe "when a 500 occurs" do
         it "should log the proper messages" do
           handler = Crylog::Handlers::TestHandler.new
@@ -60,7 +62,7 @@ module Athena
             end
           end
 
-          client.get("/exception/default").status.should eq HTTP::Status::INTERNAL_SERVER_ERROR
+          CLIENT.get("/exception/default").status.should eq HTTP::Status::INTERNAL_SERVER_ERROR
           handler.messages.size.should eq 2
 
           handler.messages[0].formatted.should match /\[#{TIME_REGEX}\] main.INFO: Matched route 'get_default_exception' {"path":"\/exception\/default","method":"GET","remote_address":".*","version":"HTTP\/1\.1","length":null}/
@@ -78,14 +80,13 @@ module Athena
             end
           end
 
-          client.post("/users", body: %({"age":-12}), headers: HTTP::Headers{"content-type" => "application/json"}).status.should eq HTTP::Status::BAD_REQUEST
+          CLIENT.post("/users", body: %({"age":-12}), headers: HTTP::Headers{"content-type" => "application/json"}).status.should eq HTTP::Status::BAD_REQUEST
           handler.messages.size.should eq 2
 
           handler.messages[0].formatted.should match /\[#{TIME_REGEX}\] main.INFO: Matched route 'new_user' {"path":"\/users","method":"POST","remote_address":".*","version":"HTTP\/1\.1","length":11}/
           handler.messages[1].formatted.should match /\[#{TIME_REGEX}\] main.NOTICE: Validation tests failed: `'age' should be greater than 0`\./
         end
       end
-      client.get("/int32/1.00")
 
       describe Athena::Routing::Exceptions::AthenaException do
         it "should log the proper messages" do
@@ -97,7 +98,7 @@ module Athena
             end
           end
 
-          client.get("/users/34").status.should eq HTTP::Status::NOT_FOUND
+          CLIENT.get("/users/34").status.should eq HTTP::Status::NOT_FOUND
           handler.messages.size.should eq 2
 
           handler.messages[0].formatted.should match /\[#{TIME_REGEX}\] main.INFO: Matched route 'get_user' {"path":"\/users\/34","method":"GET","remote_address":".*","version":"HTTP\/1\.1","length":null}/
@@ -115,7 +116,7 @@ module Athena
             end
           end
 
-          client.get("/int32/1.00").status.should eq HTTP::Status::BAD_REQUEST
+          CLIENT.get("/int32/1.00").status.should eq HTTP::Status::BAD_REQUEST
           handler.messages.size.should eq 2
 
           handler.messages[0].formatted.should match /\[#{TIME_REGEX}\] main.INFO: Matched route 'int32' {"path":"\/int32\/1.00","method":"GET","remote_address":".*","version":"HTTP\/1\.1","length":null}/
@@ -134,7 +135,7 @@ module Athena
               end
             end
 
-            client.post("/users", body: %({"age": true}), headers: HTTP::Headers{"content-type" => "application/json"}).status.should eq HTTP::Status::BAD_REQUEST
+            CLIENT.post("/users", body: %({"age": true}), headers: HTTP::Headers{"content-type" => "application/json"}).status.should eq HTTP::Status::BAD_REQUEST
             handler.messages.size.should eq 2
 
             handler.messages[0].formatted.should match /\[#{TIME_REGEX}\] main.INFO: Matched route 'new_user' {"path":"\/users","method":"POST","remote_address":".*","version":"HTTP\/1\.1","length":13}/
@@ -152,7 +153,7 @@ module Athena
               end
             end
 
-            client.post("/users", body: %({"id": "123","age": 100}), headers: HTTP::Headers{"content-type" => "application/json"}).status.should eq HTTP::Status::BAD_REQUEST
+            CLIENT.post("/users", body: %({"id": "123","age": 100}), headers: HTTP::Headers{"content-type" => "application/json"}).status.should eq HTTP::Status::BAD_REQUEST
             handler.messages.size.should eq 2
 
             handler.messages[0].formatted.should match /\[#{TIME_REGEX}\] main.INFO: Matched route 'new_user' {"path":"\/users","method":"POST","remote_address":".*","version":"HTTP\/1\.1","length":24}/
@@ -170,7 +171,7 @@ module Athena
               end
             end
 
-            client.post("/users/string", body: %({id: "123","age": 100}), headers: HTTP::Headers{"content-type" => "application/json"}).status.should eq HTTP::Status::BAD_REQUEST
+            CLIENT.post("/users/string", body: %({id: "123","age": 100}), headers: HTTP::Headers{"content-type" => "application/json"}).status.should eq HTTP::Status::BAD_REQUEST
             handler.messages.size.should eq 2
 
             handler.messages[0].formatted.should match /\[#{TIME_REGEX}\] main.INFO: Matched route 'new_string_user' {"path":"\/users\/string","method":"POST","remote_address":".*","version":"HTTP\/1\.1","length":22}/

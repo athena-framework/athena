@@ -102,20 +102,6 @@ end
 
 describe Athena::DI::ServiceContainer do
   describe "#get" do
-    describe "by type and name" do
-      describe "when the service exists" do
-        it "should return the service with the given name" do
-          CONTAINER.get("fake_service").should be_a FakeService
-        end
-      end
-
-      describe "when the service does not exist" do
-        it "should throw an exception" do
-          expect_raises Exception, "No service with the name 'foobar' has been registered." { CONTAINER.get "foobar" }
-        end
-      end
-    end
-
     describe "by type" do
       it "should return an array of services with that type" do
         services = CONTAINER.get FakeServices
