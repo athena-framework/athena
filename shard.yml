@@ -8,7 +8,7 @@ version: 0.7.0
 authors:
   - Blacksmoke16 <Blacksmoke16@eve.tools>
 
-crystal: 0.28.0
+crystal: 0.32.0
 
 license: MIT
 
