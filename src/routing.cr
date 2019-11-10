@@ -322,7 +322,7 @@ module Athena::Routing
         exit
       end
 
-      puts "Athena is leading the way on #{binding}:#{port} in the #{Athena.environment} environment"
+      Athena.logger.info "Athena is leading the way on #{binding}:#{port} in the #{Athena.environment} environment"
     end
 
     unless @@server.not_nil!.each_address { |_| break true }

@@ -6,7 +6,7 @@ module Athena::Routing::Handlers
     def call(ctx : HTTP::Server::Context) : Nil
       call_next ctx; return if ctx.request.method == "OPTIONS"
 
-      action = Athena::DI.get_container.get("request_stack").as(RequestStack).action
+      action = Athena::DI.container.request_stack.action
       params = Hash(String, String?).new
 
       # Process action's parameters.

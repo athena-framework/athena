@@ -5,7 +5,7 @@ module Athena::Routing::Handlers
 
     # ameba:disable Metrics/CyclomaticComplexity
     def call(ctx : HTTP::Server::Context) : Nil
-      action = Athena::DI.get_container.get("request_stack").as(RequestStack).action
+      action = Athena::DI.container.request_stack.action
       config = Athena.config
 
       # Run the next handler and return if CORS is globally not enabled, not enabled for a specific controller/action, or strategy is whitelist and cors_group is nil.

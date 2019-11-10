@@ -12,7 +12,7 @@ module Athena::DI
         {% for service in services %}
           {% for service_ann in service.annotations(Athena::DI::Register) %}
             {% key = service_ann[:name] ? service_ann[:name] : service.name.split("::").last.underscore %}
-            private getter {{key.id}} : {{service.id}}
+            getter {{key.id}} : {{service.id}}
           {% end %}
         {% end %}
       {% end %}
@@ -111,11 +111,6 @@ module Athena::DI
         {% end %}
         @tags = {{tagged_services}} of String => Array(String)
       {% end %}
-    end
-
-    # Returns the service with the provided *name*.
-    def get(name : String)
-      internal_get(name) || raise "No service with the name '#{name}' has been registered."
     end
 
     # Returns an array of services of the provided *type*.

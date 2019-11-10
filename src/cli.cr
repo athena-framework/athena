@@ -23,7 +23,7 @@ module Athena::Cli
 
   # Defines an option parser interface for Athena CLI commands.
   macro register_commands
-    OptionParser.parse! do |parser|
+    OptionParser.parse do |parser|
       parser.banner = "Usage: YOUR_BINARY [arguments]"
       parser.on("-h", "--help", "Show this help") { puts parser; exit }
       parser.on("-l", "--list", "List available commands") { puts Athena::Cli::Registry.to_s; exit }

@@ -4,10 +4,10 @@ module Athena::Routing
   # Allows for them to be injected into other classes via DI.
   class RequestStack < Athena::DI::ClassService
     # :nodoc:
-    getter requests = [] of HTTP::Server::Context
+    getter requests = Deque(HTTP::Server::Context).new
 
     # :nodoc:
-    getter actions = [] of Athena::Routing::Action
+    getter actions = Deque(Athena::Routing::Action).new
 
     # Returns the current request.
     def request : HTTP::Request
