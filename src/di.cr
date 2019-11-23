@@ -5,6 +5,9 @@ class Fiber
   property container : Athena::DI::ServiceContainer { Athena::DI::ServiceContainer.new }
 end
 
+# Convenience alias to make referencing `Athena::DI` types easier.
+alias ADI = Athena::DI
+
 # Dependency Injection module
 #
 # * Adds a service container layer

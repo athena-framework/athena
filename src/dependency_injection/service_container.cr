@@ -12,7 +12,7 @@ module Athena::DI
         {% for service in services %}
           {% for service_ann in service.annotations(Athena::DI::Register) %}
             {% key = service_ann[:name] ? service_ann[:name] : service.name.split("::").last.underscore %}
-            getter {{key.id}} : {{service.id}}
+            {% if service_ann[:public] != true %} private {% end %}getter {{key.id}} : {{service.id}}
           {% end %}
         {% end %}
       {% end %}

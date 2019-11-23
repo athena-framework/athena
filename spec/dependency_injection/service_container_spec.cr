@@ -39,7 +39,7 @@ class PartnerParamConverter
   def initialize(@manager : PartnerManager); end
 end
 
-@[Athena::DI::Register]
+@[Athena::DI::Register(public: true)]
 class Store < Athena::DI::ClassService
   property name : String = "Jim"
 end
@@ -108,6 +108,12 @@ describe Athena::DI::ServiceContainer do
         services.size.should eq 2
         services[0].should be_a FakeService
         services[1].should be_a CustomFooFakeService
+      end
+    end
+
+    describe "by name" do
+      it "should allow getting public services directly" do
+        CONTAINER.store.name.should eq "Jim"
       end
     end
   end
