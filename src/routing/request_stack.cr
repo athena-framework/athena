@@ -1,27 +1,14 @@
 module Athena::Routing
-  @[Athena::DI::Register(public: true)]
-  # Contains the current request, response, and action.
-  # Allows for them to be injected into other classes via DI.
-  class RequestStack < Athena::DI::ClassService
-    # :nodoc:
-    getter requests = Deque(HTTP::Server::Context).new
+  @[Athena::DI::Register]
+  class RequestStack
+    include Athena::DI::Service
 
-    # :nodoc:
-    getter actions = Deque(Athena::Routing::Action).new
+    getter request : HTTP::Request?
+    getter response : HTTP::Server::Response?
 
-    # Returns the current request.
-    def request : HTTP::Request
-      @requests.last.request
-    end
-
-    # Returns the current response.
-    def response : HTTP::Server::Response
-      @requests.last.response
-    end
-
-    # Returns the current `Athena::Routing::RouteAction`.
-    def action : Athena::Routing::Action
-      @actions.last
+    def add(context : HTTP::Server::Context)
+      @request = context.request
+      @response = context.respo
     end
   end
 end

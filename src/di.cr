@@ -26,7 +26,9 @@ module Athena::DI
   # With no initializer.
   # ```
   # @[Athena::DI::Register]
-  # class Store < Athena::DI::ClassService
+  # class Store
+  #   include Athena::DI::Service
+  #
   #   property uuid : String? = nil
   # end
   # ```
@@ -44,15 +46,7 @@ module Athena::DI
   # ```
   annotation Register; end
 
-  alias Service = StructService | ClassService
-
-  # Parent struct of services that will inject a new instance.
-  abstract struct StructService
-  end
-
-  # Parent class of services that will inject the same instance.
-  abstract class ClassService
-  end
+  module Service; end
 
   # Returns the `Athena::DI::ServiceContainer` for the current fiber.
   def self.container : Athena::DI::ServiceContainer

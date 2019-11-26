@@ -23,6 +23,9 @@ executables:
   - athena
 
 dependencies:
+  event-dispatcher:
+    github: athena-framework/event-dispatcher
+    branch: master
   CrSerializer:
     github: blacksmoke16/CrSerializer
     version: ~> 0.8.0

@@ -1,5 +1,5 @@
 module Athena::Routing::Exceptions
-  COMMON_EXCEPTIONS = {
+  private COMMON_EXCEPTIONS = {
     400 => "Bad Request",
     401 => "Unauthorized",
     402 => "Payment Required",
@@ -31,7 +31,7 @@ module Athena::Routing::Exceptions
   }
 
   # A generic exception that can be thrown with to render consistent exception responses with the given *code* and *message*.
-  class AthenaException < Exception
+  class Athena < Exception
     getter code : Int32
 
     def initialize(@code : Int32, @message); end
@@ -57,7 +57,7 @@ module Athena::Routing::Exceptions
       {% class_name = exception.gsub(/[\s\']/, "") %}
 
       # Raises a {{exception}} exception with code {{code}}.
-      class {{class_name.id}}Exception < Athena::Routing::Exceptions::AthenaException
+      class {{class_name.id}} < ::Athena::Routing::Exceptions::Athena
         def initialize(message : String = {{exception}})
           super {{code.id}}, message
         end

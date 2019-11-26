@@ -8,10 +8,10 @@ module Athena::DI
     macro finished
       {% begin %}
         # Define a `getter` in the container for each registered service.
-        {% services = Athena::DI::StructService.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } + Athena::DI::ClassService.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } %}
-        {% for service in services %}
+        {% for service in Athena::DI::Service.all_includers.select { |type| type.annotation(Athena::DI::Register) } %}
           {% for service_ann in service.annotations(Athena::DI::Register) %}
             {% key = service_ann[:name] ? service_ann[:name] : service.name.split("::").last.underscore %}
+            # Only make the getter public if the service is public
             {% if service_ann[:public] != true %} private {% end %}getter {{key.id}} : {{service.id}}
           {% end %}
         {% end %}
@@ -32,7 +32,7 @@ module Athena::DI
         {% tagged_services = {} of String => Array(String) %}
 
         # Obtain an array of registered services.
-        {% services = Athena::DI::StructService.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } + Athena::DI::ClassService.all_subclasses.select { |klass| klass.annotation(Athena::DI::Register) } %}
+        {% services = Athena::DI::Service.all_includers.select { |type| type.annotation(Athena::DI::Register) } %}
 
         # Array of services that have no dependencies.
         {% no_dependency_services = services.select { |service| init = service.methods.find(&.name.==("initialize")); !init || init.args.size == 0 } %}
@@ -41,7 +41,7 @@ module Athena::DI
         # This includes any service who's arguments are strings and don't start with `!` or are not strings.
         {% services_without_tagged_dependencies = services.select do |service|
              initializer = service.methods.find(&.name.==("initialize"))
-             initializer && service.annotations(Athena::DI::Register).all? do |service_ann|
+             initializer && initializer.args.size > 0 && service.annotations(Athena::DI::Register).all? do |service_ann|
                service_ann.args.all? do |arg|
                  (arg.is_a?(StringLiteral) && !arg.starts_with?('!')) || !arg.is_a?(StringLiteral)
                end
@@ -106,7 +106,20 @@ module Athena::DI
           {% for service_ann in service.annotations(Register) %}
             {% key = service_ann[:name] ? service_ann[:name] : service.name.split("::").last.underscore %}
             {% tags = service_ann[:tags] ? service_ann[:tags] : [] of String %}
-            @{{key.id}} = {{service.id}}.new {{service_ann.args.map { |arg| arg.is_a?(StringLiteral) && arg.starts_with?('@') ? "@#{arg[1..-1].id}".id : arg.is_a?(StringLiteral) && arg.starts_with?('!') ? %(#{tagged_services[arg[1..-1]].map { |ts| "@#{ts.id}".id }}).id : arg }.splat}}
+            {% initializer = service.methods.find(&.name.==("initialize")) %}
+            @{{key.id}} = {{service.id}}.new {{service_ann.args.map_with_index do |arg, idx|
+                                                 if arg.is_a?(StringLiteral) && arg.starts_with?('@')
+                                                   "@#{arg[1..-1].id}".id
+                                                 elsif arg.is_a?(StringLiteral) && arg.starts_with?('!')
+                                                   if ts = tagged_services[arg[1..-1]]
+                                                     %(#{ts.map { |ts| "@#{ts.id}".id }}).id
+                                                   else
+                                                     %(#{initializer.args[idx].restriction}.new).id
+                                                   end
+                                                 else
+                                                   arg
+                                                 end
+                                               end.splat}}
           {% end %}
         {% end %}
         @tags = {{tagged_services}} of String => Array(String)
