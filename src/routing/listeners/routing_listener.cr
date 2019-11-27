@@ -1,4 +1,5 @@
 @[ADI::Register(tags: ["athena.event_dispatcher.listener"])]
+# Resolves a `ART::Route` from the current request
 struct Athena::Routing::Listeners::Routing < AED::Listener
   include ADI::Service
 
@@ -7,6 +8,9 @@ struct Athena::Routing::Listeners::Routing < AED::Listener
   def initialize
     # Don't inject the route resolver since its a singleton
     @route_resolver = ART.route_resolver
+
+    # TODO: Refactor logger to be service based
+    # and optionally inject a logger instance
   end
 
   def self.subscribed_events : AED::SubscribedEvents
@@ -16,19 +20,9 @@ struct Athena::Routing::Listeners::Routing < AED::Listener
   end
 
   def call(event : ART::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
-    action = @route_resolver.resolve event.request
+    route = @route_resolver.resolve event.request
 
-    pp "before"
-
-    action.set_params [1, 99.0]
-
-    pp action
-
-    puts
-    puts
-
-    pp action.execute
-
-    # pp event
+    event.request.route = route.payload.not_nil!
+    event.request.path_params = route.params.not_nil!
   end
 end

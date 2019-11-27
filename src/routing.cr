@@ -11,7 +11,7 @@ require "./di"
 
 require "event-dispatcher"
 
-require "./routing/request_stack"
+require "./routing/request_store"
 require "./routing/route_resolver"
 require "./routing/route_dispatcher"
 require "./routing/exceptions"
@@ -25,6 +25,7 @@ require "./routing/events/*"
 
 require "./routing/ext/listener"
 require "./routing/ext/event_dispatcher"
+require "./routing/ext/request"
 
 # Convenience alias to make referencing `Athena::Routing` types easier.
 alias ART = Athena::Routing
@@ -99,6 +100,7 @@ module Athena::Routing
   # @[Athena::Routing::ParamConverter(param: "user", pk_type: Int32, type: User, converter: Exists)]
   # ```
   annotation ParamConverter; end
+  annotation QueryParam; end
 
   # Defines how the return value of an endpoint is displayed.
   # ## Fields
@@ -115,13 +117,12 @@ module Athena::Routing
   # Defines options that affect the whole controller.
   # ## Fields
   # * prefix : String - Apply a prefix to all actions within `self`.
-  # * cors : `String|Bool|Nil` - The `cors_group` to use for all actions within this controller, or `false` to disable CORS for all actions.
   #
   # ## Example
   # ```
   # @[Athena::Routing::ControllerOptions(prefix: "calendar")]
   # class CalendarController < Athena::Routing::Controller
-  #   # The rotue of this action would be `GET /calendar/events`
+  #   # The route of this action would be `GET /calendar/events`
   #   @[Athena::Routing::Get(path: "events")]
   #   def self.events : String
   #     "events"
@@ -134,22 +135,32 @@ module Athena::Routing
   abstract struct Controller
   end
 
-  abstract struct Action; end
+  abstract class Action; end
 
-  struct Route(P, *A) < Action
-    getter method, controller
+  class Route(P, *A) < Action
+    # The `ART::Controller` that handles `self` by default.
+    getter controller : ART::Controller.class
 
-    @args : A? = nil
+    # A `Proc` representing the controller action that handles `HTTP::Request` on `self`.
+    getter action : P
 
-    def initialize(@method : String, @controller : ART::Controller.class, @action : P)
+    # The arguments that will be passed the `#action`.
+    getter arguments : A? = nil
+
+    # The parameters that need to be parsed from the request
+    #
+    # Includes route, body, and query params
+    getter parameters : Array(ART::Parameters::Param)
+
+    def initialize(@controller : ART::Controller.class, @action : P, @parameters : Array(ART::Parameters::Param) = [] of ART::Parameters::Param)
     end
 
-    def set_params(arr : Array)
-      @args = A.from arr
+    def set_arguments(arr : Array)
+      @arguments = A.from arr
     end
 
     def execute
-      if args = @args
+      if args = @arguments
         @action.call *args
       end
     end
@@ -180,7 +191,7 @@ module Athena::Routing
       nil
     end
 
-    unless @@server.not_nil!.each_address { |_| break true }
+    unless @@server.not_nil!.each_address { break true }
       {% if flag?(:without_openssl) %}
         @@server.not_nil!.bind_tcp(binding, port, reuse_port: reuse_port)
       {% else %}
@@ -196,10 +207,14 @@ module Athena::Routing
   end
 end
 
-struct TestController < ART::Controller
+abstract struct Foo < ART::Controller
+end
+
+struct TestController < Foo
   @[ART::Get(path: "/me/:id/:ret")]
-  def get_me(id : Int32, ret : Bool) : String
-    "Jim"
+  @[ART::QueryParam(name: "test", default: 101)]
+  def get_me(test : Int32?, id : Int32, ret : Float64) : String
+    "Jim #{id} - #{ret} - #{test}"
   end
 end
 

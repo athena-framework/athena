@@ -9,19 +9,33 @@ module Athena::Routing::Parameters
     # The name of the parameter.
     getter name : String
 
-    def initialize(@name : String, @type : T.class = T); end
+    # The value to use if it was not provided
+    getter default : T?
 
-    # Method to extract the value from server context.
-    abstract def process(ctx : HTTP::Server::Context) : String?
+    # If the value should be processed via a converter.
+    getter converter : ART::Converters::ConverterInterface? = nil
 
-    # If `nil` is a valid value for the parameter.
-    def nilable? : Bool
-      @type.nilable?
-    end
+    def initialize(@name : String, @default : T? = nil, @converter : ART::Converters::ConverterInterface? = nil, @type : T.class = T); end
 
-    # If the parameter is required.
-    def required? : Bool
-      !nilable?
+    # Extracts the string value from *request*.
+    protected abstract def extract(request : HTTP::Request) : String?
+
+    # Returns the parsed value from *request*.
+    def parse(request : HTTP::Request) : T
+      value = extract request
+
+      {% unless T.nilable? %}
+        if value.nil?
+          return default.not_nil! if !default.nil?
+          raise "Missing required parameter #{@name}"
+        end
+      {% else %}
+        return @default if value.nil? && !default.nil?
+        return nil if value.nil?
+      {% end %}
+
+      # Convert the string type to its expected type.
+      Athena::Types.convert_type(value, T)
     end
   end
 end

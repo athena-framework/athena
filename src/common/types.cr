@@ -41,9 +41,4 @@ module Athena::Types
       val.split(',').map { |v| convert_type v, {{type.id}} }
     end
   {% end %}
-
-  # Converts a `String` to `HTTP::Params`.
-  def convert_type(val : String, t : HTTP::Params.class) : HTTP::Params
-    HTTP::Params.parse val
-  end
 end
