@@ -1,5 +1,5 @@
 module Athena::Routing
-  @[Athena::DI::Register]
+  @[Athena::DI::Register(public: true)]
   # Contains the current request, response, and action.
   # Allows for them to be injected into other classes via DI.
   class RequestStack < Athena::DI::ClassService
