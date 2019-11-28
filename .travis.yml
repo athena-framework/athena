@@ -13,11 +13,11 @@ before_script:
 
 script:
   # Run specs on their own to isolate scope of each spec.
-  - crystal spec spec/athena_spec.cr --warnings all
-  - crystal spec spec/cli --warnings all
-  - crystal spec spec/config --warnings all
-  - crystal spec spec/dependency_injection --warnings all
-  - crystal spec spec/routing --warnings all
+  - crystal spec spec/athena_spec.cr --order random
+  - crystal spec spec/cli --order random
+  - crystal spec spec/config --order random
+  - crystal spec spec/dependency_injection --order random
+  - crystal spec spec/routing --order random
 
 after_success:
   - crystal docs
@@ -30,3 +30,7 @@ deploy:
   local-dir: docs
   on:
     condition: "$TRAVIS_EVENT_TYPE != cron"
+
+matrix:
+  allow_failures:
+    - crystal: nightly

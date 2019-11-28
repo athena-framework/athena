@@ -1,4 +1,4 @@
-class AthenaController < Athena::Routing::Controller
+struct AthenaController < Athena::Routing::Controller
   include Athena::DI::Injectable
 
   def initialize(@request_stack : Athena::Routing::RequestStack); end

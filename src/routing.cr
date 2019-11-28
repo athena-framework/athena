@@ -158,8 +158,8 @@ module Athena::Routing
     OnResponse
   end
 
-  # Parent class for all controllers.
-  abstract class Controller
+  # Parent struct for all controllers.
+  abstract struct Controller
     # Exits the request with the given *status_code* and *body*.
     #
     # NOTE: declared on top level namespace but documented here
@@ -322,7 +322,7 @@ module Athena::Routing
         exit
       end
 
-      puts "Athena is leading the way on #{binding}:#{port} in the #{Athena.environment} environment"
+      Athena.logger.info "Athena is leading the way on #{binding}:#{port} in the #{Athena.environment} environment"
     end
 
     unless @@server.not_nil!.each_address { |_| break true }

@@ -1,4 +1,4 @@
-class BoolController < Athena::Routing::Controller
+struct BoolController < Athena::Routing::Controller
   @[Athena::Routing::Get(path: "bool/:val")]
   def bool(val : Bool) : Bool
     val.should be_a Bool

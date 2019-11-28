@@ -171,7 +171,10 @@ module Athena::Routing::Handlers
           {% renderer = view_ann && view_ann[:renderer] ? view_ann[:renderer] : "Athena::Routing::Renderers::JSONRenderer".id %}
 
             %action = ->(ctx : HTTP::Server::Context, vals : Hash(String, String?)) do
-              instance = {{klass.id}}.new
+              {% concrete_klass = klass.abstract? ? klass.all_subclasses.find { |sc| !sc.abstract? } : klass %}
+              {% raise "#{klass.name} does not have any non abstract children." unless concrete_klass %}
+
+              instance = {{concrete_klass.id}}.new
               # If there are no args, just call the action.  Otherwise build out an array of values to pass to the action.
               {% unless m.args.empty? %}
                 arr = Array(Union({{arg_types.splat}}, Nil)).new
@@ -234,7 +237,7 @@ module Athena::Routing::Handlers
       Athena.logger.info "Matched route '#{action.method}'", Crylog::LogContext{"path" => ctx.request.resource, "method" => ctx.request.method, "remote_address" => ctx.request.remote_address, "version" => ctx.request.version, "length" => ctx.request.content_length}
 
       # DI isn't initialized until this point, so get the request_stack directly from the container after setting the container
-      request_stack = Athena::DI.get_container.get("request_stack").as(RequestStack)
+      request_stack = Athena::DI.container.request_stack
 
       # Push the new request and action into the stack
       request_stack.requests << ctx

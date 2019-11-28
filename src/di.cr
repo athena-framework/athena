@@ -2,8 +2,11 @@ require "./dependency_injection/service_container"
 
 # :nodoc:
 class Fiber
-  property! container : Athena::DI::ServiceContainer
+  property container : Athena::DI::ServiceContainer { Athena::DI::ServiceContainer.new }
 end
+
+# Convenience alias to make referencing `Athena::DI` types easier.
+alias ADI = Athena::DI
 
 # Dependency Injection module
 #
@@ -51,10 +54,8 @@ module Athena::DI
   abstract class ClassService
   end
 
-  # Returns the container for the current fiber.
-  #
-  # NOTE: By default this is the main fiber, the container would have to be set manually within each child fiber.
-  def self.get_container : Athena::DI::ServiceContainer
+  # Returns the `Athena::DI::ServiceContainer` for the current fiber.
+  def self.container : Athena::DI::ServiceContainer
     Fiber.current.container
   end
 
@@ -66,7 +67,7 @@ module Athena::DI
           def self.new(**args)
             new(
               \{% for arg in method.args %}
-                \{{arg.name.id}}: args[\{{arg.name.symbolize}}]? || Athena::DI.get_container.resolve(\{{arg.restriction.id}}, \{{arg.name.stringify}}),
+                \{{arg.name.id}}: args[\{{arg.name.symbolize}}]? || Athena::DI.container.resolve(\{{arg.restriction.id}}, \{{arg.name.stringify}}),
               \{% end %}
             )
           end
@@ -75,6 +76,3 @@ module Athena::DI
     end
   end
 end
-
-# Set the container on the current (main) fiber so its available project wide from start.
-Fiber.current.container = Athena::DI::ServiceContainer.new if Fiber.current.name == "main"
