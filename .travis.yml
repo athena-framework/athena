@@ -30,3 +30,7 @@ deploy:
   local-dir: docs
   on:
     condition: "$TRAVIS_EVENT_TYPE != cron"
+
+matrix:
+  allow_failures:
+    - crystal: nightly
