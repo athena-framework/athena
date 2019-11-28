@@ -38,6 +38,8 @@ struct Athena::Routing::RouteDispatcher < AED::Listener
     @event_dispatcher.dispatch ART::Events::Response.new ctx.response
 
     # Write the response
+    # TODO: How to handle different formats?
+    # * Tied to the `Route` obj or a new listener?
     ctx.response.print response.to_json
 
     # Close the response
@@ -46,8 +48,4 @@ struct Athena::Routing::RouteDispatcher < AED::Listener
     # Emit the terminate event
     @event_dispatcher.dispatch ART::Events::Terminate.new ctx.request, ctx.response
   end
-end
-
-record Foo, val : Int32 do
-  include JSON::Serializable
 end

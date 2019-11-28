@@ -8,9 +8,9 @@ class Athena::Routing::Exceptions::HTTPException < Exception
   # The `HTTP::Status` associated with `self`.
   getter status : HTTP::Status
 
-  # Any HTTP response headers associated with the `self`.
+  # Any HTTP response headers associated with `self`.
   #
-  # Some use response headers to give additional information about `self`.
+  # Some HTTP errors use response headers to give additional information about `self`.
   property headers : HTTP::Headers
 
   # Instantiates `self` with the given *status*.
