@@ -66,8 +66,9 @@ class Athena::Routing::RouteResolver
 
           # Build out params array
           {% for arg in m.args %}
-            # Query params
-            {% if qp = m.annotations(ART::QueryParam).find { |query_param| (name = query_param[:name]) ? name == arg.name.stringify : raise "QueryParam annotation on #{klass}##{m.name} is missing required field: 'name'." } %}
+            {% if arg.restriction.resolve == HTTP::Request %}
+              %params{m_idx} << ART::Parameters::RequestParameter(HTTP::Request).new {{arg.name.stringify}}
+            {% elsif qp = m.annotations(ART::QueryParam).find { |query_param| (name = query_param[:name]) ? name == arg.name.stringify : raise "QueryParam annotation on #{klass}##{m.name} is missing required field: 'name'." } %}
               %params{m_idx} << ART::Parameters::QueryParameter({{arg.restriction}}).new {{qp.named_args.double_splat}} {% if qp[:default] == nil %}, default: {{arg.default_value.is_a?(Nop) ? nil : arg.default_value}} {% end %}
             {% else %}
               %params{m_idx} << ART::Parameters::PathParameter({{arg.restriction}}).new name: {{arg.name.stringify}}, default: {{arg.default_value.is_a?(Nop) ? nil : arg.default_value}}
@@ -76,9 +77,10 @@ class Athena::Routing::RouteResolver
 
           @routes.add(
             {{full_path}},
-            Route(Proc({{arg_types.splat}}, {{m.return_type.id == Nil.id ? Noop : m.return_type}}), {{arg_types.splat}}).new(
+            # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
+            Route(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}}), {{arg_types.splat}}).new(
               {{klass.id}},
-              ->%instance{c_idx}.{{m.name.id}}({{arg_types.splat}}),
+              ->%instance{c_idx}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %},
               %params{m_idx},
             ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}
           )

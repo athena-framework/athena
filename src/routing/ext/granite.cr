@@ -43,15 +43,3 @@ module Athena::Routing::Converters
     end
   end
 end
-
-class Athena::Routing::Controller
-  def self.handle_exception(exception : Exception, ctx : HTTP::Server::Context, location : String = "unknown")
-    if msg = exception.message
-      if parts = msg.match(/.*\#(.*) cannot be nil/)
-        throw 400, %({"code": 400, "message": "'#{parts[1]}' cannot be null"})
-      end
-    end
-
-    previous_def
-  end
-end

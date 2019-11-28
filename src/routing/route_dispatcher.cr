@@ -22,16 +22,32 @@ struct Athena::Routing::RouteDispatcher < AED::Listener
     # Set the current request in the RequestStore
     @request_store.request = ctx.request
 
-    # Emit the on_request event
+    # Emit the request event
     @event_dispatcher.dispatch ART::Events::Request.new ctx.request
 
-    # Resole the arguments from the request
+    # Resolve and set the arguments from the request
     ctx.request.route.set_arguments ctx.request.route.parameters.map &.parse(ctx.request)
+
+    # Emit the route action arguments event
+    @event_dispatcher.dispatch ART::Events::ActionArguments.new ctx.request
 
     # # Call the action and get the response
     response = ctx.request.route.execute
 
+    # Emit the response event
+    @event_dispatcher.dispatch ART::Events::Response.new ctx.response
+
     # Write the response
     ctx.response.print response.to_json
+
+    # Close the response
+    ctx.response.close
+
+    # Emit the terminate event
+    @event_dispatcher.dispatch ART::Events::Terminate.new ctx.request, ctx.response
   end
+end
+
+record Foo, val : Int32 do
+  include JSON::Serializable
 end

@@ -14,8 +14,8 @@ require "event-dispatcher"
 require "./routing/request_store"
 require "./routing/route_resolver"
 require "./routing/route_dispatcher"
-require "./routing/exceptions"
 
+require "./routing/exceptions/*"
 require "./routing/converters/*"
 require "./routing/handlers/*"
 require "./routing/parameters/*"
@@ -137,32 +137,39 @@ module Athena::Routing
 
   abstract class Action; end
 
-  class Route(P, *A) < Action
+  class Route(ActionType, *ArgTypes) < Action
     # The `ART::Controller` that handles `self` by default.
     getter controller : ART::Controller.class
 
     # A `Proc` representing the controller action that handles `HTTP::Request` on `self`.
-    getter action : P
+    getter action : ActionType
 
     # The arguments that will be passed the `#action`.
-    getter arguments : A? = nil
+    getter arguments : ArgTypes? = nil
 
     # The parameters that need to be parsed from the request
     #
     # Includes route, body, and query params
     getter parameters : Array(ART::Parameters::Param)
 
-    def initialize(@controller : ART::Controller.class, @action : P, @parameters : Array(ART::Parameters::Param) = [] of ART::Parameters::Param)
+    def initialize(@controller : ART::Controller.class, @action : ActionType, @parameters : Array(ART::Parameters::Param) = [] of ART::Parameters::Param)
     end
 
-    def set_arguments(arr : Array)
-      @arguments = A.from arr
+    def set_arguments(args : Array)
+      {% if ArgTypes.size > 0 %}
+        @arguments = ArgTypes.from args
+      {% end %}
     end
 
+    # Executes `#action` with the given `#arguments`.
     def execute
-      if args = @arguments
-        @action.call *args
-      end
+      {% if ArgTypes.size > 0 %}
+        if args = @arguments
+          @action.call *args
+        end
+      {% else %}
+        @action.call
+      {% end %}
     end
   end
 
@@ -206,16 +213,3 @@ module Athena::Routing
     @@server.not_nil!.listen
   end
 end
-
-abstract struct Foo < ART::Controller
-end
-
-struct TestController < Foo
-  @[ART::Get(path: "/me/:id/:ret")]
-  @[ART::QueryParam(name: "test", default: 101)]
-  def get_me(test : Int32?, id : Int32, ret : Float64) : String
-    "Jim #{id} - #{ret} - #{test}"
-  end
-end
-
-ART.run
