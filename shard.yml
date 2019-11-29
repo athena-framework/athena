@@ -1,7 +1,7 @@
 name: athena
 
 description: |
-  Modular, annotation based, API oriented framework with built in param conversion.
+  A RESTful API oriented framework comprised of reusable, independent components.
 
 version: 0.7.0
 
@@ -12,26 +12,10 @@ crystal: 0.33.0
 
 license: MIT
 
-targets:
-  athena:
-    main: src/athena.cr
-
-scripts:
-  postinstall: "shards build --release --production && ./bin/athena -c athena:generate:config_file --path=../../athena.yml"
-
-executables:
-  - athena
-
 dependencies:
   event-dispatcher:
     github: athena-framework/event-dispatcher
     branch: master
-  CrSerializer:
-    github: blacksmoke16/CrSerializer
-    version: ~> 0.8.0
-  crylog:
-    github: blacksmoke16/crylog
-    version: ~> 0.1.0
   amber_router:
     github: amberframework/amber-router
     version: ~> 0.3.0

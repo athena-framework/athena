@@ -13,9 +13,29 @@ struct Athena::Routing::RouteDispatcher < AED::Listener
   def handle(ctx : HTTP::Server::Context) : Nil
     handle_raw ctx
   rescue ex : ::Exception
-    @event_dispatcher.dispatch ART::Events::Exception.new ctx.request, ex
+    event = ART::Events::Exception.new ctx.request, ex
+    @event_dispatcher.dispatch event
 
-    raise ex
+    exception = event.exception
+    response = ctx.response
+
+    # Add content-type header
+    response.content_type = "application/json"
+
+    if exception.is_a? ART::Exceptions::HTTPException
+      # Add headers from the exception
+      response.headers.merge! exception.headers
+      response.status = exception.status
+
+      exception.to_json ctx.response
+    else
+      response.status = :internal_server_error
+      exception.to_json ctx.response
+
+      response.close
+
+      raise exception
+    end
   end
 
   private def handle_raw(ctx : HTTP::Server::Context) : Nil
@@ -38,9 +58,7 @@ struct Athena::Routing::RouteDispatcher < AED::Listener
     @event_dispatcher.dispatch ART::Events::Response.new ctx.response
 
     # Write the response
-    # TODO: How to handle different formats?
-    # * Tied to the `Route` obj or a new listener?
-    ctx.response.print response.to_json
+    response.to_json ctx.response
 
     # Close the response
     ctx.response.close

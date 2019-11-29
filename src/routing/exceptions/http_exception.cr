@@ -1,3 +1,9 @@
+class ::Exception
+  def to_json(io : IO)
+    io << {code: 500, message: "Internal server error"}
+  end
+end
+
 # Represents an HTTP error.
 #
 # Each child represents a specific HTTP error with the associated status code.
@@ -13,17 +19,17 @@ class Athena::Routing::Exceptions::HTTPException < Exception
   # Some HTTP errors use response headers to give additional information about `self`.
   property headers : HTTP::Headers
 
-  # Instantiates `self` with the given *status*.
+  # Instantiates `self` with the given *status* and *message*.
   #
-  # Optionally includes *message*, *cause*, and *headers*.
-  def initialize(@status : HTTP::Status, message : String? = nil, cause : Exception? = nil, @headers : HTTP::Headers = HTTP::Headers.new)
+  # Optionally includes *cause*, and *headers*.
+  def initialize(@status : HTTP::Status, message : String, cause : Exception? = nil, @headers : HTTP::Headers = HTTP::Headers.new)
     super message, cause
   end
 
-  # Instantiates `self` with the given *status_code*.
+  # Instantiates `self` with the given *status_code* and *message*.
   #
-  # Optionally includes *message*, *cause*, and *headers*.
-  def self.new(status_code : Int32, message : String? = nil, cause : Exception? = nil, headers : HTTP::Headers = HTTP::Headers.new)
+  # Optionally includes *cause*, and *headers*.
+  def self.new(status_code : Int32, message : String, cause : Exception? = nil, headers : HTTP::Headers = HTTP::Headers.new)
     new HTTP::Status.new(status_code), message, cause, headers
   end
 
@@ -32,13 +38,17 @@ class Athena::Routing::Exceptions::HTTPException < Exception
     @status.value
   end
 
+  def to_json(io : IO)
+    io << {code: status_code, message: @message}
+  end
+
   macro inherited
     macro finished
       {% verbatim do %}
         # Define an initializer if the child doesn't implement one on its own
         {% unless @type.class.overrides? Athena::Routing::Exceptions::HTTPException.class, "new" %}
           # See `Athena::Routing::Exceptions::HTTPException#new`.
-          def initialize(message : String? = nil, cause : Exception? = nil, headers : HTTP::Headers = HTTP::Headers.new)
+          def initialize(message : String, cause : Exception? = nil, headers : HTTP::Headers = HTTP::Headers.new)
             super {{@type.name.split("::").last.underscore.id.symbolize}}, message, cause, headers
           end
         {% end %}

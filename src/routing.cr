@@ -1,15 +1,12 @@
 require "http/server"
-require "amber_router"
-require "CrSerializer"
+require "json"
 
-require "./config/config"
+require "amber_router"
+require "event-dispatcher"
 
 require "./common/types"
-require "./common/logger"
 
 require "./di"
-
-require "event-dispatcher"
 
 require "./routing/request_store"
 require "./routing/route_resolver"
@@ -38,11 +35,6 @@ alias ART = Athena::Routing
 module Athena::Routing
   # :nodoc:
   @@server : HTTP::Server?
-
-  # :nodoc:
-  # Fictional type representing no return.
-  # See https://github.com/crystal-lang/crystal/issues/7698
-  private record Noop
 
   # Defines a GET endpoint.
   # ## Fields
