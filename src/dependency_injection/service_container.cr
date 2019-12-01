@@ -24,9 +24,8 @@ module Athena::DI
       {{@type}}
 
       {% begin %}
-        # Mapping of registered services to their dependencies.  Used to determine if all service dependencies have been already registered and to detect circular dependencies.
-        {% registered_services = {} of String => Array(Nil) %}
-        {% service_list = {} of String => Array(Nil) %}
+        # List of service names already registrated.
+        {% registered_services = [] of String %}
 
         # Mapping of tag name to services with that tag.
         {% tagged_services = {} of String => Array(String) %}
@@ -64,7 +63,7 @@ module Athena::DI
           {% for service_ann in service.annotations(Athena::DI::Register) %}
             {% key = service_ann[:name] ? service_ann[:name] : service.name.split("::").last.underscore %}
             {% tags = service_ann[:tags] ? service_ann[:tags] : [] of String %}
-            {% registered_services[key] = [] of Nil %}
+            {% registered_services << key %}
 
             {% for tag in tags %}
               {% tagged_services[tag] ? tagged_services[tag] << key : (tagged_services[tag] = [] of String; tagged_services[tag] << key) %}
@@ -74,52 +73,76 @@ module Athena::DI
           {% end %}
         {% end %}
 
-        # Register services that do not have tags next.
-        # Iterate until each service's dependencies are satisfied.
         {% for service in services_without_tagged_dependencies %}
-          {% for service_ann in service.annotations(Register) %}
+          {% for service_ann in service.annotations(Athena::DI::Register) %}
             {% key = service_ann[:name] ? service_ann[:name] : service.name.split("::").last.underscore %}
             {% tags = service_ann[:tags] ? service_ann[:tags] : [] of String %}
-
-            {% service_list[key] = service_ann.args %}
+            {% initializer = service.methods.find(&.name.==("initialize")) %}
 
             {% for tag in tags %}
               {% tagged_services[tag] ? tagged_services[tag] << key : (tagged_services[tag] = [] of String; tagged_services[tag] << key) %}
             {% end %}
 
-            # If the service is registered and one of its dependencies also depends on it.  It's a circular dependency.
-            {% if service_ann.args.any? { |arg| arg.is_a?(StringLiteral) && arg.starts_with?('@') ? service_list[arg[1..-1]] && service_list[arg[1..-1]].includes?("@#{key.id}") : false } %}
-              {% raise "Circular dependency detected between '#{service}' and '#{arg[1..-1].camelcase.id}'." %}
-            {% end %}
+            {% if service_ann.args.all? do |arg|
+                    if arg.is_a?(StringLiteral) && arg.starts_with?("@?")
+                      true
+                    elsif arg.is_a?(StringLiteral) && arg.starts_with?('@')
+                      registered_services.includes? arg[1..-1]
+                    else
+                      true
+                    end
+                  end %}
 
-            {% if service_ann.args.all? { |arg| arg.is_a?(StringLiteral) && arg.starts_with?('@') ? registered_services[arg[1..-1]] : true } %}
-              {% registered_services[key] = service_ann.args %}
-              @{{key.id}} = {{service.id}}.new {{service_ann.args.map { |arg| arg.is_a?(StringLiteral) && arg.starts_with?('@') ? "@#{arg[1..-1].id}".id : arg }.splat}}
+              {% registered_services << key %}
+
+              @{{key.id}} =  {{service.id}}.new({{service_ann.args.map_with_index do |arg, idx|
+                                                    init_arg = initializer.args[idx]
+
+                                                    if arg.is_a?(StringLiteral) && arg.starts_with?("@?")
+                                                      # if there is no service use `nil`.
+                                                      services.any? &.<=(init_arg.restriction.resolve) ? "#{arg[2..-1].id}".id : nil
+                                                    elsif arg.is_a?(StringLiteral) && arg.starts_with?('@')
+                                                      "#{arg[1..-1].id}".id
+                                                    else
+                                                      arg
+                                                    end
+                                                  end.splat}})
             {% else %}
-              {% services_without_tagged_dependencies << service %}
+              {% for arg, idx in service_ann.args %}
+                {% if arg.is_a?(StringLiteral) && arg.starts_with?("@?") %}
+                  # ignore
+                {% elsif arg.is_a?(StringLiteral) && arg.starts_with?('@') %}
+                  {% raise "Could not resolve dependency '#{arg[1..-1].id}' for service '#{service}'.  Did you forget to register it or declare it optional?" unless services.any? &.<=(initializer.args[idx].restriction.resolve) %}
+                {% end %}
+              {% end %}
+
+              {% services_without_tagged_dependencies << service unless services_without_tagged_dependencies.last == service %}
             {% end %}
           {% end %}
         {% end %}
+
 
         # Lastly register services with tags, assuming their dependencies would have been resolved by now.
         {% for service in services_with_tagged_dependencies %}
           {% for service_ann in service.annotations(Register) %}
             {% key = service_ann[:name] ? service_ann[:name] : service.name.split("::").last.underscore %}
             {% tags = service_ann[:tags] ? service_ann[:tags] : [] of String %}
-            {% initializer = service.methods.find(&.name.==("initialize")) %}
-            @{{key.id}} = {{service.id}}.new {{service_ann.args.map_with_index do |arg, idx|
-                                                 if arg.is_a?(StringLiteral) && arg.starts_with?('@')
-                                                   "@#{arg[1..-1].id}".id
-                                                 elsif arg.is_a?(StringLiteral) && arg.starts_with?('!')
-                                                   if ts = tagged_services[arg[1..-1]]
-                                                     %(#{ts.map { |ts| "@#{ts.id}".id }}).id
-                                                   else
-                                                     %(#{initializer.args[idx].restriction}.new).id
-                                                   end
-                                                 else
-                                                   arg
-                                                 end
-                                               end.splat}}
+            {% registered_services << key %}
+
+              @{{key.id}} =  {{service.id}}.new({{service_ann.args.map_with_index do |arg, idx|
+                                                    init_arg = initializer.args[idx]
+
+                                                    if arg.is_a?(StringLiteral) && arg.starts_with?("@?")
+                                                      # if there is no service use `nil`.
+                                                      services.any? &.<=(init_arg.restriction.resolve) ? "#{arg[2..-1].id}".id : nil
+                                                    elsif arg.is_a?(StringLiteral) && arg.starts_with?('@')
+                                                      "#{arg[1..-1].id}".id
+                                                    elsif arg.is_a?(StringLiteral) && arg.starts_with?('!')
+                                                      %(#{tagged_services[arg[1..-1]].map { |ts| "#{ts.id}".id }}).id
+                                                    else
+                                                      arg
+                                                    end
+                                                  end.splat}})
           {% end %}
         {% end %}
         @tags = {{tagged_services}} of String => Array(String)

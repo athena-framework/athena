@@ -1,22 +1,28 @@
 require "./dependency_injection_spec_helper"
 
-class UnknownService < Athena::DI::ClassService
+class UnknownService
+  include ADI::Service
 end
 
-abstract class FakeServices < Athena::DI::ClassService
+abstract class FakeServices
+  include ADI::Service
 end
 
 @[Athena::DI::Register]
 class FakeService < FakeServices
+  include ADI::Service
 end
 
 @[Athena::DI::Register(name: "custom_fake")]
 class CustomFooFakeService < FakeServices
+  include ADI::Service
 end
 
 @[Athena::DI::Register("GOOGLE", "Google", name: "google", tags: ["feed_partner", "partner"])]
 @[Athena::DI::Register("FACEBOOK", "Facebook", name: "facebook", tags: ["partner"])]
-struct FeedPartner < Athena::DI::StructService
+struct FeedPartner
+  include ADI::Service
+
   getter id : String
   getter name : String
 
@@ -24,7 +30,9 @@ struct FeedPartner < Athena::DI::StructService
 end
 
 @[Athena::DI::Register("!partner")]
-class PartnerManager < Athena::DI::ClassService
+class PartnerManager
+  include ADI::Service
+
   getter partners
 
   def initialize(@partners : Array(FeedPartner))
@@ -40,7 +48,9 @@ class PartnerParamConverter
 end
 
 @[Athena::DI::Register(public: true)]
-class Store < Athena::DI::ClassService
+class Store
+  include ADI::Service
+
   property name : String = "Jim"
 end
 
@@ -66,7 +76,9 @@ class OtherClass
 end
 
 @[Athena::DI::Register("@blah", "a_string", "@a_service")]
-class AService2 < Athena::DI::ClassService
+class AService2
+  include ADI::Service
+
   getter blah : Blah
   getter foo : String
   getter ase : AService
@@ -75,12 +87,16 @@ class AService2 < Athena::DI::ClassService
 end
 
 @[Athena::DI::Register("@blah", "@some_service")]
-class AService < Athena::DI::ClassService
+class AService
+  include ADI::Service
+
   def initialize(@blah : Blah, @foo : Foo); end
 end
 
 @[Athena::DI::Register("@some_service", 99_i64)]
-class Blah < Athena::DI::ClassService
+class Blah
+  include ADI::Service
+
   getter foo : Foo
   getter val : Int64
 
@@ -88,7 +104,9 @@ class Blah < Athena::DI::ClassService
 end
 
 @[Athena::DI::Register(name: "some_service")]
-class Foo < Athena::DI::ClassService
+class Foo
+  include ADI::Service
+
   property name = "Bob"
 end
 

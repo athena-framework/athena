@@ -15,7 +15,6 @@ script:
   # Run specs on their own to isolate scope of each spec.
   - crystal spec spec/athena_spec.cr --order random
   - crystal spec spec/cli --order random
-  - crystal spec spec/config --order random
   - crystal spec spec/dependency_injection --order random
   - crystal spec spec/routing --order random
 
