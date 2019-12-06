@@ -1,7 +1,7 @@
 name: athena
 
 description: |
-  A RESTful API oriented framework comprised of reusable, independent components.
+  A web framework comprised of reusable, independent components
 
 version: 0.7.0
 

@@ -57,15 +57,17 @@ module Athena::DI
   module Injectable
     macro included
       macro finished
-        \{% for method in @type.methods.select &.name.==("initialize") %}
-          def self.new(**args)
-            new(
-              \{% for arg in method.args %}
-                \{{arg.name.id}}: args[\{{arg.name.symbolize}}]? || Athena::DI.container.resolve(\{{arg.restriction.id}}, \{{arg.name.stringify}}),
-              \{% end %}
-            )
-          end
-        \{% end %}
+        {% verbatim do %}
+          {% if initializer = @type.methods.find &.name.stringify.==("initialize") %}
+            def self.new(**args)
+              new(
+                {% for arg in initializer.args %}
+                  {{arg.name.id}}: args[{{arg.name.symbolize}}]? || Athena::DI.container.resolve({{arg.restriction.id}}, {{arg.name.stringify}}),
+                {% end %}
+              )
+            end
+          {% end %}
+        {% end %}
       end
     end
   end

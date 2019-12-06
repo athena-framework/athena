@@ -144,7 +144,7 @@ module Athena::Routing
     # Includes route, body, and query params
     getter parameters : Array(ART::Parameters::Param)
 
-    def initialize(@controller : ART::Controller.class, @action : ActionType, @parameters : Array(ART::Parameters::Param) = [] of ART::Parameters::Param)
+    def initialize(@controller : ART::Controller.class, @action : ActionType, @parameters : Array(ART::Parameters::Param))
     end
 
     def set_arguments(args : Array)
@@ -174,7 +174,7 @@ module Athena::Routing
     end
   end
 
-  protected class_getter route_resolver : ART::RouteResolver { ART::RouteResolver.new }
+  protected class_getter route_resolver : ART::RouteResolver = ART::RouteResolver.new
 
   # Starts the HTTP server with the given *port*, *binding*, *ssl*, *reuse_port*.
   def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server | Bool | Nil = nil, reuse_port : Bool = false)

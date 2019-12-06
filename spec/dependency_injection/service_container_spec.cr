@@ -1,7 +1,6 @@
 require "./dependency_injection_spec_helper"
 
 class UnknownService
-  include ADI::Service
 end
 
 abstract class FakeServices
@@ -16,6 +15,16 @@ end
 @[Athena::DI::Register(name: "custom_fake")]
 class CustomFooFakeService < FakeServices
   include ADI::Service
+end
+
+@[ADI::Register([1, 2, 3], ["@custom_fake"], {id: 99_i64, active: true}, public: true)]
+class StaticArgs
+  include ADI::Service
+
+  getter scalar_arr, service_arr, named_tuple_arg
+
+  def initialize(@scalar_arr : Array(Int32), @service_arr : Array(FakeServices), @named_tuple_arg : NamedTuple(id: Int64, active: Bool))
+  end
 end
 
 @[Athena::DI::Register("GOOGLE", "Google", name: "google", tags: ["feed_partner", "partner"])]
@@ -134,18 +143,27 @@ describe Athena::DI::ServiceContainer do
         CONTAINER.store.name.should eq "Jim"
       end
     end
+
+    describe "with array/namedTuple arguments" do
+      it "should be injected correctly" do
+        service = CONTAINER.static_args
+        service.scalar_arr.should eq [1, 2, 3]
+        service.service_arr.first.should be_a CustomFooFakeService
+        service.named_tuple_arg.should eq({id: 99, active: true})
+      end
+    end
   end
 
-  describe "#has" do
+  describe "#has?" do
     describe "when the service has been registered" do
       it "should return true" do
-        CONTAINER.has("blah").should be_true
+        CONTAINER.has?("blah").should be_true
       end
     end
 
     describe "when the service has been registered" do
       it "should return false" do
-        CONTAINER.has("i_do_not_exist").should be_false
+        CONTAINER.has?("i_do_not_exist").should be_false
       end
     end
   end

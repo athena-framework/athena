@@ -8,11 +8,15 @@ module Athena::DI
     macro finished
       {% begin %}
         # Define a `getter` in the container for each registered service.
-        {% for service in Athena::DI::Service.all_includers.select { |type| type.annotation(Athena::DI::Register) } %}
-          {% for service_ann in service.annotations(Athena::DI::Register) %}
-            {% key = service_ann[:name] ? service_ann[:name] : service.name.split("::").last.underscore %}
-            # Only make the getter public if the service is public
-            {% if service_ann[:public] != true %} private {% end %}getter {{key.id}} : {{service.id}}
+        {% for service in Athena::DI::Service.all_includers %}
+          {% if (annotations = service.annotations(Athena::DI::Register)) && !annotations.empty? %}
+            {% for service_ann in service.annotations(Athena::DI::Register) %}
+              {% key = service_ann[:name] ? service_ann[:name] : service.name.split("::").last.underscore %}
+              # Only make the getter public if the service is public
+              {% if service_ann[:public] != true %} private {% end %}getter {{key.id}} : {{service.id}}
+            {% end %}
+          {% else %}
+            {% raise "#{service.name} includes `ADI::Service` but is not registered.  Did you forget the annotation?" unless service.abstract? %}
           {% end %}
         {% end %}
       {% end %}
@@ -24,7 +28,7 @@ module Athena::DI
       {{@type}}
 
       {% begin %}
-        # List of service names already registrated.
+        # List of service names already registered.
         {% registered_services = [] of String %}
 
         # Mapping of tag name to services with that tag.
@@ -96,11 +100,20 @@ module Athena::DI
               {% registered_services << key %}
 
               @{{key.id}} =  {{service.id}}.new({{service_ann.args.map_with_index do |arg, idx|
-                                                    init_arg = initializer.args[idx]
-
-                                                    if arg.is_a?(StringLiteral) && arg.starts_with?("@?")
+                                                    if arg.is_a?(ArrayLiteral)
+                                                      "#{arg.map do |array_arg|
+                                                           if array_arg.is_a?(StringLiteral) && array_arg.starts_with?("@?")
+                                                             # if there is no service use `nil`.
+                                                             services.any? &.<=(initializer.args[idx].restriction.resolve) ? "#{array_arg[2..-1].id}".id : nil
+                                                           elsif array_arg.is_a?(StringLiteral) && array_arg.starts_with?('@')
+                                                             "#{array_arg[1..-1].id}".id
+                                                           else
+                                                             array_arg
+                                                           end
+                                                         end} of Union(#{initializer.args[idx].restriction.resolve.type_vars.splat})".id
+                                                    elsif arg.is_a?(StringLiteral) && arg.starts_with?("@?")
                                                       # if there is no service use `nil`.
-                                                      services.any? &.<=(init_arg.restriction.resolve) ? "#{arg[2..-1].id}".id : nil
+                                                      services.any? &.<=(initializer.args[idx].restriction.resolve) ? "#{arg[2..-1].id}".id : nil
                                                     elsif arg.is_a?(StringLiteral) && arg.starts_with?('@')
                                                       "#{arg[1..-1].id}".id
                                                     else
@@ -112,11 +125,11 @@ module Athena::DI
                 {% if arg.is_a?(StringLiteral) && arg.starts_with?("@?") %}
                   # ignore
                 {% elsif arg.is_a?(StringLiteral) && arg.starts_with?('@') %}
-                  {% raise "Could not resolve dependency '#{arg[1..-1].id}' for service '#{service}'.  Did you forget to register it or declare it optional?" unless services.any? &.<=(initializer.args[idx].restriction.resolve) %}
+                  {% raise "Could not resolve dependency '#{arg[1..-1].id}' for service '#{service}'.  Did you forget to include `ADI::Service` or declare it optional?" unless services.any? &.<=(initializer.args[idx].restriction.resolve) %}
                 {% end %}
               {% end %}
 
-              {% services_without_tagged_dependencies << service unless services_without_tagged_dependencies.last == service %}
+              {% services_without_tagged_dependencies << service %}
             {% end %}
           {% end %}
         {% end %}
@@ -130,11 +143,20 @@ module Athena::DI
             {% registered_services << key %}
 
               @{{key.id}} =  {{service.id}}.new({{service_ann.args.map_with_index do |arg, idx|
-                                                    init_arg = initializer.args[idx]
-
-                                                    if arg.is_a?(StringLiteral) && arg.starts_with?("@?")
+                                                    if arg.is_a?(ArrayLiteral)
+                                                      arg.map do |array_arg|
+                                                        if array_arg.is_a?(StringLiteral) && array_arg.starts_with?("@?")
+                                                          # if there is no service use `nil`.
+                                                          services.any? &.<=(initializer.args[idx].restriction.resolve) ? "#{array_arg[2..-1].id}".id : nil
+                                                        elsif array_arg.is_a?(StringLiteral) && array_arg.starts_with?('@')
+                                                          "#{array_arg[1..-1].id}".id
+                                                        else
+                                                          array_arg
+                                                        end
+                                                      end
+                                                    elsif arg.is_a?(StringLiteral) && arg.starts_with?("@?")
                                                       # if there is no service use `nil`.
-                                                      services.any? &.<=(init_arg.restriction.resolve) ? "#{arg[2..-1].id}".id : nil
+                                                      services.any? &.<=(initializer.args[idx].restriction.resolve) ? "#{arg[2..-1].id}".id : nil
                                                     elsif arg.is_a?(StringLiteral) && arg.starts_with?('@')
                                                       "#{arg[1..-1].id}".id
                                                     elsif arg.is_a?(StringLiteral) && arg.starts_with?('!')
@@ -155,7 +177,7 @@ module Athena::DI
     end
 
     # Returns `true` if a service with the provided *name* has been registered.
-    def has(name : String) : Bool
+    def has?(name : String) : Bool
       service_names.includes? name
     end
 

@@ -8,7 +8,7 @@ module Athena::Routing::Converters
     #
     # NOTE: Requires `T` implements a `self.find(val : String) : self` method that returns the corresponding record, or nil.
     def convert(id : String) : T
-      T.find(Athena::Types.convert_type(id, P)) || raise Athena::Routing::Exceptions::NotFoundException.new "An item with the provided ID could not be found."
+      T.find(Athena::Types.convert_type(id, P)) || raise Athena::Routing::Exceptions::NotFound.new "An item with the provided ID could not be found."
     end
   end
 end
