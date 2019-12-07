@@ -10,13 +10,12 @@ require "./di"
 
 require "./routing/request_store"
 require "./routing/route_resolver"
-require "./routing/route_dispatcher"
+require "./routing/route_handler"
 
 require "./routing/exceptions/*"
 require "./routing/converters/*"
 require "./routing/handlers/*"
 require "./routing/parameters/*"
-require "./routing/renderers/*"
 require "./routing/listeners/*"
 require "./routing/events/*"
 
@@ -147,7 +146,7 @@ module Athena::Routing
     def initialize(@controller : ART::Controller.class, @action : ActionType, @parameters : Array(ART::Parameters::Param))
     end
 
-    def set_arguments(args : Array)
+    def set_arguments(args : Array) : Nil
       {% if ArgTypes.size > 0 %}
         @arguments = ArgTypes.from args
       {% end %}
@@ -166,7 +165,7 @@ module Athena::Routing
   end
 
   # Stops the server.
-  def self.stop
+  def self.stop : Nil
     if server = @@server
       server.close unless server.closed?
     else
@@ -174,10 +173,10 @@ module Athena::Routing
     end
   end
 
-  protected class_getter route_resolver : ART::RouteResolver = ART::RouteResolver.new
+  protected class_getter route_resolver : ART::RouteResolver { ART::RouteResolver.new }
 
-  # Starts the HTTP server with the given *port*, *binding*, *ssl*, *reuse_port*.
-  def self.run(port : Int32 = 8888, binding : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server | Bool | Nil = nil, reuse_port : Bool = false)
+  # Starts the HTTP server with the given *port*, *host*, *ssl*, *reuse_port*.
+  def self.run(port : Int32 = 8888, host : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server | Bool | Nil = nil, reuse_port : Bool = false)
     # Define the server
     @@server = HTTP::Server.new do |ctx|
       # Instantiate a new instance of the container so that
@@ -185,19 +184,19 @@ module Athena::Routing
       Fiber.current.container = Athena::DI::ServiceContainer.new
 
       # Pass the request context to the route dispatcher
-      ART::RouteDispatcher.new.handle ctx
+      ART::RouteHandler.new.handle ctx
 
       nil
     end
 
     unless @@server.not_nil!.each_address { break true }
       {% if flag?(:without_openssl) %}
-        @@server.not_nil!.bind_tcp(binding, port, reuse_port: reuse_port)
+        @@server.not_nil!.bind_tcp(host, port, reuse_port: reuse_port)
       {% else %}
         if ssl
-          @@server.not_nil!.bind_tls(binding, port, ssl, reuse_port: reuse_port)
+          @@server.not_nil!.bind_tls(host, port, ssl, reuse_port: reuse_port)
         else
-          @@server.not_nil!.bind_tcp(binding, port, reuse_port: reuse_port)
+          @@server.not_nil!.bind_tcp(host, port, reuse_port: reuse_port)
         end
       {% end %}
     end

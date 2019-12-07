@@ -8,7 +8,7 @@ module Athena::DI
     macro finished
       {% begin %}
         # Define a `getter` in the container for each registered service.
-        {% for service in Athena::DI::Service.all_includers %}
+        {% for service in Athena::DI::Service.includers %}
           {% if (annotations = service.annotations(Athena::DI::Register)) && !annotations.empty? %}
             {% for service_ann in service.annotations(Athena::DI::Register) %}
               {% key = service_ann[:name] ? service_ann[:name] : service.name.split("::").last.underscore %}
@@ -35,7 +35,7 @@ module Athena::DI
         {% tagged_services = {} of String => Array(String) %}
 
         # Obtain an array of registered services.
-        {% services = Athena::DI::Service.all_includers.select { |type| type.annotation(Athena::DI::Register) } %}
+        {% services = Athena::DI::Service.includers.select { |type| type.annotation(Athena::DI::Register) } %}
 
         # Array of services that have no dependencies.
         {% no_dependency_services = services.select { |service| init = service.methods.find(&.name.==("initialize")); !init || init.args.size == 0 } %}

@@ -1,7 +1,7 @@
 # The entrypoint into Athena::Routing.
 #
 # Emits events that handle a given request.
-struct Athena::Routing::RouteDispatcher < AED::Listener
+struct Athena::Routing::RouteHandler < AED::Listener
   include ADI::Injectable
 
   def initialize(
@@ -26,16 +26,13 @@ struct Athena::Routing::RouteDispatcher < AED::Listener
       # Add headers from the exception
       response.headers.merge! exception.headers
       response.status = exception.status
-
-      exception.to_json ctx.response
     else
       response.status = :internal_server_error
-      exception.to_json ctx.response
-
-      response.close
-
-      raise exception
     end
+
+    exception.to_json ctx.response
+
+    response.close
   end
 
   private def handle_raw(ctx : HTTP::Server::Context) : Nil
@@ -57,8 +54,17 @@ struct Athena::Routing::RouteDispatcher < AED::Listener
     # Emit the response event
     @event_dispatcher.dispatch ART::Events::Response.new ctx.response
 
-    # Write the response
-    response.to_json ctx.response
+    @request_store.request = nil
+
+    # Return 204 if the response is nil
+    if response.nil?
+      ctx.response.status = :no_content
+    else
+      # Otherwise write the response
+      response.to_json ctx.response
+    end
+
+    ctx.response.content_type = "application/json"
 
     # Close the response
     ctx.response.close

@@ -1,5 +1,3 @@
-require "http/params"
-
 # Converters for converting `String` arguments into `T`.
 module Athena::Types
   extend self
@@ -41,4 +39,8 @@ module Athena::Types
       val.split(',').map { |v| convert_type v, {{type.id}} }
     end
   {% end %}
+
+  def convert_type(val : String, t)
+    val
+  end
 end

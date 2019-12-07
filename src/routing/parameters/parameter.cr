@@ -13,9 +13,9 @@ module Athena::Routing::Parameters
     getter default : T?
 
     # If the value should be processed via a converter.
-    getter converter : ART::Converters::ConverterInterface.class | Nil = nil
+    getter converter : ART::Converters::ConverterInterface? = nil
 
-    def initialize(@name : String, @default : T? = nil, @converter : ART::Converters::ConverterInterface.class | Nil = nil); end
+    def initialize(@name : String, @default : T? = nil, @converter : ART::Converters::ConverterInterface? = nil); end
 
     # Extracts `self` from *request*.
     protected abstract def extract(request : HTTP::Request) : String?
@@ -24,7 +24,7 @@ module Athena::Routing::Parameters
     #
     # Handles any processing required by `converter`
     # or returning `default` if a value is missing.
-    def parse(request : HTTP::Request) : T
+    def parse(request : HTTP::Request)
       value = extract request
 
       {% unless T.nilable? %}
@@ -38,6 +38,10 @@ module Athena::Routing::Parameters
           return nil
         end
       {% end %}
+
+      if converter = @converter
+        return converter.convert value
+      end
 
       # Convert the string type to its expected type.
       Athena::Types.convert_type(value, T)
