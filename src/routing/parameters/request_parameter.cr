@@ -7,4 +7,9 @@ struct Athena::Routing::Parameters::RequestParameter(T) < Athena::Routing::Param
   def parse(request : HTTP::Request) : T
     request
   end
+
+  # :inherit:
+  protected def type : String
+    "request"
+  end
 end

@@ -69,7 +69,7 @@ class Athena::Routing::RouteResolver
             {% if arg.restriction.resolve == HTTP::Request %}
               %params{m_idx} << ART::Parameters::RequestParameter(HTTP::Request).new {{arg.name.stringify}}
             {% elsif qp = m.annotations(ART::QueryParam).find { |query_param| (name = query_param[:name]) ? name == arg.name.stringify : raise "QueryParam annotation on #{klass}##{m.name} is missing required field: 'name'." } %}
-              %params{m_idx} << ART::Parameters::QueryParameter({{arg.restriction}}).new {{qp.named_args.double_splat}}, converter: {{qp[:converter] ? "#{qp[:converter]}.new".id : nil}} {% if qp[:default] == nil %}, default: {{arg.default_value.is_a?(Nop) ? nil : arg.default_value}} {% end %}
+              %params{m_idx} << ART::Parameters::QueryParameter({{arg.restriction}}).new name: {{qp[:name]}}, converter: {{qp[:converter] ? "#{qp[:converter]}(#{arg.restriction}, Nil).new".id : nil}} {% if qp[:default] == nil %}, default: {{arg.default_value.is_a?(Nop) ? nil : arg.default_value}} {% end %}
             {% else %}
               {% ca = m.annotations(ART::ParamConverter).find { |pc| pc[:arg] == arg.name.stringify } %}
 
@@ -81,7 +81,7 @@ class Athena::Routing::RouteResolver
           @routes.add(
             {{full_path}},
             # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
-            Route(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}}), {{arg_types.splat}}).new(
+            Route(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}}), {{m.return_type}}, {{arg_types.splat}}).new(
               {{klass.id}},
               ->%instance{c_idx}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %},
               %params{m_idx},

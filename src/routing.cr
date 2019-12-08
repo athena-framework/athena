@@ -8,6 +8,7 @@ require "./common/types"
 
 require "./di"
 
+require "./routing/annotations"
 require "./routing/request_store"
 require "./routing/route_resolver"
 require "./routing/route_handler"
@@ -19,116 +20,53 @@ require "./routing/parameters/*"
 require "./routing/listeners/*"
 require "./routing/events/*"
 
-require "./routing/ext/listener"
 require "./routing/ext/event_dispatcher"
 require "./routing/ext/request"
 
 # Convenience alias to make referencing `Athena::Routing` types easier.
 alias ART = Athena::Routing
 
-# Athena module containing elements for:
-# * Defining routes.
-# * Defining life-cycle callbacks.
-# * Manage response serialization.
-# * Handle param conversion.
 module Athena::Routing
   # :nodoc:
   @@server : HTTP::Server?
 
-  # Defines a GET endpoint.
-  # ## Fields
-  # * path : `String` - The path for the endpoint.
-  # * cors : `String|Bool|Nil` - The `cors_group` to use for this specific action, or `false` to disable CORS.
-  #
-  # ## Example
-  # ```
-  # @[Athena::Routing::Get(path: "/users")]
-  # ```
-  annotation Get; end
-
-  # Defines a POST endpoint.
-  # ## Fields
-  # * path : `String` - The path for the endpoint.
-  # * cors : `String|Bool|Nil` - The `cors_group` to use for this specific action, or `false` to disable CORS.
-  #
-  # ## Example
-  # ```
-  # @[Athena::Routing::Post(path: "/users")]
-  # ```
-  annotation Post; end
-
-  # Defines a PUT endpoint.
-  # ## Fields
-  # * path : `String` - The path for the endpoint.
-  # * cors : `String|Bool|Nil` - The `cors_group` to use for this specific action, or `false` to disable CORS.
-  #
-  # ## Example
-  # ```
-  # @[Athena::Routing::Put(path: "/users")]
-  # ```
-  annotation Put; end
-
-  # Defines a DELETE endpoint.
-  # ## Fields
-  # * path : `String` - The path for the endpoint.
-  # * cors : `String|Bool|Nil` - The `cors_group` to use for this specific action, or `false` to disable CORS.
-  #
-  # ## Example
-  # ```
-  # @[Athena::Routing::Delete(path: "/users/:id")]
-  # ```
-  annotation Delete; end
-
-  # Controls how params are converted.
-  # ## Fields
-  # * param : `String` - The param that should go through the conversion.
-  # * type : `T` - The type the param should be converted to.
-  # * converter : `Athena::Routing::Converters` - What converter to use for the conversion.  Can be `Converters::RequestBody`, `Converters::Exists`, `Converters::FormData`, or a custom defined converter.
-  # * [pk_type] : `P` - The type the id should be resolved to before calling `T.find`.  Only required for `Converters::Exists`.
-  #
-  # ## Example
-  # ```
-  # @[Athena::Routing::ParamConverter(param: "user", pk_type: Int32, type: User, converter: Exists)]
-  # ```
-  annotation ParamConverter; end
-  annotation QueryParam; end
-
-  # Defines how the return value of an endpoint is displayed.
-  # ## Fields
-  # * groups : `Array(String)` - The serialization groups to apply to this endpoint.
-  # See the [CrSerializer Docs](https://github.com/Blacksmoke16/CrSerializer/blob/master/docs/serialization.md) for more info.
-  # * renderer : `Athena::Routing::Renderers` - What renderer to use for the return value/object.  Default is `Renderers::JSONRenderer`.
-  #
-  # ## Example
-  # ```
-  # @[Athena::Routing::View(groups: ["admin", "default"])]
-  # ```
-  annotation View; end
-
-  # Defines options that affect the whole controller.
-  # ## Fields
-  # * prefix : String - Apply a prefix to all actions within `self`.
-  #
-  # ## Example
-  # ```
-  # @[Athena::Routing::ControllerOptions(prefix: "calendar")]
-  # class CalendarController < Athena::Routing::Controller
-  #   # The route of this action would be `GET /calendar/events`
-  #   @[Athena::Routing::Get(path: "events")]
-  #   def self.events : String
-  #     "events"
-  #   end
-  # end
-  # ```
-  annotation ControllerOptions; end
+  protected class_getter route_resolver : ART::RouteResolver { ART::RouteResolver.new }
 
   # Parent struct for all controllers.
+  #
+  # Can be inheirted from to add utility methods useful in all controllers.
   abstract struct Controller
+    {% begin %}
+      {% for method in ["GET", "POST", "PUT", "DELETE"] %}
+        # Helper DSL macro for creating `{{method.id}}` actions.
+        #
+        # ### Optional Named Arguments
+        # - `args` - The arguments that this action should take.  Defaults to no arguments.
+        # - `return_type` - The return type to set for the action.  Defaults to `Nil` (204 no content) if not provided.
+        # - `constraints` - Any constraints that should be applied to the route.
+        #
+        # ### Example
+        #
+        # ```
+        # struct ExampleController < ART::Controller
+        #  {{method.downcase.id}} "user/:id", args: {id : Int32}, return_type: String, constraints: {"id" => /\d+/} do
+        #    "Got user #{id}"
+        #  end
+        # end
+        # ```
+        macro {{method.downcase.id}}(path, **named_args, &)
+          @[ART::Get(path: \{{path}}, constraints: \{{named_args[:constraints]}})]
+          def {{method.downcase.id}}_\{{path.gsub(/\W/, "_").id}}(\{{args = named_args[:args] ? args.splat : "".id}}) : \{{named_args[:return_type] || Nil}}
+            \{{yield}}
+          end
+        end
+      {% end %}
+    {% end %}
   end
 
   abstract class Action; end
 
-  class Route(ActionType, *ArgTypes) < Action
+  class Route(ActionType, ReturnType, *ArgTypes) < Action
     # The `ART::Controller` that handles `self` by default.
     getter controller : ART::Controller.class
 
@@ -143,6 +81,9 @@ module Athena::Routing
     # Includes route, body, and query params
     getter parameters : Array(ART::Parameters::Param)
 
+    # The return type of the action.
+    getter return_type : ReturnType.class = ReturnType
+
     def initialize(@controller : ART::Controller.class, @action : ActionType, @parameters : Array(ART::Parameters::Param))
     end
 
@@ -155,9 +96,7 @@ module Athena::Routing
     # Executes `#action` with the given `#arguments`.
     def execute
       {% if ArgTypes.size > 0 %}
-        if args = @arguments
-          @action.call *args
-        end
+        @action.call *@arguments.not_nil!
       {% else %}
         @action.call
       {% end %}
@@ -172,8 +111,6 @@ module Athena::Routing
       raise "Server not set"
     end
   end
-
-  protected class_getter route_resolver : ART::RouteResolver { ART::RouteResolver.new }
 
   # Starts the HTTP server with the given *port*, *host*, *ssl*, *reuse_port*.
   def self.run(port : Int32 = 8888, host : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server | Bool | Nil = nil, reuse_port : Bool = false)
@@ -200,6 +137,8 @@ module Athena::Routing
         end
       {% end %}
     end
+
+    puts "Listening on #{host}"
 
     @@server.not_nil!.listen
   end

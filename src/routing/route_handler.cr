@@ -57,7 +57,7 @@ struct Athena::Routing::RouteHandler < AED::Listener
     @request_store.request = nil
 
     # Return 204 if the response is nil
-    if response.nil?
+    if response.nil? && ctx.request.route.return_type == Nil
       ctx.response.status = :no_content
     else
       # Otherwise write the response
