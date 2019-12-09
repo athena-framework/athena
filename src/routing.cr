@@ -9,6 +9,7 @@ require "./common/types"
 require "./di"
 
 require "./routing/annotations"
+require "./routing/argument_resolver"
 require "./routing/request_store"
 require "./routing/route_resolver"
 require "./routing/route_handler"
@@ -22,6 +23,7 @@ require "./routing/events/*"
 
 require "./routing/ext/event_dispatcher"
 require "./routing/ext/request"
+require "./routing/ext/listener"
 
 # Convenience alias to make referencing `Athena::Routing` types easier.
 alias ART = Athena::Routing
@@ -76,6 +78,8 @@ module Athena::Routing
     # The arguments that will be passed the `#action`.
     getter arguments : ArgTypes? = nil
 
+    getter argument_names
+
     # The parameters that need to be parsed from the request
     #
     # Includes route, body, and query params
@@ -84,7 +88,27 @@ module Athena::Routing
     # The return type of the action.
     getter return_type : ReturnType.class = ReturnType
 
-    def initialize(@controller : ART::Controller.class, @action : ActionType, @parameters : Array(ART::Parameters::Param))
+    getter converters : Array(ART::Converters::ParamConverterConfiguration)
+
+    def initialize(
+      @controller : ART::Controller.class,
+      @argument_names : Array(String),
+      @action : ActionType,
+      @parameters : Array(ART::Parameters::Param),
+      @converters : Array(ART::Converters::ParamConverterConfiguration)
+    )
+    end
+
+    def set(argument : String, value) : Nil
+      {% if ArgTypes.size > 0 %}
+        index = @argument_names.index argument
+
+        @arguments = ArgTypes.from @arguments.not_nil!.map_with_index { |arg, idx| idx == index ? value : arg }.to_a
+      {% end %}
+    end
+
+    def get(argument : String)
+      @arguments[@argument_names.index(argument).not_nil!]
     end
 
     def set_arguments(args : Array) : Nil
@@ -94,7 +118,7 @@ module Athena::Routing
     end
 
     # Executes `#action` with the given `#arguments`.
-    def execute
+    def execute : ReturnType
       {% if ArgTypes.size > 0 %}
         @action.call *@arguments.not_nil!
       {% else %}

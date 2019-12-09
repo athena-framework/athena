@@ -24,7 +24,7 @@ class Athena::Routing::RouteResolver
 
           {% for converter in param_converters %}
             # Ensure each converter implements required properties and `type` implements the required methods.
-            {% if converter && converter[:arg] && converter[:converter] %}
+            {% if converter && converter[:converter] %}
               {% if converter[:converter].stringify == "Exists" %}
                 {% raise "#{converter[:type]} must implement a `self.find(id)` method to use the Exists converter." unless converter[:type].resolve.class.has_method?("find") %}
                 {% raise "#{klass.name}.#{m.name} #{converter[:converter]} converter requires a `pk_type` to be defined." unless converter[:pk_type] %}
@@ -62,18 +62,25 @@ class Athena::Routing::RouteResolver
           {% full_path = "/" + method + prefix + path %}
           {% arg_types = m.args.map(&.restriction) %}
 
-          # Build out params array
+          # Build out params and converters array
           %params{m_idx} = [] of ART::Parameters::Param
+          %converters{m_idx} = [] of ART::Converters::ParamConverterConfiguration
 
           {% for arg in m.args %}
             {% if arg.restriction.resolve == HTTP::Request %}
               %params{m_idx} << ART::Parameters::RequestParameter(HTTP::Request).new {{arg.name.stringify}}
             {% elsif qp = m.annotations(ART::QueryParam).find { |query_param| (name = query_param[:name]) ? name == arg.name.stringify : raise "QueryParam annotation on #{klass}##{m.name} is missing required field: 'name'." } %}
-              %params{m_idx} << ART::Parameters::QueryParameter({{arg.restriction}}).new name: {{qp[:name]}}, converter: {{qp[:converter] ? "#{qp[:converter]}(#{arg.restriction}, Nil).new".id : nil}} {% if qp[:default] == nil %}, default: {{arg.default_value.is_a?(Nop) ? nil : arg.default_value}} {% end %}
+              %params{m_idx} << ART::Parameters::QueryParameter({{arg.restriction}}).new name: {{qp[:name]}}, default: {{arg.default_value.is_a?(Nop) ? nil : arg.default_value}}
             {% else %}
-              {% ca = m.annotations(ART::ParamConverter).find { |pc| pc[:arg] == arg.name.stringify } %}
+              {% ca = m.annotations(ART::ParamConverter).find { |pc| pc[0] == arg.name.stringify } %}
 
-              %params{m_idx} << ART::Parameters::PathParameter({{arg.restriction}}).new name: {{arg.name.stringify}}, converter: {{ca && ca[:converter] ? "#{ca[:converter]}(#{arg.restriction}, #{ca[:pk_type] ? ca[:pk_type] : Nil}).new".id : nil}}, default: {{arg.default_value.is_a?(Nop) ? nil : arg.default_value}}
+              {% if ca %}
+                {% raise "Converter is required" if false %}
+                {% raise "arg name is required" if false %}
+                %converters{m_idx} << ART::Converters::ParamConverter({{arg.restriction}}).new {{ca[0]}}, {{ca[:converter]}}
+              {% end %}
+
+              %params{m_idx} << ART::Parameters::PathParameter({{arg.restriction}}).new name: {{arg.name.stringify}}, default: {{arg.default_value.is_a?(Nop) ? nil : arg.default_value}}
             {% end %}
           {% end %}
 
@@ -83,8 +90,10 @@ class Athena::Routing::RouteResolver
             # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
             Route(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}}), {{m.return_type}}, {{arg_types.splat}}).new(
               {{klass.id}},
+              ({{m.args.map &.name.stringify}} of String),
               ->%instance{c_idx}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %},
               %params{m_idx},
+              %converters{m_idx},
             ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}
           )
         {% end %}

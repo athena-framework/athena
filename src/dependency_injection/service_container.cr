@@ -134,12 +134,12 @@ module Athena::DI
           {% end %}
         {% end %}
 
-
         # Lastly register services with tags, assuming their dependencies would have been resolved by now.
         {% for service in services_with_tagged_dependencies %}
           {% for service_ann in service.annotations(Register) %}
             {% key = service_ann[:name] ? service_ann[:name] : service.name.split("::").last.underscore %}
             {% tags = service_ann[:tags] ? service_ann[:tags] : [] of String %}
+            {% initializer = service.methods.find(&.name.==("initialize")) %}
             {% registered_services << key %}
 
               @{{key.id}} =  {{service.id}}.new({{service_ann.args.map_with_index do |arg, idx|
@@ -160,7 +160,7 @@ module Athena::DI
                                                     elsif arg.is_a?(StringLiteral) && arg.starts_with?('@')
                                                       "#{arg[1..-1].id}".id
                                                     elsif arg.is_a?(StringLiteral) && arg.starts_with?('!')
-                                                      %(#{tagged_services[arg[1..-1]].map { |ts| "#{ts.id}".id }}).id
+                                                      %(#{tagged_services[arg[1..-1]].map { |ts| "#{ts.id}".id }} of Union(#{initializer.args[idx].restriction.resolve.type_vars.splat})).id
                                                     else
                                                       arg
                                                     end

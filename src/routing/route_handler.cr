@@ -6,7 +6,8 @@ struct Athena::Routing::RouteHandler < AED::Listener
 
   def initialize(
     @event_dispatcher : AED::EventDispatcherInterface,
-    @request_store : ART::RequestStore
+    @request_store : ART::RequestStore,
+    @argument_resolver : ART::ArgumentResolver
   )
   end
 
@@ -33,6 +34,8 @@ struct Athena::Routing::RouteHandler < AED::Listener
     exception.to_json ctx.response
 
     response.close
+
+    raise exception
   end
 
   private def handle_raw(ctx : HTTP::Server::Context) : Nil
@@ -43,7 +46,7 @@ struct Athena::Routing::RouteHandler < AED::Listener
     @event_dispatcher.dispatch ART::Events::Request.new ctx.request
 
     # Resolve and set the arguments from the request
-    ctx.request.route.set_arguments ctx.request.route.parameters.map &.parse(ctx.request)
+    ctx.request.route.set_arguments @argument_resolver.resolve ctx
 
     # Emit the route action arguments event
     @event_dispatcher.dispatch ART::Events::ActionArguments.new ctx.request

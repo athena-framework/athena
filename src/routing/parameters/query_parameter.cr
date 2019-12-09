@@ -5,7 +5,7 @@ struct Athena::Routing::Parameters::QueryParameter(T) < Athena::Routing::Paramet
   end
 
   # :inherit:
-  protected def type : String
+  def parameter_type : String
     "query"
   end
 end
