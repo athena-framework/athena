@@ -1,11 +1,6 @@
-@[ADI::Register("!athena.routing.param_converter")]
+@[ADI::Register]
 struct Athena::Routing::ArgumentResolver
   include ADI::Service
-
-  def initialize(
-    @converters : Array(ART::Converters::Converter)
-  )
-  end
 
   def resolve(ctx : HTTP::Server::Context) : Array
     route = ctx.request.route
@@ -29,7 +24,7 @@ struct Athena::Routing::ArgumentResolver
 
       # Check if there is a param converter that should modify the value
       if converter_configuration = route.converters.find { |cc| cc.name == param.name }
-        if converter = @converters.find { |c| c.class == converter_configuration.converter }
+        if converter = converter_configuration.converter
           next converter.convert value
         end
       end

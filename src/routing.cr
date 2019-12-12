@@ -99,6 +99,11 @@ module Athena::Routing
     )
     end
 
+    # Allows changing the value of a specific *argument*.
+    #
+    # Most useful for use with a custom `ART::Events::ActionArguments` listener.
+    #
+    # NOTE: *value* must be of the correct type, otherwise a runtime `TypeCastError` will be raised.
     def set(argument : String, value) : Nil
       {% if ArgTypes.size > 0 %}
         index = @argument_names.index argument
@@ -107,10 +112,14 @@ module Athena::Routing
       {% end %}
     end
 
+    # Get the value of a specific *argument*.
     def get(argument : String)
       @arguments[@argument_names.index(argument).not_nil!]
     end
 
+    # :nodoc:
+    #
+    # Used internally to set the initial `arguments` values from `Athena::Routing::ArgumentResolver#resolve`.
     def set_arguments(args : Array) : Nil
       {% if ArgTypes.size > 0 %}
         @arguments = ArgTypes.from args

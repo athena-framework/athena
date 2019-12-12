@@ -1,21 +1,23 @@
 module Athena::Routing::Converters
   abstract struct ParamConverterConfiguration; end
 
+  # Stores metadata about a specific param converter that should be applied to a value.
   struct ParamConverter(T) < ParamConverterConfiguration
     # The name of the argument `self` should be applied against.
     getter name : String
 
-    # The type that the argument should be converted into.
-    getter type : T.class = T
+    @converter_wrapper : Proc(ART::Converters::Converter(T))
 
-    # The `ART::Converters::Converter.class` that should be applied on the argument.
-    getter converter : ART::Converters::Converter.class
+    # An `ART::Converters::Converter` that should be applied on the argument.
+    #
+    # OPTIMIZE: Make this store an `ART::Converters::Converter(T).class` once [this issue](https://github.com/crystal-lang/crystal/issues/8574) is resolved.
+    getter converter : ART::Converters::Converter(T) { @converter_wrapper.call }
 
-    def initialize(@name : String, @converter : ART::Converters::Converter.class); end
+    def initialize(@name : String, @converter_wrapper : Proc(ART::Converters::Converter(T))); end
   end
 
   # Base struct of Param Converters.
-  abstract struct Converter
+  abstract struct Converter(T)
     abstract def convert(value : String)
   end
 end

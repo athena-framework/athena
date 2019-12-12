@@ -70,6 +70,12 @@ class Athena::Routing::RouteResolver
             {% if arg.restriction.resolve == HTTP::Request %}
               %params{m_idx} << ART::Parameters::RequestParameter(HTTP::Request).new {{arg.name.stringify}}
             {% elsif qp = m.annotations(ART::QueryParam).find { |query_param| (name = query_param[:name]) ? name == arg.name.stringify : raise "QueryParam annotation on #{klass}##{m.name} is missing required field: 'name'." } %}
+              {% if converter = qp[:converter] %}
+                {% raise "Converter is required" if false %}
+                {% raise "arg name is required" if false %}
+                %converters{m_idx} << ART::Converters::ParamConverter({{arg.restriction}}).new {{qp[:name]}}, Proc(ART::Converters::Converter({{arg.restriction}})).new { {{converter}}.new }
+              {% end %}
+
               %params{m_idx} << ART::Parameters::QueryParameter({{arg.restriction}}).new name: {{qp[:name]}}, default: {{arg.default_value.is_a?(Nop) ? nil : arg.default_value}}
             {% else %}
               {% ca = m.annotations(ART::ParamConverter).find { |pc| pc[0] == arg.name.stringify } %}
@@ -77,7 +83,7 @@ class Athena::Routing::RouteResolver
               {% if ca %}
                 {% raise "Converter is required" if false %}
                 {% raise "arg name is required" if false %}
-                %converters{m_idx} << ART::Converters::ParamConverter({{arg.restriction}}).new {{ca[0]}}, {{ca[:converter]}}
+                %converters{m_idx} << ART::Converters::ParamConverter({{arg.restriction}}).new {{ca[0]}}, Proc(ART::Converters::Converter({{arg.restriction}})).new { {{ca[:converter]}}.new }
               {% end %}
 
               %params{m_idx} << ART::Parameters::PathParameter({{arg.restriction}}).new name: {{arg.name.stringify}}, default: {{arg.default_value.is_a?(Nop) ? nil : arg.default_value}}
