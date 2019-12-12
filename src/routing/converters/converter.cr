@@ -1,5 +1,7 @@
 module Athena::Routing::Converters
-  abstract struct ParamConverterConfiguration; end
+  abstract struct ParamConverterConfiguration
+    abstract def name : String
+  end
 
   # Stores metadata about a specific param converter that should be applied to a value.
   struct ParamConverter(T) < ParamConverterConfiguration
