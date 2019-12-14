@@ -26,9 +26,9 @@ module Athena::Types
 
   def convert_type(val : String, t : Bool.class) : Bool
     if val == "true"
-      return true
+      true
     elsif val == "false"
-      return false
+      false
     else
       raise ArgumentError.new "Invalid Bool: #{val}"
     end

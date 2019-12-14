@@ -61,8 +61,6 @@ class Athena::Routing::RouteResolver
             # Raise compile time error if there is an annotation but no action argument.
             {% elsif qp = m.annotations(ART::QueryParam).find { |query_param| (name = query_param[:name]) ? name == arg.name.stringify : raise "Route action '#{klass.name}##{m.name}'s QueryParam annotation is missing required field: 'name'." } %}
               {% if converter = qp[:converter] %}
-                {% raise "Converter is required" if false %}
-                {% raise "arg name is required" if false %}
                 %converters{m_idx} << ART::Converters::ParamConverter({{arg.restriction}}).new {{qp[:name]}}, Proc(ART::Converters::Converter({{arg.restriction}})).new { {{converter}}.new }
               {% end %}
 
@@ -71,8 +69,6 @@ class Athena::Routing::RouteResolver
               {% ca = m.annotations(ART::ParamConverter).find { |pc| pc[0] == arg.name.stringify } %}
 
               {% if ca %}
-                {% raise "Converter is required" if false %}
-                {% raise "arg name is required" if false %}
                 %converters{m_idx} << ART::Converters::ParamConverter({{arg.restriction}}).new {{ca[0]}}, Proc(ART::Converters::Converter({{arg.restriction}})).new { {{ca[:converter]}}.new }
               {% end %}
 
