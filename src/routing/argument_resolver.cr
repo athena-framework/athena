@@ -31,6 +31,8 @@ struct Athena::Routing::ArgumentResolver
         # Otherwise convert the string type to its expected type.
         Athena::Types.convert_type(value, param.type)
       rescue ex : ArgumentError
+        next nil unless param.required?
+
         # Catch type cast errors and bubble it up as an UnprocessableEntity
         raise ART::Exceptions::UnprocessableEntity.new "Required parameter '#{param.name}' with value '#{value}' could not be converted into a valid '#{param.type}'", cause: ex
       end

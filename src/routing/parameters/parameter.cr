@@ -1,11 +1,10 @@
 require "./parameter"
 
 module Athena::Routing::Parameters
-  module Param; end
+  abstract struct Param
+  end
 
-  abstract struct Parameter(T)
-    include Param
-
+  abstract struct Parameter(T) < Param
     # The name of the parameter.
     getter name : String
 

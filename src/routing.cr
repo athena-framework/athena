@@ -35,7 +35,7 @@ module Athena::Routing
 
   # Parent struct for all controllers.
   #
-  # Can be inherited from to add utility methods useful in all controllers.
+  # Can be inheirted from to add utility methods useful in all controllers.
   abstract struct Controller
     {% begin %}
       {% for method in ["GET", "POST", "PUT", "DELETE"] %}
@@ -169,8 +169,6 @@ module Athena::Routing
         end
       {% end %}
     end
-
-    puts "Listening on #{host}"
 
     @@server.not_nil!.listen
   end

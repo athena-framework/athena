@@ -1,6 +1,6 @@
 class ::Exception
   def to_json(io : IO)
-    io << {code: 500, message: "Internal server error"}
+    {code: 500, message: "Internal server error"}.to_json io
   end
 end
 
@@ -39,7 +39,7 @@ class Athena::Routing::Exceptions::HTTPException < Exception
   end
 
   def to_json(io : IO)
-    io << {code: status_code, message: @message}
+    {code: status_code, message: @message}.to_json io
   end
 
   macro inherited

@@ -1,6 +1,12 @@
 module Athena::Routing::Converters
   abstract struct ParamConverterConfiguration
-    abstract def name : String
+    # Needs to be defined due to https://github.com/crystal-lang/crystal/issues/6996
+    # for the case of there being no converters
+    def name; end
+
+    # Needs to be defined due to https://github.com/crystal-lang/crystal/issues/6996
+    # for the case of there being no converters
+    def converter; end
   end
 
   # Stores metadata about a specific param converter that should be applied to a value.
