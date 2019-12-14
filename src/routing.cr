@@ -16,7 +16,6 @@ require "./routing/route_handler"
 
 require "./routing/exceptions/*"
 require "./routing/converters/*"
-require "./routing/handlers/*"
 require "./routing/parameters/*"
 require "./routing/listeners/*"
 require "./routing/events/*"
@@ -36,7 +35,7 @@ module Athena::Routing
 
   # Parent struct for all controllers.
   #
-  # Can be inheirted from to add utility methods useful in all controllers.
+  # Can be inherited from to add utility methods useful in all controllers.
   abstract struct Controller
     {% begin %}
       {% for method in ["GET", "POST", "PUT", "DELETE"] %}
@@ -94,8 +93,8 @@ module Athena::Routing
       @controller : ART::Controller.class,
       @argument_names : Array(String),
       @action : ActionType,
-      @parameters : Array(ART::Parameters::Param),
-      @converters : Array(ART::Converters::ParamConverterConfiguration)
+      @parameters : Array(ART::Parameters::Param) = [] of ART::Parameters::Param,
+      @converters : Array(ART::Converters::ParamConverterConfiguration) = [] of ART::Converters::ParamConverterConfiguration
     )
     end
 
@@ -146,14 +145,14 @@ module Athena::Routing
   end
 
   # Starts the HTTP server with the given *port*, *host*, *ssl*, *reuse_port*.
-  def self.run(port : Int32 = 8888, host : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server | Bool | Nil = nil, reuse_port : Bool = false)
+  def self.run(port : Int32 = 3000, host : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server | Bool | Nil = nil, reuse_port : Bool = false)
     # Define the server
     @@server = HTTP::Server.new do |ctx|
       # Instantiate a new instance of the container so that
       # the container objects do not bleed between requests
       Fiber.current.container = Athena::DI::ServiceContainer.new
 
-      # Pass the request context to the route dispatcher
+      # Pass the request context to the route handler
       ART::RouteHandler.new.handle ctx
 
       nil

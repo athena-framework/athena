@@ -13,7 +13,7 @@ struct Athena::Routing::ArgumentResolver
       if param.required?
         if value.nil?
           next param.default.not_nil! if !param.default.nil?
-          raise ART::Exceptions::BadRequest.new "Missing required #{param.type} parameter '#{param.name}'"
+          raise ART::Exceptions::BadRequest.new "Missing required #{param.parameter_type} parameter '#{param.name}'"
         end
       else
         if value.nil?
@@ -23,20 +23,16 @@ struct Athena::Routing::ArgumentResolver
       end
 
       # Check if there is a param converter that should modify the value
-      if converter_configuration = route.converters.find { |cc| cc.name == param.name }
-        if converter = converter_configuration.converter
-          next converter.convert value
-        end
+      if converter = route.converters.find { |cc| cc.name == param.name }.try &.converter
+        next converter.convert value
       end
 
       begin
         # Otherwise convert the string type to its expected type.
         Athena::Types.convert_type(value, param.type)
       rescue ex : ArgumentError
-        message = ex.message || "'#{value}' is not a valid #{param.parameter_type}"
-
-        # Catch type cast errors and bubble it up as a BadRequest
-        raise ART::Exceptions::BadRequest.new message, cause: ex
+        # Catch type cast errors and bubble it up as an UnprocessableEntity
+        raise ART::Exceptions::UnprocessableEntity.new "Required parameter '#{param.name}' with value '#{value}' could not be converted into a valid '#{param.type}'", cause: ex
       end
     end
   end
