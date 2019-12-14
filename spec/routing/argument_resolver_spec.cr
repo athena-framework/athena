@@ -73,10 +73,4 @@ describe ART::ArgumentResolver do
       end
     end
   end
-
-  describe :converter do
-    it "should return the converted value" do
-      CLIENT.get("/double/2").body.should eq "4"
-    end
-  end
 end

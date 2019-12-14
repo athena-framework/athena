@@ -7,9 +7,9 @@ class Athena::Routing::RouteResolver
         {% class_actions = klass.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
         {% class_ann = klass.annotation(Athena::Routing::ControllerOptions) %}
 
-        # Raise compile time exception if a route is defined as a class method.
+        # Raise compile time error if a route is defined as a class method.
         {% unless class_actions.empty? %}
-          {% raise "Routes can only be defined as instance methods.  Did you mean '#{class_actions.first.name}' within #{klass.name}?" %}
+          {% raise "Routes can only be defined as instance methods.  Did you mean '#{klass.name}##{class_actions.first.name}'?" %}
         {% end %}
 
         {% parent_prefix = "" %}
@@ -18,26 +18,10 @@ class Athena::Routing::RouteResolver
 
         # Build out the routes
         {% for m, m_idx in methods %}
-          {% raise "Route action return type must be set for '#{klass.name}##{m.name}'" if m.return_type.is_a? Nop %}
+          # Raise compile time error if the action doesn't have a return type.
+          {% raise "Route action return type must be set for '#{klass.name}##{m.name}'." if m.return_type.is_a? Nop %}
 
-          {% param_converters = m.annotations(ParamConverter) %}
-
-          {% for converter in param_converters %}
-            # Ensure each converter implements required properties and `type` implements the required methods.
-            {% if converter && converter[:converter] %}
-              {% if converter[:converter].stringify == "Exists" %}
-                {% raise "#{converter[:type]} must implement a `self.find(id)` method to use the Exists converter." unless converter[:type].resolve.class.has_method?("find") %}
-                {% raise "#{klass.name}.#{m.name} #{converter[:converter]} converter requires a `pk_type` to be defined." unless converter[:pk_type] %}
-              {% elsif converter[:converter].stringify == "RequestBody" %}
-                {% raise "#{converter[:type]} must `include CrSerializer(TYPE)` to use the RequestBody converter." unless converter[:type].resolve.class.has_method?("from_json") %}
-              {% elsif converter[:converter].stringify == "FormData" %}
-                {% raise "#{converter[:type]} must implement a `self.from_form_data(form_data : HTTP::Params) : self` method to use the FormData converter." unless converter[:type].resolve.class.has_method?("from_form_data") %}
-              {% end %}
-            {% elsif converter %}
-              {% raise "#{klass.name}.#{m.name} ParamConverter annotation is missing a required field.  Must specifiy `param`, `type`, and `converter`." %}
-            {% end %}
-          {% end %}
-
+          # Set the route_def and method based on annotation.
           {% if d = m.annotation(Get) %}
             {% method = "GET" %}
             {% route_def = d %}
@@ -52,24 +36,30 @@ class Athena::Routing::RouteResolver
             {% route_def = d %}
           {% end %}
 
-          # Set and normalize the prefix if one exists
+          # Set and normalize the prefix if one exists.
           {% prefix = class_ann && class_ann[:prefix] ? parent_prefix + (class_ann[:prefix].starts_with?('/') ? class_ann[:prefix] : "/" + class_ann[:prefix]) : parent_prefix %}
 
-          # Normalize the path
+          # Normalize the path.
           {% path = (route_def[:path].starts_with?('/') ? route_def[:path] : "/" + route_def[:path]) %}
 
-          # Build out full path
+          # Build out full path.
           {% full_path = "/" + method + prefix + path %}
           {% arg_types = m.args.map(&.restriction) %}
 
-          # Build out params and converters array
+          # Build out params and converters array.
           %params{m_idx} = [] of ART::Parameters::Param
           %converters{m_idx} = [] of ART::Converters::ParamConverterConfiguration
 
           {% for arg in m.args %}
+            # Raise compile time error if an action argument doesn't have a type restriction.
+            {% raise "Route action argument '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction." if arg.restriction.is_a? Nop %}
+
             {% if arg.restriction.resolve == HTTP::Request %}
               %params{m_idx} << ART::Parameters::RequestParameter(HTTP::Request).new {{arg.name.stringify}}
-            {% elsif qp = m.annotations(ART::QueryParam).find { |query_param| (name = query_param[:name]) ? name == arg.name.stringify : raise "QueryParam annotation on #{klass}##{m.name} is missing required field: 'name'." } %}
+
+            # Look for any query parameter annotation defined on `arg`.
+            # Raise compile time error if there is an annotation but no action argument.
+            {% elsif qp = m.annotations(ART::QueryParam).find { |query_param| (name = query_param[:name]) ? name == arg.name.stringify : raise "Route action '#{klass.name}##{m.name}'s QueryParam annotation is missing required field: 'name'." } %}
               {% if converter = qp[:converter] %}
                 {% raise "Converter is required" if false %}
                 {% raise "arg name is required" if false %}
@@ -89,6 +79,10 @@ class Athena::Routing::RouteResolver
               %params{m_idx} << ART::Parameters::PathParameter({{arg.restriction}}).new name: {{arg.name.stringify}}, default: {{arg.default_value.is_a?(Nop) ? nil : arg.default_value}}
             {% end %}
           {% end %}
+
+          # Raise compile time error if the number of action arguments != (queryParams + path arguments + if 1 if there is an HTTP::Request argument).
+          {% arg_count = full_path.count(':') + m.annotations(ART::QueryParam).size + (m.args.any? &.restriction.resolve.==(HTTP::Request) ? 1 : 0) %}
+          {% raise "Route action '#{klass.name}##{m.name}' doesn't have the correct number of arguments.  Expected #{arg_count} but got #{m.args.size}." if m.args.size != arg_count %}
 
           # Add the route to the router
           @routes.add(

@@ -26,6 +26,6 @@ module Athena::Routing::Converters
 
   # Base struct of Param Converters.
   abstract struct Converter(T)
-    abstract def convert(value : String)
+    abstract def convert(value : String) : T
   end
 end
