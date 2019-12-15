@@ -2,8 +2,6 @@ class Athena::Routing::RouteResolver
   @routes : Amber::Router::RouteSet(Action) = Amber::Router::RouteSet(Action).new
 
   def initialize
-    pp "new resolver"
-
     {% for klass, c_idx in Athena::Routing::Controller.all_subclasses.reject &.abstract? %}
         {% methods = klass.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
         {% class_actions = klass.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}

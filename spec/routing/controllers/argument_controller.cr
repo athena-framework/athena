@@ -19,7 +19,7 @@ class ArgumentController < ART::Controller
 
   @[ART::QueryParam(name: "id")]
   @[ART::Get(path: "/not-nil-default")]
-  def argument_not_nil_default(id : Int32 = 19) : Int32
+  def argument_not_nil_default(id : Int32 = 24) : Int32
     id
   end
 

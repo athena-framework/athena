@@ -34,8 +34,6 @@ struct Athena::Routing::RouteHandler < AED::Listener
     exception.to_json ctx.response
 
     response.close
-
-    raise exception
   end
 
   private def handle_raw(ctx : HTTP::Server::Context) : Nil

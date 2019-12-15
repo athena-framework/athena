@@ -22,7 +22,7 @@ describe ART::ArgumentResolver do
       describe "with default" do
         it "should use the default" do
           response = CLIENT.get("/not-nil-default")
-          response.body.should eq "19"
+          response.body.should eq "24"
         end
       end
     end

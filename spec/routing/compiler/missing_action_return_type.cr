@@ -1,6 +1,6 @@
 require "../routing_spec_helper"
 
-struct CompileController < Athena::Routing::Controller
+class CompileController < Athena::Routing::Controller
   @[ART::Get(path: "/")]
   def action
     123
