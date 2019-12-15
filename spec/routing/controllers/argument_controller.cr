@@ -1,6 +1,6 @@
 require "../routing_spec_helper"
 
-struct ArgumentController < ART::Controller
+class ArgumentController < ART::Controller
   @[ART::Get(path: "/request")]
   def get_request(request : HTTP::Request) : String
     request.path

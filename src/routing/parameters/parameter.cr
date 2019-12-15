@@ -2,6 +2,19 @@ require "./parameter"
 
 module Athena::Routing::Parameters
   abstract struct Param
+    def extract(request : HTTP::Request) : String?; end
+
+    def required?; end
+
+    def nilable?; end
+
+    def default; end
+
+    def parameter_type; end
+
+    def name; end
+
+    def type; end
   end
 
   abstract struct Parameter(T) < Param

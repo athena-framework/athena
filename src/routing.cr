@@ -33,10 +33,10 @@ module Athena::Routing
 
   protected class_getter route_resolver : ART::RouteResolver { ART::RouteResolver.new }
 
-  # Parent struct for all controllers.
+  # Parent class for all controllers.
   #
-  # Can be inheirted from to add utility methods useful in all controllers.
-  abstract struct Controller
+  # Can be inherited from to add utility methods useful in all controllers.
+  abstract class Controller
     {% begin %}
       {% for method in ["GET", "POST", "PUT", "DELETE"] %}
         # Helper DSL macro for creating `{{method.id}}` actions.
@@ -49,7 +49,7 @@ module Athena::Routing
         # ### Example
         #
         # ```
-        # struct ExampleController < ART::Controller
+        # class ExampleController < ART::Controller
         #  {{method.downcase.id}} "user/:id", args: {id : Int32}, return_type: String, constraints: {"id" => /\d+/} do
         #    "Got user #{id}"
         #  end

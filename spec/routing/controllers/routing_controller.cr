@@ -1,6 +1,6 @@
 require "../routing_spec_helper"
 
-struct RoutingController < ART::Controller
+class RoutingController < ART::Controller
   include Athena::DI::Injectable
 
   def initialize(@request_store : Athena::Routing::RequestStore); end

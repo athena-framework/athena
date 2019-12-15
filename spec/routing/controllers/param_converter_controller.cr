@@ -6,7 +6,7 @@ struct DoubleConverter(T) < ART::Converters::Converter(T)
   end
 end
 
-struct ParamConverterController < ART::Controller
+class ParamConverterController < ART::Controller
   @[ART::ParamConverter("num", converter: DoubleConverter(Int32))]
   @[ART::Get(path: "/double/:num")]
   def double(num : Int32) : Int32
