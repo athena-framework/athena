@@ -11,7 +11,7 @@ struct ArgumentController < ART::Controller
     id
   end
 
-  @[ART::QueryParam(name: "id")]
+  @[ART::QueryParam("id")]
   @[ART::Get(path: "/not-nil-missing")]
   def argument_not_nil_missing(id : Int32) : Int32
     id

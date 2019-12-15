@@ -2,6 +2,8 @@ class Athena::Routing::RouteResolver
   @routes : Amber::Router::RouteSet(Action) = Amber::Router::RouteSet(Action).new
 
   def initialize
+    pp "new resolver"
+
     {% for klass, c_idx in Athena::Routing::Controller.all_subclasses.reject &.abstract? %}
         {% methods = klass.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
         {% class_actions = klass.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
@@ -39,8 +41,14 @@ class Athena::Routing::RouteResolver
           # Set and normalize the prefix if one exists.
           {% prefix = class_ann && class_ann[:prefix] ? parent_prefix + (class_ann[:prefix].starts_with?('/') ? class_ann[:prefix] : "/" + class_ann[:prefix]) : parent_prefix %}
 
+          # Grab the path off the annotaiton
+          {% path = route_def[0] || route_def[:path] %}
+
+          # Raise compile time error if the path is not provided
+          {% raise "Route action '#{klass.name}##{m.name}' is annotated as a '#{method.id}' route but is mising the path." unless path %}
+
           # Normalize the path.
-          {% path = (route_def[:path].starts_with?('/') ? route_def[:path] : "/" + route_def[:path]) %}
+          {% path = path.starts_with?('/') ? path : "/" + path %}
 
           # Build out full path.
           {% full_path = "/" + method + prefix + path %}
@@ -59,17 +67,18 @@ class Athena::Routing::RouteResolver
 
             # Look for any query parameter annotation defined on `arg`.
             # Raise compile time error if there is an annotation but no action argument.
-            {% elsif qp = m.annotations(ART::QueryParam).find { |query_param| (name = query_param[:name]) ? name == arg.name.stringify : raise "Route action '#{klass.name}##{m.name}'s QueryParam annotation is missing required field: 'name'." } %}
+            {% elsif qp = m.annotations(ART::QueryParam).find { |query_param| (name = query_param[0] || query_param[:name]) ? name == arg.name.stringify : raise "Route action '#{klass.name}##{m.name}'s QueryParam annotation is missing the argument's name.  It was not provided as the first positional argumnet nor via the 'name' field." } %}
               {% if converter = qp[:converter] %}
                 %converters{m_idx} << ART::Converters::ParamConverter({{arg.restriction}}).new {{qp[:name]}}, Proc(ART::Converters::Converter({{arg.restriction}})).new { {{converter}}.new }
               {% end %}
 
-              %params{m_idx} << ART::Parameters::QueryParameter({{arg.restriction}}).new name: {{qp[:name]}}, default: {{arg.default_value.is_a?(Nop) ? nil : arg.default_value}}
+              %params{m_idx} << ART::Parameters::QueryParameter({{arg.restriction}}).new name: {{name}}, default: {{arg.default_value.is_a?(Nop) ? nil : arg.default_value}}
             {% else %}
-              {% ca = m.annotations(ART::ParamConverter).find { |pc| pc[0] == arg.name.stringify } %}
+              {% converter_ann = m.annotations(ART::ParamConverter).find { |pc| (name = pc[0] || pc[:name]) ? name == arg.name.stringify : raise "Route action '#{klass.name}##{m.name}'s ParamConverter annotation is missing the argument's name.  It was not provided as the first positional argumnet nor via the 'name' field." } %}
 
-              {% if ca %}
-                %converters{m_idx} << ART::Converters::ParamConverter({{arg.restriction}}).new {{ca[0]}}, Proc(ART::Converters::Converter({{arg.restriction}})).new { {{ca[:converter]}}.new }
+              {% if converter_ann %}
+                {% name = converter_ann[0] || converter_ann[:name] %}
+                %converters{m_idx} << ART::Converters::ParamConverter({{arg.restriction}}).new {{name}}, Proc(ART::Converters::Converter({{arg.restriction}})).new { {{converter_ann[:converter]}}.new }
               {% end %}
 
               %params{m_idx} << ART::Parameters::PathParameter({{arg.restriction}}).new name: {{arg.name.stringify}}, default: {{arg.default_value.is_a?(Nop) ? nil : arg.default_value}}

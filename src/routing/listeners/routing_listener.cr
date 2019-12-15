@@ -3,13 +3,9 @@
 struct Athena::Routing::Listeners::Routing < AED::Listener
   include ADI::Service
 
-  @route_resolver : ART::RouteResolver
-
   def initialize
     # TODO: Refactor logger to be service based
     # and optionally inject a logger instance
-
-    @route_resolver = ART.route_resolver
   end
 
   def self.subscribed_events : AED::SubscribedEvents
@@ -19,7 +15,9 @@ struct Athena::Routing::Listeners::Routing < AED::Listener
   end
 
   def call(event : ART::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
-    route = @route_resolver.resolve event.request
+    # The route_resolver must be called here for controller DI to work.
+    # Other option would be to new up a route resolver for every request. :shrug:
+    route = ART.route_resolver.resolve event.request
 
     event.request.route = route.payload.not_nil!.dup
     event.request.path_params = route.params.not_nil!
