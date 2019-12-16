@@ -17,7 +17,10 @@ def run_server : Nil
     sleep 0.5
     example.run
   ensure
-    CLIENT.close # Close the client so each spec file gets its own connection.
     Athena::Routing.stop
+  end
+
+  before_each do
+    CLIENT.close # Close the client so each spec file gets its own connection.
   end
 end

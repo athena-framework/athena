@@ -25,5 +25,13 @@ describe Athena::Routing do
     it "when action does not have a path" do
       assert_error "routing/compiler/missing_path.cr", "Route action 'CompileController#action' is annotated as a 'GET' route but is mising the path."
     end
+
+    it "when a parent type has the prefix annotation but is missing a value" do
+      assert_error "routing/compiler/parent_missing_prefix.cr", "Controller 'PrefixController' has the `Prefix` annotation but is missing the prefix."
+    end
+
+    it "when a type has the prefix annotation but is missing a value" do
+      assert_error "routing/compiler/missing_prefix.cr", "Controller 'CompileController' has the `Prefix` annotation but is missing the prefix."
+    end
   end
 end

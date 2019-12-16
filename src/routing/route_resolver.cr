@@ -5,7 +5,6 @@ class Athena::Routing::RouteResolver
     {% for klass, c_idx in Athena::Routing::Controller.all_subclasses.reject &.abstract? %}
         {% methods = klass.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
         {% class_actions = klass.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
-        {% class_ann = klass.annotation(Athena::Routing::ControllerOptions) %}
 
         # Raise compile time error if a route is defined as a class method.
         {% unless class_actions.empty? %}
@@ -13,6 +12,17 @@ class Athena::Routing::RouteResolver
         {% end %}
 
         {% parent_prefix = "" %}
+
+        # Add prefixes from parent classes.
+        {% for parent in klass.ancestors %}
+          {% if (prefix_ann = parent.annotation(Prefix)) %}
+            {% if (name = prefix_ann[0] || prefix_ann[:prefix]) %}
+              {% parent_prefix = (name.starts_with?('/') ? name : "/" + name) + parent_prefix %}
+            {% else %}
+             {% raise "Controller '#{parent.name}' has the `Prefix` annotation but is missing the prefix." %}
+            {% end %}
+          {% end %}
+        {% end %}
 
         %instance{c_idx} = {{klass.id}}.new
 
@@ -36,10 +46,18 @@ class Athena::Routing::RouteResolver
             {% route_def = d %}
           {% end %}
 
-          # Set and normalize the prefix if one exists.
-          {% prefix = class_ann && class_ann[:prefix] ? parent_prefix + (class_ann[:prefix].starts_with?('/') ? class_ann[:prefix] : "/" + class_ann[:prefix]) : parent_prefix %}
+          # Set and normalize the final prefix if any.
+          {% if prefix_ann = klass.annotation(Prefix) %}
+            {% if (name = prefix_ann[0] || prefix_ann[:prefix]) %}
+              {% prefix = parent_prefix + (name.starts_with?('/') ? name : "/" + name) %}
+            {% else %}
+             {% raise "Controller '#{klass.name}' has the `Prefix` annotation but is missing the prefix." %}
+            {% end %}
+          {% else %}
+            {% prefix = parent_prefix %}
+          {% end %}
 
-          # Grab the path off the annotaiton
+          # Grab the path off the annotation.
           {% path = route_def[0] || route_def[:path] %}
 
           # Raise compile time error if the path is not provided
