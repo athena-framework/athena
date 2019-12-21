@@ -15,6 +15,7 @@ struct Athena::Routing::Listeners::Routing < AED::Listener
   end
 
   def call(event : ART::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
+    pp "resolving #{event.request.path}"
     # The route_resolver must be called here for controller DI to work.
     # Other option would be to new up a route resolver for every request. :shrug:
     route = ART.route_resolver.resolve event.request

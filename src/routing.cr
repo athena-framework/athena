@@ -173,3 +173,97 @@ module Athena::Routing
     @@server.not_nil!.listen
   end
 end
+
+# class User
+#   include JSON::Serializable
+
+#   def self.exists?(id : Int32)
+#     id < 10
+#   end
+
+#   def initialize(@age : Int32, @alive : Bool); end
+# end
+
+# class SomeKlass
+#   include JSON::Serializable
+
+#   def initialize(@val : String); end
+# end
+
+# struct UserConverter(T) < ART::Converters::Converter(T)
+#   include ADI::Injectable
+
+#   @request_store : ART::RequestStore
+
+#   def initialize(@request_store : ART::RequestStore); end
+
+#   def convert(value : String)
+#     pp @request_store.request.try &.path
+#     User.new value.to_i, T.exists? value.to_i
+#   end
+# end
+
+# struct FooConverter(T) < ART::Converters::Converter(T)
+#   def convert(value : String)
+#     SomeKlass.new value
+#   end
+# end
+
+abstract class Foo < ART::Controller
+end
+
+class TestController < Foo
+  @[ART::Get(path: "/me/")]
+  def get_me() : String
+    # raise ART::Exceptions::Unauthorized.new "Bearer", "Invalid token"
+    # raise ArgumentError.new "foo"
+
+    "Jim"
+  end
+end
+
+#   @[ART::Get(path: "/you")]
+#   @[ART::QueryParam(name: "user", converter: UserConverter(User))]
+#   def get_you(user : User) : User
+#     user
+#   end
+
+#   @[ART::Get(path: "/user/:user")]
+#   @[ART::ParamConverter("user", converter: UserConverter(User))]
+#   def get_user(user : User) : User
+#     user
+#   end
+
+#   @[ART::Get(path: "/no_params")]
+#   def no_params : Nil
+#   end
+
+#   get "macro/" do
+#     "Got index"
+#   end
+
+# get "hello-world", return_type: String do
+#   "Hello world"
+# end
+
+#   @[ART::ParamConverter("val", converter: FooConverter(SomeKlass))]
+#   get "foo/:val", args: {val : SomeKlass}, return_type: SomeKlass do
+#     val
+#   end
+
+#   @[ART::QueryParam(name: "foo")]
+#   get "macro/:id", args: {id : Int32, foo : Bool}, return_type: String, constraints: {"id" => /\d+/} do
+#     "Got user #{id} - #{foo}"
+#   end
+
+#   get "macro/:id", args: {id : Int32}, return_type: String do
+#     "Got user #{id}"
+#   end
+
+# @[ART::Get(path: "/not-nil/:id")]
+# def argument_not_nil(id) : Int32
+#   id
+# end
+# end
+
+ART.run
