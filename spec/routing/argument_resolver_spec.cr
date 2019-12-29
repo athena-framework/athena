@@ -3,9 +3,17 @@ require "./routing_spec_helper"
 describe ART::ArgumentResolver do
   run_server
 
-  describe "with a request paramter" do
+  describe "with a request parameter" do
     it "should return the current request's path" do
       CLIENT.get("/request").body.should eq %("/request")
+    end
+  end
+
+  describe "with a request parameter" do
+    it "should return the current request's path" do
+      response = CLIENT.get("/response")
+      response.body.should eq %("HTTP/1.1")
+      response.status.should eq HTTP::Status::IM_A_TEAPOT
     end
   end
 

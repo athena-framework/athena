@@ -3,6 +3,7 @@ require "json"
 
 require "amber_router"
 require "event-dispatcher"
+require "config"
 
 require "./common/types"
 
@@ -56,7 +57,7 @@ module Athena::Routing
         # end
         # ```
         macro {{method.downcase.id}}(path, **named_args, &)
-          @[ART::Get(path: \{{path}}, constraints: \{{named_args[:constraints]}})]
+          @[ART::{{method.capitalize.id}}(path: \{{path}}, constraints: \{{named_args[:constraints]}})]
           def {{method.downcase.id}}_\{{path.gsub(/\W/, "_").id}}(\{{args = named_args[:args] ? args.splat : "".id}}) : \{{named_args[:return_type] || Nil}}
             \{{yield}}
           end
@@ -71,7 +72,10 @@ module Athena::Routing
     # The `ART::Controller` that handles `self` by default.
     getter controller : ART::Controller.class
 
-    # A `Proc` representing the controller action that handles `HTTP::Request` on `self`.
+    # A `Proc(Proc)` representing the controller action that handles `HTTP::Request` on `self`.
+    #
+    # The outer proc instantiates the controller instance and creates a proc with the action.
+    # This ensures each request gets its own instance of the controller to prevent leaking state.
     getter action : ActionType
 
     # The arguments that will be passed the `#action`.
@@ -128,9 +132,9 @@ module Athena::Routing
     # Executes `#action` with the given `#arguments`.
     def execute : ReturnType
       {% if ArgTypes.size > 0 %}
-        @action.call *@arguments.not_nil!
+        @action.call.call *@arguments.not_nil!
       {% else %}
-        @action.call
+        @action.call.call
       {% end %}
     end
   end

@@ -45,9 +45,7 @@ struct Athena::Routing::RouteHandler < AED::Listener
     @event_dispatcher.dispatch request_event
 
     # Return the event early if one was set.
-    if response = request_event.response
-      return finish_request response
-    end
+    return finish_request ctx if request_event.request_finished?
 
     # Resolve and set the arguments from the request
     ctx.request.route.set_arguments @argument_resolver.resolve ctx
@@ -68,19 +66,19 @@ struct Athena::Routing::RouteHandler < AED::Listener
 
     ctx.response.content_type = "application/json"
 
-    finish_request ctx.response
+    finish_request ctx
 
     # Emit the terminate event
     @event_dispatcher.dispatch ART::Events::Terminate.new ctx.request, ctx.response
   end
 
-  private def finish_request(response : HTTP::Server::Response) : Nil
+  private def finish_request(ctx : HTTP::Server::Context) : Nil
     # Emit the response event
-    @event_dispatcher.dispatch ART::Events::Response.new response
+    @event_dispatcher.dispatch ART::Events::Response.new ctx
 
     @request_store.request = nil
 
     # Close the response
-    response.close
+    ctx.response.close
   end
 end

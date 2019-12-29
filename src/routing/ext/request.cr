@@ -6,4 +6,7 @@ class HTTP::Request
 
   # A hash of path params parsed from the requests's path.
   property! path_params : Hash(String, String)
+
+  # Allows storing simple values within the context of a request.
+  property attributes = Hash(String, Bool | Int32 | String).new
 end

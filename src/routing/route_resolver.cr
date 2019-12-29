@@ -24,8 +24,6 @@ class Athena::Routing::RouteResolver
           {% end %}
         {% end %}
 
-        %instance{c_idx} = {{klass.id}}.new
-
         # Build out the routes
         {% for m, m_idx in methods %}
           # Raise compile time error if the action doesn't have a return type.
@@ -80,7 +78,8 @@ class Athena::Routing::RouteResolver
 
             {% if arg.restriction.resolve == HTTP::Request %}
               %params{m_idx} << ART::Parameters::RequestParameter(HTTP::Request).new {{arg.name.stringify}}
-
+            {% elsif arg.restriction.resolve == HTTP::Server::Response %}
+              %params{m_idx} << ART::Parameters::ResponseParameter(HTTP::Server::Response).new {{arg.name.stringify}}
             # Look for any query parameter annotation defined on `arg`.
             # Raise compile time error if there is an annotation but no action argument.
             {% elsif qp = m.annotations(ART::QueryParam).find { |query_param| (name = query_param[0] || query_param[:name]) ? name == arg.name.stringify : raise "Route action '#{klass.name}##{m.name}'s QueryParam annotation is missing the argument's name.  It was not provided as the first positional argumnet nor via the 'name' field." } %}
@@ -102,17 +101,17 @@ class Athena::Routing::RouteResolver
           {% end %}
 
           # Raise compile time error if the number of action arguments != (queryParams + path arguments + if 1 if there is an HTTP::Request argument).
-          {% arg_count = full_path.count(':') + m.annotations(ART::QueryParam).size + (m.args.any? &.restriction.resolve.==(HTTP::Request) ? 1 : 0) %}
+          {% arg_count = full_path.count(':') + m.annotations(ART::QueryParam).size + (m.args.any? &.restriction.resolve.==(HTTP::Request) ? 1 : 0) + (m.args.any? &.restriction.resolve.==(HTTP::Server::Response) ? 1 : 0) %}
           {% raise "Route action '#{klass.name}##{m.name}' doesn't have the correct number of arguments.  Expected #{arg_count} but got #{m.args.size}." if m.args.size != arg_count %}
 
           # Add the route to the router
           @routes.add(
             {{full_path}},
             # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
-            Route(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}}), {{m.return_type}}, {{arg_types.splat}}).new(
+            Route(Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
               {{klass.id}},
               ({{m.args.map &.name.stringify}} of String),
-              ->%instance{c_idx}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %},
+              ->{ %instance = {{klass.id}}.new; ->%instance.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
               %params{m_idx},
               %converters{m_idx},
             ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}

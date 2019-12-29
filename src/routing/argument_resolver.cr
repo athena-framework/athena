@@ -7,6 +7,7 @@ struct Athena::Routing::ArgumentResolver
 
     route.parameters.map do |param|
       next ctx.request if param.is_a? ART::Parameters::RequestParameter
+      next ctx.response if param.is_a? ART::Parameters::ResponseParameter
 
       value = param.extract ctx.request
 
