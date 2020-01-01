@@ -1,4 +1,4 @@
-@[ADI::Register(tags: ["athena.event_dispatcher.listener"])]
+@[ADI::Register("@configuration_resolver", tags: ["athena.event_dispatcher.listener"])]
 struct Athena::Routing::Listeners::Cors < AED::Listener
   include ADI::Service
 
@@ -19,43 +19,45 @@ struct Athena::Routing::Listeners::Cors < AED::Listener
     }
   end
 
+  def initialize(@configuration_resolver : ACF::ConfigurationResolver); end
+
   def call(event : ART::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
     request = event.request
 
     # Return early if there is no configuration.
-    return unless config = ACF.config.routing.athena_cors
+    return unless config = @configuration_resolver.resolve(ART::Config::Cors)
 
     # Return early if not a CORS request.
-    # TODO: optimize this by also checking of origin matches the request's host.
+    # TODO: optimize this by also checking if origin matches the request's host.
     return unless request.headers.has_key? "origin"
 
     # If the request is a preflight, return the proper response.
     if request.method == "OPTIONS" && request.headers.has_key? "access-control-request-method"
-      set_preflight_response event.request, event.response
+      set_preflight_response config, event.request, event.response
 
       return event.finish_request
     end
 
-    return unless check_origin event.request
+    return unless check_origin config, event.request
 
     event.request.attributes[ALLOW_SET_ORIGIN] = true
   end
 
   def call(event : ART::Events::Response, dispatcher : AED::EventDispatcherInterface) : Nil
+    # Return early if the request shouldn't have CORS set.
     return unless event.request.attributes[ALLOW_SET_ORIGIN]?
 
     # Return early if there is no configuration.
-    return unless config = ACF.config.routing.athena_cors
+    return unless config = @configuration_resolver.resolve(ART::Config::Cors)
 
+    # TODO: Add a configuration option to allow setting this explicitly
     event.response.headers["access-control-allow-origin"] = event.request.headers["origin"]
     event.response.headers["access-control-allow-credentials"] = "true" if config.allow_credentials
     event.response.headers["access-control-expose-headers"] = config.expose_headers.join(", ") unless config.expose_headers.empty?
   end
 
   # Configures the given *response* for CORS preflight
-  private def set_preflight_response(request : HTTP::Request, response : HTTP::Server::Response) : Nil
-    config = ACF.config.routing.athena_cors.not_nil!
-
+  private def set_preflight_response(config : ART::Config::Cors, request : HTTP::Request, response : HTTP::Server::Response) : Nil
     response.headers["vary"] = "origin"
 
     response.headers["access-control-allow-credentials"] = "true" if config.allow_credentials
@@ -70,7 +72,7 @@ struct Athena::Routing::Listeners::Cors < AED::Listener
       end
     end
 
-    unless check_origin request
+    unless check_origin config, request
       request.headers.delete "access-control-allow-origin"
       return
     end
@@ -93,9 +95,7 @@ struct Athena::Routing::Listeners::Cors < AED::Listener
     end
   end
 
-  private def check_origin(request : HTTP::Request) : Bool
-    config = ACF.config.routing.athena_cors.not_nil!
-
+  private def check_origin(config : ART::Config::Cors, request : HTTP::Request) : Bool
     return true if config.allow_origin.includes?(WILDCARD)
 
     # Use case equality in case an origin is a regex
