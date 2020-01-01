@@ -39,6 +39,7 @@ struct Athena::Routing::Config::Cors
 end
 
 struct Athena::Config::ConfigurationResolver
+  # :inherit:
   def resolve(_type : Athena::Routing::Config::Cors.class) : ART::Config::Cors?
     base.routing.cors
   end

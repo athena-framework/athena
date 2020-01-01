@@ -10,6 +10,18 @@ puts
 
 CLIENT = HTTP::Client.new "localhost", 3000
 
+def new_context(*, request : HTTP::Request = new_request, response : HTTP::Server::Response = new_response) : HTTP::Server::Context
+  HTTP::Server::Context.new request, response
+end
+
+def new_request(*, path : String = "test", method : String = "GET") : HTTP::Request
+  HTTP::Request.new method, path
+end
+
+def new_response(*, io : IO = IO::Memory.new) : HTTP::Server::Response
+  HTTP::Server::Response.new io
+end
+
 def run_server : Nil
   around_all do |example|
     ENV["ATHENA_ENV"] = "test"

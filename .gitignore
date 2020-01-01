@@ -1,6 +1,7 @@
 *.dwarf
 /.shards/
 /bin/
+/docs/
 /doc/
 /lib/
 /logs/

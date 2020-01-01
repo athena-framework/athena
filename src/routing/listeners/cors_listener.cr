@@ -2,7 +2,7 @@
 struct Athena::Routing::Listeners::Cors < AED::Listener
   include ADI::Service
 
-  private ALLOW_SET_ORIGIN = "athena.routing.cors.allow_set_origin"
+  ALLOW_SET_ORIGIN = "athena.routing.cors.allow_set_origin"
   private WILDCARD         = "*"
   private SIMPLE_HEADERS   = {
     "accept",
@@ -19,7 +19,7 @@ struct Athena::Routing::Listeners::Cors < AED::Listener
     }
   end
 
-  def initialize(@configuration_resolver : ACF::ConfigurationResolver); end
+  def initialize(@configuration_resolver : ACF::ConfigurationResolverInterface); end
 
   def call(event : ART::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
     request = event.request
@@ -73,15 +73,13 @@ struct Athena::Routing::Listeners::Cors < AED::Listener
     end
 
     unless check_origin config, request
-      request.headers.delete "access-control-allow-origin"
-      return
+      return request.headers.delete "access-control-allow-origin"
     end
 
     response.headers["access-control-allow-origin"] = request.headers["origin"]
 
     unless config.allow_methods.includes? request.headers["access-control-request-method"].upcase
-      response.status = :method_not_allowed
-      return
+      return response.status = :method_not_allowed
     end
 
     headers = request.headers["access-control-request-headers"].split(/,\ ?/)
