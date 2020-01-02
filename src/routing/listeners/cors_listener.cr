@@ -98,6 +98,6 @@ struct Athena::Routing::Listeners::Cors < AED::Listener
 
     # Use case equality in case an origin is a regex
     # TODO: Allow regex when custom yaml tags are allowed
-    return config.allow_origin.any? &.===(request.headers["origin"])
+    config.allow_origin.any? &.===(request.headers["origin"])
   end
 end
