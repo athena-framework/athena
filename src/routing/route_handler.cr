@@ -76,7 +76,7 @@ struct Athena::Routing::RouteHandler
     # Emit the response event
     @event_dispatcher.dispatch ART::Events::Response.new ctx
 
-    @request_store.request = nil
+    @request_store.reset
 
     # Close the response
     ctx.response.close

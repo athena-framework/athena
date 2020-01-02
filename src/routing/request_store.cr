@@ -1,11 +1,31 @@
 @[Athena::DI::Register]
 # Stores the current `HTTP::Request` object.
+#
+# Can be injected to access the request from a non controller context.
 class Athena::Routing::RequestStore
   include Athena::DI::Service
 
-  # Returns the currently executing request.  The request may be `nil`
-  # if the request is finished, or `self` was injected into
-  # something that doesn't directly execute within the context
-  # of a request.  Use the nilable getter `#request?`, if that is a possibility.
-  property! request : HTTP::Request
+  @request : HTTP::Request? = nil
+
+  # Resets the store, removing the reference to the request.
+  #
+  # Used internally after the request has been returned.
+  def reset : Nil
+    @request = nil
+  end
+
+  # Returns the currently executing request.
+  #
+  # Use `#request?` if it's possible there is no request.
+  def request : HTTP::Request
+    @request.not_nil!
+  end
+
+  # Returns the currently executing request if it exists, otherwise `nil`.
+  def request? : HTTP::Request?
+    @request
+  end
+
+  # Sets the currently executing request.
+  def request=(@request : HTTP::Request); end
 end
