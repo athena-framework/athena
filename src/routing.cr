@@ -179,13 +179,24 @@ module Athena::Routing
   end
 end
 
-# abstract class Foo < ART::Controller
+# @[ADI::Register]
+# class Store
+#   include ADI::Service
+
+#   property uuid : String = "UUID"
 # end
 
-# class TestController < Foo
-#   get "hello-world", return_type: String do
-#     "Hello world"
-#   end
+# class MyNonService
+#   include ADI::Injectable
+
+#   getter store : Store
+#   getter id : String
+
+#   def initialize(@store : Store, @id : String); end
 # end
 
-# ART.run
+# # The store ivar would be auto injected,
+# # while the id ivar is supplied when the class is newd up.
+# service = MyNonService.new(id: "FOO")
+# service.store.uuid # => "UUID"
+# service.id         # => "FOO"

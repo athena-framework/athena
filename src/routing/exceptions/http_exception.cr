@@ -1,3 +1,4 @@
+# :nodoc:
 class ::Exception
   def to_json(io : IO)
     {code: 500, message: "Internal server error"}.to_json io

@@ -10,4 +10,10 @@ describe Athena::Routing do
     end
     CLIENT.get("/get/safe?foo").body.should eq %("safe")
   end
+
+  it "404s if a route doesn't exist" do
+    response = CLIENT.get("/fake/route")
+    response.status.should eq HTTP::Status::NOT_FOUND
+    response.body.should eq %({"code":404,"message":"No route found for 'GET /fake/route'"})
+  end
 end

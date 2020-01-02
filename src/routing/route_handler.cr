@@ -1,7 +1,7 @@
 # The entrypoint into Athena::Routing.
 #
 # Emits events that handle a given request.
-struct Athena::Routing::RouteHandler < AED::Listener
+struct Athena::Routing::RouteHandler
   include ADI::Injectable
 
   def initialize(
