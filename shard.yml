@@ -1,16 +1,20 @@
 name: athena
 
-description: |
-  A web framework comprised of reusable, independent components
-
 version: 0.8.0
-
-authors:
-  - Blacksmoke16 <Blacksmoke16@eve.tools>
 
 crystal: 0.32.0
 
 license: MIT
+
+repository: https://github.com/blacksmoke16/athena
+
+documentation: https://blacksmoke16.github.io/athena
+
+description: |
+  A web framework comprised of reusable, independent components.
+
+authors:
+  - Blacksmoke16 <Blacksmoke16@eve.tools>
 
 dependencies:
   event-dispatcher:
@@ -19,6 +23,9 @@ dependencies:
   athena-config:
     github: athena-framework/config
     branch: develop
+  athena-di:
+    github: athena-framework/di
+    branch: develop
   amber_router:
     github: amberframework/amber-router
     version: ~> 0.3.0
@@ -26,4 +33,4 @@ dependencies:
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
-    version: ~> 0.10.0
+    version: ~> 0.11.0
