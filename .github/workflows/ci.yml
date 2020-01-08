@@ -34,6 +34,8 @@ jobs:
       image: crystallang/crystal
     steps:
       - uses: actions/checkout@v1
+      - name: Install Dependencies
+        run: shards install
       - name: Specs
         run: crystal spec --order random --error-on-warnings
   test_nightly:
@@ -42,5 +44,7 @@ jobs:
       image: crystallang/crystal:nightly
     steps:
       - uses: actions/checkout@v1
+      - name: Install Dependencies
+        run: shards install
       - name: Specs
         run: crystal spec --order random --error-on-warnings
