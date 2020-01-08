@@ -35,6 +35,10 @@ class RoutingController < ART::Controller
     "PUT"
   end
 
+  patch "/macro" do
+    "PATCH"
+  end
+
   delete "/macro" do
     "DELETE"
   end

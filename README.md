@@ -18,7 +18,7 @@ dependencies:
 
 ## Documentation
 
-Everything is documented in the [API Docs](https://athena-framework.github.io/config/Athena/Routing.html).
+Everything is documented in the [API Docs](https://blacksmoke16.github.io/athena).
 
 ## Contributing
 

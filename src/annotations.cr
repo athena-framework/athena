@@ -32,6 +32,16 @@ module Athena::Routing
   # ```
   annotation Put; end
 
+  # Defines a PATCH endpoint.
+  # ## Fields
+  # * path : `String` - The path for the endpoint.
+  #
+  # ## Example
+  # ```
+  # @[Athena::Routing::Patch(path: "/users")]
+  # ```
+  annotation Patch; end
+
   # Defines a DELETE endpoint.
   # ## Fields
   # * path : `String` - The path for the endpoint.

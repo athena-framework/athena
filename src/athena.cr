@@ -38,7 +38,7 @@ module Athena::Routing
   # Can be inherited from to add utility methods useful in all controllers.
   abstract class Controller
     {% begin %}
-      {% for method in ["GET", "POST", "PUT", "DELETE"] %}
+      {% for method in ["GET", "POST", "PUT", "PATCH", "DELETE"] %}
         # Helper DSL macro for creating `{{method.id}}` actions.
         #
         # ### Optional Named Arguments

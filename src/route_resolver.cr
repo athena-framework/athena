@@ -3,8 +3,8 @@ class Athena::Routing::RouteResolver
 
   def initialize
     {% for klass, c_idx in Athena::Routing::Controller.all_subclasses.reject &.abstract? %}
-        {% methods = klass.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
-        {% class_actions = klass.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) } %}
+        {% methods = klass.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) || m.annotation(Patch) } %}
+        {% class_actions = klass.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) || m.annotation(Patch) } %}
 
         # Raise compile time error if a route is defined as a class method.
         {% unless class_actions.empty? %}
@@ -38,6 +38,9 @@ class Athena::Routing::RouteResolver
             {% route_def = d %}
           {% elsif d = m.annotation(Put) %}
             {% method = "PUT" %}
+            {% route_def = d %}
+          {% elsif d = m.annotation(Patch) %}
+            {% method = "PATCH" %}
             {% route_def = d %}
           {% elsif d = m.annotation(Delete) %}
             {% method = "DELETE" %}

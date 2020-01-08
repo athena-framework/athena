@@ -36,8 +36,12 @@ describe Athena::Routing do
       CLIENT.post("/macro").body.should eq %("POST")
     end
 
-    it "works with POST endpoints" do
+    it "works with PUT endpoints" do
       CLIENT.put("/macro").body.should eq %("PUT")
+    end
+
+    it "works with PATCH endpoints" do
+      CLIENT.patch("/macro").body.should eq %("PATCH")
     end
 
     it "works with DELETE endpoints" do
