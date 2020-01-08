@@ -3,7 +3,7 @@ require "json"
 
 require "amber_router"
 require "event-dispatcher"
-require "config"
+require "athena-config"
 
 require "./common/types"
 
@@ -45,7 +45,7 @@ module Athena::Routing
         #
         # ### Optional Named Arguments
         # - `args` - The arguments that this action should take.  Defaults to no arguments.
-        # - `return_type` - The return type to set for the action.  Defaults to `Nil` (204 no content) if not provided.
+        # - `return_type` - The return type to set for the action.  Defaults to `String` if not provided.
         # - `constraints` - Any constraints that should be applied to the route.
         #
         # ### Example
@@ -57,9 +57,9 @@ module Athena::Routing
         #  end
         # end
         # ```
-        macro {{method.downcase.id}}(path, **named_args, &)
+        private macro {{method.downcase.id}}(path, *args, **named_args, &)
           @[ART::{{method.capitalize.id}}(path: \{{path}}, constraints: \{{named_args[:constraints]}})]
-          def {{method.downcase.id}}_\{{path.gsub(/\W/, "_").id}}(\{{args = named_args[:args] ? args.splat : "".id}}) : \{{named_args[:return_type] || Nil}}
+          def {{method.downcase.id}}_\{{path.gsub(/\W/, "_").id}}(\{{*args}}) : \{{named_args[:return_type] || String}}
             \{{yield}}
           end
         end
@@ -178,25 +178,3 @@ module Athena::Routing
     @@server.not_nil!.listen
   end
 end
-
-# @[ADI::Register]
-# class Store
-#   include ADI::Service
-
-#   property uuid : String = "UUID"
-# end
-
-# class MyNonService
-#   include ADI::Injectable
-
-#   getter store : Store
-#   getter id : String
-
-#   def initialize(@store : Store, @id : String); end
-# end
-
-# # The store ivar would be auto injected,
-# # while the id ivar is supplied when the class is newd up.
-# service = MyNonService.new(id: "FOO")
-# service.store.uuid # => "UUID"
-# service.id         # => "FOO"

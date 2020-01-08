@@ -16,7 +16,7 @@ dependencies:
   event-dispatcher:
     github: athena-framework/event-dispatcher
     branch: master
-  config:
+  athena-config:
     github: athena-framework/config
     branch: develop
   amber_router:

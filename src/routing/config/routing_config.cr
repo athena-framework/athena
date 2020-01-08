@@ -1,5 +1,6 @@
 require "./cors_config"
 
+# Encompasses all configuration related to the `ART` component.
 struct Athena::Routing::Config
   include ACF::Configuration
 
@@ -10,5 +11,6 @@ struct Athena::Routing::Config
 end
 
 struct Athena::Config::Base
+  # All configuration related to the `ART` component.
   getter routing : Athena::Routing::Config
 end

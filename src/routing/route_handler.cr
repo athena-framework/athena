@@ -53,10 +53,10 @@ struct Athena::Routing::RouteHandler
     # Emit the route action arguments event
     @event_dispatcher.dispatch ART::Events::ActionArguments.new ctx.request
 
-    # # Call the action and get the response
+    # Call the action and get the response
     response = ctx.request.route.execute
 
-    # Return 204 if route's return type is nil
+    # Return 204 if route's return type is `nil`
     if ctx.request.route.return_type == Nil
       ctx.response.status = :no_content
     else

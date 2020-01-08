@@ -1,13 +1,2 @@
 ---
 routing:
-  charset: FOO
-  athena_cors:
-    allow_credentials: true
-    allow_headers:
-      - X-FOO
-    allow_origin:
-      - https://eve.tools
-      - 'https:\/\/(foo|bar).tools'
-    allow_methods:
-      - POST
-      - GET
