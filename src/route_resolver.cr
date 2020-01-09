@@ -67,8 +67,6 @@ class Athena::Routing::RouteResolver
           # Normalize the path.
           {% path = path.starts_with?('/') ? path : "/" + path %}
 
-          # Build out full path.
-          {% full_path = "/" + method + prefix + path %}
           {% arg_types = m.args.map(&.restriction) %}
 
           # Build out params and converters array.
@@ -104,12 +102,12 @@ class Athena::Routing::RouteResolver
           {% end %}
 
           # Raise compile time error if the number of action arguments != (queryParams + path arguments + if 1 if there is an HTTP::Request argument).
-          {% arg_count = full_path.count(':') + m.annotations(ART::QueryParam).size + (m.args.any? &.restriction.resolve.==(HTTP::Request) ? 1 : 0) + (m.args.any? &.restriction.resolve.==(HTTP::Server::Response) ? 1 : 0) %}
+          {% arg_count = ("/" + method + prefix + path).count(':') + m.annotations(ART::QueryParam).size + (m.args.any? &.restriction.resolve.==(HTTP::Request) ? 1 : 0) + (m.args.any? &.restriction.resolve.==(HTTP::Server::Response) ? 1 : 0) %}
           {% raise "Route action '#{klass.name}##{m.name}' doesn't have the correct number of arguments.  Expected #{arg_count} but got #{m.args.size}." if m.args.size != arg_count %}
 
           # Add the route to the router
           @routes.add(
-            {{full_path}},
+            {{"/" + method + prefix + path}},
             # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
             Route(Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
               {{klass.id}},
@@ -119,6 +117,21 @@ class Athena::Routing::RouteResolver
               %converters{m_idx},
             ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}
           )
+
+          # Also add a HEAD endpoint for GET endpoints.
+          {% if method == "GET" %}
+            @routes.add(
+              {{"/HEAD" + prefix + path}},
+              # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
+              Route(Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
+                {{klass.id}},
+                ({{m.args.map &.name.stringify}} of String),
+                ->{ %instance = {{klass.id}}.new; ->%instance.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
+                %params{m_idx},
+                %converters{m_idx},
+              ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}
+            )
+          {% end %}
         {% end %}
       {% end %}
   end

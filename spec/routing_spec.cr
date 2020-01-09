@@ -29,7 +29,17 @@ describe Athena::Routing do
     end
 
     it "works with GET endpoints" do
-      CLIENT.get("/macro").body.should eq %("GET")
+      response = CLIENT.get("/macro")
+      response.body.should eq %("GET")
+      response.status.should eq HTTP::Status::OK
+      response.headers["content-length"].should eq "5"
+    end
+
+    it "adds a HEAD route for GET requests" do
+      response = CLIENT.head("/macro")
+      response.body.should be_empty
+      response.status.should eq HTTP::Status::OK
+      response.headers["content-length"].should eq "5"
     end
 
     it "works with POST endpoints" do
