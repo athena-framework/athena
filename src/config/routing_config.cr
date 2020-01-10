@@ -12,5 +12,5 @@ end
 
 struct Athena::Config::Base
   # All configuration related to the `ART` component.
-  getter routing : Athena::Routing::Config
+  getter routing : Athena::Routing::Config = Athena::Routing::Config.new
 end

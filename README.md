@@ -1,6 +1,7 @@
 # Athena
-[![Build Status](https://img.shields.io/github/workflow/status/blacksmoke16/athena/CI)
-[![Latest release](https://img.shields.io/github/release/Blacksmoke16/athena.svg?style=flat-square)](https://github.com/Blacksmoke16/athena/releases)
+
+[![Build Status](https://img.shields.io/github/workflow/status/blacksmoke16/athena/CI)](https://github.com/blacksmoke16/athena/actions)
+[![Latest release](https://img.shields.io/github/release/blacksmoke16/athena.svg?style=flat-square)](https://github.com/blacksmoke16/athena/releases)
 
 A web framework comprised of reusable, independent components.
 

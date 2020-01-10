@@ -2,7 +2,7 @@ require "http/server"
 require "json"
 
 require "amber_router"
-require "event-dispatcher"
+require "athena-event_dispatcher"
 require "athena-config"
 require "athena-di"
 
@@ -11,7 +11,6 @@ require "./argument_resolver"
 require "./request_store"
 require "./route_resolver"
 require "./route_handler"
-require "./types"
 
 require "./exceptions/*"
 require "./config/*"
@@ -21,6 +20,8 @@ require "./listeners/*"
 require "./events/*"
 
 require "./ext/event_dispatcher"
+require "./ext/configuration_resolver"
+require "./ext/conversion_types"
 require "./ext/request"
 require "./ext/listener"
 
@@ -67,9 +68,9 @@ module Athena::Routing
 
   abstract class Action; end
 
-  class Route(ActionType, ReturnType, *ArgTypes) < Action
+  class Route(Controller, ActionType, ReturnType, *ArgTypes) < Action
     # The `ART::Controller` that handles `self` by default.
-    getter controller : ART::Controller.class
+    getter controller : ART::Controller.class = Controller
 
     # A `Proc(Proc)` representing the controller action that handles the `HTTP::Request` on `self`.
     #
@@ -79,8 +80,6 @@ module Athena::Routing
 
     # The arguments that will be passed the `#action`.
     getter arguments : ArgTypes? = nil
-
-    getter argument_names
 
     # The parameters that need to be parsed from the request
     #
@@ -93,30 +92,10 @@ module Athena::Routing
     getter converters : Array(ART::Converters::ParamConverterConfiguration)
 
     def initialize(
-      @controller : ART::Controller.class,
-      @argument_names : Array(String),
       @action : ActionType,
       @parameters : Array(ART::Parameters::Param) = [] of ART::Parameters::Param,
       @converters : Array(ART::Converters::ParamConverterConfiguration) = [] of ART::Converters::ParamConverterConfiguration
     )
-    end
-
-    # Allows changing the value of a specific *argument*.
-    #
-    # Most useful for use with a custom `ART::Events::ActionArguments` listener.
-    #
-    # NOTE: *value* must be of the correct type, otherwise a runtime `TypeCastError` will be raised.
-    def set(argument : String, value) : Nil
-      {% if ArgTypes.size > 0 %}
-        index = @argument_names.index argument
-
-        @arguments = ArgTypes.from @arguments.not_nil!.map_with_index { |arg, idx| idx == index ? value : arg }.to_a
-      {% end %}
-    end
-
-    # Get the value of a specific *argument*.
-    def get(argument : String)
-      @arguments[@argument_names.index(argument).not_nil!]
     end
 
     # :nodoc:

@@ -44,17 +44,26 @@ struct Athena::Routing::RouteHandler
     request_event = ART::Events::Request.new ctx
     @event_dispatcher.dispatch request_event
 
-    # Return the event early if one was set.
+    # Return the event early if one was set
     return finish_request ctx if request_event.request_finished?
 
     # Resolve and set the arguments from the request
     ctx.request.route.set_arguments @argument_resolver.resolve ctx
 
-    # Emit the route action arguments event
-    @event_dispatcher.dispatch ART::Events::ActionArguments.new ctx.request
-
     # Call the action and get the response
     response = ctx.request.route.execute
+
+    # TODO: Add a view layer
+    # unless response.is_a? ART::Response
+    #   view_event = route.create_view_event response, ctx
+    #   @event_dispatcher.dispatch view_event
+    #
+    #   if view_event.has_response?
+    #     response = view_event.response
+    #   else
+    #     raise "Controller x did not return an ART::Response"
+    #   end
+    # end
 
     # Return 204 if route's return type is `nil`
     if ctx.request.route.return_type == Nil
@@ -67,9 +76,6 @@ struct Athena::Routing::RouteHandler
     ctx.response.content_type = "application/json"
 
     finish_request ctx
-
-    # Emit the terminate event
-    @event_dispatcher.dispatch ART::Events::Terminate.new ctx.request, ctx.response
   end
 
   private def finish_request(ctx : HTTP::Server::Context) : Nil
@@ -80,5 +86,8 @@ struct Athena::Routing::RouteHandler
 
     # Close the response
     ctx.response.close
+
+    # Emit the terminate event
+    @event_dispatcher.dispatch ART::Events::Terminate.new ctx.request, ctx.response
   end
 end

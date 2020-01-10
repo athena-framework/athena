@@ -17,7 +17,7 @@ authors:
   - Blacksmoke16 <Blacksmoke16@eve.tools>
 
 dependencies:
-  event-dispatcher:
+  athena-event_dispatcher:
     github: athena-framework/event-dispatcher
     branch: master
   athena-config:

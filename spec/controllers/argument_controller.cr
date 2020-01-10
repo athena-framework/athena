@@ -40,4 +40,10 @@ class ArgumentController < ART::Controller
   def argument_nil_default(id : Int32? = 19) : Int32?
     id
   end
+
+  @[ART::QueryParam("time", constraints: /\d:\d:\d/)]
+  @[ART::Get(path: "/event")]
+  def event_time(time : String) : String
+    time
+  end
 end

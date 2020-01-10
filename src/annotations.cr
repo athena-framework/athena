@@ -1,7 +1,4 @@
 module Athena::Routing
-  # :nodoc:
-  @@server : HTTP::Server?
-
   # Defines a GET endpoint.
   # ## Fields
   # * path : `String` - The path for the endpoint.

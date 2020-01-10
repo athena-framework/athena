@@ -50,7 +50,9 @@ private def new_event(event : AED::Event.class = ART::Events::Request, &)
   event.new ctx
 end
 
-private class MockEventDispatcher < Athena::EventDispatcher::EventDispatcherInterface
+private class MockEventDispatcher
+  include Athena::EventDispatcher::EventDispatcherInterface
+
   def add_listener(event : AED::Event.class, listener : AED::EventListenerType, priority : Int32 = 0) : Nil
   end
 

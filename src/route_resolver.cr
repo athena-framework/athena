@@ -88,7 +88,7 @@ class Athena::Routing::RouteResolver
                 %converters{m_idx} << ART::Converters::ParamConverter({{arg.restriction}}).new {{qp[:name]}}, Proc(ART::Converters::Converter({{arg.restriction}})).new { {{converter}}.new }
               {% end %}
 
-              %params{m_idx} << ART::Parameters::QueryParameter({{arg.restriction}}).new name: {{name}}, default: {{arg.default_value.is_a?(Nop) ? nil : arg.default_value}}
+              %params{m_idx} << ART::Parameters::QueryParameter({{arg.restriction}}).new name: {{name}}, default: {{arg.default_value.is_a?(Nop) ? nil : arg.default_value}}, pattern: {{qp[:constraints]}}
             {% else %}
               {% converter_ann = m.annotations(ART::ParamConverter).find { |pc| (name = pc[0] || pc[:name]) ? name == arg.name.stringify : raise "Route action '#{klass.name}##{m.name}'s ParamConverter annotation is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." } %}
 
@@ -109,9 +109,7 @@ class Athena::Routing::RouteResolver
           @routes.add(
             {{"/" + method + prefix + path}},
             # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
-            Route(Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
-              {{klass.id}},
-              ({{m.args.map &.name.stringify}} of String),
+            Route({{klass.id}}, Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
               ->{ %instance = {{klass.id}}.new; ->%instance.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
               %params{m_idx},
               %converters{m_idx},
@@ -123,9 +121,7 @@ class Athena::Routing::RouteResolver
             @routes.add(
               {{"/HEAD" + prefix + path}},
               # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
-              Route(Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
-                {{klass.id}},
-                ({{m.args.map &.name.stringify}} of String),
+              Route({{klass.id}}, Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
                 ->{ %instance = {{klass.id}}.new; ->%instance.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
                 %params{m_idx},
                 %converters{m_idx},

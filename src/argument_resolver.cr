@@ -30,7 +30,7 @@ struct Athena::Routing::ArgumentResolver
 
       begin
         # Otherwise convert the string type to its expected type.
-        Athena::Types.convert_type(value, param.type)
+        param.type.not_nil!.from_parameter value
       rescue ex : ArgumentError
         next nil unless param.required?
 
