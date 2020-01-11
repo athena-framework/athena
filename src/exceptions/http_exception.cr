@@ -39,7 +39,8 @@ class Athena::Routing::Exceptions::HTTPException < Exception
     @status.value
   end
 
-  def to_json(io : IO)
+  # Serializes `self` to JSON in the format of `{"code":400,"message":"Exception message"}`
+  def to_json(io : IO) : Nil
     {code: status_code, message: @message}.to_json io
   end
 

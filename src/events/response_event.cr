@@ -1,9 +1,6 @@
+# Emitted after the route's action has been executed and response has been written.
+#
+# This event can be listened on to modify the response object further before it is returned; such as adding headers/cookies etc.
 class Athena::Routing::Events::Response < AED::Event
-  getter request : HTTP::Request
-  getter response : HTTP::Server::Response
-
-  def initialize(ctx : HTTP::Server::Context)
-    @request = ctx.request
-    @response = ctx.response
-  end
+  include Athena::Routing::Events::Context
 end

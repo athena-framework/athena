@@ -94,13 +94,23 @@ module Athena::Routing
   # ```
   annotation Delete; end
 
-  # Controls how params are converted.
+  # Applies a `ART::ParamConverterInterface` to a given parameter.
+  #
+  # NOTE: The related action argument's type must be compatible with the converter's return type.
+  #
+  # See `ART::ParamConverterInterface` for more information on defining a param converter.
+  #
   # ## Fields
-  # * param : `String` - The param that should go through the conversion.
+  # * param : `String` - The param that should be converted, may also be provided as the first positional argument.
+  # * converter : `ART::ParamConverterInterface.class` - The `ART::ParamConverterInterface` that should be used to convert this parameter.
   #
   # ## Example
   # ```
-  # @[Athena::Routing::ParamConverter(param: "user", pk_type: Int32, type: User, converter: Exists)]
+  # @[Athena::Routing::ParamConverter(param: "value", converter: FloatConverter)]
+  #
+  # # Or
+  #
+  # @[Athena::Routing::ParamConverter("user", converter: Exists(User))]
   # ```
   annotation ParamConverter; end
   annotation QueryParam; end

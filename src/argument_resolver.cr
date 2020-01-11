@@ -1,7 +1,7 @@
 @[ADI::Register]
 # :nodoc:
 #
-# A service that encapssulates the logic for resolving action arguments from a request.
+# A service that encapsulates the logic for resolving action arguments from a request.
 struct Athena::Routing::ArgumentResolver
   include ADI::Service
 

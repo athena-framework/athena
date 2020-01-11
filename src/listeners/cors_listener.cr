@@ -1,7 +1,13 @@
 @[ADI::Register("@configuration_resolver", tags: ["athena.event_dispatcher.listener"])]
-struct Athena::Routing::Listeners::Cors < AED::Listener
+# Handles [Cross-Origin Resource Sharing](https://enable-cors.org) (CORS).
+#
+# Handles CORS preflight `OPTIONS` requests as well as adding CORS headers to each response.
+# See `ART::Config::CORS` for information on configuring the listener.
+struct Athena::Routing::Listeners::CORS
+  include AED::EventListenerInterface
   include ADI::Service
 
+  # :nodoc:
   ALLOW_SET_ORIGIN = "athena.routing.cors.allow_set_origin"
   private WILDCARD         = "*"
   private SIMPLE_HEADERS   = {
@@ -25,7 +31,7 @@ struct Athena::Routing::Listeners::Cors < AED::Listener
     request = event.request
 
     # Return early if there is no configuration.
-    return unless config = @configuration_resolver.resolve(ART::Config::Cors)
+    return unless config = @configuration_resolver.resolve(ART::Config::CORS)
 
     # Return early if not a CORS request.
     # TODO: optimize this by also checking if origin matches the request's host.
@@ -48,7 +54,7 @@ struct Athena::Routing::Listeners::Cors < AED::Listener
     return unless event.request.attributes[ALLOW_SET_ORIGIN]?
 
     # Return early if there is no configuration.
-    return unless config = @configuration_resolver.resolve(ART::Config::Cors)
+    return unless config = @configuration_resolver.resolve(ART::Config::CORS)
 
     # TODO: Add a configuration option to allow setting this explicitly
     event.response.headers["access-control-allow-origin"] = event.request.headers["origin"]
@@ -57,7 +63,7 @@ struct Athena::Routing::Listeners::Cors < AED::Listener
   end
 
   # Configures the given *response* for CORS preflight
-  private def set_preflight_response(config : ART::Config::Cors, request : HTTP::Request, response : HTTP::Server::Response) : Nil
+  private def set_preflight_response(config : ART::Config::CORS, request : HTTP::Request, response : HTTP::Server::Response) : Nil
     response.headers["vary"] = "origin"
 
     response.headers["access-control-allow-credentials"] = "true" if config.allow_credentials
@@ -93,7 +99,7 @@ struct Athena::Routing::Listeners::Cors < AED::Listener
     end
   end
 
-  private def check_origin(config : ART::Config::Cors, request : HTTP::Request) : Bool
+  private def check_origin(config : ART::Config::CORS, request : HTTP::Request) : Bool
     return true if config.allow_origin.includes?(WILDCARD)
 
     # Use case equality in case an origin is a regex

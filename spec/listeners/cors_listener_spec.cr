@@ -3,13 +3,13 @@ require "../spec_helper"
 private struct MockCorsConfigResolver
   include ACF::ConfigurationResolverInterface
 
-  def self.get_empty_config : ART::Config::Cors
-    ART::Config::Cors.new
+  def self.get_empty_config : ART::Config::CORS
+    ART::Config::CORS.new
   end
 
-  def initialize(@config : ART::Config::Cors? = get_config); end
+  def initialize(@config : ART::Config::CORS? = get_config); end
 
-  def resolve(_type : ART::Config::Cors.class) : ART::Config::Cors?
+  def resolve(_type : ART::Config::CORS.class) : ART::Config::CORS?
     @config
   end
 
@@ -20,8 +20,8 @@ private struct MockCorsConfigResolver
     ACF::Base.new
   end
 
-  private def get_config : ART::Config::Cors
-    ART::Config::Cors.from_yaml <<-YAML
+  private def get_config : ART::Config::CORS
+    ART::Config::CORS.from_yaml <<-YAML
       allow_credentials: true
       max_age: 123
       expose_headers:
@@ -63,14 +63,14 @@ private class MockEventDispatcher
     [] of AED::EventListener
   end
 
-  def listener_priority(event : AED::Event.class, listener : AED::Listener.class) : Int32?
+  def listener_priority(event : AED::Event.class, listener : AED::EventListenerInterface.class) : Int32?
   end
 
   def has_listeners?(event : AED::Event.class | Nil = nil) : Bool
     false
   end
 
-  def remove_listener(event : AED::Event.class, listener : AED::Listener.class) : Nil
+  def remove_listener(event : AED::Event.class, listener : AED::EventListenerInterface.class) : Nil
   end
 
   def remove_listener(event : AED::Event.class, listener : AED::EventListenerType) : Nil
@@ -85,32 +85,32 @@ private def assert_headers(response : HTTP::Server::Response) : Nil
   response.headers["access-control-max-age"].should eq "123"
 end
 
-describe ART::Listeners::Cors do
+describe ART::Listeners::CORS do
   describe "#call - request" do
     it "without a configuration defined" do
-      listener = ART::Listeners::Cors.new MockCorsConfigResolver.new nil
+      listener = ART::Listeners::CORS.new MockCorsConfigResolver.new nil
       event = new_event
 
       listener.call event, MockEventDispatcher.new
 
       event.response.headers.should be_empty
-      event.request.attributes.has_key?(Athena::Routing::Listeners::Cors::ALLOW_SET_ORIGIN).should be_false
+      event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
     end
 
     it "without the origin header" do
-      listener = ART::Listeners::Cors.new MockCorsConfigResolver.new MockCorsConfigResolver.get_empty_config
+      listener = ART::Listeners::CORS.new MockCorsConfigResolver.new MockCorsConfigResolver.get_empty_config
       event = new_event
 
       listener.call event, MockEventDispatcher.new
 
       event.response.headers.should be_empty
-      event.request.attributes.has_key?(Athena::Routing::Listeners::Cors::ALLOW_SET_ORIGIN).should be_false
+      event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
     end
 
     describe "preflight" do
       describe :defaults do
         it "should only set the vary header" do
-          listener = ART::Listeners::Cors.new MockCorsConfigResolver.new MockCorsConfigResolver.get_empty_config
+          listener = ART::Listeners::CORS.new MockCorsConfigResolver.new MockCorsConfigResolver.get_empty_config
           event = new_event do |ctx|
             ctx.request.method = "OPTIONS"
             ctx.request.headers.add "origin", "https://domain.com"
@@ -120,12 +120,12 @@ describe ART::Listeners::Cors do
           listener.call event, MockEventDispatcher.new
 
           event.response.headers["vary"].should eq "origin"
-          event.request.attributes.has_key?(Athena::Routing::Listeners::Cors::ALLOW_SET_ORIGIN).should be_false
+          event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
         end
       end
 
       it "with an unsupported request method" do
-        listener = ART::Listeners::Cors.new MockCorsConfigResolver.new
+        listener = ART::Listeners::CORS.new MockCorsConfigResolver.new
         event = new_event do |ctx|
           ctx.request.method = "OPTIONS"
           ctx.request.headers.add "origin", "https://example.com"
@@ -135,13 +135,13 @@ describe ART::Listeners::Cors do
         listener.call event, MockEventDispatcher.new
 
         event.response.status.should eq HTTP::Status::METHOD_NOT_ALLOWED
-        event.request.attributes.has_key?(Athena::Routing::Listeners::Cors::ALLOW_SET_ORIGIN).should be_false
+        event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
 
         assert_headers event.response
       end
 
       it "with an unsupported request header" do
-        listener = ART::Listeners::Cors.new MockCorsConfigResolver.new
+        listener = ART::Listeners::CORS.new MockCorsConfigResolver.new
         event = new_event do |ctx|
           ctx.request.method = "OPTIONS"
           ctx.request.headers.add "origin", "https://example.com"
@@ -153,13 +153,13 @@ describe ART::Listeners::Cors do
           listener.call event, MockEventDispatcher.new
         end
 
-        event.request.attributes.has_key?(Athena::Routing::Listeners::Cors::ALLOW_SET_ORIGIN).should be_false
+        event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
 
         assert_headers event.response
       end
 
       it "with a proper request" do
-        listener = ART::Listeners::Cors.new MockCorsConfigResolver.new
+        listener = ART::Listeners::CORS.new MockCorsConfigResolver.new
         event = new_event do |ctx|
           ctx.request.method = "OPTIONS"
           ctx.request.headers.add "origin", "https://example.com"
@@ -169,7 +169,7 @@ describe ART::Listeners::Cors do
 
         listener.call event, MockEventDispatcher.new
 
-        event.request.attributes.has_key?(Athena::Routing::Listeners::Cors::ALLOW_SET_ORIGIN).should be_false
+        event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
 
         assert_headers event.response
       end
@@ -177,7 +177,7 @@ describe ART::Listeners::Cors do
 
     describe "non-preflight" do
       it "with an invalid domain" do
-        listener = ART::Listeners::Cors.new MockCorsConfigResolver.new
+        listener = ART::Listeners::CORS.new MockCorsConfigResolver.new
         event = new_event do |ctx|
           ctx.request.method = "GET"
           ctx.request.headers.add "origin", "https://example.net"
@@ -187,12 +187,12 @@ describe ART::Listeners::Cors do
 
         listener.call event, MockEventDispatcher.new
 
-        event.request.attributes.has_key?(Athena::Routing::Listeners::Cors::ALLOW_SET_ORIGIN).should be_false
+        event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
         event.response.headers.should be_empty
       end
 
       it "with a proper request" do
-        listener = ART::Listeners::Cors.new MockCorsConfigResolver.new
+        listener = ART::Listeners::CORS.new MockCorsConfigResolver.new
         event = new_event do |ctx|
           ctx.request.method = "GET"
           ctx.request.headers.add "origin", "https://example.com"
@@ -202,7 +202,7 @@ describe ART::Listeners::Cors do
 
         listener.call event, MockEventDispatcher.new
 
-        event.request.attributes.has_key?(Athena::Routing::Listeners::Cors::ALLOW_SET_ORIGIN).should be_true
+        event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_true
         event.response.headers.should be_empty
       end
     end
@@ -210,14 +210,14 @@ describe ART::Listeners::Cors do
 
   describe "#call - response" do
     it "with a proper request" do
-      listener = ART::Listeners::Cors.new MockCorsConfigResolver.new
+      listener = ART::Listeners::CORS.new MockCorsConfigResolver.new
       event = new_event(ART::Events::Response) do |ctx|
         ctx.request.method = "GET"
         ctx.request.headers.add "origin", "https://example.com"
         ctx.request.headers.add "access-control-request-method", "GET"
         ctx.request.headers.add "access-control-request-headers", "X-FOO"
 
-        ctx.request.attributes[Athena::Routing::Listeners::Cors::ALLOW_SET_ORIGIN] = true
+        ctx.request.attributes[Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN] = true
       end
 
       listener.call event, MockEventDispatcher.new
@@ -228,14 +228,14 @@ describe ART::Listeners::Cors do
     end
 
     it "that should not allow setting origin" do
-      listener = ART::Listeners::Cors.new MockCorsConfigResolver.new
+      listener = ART::Listeners::CORS.new MockCorsConfigResolver.new
       event = new_event(ART::Events::Response) do |ctx|
         ctx.request.method = "GET"
         ctx.request.headers.add "origin", "https://example.com"
         ctx.request.headers.add "access-control-request-method", "GET"
         ctx.request.headers.add "access-control-request-headers", "X-FOO"
 
-        ctx.request.attributes[Athena::Routing::Listeners::Cors::ALLOW_SET_ORIGIN] = false
+        ctx.request.attributes[Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN] = false
       end
 
       listener.call event, MockEventDispatcher.new
@@ -244,7 +244,7 @@ describe ART::Listeners::Cors do
     end
 
     it "without a configuration defined" do
-      listener = ART::Listeners::Cors.new MockCorsConfigResolver.new nil
+      listener = ART::Listeners::CORS.new MockCorsConfigResolver.new nil
       event = new_event(ART::Events::Response)
 
       listener.call event, MockEventDispatcher.new

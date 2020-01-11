@@ -1,6 +1,11 @@
 require "./routing_config"
 
-struct Athena::Routing::Config::Cors
+# Configuration options for `ART::Listeners::CORS`.  If `ART::Config.cors` is not defined in your configuration file, the listener is disabled.
+#
+# TODO: Allow scoping CORS options to specific routes versus applying them to all routes.
+#
+# Also see `ART::Config`.
+struct Athena::Routing::Config::CORS
   include ACF::Configuration
 
   # Indicates whether the request can be made using credentials.
@@ -40,7 +45,7 @@ end
 
 struct Athena::Config::ConfigurationResolver
   # :inherit:
-  def resolve(_type : Athena::Routing::Config::Cors.class) : ART::Config::Cors?
+  def resolve(_type : Athena::Routing::Config::CORS.class) : ART::Config::CORS?
     base.routing.cors
   end
 end

@@ -50,6 +50,8 @@ struct Athena::Routing::RouteHandler
     # Resolve and set the arguments from the request
     ctx.request.route.set_arguments @argument_resolver.resolve ctx
 
+    # Possibly add another event here to allow modification of the resolved arguments?
+
     # Call the action and get the response
     response = ctx.request.route.execute
 
@@ -82,12 +84,13 @@ struct Athena::Routing::RouteHandler
     # Emit the response event
     @event_dispatcher.dispatch ART::Events::Response.new ctx
 
+    # Reset the request store
     @request_store.reset
 
     # Close the response
     ctx.response.close
 
     # Emit the terminate event
-    @event_dispatcher.dispatch ART::Events::Terminate.new ctx.request, ctx.response
+    @event_dispatcher.dispatch ART::Events::Terminate.new ctx
   end
 end

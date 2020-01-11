@@ -1,6 +1,7 @@
 @[ADI::Register(tags: ["athena.event_dispatcher.listener"])]
-# Sets the related `ART::Route` on the current request.
-struct Athena::Routing::Listeners::Routing < AED::Listener
+# Sets the related `ART::Route` on the current request using `ART::RouteResolver`.
+struct Athena::Routing::Listeners::Routing
+  include AED::EventListenerInterface
   include ADI::Service
 
   def initialize

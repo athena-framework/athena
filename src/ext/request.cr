@@ -8,5 +8,5 @@ class HTTP::Request
   property! path_params : Hash(String, String)
 
   # Allows storing simple values within the context of a request.
-  property attributes = Hash(String, Bool | Int32 | String).new
+  property attributes = Hash(String, Bool | Int32 | String | Float64 | Nil).new
 end

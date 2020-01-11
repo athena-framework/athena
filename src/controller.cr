@@ -50,7 +50,7 @@
 #     "#{event_name} occurred at #{time}"
 #   end
 #
-#   # A GET endpoint with an optional query parameter and and optional path param with a default value; returning a `NamedTuple(user_id : Int32?, page : Int32)`.
+#   # A GET endpoint with an optional query parameter and optional path param with a default value; returning a `NamedTuple(user_id : Int32?, page : Int32)`.
 #   #
 #   # A nilable type denotes it as optional.  If the parameter is not supplied (or could not be converted), and no default value is assigned, it is `nil`.
 #   @[ART::QueryParam("user_id")]

@@ -24,7 +24,6 @@ require "./parameters/*"
 require "./ext/configuration_resolver"
 require "./ext/conversion_types"
 require "./ext/event_dispatcher"
-require "./ext/listener"
 require "./ext/request"
 
 # Convenience alias to make referencing `Athena::Routing` types easier.
@@ -49,10 +48,27 @@ module Athena::Routing
 
   protected class_getter route_resolver : ART::RouteResolver { ART::RouteResolver.new }
 
-  # The events that are emitted via `Athena::EventDispatcher` to handle a request during its life-cycle.
+  # The `AED::Event` that are emitted via `Athena::EventDispatcher` to handle a request during its life-cycle.
+  # Athena adds a `HTTP::Request#attributes` getter that returns a `Hash(String, Bool | Int32 | String | Float64 | Nil)` which can be used to store simple information that can be used later.
   #
   # See each specific event for more detailed information.
   module Athena::Routing::Events; end
+
+  # Exception handling in Athena is similar to exception handling in any Crystal program, with the addition of a new unique exception type, `ART::Exceptions::HTTPException`.
+  #
+  # When an exception is raised, Athena will check if the exception is a `ART::Exceptions::HTTPException`.  If it is, then the response is written by calling `.to_json` on the exception;
+  # using the status code defined on the exception as well as merging any headers into the response.  In the future a more flexible/proper error renderer layer will be implemented.
+  # If the exception is not a `ART::Exceptions::HTTPException`, then a 500 internal server error is returned.
+  #
+  # To provide the best response to the client, non `ART::Exceptions::HTTPException` should be caught and converted to a corresponding `ART::Exceptions::HTTPException`.
+  # Custom HTTP errors can also be defined by inheriting from `ART::Exceptions::HTTPException`.  A use case for this could be allowing for additional data/context to be included
+  # within the exception that ultimately could be used in a `ART::Events::Exception` listener.
+  module Athena::Routing::Exceptions; end
+
+  # The `AED::EventListenerInterface` that act upon `ART::Events` to handle a request.
+  #
+  # See each listener for more detailed information.
+  module Athena::Routing::Listeners; end
 
   # Parent type of a route just used for typing.
   #

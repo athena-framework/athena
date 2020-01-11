@@ -3,16 +3,18 @@ module Athena::Routing
   #
   # See `ART::ParamConverterConfiguration`.
   abstract struct ParamConverterConfigurationBase
-    # Needs to be defined due to https://github.com/crystal-lang/crystal/issues/6996
-    # for the case of there being no converters
+    # Needs to be defined due to [this issue](https://github.com/crystal-lang/crystal/issues/6996)
+    # for the case of there being no converters.
     def name; end
 
-    # Needs to be defined due to https://github.com/crystal-lang/crystal/issues/6996
-    # for the case of there being no converters
+    # Needs to be defined due to [this issue](https://github.com/crystal-lang/crystal/issues/6996)
+    # for the case of there being no converters.
     def converter; end
   end
 
   # Stores metadata about a specific param converter that should be applied to a value.
+  #
+  # Used to keep track of the argument's name and the `ART::ParamConverterInterface` that should be applied.
   struct ParamConverterConfiguration(T) < ParamConverterConfigurationBase
     # The name of the argument `self` should be applied against.
     getter name : String
