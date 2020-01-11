@@ -71,7 +71,7 @@ class Athena::Routing::RouteResolver
 
           # Build out params and converters array.
           %params{m_idx} = [] of ART::Parameters::Param
-          %converters{m_idx} = [] of ART::Converters::ParamConverterConfiguration
+          %converters{m_idx} = [] of ART::ParamConverterConfigurationBase
 
           {% for arg in m.args %}
             # Raise compile time error if an action argument doesn't have a type restriction.
@@ -85,7 +85,7 @@ class Athena::Routing::RouteResolver
             # Raise compile time error if there is an annotation but no action argument.
             {% elsif qp = m.annotations(ART::QueryParam).find { |query_param| (name = query_param[0] || query_param[:name]) ? name == arg.name.stringify : raise "Route action '#{klass.name}##{m.name}'s QueryParam annotation is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." } %}
               {% if converter = qp[:converter] %}
-                %converters{m_idx} << ART::Converters::ParamConverter({{arg.restriction}}).new {{qp[:name]}}, Proc(ART::Converters::Converter({{arg.restriction}})).new { {{converter}}.new }
+                %converters{m_idx} << ART::ParamConverterConfiguration({{arg.restriction}}).new {{qp[:name]}}, Proc(ART::ParamConverterInterface({{arg.restriction}})).new { {{converter}}.new }
               {% end %}
 
               %params{m_idx} << ART::Parameters::QueryParameter({{arg.restriction}}).new name: {{name}}, default: {{arg.default_value.is_a?(Nop) ? nil : arg.default_value}}, pattern: {{qp[:constraints]}}
@@ -94,7 +94,7 @@ class Athena::Routing::RouteResolver
 
               {% if converter_ann %}
                 {% name = converter_ann[0] || converter_ann[:name] %}
-                %converters{m_idx} << ART::Converters::ParamConverter({{arg.restriction}}).new {{name}}, Proc(ART::Converters::Converter({{arg.restriction}})).new { {{converter_ann[:converter]}}.new }
+                %converters{m_idx} << ART::ParamConverterConfiguration({{arg.restriction}}).new {{name}}, Proc(ART::ParamConverterInterface({{arg.restriction}})).new { {{converter_ann[:converter]}}.new }
               {% end %}
 
               %params{m_idx} << ART::Parameters::PathParameter({{arg.restriction}}).new name: {{arg.name.stringify}}, default: {{arg.default_value.is_a?(Nop) ? nil : arg.default_value}}

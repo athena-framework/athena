@@ -2,70 +2,61 @@ require "http/server"
 require "json"
 
 require "amber_router"
-require "athena-event_dispatcher"
 require "athena-config"
 require "athena-di"
+require "athena-event_dispatcher"
 
 require "./annotations"
 require "./argument_resolver"
+require "./controller"
+require "./param_converter_configuration"
+require "./param_converter_interface"
 require "./request_store"
-require "./route_resolver"
 require "./route_handler"
+require "./route_resolver"
 
-require "./exceptions/*"
 require "./config/*"
-require "./converters/*"
-require "./parameters/*"
-require "./listeners/*"
 require "./events/*"
+require "./exceptions/*"
+require "./listeners/*"
+require "./parameters/*"
 
-require "./ext/event_dispatcher"
 require "./ext/configuration_resolver"
 require "./ext/conversion_types"
-require "./ext/request"
+require "./ext/event_dispatcher"
 require "./ext/listener"
+require "./ext/request"
 
 # Convenience alias to make referencing `Athena::Routing` types easier.
 alias ART = Athena::Routing
 
+# The Routing component provides an event based framework for converting a request into a response
+# and includes various abstractions/useful types to make that process easier.
+#
+# Athena is an event based framework; meaning it emits `ART::Events` that are acted upon to handle the request.
+# Athena also utilizes `Athena::DI` to provide a service container layer.  The service container layer
+# allows a project to share/inject useful objects between various types, such as a custom `AED::Listener`, `ART::Controller`, or `ART::Converters::ParamConverter`.
+# See the corresponding types for more information.
+#
+# * See `ART::Controller` for documentation on defining controllers/route actions.
+# * See `ART::Config` for documentation on configuration options available for the Routing component.
+# * See `ART::Events` for documentation on the events that can be listened on during the request's life-cycle.
+# * See `ART::Converters` for documentation on using param converters.
+# * See `ART::Exceptions` for documentation on exception handling.
 module Athena::Routing
   # :nodoc:
   @@server : HTTP::Server?
 
   protected class_getter route_resolver : ART::RouteResolver { ART::RouteResolver.new }
 
-  # Parent class for all controllers.
+  # The events that are emitted via `Athena::EventDispatcher` to handle a request during its life-cycle.
   #
-  # Can be inherited from to add utility methods useful in all controllers.
-  abstract class Controller
-    {% begin %}
-      {% for method in ["GET", "POST", "PUT", "PATCH", "DELETE"] %}
-        # Helper DSL macro for creating `{{method.id}}` actions.
-        #
-        # ### Optional Named Arguments
-        # - `args` - The arguments that this action should take.  Defaults to no arguments.
-        # - `return_type` - The return type to set for the action.  Defaults to `String` if not provided.
-        # - `constraints` - Any constraints that should be applied to the route.
-        #
-        # ### Example
-        #
-        # ```
-        # class ExampleController < ART::Controller
-        #  {{method.downcase.id}} "user/:id", args: {id : Int32}, return_type: String, constraints: {"id" => /\d+/} do
-        #    "Got user #{id}"
-        #  end
-        # end
-        # ```
-        private macro {{method.downcase.id}}(path, *args, **named_args, &)
-          @[ART::{{method.capitalize.id}}(path: \{{path}}, constraints: \{{named_args[:constraints]}})]
-          def {{method.downcase.id}}_\{{path.gsub(/\W/, "_").id}}(\{{*args}}) : \{{named_args[:return_type] || String}}
-            \{{yield}}
-          end
-        end
-      {% end %}
-    {% end %}
-  end
+  # See each specific event for more detailed information.
+  module Athena::Routing::Events; end
 
+  # Parent type of a route just used for typing.
+  #
+  # See `ART::Route`.
   abstract class Action; end
 
   class Route(Controller, ActionType, ReturnType, *ArgTypes) < Action
@@ -89,12 +80,12 @@ module Athena::Routing
     # The return type of the action.
     getter return_type : ReturnType.class = ReturnType
 
-    getter converters : Array(ART::Converters::ParamConverterConfiguration)
+    getter converters : Array(ART::ParamConverterConfigurationBase)
 
     def initialize(
       @action : ActionType,
       @parameters : Array(ART::Parameters::Param) = [] of ART::Parameters::Param,
-      @converters : Array(ART::Converters::ParamConverterConfiguration) = [] of ART::Converters::ParamConverterConfiguration
+      @converters : Array(ART::ParamConverterConfigurationBase) = [] of ART::ParamConverterConfigurationBase
     )
     end
 

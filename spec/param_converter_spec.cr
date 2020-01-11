@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-describe Athena::Routing::Converters::Converter do
+describe Athena::Routing::ParamConverter do
   run_server
 
   describe :path do

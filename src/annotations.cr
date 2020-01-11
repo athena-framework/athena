@@ -1,51 +1,96 @@
 module Athena::Routing
   # Defines a GET endpoint.
   # ## Fields
-  # * path : `String` - The path for the endpoint.
+  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * constraints : `Hash(String, Regex)` - A mapping between a route argument and its constraints.
   #
-  # ## Example
+  # ## Examples
   # ```
-  # @[Athena::Routing::Get(path: "/users")]
+  # @[Athena::Routing::Get(path: "/users/:id")]
+  # def get_user : Nil
+  # end
+  #
+  # # Or
+  #
+  # @[Athena::Routing::Get("/users/:id")]
+  # def get_user : Nil
+  # end
   # ```
   annotation Get; end
 
   # Defines a POST endpoint.
   # ## Fields
-  # * path : `String` - The path for the endpoint.
+  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * constraints : `Hash(String, Regex)` - A mapping between a route argument and its constraints.
   #
-  # ## Example
+  # ## Examples
   # ```
   # @[Athena::Routing::Post(path: "/users")]
+  # def new_user : Nil
+  # end
+  #
+  # # Or
+  #
+  # @[Athena::Routing::Post("/users")]
+  # def new_user : Nil
+  # end
   # ```
   annotation Post; end
 
   # Defines a PUT endpoint.
   # ## Fields
-  # * path : `String` - The path for the endpoint.
+  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * constraints : `Hash(String, Regex)` - A mapping between a route argument and its constraints.
   #
-  # ## Example
+  # ## Examples
   # ```
-  # @[Athena::Routing::Put(path: "/users")]
+  # @[Athena::Routing::Put(path: "/users/:id")]
+  # def update_user : Nil
+  # end
+  #
+  # # Or
+  #
+  # @[Athena::Routing::Put("/users/:id")]
+  # def update_user : Nil
+  # end
   # ```
   annotation Put; end
 
   # Defines a PATCH endpoint.
   # ## Fields
-  # * path : `String` - The path for the endpoint.
+  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * constraints : `Hash(String, Regex)` - A mapping between a route argument and its constraints.
   #
-  # ## Example
+  # ## Examples
   # ```
-  # @[Athena::Routing::Patch(path: "/users")]
+  # @[Athena::Routing::Patch(path: "/users/:id")]
+  # def partial_update_user : Nil
+  # end
+  #
+  # # Or
+  #
+  # @[Athena::Routing::Patch("/users/:id")]
+  # def partial_update_user : Nil
+  # end
   # ```
   annotation Patch; end
 
   # Defines a DELETE endpoint.
   # ## Fields
-  # * path : `String` - The path for the endpoint.
+  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * constraints : `Hash(String, Regex)` - A mapping between a route argument and its constraints.
   #
-  # ## Example
+  # ## Examples
   # ```
   # @[Athena::Routing::Delete(path: "/users/:id")]
+  # def delete_user : Nil
+  # end
+  #
+  # # Or
+  #
+  # @[Athena::Routing::Delete("/users/:id")]
+  # def delete_user : Nil
+  # end
   # ```
   annotation Delete; end
 

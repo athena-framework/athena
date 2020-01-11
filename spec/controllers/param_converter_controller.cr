@@ -1,6 +1,8 @@
 require "../spec_helper"
 
-struct DoubleConverter(T) < ART::Converters::Converter(T)
+struct DoubleConverter(T)
+  include ART::ParamConverterInterface(T)
+
   def convert(value : String) : T
     value.to_i * 2
   end
