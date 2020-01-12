@@ -1,15 +1,18 @@
 require "./cors_config"
 
-module Athena::Config
-  # Config properties related to `Athena::Routing` module.
-  struct RoutingConfig
-    include CrSerializer(YAML)
+# Encompasses all configuration related to the `Athena::Routing` component.
+#
+# For a higher level introduction to configuring Athena components, see `Athena::Config`.
+struct Athena::Routing::Config
+  include ACF::Configuration
 
-    # :nodoc:
-    def initialize; end
+  # Configuration related to `Athena::Routing::Listeners::CORS`.
+  #
+  # Disables the listener if not defined.
+  getter cors : ART::Config::CORS? = nil
+end
 
-    # Config properites specific to CORS.
-    @[Assert::Valid]
-    getter cors : CorsConfig = Athena::Config::CorsConfig.new
-  end
+struct Athena::Config::Base
+  # All configuration related to the `ART` component.
+  getter routing : Athena::Routing::Config = Athena::Routing::Config.new
 end

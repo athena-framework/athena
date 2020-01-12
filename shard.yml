@@ -1,33 +1,30 @@
 name: athena
 
-description: |
-  Modular, annotation based, API oriented framework with built in param conversion.
-
-version: 0.7.0
-
-authors:
-  - Blacksmoke16 <Blacksmoke16@eve.tools>
+version: 0.8.0
 
 crystal: 0.32.0
 
 license: MIT
 
-targets:
-  athena:
-    main: src/athena.cr
+repository: https://github.com/blacksmoke16/athena
 
-scripts:
-  postinstall: "shards build --release --production && ./bin/athena -c athena:generate:config_file --path=../../athena.yml"
+documentation: https://blacksmoke16.github.io/athena
 
-executables:
-  - athena
+description: |
+  A web framework comprised of reusable, independent components.
+
+authors:
+  - Blacksmoke16 <Blacksmoke16@eve.tools>
 
 dependencies:
-  CrSerializer:
-    github: blacksmoke16/CrSerializer
-    version: ~> 0.8.0
-  crylog:
-    github: blacksmoke16/crylog
+  athena-event_dispatcher:
+    github: athena-framework/event-dispatcher
+    version: ~> 0.1.0
+  athena-config:
+    github: athena-framework/config
+    version: ~> 0.1.0
+  athena-di:
+    github: athena-framework/di
     version: ~> 0.1.0
   amber_router:
     github: amberframework/amber-router
@@ -36,4 +33,4 @@ dependencies:
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
-    version: ~> 0.10.0
+    version: ~> 0.11.0

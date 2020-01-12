@@ -1,0 +1,22 @@
+name: Deployment
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy_docs:
+    runs-on: ubuntu-latest
+    container:
+      image: crystallang/crystal
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build
+        run: crystal docs lib/athena-event_dispatcher/src/athena-event_dispatcher.cr lib/athena-config/src/athena-config.cr lib/athena-di/src/athena-di.cr src/athena.cr
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@2.0.1
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: docs

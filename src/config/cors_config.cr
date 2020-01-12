@@ -1,25 +1,51 @@
-require "./cors_options"
+require "./routing_config"
 
-module Athena::Config
-  # Config properties related to CORS.
-  @[CrSerializer::ClassOptions(raise_on_invalid: true)]
-  struct CorsConfig
-    include CrSerializer(YAML)
+# Configuration options for `ART::Listeners::CORS`.  If `ART::Config.cors` is not defined in your configuration file, the listener is disabled.
+#
+# TODO: Allow scoping CORS options to specific routes versus applying them to all routes.
+#
+# Also see `ART::Config`.
+struct Athena::Routing::Config::CORS
+  include ACF::Configuration
 
-    # :nodoc:
-    def initialize; end
+  # Indicates whether the request can be made using credentials.
+  #
+  # Maps to the `access-control-allow-credentials` header.
+  getter allow_credentials : Bool = false
 
-    # Whether the `CorsHandler` should be invoked.
-    getter enabled : Bool = false
+  # A white-listed array of valid origins.
+  #
+  # Can be set to `["*"]` to allow any origin.
+  #
+  # TODO: Allow `Regex` based origins.
+  getter allow_origin : Array(String) = [] of String
 
-    # Strategy to use.
-    @[Assert::Choice(choices: ["blacklist", "whitelist"], message: "'{{actual}}' is not a valid strategy. Valid strategies are: {{choices}}")]
-    getter strategy : String = "blacklist"
+  # The header or headers that can be used when making the actual request.
+  #
+  # Can be set to `["*"]` to allow any headers.
+  #
+  # maps to the `access-control-allow-headers` header.
+  getter allow_headers : Array(String) = [] of String
 
-    # The base CORS settings.
-    getter defaults : CorsOptions = Athena::Config::CorsOptions.new(true)
+  # The method or methods allowed when accessing the resource.
+  #
+  # Maps to the `access-control-allow-methods` header.
+  getter allow_methods : Array(String) = [] of String
 
-    # A map of defines CORS settings, extended from the defaults.
-    getter groups : Hash(String, CorsOptions) = {} of String => Athena::Config::CorsOptions
+  # Array of headers that the browser is allowed to read from the response.
+  #
+  # Maps to the `access-control-expose-headers` header.
+  getter expose_headers : Array(String) = [] of String
+
+  # Number of seconds that the results of a preflight request can be cached.
+  #
+  # Maps to the `access-control-max-age` header.
+  getter max_age : Int32 = 0
+end
+
+struct Athena::Config::ConfigurationResolver
+  # :inherit:
+  def resolve(_type : Athena::Routing::Config::CORS.class) : ART::Config::CORS?
+    base.routing.cors
   end
 end

@@ -1,34 +1,29 @@
 # Athena
-[![Build Status](https://travis-ci.org/Blacksmoke16/athena.svg?branch=master)](https://travis-ci.org/Blacksmoke16/athena)
-[![Latest release](https://img.shields.io/github/release/Blacksmoke16/athena.svg?style=flat-square)](https://github.com/Blacksmoke16/athena/releases)
 
-Modular annotation based web framework with built in param conversion inspired by [Symfony Routing](https://symfony.com/doc/current/routing.html).
+[![Build Status](https://img.shields.io/github/workflow/status/blacksmoke16/athena/CI)](https://github.com/blacksmoke16/athena/actions)
+[![Latest release](https://img.shields.io/github/release/blacksmoke16/athena.svg?style=flat-square)](https://github.com/blacksmoke16/athena/releases)
 
-## Goals
-
-- Extensible and customizable to fit all use cases.
-- Be easy to adopt and start using effectively.
-- Remove unneeded boilerplate code to convert route/body params to correct type.
-- Easy serialization via [CrSerializer](https://github.com/Blacksmoke16/CrSerializer).
-- Decrease bloat.  Only include what you need.
-
-## Documentation
-
-[Documentation](./docs)
+A web framework comprised of reusable, independent components.
 
 ## Installation
 
-Add this to your application's `shard.yml`:
+1. Add the dependency to your `shard.yml`:
 
 ```yaml
 dependencies:
   athena:
-    github: Blacksmoke16/athena
+    github: blacksmoke16/athena
 ```
+
+2. Run `shards install`
+
+## Documentation
+
+Everything is documented in the [API Docs](https://blacksmoke16.github.io/athena/Athena/Routing.html).
 
 ## Contributing
 
-1. Fork it (<https://github.com/Blacksmoke16/athena/fork>)
+1. Fork it (https://github.com/blacksmoke16/athena/fork)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
@@ -36,4 +31,4 @@ dependencies:
 
 ## Contributors
 
-- [Blacksmoke16](https://github.com/Blacksmoke16) Blacksmoke16 - creator, maintainer
+- [Blacksmoke16](https://github.com/blacksmoke16) - creator and maintainer
