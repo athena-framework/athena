@@ -1,7 +1,7 @@
 # Athena
 
-[![Build Status](https://img.shields.io/github/workflow/status/blacksmoke16/athena/CI)](https://github.com/blacksmoke16/athena/actions)
-[![Latest release](https://img.shields.io/github/release/blacksmoke16/athena.svg?style=flat-square)](https://github.com/blacksmoke16/athena/releases)
+[![Build Status](https://img.shields.io/github/workflow/status/athena-framework/athena/CI)](https://github.com/athena-framework/athena/actions)
+[![Latest release](https://img.shields.io/github/release/athena-framework/athena.svg?style=flat-square)](https://github.com/athena-framework/athena/releases)
 
 A web framework comprised of reusable, independent components.
 
@@ -12,18 +12,18 @@ A web framework comprised of reusable, independent components.
 ```yaml
 dependencies:
   athena:
-    github: blacksmoke16/athena
+    github: athena-framework/athena
 ```
 
 2. Run `shards install`
 
 ## Documentation
 
-Everything is documented in the [API Docs](https://blacksmoke16.github.io/athena/Athena/Routing.html).
+Everything is documented in the [API Docs](https://athena-framework.github.io/athena/Athena/Routing.html).
 
 ## Contributing
 
-1. Fork it (https://github.com/blacksmoke16/athena/fork)
+1. Fork it (https://github.com/athena-framework/athena/fork)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
