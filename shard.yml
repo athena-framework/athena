@@ -6,9 +6,9 @@ crystal: 0.32.0
 
 license: MIT
 
-repository: https://github.com/blacksmoke16/athena
+repository: https://github.com/athena-framework/athena
 
-documentation: https://blacksmoke16.github.io/athena
+documentation: https://athena-framework.github.io/athena/Athena/Routing.html
 
 description: |
   A web framework comprised of reusable, independent components.
