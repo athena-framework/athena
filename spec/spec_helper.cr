@@ -2,6 +2,10 @@ require "spec"
 require "../src/athena"
 require "./controllers/*"
 
+Spec.before_suite do
+  ENV[Athena::ENV_NAME] = "test"
+end
+
 CLIENT = HTTP::Client.new "localhost", 3000
 
 def new_context(*, request : HTTP::Request = new_request, response : HTTP::Server::Response = new_response) : HTTP::Server::Context
@@ -18,7 +22,6 @@ end
 
 def run_server : Nil
   around_all do |example|
-    ENV["ATHENA_ENV"] = "test"
     spawn { ART.run }
     sleep 0.5
     example.run

@@ -34,6 +34,10 @@ struct Athena::Routing::RouteHandler
     exception.to_json ctx.response
 
     response.close
+
+    # Raise the exception again to help with debugging if in the development ENV and response is a 500.
+    # In the future make this part of an ExceptionListener or something
+    raise exception if Athena.environment == "development" && response.status.internal_server_error?
   end
 
   private def handle_raw(ctx : HTTP::Server::Context) : Nil
