@@ -1,5 +1,8 @@
 module Athena::Routing
   # Defines a GET endpoint.
+  #
+  # A corresponding `HEAD` endpoint is also defined.
+  #
   # ## Fields
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
@@ -13,6 +16,7 @@ module Athena::Routing
   annotation Get; end
 
   # Defines a POST endpoint.
+  #
   # ## Fields
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
@@ -26,6 +30,7 @@ module Athena::Routing
   annotation Post; end
 
   # Defines a PUT endpoint.
+  #
   # ## Fields
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
@@ -39,6 +44,7 @@ module Athena::Routing
   annotation Put; end
 
   # Defines a PATCH endpoint.
+  #
   # ## Fields
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
@@ -52,6 +58,7 @@ module Athena::Routing
   annotation Patch; end
 
   # Defines a DELETE endpoint.
+  #
   # ## Fields
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
