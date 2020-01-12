@@ -19,13 +19,13 @@ authors:
 dependencies:
   athena-event_dispatcher:
     github: athena-framework/event-dispatcher
-    branch: master
+    version: ~> 0.1.0
   athena-config:
     github: athena-framework/config
-    branch: develop
+    version: ~> 0.1.0
   athena-di:
     github: athena-framework/di
-    branch: develop
+    version: ~> 0.1.0
   amber_router:
     github: amberframework/amber-router
     version: ~> 0.3.0

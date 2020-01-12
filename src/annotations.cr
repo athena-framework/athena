@@ -2,7 +2,7 @@ module Athena::Routing
   # Defines a GET endpoint.
   # ## Fields
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * constraints : `Hash(String, Regex)` - A mapping between a route argument and its constraints.
+  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
   # ```
@@ -15,7 +15,7 @@ module Athena::Routing
   # Defines a POST endpoint.
   # ## Fields
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * constraints : `Hash(String, Regex)` - A mapping between a route argument and its constraints.
+  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
   # ```
@@ -28,7 +28,7 @@ module Athena::Routing
   # Defines a PUT endpoint.
   # ## Fields
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * constraints : `Hash(String, Regex)` - A mapping between a route argument and its constraints.
+  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
   # ```
@@ -41,7 +41,7 @@ module Athena::Routing
   # Defines a PATCH endpoint.
   # ## Fields
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * constraints : `Hash(String, Regex)` - A mapping between a route argument and its constraints.
+  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
   # ```
@@ -54,7 +54,7 @@ module Athena::Routing
   # Defines a DELETE endpoint.
   # ## Fields
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * constraints : `Hash(String, Regex)` - A mapping between a route argument and its constraints.
+  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
   # ```

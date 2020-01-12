@@ -33,13 +33,13 @@ alias ART = Athena::Routing
 #
 # Athena is an event based framework; meaning it emits `ART::Events` that are acted upon to handle the request.
 # Athena also utilizes `Athena::DI` to provide a service container layer.  The service container layer
-# allows a project to share/inject useful objects between various types, such as a custom `AED::Listener`, `ART::Controller`, or `ART::Converters::ParamConverter`.
+# allows a project to share/inject useful objects between various types, such as a custom `AED::EventListenerInterface`, `ART::Controller`, or `ART::ParamConverterInterface`.
 # See the corresponding types for more information.
 #
 # * See `ART::Controller` for documentation on defining controllers/route actions.
 # * See `ART::Config` for documentation on configuration options available for the Routing component.
 # * See `ART::Events` for documentation on the events that can be listened on during the request's life-cycle.
-# * See `ART::Converters` for documentation on using param converters.
+# * See `ART::ParamConverterInterface` for documentation on using param converters.
 # * See `ART::Exceptions` for documentation on exception handling.
 module Athena::Routing
   # :nodoc:
@@ -79,6 +79,11 @@ module Athena::Routing
   # See `ART::Route`.
   abstract class Action; end
 
+  # Represents an endpoint within the application.
+  #
+  # Includes metadata about the endpoint, such as the controller its on,
+  # the parameters it accepts, its return type, and the action should be executed
+  # to handle the request.
   class Route(Controller, ActionType, ReturnType, *ArgTypes) < Action
     # The `ART::Controller` that handles `self` by default.
     getter controller : ART::Controller.class = Controller
