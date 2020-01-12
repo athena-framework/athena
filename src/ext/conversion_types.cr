@@ -13,7 +13,7 @@ def Bool.from_parameter(value : String) : Bool
 end
 
 def Union.from_parameter(value : String)
-  # Processs non nilable types first as they are more likely to work.
+  # Process non nilable types first as they are more likely to work.
   {% for type in T.sort_by { |t| t.nilable? ? 1 : 0 } %}
     return {{type}}.from_parameter value
   {% end %}

@@ -1,4 +1,10 @@
 struct Athena::Routing::Parameters::PathParameter(T) < Athena::Routing::Parameters::Parameter(T)
+  include Athena::Routing::Parameters::Convertable(T)
+
+  def initialize(name : String, @converter : ART::ParamConverterInterface(T)? = nil, default : T? = nil, type : T.class = T)
+    super name, default, type
+  end
+
   # :inherit:
   def extract(request : HTTP::Request) : String?
     request.path_params[@name]?

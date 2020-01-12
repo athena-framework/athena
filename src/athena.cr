@@ -9,7 +9,6 @@ require "athena-event_dispatcher"
 require "./annotations"
 require "./argument_resolver"
 require "./controller"
-require "./param_converter_configuration"
 require "./param_converter_interface"
 require "./request_store"
 require "./route_handler"
@@ -96,12 +95,9 @@ module Athena::Routing
     # The return type of the action.
     getter return_type : ReturnType.class = ReturnType
 
-    getter converters : Array(ART::ParamConverterConfigurationBase)
-
     def initialize(
       @action : ActionType,
-      @parameters : Array(ART::Parameters::Param) = [] of ART::Parameters::Param,
-      @converters : Array(ART::ParamConverterConfigurationBase) = [] of ART::ParamConverterConfigurationBase
+      @parameters : Array(ART::Parameters::Param) = [] of ART::Parameters::Param
     )
     end
 

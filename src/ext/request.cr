@@ -4,7 +4,7 @@ class HTTP::Request
   # Will only be set if a route was able to be resolved.
   property! route : ART::Action
 
-  # A hash of path params parsed from the requests's path.
+  # A hash of path params parsed from the request's path.
   property! path_params : Hash(String, String)
 
   # Allows storing simple values within the context of a request.

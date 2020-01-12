@@ -102,8 +102,8 @@ struct Athena::Routing::Listeners::CORS
   private def check_origin(config : ART::Config::CORS, request : HTTP::Request) : Bool
     return true if config.allow_origin.includes?(WILDCARD)
 
-    # Use case equality in case an origin is a regex
-    # TODO: Allow regex when custom yaml tags are allowed
+    # Use case equality in case an origin is a Regex
+    # TODO: Allow Regex when custom YAML tags are allowed
     config.allow_origin.any? &.===(request.headers["origin"])
   end
 end

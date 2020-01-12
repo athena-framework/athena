@@ -1,4 +1,4 @@
-# The entrypoint into Athena::Routing.
+# The entry-point into Athena::Routing.
 #
 # Emits events that handle a given request.
 struct Athena::Routing::RouteHandler

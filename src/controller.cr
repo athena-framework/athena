@@ -59,7 +59,7 @@
 #     {user_id: user_id, page: page}
 #   end
 #
-#   # A GET endpoint with param constraints.  The param must match the supplied regex or it will not match and return a 404 error.
+#   # A GET endpoint with param constraints.  The param must match the supplied Regex or it will not match and return a 404 error.
 #   @[ART::Get(path: "/time/:time/", constraints: {"time" => /\d{2}:\d{2}:\d{2}/})]
 #   def get_constraint(time : String) : String
 #     time
@@ -68,7 +68,7 @@
 #   # A POST endpoint with a route param and accessing the request body; returning a `Bool`.
 #   #
 #   # It is recommended to use param converters to pass an actual object representing the data (assuming the body is JSON)
-#   # to the route's action; however the raw request body can be accessed by typing an action argument as `HTTP:Request`.
+#   # to the route's action; however the raw request body can be accessed by typing an action argument as `HTTP::Request`.
 #   @[ART::Post(path: "/test/:expected")]
 #   def post_body(expected : String, request : HTTP::Request) : Bool
 #     expected == request.body.try &.gets_to_end

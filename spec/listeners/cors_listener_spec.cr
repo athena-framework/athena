@@ -113,7 +113,7 @@ describe ART::Listeners::CORS do
           listener = ART::Listeners::CORS.new MockCorsConfigResolver.new MockCorsConfigResolver.get_empty_config
           event = new_event do |ctx|
             ctx.request.method = "OPTIONS"
-            ctx.request.headers.add "origin", "https://domain.com"
+            ctx.request.headers.add "origin", "https://example.com"
             ctx.request.headers.add "access-control-request-method", "GET"
           end
 

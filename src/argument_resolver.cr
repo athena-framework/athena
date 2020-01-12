@@ -15,6 +15,12 @@ struct Athena::Routing::ArgumentResolver
       next ctx.request if param.is_a? ART::Parameters::RequestParameter
       next ctx.response if param.is_a? ART::Parameters::ResponseParameter
 
+      # Check if the pram supports conversion and has a converter
+      if param.is_a?(ART::Parameters::Convertable) && (converter = param.converter)
+        # Use the converted value
+        next converter.convert ctx.request
+      end
+
       value = param.extract ctx.request
 
       if param.required?
@@ -33,11 +39,6 @@ struct Athena::Routing::ArgumentResolver
           # Otherwise return `nil`
           next nil
         end
-      end
-
-      # Check if there is a param converter that should modify the value
-      if converter = route.converters.find { |cc| cc.name == param.name }.try &.converter
-        next converter.convert value
       end
 
       begin
