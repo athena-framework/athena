@@ -56,7 +56,7 @@
 #     num
 #   end
 #
-#   @[ART::ParamConverter("user", converter: DBConverter(User))]
+#   @[ART::ParamConverter(param: "user", converter: DBConverter(User))]
 #   @[ART::Get("user/:id")]
 #   def get_user(user : User) : User
 #     user

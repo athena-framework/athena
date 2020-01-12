@@ -15,6 +15,9 @@ struct Athena::Routing::Listeners::Routing
     }
   end
 
+  # Assigns the resolved `ART::Route` and path parameters to the request.
+  #
+  # The resolved route is dupped to avoid mutating the master copy in the singleton.
   def call(event : ART::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
     # The route_resolver must be called here for controller DI to work.
     # Other option would be to new up a route resolver for every request. :shrug:

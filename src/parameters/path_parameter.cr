@@ -1,3 +1,4 @@
+# Represents a parameter within an action's path such as `id` in the path `"/user/:id"`
 struct Athena::Routing::Parameters::PathParameter(T) < Athena::Routing::Parameters::Parameter(T)
   include Athena::Routing::Parameters::Convertable(T)
 

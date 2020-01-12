@@ -1,5 +1,7 @@
-# The core of any framework is routing; how a route is tied to an action.  Athena takes an annotation based approach; an annotation is applied to an instance method of a controller class,
+# The core of any framework is routing; how a route is tied to an action.  Athena takes an annotation based approach; an annotation, such as `ART::Get` is applied to an instance method of a controller class,
 # which will be executed when that endpoint receives a request.  The annotation includes the path as well as any constraints that a parameter must meet in order for the route to be invoked.
+#
+# Additional annotations also exist for setting a query param or a parm converter.  See `ART::QueryParam` and `ART::ParamConverter` respectively.
 #
 # Child controllers must inherit from `ART::Controller` (or an abstract child of it).  Each request gets its own instance of the controller to better allow for DI via `Athena::DI`.
 #

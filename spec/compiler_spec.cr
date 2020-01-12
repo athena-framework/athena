@@ -19,7 +19,7 @@ describe Athena::Routing do
     end
 
     it "param converter annotation but missing action argument" do
-      assert_error "compiler/param_converter_missing_name.cr", "Route action 'CompileController#action's ParamConverter annotation is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field."
+      assert_error "compiler/param_converter_missing_name.cr", "Route action 'CompileController#action's ParamConverter annotation is missing the argument's name.  It was not provided as the first positional argument nor via the 'param' field."
     end
 
     it "when action argument count does not equal expected count" do

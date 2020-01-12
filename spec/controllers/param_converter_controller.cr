@@ -23,7 +23,7 @@ class ParamConverterController < ART::Controller
     doubled_num
   end
 
-  @[ART::QueryParam(name: "num", converter: DoubleConverter(Int32))]
+  @[ART::QueryParam("num", converter: DoubleConverter(Int32))]
   @[ART::Get(path: "/double-query")]
   def double_query(num : Int32) : Int32
     num

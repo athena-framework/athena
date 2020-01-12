@@ -64,10 +64,15 @@ module Athena::Routing
   # within the exception that ultimately could be used in a `ART::Events::Exception` listener.
   module Athena::Routing::Exceptions; end
 
-  # The `AED::EventListenerInterface` that act upon `ART::Events` to handle a request.
+  # The `AED::EventListenerInterface` that act upon `ART::Events` to handle a request.  Custom listeners can also be defined, see `AED::EventListenerInterface`.
   #
   # See each listener for more detailed information.
   module Athena::Routing::Listeners; end
+
+  # Namespace for types related to handling route action parameters.
+  #
+  # See `ART::Parameters::Parameter`.
+  module Athena::Routing::Parameters; end
 
   # Parent type of a route just used for typing.
   #

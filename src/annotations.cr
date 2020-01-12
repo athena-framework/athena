@@ -4,16 +4,10 @@ module Athena::Routing
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
   # * constraints : `Hash(String, Regex)` - A mapping between a route argument and its constraints.
   #
-  # ## Examples
+  # ## Example
   # ```
-  # @[Athena::Routing::Get(path: "/users/:id")]
-  # def get_user : Nil
-  # end
-  #
-  # # Or
-  #
-  # @[Athena::Routing::Get("/users/:id")]
-  # def get_user : Nil
+  # @[ART::Get(path: "/users/:id")]
+  # def get_user(id : Int32) : Nil
   # end
   # ```
   annotation Get; end
@@ -23,15 +17,9 @@ module Athena::Routing
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
   # * constraints : `Hash(String, Regex)` - A mapping between a route argument and its constraints.
   #
-  # ## Examples
+  # ## Example
   # ```
-  # @[Athena::Routing::Post(path: "/users")]
-  # def new_user : Nil
-  # end
-  #
-  # # Or
-  #
-  # @[Athena::Routing::Post("/users")]
+  # @[ART::Post(path: "/users")]
   # def new_user : Nil
   # end
   # ```
@@ -42,16 +30,10 @@ module Athena::Routing
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
   # * constraints : `Hash(String, Regex)` - A mapping between a route argument and its constraints.
   #
-  # ## Examples
+  # ## Example
   # ```
-  # @[Athena::Routing::Put(path: "/users/:id")]
-  # def update_user : Nil
-  # end
-  #
-  # # Or
-  #
-  # @[Athena::Routing::Put("/users/:id")]
-  # def update_user : Nil
+  # @[ART::Put(path: "/users/:id")]
+  # def update_user(id : Int32) : Nil
   # end
   # ```
   annotation Put; end
@@ -61,16 +43,10 @@ module Athena::Routing
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
   # * constraints : `Hash(String, Regex)` - A mapping between a route argument and its constraints.
   #
-  # ## Examples
+  # ## Example
   # ```
-  # @[Athena::Routing::Patch(path: "/users/:id")]
-  # def partial_update_user : Nil
-  # end
-  #
-  # # Or
-  #
-  # @[Athena::Routing::Patch("/users/:id")]
-  # def partial_update_user : Nil
+  # @[ART::Patch(path: "/users/:id")]
+  # def partial_update_user(id : Int32) : Nil
   # end
   # ```
   annotation Patch; end
@@ -80,21 +56,15 @@ module Athena::Routing
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
   # * constraints : `Hash(String, Regex)` - A mapping between a route argument and its constraints.
   #
-  # ## Examples
+  # ## Example
   # ```
-  # @[Athena::Routing::Delete(path: "/users/:id")]
-  # def delete_user : Nil
-  # end
-  #
-  # # Or
-  #
-  # @[Athena::Routing::Delete("/users/:id")]
-  # def delete_user : Nil
+  # @[ART::Delete(path: "/users/:id")]
+  # def delete_user(id : Int32) : Nil
   # end
   # ```
   annotation Delete; end
 
-  # Applies a `ART::ParamConverterInterface` to a given parameter.
+  # Applies an `ART::ParamConverterInterface` to a given parameter.
   #
   # NOTE: The related action argument's type must be compatible with the converter's return type.
   #
@@ -106,13 +76,32 @@ module Athena::Routing
   #
   # ## Example
   # ```
-  # @[Athena::Routing::ParamConverter(param: "value", converter: FloatConverter)]
-  #
-  # # Or
-  #
-  # @[Athena::Routing::ParamConverter("user", converter: Exists(User))]
+  # @[ART::ParamConverter(param: "user", converter: DBConverter(User))]
+  # @[ART::Get(path: "/users/:id")]
+  # def get_user(user : User) : Nil
+  # end
   # ```
   annotation ParamConverter; end
+
+  # Defines a `ART::Parameters::QueryParameter` tied to a given route.
+  #
+  # The type of the query param is derived from the type restriction of the associated controller action argument.
+  #
+  # A non-nilable type denotes it as required.  If the parameter is not supplied, and no default value is assigned, an `ART::Exceptions::BadRequest` exception is raised.
+  # A nilable type denotes it as optional.  If the parameter is not supplied (or could not be converted), and no default value is assigned, it is `nil`.
+  #
+  # ## Fields
+  # * name : `String` - The name of the query parameter, may also be provided as the first positional argument.
+  # * constraints : `Regex` - A pattern the query pram must match to be considered valid.
+  # * converter : `ART::ParamConverterInterface.class` - The `ART::ParamConverterInterface` that should be used to convert this parameter.
+  #
+  # ## Example
+  # ```
+  # @[ART::QueryParam(name: "value")]
+  # @[ART::Get(path: "/example")]
+  # def get_user(name : String) : Nil
+  # end
+  # ```
   annotation QueryParam; end
 
   # Apply a *prefix* to all actions within `self`.
