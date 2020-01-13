@@ -103,8 +103,9 @@ class Athena::Routing::RouteResolver
         {% end %}
 
         # Raise compile time error if the number of action arguments != (queryParams + path arguments + if 1 if there is an HTTP::Request argument).
+        # Also handle the case where a route's only arg is via a param converter
         {% arg_count = ("/" + method + prefix + path).count(':') + m.annotations(ART::QueryParam).size + (m.args.any? &.restriction.resolve.==(HTTP::Request) ? 1 : 0) + (m.args.any? &.restriction.resolve.==(HTTP::Server::Response) ? 1 : 0) %}
-        {% raise "Route action '#{klass.name}##{m.name}' doesn't have the correct number of arguments.  Expected #{arg_count} but got #{m.args.size}." if m.args.size != arg_count %}
+        {% raise "Route action '#{klass.name}##{m.name}' doesn't have the correct number of arguments.  Expected #{arg_count} but got #{m.args.size}." if m.args.size != arg_count && m.annotations(ParamConverter).select { |pc| m.args.map(&.name.stringify).includes?(pc[0] || pc[:name]) }.size == 0 %}
 
         # Add the route to the router
         @routes.add(
