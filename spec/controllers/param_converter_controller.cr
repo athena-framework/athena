@@ -17,21 +17,28 @@ class RequestBodyConverter(T)
 end
 
 class ParamConverterController < ART::Controller
-  @[ART::ParamConverter("doubled_num", converter: DoubleConverter(Int32))]
   @[ART::Get(path: "/double/:num")]
+  @[ART::ParamConverter("doubled_num", converter: DoubleConverter(Int32))]
   def double(doubled_num : Int32) : Int32
     doubled_num
   end
 
-  @[ART::QueryParam("num", converter: DoubleConverter(Int32))]
   @[ART::Get(path: "/double-query")]
+  @[ART::QueryParam("num", converter: DoubleConverter(Int32))]
   def double_query(num : Int32) : Int32
     num
   end
 
-  @[ART::QueryParam(name: "obj", converter: RequestBodyConverter(NamedTuple(name: String, id: Int32)))]
   @[ART::Post(path: "/user")]
+  @[ART::ParamConverter("obj", converter: RequestBodyConverter(NamedTuple(name: String, id: Int32)))]
   def new_type(obj : NamedTuple(name: String, id: Int32)) : Int32
     obj["id"]
+  end
+
+  @[ART::Post("type")]
+  @[ART::QueryParam("id")]
+  @[ART::ParamConverter("obj", converter: RequestBodyConverter(NamedTuple(name: String, id: Int32)))]
+  def new_type_post_qp(id : Int32, obj : NamedTuple(name: String, id: Int32)) : Int32
+    obj["id"] + id
   end
 end
