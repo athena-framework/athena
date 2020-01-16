@@ -173,6 +173,21 @@ describe ART::Listeners::CORS do
 
         assert_headers event.response
       end
+
+      it "without the access-control-request-headers header" do
+        listener = ART::Listeners::CORS.new MockCorsConfigResolver.new
+        event = new_event do |ctx|
+          ctx.request.method = "OPTIONS"
+          ctx.request.headers.add "origin", "https://example.com"
+          ctx.request.headers.add "access-control-request-method", "GET"
+        end
+
+        listener.call event, MockEventDispatcher.new
+
+        event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
+
+        assert_headers event.response
+      end
     end
 
     describe "non-preflight" do

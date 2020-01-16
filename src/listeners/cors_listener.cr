@@ -88,7 +88,7 @@ struct Athena::Routing::Listeners::CORS
       return response.status = :method_not_allowed
     end
 
-    headers = request.headers["access-control-request-headers"].split(/,\ ?/)
+    headers = (rh = request.headers["access-control-request-headers"]?) ? rh.split(/,\ ?/) : [] of String
 
     if !headers.empty? && !config.allow_headers.includes? WILDCARD
       headers.each do |header|
