@@ -7,6 +7,17 @@ private struct MockCorsConfigResolver
     ART::Config::CORS.new
   end
 
+  def self.get_config_with_wildcards : ART::Config::CORS
+    ART::Config::CORS.from_yaml <<-YAML
+      allow_credentials: true
+      max_age: 123
+      expose_headers: ["*"]
+      allow_headers: ["*"]
+      allow_origin: ["*"]
+      allow_methods: ["*"]
+    YAML
+  end
+
   def initialize(@config : ART::Config::CORS? = get_config); end
 
   def resolve(_type : ART::Config::CORS.class) : ART::Config::CORS?
@@ -81,6 +92,13 @@ private def assert_headers(response : HTTP::Server::Response) : Nil
   response.headers["access-control-allow-credentials"].should eq "true"
   response.headers["access-control-allow-headers"].should eq "X-FOO"
   response.headers["access-control-allow-methods"].should eq "POST, GET"
+  response.headers["access-control-allow-origin"].should eq "https://example.com"
+  response.headers["access-control-max-age"].should eq "123"
+end
+
+private def assert_headers_with_wildcard_config_without_request_headers(response : HTTP::Server::Response) : Nil
+  response.headers["access-control-allow-credentials"].should eq "true"
+  response.headers["access-control-allow-methods"].should eq "*"
   response.headers["access-control-allow-origin"].should eq "https://example.com"
   response.headers["access-control-max-age"].should eq "123"
 end
@@ -187,6 +205,21 @@ describe ART::Listeners::CORS do
         event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
 
         assert_headers event.response
+      end
+
+      it "without the access-control-request-headers header and wildcard in allow_headers config" do
+        listener = ART::Listeners::CORS.new MockCorsConfigResolver.new MockCorsConfigResolver.get_config_with_wildcards
+        event = new_event do |ctx|
+          ctx.request.method = "OPTIONS"
+          ctx.request.headers.add "origin", "https://example.com"
+          ctx.request.headers.add "access-control-request-method", "GET"
+        end
+
+        listener.call event, MockEventDispatcher.new
+
+        event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
+
+        assert_headers_with_wildcard_config_without_request_headers event.response
       end
     end
 
