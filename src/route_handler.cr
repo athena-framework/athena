@@ -71,23 +71,27 @@ struct Athena::Routing::RouteHandler
     #   end
     # end
 
+    ctx.response.content_type = "application/json"
+
     # Return 204 if route's return type is `nil`
     if ctx.request.route.return_type == Nil
       ctx.response.status = :no_content
+      finish_request(ctx)
     else
       # Otherwise write the response
-      response.to_json ctx.response
+      finish_request(ctx) { response.to_json ctx.response }
     end
-
-    ctx.response.content_type = "application/json"
-
-    finish_request ctx
   end
 
   private def finish_request(ctx : HTTP::Server::Context) : Nil
+    finish_request(ctx) {}
+  end
+
+  private def finish_request(ctx : HTTP::Server::Context, &block : HTTP::Server::Context -> _) : Nil
     # Emit the response event
     @event_dispatcher.dispatch ART::Events::Response.new ctx
 
+    yield ctx
     # Reset the request store
     @request_store.reset
 
