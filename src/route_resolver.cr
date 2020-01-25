@@ -1,4 +1,4 @@
-# Registers a `ART::Route` for each action with the router.  This type is a singleton as opposed to a service to prevent all the routes from having to be redefined on each request.
+# Registers an `ART::Route` for each action with the router.  This type is a singleton as opposed to a service to prevent all the routes from having to be redefined on each request.
 class Athena::Routing::RouteResolver
   @routes : Amber::Router::RouteSet(Action) = Amber::Router::RouteSet(Action).new
 
