@@ -89,7 +89,11 @@ struct Athena::Routing::RouteHandler
 
     context.response.content_type = "application/json"
 
+    # Yield the context to write the response
     yield context
+
+    # Emit the finish request event
+    @event_dispatcher.dispatch ART::Events::FinishRequest.new context
 
     # Reset the request store
     @request_store.reset
