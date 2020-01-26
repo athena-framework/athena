@@ -26,7 +26,7 @@ describe Athena::Routing::RouteHandler do
 
         handler.handle context
 
-        dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Response, ART::Events::Terminate]
+        dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Response, ART::Events::FinishRequest, ART::Events::Terminate]
         context.response.headers["content-type"].should eq "application/json"
         context.response.closed?.should be_true
         context.response.status.should eq HTTP::Status::OK
@@ -54,7 +54,7 @@ describe Athena::Routing::RouteHandler do
 
         handler.handle context
 
-        dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Response, ART::Events::Terminate]
+        dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Response, ART::Events::FinishRequest, ART::Events::Terminate]
         context.response.headers["content-type"].should eq "application/json"
         context.response.headers["FOO"].should eq "BAR"
         context.response.closed?.should be_true
@@ -76,7 +76,7 @@ describe Athena::Routing::RouteHandler do
 
         handler.handle context
 
-        dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Exception, ART::Events::Response, ART::Events::Terminate]
+        dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Exception, ART::Events::Response, ART::Events::FinishRequest, ART::Events::Terminate]
         context.response.headers["content-type"].should eq "application/json"
         context.response.closed?.should be_true
         context.response.status.should eq HTTP::Status::BAD_REQUEST
@@ -95,7 +95,7 @@ describe Athena::Routing::RouteHandler do
 
         handler.handle context
 
-        dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Exception, ART::Events::Response, ART::Events::Terminate]
+        dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Exception, ART::Events::Response, ART::Events::FinishRequest, ART::Events::Terminate]
         context.response.headers["content-type"].should eq "application/json"
         context.response.closed?.should be_true
         context.response.status.should eq HTTP::Status::INTERNAL_SERVER_ERROR
