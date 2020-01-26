@@ -100,7 +100,7 @@ describe ART::Listeners::CORS do
 
     describe "preflight" do
       describe :defaults do
-        it "should only set the vary header" do
+        it "should only set the default headers" do
           listener = ART::Listeners::CORS.new MockCorsConfigResolver.new MockCorsConfigResolver.get_empty_config
           event = new_event do |ctx|
             ctx.request.method = "OPTIONS"
@@ -111,6 +111,7 @@ describe ART::Listeners::CORS do
           listener.call event, TracableEventDispatcher.new
 
           event.response.headers["vary"].should eq "origin"
+          event.response.headers["access-control-allow-methods"].should eq "GET, POST, HEAD"
           event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
         end
       end
