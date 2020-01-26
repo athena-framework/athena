@@ -61,33 +61,6 @@ private def new_event(event : AED::Event.class = ART::Events::Request, &)
   event.new ctx
 end
 
-private class MockEventDispatcher
-  include Athena::EventDispatcher::EventDispatcherInterface
-
-  def add_listener(event : AED::Event.class, listener : AED::EventListenerType, priority : Int32 = 0) : Nil
-  end
-
-  def dispatch(event : AED::Event) : Nil
-  end
-
-  def listeners(event : AED::Event.class | Nil = nil) : Array(AED::EventListener)
-    [] of AED::EventListener
-  end
-
-  def listener_priority(event : AED::Event.class, listener : AED::EventListenerInterface.class) : Int32?
-  end
-
-  def has_listeners?(event : AED::Event.class | Nil = nil) : Bool
-    false
-  end
-
-  def remove_listener(event : AED::Event.class, listener : AED::EventListenerInterface.class) : Nil
-  end
-
-  def remove_listener(event : AED::Event.class, listener : AED::EventListenerType) : Nil
-  end
-end
-
 private def assert_headers(response : HTTP::Server::Response) : Nil
   response.headers["access-control-allow-credentials"].should eq "true"
   response.headers["access-control-allow-headers"].should eq "X-FOO"
@@ -109,7 +82,7 @@ describe ART::Listeners::CORS do
       listener = ART::Listeners::CORS.new MockCorsConfigResolver.new nil
       event = new_event
 
-      listener.call event, MockEventDispatcher.new
+      listener.call event, TracableEventDispatcher.new
 
       event.response.headers.should be_empty
       event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
@@ -119,7 +92,7 @@ describe ART::Listeners::CORS do
       listener = ART::Listeners::CORS.new MockCorsConfigResolver.new MockCorsConfigResolver.get_empty_config
       event = new_event
 
-      listener.call event, MockEventDispatcher.new
+      listener.call event, TracableEventDispatcher.new
 
       event.response.headers.should be_empty
       event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
@@ -135,7 +108,7 @@ describe ART::Listeners::CORS do
             ctx.request.headers.add "access-control-request-method", "GET"
           end
 
-          listener.call event, MockEventDispatcher.new
+          listener.call event, TracableEventDispatcher.new
 
           event.response.headers["vary"].should eq "origin"
           event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
@@ -150,7 +123,7 @@ describe ART::Listeners::CORS do
           ctx.request.headers.add "access-control-request-method", "LINK"
         end
 
-        listener.call event, MockEventDispatcher.new
+        listener.call event, TracableEventDispatcher.new
 
         event.response.status.should eq HTTP::Status::METHOD_NOT_ALLOWED
         event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
@@ -168,7 +141,7 @@ describe ART::Listeners::CORS do
         end
 
         expect_raises ART::Exceptions::Forbidden, "Unauthorized header: 'X-BAD'" do
-          listener.call event, MockEventDispatcher.new
+          listener.call event, TracableEventDispatcher.new
         end
 
         event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
@@ -185,7 +158,7 @@ describe ART::Listeners::CORS do
           ctx.request.headers.add "access-control-request-headers", "X-FOO"
         end
 
-        listener.call event, MockEventDispatcher.new
+        listener.call event, TracableEventDispatcher.new
 
         event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
 
@@ -200,7 +173,7 @@ describe ART::Listeners::CORS do
           ctx.request.headers.add "access-control-request-method", "GET"
         end
 
-        listener.call event, MockEventDispatcher.new
+        listener.call event, TracableEventDispatcher.new
 
         event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
 
@@ -233,7 +206,7 @@ describe ART::Listeners::CORS do
           ctx.request.headers.add "access-control-request-headers", "X-FOO"
         end
 
-        listener.call event, MockEventDispatcher.new
+        listener.call event, TracableEventDispatcher.new
 
         event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
         event.response.headers.should be_empty
@@ -248,7 +221,7 @@ describe ART::Listeners::CORS do
           ctx.request.headers.add "access-control-request-headers", "X-FOO"
         end
 
-        listener.call event, MockEventDispatcher.new
+        listener.call event, TracableEventDispatcher.new
 
         event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_true
         event.response.headers.should be_empty
@@ -268,7 +241,7 @@ describe ART::Listeners::CORS do
         ctx.request.attributes[Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN] = true
       end
 
-      listener.call event, MockEventDispatcher.new
+      listener.call event, TracableEventDispatcher.new
 
       event.response.headers["access-control-allow-origin"].should eq "https://example.com"
       event.response.headers["access-control-allow-credentials"].should eq "true"
@@ -286,7 +259,7 @@ describe ART::Listeners::CORS do
         ctx.request.attributes[Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN] = false
       end
 
-      listener.call event, MockEventDispatcher.new
+      listener.call event, TracableEventDispatcher.new
 
       event.response.headers.should be_empty
     end
@@ -295,7 +268,7 @@ describe ART::Listeners::CORS do
       listener = ART::Listeners::CORS.new MockCorsConfigResolver.new nil
       event = new_event(ART::Events::Response)
 
-      listener.call event, MockEventDispatcher.new
+      listener.call event, TracableEventDispatcher.new
 
       event.response.headers.should be_empty
     end

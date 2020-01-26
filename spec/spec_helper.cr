@@ -8,7 +8,17 @@ end
 
 CLIENT = HTTP::Client.new "localhost", 3000
 
+class TestController < ART::Controller
+  get "test" do
+    "TEST"
+  end
+end
+
 def new_context(*, request : HTTP::Request = new_request, response : HTTP::Server::Response = new_response) : HTTP::Server::Context
+  request.route = ART::Route(TestController, Proc(Proc(String)), String).new(
+    ->{ test_controller = TestController.new; ->test_controller.get_test }
+  )
+
   HTTP::Server::Context.new request, response
 end
 
@@ -49,4 +59,19 @@ def run_binary(name : String = "bin/athena", args : Array(String) = [] of String
   Process.run(name, args, error: buffer, output: buffer)
   yield buffer.to_s
   buffer.close
+end
+
+# Test implementation of `AED::EventDispatcherInterface` that keeps track of the events that were dispatched.
+class TracableEventDispatcher < AED::EventDispatcher
+  getter emitted_events : Array(AED::Event.class) = [] of AED::Event.class
+
+  def self.new
+    new [] of AED::EventListenerInterface
+  end
+
+  def dispatch(event : AED::Event) : Nil
+    @emitted_events << event.class
+
+    super
+  end
 end

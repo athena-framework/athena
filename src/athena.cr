@@ -59,12 +59,16 @@ module Athena::Routing
   # using the status code defined on the exception as well as merging any headers into the response.  In the future a more flexible/proper error renderer layer will be implemented.
   # If the exception is not a `ART::Exceptions::HTTPException`, then a 500 internal server error is returned.
   #
+  # The exception is rethrown if the current ENV is `"development"` and the response was a 500 to better help with debugging.
+  #
   # To provide the best response to the client, non `ART::Exceptions::HTTPException` should be caught and converted to a corresponding `ART::Exceptions::HTTPException`.
   # Custom HTTP errors can also be defined by inheriting from `ART::Exceptions::HTTPException`.  A use case for this could be allowing for additional data/context to be included
   # within the exception that ultimately could be used in a `ART::Events::Exception` listener.
   module Athena::Routing::Exceptions; end
 
   # The `AED::EventListenerInterface` that act upon `ART::Events` to handle a request.  Custom listeners can also be defined, see `AED::EventListenerInterface`.
+  #
+  # NOTE: In order for `Athena::Routing` to pick up your custom listener, be sure to `ADI::Register` it as a service, and tag it as `"athena.event_dispatcher.listener"`.
   #
   # See each listener for more detailed information.
   module Athena::Routing::Listeners; end
