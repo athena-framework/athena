@@ -57,7 +57,7 @@ struct Athena::Routing::RouteHandler
 
     # TODO: Add a view layer
     # unless response.is_a? ART::Response
-    #   view_event = route.create_view_event response, context
+    #   view_event = context.request.route.create_view_event response, context
     #   @event_dispatcher.dispatch view_event
     #
     #   if view_event.has_response?

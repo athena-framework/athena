@@ -1,3 +1,4 @@
+# :nodoc:
 module Athena::Routing::ArgumentResolverInterface
   abstract def resolve(ctx : HTTP::Server::Context) : Array
 end

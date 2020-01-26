@@ -16,7 +16,7 @@ end
 
 def new_context(*, request : HTTP::Request = new_request, response : HTTP::Server::Response = new_response) : HTTP::Server::Context
   request.route = ART::Route(TestController, Proc(Proc(String)), String).new(
-    ->{ __temp_1502 = TestController.new; ->__temp_1502.get_test }
+    ->{ test_controller = TestController.new; ->test_controller.get_test }
   )
 
   HTTP::Server::Context.new request, response
