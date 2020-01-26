@@ -7,61 +7,57 @@ struct Athena::Routing::RouteHandler
   def initialize(
     @event_dispatcher : AED::EventDispatcherInterface,
     @request_store : ART::RequestStore,
-    @argument_resolver : ART::ArgumentResolver
+    @argument_resolver : ART::ArgumentResolverInterface
   )
   end
 
-  def handle(ctx : HTTP::Server::Context) : Nil
-    handle_raw ctx
+  def handle(context : HTTP::Server::Context) : Nil
+    handle_raw context
   rescue ex : ::Exception
-    event = ART::Events::Exception.new ctx.request, ex
+    event = ART::Events::Exception.new context.request, ex
     @event_dispatcher.dispatch event
 
     exception = event.exception
-    response = ctx.response
 
-    # Add content-type header
-    response.content_type = "application/json"
+    finish_request(context) do |ctx|
+      if exception.is_a? ART::Exceptions::HTTPException
+        # Add headers from the exception
+        ctx.response.headers.merge! exception.headers
+        ctx.response.status = exception.status
+      else
+        ctx.response.status = :internal_server_error
+      end
 
-    if exception.is_a? ART::Exceptions::HTTPException
-      # Add headers from the exception
-      response.headers.merge! exception.headers
-      response.status = exception.status
-    else
-      response.status = :internal_server_error
+      exception.to_json ctx.response
     end
-
-    exception.to_json ctx.response
-
-    response.close
 
     # Raise the exception again to help with debugging if in the development ENV and response is a 500.
     # In the future make this part of an ExceptionListener or something
-    raise exception if Athena.environment == "development" && response.status.internal_server_error?
+    raise exception if Athena.environment == "development" && context.response.status.internal_server_error?
   end
 
-  private def handle_raw(ctx : HTTP::Server::Context) : Nil
+  private def handle_raw(context : HTTP::Server::Context) : Nil
     # Set the current request in the RequestStore
-    @request_store.request = ctx.request
+    @request_store.request = context.request
 
     # Emit the request event
-    request_event = ART::Events::Request.new ctx
+    request_event = ART::Events::Request.new context
     @event_dispatcher.dispatch request_event
 
     # Return the event early if one was set
-    return finish_request ctx if request_event.request_finished?
+    return finish_request context if request_event.request_finished?
 
     # Resolve and set the arguments from the request
-    ctx.request.route.set_arguments @argument_resolver.resolve ctx
+    context.request.route.set_arguments @argument_resolver.resolve context
 
     # Possibly add another event here to allow modification of the resolved arguments?
 
     # Call the action and get the response
-    response = ctx.request.route.execute
+    response = context.request.route.execute
 
     # TODO: Add a view layer
     # unless response.is_a? ART::Response
-    #   view_event = route.create_view_event response, ctx
+    #   view_event = context.request.route.create_view_event response, context
     #   @event_dispatcher.dispatch view_event
     #
     #   if view_event.has_response?
@@ -71,30 +67,37 @@ struct Athena::Routing::RouteHandler
     #   end
     # end
 
-    # Return 204 if route's return type is `nil`
-    if ctx.request.route.return_type == Nil
-      ctx.response.status = :no_content
-    else
-      # Otherwise write the response
-      response.to_json ctx.response
+    finish_request(context) do |ctx|
+      # Return 204 if route's return type is `nil`
+      if ctx.request.route.return_type == Nil
+        ctx.response.status = :no_content
+      else
+        # Otherwise write the response
+        response.to_json ctx.response
+      end
     end
-
-    ctx.response.content_type = "application/json"
-
-    finish_request ctx
   end
 
-  private def finish_request(ctx : HTTP::Server::Context) : Nil
+  private def finish_request(context : HTTP::Server::Context) : Nil
+    finish_request(context) { }
+  end
+
+  # Emits the Response event, writes the final response body, closes the response, then emits the Terminate event.
+  private def finish_request(context : HTTP::Server::Context, & : HTTP::Server::Context -> Nil) : Nil
     # Emit the response event
-    @event_dispatcher.dispatch ART::Events::Response.new ctx
+    @event_dispatcher.dispatch ART::Events::Response.new context
+
+    context.response.content_type = "application/json"
+
+    yield context
 
     # Reset the request store
     @request_store.reset
 
     # Close the response
-    ctx.response.close
+    context.response.close
 
     # Emit the terminate event
-    @event_dispatcher.dispatch ART::Events::Terminate.new ctx
+    @event_dispatcher.dispatch ART::Events::Terminate.new context
   end
 end

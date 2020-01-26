@@ -99,7 +99,7 @@ module Athena::Routing
   #
   # ## Fields
   # * name : `String` - The name of the query parameter, may also be provided as the first positional argument.
-  # * constraints : `Regex` - A pattern the query pram must match to be considered valid.
+  # * constraints : `Regex` - A pattern the query param must match to be considered valid.
   # * converter : `ART::ParamConverterInterface.class` - The `ART::ParamConverterInterface` that should be used to convert this parameter.
   #
   # ## Example

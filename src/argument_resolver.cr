@@ -1,8 +1,14 @@
+# :nodoc:
+module Athena::Routing::ArgumentResolverInterface
+  abstract def resolve(ctx : HTTP::Server::Context) : Array
+end
+
 @[ADI::Register]
 # :nodoc:
 #
 # A service that encapsulates the logic for resolving action arguments from a request.
 struct Athena::Routing::ArgumentResolver
+  include Athena::Routing::ArgumentResolverInterface
   include ADI::Service
 
   # Returns an array of parameters for the `ART::Route` associated with the given *ctx*.
@@ -15,7 +21,7 @@ struct Athena::Routing::ArgumentResolver
       next ctx.request if param.is_a? ART::Parameters::RequestParameter
       next ctx.response if param.is_a? ART::Parameters::ResponseParameter
 
-      # Check if the pram supports conversion and has a converter
+      # Check if the param supports conversion and has a converter
       if param.is_a?(ART::Parameters::Convertable) && (converter = param.converter)
         # Use the converted value
         next converter.convert ctx.request
