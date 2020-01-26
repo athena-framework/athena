@@ -7,6 +7,16 @@ private struct MockCorsConfigResolver
     ART::Config::CORS.new
   end
 
+  def self.get_config_with_wildcards : ART::Config::CORS
+    ART::Config::CORS.from_yaml <<-YAML
+      allow_credentials: true
+      max_age: 123
+      expose_headers: ["*"]
+      allow_headers: ["*"]
+      allow_origin: ["*"]
+    YAML
+  end
+
   def initialize(@config : ART::Config::CORS? = get_config); end
 
   def resolve(_type : ART::Config::CORS.class) : ART::Config::CORS?
@@ -58,6 +68,14 @@ private def assert_headers(response : HTTP::Server::Response) : Nil
   response.headers["access-control-max-age"].should eq "123"
 end
 
+private def assert_headers_with_wildcard_config_without_request_headers(response : HTTP::Server::Response) : Nil
+  response.headers["access-control-allow-credentials"].should eq "true"
+  response.headers["access-control-allow-headers"]?.should be_nil
+  response.headers["access-control-allow-methods"].should eq "GET, POST, HEAD"
+  response.headers["access-control-allow-origin"].should eq "https://example.com"
+  response.headers["access-control-max-age"].should eq "123"
+end
+
 describe ART::Listeners::CORS do
   describe "#call - request" do
     it "without a configuration defined" do
@@ -82,7 +100,7 @@ describe ART::Listeners::CORS do
 
     describe "preflight" do
       describe :defaults do
-        it "should only set the vary header" do
+        it "should only set the default headers" do
           listener = ART::Listeners::CORS.new MockCorsConfigResolver.new MockCorsConfigResolver.get_empty_config
           event = new_event do |ctx|
             ctx.request.method = "OPTIONS"
@@ -93,6 +111,7 @@ describe ART::Listeners::CORS do
           listener.call event, TracableEventDispatcher.new
 
           event.response.headers["vary"].should eq "origin"
+          event.response.headers["access-control-allow-methods"].should eq "GET, POST, HEAD"
           event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
         end
       end
@@ -160,6 +179,21 @@ describe ART::Listeners::CORS do
         event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
 
         assert_headers event.response
+      end
+
+      it "without the access-control-request-headers header and wildcard in allow_headers config" do
+        listener = ART::Listeners::CORS.new MockCorsConfigResolver.new MockCorsConfigResolver.get_config_with_wildcards
+        event = new_event do |ctx|
+          ctx.request.method = "OPTIONS"
+          ctx.request.headers.add "origin", "https://example.com"
+          ctx.request.headers.add "access-control-request-method", "GET"
+        end
+
+        listener.call event, TracableEventDispatcher.new
+
+        event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
+
+        assert_headers_with_wildcard_config_without_request_headers event.response
       end
     end
 

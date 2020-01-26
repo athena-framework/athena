@@ -7,16 +7,84 @@ struct Athena::Routing::Listeners::CORS
   include AED::EventListenerInterface
   include ADI::Service
 
+  # Encapsulates logic to set CORS response headers
+  private struct ResponseHeaders
+    def initialize(@headers : HTTP::Headers); end
+
+    {% for header in %w[allow-origin allow-methods allow-headers allow-credentials expose-headers] %}
+      {% method_name = header.tr("-", "_").id %}
+      def {{method_name}}=(value : String) : Nil
+        @headers[{{"access-control-#{header.id}"}}] = value
+      end
+
+      def {{method_name}}=(value : Bool) : Nil
+        return unless value
+        self.{{method_name}} = "true"
+      end
+
+      def {{method_name}}=(value : Array(String)) : Nil
+        return if value.empty?
+        self.{{method_name}} = value.join(", ")
+      end
+
+      def {{method_name}}=(value : Nil) : Nil
+      end
+
+      def delete_{{method_name}} : Nil
+        @headers.delete({{"access-control-#{header.id}"}})
+      end
+    {% end %}
+
+    def max_age=(value : Int32) : Nil
+      return unless value > 0
+      @headers["access-control-max-age"] = value.to_s
+    end
+
+    def vary=(value : String) : Nil
+      @headers["vary"] = value
+    end
+  end
+
+  # Encapsulates logic to query CORS request headers
+  private struct RequestHeaders
+    def initialize(@headers : HTTP::Headers); end
+
+    def request_method : String?
+      @headers["access-control-request-method"]?.try(&.upcase)
+    end
+
+    def request_headers : Array(String)
+      @headers["access-control-request-headers"]?.try(&.split(/,\ ?/)) || [] of String
+    end
+
+    def origin : String?
+      @headers["origin"]?
+    end
+
+    def has_request_method? : Bool
+      @headers.has_key?("access-control-request-method")
+    end
+  end
+
   # :nodoc:
   ALLOW_SET_ORIGIN = "athena.routing.cors.allow_set_origin"
   private WILDCARD         = "*"
-  private SIMPLE_HEADERS   = {
+
+  # The [CORS-safelisted request-headers](https://fetch.spec.whatwg.org/#cors-safelisted-request-header).
+  SAFELISTED_HEADERS = [
     "accept",
     "accept-language",
     "content-language",
     "content-type",
     "origin",
-  }
+  ]
+
+  # The [CORS-safelisted methods](https://fetch.spec.whatwg.org/#cors-safelisted-method).
+  SAFELISTED_METHODS = [
+    "GET",
+    "POST",
+    "HEAD",
+  ]
 
   def self.subscribed_events : AED::SubscribedEvents
     AED::SubscribedEvents{
@@ -29,6 +97,7 @@ struct Athena::Routing::Listeners::CORS
 
   def call(event : ART::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
     request = event.request
+    request_headers = RequestHeaders.new(request.headers)
 
     # Return early if there is no configuration.
     return unless config = @configuration_resolver.resolve(ART::Config::CORS)
@@ -38,7 +107,7 @@ struct Athena::Routing::Listeners::CORS
     return unless request.headers.has_key? "origin"
 
     # If the request is a preflight, return the proper response.
-    if request.method == "OPTIONS" && request.headers.has_key? "access-control-request-method"
+    if request.method == "OPTIONS" && request_headers.has_request_method?
       set_preflight_response config, event.request, event.response
 
       return event.finish_request
@@ -56,45 +125,43 @@ struct Athena::Routing::Listeners::CORS
     # Return early if there is no configuration.
     return unless config = @configuration_resolver.resolve(ART::Config::CORS)
 
+    request_headers = RequestHeaders.new(event.request.headers)
+    response_headers = ResponseHeaders.new(event.response.headers)
+
     # TODO: Add a configuration option to allow setting this explicitly
-    event.response.headers["access-control-allow-origin"] = event.request.headers["origin"]
-    event.response.headers["access-control-allow-credentials"] = "true" if config.allow_credentials
-    event.response.headers["access-control-expose-headers"] = config.expose_headers.join(", ") unless config.expose_headers.empty?
+    response_headers.allow_origin = request_headers.origin
+    response_headers.allow_credentials = config.allow_credentials
+    response_headers.expose_headers = config.expose_headers
   end
 
   # Configures the given *response* for CORS preflight
   private def set_preflight_response(config : ART::Config::CORS, request : HTTP::Request, response : HTTP::Server::Response) : Nil
-    response.headers["vary"] = "origin"
+    response_headers = ResponseHeaders.new(response.headers)
+    request_headers = RequestHeaders.new(request.headers)
 
-    response.headers["access-control-allow-credentials"] = "true" if config.allow_credentials
-    response.headers["access-control-max-age"] = config.max_age.to_s if config.max_age > 0
-    response.headers["access-control-allow-methods"] = config.allow_methods.join(", ") unless config.allow_methods.empty?
+    response_headers.vary = "origin"
+    response_headers.allow_credentials = config.allow_credentials
+    response_headers.max_age = config.max_age
+    response_headers.allow_methods = config.allow_methods
 
-    unless config.allow_headers.empty?
-      headers : Array(String) = config.allow_headers.includes?(WILDCARD) ? request.headers["access-control-request-headers"].split(/,\ ?/) : config.allow_headers
-
-      unless headers.empty?
-        response.headers["access-control-allow-headers"] = headers.join(", ")
-      end
-    end
+    response_headers.allow_headers = config.allow_headers.includes?(WILDCARD) ? request_headers.request_headers : config.allow_headers
 
     unless check_origin config, request
-      return request.headers.delete "access-control-allow-origin"
+      return response_headers.delete_allow_origin
     end
 
-    response.headers["access-control-allow-origin"] = request.headers["origin"]
+    response_headers.allow_origin = request_headers.origin
 
-    unless config.allow_methods.includes? request.headers["access-control-request-method"].upcase
+    unless config.allow_methods.includes? request_headers.request_method
       return response.status = :method_not_allowed
     end
 
-    headers = (rh = request.headers["access-control-request-headers"]?) ? rh.split(/,\ ?/) : [] of String
+    unless config.allow_headers.includes? WILDCARD
+      request_headers.request_headers.each do |header|
+        next if SAFELISTED_HEADERS.includes? header
+        next if config.allow_headers.includes? header
 
-    if !headers.empty? && !config.allow_headers.includes? WILDCARD
-      headers.each do |header|
-        next if SIMPLE_HEADERS.includes? header
-
-        raise ART::Exceptions::Forbidden.new "Unauthorized header: '#{header}'" unless config.allow_headers.includes? header
+        raise ART::Exceptions::Forbidden.new "Unauthorized header: '#{header}'"
       end
     end
   end

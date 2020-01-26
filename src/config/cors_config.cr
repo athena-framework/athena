@@ -30,7 +30,8 @@ struct Athena::Routing::Config::CORS
   # The method or methods allowed when accessing the resource.
   #
   # Maps to the `access-control-allow-methods` header.
-  getter allow_methods : Array(String) = [] of String
+  # Defaults to the [CORS-safelisted methods](https://fetch.spec.whatwg.org/#cors-safelisted-method).
+  getter allow_methods : Array(String) = Athena::Routing::Listeners::CORS::SAFELISTED_METHODS
 
   # Array of headers that the browser is allowed to read from the response.
   #
