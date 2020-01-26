@@ -7,14 +7,9 @@ struct Athena::Routing::Listeners::CORS
   include AED::EventListenerInterface
   include ADI::Service
 
-  # :nodoc:
-  ALLOW_SET_ORIGIN = "athena.routing.cors.allow_set_origin"
-  private WILDCARD         = "*"
-
   # Encapsulates logic to set CORS response headers
   private struct ResponseHeaders
-    def initialize(@headers : HTTP::Headers)
-    end
+    def initialize(@headers : HTTP::Headers); end
 
     {% for header in %w[allow-origin allow-methods allow-headers allow-credentials expose-headers] %}
       {% method_name = header.tr("-", "_").id %}
@@ -52,8 +47,7 @@ struct Athena::Routing::Listeners::CORS
 
   # Encapsulates logic to query CORS request headers
   private struct RequestHeaders
-    def initialize(@headers : HTTP::Headers)
-    end
+    def initialize(@headers : HTTP::Headers); end
 
     def request_method : String?
       @headers["access-control-request-method"]?.try(&.upcase)
@@ -72,13 +66,25 @@ struct Athena::Routing::Listeners::CORS
     end
   end
 
-  private SIMPLE_HEADERS = {
+  # :nodoc:
+  ALLOW_SET_ORIGIN = "athena.routing.cors.allow_set_origin"
+  private WILDCARD         = "*"
+
+  # The [CORS-safelisted request-headers](https://fetch.spec.whatwg.org/#cors-safelisted-request-header).
+  SAFELISTED_HEADERS = [
     "accept",
     "accept-language",
     "content-language",
     "content-type",
     "origin",
-  }
+  ]
+
+  # The [CORS-safelisted methods](https://fetch.spec.whatwg.org/#cors-safelisted-method).
+  SAFELISTED_METHODS = [
+    "GET",
+    "POST",
+    "HEAD",
+  ]
 
   def self.subscribed_events : AED::SubscribedEvents
     AED::SubscribedEvents{
@@ -152,7 +158,7 @@ struct Athena::Routing::Listeners::CORS
 
     unless config.allow_headers.includes? WILDCARD
       request_headers.request_headers.each do |header|
-        next if SIMPLE_HEADERS.includes? header
+        next if SAFELISTED_HEADERS.includes? header
         next if config.allow_headers.includes? header
 
         raise ART::Exceptions::Forbidden.new "Unauthorized header: '#{header}'"

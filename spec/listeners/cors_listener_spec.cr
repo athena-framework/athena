@@ -14,7 +14,6 @@ private struct MockCorsConfigResolver
       expose_headers: ["*"]
       allow_headers: ["*"]
       allow_origin: ["*"]
-      allow_methods: ["*"]
     YAML
   end
 
@@ -71,7 +70,8 @@ end
 
 private def assert_headers_with_wildcard_config_without_request_headers(response : HTTP::Server::Response) : Nil
   response.headers["access-control-allow-credentials"].should eq "true"
-  response.headers["access-control-allow-methods"].should eq "*"
+  response.headers["access-control-allow-headers"]?.should be_nil
+  response.headers["access-control-allow-methods"].should eq "GET, POST, HEAD"
   response.headers["access-control-allow-origin"].should eq "https://example.com"
   response.headers["access-control-max-age"].should eq "123"
 end
@@ -188,7 +188,7 @@ describe ART::Listeners::CORS do
           ctx.request.headers.add "access-control-request-method", "GET"
         end
 
-        listener.call event, MockEventDispatcher.new
+        listener.call event, TracableEventDispatcher.new
 
         event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
 
