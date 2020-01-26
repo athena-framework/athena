@@ -80,8 +80,6 @@ class Athena::Routing::RouteResolver
 
           {% if arg.restriction.resolve == HTTP::Request %}
             %params{m_idx} << ART::Parameters::RequestParameter(HTTP::Request).new {{arg.name.stringify}}
-          {% elsif arg.restriction.resolve == HTTP::Server::Response %}
-            %params{m_idx} << ART::Parameters::ResponseParameter(HTTP::Server::Response).new {{arg.name.stringify}}
           # Look for any query parameter annotation defined on `arg`.
           # Raise compile time error if there is an annotation but no action argument.
           {% elsif qp = m.annotations(ART::QueryParam).find { |query_param| (name = query_param[0] || query_param[:name]) ? name == arg.name.stringify : raise "Route action '#{klass.name}##{m.name}'s QueryParam annotation is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." } %}

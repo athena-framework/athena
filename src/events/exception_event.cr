@@ -6,8 +6,18 @@ require "./request_event"
 #
 # TODO: Refactor this to be similar to `ART::Events::Request` to support error renderers.
 class Athena::Routing::Events::Exception < AED::Event
+  include Athena::Routing::Events::RequestAware
+
+  # The response object.
+  getter response : ART::Response? = nil
+
   property exception : ::Exception
 
-  def initialize(@request : HTTP::Request, @exception : ::Exception)
+  def initialize(request : HTTP::Request, @exception : ::Exception)
+    super request
+  end
+
+  def response=(@response : ART::Response) : Nil
+    stop_propagation
   end
 end

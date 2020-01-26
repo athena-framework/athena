@@ -10,6 +10,7 @@ require "./annotations"
 require "./argument_resolver"
 require "./controller"
 require "./param_converter_interface"
+require "./response"
 require "./request_store"
 require "./route_handler"
 require "./route_resolver"
@@ -42,9 +43,6 @@ alias ART = Athena::Routing
 # * See `ART::ParamConverterInterface` for documentation on using param converters.
 # * See `ART::Exceptions` for documentation on exception handling.
 module Athena::Routing
-  # :nodoc:
-  @@server : HTTP::Server?
-
   protected class_getter route_resolver : ART::RouteResolver { ART::RouteResolver.new }
 
   # The `AED::Event` that are emitted via `Athena::EventDispatcher` to handle a request during its life-cycle.
@@ -134,41 +132,43 @@ module Athena::Routing
     end
   end
 
-  # Stops the server.
-  def self.stop : Nil
-    if server = @@server
-      server.close unless server.closed?
-    else
-      raise "Server not set"
-    end
-  end
-
   # Starts the HTTP server with the given *port*, *host*, *ssl*, *reuse_port*.
   def self.run(port : Int32 = 3000, host : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server | Bool | Nil = nil, reuse_port : Bool = false)
     # Define the server
-    @@server = HTTP::Server.new do |ctx|
+    server = HTTP::Server.new do |context|
       # Instantiate a new instance of the container so that
       # the container objects do not bleed between requests
       Fiber.current.container = Athena::DI::ServiceContainer.new
 
-      # Pass the request context to the route handler
-      ART::RouteHandler.new.handle ctx
+      # Instantiate a new route handler object
+      handler = ART::RouteHandler.new
 
-      nil
+      # Pass the request to the route handler
+      response = handler.handle context.request
+
+      # Apply the `ART::Response` to the actual `HTTP::Server::Response` object
+      IO.copy response.io, context.response
+      context.response.headers.merge! response.headers
+      context.response.status = response.status
+
+      # Close the response
+      context.response.close
+
+      handler.terminate context.request, response
     end
 
-    unless @@server.not_nil!.each_address { break true }
+    unless server.each_address { break true }
       {% if flag?(:without_openssl) %}
-        @@server.not_nil!.bind_tcp(host, port, reuse_port: reuse_port)
+        server.bind_tcp(host, port, reuse_port: reuse_port)
       {% else %}
         if ssl
-          @@server.not_nil!.bind_tls(host, port, ssl, reuse_port: reuse_port)
+          server.bind_tls(host, port, ssl, reuse_port: reuse_port)
         else
-          @@server.not_nil!.bind_tcp(host, port, reuse_port: reuse_port)
+          server.bind_tcp(host, port, reuse_port: reuse_port)
         end
       {% end %}
     end
 
-    @@server.not_nil!.listen
+    server.listen
   end
 end

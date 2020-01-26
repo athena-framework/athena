@@ -1,6 +1,6 @@
 # :nodoc:
 module Athena::Routing::ArgumentResolverInterface
-  abstract def resolve(ctx : HTTP::Server::Context) : Array
+  abstract def resolve(request : HTTP::Request) : Array
 end
 
 @[ADI::Register]
@@ -11,23 +11,22 @@ struct Athena::Routing::ArgumentResolver
   include Athena::Routing::ArgumentResolverInterface
   include ADI::Service
 
-  # Returns an array of parameters for the `ART::Route` associated with the given *ctx*.
-  def resolve(ctx : HTTP::Server::Context) : Array
-    route = ctx.request.route
+  # Returns an array of parameters for the `ART::Route` associated with the given *request*.
+  def resolve(request : HTTP::Request) : Array
+    route = request.route
 
     # Iterate over each `ART::Parameters::Parameter` defined on the route
     route.parameters.map do |param|
       # Handle request/response parameters
-      next ctx.request if param.is_a? ART::Parameters::RequestParameter
-      next ctx.response if param.is_a? ART::Parameters::ResponseParameter
+      next request if param.is_a? ART::Parameters::RequestParameter
 
       # Check if the param supports conversion and has a converter
       if param.is_a?(ART::Parameters::Convertable) && (converter = param.converter)
         # Use the converted value
-        next converter.convert ctx.request
+        next converter.convert request
       end
 
-      value = param.extract ctx.request
+      value = param.extract request
 
       if param.required?
         if value.nil?
