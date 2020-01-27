@@ -18,10 +18,9 @@ struct Athena::Routing::RouteHandler
     @event_dispatcher.dispatch event
 
     exception = event.exception
-    response = event.response
 
-    if response.nil?
-      finish_request request
+    unless response = event.response
+      finish_request
 
       raise exception
     end
@@ -57,15 +56,12 @@ struct Athena::Routing::RouteHandler
 
     # TODO: Add a view layer
     unless response.is_a? ART::Response
-      # view_event = context.request.route.create_view_event response, context
-      # @event_dispatcher.dispatch view_event
+      view_event = ART::Events::View.new request, ART::View.new(response)
+      @event_dispatcher.dispatch view_event
 
-      # if view_event.has_response?
-      #   response = view_event.response
-      # else
-      #   raise "Controller x did not return an ART::Response"
-      # end
-      response = ART::Response.new %("TODO")
+      unless response = view_event.response
+        raise "Controller x did not return an ART::Response"
+      end
     end
 
     finish_response response, request
@@ -82,16 +78,12 @@ struct Athena::Routing::RouteHandler
 
     @event_dispatcher.dispatch event
 
-    finish_request request
+    finish_request
 
     event.response
   end
 
-  # Emits the Response event, writes the final response body, closes the response, then emits the Terminate event.
-  private def finish_request(request : HTTP::Request) : Nil
-    # # Emit the finish request event
-    @event_dispatcher.dispatch ART::Events::FinishRequest.new request
-
+  private def finish_request : Nil
     # Reset the request store
     @request_store.reset
   end

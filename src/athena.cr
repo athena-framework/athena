@@ -9,11 +9,14 @@ require "athena-event_dispatcher"
 require "./annotations"
 require "./argument_resolver"
 require "./controller"
+require "./error_renderer_interface"
+require "./error_renderer"
 require "./param_converter_interface"
 require "./response"
 require "./request_store"
 require "./route_handler"
 require "./route_resolver"
+require "./view"
 
 require "./config/*"
 require "./events/*"
@@ -56,8 +59,6 @@ module Athena::Routing
   # When an exception is raised, Athena will check if the exception is a `ART::Exceptions::HTTPException`.  If it is, then the response is written by calling `.to_json` on the exception;
   # using the status code defined on the exception as well as merging any headers into the response.  In the future a more flexible/proper error renderer layer will be implemented.
   # If the exception is not a `ART::Exceptions::HTTPException`, then a 500 internal server error is returned.
-  #
-  # The exception is rethrown if the current ENV is `"development"` and the response was a 500 to better help with debugging.
   #
   # To provide the best response to the client, non `ART::Exceptions::HTTPException` should be caught and converted to a corresponding `ART::Exceptions::HTTPException`.
   # Custom HTTP errors can also be defined by inheriting from `ART::Exceptions::HTTPException`.  A use case for this could be allowing for additional data/context to be included
