@@ -133,43 +133,42 @@ module Athena::Routing
     end
   end
 
-  # Starts the HTTP server with the given *port*, *host*, *ssl*, *reuse_port*.
   def self.run(port : Int32 = 3000, host : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server | Bool | Nil = nil, reuse_port : Bool = false)
-    # Define the server
-    server = HTTP::Server.new do |context|
-      # Instantiate a new instance of the container so that
-      # the container objects do not bleed between requests
-      Fiber.current.container = Athena::DI::ServiceContainer.new
+    ART::Server.new(port, host, ssl, reuse_port).start
+  end
 
-      # Instantiate a new route handler object
-      handler = ART::RouteHandler.new
+  # :nodoc:
+  struct Server
+    def initialize(@port : Int32 = 3000, @host : String = "0.0.0.0", @ssl : OpenSSL::SSL::Context::Server | Bool | Nil = nil, @reuse_port : Bool = false)
+      # Define the server
+      @server = HTTP::Server.new do |context|
+        # Instantiate a new instance of the container so that
+        # the container objects do not bleed between requests
+        Fiber.current.container = Athena::DI::ServiceContainer.new
 
-      # Pass the request to the route handler
-      response = handler.handle context.request
-
-      # Apply the `ART::Response` to the actual `HTTP::Server::Response` object
-      IO.copy response.io, context.response
-      context.response.headers.merge! response.headers
-      context.response.status = response.status
-
-      # Close the response
-      context.response.close
-
-      handler.terminate context.request, response
+        # Instantiate a new route handler object
+        ART::RouteHandler.new.handle context
+      end
     end
 
-    unless server.each_address { break true }
-      {% if flag?(:without_openssl) %}
-        server.bind_tcp(host, port, reuse_port: reuse_port)
-      {% else %}
-        if ssl
-          server.bind_tls(host, port, ssl, reuse_port: reuse_port)
-        else
-          server.bind_tcp(host, port, reuse_port: reuse_port)
-        end
-      {% end %}
+    def stop : Nil
+      @server.close unless @server.closed?
     end
 
-    server.listen
+    def start : Nil
+      unless @server.each_address { break true }
+        {% if flag?(:without_openssl) %}
+          @server.bind_tcp(@host, @port, reuse_port: @reuse_port)
+        {% else %}
+          if (ssl_context = @ssl) && ssl_context.is_a?(OpenSSL::SSL::Context::Server)
+            @server.bind_tls(@host, @port, ssl_context, reuse_port: @reuse_port)
+          else
+            @server.bind_tcp(@host, @port, reuse_port: @reuse_port)
+          end
+        {% end %}
+      end
+
+      @server.listen
+    end
   end
 end

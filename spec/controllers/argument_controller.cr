@@ -6,12 +6,6 @@ class ArgumentController < ART::Controller
     request.path
   end
 
-  @[ART::Get(path: "/response")]
-  def get_response(response : HTTP::Server::Response) : String
-    response.status_code = 418
-    response.version
-  end
-
   @[ART::Get(path: "/not-nil/:id")]
   def argument_not_nil(id : Int32) : Int32
     id

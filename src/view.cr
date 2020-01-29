@@ -1,6 +1,8 @@
+# :nodoc:
 module Athena::Routing::ViewBase
 end
 
+# :nodoc:
 struct Athena::Routing::View(T)
   include Athena::Routing::ViewBase
 

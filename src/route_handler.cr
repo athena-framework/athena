@@ -11,10 +11,10 @@ struct Athena::Routing::RouteHandler
   )
   end
 
-  def handle(request : HTTP::Request) : ART::Response
-    handle_raw request
+  def handle(context : HTTP::Server::Context) : Nil
+    return_response handle_raw(context.request), context
   rescue ex : ::Exception
-    event = ART::Events::Exception.new request, ex
+    event = ART::Events::Exception.new context.request, ex
     @event_dispatcher.dispatch event
 
     exception = event.exception
@@ -30,7 +30,20 @@ struct Athena::Routing::RouteHandler
       response.headers.merge! exception.headers
     end
 
-    finish_response response, request
+    return_response finish_response(response, context.request), context
+  end
+
+  private def return_response(response : ART::Response, context : HTTP::Server::Context) : Nil
+    # Apply the `ART::Response` to the actual `HTTP::Server::Response` object
+    IO.copy response.io, context.response
+    context.response.headers.merge! response.headers
+    context.response.status = response.status
+
+    # Close the response
+    context.response.close
+
+    # Emit the terminate event
+    @event_dispatcher.dispatch ART::Events::Terminate.new context.request, response
   end
 
   private def handle_raw(request : HTTP::Request) : ART::Response
@@ -41,7 +54,7 @@ struct Athena::Routing::RouteHandler
     request_event = ART::Events::Request.new request
     @event_dispatcher.dispatch request_event
 
-    # Return the event early if the request event handled the reuest
+    # Return the event early if the request event handled the request
     if response = request_event.response
       return finish_response response, request
     end
@@ -65,11 +78,6 @@ struct Athena::Routing::RouteHandler
     end
 
     finish_response response, request
-  end
-
-  def terminate(request : HTTP::Request, response : ART::Response) : Nil
-    # Emit the terminate event
-    @event_dispatcher.dispatch ART::Events::Terminate.new request, response
   end
 
   private def finish_response(response : ART::Response, request : HTTP::Request) : ART::Response
