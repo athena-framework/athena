@@ -23,8 +23,8 @@ dependencies:
   athena-config:
     github: athena-framework/config
     version: ~> 0.1.0
-  athena-di:
-    github: athena-framework/di
+  athena-dependency_injection:
+    github: athena-framework/dependency-injection
     version: ~> 0.1.0
   amber_router:
     github: amberframework/amber-router

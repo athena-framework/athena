@@ -1,4 +1,4 @@
 @[ADI::Register]
 struct ACF::ConfigurationResolver
-  include Athena::DI::Service
+  include ADI::Service
 end

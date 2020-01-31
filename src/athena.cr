@@ -3,7 +3,7 @@ require "json"
 
 require "amber_router"
 require "athena-config"
-require "athena-di"
+require "athena-dependency_injection"
 require "athena-event_dispatcher"
 
 require "./annotations"
@@ -36,7 +36,7 @@ alias ART = Athena::Routing
 # and includes various abstractions/useful types to make that process easier.
 #
 # Athena is an event based framework; meaning it emits `ART::Events` that are acted upon to handle the request.
-# Athena also utilizes `Athena::DI` to provide a service container layer.  The service container layer
+# Athena also utilizes `Athena::DependencyInjection` to provide a service container layer.  The service container layer
 # allows a project to share/inject useful objects between various types, such as a custom `AED::EventListenerInterface`, `ART::Controller`, or `ART::ParamConverterInterface`.
 # See the corresponding types for more information.
 #
@@ -144,7 +144,7 @@ module Athena::Routing
       @server = HTTP::Server.new do |context|
         # Instantiate a new instance of the container so that
         # the container objects do not bleed between requests
-        Fiber.current.container = Athena::DI::ServiceContainer.new
+        Fiber.current.container = ADI::ServiceContainer.new
 
         # Instantiate a new route handler object
         ART::RouteHandler.new.handle context

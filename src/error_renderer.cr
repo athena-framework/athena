@@ -1,4 +1,4 @@
-@[Athena::DI::Register]
+@[ADI::Register]
 struct Athena::Routing::ErrorRenderer
   include Athena::Routing::ErrorRendererInterface
   include ADI::Service
