@@ -1,3 +1,4 @@
+require "ecr"
 require "http/server"
 require "json"
 
@@ -98,7 +99,7 @@ module Athena::Routing
     # This ensures each request gets its own instance of the controller to prevent leaking state.
     getter action : ActionType
 
-    # The name of the assoicated controller action.
+    # The name of the associated controller action.
     getter action_name : String
 
     # The arguments that will be passed the `#action`.
@@ -116,7 +117,7 @@ module Athena::Routing
       @action : ActionType,
       @action_name : String,
       @parameters : Array(ART::Parameters::Param) = [] of ART::Parameters::Param
-    )
+    ) forall ActionType
     end
 
     # :nodoc:
@@ -138,11 +139,26 @@ module Athena::Routing
     end
   end
 
+  # Runs an `HTTP::Server` listening on the given *port* and *host*.
+  #
+  # ```
+  # class ExampleController < ART::Controller
+  #   @[ART::Get("/")]
+  #   def root : String
+  #     "At the index"
+  #   end
+  # end
+  #
+  # ART.run
+  # ```
+  # See `ART::Controller` for more information on defining controllers/route actions.
   def self.run(port : Int32 = 3000, host : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server | Bool | Nil = nil, reuse_port : Bool = false)
     ART::Server.new(port, host, ssl, reuse_port).start
   end
 
   # :nodoc:
+  #
+  # Currently an implementation detail.  In the future could be exposed to allow having separate "groups" of controllers that a `Server` instance handles.
   struct Server
     def initialize(@port : Int32 = 3000, @host : String = "0.0.0.0", @ssl : OpenSSL::SSL::Context::Server | Bool | Nil = nil, @reuse_port : Bool = false)
       # Define the server
@@ -172,6 +188,10 @@ module Athena::Routing
           end
         {% end %}
       end
+
+      # Handle exiting correctly on stop/kill signals
+      Signal::INT.trap { stop }
+      Signal::TERM.trap { stop }
 
       @server.listen
     end

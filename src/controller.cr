@@ -5,8 +5,8 @@
 #
 # Child controllers must inherit from `ART::Controller` (or an abstract child of it).  Each request gets its own instance of the controller to better allow for DI via `Athena::DI`.
 #
-# The return type of an action does _NOT_ have to be `String`.  Currently the response value is serialized by calling `.to_json` on the value.
-# In the future a more flexible/proper view layer will be implemented.
+# A route action can either return an `ART::Response`, or some other type.  If an `ART::Response` is returned, then it is used directly.  Otherwise an `ART::Events::View` is emitted to convert
+# the action result into an `ART::Response`.  By default, `ART::Listeners::View` will JSON encode the value if it is not handled earlier by another listener.
 #
 # ### Example
 # The following controller shows examples of the various routing features of Athena.  `ART::Controller` also defines various macro DSLs, such as `ART::Controller.get` to make defining routes
@@ -14,10 +14,34 @@
 #
 # ```
 # require "athena"
+# require "mime"
 #
 # # The `ART::Prefix` annotation can be applied to a controller to define a prefix to use for all routes within `self`.
 # @[ART::Prefix("athena")]
 # class TestController < ART::Controller
+#   # A GET endpoint returning an `ART::Response`.
+#   @[ART::Get(path: "/css")]
+#   def css : ART::Response
+#     ART::Response.new ".some_class { color: blue; }", 200, HTTP::Headers{"content-type" => MIME.from_extension(".css")}
+#   end
+#
+#   # A GET endpoint using a param converter to render a template.
+#   #
+#   # Assumes there is a `User` object that exposes their name, and an `ART::ParamConverterInterface` to provide the user with the provided *id*.
+#   # ```
+#   # # user.ecr
+#   # Morning, <%= user.name %> it is currently <%= time %>.
+#   # ```
+#   @[ART::ParamConverter(param: "user", converter: SomeConverter(User))]
+#   @[ART::Get(path: "/wakeup/:id")]
+#   def wakeup(user : User) : ART::Response
+#     # Template variables not supplied in the action's arguments must be defined manually
+#     time = Time.utc
+#
+#     # Creates an `ART::Response` with the content of rendering the template, also sets the content type to `text/html`.
+#     render "user.ecr"
+#   end
+#
 #   # A GET endpoint with no params returning a `String`.
 #   #
 #   # Action return type restrictions are required.
@@ -77,10 +101,12 @@
 #   end
 # end
 #
-# ART.run
+# spawn ART.run
 #
 # CLIENT = HTTP::Client.new "localhost", 3000
 #
+# CLIENT.get("/athena/css").body                     # => .some_class { color: blue; }
+# CLIENT.get("/athena/wakeup/17").body               # => Morning, Allison it is currently 2020-02-01 18:38:12 UTC.
 # CLIENT.get("/athena/me").body                      # => "Jim"
 # CLIENT.get("/athena/add/50/25").body               # => 75
 # CLIENT.get("/athena/event/foobar?time=1:1:1").body # => "foobar occurred at 1:1:1"
@@ -92,6 +118,51 @@
 # CLIENT.post("/athena/test/foo", body: "foo").body  # => true
 # ```
 abstract class Athena::Routing::Controller
+  # Renders a template.
+  #
+  # Uses `ECR` to render the *template*, creating an `ART::Response` with its rendered content and adding a `text/html` `content-type` header.
+  #
+  # The response can be modified further before returning it if needed.
+  #
+  # Variables used within the template must be defined within the action's body manually if they are not provided within the action's arguments.
+  #
+  # ```
+  # # greeting.ecr
+  # Greetings, <%= name %>!
+  #
+  # # example_controller.cr
+  # class ExampleController < ART::Controller
+  #   @[ART::Get("/:name")]
+  #   def greet(name : String) : ART::Response
+  #     render "greeting.ecr"
+  #   end
+  # end
+  #
+  # spawn ART.run
+  #
+  # CLIENT = HTTP::Client.new "localhost", 3000
+  # CLIENT.get("/Fred").body # => Greetings, Fred!
+  # ```
+  macro render(template)
+    response = Athena::Routing::Response.new(nil, 200, HTTP::Headers{"content-type" => "text/html"})
+    ECR.embed {{template}}, response.io
+    response
+  end
+
+  # Returns an `ART::RedirectResponse` to the provided *url*, optionally with the provided *status*.
+  #
+  # ```
+  # class ExampleController < ART::Controller
+  #   @[ART::Get("redirect_to_google")]
+  #   def redirect_to_google : ART::RedirectResponse
+  #     redirect "https://google.com"
+  #   end
+  # end
+  # ```
+  def redirect(url : String, status : HTTP::Status = HTTP::Status::FOUND) : ART::RedirectResponse
+    ART::RedirectResponse.new url, status
+  end
+
   {% begin %}
     {% for method in ["GET", "POST", "PUT", "PATCH", "DELETE"] %}
       # Helper DSL macro for creating `{{method.id}}` actions.

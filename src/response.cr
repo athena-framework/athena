@@ -14,7 +14,8 @@ class Athena::Routing::Response
   getter headers : HTTP::Headers
 
   def initialize(content : String? = "", @status : HTTP::Status = HTTP::Status::OK, @headers : HTTP::Headers = HTTP::Headers.new)
-    @io = IO::Memory.new(content || "")
+    @io = IO::Memory.new
+    @io << content
   end
 
   def self.new(content : String? = "", status : Int32 = 200, headers : HTTP::Headers = HTTP::Headers.new)
