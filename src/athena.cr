@@ -1,18 +1,24 @@
+require "ecr"
 require "http/server"
 require "json"
 
 require "amber_router"
 require "athena-config"
-require "athena-di"
+require "athena-dependency_injection"
 require "athena-event_dispatcher"
 
 require "./annotations"
 require "./argument_resolver"
 require "./controller"
+require "./error_renderer_interface"
+require "./error_renderer"
 require "./param_converter_interface"
+require "./redirect_response"
+require "./response"
 require "./request_store"
 require "./route_handler"
 require "./route_resolver"
+require "./view"
 
 require "./config/*"
 require "./events/*"
@@ -28,11 +34,11 @@ require "./ext/request"
 # Convenience alias to make referencing `Athena::Routing` types easier.
 alias ART = Athena::Routing
 
-# The Routing component provides an event based framework for converting a request into a response
+# Athena's Routing component, `ART` for short, provides an event based framework for converting a request into a response
 # and includes various abstractions/useful types to make that process easier.
 #
 # Athena is an event based framework; meaning it emits `ART::Events` that are acted upon to handle the request.
-# Athena also utilizes `Athena::DI` to provide a service container layer.  The service container layer
+# Athena also utilizes `Athena::DependencyInjection` to provide a service container layer.  The service container layer
 # allows a project to share/inject useful objects between various types, such as a custom `AED::EventListenerInterface`, `ART::Controller`, or `ART::ParamConverterInterface`.
 # See the corresponding types for more information.
 #
@@ -42,9 +48,6 @@ alias ART = Athena::Routing
 # * See `ART::ParamConverterInterface` for documentation on using param converters.
 # * See `ART::Exceptions` for documentation on exception handling.
 module Athena::Routing
-  # :nodoc:
-  @@server : HTTP::Server?
-
   protected class_getter route_resolver : ART::RouteResolver { ART::RouteResolver.new }
 
   # The `AED::Event` that are emitted via `Athena::EventDispatcher` to handle a request during its life-cycle.
@@ -55,13 +58,11 @@ module Athena::Routing
 
   # Exception handling in Athena is similar to exception handling in any Crystal program, with the addition of a new unique exception type, `ART::Exceptions::HTTPException`.
   #
-  # When an exception is raised, Athena will check if the exception is a `ART::Exceptions::HTTPException`.  If it is, then the response is written by calling `.to_json` on the exception;
-  # using the status code defined on the exception as well as merging any headers into the response.  In the future a more flexible/proper error renderer layer will be implemented.
-  # If the exception is not a `ART::Exceptions::HTTPException`, then a 500 internal server error is returned.
+  # When an exception is raised, Athena emits the `ART::Events::Exception` event to allow an opportunity for it to be handled.  If the exception goes unhanded, i.e. no listener set
+  # an `ART::Response` on the event, then the request is finished and the exception is reraised.  Otherwise, that response is returned, setting the status and merging the headers on the exceptions
+  # if it is an `ART::Exceptions::HTTPException`. See `ART::Listeners::Error` and `ART::ErrorRendererInterface` for more information on how exceptions are handled by default.
   #
-  # The exception is rethrown if the current ENV is `"development"` and the response was a 500 to better help with debugging.
-  #
-  # To provide the best response to the client, non `ART::Exceptions::HTTPException` should be caught and converted to a corresponding `ART::Exceptions::HTTPException`.
+  # To provide the best response to the client, non `ART::Exceptions::HTTPException` should be rescued and converted into a corresponding `ART::Exceptions::HTTPException`.
   # Custom HTTP errors can also be defined by inheriting from `ART::Exceptions::HTTPException`.  A use case for this could be allowing for additional data/context to be included
   # within the exception that ultimately could be used in a `ART::Events::Exception` listener.
   module Athena::Routing::Exceptions; end
@@ -98,6 +99,9 @@ module Athena::Routing
     # This ensures each request gets its own instance of the controller to prevent leaking state.
     getter action : ActionType
 
+    # The name of the associated controller action.
+    getter action_name : String
+
     # The arguments that will be passed the `#action`.
     getter arguments : ArgTypes? = nil
 
@@ -111,8 +115,9 @@ module Athena::Routing
 
     def initialize(
       @action : ActionType,
+      @action_name : String,
       @parameters : Array(ART::Parameters::Param) = [] of ART::Parameters::Param
-    )
+    ) forall ActionType
     end
 
     # :nodoc:
@@ -134,41 +139,61 @@ module Athena::Routing
     end
   end
 
-  # Stops the server.
-  def self.stop : Nil
-    if server = @@server
-      server.close unless server.closed?
-    else
-      raise "Server not set"
-    end
+  # Runs an `HTTP::Server` listening on the given *port* and *host*.
+  #
+  # ```
+  # class ExampleController < ART::Controller
+  #   @[ART::Get("/")]
+  #   def root : String
+  #     "At the index"
+  #   end
+  # end
+  #
+  # ART.run
+  # ```
+  # See `ART::Controller` for more information on defining controllers/route actions.
+  def self.run(port : Int32 = 3000, host : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server | Bool | Nil = nil, reuse_port : Bool = false)
+    ART::Server.new(port, host, ssl, reuse_port).start
   end
 
-  # Starts the HTTP server with the given *port*, *host*, *ssl*, *reuse_port*.
-  def self.run(port : Int32 = 3000, host : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server | Bool | Nil = nil, reuse_port : Bool = false)
-    # Define the server
-    @@server = HTTP::Server.new do |ctx|
-      # Instantiate a new instance of the container so that
-      # the container objects do not bleed between requests
-      Fiber.current.container = Athena::DI::ServiceContainer.new
+  # :nodoc:
+  #
+  # Currently an implementation detail.  In the future could be exposed to allow having separate "groups" of controllers that a `Server` instance handles.
+  struct Server
+    def initialize(@port : Int32 = 3000, @host : String = "0.0.0.0", @ssl : OpenSSL::SSL::Context::Server | Bool | Nil = nil, @reuse_port : Bool = false)
+      # Define the server
+      @server = HTTP::Server.new do |context|
+        # Instantiate a new instance of the container so that
+        # the container objects do not bleed between requests
+        Fiber.current.container = ADI::ServiceContainer.new
 
-      # Pass the request context to the route handler
-      ART::RouteHandler.new.handle ctx
-
-      nil
+        # Instantiate a new route handler object
+        ART::RouteHandler.new.handle context
+      end
     end
 
-    unless @@server.not_nil!.each_address { break true }
-      {% if flag?(:without_openssl) %}
-        @@server.not_nil!.bind_tcp(host, port, reuse_port: reuse_port)
-      {% else %}
-        if ssl
-          @@server.not_nil!.bind_tls(host, port, ssl, reuse_port: reuse_port)
-        else
-          @@server.not_nil!.bind_tcp(host, port, reuse_port: reuse_port)
-        end
-      {% end %}
+    def stop : Nil
+      @server.close unless @server.closed?
     end
 
-    @@server.not_nil!.listen
+    def start : Nil
+      unless @server.each_address { break true }
+        {% if flag?(:without_openssl) %}
+          @server.bind_tcp(@host, @port, reuse_port: @reuse_port)
+        {% else %}
+          if (ssl_context = @ssl) && ssl_context.is_a?(OpenSSL::SSL::Context::Server)
+            @server.bind_tls(@host, @port, ssl_context, reuse_port: @reuse_port)
+          else
+            @server.bind_tcp(@host, @port, reuse_port: @reuse_port)
+          end
+        {% end %}
+      end
+
+      # Handle exiting correctly on stop/kill signals
+      Signal::INT.trap { stop }
+      Signal::TERM.trap { stop }
+
+      @server.listen
+    end
   end
 end

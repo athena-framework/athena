@@ -1,9 +1,9 @@
-@[Athena::DI::Register]
+@[ADI::Register]
 # Stores the current `HTTP::Request` object.
 #
 # Can be injected to access the request from a non controller context.
 class Athena::Routing::RequestStore
-  include Athena::DI::Service
+  include ADI::Service
 
   @request : HTTP::Request? = nil
 

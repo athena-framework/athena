@@ -14,16 +14,28 @@ class TestController < ART::Controller
   end
 end
 
-def new_context(*, request : HTTP::Request = new_request, response : HTTP::Server::Response = new_response) : HTTP::Server::Context
-  request.route = ART::Route(TestController, Proc(Proc(String)), String).new(
-    ->{ test_controller = TestController.new; ->test_controller.get_test }
+macro create_route(return_type, &)
+  ART::Route(TestController, Proc(Proc({{return_type}})), {{return_type}}).new(
+    ->{ ->{ {{yield}} } },
+    "fake_method"
   )
+end
 
+def new_context(*, request : HTTP::Request = new_request, response : HTTP::Server::Response = new_response) : HTTP::Server::Context
   HTTP::Server::Context.new request, response
 end
 
-def new_request(*, path : String = "test", method : String = "GET") : HTTP::Request
-  HTTP::Request.new method, path
+def new_route : ART::Route
+  ART::Route(TestController, Proc(Proc(String)), String).new(
+    ->{ test_controller = TestController.new; ->test_controller.get_test },
+    "get_test",
+  )
+end
+
+def new_request(*, path : String = "test", method : String = "GET", route : ART::Action = new_route) : HTTP::Request
+  request = HTTP::Request.new method, path
+  request.route = route
+  request
 end
 
 def new_response(*, io : IO = IO::Memory.new) : HTTP::Server::Response
@@ -32,11 +44,12 @@ end
 
 def run_server : Nil
   around_all do |example|
-    spawn { ART.run }
+    server = ART::Server.new
+    spawn { server.not_nil!.start }
     sleep 0.5
     example.run
   ensure
-    Athena::Routing.stop
+    server.not_nil!.stop
   end
 
   before_each do

@@ -108,9 +108,7 @@ struct Athena::Routing::Listeners::CORS
 
     # If the request is a preflight, return the proper response.
     if request.method == "OPTIONS" && request_headers.has_request_method?
-      set_preflight_response config, event.request, event.response
-
-      return event.finish_request
+      return event.response = set_preflight_response config, event.request
     end
 
     return unless check_origin config, event.request
@@ -135,7 +133,9 @@ struct Athena::Routing::Listeners::CORS
   end
 
   # Configures the given *response* for CORS preflight
-  private def set_preflight_response(config : ART::Config::CORS, request : HTTP::Request, response : HTTP::Server::Response) : Nil
+  private def set_preflight_response(config : ART::Config::CORS, request : HTTP::Request) : ART::Response
+    response = ART::Response.new
+
     response_headers = ResponseHeaders.new(response.headers)
     request_headers = RequestHeaders.new(request.headers)
 
@@ -147,13 +147,17 @@ struct Athena::Routing::Listeners::CORS
     response_headers.allow_headers = config.allow_headers.includes?(WILDCARD) ? request_headers.request_headers : config.allow_headers
 
     unless check_origin config, request
-      return response_headers.delete_allow_origin
+      response_headers.delete_allow_origin
+
+      return response
     end
 
     response_headers.allow_origin = request_headers.origin
 
     unless config.allow_methods.includes? request_headers.request_method
-      return response.status = :method_not_allowed
+      response.status = :method_not_allowed
+
+      return response
     end
 
     unless config.allow_headers.includes? WILDCARD
@@ -164,6 +168,8 @@ struct Athena::Routing::Listeners::CORS
         raise ART::Exceptions::Forbidden.new "Unauthorized header: '#{header}'"
       end
     end
+
+    response
   end
 
   private def check_origin(config : ART::Config::CORS, request : HTTP::Request) : Bool

@@ -1,10 +1,16 @@
-# Emitted after the route's action has been executed, but before the response has been written in order to allow setting additional headers.
-# See [HTTP::Server::Response](https://crystal-lang.org/api/HTTP/Server/Response.html#overview).
-# ```
-# The response `#status` and `#headers` must be configured before writing the response body. Once response output is written, changing the `#status` and `#headers` properties has no effect.
-# ```
+require "./request_aware"
+
+# Emitted after the route's action has been executed, but before the response has been sent.
 #
-# This event can be listened on to modify the response object further before it is returned; such as adding headers/cookies etc.
+# This event can be listened on to modify the response object further before it is returned;
+# such as adding headers/cookies, compressing the response, etc.
 class Athena::Routing::Events::Response < AED::Event
-  include Athena::Routing::Events::Context
+  include Athena::Routing::Events::RequestAware
+
+  # The response object.
+  property response : ART::Response
+
+  def initialize(request : HTTP::Request, @response : ART::Response)
+    super request
+  end
 end
