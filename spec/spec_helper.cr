@@ -16,7 +16,8 @@ end
 
 macro create_route(return_type, &)
   ART::Route(TestController, Proc(Proc({{return_type}})), {{return_type}}).new(
-    ->{ ->{ {{yield}} } }
+    ->{ ->{ {{yield}} } },
+    "fake_method"
   )
 end
 
@@ -26,7 +27,8 @@ end
 
 def new_route : ART::Route
   ART::Route(TestController, Proc(Proc(String)), String).new(
-    ->{ test_controller = TestController.new; ->test_controller.get_test }
+    ->{ test_controller = TestController.new; ->test_controller.get_test },
+    "get_test",
   )
 end
 

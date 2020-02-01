@@ -12,6 +12,7 @@ require "./controller"
 require "./error_renderer_interface"
 require "./error_renderer"
 require "./param_converter_interface"
+require "./redirect_response"
 require "./response"
 require "./request_store"
 require "./route_handler"
@@ -32,7 +33,7 @@ require "./ext/request"
 # Convenience alias to make referencing `Athena::Routing` types easier.
 alias ART = Athena::Routing
 
-# The Routing component provides an event based framework for converting a request into a response
+# Athena's Routing component, `ART` for short, provides an event based framework for converting a request into a response
 # and includes various abstractions/useful types to make that process easier.
 #
 # Athena is an event based framework; meaning it emits `ART::Events` that are acted upon to handle the request.
@@ -56,11 +57,11 @@ module Athena::Routing
 
   # Exception handling in Athena is similar to exception handling in any Crystal program, with the addition of a new unique exception type, `ART::Exceptions::HTTPException`.
   #
-  # When an exception is raised, Athena will check if the exception is a `ART::Exceptions::HTTPException`.  If it is, then the response is written by calling `.to_json` on the exception;
-  # using the status code defined on the exception as well as merging any headers into the response.  In the future a more flexible/proper error renderer layer will be implemented.
-  # If the exception is not a `ART::Exceptions::HTTPException`, then a 500 internal server error is returned.
+  # When an exception is raised, Athena emits the `ART::Events::Exception` event to allow an opportunity for it to be handled.  If the exception goes unhanded, i.e. no listener set
+  # an `ART::Response` on the event, then the request is finished and the exception is reraised.  Otherwise, that response is returned, setting the status and merging the headers on the exceptions
+  # if it is an `ART::Exceptions::HTTPException`. See `ART::Listeners::Error` and `ART::ErrorRendererInterface` for more information on how exceptions are handled by default.
   #
-  # To provide the best response to the client, non `ART::Exceptions::HTTPException` should be caught and converted to a corresponding `ART::Exceptions::HTTPException`.
+  # To provide the best response to the client, non `ART::Exceptions::HTTPException` should be rescued and converted into a corresponding `ART::Exceptions::HTTPException`.
   # Custom HTTP errors can also be defined by inheriting from `ART::Exceptions::HTTPException`.  A use case for this could be allowing for additional data/context to be included
   # within the exception that ultimately could be used in a `ART::Events::Exception` listener.
   module Athena::Routing::Exceptions; end
@@ -97,6 +98,9 @@ module Athena::Routing
     # This ensures each request gets its own instance of the controller to prevent leaking state.
     getter action : ActionType
 
+    # The name of the assoicated controller action.
+    getter action_name : String
+
     # The arguments that will be passed the `#action`.
     getter arguments : ArgTypes? = nil
 
@@ -110,6 +114,7 @@ module Athena::Routing
 
     def initialize(
       @action : ActionType,
+      @action_name : String,
       @parameters : Array(ART::Parameters::Param) = [] of ART::Parameters::Param
     )
     end

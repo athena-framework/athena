@@ -60,6 +60,16 @@ describe Athena::Routing::RouteHandler do
 
         io.rewind.gets_to_end.should end_with %("TEST")
       end
+
+      it "should raise an exception if the value was not handled" do
+        dispatcher = TracableEventDispatcher.new
+
+        handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new
+
+        expect_raises Exception, "TestController#get_test must return an `ART::Response` but it returned ''." do
+          handler.handle new_context
+        end
+      end
     end
 
     describe :early do

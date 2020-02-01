@@ -111,6 +111,7 @@ class Athena::Routing::RouteResolver
           # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
           Route({{klass.id}}, Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
             ->{ %instance = {{klass.id}}.new; ->%instance.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
+            {{m.name.stringify}},
             %params{m_idx},
           ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}
         )
@@ -122,6 +123,7 @@ class Athena::Routing::RouteResolver
             # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
             Route({{klass.id}}, Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
               ->{ %instance = {{klass.id}}.new; ->%instance.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
+              {{m.name.stringify}},
               %params{m_idx},
             ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}
           )

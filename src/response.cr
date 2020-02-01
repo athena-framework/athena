@@ -1,6 +1,16 @@
+# Represents an HTTP response that should be returned to the client.
+#
+# The values on `self` are applied to the actual `HTTP::Server::Response` once the request is handled.
 class Athena::Routing::Response
-  getter io : IO
+  # The `IO` that `self`'s content is written to.
+  #
+  # Can be replaced, such as for compressing the response content.
+  property io : IO
+
+  # The `HTTP::Status` of `self.`
   property status : HTTP::Status
+
+  # The response headers on `self.`
   getter headers : HTTP::Headers
 
   def initialize(content : String? = "", @status : HTTP::Status = HTTP::Status::OK, @headers : HTTP::Headers = HTTP::Headers.new)
