@@ -7,7 +7,7 @@ require "./response"
 # ```
 # class RedirectController < ART::Controller
 #   @[ART::Get(path: "/go_to_crystal")]
-#   def get_me : ART::RedirectResponse
+#   def redirect_to_crystal : ART::RedirectResponse
 #     ART::RedirectResponse.new "https://crystal-lang.org"
 #   end
 # end

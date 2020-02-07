@@ -4,9 +4,9 @@
 # to allow rendering errors differently, such as via HTML.
 #
 # ```
-# @[ADI::Register]
-# # A custom error renderer must redefine the default `ART::ErrorRenderer`.
-# struct Athena::Routing::ErrorRenderer
+# @[ADI::Register(name: "error_renderer")]
+# # A custom error renderer must redefine the default `ART::ErrorRenderer` by registering a service with the name `"error_renderer"`.
+# struct Athena::Routing::CustomErrorRenderer
 #   include Athena::Routing::ErrorRendererInterface
 #   include ADI::Service
 #
