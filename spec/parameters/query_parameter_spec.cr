@@ -40,8 +40,6 @@ describe ART::Parameters::Query do
 
       describe "that does not match but the value is nil" do
         it "should return nil" do
-          request = new_request
-
           ART::Parameters::Query(Int32).new("id", pattern: /\d{3}/).extract(new_request).should be_nil
         end
       end
