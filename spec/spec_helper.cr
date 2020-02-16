@@ -33,9 +33,10 @@ def new_route(parameters : Array(ART::Parameters::Param) = [] of ART::Parameters
   )
 end
 
-def new_request(*, path : String = "test", method : String = "GET", route : ART::Action = new_route) : HTTP::Request
+def new_request(*, path : String = "test", method : String = "GET", route : ART::Action = new_route, path_params : Hash(String, String) = Hash(String, String).new) : HTTP::Request
   request = HTTP::Request.new method, path
   request.route = route
+  request.path_params = path_params
   request
 end
 
