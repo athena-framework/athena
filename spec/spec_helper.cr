@@ -25,10 +25,11 @@ def new_context(*, request : HTTP::Request = new_request, response : HTTP::Serve
   HTTP::Server::Context.new request, response
 end
 
-def new_route : ART::Route
+def new_route(parameters : Array(ART::Parameters::Param) = [] of ART::Parameters::Param) : ART::Route
   ART::Route(TestController, Proc(Proc(String)), String).new(
     ->{ test_controller = TestController.new; ->test_controller.get_test },
     "get_test",
+    parameters,
   )
 end
 

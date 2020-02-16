@@ -102,9 +102,6 @@ module Athena::Routing
     # The name of the associated controller action.
     getter action_name : String
 
-    # The arguments that will be passed the `#action`.
-    getter arguments : ArgTypes? = nil
-
     # The parameters that need to be parsed from the request
     #
     # Includes route, body, and query params
@@ -117,25 +114,12 @@ module Athena::Routing
       @action : ActionType,
       @action_name : String,
       @parameters : Array(ART::Parameters::Param) = [] of ART::Parameters::Param
-    ) forall ActionType
-    end
-
-    # :nodoc:
-    #
-    # Used internally to set the initial `arguments` values from `Athena::Routing::ArgumentResolver#resolve`.
-    def set_arguments(args : Array) : Nil
-      {% if ArgTypes.size > 0 %}
-        @arguments = ArgTypes.from args
-      {% end %}
+    )
     end
 
     # Executes `#action` with the given `#arguments`.
-    def execute : ReturnType
-      {% if ArgTypes.size > 0 %}
-        @action.call.call *@arguments.not_nil!
-      {% else %}
-        @action.call.call
-      {% end %}
+    def execute(arguments : Array) : ReturnType
+      @action.call.call(*{{ArgTypes.empty? ? "Tuple.new".id : ArgTypes}}.from(arguments))
     end
   end
 

@@ -1,5 +1,5 @@
 # Represents a query parameter defined from an `ART::QueryParam` annotation.
-struct Athena::Routing::Parameters::QueryParameter(T) < Athena::Routing::Parameters::Parameter(T)
+struct Athena::Routing::Parameters::Query(T) < Athena::Routing::Parameters::Parameter(T)
   include Athena::Routing::Parameters::Convertable(T)
 
   def initialize(name : String, @converter : ART::ParamConverterInterface(T)? = nil, @pattern : Regex? = nil, default : T? = nil, type : T.class = T)
