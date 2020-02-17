@@ -14,6 +14,16 @@ class RoutingController < ART::Controller
     initial_query == check_query ? "safe" : "unsafe"
   end
 
+  @[ART::Get("art/response")]
+  def response : ART::Response
+    ART::Response.new "FOO", 418, HTTP::Headers{"content-type" => "BAR"}
+  end
+
+  @[ART::Get("art/redirect")]
+  def redirect : ART::RedirectResponse
+    ART::RedirectResponse.new "https://crystal-lang.org"
+  end
+
   get "/macro/:foo", foo : String, constraints: {"foo" => /foo/} do
     foo
   end

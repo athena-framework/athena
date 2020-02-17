@@ -17,6 +17,20 @@ describe Athena::Routing do
     response.body.should eq %({"code":404,"message":"No route found for 'GET /fake/route'"})
   end
 
+  it "allows returning an ART::Response" do
+    response = CLIENT.get("/art/response")
+    response.status.should eq HTTP::Status::IM_A_TEAPOT
+    response.headers["content-type"].should eq "BAR"
+    response.body.should eq "FOO"
+  end
+
+  it "supports redirection" do
+    response = CLIENT.get("/art/redirect")
+    response.status.should eq HTTP::Status::FOUND
+    response.headers["location"].should eq "https://crystal-lang.org"
+    response.body.should be_empty
+  end
+
   describe "macro DSL" do
     it "nil return type results in 204" do
       response = CLIENT.get "/macro/get-nil"

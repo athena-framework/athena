@@ -59,15 +59,14 @@ struct Athena::Routing::RouteHandler
       return finish_response response, request
     end
 
-    # Resolve and set the arguments from the request
-    request.route.set_arguments @argument_resolver.resolve request
+    # Resolve the arguments for this route from the request
+    arguments = @argument_resolver.resolve request, request.route
 
     # Possibly add another event here to allow modification of the resolved arguments?
 
     # Call the action and get the response
-    response = request.route.execute
+    response = request.route.execute arguments
 
-    # TODO: Add a view layer
     unless response.is_a? ART::Response
       view_event = ART::Events::View.new request, ART::View.new(response)
       @event_dispatcher.dispatch view_event
@@ -81,7 +80,7 @@ struct Athena::Routing::RouteHandler
   end
 
   private def finish_response(response : ART::Response, request : HTTP::Request) : ART::Response
-    # # Emit the response event
+    # Emit the response event
     event = ART::Events::Response.new request, response
 
     @event_dispatcher.dispatch event

@@ -4,26 +4,10 @@ module Athena::Routing::Parameters
   # Parent type of a parameter just used for typing.
   #
   # See `ART::Parameters::Parameter`.
-  module Param
-    def extract(request : HTTP::Request) : String?; end
-
-    def required?; end
-
-    def nilable?; end
-
-    def default; end
-
-    def parameter_type; end
-
-    def name; end
-
-    def type; end
-  end
+  abstract struct Param; end
 
   # Base type of a parameter.  Implements logic common to every parameter.
-  abstract struct Parameter(T)
-    include Param
-
+  abstract struct Parameter(T) < Param
     # The name of the parameter.
     getter name : String
 
