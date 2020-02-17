@@ -117,9 +117,9 @@ module Athena::Routing
     )
     end
 
-    # Executes `#action` with the given `#arguments`.
+    # Executes `#action` with the given *arguments* array.
     def execute(arguments : Array) : ReturnType
-      @action.call.call(*{{ArgTypes.empty? ? "Tuple.new".id : ArgTypes}}.from(arguments))
+      @action.call.call *{{ArgTypes.empty? ? "Tuple.new".id : ArgTypes}}.from arguments
     end
   end
 

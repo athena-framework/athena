@@ -59,7 +59,7 @@ struct Athena::Routing::RouteHandler
       return finish_response response, request
     end
 
-    # Resolver the arguments for this route from the request
+    # Resolve the arguments for this route from the request
     arguments = @argument_resolver.resolve request, request.route
 
     # Possibly add another event here to allow modification of the resolved arguments?
