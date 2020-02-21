@@ -24,6 +24,9 @@ struct Athena::Routing::Listeners::Routing
     route = ART.route_resolver.resolve event.request
 
     event.request.route = route.payload.not_nil!.dup
-    event.request.path_params = route.params.not_nil!
+
+    route.params.not_nil!.merge!(event.request.query_params.to_h).each do |key, value|
+      event.request.params.set key, value
+    end
   end
 end

@@ -71,39 +71,13 @@ class Athena::Routing::RouteResolver
         {% arg_types = m.args.map(&.restriction) %}
 
         # Build out params and converters array.
-        %params{m_idx} = [] of ART::Parameters::Param
-        %converters{m_idx} = nil
+        {% arguments = [] of Nil %}
 
         {% for arg in m.args %}
           # Raise compile time error if an action argument doesn't have a type restriction.
           {% raise "Route action argument '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction." if arg.restriction.is_a? Nop %}
-
-          {% if arg.restriction.resolve == HTTP::Request %}
-            %params{m_idx} << ART::Parameters::Request(HTTP::Request).new {{arg.name.stringify}}
-          # Look for any query parameter annotation defined on `arg`.
-          # Raise compile time error if there is an annotation but no action argument.
-          {% elsif qp = m.annotations(ART::QueryParam).find { |query_param| (name = query_param[0] || query_param[:name]) ? name == arg.name.stringify : raise "Route action '#{klass.name}##{m.name}'s QueryParam annotation is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." } %}
-            {% if converter = qp[:converter] %}
-              %converters{m_idx} = {{converter}}.new
-            {% end %}
-
-            %params{m_idx} << ART::Parameters::Query({{arg.restriction}}).new name: {{name}}, default: {{arg.default_value.is_a?(Nop) ? nil : arg.default_value}}, pattern: {{qp[:constraints]}}, converter: %converters{m_idx}
-          {% else %}
-            {% converter_ann = m.annotations(ART::ParamConverter).find { |pc| (name = pc[0] || pc[:param]) ? name == arg.name.stringify : raise "Route action '#{klass.name}##{m.name}'s ParamConverter annotation is missing the argument's name.  It was not provided as the first positional argument nor via the 'param' field." } %}
-
-            {% if converter_ann %}
-              {% name = converter_ann[0] || converter_ann[:name] %}
-              %converters{m_idx} = {{converter_ann[:converter]}}.new
-            {% end %}
-
-            %params{m_idx} << ART::Parameters::Path({{arg.restriction}}).new name: {{arg.name.stringify}}, default: {{arg.default_value.is_a?(Nop) ? nil : arg.default_value}}, converter: %converters{m_idx}
-          {% end %}
+          {% arguments << %(ART::Arguments::ArgumentMetadata(#{arg.restriction}).new #{arg.name.stringify}, #{arg.restriction.resolve.nilable?}, #{arg.default_value.is_a?(Nop) ? nil : arg.default_value}).id %}
         {% end %}
-
-        # Raise compile time error if the number of action arguments != (queryParams + path arguments + 1 if there is an HTTP::Request argument).
-        # Also handle the case where a route's only arg is via a param converter
-        {% arg_count = ("/" + method + prefix + path).count(':') + m.annotations(ART::QueryParam).size + (m.args.any? &.restriction.resolve.==(HTTP::Request) ? 1 : 0) + (m.args.any? &.restriction.resolve.==(HTTP::Server::Response) ? 1 : 0) %}
-        {% raise "Route action '#{klass.name}##{m.name}' doesn't have the correct number of arguments.  Expected #{arg_count} but got #{m.args.size}." if m.args.size != arg_count && m.annotations(ParamConverter).select { |pc| m.args.map(&.name.stringify).includes?(pc[0] || pc[:name]) }.size == 0 %}
 
         # Add the route to the router
         @routes.add(
@@ -112,7 +86,7 @@ class Athena::Routing::RouteResolver
           Route({{klass.id}}, Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
             ->{ %instance{m_idx} = {{klass.id}}.new; ->%instance{m_idx}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
             {{m.name.stringify}},
-            %params{m_idx},
+            {{arguments}} of Athena::Routing::Arguments::Argument,
           ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}
         )
 
@@ -124,7 +98,7 @@ class Athena::Routing::RouteResolver
             Route({{klass.id}}, Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
               ->{ %instance{m_idx + 1} = {{klass.id}}.new; ->%instance{m_idx + 1}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
               {{m.name.stringify}},
-              %params{m_idx},
+              {{arguments}} of Athena::Routing::Arguments::Argument,
             ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}
           )
         {% end %}

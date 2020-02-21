@@ -8,7 +8,6 @@ require "athena-dependency_injection"
 require "athena-event_dispatcher"
 
 require "./annotations"
-require "./argument_resolver"
 require "./controller"
 require "./error_renderer_interface"
 require "./error_renderer"
@@ -20,11 +19,11 @@ require "./route_handler"
 require "./route_resolver"
 require "./view"
 
+require "./arguments/**"
 require "./config/*"
 require "./events/*"
 require "./exceptions/*"
 require "./listeners/*"
-require "./parameters/*"
 
 require "./ext/configuration_resolver"
 require "./ext/conversion_types"
@@ -74,10 +73,10 @@ module Athena::Routing
   # See each listener for more detailed information.
   module Athena::Routing::Listeners; end
 
-  # Namespace for types related to handling route action parameters.
+  # Namespace for types related to handling route action arguments.
   #
-  # See `ART::Parameters::Parameter`.
-  module Athena::Routing::Parameters; end
+  # See `ART::Arguments::ArgumentMetadata`.
+  module Athena::Routing::Arguments; end
 
   # Parent type of a route just used for typing.
   #
@@ -86,9 +85,7 @@ module Athena::Routing
 
   # Represents an endpoint within the application.
   #
-  # Includes metadata about the endpoint, such as the controller its on,
-  # the parameters it accepts, its return type, and the action should be executed
-  # to handle the request.
+  # Includes metadata about the endpoint, such as its controller, arguments, return type, and the action should be executed.
   class Route(Controller, ActionType, ReturnType, *ArgTypes) < Action
     # The `ART::Controller` that handles `self` by default.
     getter controller : ART::Controller.class = Controller
@@ -102,10 +99,8 @@ module Athena::Routing
     # The name of the associated controller action.
     getter action_name : String
 
-    # The parameters that need to be parsed from the request
-    #
-    # Includes route, body, and query params
-    getter parameters : Array(ART::Parameters::Param)
+    # The arguments that need to be passed to `#action`.
+    getter arguments : Array(ART::Arguments::Argument)
 
     # The return type of the action.
     getter return_type : ReturnType.class = ReturnType
@@ -113,7 +108,7 @@ module Athena::Routing
     def initialize(
       @action : ActionType,
       @action_name : String,
-      @parameters : Array(ART::Parameters::Param) = [] of ART::Parameters::Param
+      @arguments : Array(ART::Arguments::Argument)
     )
     end
 
@@ -181,3 +176,12 @@ module Athena::Routing
     end
   end
 end
+
+class FooController < ART::Controller
+  @[ART::Get("/:id")]
+  def get_id(id : Int32) : Int32
+    id
+  end
+end
+
+ART.run
