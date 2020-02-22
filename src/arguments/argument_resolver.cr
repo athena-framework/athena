@@ -21,9 +21,10 @@ struct Athena::Routing::Arguments::ArgumentResolver
   # :inherit:
   def get_arguments(request : HTTP::Request, route : ART::Action) : Array
     route.arguments.map do |param|
-      @resolvers.each do |resolver|
-        next unless resolver.supports? request, param
-        break resolver.resolve request, param
+      if resolver = @resolvers.find &.supports? request, param
+        next resolver.resolve request, param
+      else
+        raise "Controller action #{route.controller}##{route.action_name} requires a value for the '#{param.name}' argument."
       end
     end
   end
