@@ -1,4 +1,4 @@
-def Object.from_parameter(value : String?) : String?
+def Object.from_parameter(value)
   value
 end
 

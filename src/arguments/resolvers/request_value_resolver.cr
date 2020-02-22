@@ -4,8 +4,13 @@ struct Athena::Routing::Arguments::Resolvers::Request
   include ADI::Service
 
   # :inherit:
+  def self.priority : Int32
+    50
+  end
+
+  # :inherit:
   def supports?(request : HTTP::Request, argument : Athena::Routing::Arguments::Argument) : Bool
-    HTTP::Request >= argument.type
+    argument.type <= HTTP::Request
   end
 
   # :inherit:

@@ -76,7 +76,7 @@ class Athena::Routing::RouteResolver
         {% for arg in m.args %}
           # Raise compile time error if an action argument doesn't have a type restriction.
           {% raise "Route action argument '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction." if arg.restriction.is_a? Nop %}
-          {% arguments << %(ART::Arguments::ArgumentMetadata(#{arg.restriction}).new #{arg.name.stringify}, #{arg.restriction.resolve.nilable?}, #{arg.default_value.is_a?(Nop) ? nil : arg.default_value}).id %}
+          {% arguments << %(ART::Arguments::ArgumentMetadata(#{arg.restriction}).new(#{arg.name.stringify}, #{arg.restriction.resolve.nilable?}, #{arg.default_value.is_a?(Nop) ? nil : arg.default_value})).id %}
         {% end %}
 
         # Add the route to the router

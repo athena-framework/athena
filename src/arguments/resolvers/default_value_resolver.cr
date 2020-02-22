@@ -4,6 +4,11 @@ struct Athena::Routing::Arguments::Resolvers::DefaultValue
   include ADI::Service
 
   # :inherit:
+  def self.priority : Int32
+    -100
+  end
+
+  # :inherit:
   def supports?(request : HTTP::Request, argument : Athena::Routing::Arguments::Argument) : Bool
     argument.has_default? || (argument.type == Nil && argument.nillable?)
   end

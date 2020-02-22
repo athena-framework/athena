@@ -1,29 +1,47 @@
-private abstract struct Athena::Routing::Param; end
+struct Athena::Routing::ParameterBag
+  private abstract struct Param; end
 
-private record Athena::Routing::Parameter(T) < Athena::Routing::Param, value : T
+  private record Parameter(T) < Param, value : T
 
-struct Athena::Routing::RequestParameters
-  include Enumerable({String, Athena::Routing::Param})
-  include Iterable({String, Athena::Routing::Param})
+  include Enumerable({String, Param})
+  include Iterable({String, Param})
 
-  delegate each, to: @params
+  @parameters : Hash(String, Param) = Hash(String, Param).new
 
-  @params : Hash(String, ART::Param) = Hash(String, ART::Param).new
+  delegate each, to: @parameters
 
-  def has?(key : String) : Bool
-    @params.has_key? key
+  # Returns `true` if a parameter with the provided *name* exists, otherwise `false.
+  def has?(name : String) : Bool
+    @parameters.has_key? name
   end
 
-  def get?(key : String)
-    @params[key]?.try &.value
+  # Returns the value of the parameter with the provided *name* if it exists, otherwise `nil`.
+  def get?(name : String)
+    @parameters[name]?.try &.value
   end
 
-  def get(key : String)
-    get?(key) || raise KeyError.new "No parameter exists with the key '#{key}'"
+  # Returns the value of the parameter with the provided *name*.
+  #
+  # Raises a `KeyError` if no parameter with that name exists.
+  def get(name : String)
+    get?(name) || raise KeyError.new "No parameter exists with the name '#{name}'"
   end
 
-  def set(key : String, value : _) : Nil
-    @params[key] = Athena::Routing::Parameter.new value
+  {% for type in [Bool, Int, Float, String] %}
+    # Returns the value for *name* casted to a {{type}}.
+    def get(name : String, _type : {{type}}.class) : {{type}}
+      get(name).as({{type}})
+    end
+  {% end %}
+
+  # Sets a parameter with the provided *name* to *value.
+  def set(name : String, value : _) : Nil
+    @parameters[name] = Parameter.new value
+  end
+
+  # Removes the parameter with the provided *name*.
+  def remove(name : String) : Nil
+    @parameters.delete name
   end
 end
 
@@ -33,9 +51,6 @@ class HTTP::Request
   # Will only be set if a route was able to be resolved.
   property! route : ART::Action
 
-  # See `RequestParameters`.
-  property params : ART::RequestParameters = ART::RequestParameters.new
-
-  # Allows storing simple values within the context of a request.
-  property attributes = Hash(String, Bool | Int32 | String | Float64 | Nil).new
+  # See `ART::ParameterBag`.
+  property attributes : ART::ParameterBag = ART::ParameterBag.new
 end

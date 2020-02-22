@@ -62,8 +62,6 @@ struct Athena::Routing::RouteHandler
     # Resolve the arguments for this route from the request
     arguments = @argument_resolver.get_arguments request, request.route
 
-    pp arguments
-
     # Possibly add another event here to allow modification of the resolved arguments?
 
     # Call the action and get the response

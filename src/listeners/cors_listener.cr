@@ -113,12 +113,12 @@ struct Athena::Routing::Listeners::CORS
 
     return unless check_origin config, event.request
 
-    event.request.attributes[ALLOW_SET_ORIGIN] = true
+    event.request.attributes.set ALLOW_SET_ORIGIN, true
   end
 
   def call(event : ART::Events::Response, dispatcher : AED::EventDispatcherInterface) : Nil
     # Return early if the request shouldn't have CORS set.
-    return unless event.request.attributes[ALLOW_SET_ORIGIN]?
+    return unless event.request.attributes.get? ALLOW_SET_ORIGIN
 
     # Return early if there is no configuration.
     return unless config = @configuration_resolver.resolve(ART::Config::CORS)

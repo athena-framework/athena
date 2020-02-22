@@ -12,15 +12,18 @@ struct Athena::Routing::Arguments::ArgumentResolver
   include Athena::Routing::Arguments::ArgumentResolverInterface
   include ADI::Service
 
-  def initialize(@resolvers : Array(Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface)); end
+  @resolvers : Array(Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface)
+
+  def initialize(resolvers : Array(Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface))
+    @resolvers = resolvers.sort_by!(&.class.priority).reverse!
+  end
 
   # :inherit:
   def get_arguments(request : HTTP::Request, route : ART::Action) : Array
-    route.arguments.flat_map do |param|
-      @resolvers.compact_map do |resolver|
+    route.arguments.map do |param|
+      @resolvers.each do |resolver|
         next unless resolver.supports? request, param
-
-        resolver.resolve request, param
+        break resolver.resolve request, param
       end
     end
   end

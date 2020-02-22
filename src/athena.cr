@@ -176,12 +176,3 @@ module Athena::Routing
     end
   end
 end
-
-class FooController < ART::Controller
-  @[ART::Get("/:id")]
-  def get_id(id : Int32) : Int32
-    id
-  end
-end
-
-ART.run
