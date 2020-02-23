@@ -11,6 +11,7 @@ require "./annotations"
 require "./controller"
 require "./error_renderer_interface"
 require "./error_renderer"
+require "./parameter_bag"
 require "./param_converter_interface"
 require "./redirect_response"
 require "./response"
@@ -78,6 +79,14 @@ module Athena::Routing
   # See `ART::Arguments::ArgumentMetadata`.
   module Athena::Routing::Arguments; end
 
+  # The default `ART::Arguments::Resolvers::ArgumentValueResolverInterface` that handle resolving controller action arguments from a request.
+  # Custom argument value resolvers can also be defined, see `ART::Arguments::Resolvers::ArgumentValueResolverInterface`.
+  #
+  # NOTE: In order for `Athena::Routing` to pick up your custom value resolvers, be sure to `ADI::Register` it as a service, and tag it as `"athena.argument_value_resolver"`.
+  #
+  # See each resolver for more detailed information.
+  module Athena::Routing::Arguments::Resolvers; end
+
   # Parent type of a route just used for typing.
   #
   # See `ART::Route`.
@@ -100,7 +109,7 @@ module Athena::Routing
     getter action_name : String
 
     # The arguments that need to be passed to `#action`.
-    getter arguments : Array(ART::Arguments::Argument)
+    getter arguments : Array(ART::Arguments::ArgumentMetadataBase)
 
     # The return type of the action.
     getter return_type : ReturnType.class = ReturnType
@@ -108,7 +117,7 @@ module Athena::Routing
     def initialize(
       @action : ActionType,
       @action_name : String,
-      @arguments : Array(ART::Arguments::Argument)
+      @arguments : Array(ART::Arguments::ArgumentMetadataBase)
     )
     end
 

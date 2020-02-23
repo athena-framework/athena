@@ -76,7 +76,7 @@ class Athena::Routing::RouteResolver
         {% for arg in m.args %}
           # Raise compile time error if an action argument doesn't have a type restriction.
           {% raise "Route action argument '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction." if arg.restriction.is_a? Nop %}
-          {% arguments << %(ART::Arguments::ArgumentMetadata(#{arg.restriction}).new(#{arg.name.stringify}, #{arg.restriction.resolve.nilable?}, #{arg.default_value.is_a?(Nop) ? nil : arg.default_value})).id %}
+          {% arguments << %(ART::Arguments::ArgumentMetadata(#{arg.restriction}).new(#{arg.name.stringify}, #{!arg.default_value.is_a?(Nop)}, #{arg.restriction.resolve.nilable?}, #{arg.default_value.is_a?(Nop) ? nil : arg.default_value})).id %}
         {% end %}
 
         # Add the route to the router
@@ -86,7 +86,7 @@ class Athena::Routing::RouteResolver
           Route({{klass.id}}, Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
             ->{ %instance{m_idx} = {{klass.id}}.new; ->%instance{m_idx}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
             {{m.name.stringify}},
-            {{arguments}} of Athena::Routing::Arguments::Argument,
+            {{arguments}} of Athena::Routing::Arguments::ArgumentMetadataBase,
           ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}
         )
 
@@ -98,7 +98,7 @@ class Athena::Routing::RouteResolver
             Route({{klass.id}}, Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
               ->{ %instance{m_idx + 1} = {{klass.id}}.new; ->%instance{m_idx + 1}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
               {{m.name.stringify}},
-              {{arguments}} of Athena::Routing::Arguments::Argument,
+              {{arguments}} of Athena::Routing::Arguments::ArgumentMetadataBase,
             ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}
           )
         {% end %}

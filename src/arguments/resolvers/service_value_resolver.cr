@@ -1,4 +1,14 @@
 @[ADI::Register(tags: ["athena.argument_value_resolver"])]
+# Handles resolving an `ADI::Service` via `ADI::ServiceContainer#resolve` with the argument's type and name.
+#
+# NOTE: The argument's name and type must exactly match the service that is to be resolved.
+#
+# ```
+# @[ART::Get("")]
+# def get_request_path(request_store : ART::RequestStore) : String
+#   request_store.request.path
+# end
+# ```
 struct Athena::Routing::Arguments::Resolvers::Service
   include Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface
   include ADI::Service
@@ -9,14 +19,12 @@ struct Athena::Routing::Arguments::Resolvers::Service
   end
 
   # :inherit:
-  def supports?(request : HTTP::Request, argument : Athena::Routing::Arguments::Argument) : Bool
+  def supports?(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadataBase) : Bool
     ADI.container.has? argument.name
   end
 
   # :inherit:
-  def resolve(request : HTTP::Request, argument : Athena::Routing::Arguments::Argument)
+  def resolve(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadataBase)
     ADI.container.resolve argument.type, argument.name
-  rescue
-    nil
   end
 end

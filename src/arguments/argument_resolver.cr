@@ -1,13 +1,11 @@
-# :nodoc:
+# Responsible for resolving the arguments that will be passed to a controller action.
 module Athena::Routing::Arguments::ArgumentResolverInterface
   # Returns an array of arguments resolved from the provided *request* for the given *route*.
   abstract def get_arguments(request : HTTP::Request, route : ART::Action) : Array
 end
 
 @[ADI::Register("!athena.argument_value_resolver")]
-# :nodoc:
-#
-# A service that encapsulates the logic for resolving action arguments from a request.
+# The default implementation of `ART::Arguments::ArgumentResolverInterface`.
 struct Athena::Routing::Arguments::ArgumentResolver
   include Athena::Routing::Arguments::ArgumentResolverInterface
   include ADI::Service
@@ -24,7 +22,7 @@ struct Athena::Routing::Arguments::ArgumentResolver
       if resolver = @resolvers.find &.supports? request, param
         next resolver.resolve request, param
       else
-        raise "Controller action #{route.controller}##{route.action_name} requires a value for the '#{param.name}' argument."
+        raise ART::Exceptions::BadRequest.new "Missing required parameter '#{param.name}'"
       end
     end
   end

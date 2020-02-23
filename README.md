@@ -1,6 +1,6 @@
 # Athena
 
-![CI](https://github.com/athena-framework/athena/workflows/CI/badge.svg)
+[![CI](https://github.com/athena-framework/athena/workflows/CI/badge.svg)](https://github.com/athena-framework/athena/actions?query=workflow%3ACI)
 [![Latest release](https://img.shields.io/github/release/athena-framework/athena.svg)](https://github.com/athena-framework/athena/releases)
 
 A web framework comprised of reusable, independent components.
