@@ -17,7 +17,8 @@ end
 macro create_route(return_type, &)
   ART::Route(TestController, Proc(Proc({{return_type}})), {{return_type}}).new(
     ->{ ->{ {{yield}} } },
-    "fake_method"
+    "fake_method",
+    Array(ART::Arguments::ArgumentMetadataBase).new
   )
 end
 
@@ -25,7 +26,7 @@ def new_context(*, request : HTTP::Request = new_request, response : HTTP::Serve
   HTTP::Server::Context.new request, response
 end
 
-def new_route(parameters : Array(ART::Parameters::Param) = [] of ART::Parameters::Param) : ART::Route
+def new_route(parameters : Array(ART::Arguments::ArgumentMetadataBase) = [] of ART::Arguments::ArgumentMetadataBase) : ART::Route
   ART::Route(TestController, Proc(Proc(String)), String).new(
     ->{ test_controller = TestController.new; ->test_controller.get_test },
     "get_test",
@@ -36,7 +37,6 @@ end
 def new_request(*, path : String = "test", method : String = "GET", route : ART::Action = new_route, path_params : Hash(String, String) = Hash(String, String).new) : HTTP::Request
   request = HTTP::Request.new method, path
   request.route = route
-  request.path_params = path_params
   request
 end
 

@@ -20,7 +20,7 @@ struct Athena::Routing::Arguments::ArgumentResolver
   def get_arguments(request : HTTP::Request, route : ART::Action) : Array
     route.arguments.map do |param|
       if resolver = @resolvers.find &.supports? request, param
-        next resolver.resolve request, param
+        resolver.resolve request, param
       else
         raise ART::Exceptions::BadRequest.new "Missing required parameter '#{param.name}'"
       end

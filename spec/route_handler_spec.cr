@@ -1,11 +1,11 @@
 require "./spec_helper"
 
 private struct MockArgumentResolver
-  include Athena::Routing::ArgumentResolverInterface
+  include Athena::Routing::Arguments::ArgumentResolverInterface
 
   def initialize(@exception : ::Exception? = nil); end
 
-  def resolve(request : HTTP::Request, route : ART::Action) : Array
+  def get_arguments(request : HTTP::Request, route : ART::Action) : Array
     if ex = @exception
       raise ex
     end

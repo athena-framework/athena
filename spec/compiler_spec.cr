@@ -14,15 +14,15 @@ describe Athena::Routing do
       assert_error "compiler/class_method_action.cr", "Routes can only be defined as instance methods.  Did you mean 'CompileController#class_method'?"
     end
 
-    it "query parameter annotation but missing action argument" do
+    pending "query parameter annotation but missing action argument" do
       assert_error "compiler/query_param_missing_name.cr", "Route action 'CompileController#action's QueryParam annotation is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field."
     end
 
-    it "param converter annotation but missing action argument" do
+    pending "param converter annotation but missing action argument" do
       assert_error "compiler/param_converter_missing_name.cr", "Route action 'CompileController#action's ParamConverter annotation is missing the argument's name.  It was not provided as the first positional argument nor via the 'param' field."
     end
 
-    it "when action argument count does not equal expected count" do
+    pending "when action argument count does not equal expected count" do
       assert_error "compiler/argument_count_mismatch.cr", "Route action 'CompileController#action' doesn't have the correct number of arguments.  Expected 1 but got 0."
     end
 
