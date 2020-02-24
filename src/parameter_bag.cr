@@ -1,6 +1,8 @@
 # A container for storing key/value pairs.  Can be used to store arbitrary data within the context of a request.
 struct Athena::Routing::ParameterBag
-  private abstract struct Param; end
+  private abstract struct Param
+    def value; end
+  end
 
   private record Parameter(T) < Param, value : T
 
