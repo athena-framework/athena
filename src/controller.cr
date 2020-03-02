@@ -182,8 +182,8 @@ abstract class Athena::Routing::Controller
       #
       # ```
       # class ExampleController < ART::Controller
-      #   {{method.downcase.id}} "values/:value1/:value2", value1 : Int32, value2 : Float64, constraints: {"value1" => /\d+/, "value2" => /\d+\.\d+} do
-      #     "Value1: #{value1} - Value2: #{value2}""
+      #   {{method.downcase.id}} "values/:value1/:value2", value1 : Int32, value2 : Float64, constraints: {"value1" => /\d+/, "value2" => /\d+\.\d+/} do
+      #     "Value1: #{value1} - Value2: #{value2}"
       #   end
       # end
       # ```

@@ -1,4 +1,4 @@
-@[ADI::Register("@error_renderer", tags: ["athena.event_dispatcher.listener"])]
+@[ADI::Register("@athena_routing_error_renderer", tags: ["athena.event_dispatcher.listener"])]
 # Handles an exception by converting it into an `ART::Response` via an `ART::ErrorRendererInterface`.
 struct Athena::Routing::Listeners::Error
   include AED::EventListenerInterface

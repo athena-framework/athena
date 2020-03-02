@@ -84,9 +84,10 @@ class Athena::Routing::RouteResolver
           {{"/" + method + prefix + path}},
           # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
           Route({{klass.id}}, Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
-            ->{ %instance{m_idx} = {{klass.id}}.new; ->%instance{m_idx}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
+            ->{ %instance{m_idx} = ADI.container.get({{klass.id}}); ->%instance{m_idx}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
             {{m.name.stringify}},
             {{arguments}} of Athena::Routing::Arguments::ArgumentMetadataBase,
+            {{converters}} of Athena::Routing::ParamConverterMetadataBase,
           ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}
         )
 
@@ -96,9 +97,10 @@ class Athena::Routing::RouteResolver
             {{"/HEAD" + prefix + path}},
             # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
             Route({{klass.id}}, Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
-              ->{ %instance{m_idx + 1} = {{klass.id}}.new; ->%instance{m_idx + 1}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
+              ->{ %instance{m_idx + 1} = ADI.container.get({{klass.id}}); ->%instance{m_idx + 1}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
               {{m.name.stringify}},
               {{arguments}} of Athena::Routing::Arguments::ArgumentMetadataBase,
+              {{converters}} of Athena::Routing::ParamConverterMetadataBase,
             ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}
           )
         {% end %}
