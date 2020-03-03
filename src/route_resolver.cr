@@ -140,7 +140,6 @@ class Athena::Routing::RouteResolver
   def resolve(request : HTTP::Request) : Amber::Router::RoutedResult(Athena::Routing::Action)
     # Get the routes that match the given path
     matching_routes = @routes.find_routes request.path
-    route = nil
 
     # Raise a 404 if it's empty
     raise ART::Exceptions::NotFound.new "No route found for '#{request.method} #{request.path}'" if matching_routes.empty?
@@ -148,18 +147,16 @@ class Athena::Routing::RouteResolver
     supported_methods = [] of String
 
     # Iterate over each of the matched routes
-    matching_routes.each do |r|
+    route = matching_routes.find do |r|
       action = r.payload.not_nil!
 
       # Create an array of supported methods for the given action
+      # This'll be used if none of the routes support the request's method
+      # to show the supported methods in the error messaging
       supported_methods << action.method
 
-      # If an action's method matches the request's
-      if action.method == request.method
-        # Set the route variable and break
-        route = r
-        break
-      end
+      # Look for an action that supports the request's method
+      action.method == request.method
     end
 
     # Return the matched route, or raise a 405 if none of them handle the request's method
