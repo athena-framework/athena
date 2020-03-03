@@ -28,7 +28,7 @@ dependencies:
     version: ~> 0.1.0
   amber_router:
     github: amberframework/amber-router
-    version: ~> 0.3.0
+    version: ~> 0.4.1
 
 development_dependencies:
   ameba:
