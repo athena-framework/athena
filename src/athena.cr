@@ -102,9 +102,12 @@ module Athena::Routing
     # The name of the associated controller action.
     getter action_name : String
 
-    # The parameters that need to be parsed from the request
+    # The HTTP method associated with this route.
+    getter method : String
+
+    # The parameters that need to be parsed from the request.
     #
-    # Includes route, body, and query params
+    # Includes route, body, and query params.
     getter parameters : Array(ART::Parameters::Param)
 
     # The return type of the action.
@@ -113,6 +116,7 @@ module Athena::Routing
     def initialize(
       @action : ActionType,
       @action_name : String,
+      @method : String,
       @parameters : Array(ART::Parameters::Param) = [] of ART::Parameters::Param
     )
     end
