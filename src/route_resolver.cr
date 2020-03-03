@@ -81,26 +81,26 @@ class Athena::Routing::RouteResolver
 
         # Add the route to the router
         @routes.add(
-          {{"/" + method + prefix + path}},
+          {{"/" + prefix + path}},
           # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
           Route({{klass.id}}, Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
             ->{ %instance{m_idx} = ADI.container.get({{klass.id}}); ->%instance{m_idx}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
             {{m.name.stringify}},
+            {{method}},
             {{arguments}} of Athena::Routing::Arguments::ArgumentMetadataBase,
-            {{converters}} of Athena::Routing::ParamConverterMetadataBase,
           ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}
         )
 
         # Also add a HEAD endpoint for GET endpoints.
         {% if method == "GET" %}
           @routes.add(
-            {{"/HEAD" + prefix + path}},
+            {{"/" + prefix + path}},
             # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
             Route({{klass.id}}, Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
               ->{ %instance{m_idx + 1} = ADI.container.get({{klass.id}}); ->%instance{m_idx + 1}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
               {{m.name.stringify}},
+              "HEAD",
               {{arguments}} of Athena::Routing::Arguments::ArgumentMetadataBase,
-              {{converters}} of Athena::Routing::ParamConverterMetadataBase,
             ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}
           )
         {% end %}
@@ -111,11 +111,30 @@ class Athena::Routing::RouteResolver
   # Attempts to resolve the *request* into an `Amber::Router::RoutedResult(Athena::Routing::Action)`.
   #
   # Raises an `ART::Exceptions::NotFound` exception if a corresponding `ART::Route` could not be resolved.
+  # Raises an `ART::Exceptions::MethodNotAllowed` exception if a route was matched but does not support the *request*'s method.
   def resolve(request : HTTP::Request) : Amber::Router::RoutedResult(Athena::Routing::Action)
-    route = @routes.find "/#{request.method}#{request.path}"
+    # Get the routes that match the given path
+    matching_routes = @routes.find_routes request.path
 
-    raise ART::Exceptions::NotFound.new "No route found for '#{request.method} #{request.path}'" unless route.found?
+    # Raise a 404 if it's empty
+    raise ART::Exceptions::NotFound.new "No route found for '#{request.method} #{request.path}'" if matching_routes.empty?
 
-    route
+    supported_methods = [] of String
+
+    # Iterate over each of the matched routes
+    route = matching_routes.find do |r|
+      action = r.payload.not_nil!
+
+      # Create an array of supported methods for the given action
+      # This'll be used if none of the routes support the request's method
+      # to show the supported methods in the error messaging
+      supported_methods << action.method
+
+      # Look for an action that supports the request's method
+      action.method == request.method
+    end
+
+    # Return the matched route, or raise a 405 if none of them handle the request's method
+    route || raise ART::Exceptions::MethodNotAllowed.new "No route found for '#{request.method} #{request.path}': (Allow: #{supported_methods.join(", ")})"
   end
 end

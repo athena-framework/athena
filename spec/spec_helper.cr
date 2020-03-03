@@ -18,6 +18,7 @@ macro create_route(return_type, &)
   ART::Route(TestController, Proc(Proc({{return_type}})), {{return_type}}).new(
     ->{ ->{ {{yield}} } },
     "fake_method",
+    "GET",
     Array(ART::Arguments::ArgumentMetadataBase).new
   )
 end
@@ -34,11 +35,12 @@ def new_route(arguments : Array(ART::Arguments::ArgumentMetadataBase) = [] of AR
   ART::Route(TestController, Proc(Proc(String)), String).new(
     ->{ test_controller = TestController.new; ->test_controller.get_test },
     "get_test",
+    "GET",
     arguments,
   )
 end
 
-def new_request(*, path : String = "test", method : String = "GET", route : ART::Action = new_route, path_params : Hash(String, String) = Hash(String, String).new) : HTTP::Request
+def new_request(*, path : String = "/test", method : String = "GET", route : ART::Action = new_route, path_params : Hash(String, String) = Hash(String, String).new) : HTTP::Request
   request = HTTP::Request.new method, path
   request.route = route
   request
