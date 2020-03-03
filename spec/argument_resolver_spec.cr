@@ -14,8 +14,8 @@ struct MockParameter(T) < ART::Parameters::Parameter(T)
   end
 end
 
-describe ART::ArgumentResolver do
-  pending "with a request parameter" do
+pending ART::ArgumentResolver do
+  describe "with a request parameter" do
     it "should return the current request's path" do
       route = new_route parameters: [ART::Parameters::Request(HTTP::Request).new "request"] of ART::Parameters::Param
       request = new_request route: route
