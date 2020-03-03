@@ -102,7 +102,7 @@ module Athena::Routing
     # The name of the associated controller action.
     getter action_name : String
 
-    #  The HTTP method associated with this route.
+    # The HTTP method associated with this route.
     getter method : String
 
     # The parameters that need to be parsed from the request.
