@@ -137,6 +137,7 @@ class Athena::Routing::RouteResolver
   # Attempts to resolve the *request* into an `Amber::Router::RoutedResult(Athena::Routing::Action)`.
   #
   # Raises an `ART::Exceptions::NotFound` exception if a corresponding `ART::Route` could not be resolved.
+  # Raises an `ART::Exceptions::MethodNotAllowed` exception if a route was matched but does not support the *request*'s method.
   def resolve(request : HTTP::Request) : Amber::Router::RoutedResult(Athena::Routing::Action)
     # Get the routes that match the given path
     matching_routes = @routes.find_routes request.path
