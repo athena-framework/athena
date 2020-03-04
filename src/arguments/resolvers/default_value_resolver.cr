@@ -19,12 +19,12 @@ struct Athena::Routing::Arguments::Resolvers::DefaultValue
   end
 
   # :inherit:
-  def supports?(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadataBase) : Bool
+  def supports?(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata) : Bool
     argument.has_default? || (argument.type != Nil && argument.nillable?)
   end
 
   # :inherit:
-  def resolve(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadataBase)
+  def resolve(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata)
     argument.has_default? ? argument.default : nil
   end
 end

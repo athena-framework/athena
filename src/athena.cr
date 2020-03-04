@@ -21,6 +21,7 @@ require "./route_resolver"
 require "./view"
 
 require "./arguments/**"
+require "./compiler/*"
 require "./config/*"
 require "./events/*"
 require "./exceptions/*"
@@ -90,44 +91,46 @@ module Athena::Routing
   # Parent type of a route just used for typing.
   #
   # See `ART::Route`.
-  abstract class Action; end
+  abstract struct Action; end
 
   # Represents an endpoint within the application.
   #
   # Includes metadata about the endpoint, such as its controller, arguments, return type, and the action should be executed.
-  class Route(Controller, ActionType, ReturnType, *ArgTypes) < Action
-    # The `ART::Controller` that handles `self` by default.
-    getter controller : ART::Controller.class = Controller
-
-    # A `Proc(Proc)` representing the controller action that handles the `HTTP::Request` on `self`.
-    #
-    # The outer proc instantiates the controller instance and creates a proc with the action.
-    # This ensures each request gets its own instance of the controller to prevent leaking state.
-    getter action : ActionType
-
-    # The name of the associated controller action.
-    getter action_name : String
-
-    # The HTTP method associated with this route.
+  struct Route(Controller, ActionType, ReturnType, ArgTypeTuple, ArgumentsType) < Action
+    # The HTTP method associated with `self`.
     getter method : String
 
-    # The arguments that need to be passed to `#action`.
-    getter arguments : Array(ART::Arguments::ArgumentMetadataBase)
+    # An `Array(ART::Arguments::ArgumentMetadata)` that `self` accepts.
+    getter arguments : ArgumentsType
 
-    # The return type of the action.
-    getter return_type : ReturnType.class = ReturnType
+    # The name of the the controller action related to `self`.
+    getter action_name : String
 
     def initialize(
       @action : ActionType,
       @action_name : String,
       @method : String,
-      @arguments : Array(ART::Arguments::ArgumentMetadataBase)
+      @arguments : ArgumentsType,
+      # Don't bother making these ivars since we just need them to set the generic types
+      _controller : Controller.class,
+      _return_type : ReturnType.class,
+      _arg_types : ArgTypeTuple.class
     )
+    end
+
+    # The type that `self`'s route should return.
+    def return_type : ReturnType.class
+      ReturnType
+    end
+
+    # The `ART::Controller` that handles `self`.
+    def controller : Controller.class
+      Controller
     end
 
     # Executes `#action` with the given *arguments* array.
     def execute(arguments : Array) : ReturnType
-      @action.call.call *{{ArgTypes.empty? ? "Tuple.new".id : ArgTypes}}.from arguments
+      @action.call.call *{{ArgTypeTuple.type_vars.empty? ? "Tuple.new".id : ArgTypeTuple}}.from arguments
     end
   end
 
@@ -160,7 +163,7 @@ module Athena::Routing
         Fiber.current.container = ADI::ServiceContainer.new
 
         # Instantiate a new route handler object
-        ART::RouteHandler.new.handle context
+        ADI.container.athena_routing_route_handler.handle context
       end
     end
 

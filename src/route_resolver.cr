@@ -62,6 +62,9 @@ class Athena::Routing::RouteResolver
         # Grab the path off the annotation.
         {% path = route_def[0] || route_def[:path] %}
 
+        # Build the full path
+        {% full_path = prefix + path %}
+
         # Raise compile time error if the path is not provided
         {% raise "Route action '#{klass.name}##{m.name}' is annotated as a '#{method.id}' route but is missing the path." unless path %}
 
@@ -81,26 +84,32 @@ class Athena::Routing::RouteResolver
 
         # Add the route to the router
         @routes.add(
-          {{"/" + prefix + path}},
+          {{full_path}},
           # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
-          Route({{klass.id}}, Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
-            ->{ %instance{m_idx} = ADI.container.get({{klass.id}}); ->%instance{m_idx}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
+          Route.new(
+            ->{ %instance = ADI.container.get({{klass.id}}); ->%instance.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
             {{m.name.stringify}},
             {{method}},
-            {{arguments}} of Athena::Routing::Arguments::ArgumentMetadataBase,
+            {{arguments.empty? ? "Array(ART::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},
+            {{klass.id}},
+            {{m.return_type}},
+            {{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}
           ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}
         )
 
-        # Also add a HEAD endpoint for GET endpoints.
+        # Also add a HEAD route for GET endpoints.
         {% if method == "GET" %}
           @routes.add(
-            {{"/" + prefix + path}},
+            {{full_path}},
             # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
-            Route({{klass.id}}, Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
-              ->{ %instance{m_idx + 1} = ADI.container.get({{klass.id}}); ->%instance{m_idx + 1}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
+            Route.new(
+              ->{ %instance = ADI.container.get({{klass.id}}); ->%instance.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
               {{m.name.stringify}},
               "HEAD",
-              {{arguments}} of Athena::Routing::Arguments::ArgumentMetadataBase,
+              {{arguments.empty? ? "Array(ART::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},
+              {{klass.id}},
+              {{m.return_type}},
+              {{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}
             ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}
           )
         {% end %}

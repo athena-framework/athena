@@ -18,12 +18,12 @@ struct Athena::Routing::Arguments::Resolvers::RequestAttribute
   end
 
   # :inherit:
-  def supports?(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadataBase) : Bool
+  def supports?(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata) : Bool
     request.attributes.has? argument.name
   end
 
   # :inherit:
-  def resolve(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadataBase)
+  def resolve(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata)
     value = request.attributes.get argument.name
 
     argument.type.from_parameter value

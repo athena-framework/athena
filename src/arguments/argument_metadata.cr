@@ -1,30 +1,5 @@
-# Parent type of an argument's metadata just used for typing.
-#
-# See `ART::Arguments::ArgumentMetadata`.
-#
-# TODO: Remove the fake method signatures once [this issue](https://github.com/crystal-lang/crystal/issues/6996) is resolved.
-abstract struct Athena::Routing::Arguments::ArgumentMetadataBase
-  def has_default?
-    false
-  end
-
-  def nillable?
-    false
-  end
-
-  def type
-    Int32
-  end
-
-  def name
-    ""
-  end
-
-  def default; end
-end
-
 # Represents a controller action argument.  Stores metadata associated with it, such as its name, type, and default value if any.
-struct Athena::Routing::Arguments::ArgumentMetadata(T) < Athena::Routing::Arguments::ArgumentMetadataBase
+struct Athena::Routing::Arguments::ArgumentMetadata(T)
   # The name of the argument.
   getter name : String
 

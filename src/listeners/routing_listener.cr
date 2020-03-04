@@ -23,7 +23,7 @@ struct Athena::Routing::Listeners::Routing
     # Other option would be to new up a route resolver for every request. :shrug:
     route = ART.route_resolver.resolve event.request
 
-    event.request.route = route.payload.not_nil!.dup
+    event.request.route = route.payload.not_nil!
 
     route.params.not_nil!.merge!(event.request.query_params.to_h).each do |key, value|
       event.request.attributes.set key, value

@@ -17,12 +17,12 @@ struct Athena::Routing::Arguments::Resolvers::Request
   end
 
   # :inherit:
-  def supports?(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadataBase) : Bool
+  def supports?(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata) : Bool
     argument.type <= HTTP::Request
   end
 
   # :inherit:
-  def resolve(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadataBase)
+  def resolve(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata)
     request
   end
 end
