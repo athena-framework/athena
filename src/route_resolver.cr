@@ -62,14 +62,14 @@ class Athena::Routing::RouteResolver
         # Grab the path off the annotation.
         {% path = route_def[0] || route_def[:path] %}
 
-        # Build the full path
-        {% full_path = prefix + path %}
-
         # Raise compile time error if the path is not provided
         {% raise "Route action '#{klass.name}##{m.name}' is annotated as a '#{method.id}' route but is missing the path." unless path %}
 
         # Normalize the path.
         {% path = path.starts_with?('/') ? path : "/" + path %}
+
+        # Build the full path
+        {% full_path = prefix + path %}
 
         {% arg_types = m.args.map(&.restriction) %}
 

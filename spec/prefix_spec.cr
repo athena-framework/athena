@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-describe Athena::Routing do
+describe Athena::Routing::Prefix do
   run_server
 
   it "should route correctly" do

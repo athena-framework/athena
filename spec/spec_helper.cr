@@ -15,11 +15,14 @@ class TestController < ART::Controller
 end
 
 macro create_route(return_type, &)
-  ART::Route(TestController, Proc(Proc({{return_type}})), {{return_type}}).new(
+  ART::Route.new(
     ->{ ->{ {{yield}} } },
     "fake_method",
     "GET",
-    Array(ART::Arguments::ArgumentMetadataBase).new
+    Array(ART::Arguments::ArgumentMetadata(Nil)).new,
+    TestController,
+    {{return_type}},
+    typeof(Tuple.new)
   )
 end
 
@@ -27,16 +30,19 @@ def new_context(*, request : HTTP::Request = new_request, response : HTTP::Serve
   HTTP::Server::Context.new request, response
 end
 
-def new_argument(has_default : Bool = false, is_nillable : Bool = false, default : Int32? = nil) : ART::Arguments::ArgumentMetadataBase
+def new_argument(has_default : Bool = false, is_nillable : Bool = false, default : Int32? = nil) : ART::Arguments::ArgumentMetadata
   ART::Arguments::ArgumentMetadata(Int32).new("id", has_default, is_nillable, default)
 end
 
-def new_route(arguments : Array(ART::Arguments::ArgumentMetadataBase) = [] of ART::Arguments::ArgumentMetadataBase) : ART::Route
-  ART::Route(TestController, Proc(Proc(String)), String).new(
+def new_route(arguments : Array(ART::Arguments::ArgumentMetadata) = Array(ART::Arguments::ArgumentMetadata(Nil)).new) : ART::Route
+  ART::Route.new(
     ->{ test_controller = TestController.new; ->test_controller.get_test },
     "get_test",
     "GET",
     arguments,
+    TestController,
+    String,
+    typeof(Tuple.new)
   )
 end
 

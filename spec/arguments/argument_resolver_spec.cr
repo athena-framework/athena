@@ -13,12 +13,12 @@ struct TrueResolver
   end
 
   # :inherit:
-  def supports?(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadataBase) : Bool
+  def supports?(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata) : Bool
     true
   end
 
   # :inherit:
-  def resolve(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadataBase)
+  def resolve(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata)
     17
   end
 end
@@ -26,20 +26,19 @@ end
 describe ART::Arguments::ArgumentResolver do
   describe "#initialize" do
     it "sorts the resolvers on init" do
-      resolver = ART::Arguments::ArgumentResolver.new [ART::Arguments::Resolvers::DefaultValue.new, ART::Arguments::Resolvers::Request.new, ART::Arguments::Resolvers::Service.new] of ART::Arguments::Resolvers::ArgumentValueResolverInterface
+      resolver = ART::Arguments::ArgumentResolver.new [ART::Arguments::Resolvers::DefaultValue.new, ART::Arguments::Resolvers::Request.new] of ART::Arguments::Resolvers::ArgumentValueResolverInterface
 
       resolvers = resolver.resolvers
       resolvers[0].should be_a ART::Arguments::Resolvers::Request
-      resolvers[1].should be_a ART::Arguments::Resolvers::Service
-      resolvers[2].should be_a ART::Arguments::Resolvers::DefaultValue
+      resolvers[1].should be_a ART::Arguments::Resolvers::DefaultValue
     end
   end
 
   # Pending until https://github.com/crystal-lang/crystal/issues/8812 is fixed.
-  pending "#get_arguments" do
+  describe "#get_arguments" do
     describe "when a value was able to be resolved" do
       it "should return an array of values" do
-        route = new_route arguments: [new_argument] of ART::Arguments::ArgumentMetadataBase
+        route = new_route arguments: [new_argument]
 
         ART::Arguments::ArgumentResolver.new([TrueResolver.new] of ART::Arguments::Resolvers::ArgumentValueResolverInterface).get_arguments(new_request, route).should eq [17]
       end
@@ -47,7 +46,7 @@ describe ART::Arguments::ArgumentResolver do
 
     describe "when a value was not able to be resolved" do
       it "should raise a bad request exception" do
-        route = new_route arguments: [new_argument] of ART::Arguments::ArgumentMetadataBase
+        route = new_route arguments: [new_argument]
 
         expect_raises(ART::Exceptions::BadRequest, "Missing required parameter 'id'") do
           ART::Arguments::ArgumentResolver.new([] of ART::Arguments::Resolvers::ArgumentValueResolverInterface).get_arguments(new_request, route)

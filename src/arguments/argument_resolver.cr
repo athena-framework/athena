@@ -4,6 +4,19 @@ module Athena::Routing::Arguments::ArgumentResolverInterface
   abstract def get_arguments(request : HTTP::Request, route : ART::Action) : Array
 end
 
+# :nodoc:
+#
+# TODO: Revert back to `#map` once [this issue](https://github.com/crystal-lang/crystal/issues/8812) is resolved.
+class Array
+  def map_first_type
+    ary = [] of typeof((yield first))
+    each do |e|
+      ary << yield e
+    end
+    ary
+  end
+end
+
 @[ADI::Register("!athena.argument_value_resolver")]
 # The default implementation of `ART::Arguments::ArgumentResolverInterface`.
 struct Athena::Routing::Arguments::ArgumentResolver
@@ -18,7 +31,7 @@ struct Athena::Routing::Arguments::ArgumentResolver
 
   # :inherit:
   def get_arguments(request : HTTP::Request, route : ART::Action) : Array
-    route.arguments.map do |param|
+    route.arguments.map_first_type do |param|
       if resolver = @resolvers.find &.supports? request, param
         resolver.resolve request, param
       else
