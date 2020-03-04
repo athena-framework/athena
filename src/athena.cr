@@ -21,7 +21,6 @@ require "./route_resolver"
 require "./view"
 
 require "./arguments/**"
-require "./compiler/*"
 require "./config/*"
 require "./events/*"
 require "./exceptions/*"
@@ -163,7 +162,7 @@ module Athena::Routing
         Fiber.current.container = ADI::ServiceContainer.new
 
         # Instantiate a new route handler object
-        ADI.container.athena_routing_route_handler.handle context
+        ART::RouteHandler.new.handle context
       end
     end
 

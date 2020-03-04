@@ -1,4 +1,4 @@
-@[ADI::Register("@athena_config_configuration_resolver", tags: ["athena.event_dispatcher.listener"])]
+@[ADI::Register("@configuration_resolver", tags: ["athena.event_dispatcher.listener"])]
 # Handles [Cross-Origin Resource Sharing](https://enable-cors.org) (CORS).
 #
 # Handles CORS preflight `OPTIONS` requests as well as adding CORS headers to each response.

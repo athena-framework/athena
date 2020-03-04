@@ -1,9 +1,8 @@
 # The entry-point into `Athena::Routing`.
 #
 # Emits events that handle a given request.
-@[ADI::Register(public: true)]
 struct Athena::Routing::RouteHandler
-  include ADI::Service
+  include ADI::Injectable
 
   def initialize(
     @event_dispatcher : AED::EventDispatcherInterface,

@@ -87,7 +87,7 @@ class Athena::Routing::RouteResolver
           {{full_path}},
           # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
           Route.new(
-            ->{ %instance = ADI.container.get({{klass.id}}); ->%instance.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
+            ->{ %instance = {{klass.id}}.new; ->%instance.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
             {{m.name.stringify}},
             {{method}},
             {{arguments.empty? ? "Array(ART::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},
@@ -103,7 +103,7 @@ class Athena::Routing::RouteResolver
             {{full_path}},
             # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
             Route.new(
-              ->{ %instance = ADI.container.get({{klass.id}}); ->%instance.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
+              ->{ %instance = {{klass.id}}.new; ->%instance.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
               {{m.name.stringify}},
               "HEAD",
               {{arguments.empty? ? "Array(ART::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},
