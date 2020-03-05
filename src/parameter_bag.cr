@@ -8,7 +8,7 @@ struct Athena::Routing::ParameterBag
 
   @parameters : Hash(String, Param) = Hash(String, Param).new
 
-  # Returns `true` if a parameter with the provided *name* exists, otherwise `false.
+  # Returns `true` if a parameter with the provided *name* exists, otherwise `false`.
   def has?(name : String) : Bool
     @parameters.has_key? name
   end
@@ -18,7 +18,7 @@ struct Athena::Routing::ParameterBag
     @parameters[name]?.try &.value
   end
 
-  # Returns the value *name*.
+  # Returns the value of the parameter with the provided *name*.
   #
   # Raises a `KeyError` if no parameter with that name exists.
   def get(name : String)
@@ -26,7 +26,7 @@ struct Athena::Routing::ParameterBag
   end
 
   {% for type in [Bool, Int, Float, String] %}
-    # Returns the value for *name* casted to a `{{type}}`.
+    # Returns the value of the parameter with the provided *name* as a `{{type}}`.
     def get(name : String, _type : {{type}}.class) : {{type}}
       get(name).as({{type}})
     end

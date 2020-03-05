@@ -46,7 +46,7 @@ def new_route(arguments : Array(ART::Arguments::ArgumentMetadata) = Array(ART::A
   )
 end
 
-def new_request(*, path : String = "/test", method : String = "GET", route : ART::Action = new_route, path_params : Hash(String, String) = Hash(String, String).new) : HTTP::Request
+def new_request(*, path : String = "/test", method : String = "GET", route : ART::Action = new_route) : HTTP::Request
   request = HTTP::Request.new method, path
   request.route = route
   request

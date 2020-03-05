@@ -1,8 +1,8 @@
 name: athena
 
-version: 0.9.0
+version: 0.8.0
 
-crystal: 0.34.0
+crystal: 0.33.0
 
 license: MIT
 

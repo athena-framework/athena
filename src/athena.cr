@@ -74,12 +74,12 @@ module Athena::Routing
   # See each listener for more detailed information.
   module Athena::Routing::Listeners; end
 
-  # Namespace for types related to handling route action arguments.
+  # Namespace for types related to controller action arguments.
   #
   # See `ART::Arguments::ArgumentMetadata`.
   module Athena::Routing::Arguments; end
 
-  # The default `ART::Arguments::Resolvers::ArgumentValueResolverInterface` that handle resolving controller action arguments from a request.
+  # The default `ART::Arguments::Resolvers::ArgumentValueResolverInterface`s that will handle resolving controller action arguments from a request (or other source).
   # Custom argument value resolvers can also be defined, see `ART::Arguments::Resolvers::ArgumentValueResolverInterface`.
   #
   # NOTE: In order for `Athena::Routing` to pick up your custom value resolvers, be sure to `ADI::Register` it as a service, and tag it as `"athena.argument_value_resolver"`.
@@ -99,7 +99,7 @@ module Athena::Routing
     # The HTTP method associated with `self`.
     getter method : String
 
-    # An `Array(ART::Arguments::ArgumentMetadata)` that `self` accepts.
+    # An `Array(ART::Arguments::ArgumentMetadata)` that `self` requires.
     getter arguments : ArgumentsType
 
     # The name of the the controller action related to `self`.
@@ -122,12 +122,12 @@ module Athena::Routing
       ReturnType
     end
 
-    # The `ART::Controller` that handles `self`.
+    # The `ART::Controller` that includes `self`.
     def controller : Controller.class
       Controller
     end
 
-    # Executes `#action` with the given *arguments* array.
+    # Executes `#action` with the provided *arguments* array.
     def execute(arguments : Array) : ReturnType
       @action.call.call *{{ArgTypeTuple.type_vars.empty? ? "Tuple.new".id : ArgTypeTuple}}.from arguments
     end

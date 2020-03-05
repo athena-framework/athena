@@ -34,7 +34,6 @@ describe ART::Arguments::ArgumentResolver do
     end
   end
 
-  # Pending until https://github.com/crystal-lang/crystal/issues/8812 is fixed.
   describe "#get_arguments" do
     describe "when a value was able to be resolved" do
       it "should return an array of values" do

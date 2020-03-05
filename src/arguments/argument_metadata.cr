@@ -3,7 +3,7 @@ struct Athena::Routing::Arguments::ArgumentMetadata(T)
   # The name of the argument.
   getter name : String
 
-  # The default value of an argument.
+  # The default value of the argument, if any.
   #
   # See `ART::Arguments::Resolvers::DefaultValue`.
   getter default : T?

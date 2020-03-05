@@ -71,9 +71,10 @@ class Athena::Routing::RouteResolver
         # Build the full path
         {% full_path = prefix + path %}
 
+        # Get an array of the action's argument's types.
         {% arg_types = m.args.map(&.restriction) %}
 
-        # Build out params and converters array.
+        # Build out arguments array.
         {% arguments = [] of Nil %}
 
         {% for arg in m.args %}
@@ -85,7 +86,6 @@ class Athena::Routing::RouteResolver
         # Add the route to the router
         @routes.add(
           {{full_path}},
-          # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
           Route.new(
             ->{ %instance = {{klass.id}}.new; ->%instance.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
             {{m.name.stringify}},
@@ -101,7 +101,6 @@ class Athena::Routing::RouteResolver
         {% if method == "GET" %}
           @routes.add(
             {{full_path}},
-            # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
             Route.new(
               ->{ %instance = {{klass.id}}.new; ->%instance.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
               {{m.name.stringify}},

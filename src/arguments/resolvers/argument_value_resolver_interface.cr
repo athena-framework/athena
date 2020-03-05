@@ -15,7 +15,7 @@
 #
 #   # :inherit:
 #   def supports?(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata) : Bool
-#     # Define the logic that determines if this value resolver is able to resolve a value for the given request/argument.
+#     # Define the logic that determines if `self` is able to resolve a value for the given request/argument.
 #     # This resolver would handle resolving a value for action arguments whose type is `MyCustomType`.
 #     argument.type == MyCustomType
 #   end

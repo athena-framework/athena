@@ -14,9 +14,7 @@ describe ART::Arguments::Resolvers::RequestAttribute do
     end
 
     it "that does not exist in the request attributes" do
-      request = new_request
-
-      ART::Arguments::Resolvers::RequestAttribute.new.supports?(request, new_argument).should be_false
+      ART::Arguments::Resolvers::RequestAttribute.new.supports?(new_request, new_argument).should be_false
     end
   end
 
