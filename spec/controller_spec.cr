@@ -19,7 +19,7 @@ describe ART::Controller do
 
       response.status.should eq HTTP::Status::OK
       response.headers.should eq HTTP::Headers{"content-type" => "text/html"}
-      response.io.rewind.gets_to_end.should eq "Content: Greetings, TEST!\n"
+      response.io.rewind.gets_to_end.should eq "<h1>Content:</h1> Greetings, TEST!\n"
     end
   end
 
