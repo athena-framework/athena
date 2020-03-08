@@ -149,14 +149,38 @@ abstract class Athena::Routing::Controller
     response
   end
 
-  # Allows views to be embeded into layouts that yield <%= content %>
+  # Same as above, but allows views to be embeded into layouts that yield <%= content %>
   # Example call: render("./src/views/greeting.ecr", "./src/views/layout.ecr")
+  # ```
+  # # layout.ecr
+  # <h1>Content</h1>: <%= content %>
+  #
+  # # greeting.ecr
+  # Greetings, <%= name %>!
+  #
+  # # example_controller.cr
+  # class ExampleController < ART::Controller
+  #   @[ART::Get("/:name")]
+  #   def greet(name : String) : ART::Response
+  #     render "greeting.ecr", "layout.ecr"
+  #   end
+  # end
+  #
+  # spawn ART.run
+  #
+  # CLIENT = HTTP::Client.new "localhost", 3000
+  # CLIENT.get("/Fred").body # => <h1>Content</h1>: Greetings, Fred!
+  # ```
   macro render(template, layout)
     __content_filename__ = {{template}}
+
     io = IO::Memory.new
     ECR.embed({{template}}, io)
     content = io
-    render({{layout}})
+
+    response = Athena::Routing::Response.new(nil, 200, HTTP::Headers{"content-type" => "text/html"})
+    ECR.embed {{layout}}, response.io
+    response
   end
 
   # Returns an `ART::RedirectResponse` to the provided *url*, optionally with the provided *status*.

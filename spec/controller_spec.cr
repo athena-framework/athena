@@ -11,6 +11,16 @@ describe ART::Controller do
       response.headers.should eq HTTP::Headers{"content-type" => "text/html"}
       response.io.rewind.gets_to_end.should eq "Greetings, TEST!\n"
     end
+
+    it "creates a proper response for the template with a layout" do
+      # ameba:disable Lint/UselessAssign
+      name = "TEST"
+      response = ART::Controller.render "spec/greeting.ecr", "spec/layout.ecr"
+
+      response.status.should eq HTTP::Status::OK
+      response.headers.should eq HTTP::Headers{"content-type" => "text/html"}
+      response.io.rewind.gets_to_end.should eq "Content: Greetings, TEST!\n"
+    end
   end
 
   describe "#redirect" do
