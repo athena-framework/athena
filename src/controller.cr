@@ -148,6 +148,16 @@ abstract class Athena::Routing::Controller
     ECR.embed {{template}}, response.io
     response
   end
+  
+  # Allows views to be embeded into layouts that yield <%= content %>
+  # Example call: render("./src/views/greeting.ecr", "./src/views/layout.ecr")
+  macro render(template, layout)
+    __content_filename__ = {{template}}
+    io = IO::Memory.new
+    ECR.embed({{template}}, io)
+    content = io
+    render({{layout}})
+  end
 
   # Returns an `ART::RedirectResponse` to the provided *url*, optionally with the provided *status*.
   #
