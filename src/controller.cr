@@ -149,6 +149,32 @@ abstract class Athena::Routing::Controller
     response
   end
 
+  # Renders a template within a layout.
+  # ```
+  # # layout.ecr
+  # <h1>Content:</h1> <%= content -%>
+  #
+  # # greeting.ecr
+  # Greetings, <%= name %>!
+  #
+  # # example_controller.cr
+  # class ExampleController < ART::Controller
+  #   @[ART::Get("/:name")]
+  #   def greet(name : String) : ART::Response
+  #     render "greeting.ecr", "layout.ecr"
+  #   end
+  # end
+  #
+  # spawn ART.run
+  #
+  # CLIENT = HTTP::Client.new "localhost", 3000
+  # CLIENT.get("/Fred").body # => <h1>Content:</h1> Greetings, Fred!
+  # ```
+  macro render(template, layout)
+    content = ECR.render {{template}}
+    {{@type}}.render {{layout}}
+  end
+
   # Returns an `ART::RedirectResponse` to the provided *url*, optionally with the provided *status*.
   #
   # ```
