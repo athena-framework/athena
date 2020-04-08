@@ -14,7 +14,7 @@ description: |
   A web framework comprised of reusable, independent components.
 
 authors:
-  - Blacksmoke16 <Blacksmoke16@eve.tools>
+  - George Dietrich <george@dietrich.app>
 
 dependencies:
   athena-event_dispatcher:

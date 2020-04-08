@@ -144,9 +144,9 @@ abstract class Athena::Routing::Controller
   # CLIENT.get("/Fred").body # => Greetings, Fred!
   # ```
   macro render(template)
-    response = Athena::Routing::Response.new(nil, 200, HTTP::Headers{"content-type" => "text/html"})
-    ECR.embed {{template}}, response.io
-    response
+    Athena::Routing::Response.new(headers: HTTP::Headers{"content-type" => "text/html"}) do |io|
+      ECR.embed {{template}}, io
+    end
   end
 
   # Renders a template within a layout.

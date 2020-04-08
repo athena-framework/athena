@@ -31,4 +31,4 @@ Everything is documented in the [API Docs](https://athena-framework.github.io/at
 
 ## Contributors
 
-- [Blacksmoke16](https://github.com/blacksmoke16) - creator and maintainer
+- [George Dietrich](https://github.com/blacksmoke16) - creator and maintainer

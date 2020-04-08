@@ -35,9 +35,12 @@ struct Athena::Routing::RouteHandler
 
   private def return_response(response : ART::Response, context : HTTP::Server::Context) : Nil
     # Apply the `ART::Response` to the actual `HTTP::Server::Response` object
-    IO.copy response.io.rewind, context.response
     context.response.headers.merge! response.headers
     context.response.status = response.status
+
+    # Write the response content last on purpose
+    # See https://github.com/crystal-lang/crystal/issues/8712
+    response.write context.response
 
     # Close the response
     context.response.close
