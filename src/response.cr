@@ -2,10 +2,10 @@
 class Athena::Routing::Response
   # Determines how the content of an `ART::Response` will be written to the requests' response `IO`.
   #
-  # By default the content is written directly to the requests' response `IO` via `ART::Response::PassThroughWriter`.
+  # By default the content is written directly to the requests' response `IO` via `ART::Response::DirectWriter`.
   # However, custom writers can be implemented to customize that behavior.  The most common use case would be for compression.
   #
-  # The writer objects can also be defined as services if it requires additional external dependencies.
+  # Writers can also be defined as services and injected into a listener if they require additional external dependencies.
   #
   # ### Example
   #
@@ -15,7 +15,7 @@ class Athena::Routing::Response
   # # Define a custom writer to gzip the response
   # struct GzipWriter < ART::Response::Writer
   #   def write(output : IO, & : IO -> Nil) : Nil
-  #     Gzip::Writer.open(output, sync_close: true) do |gzip_io|
+  #     Gzip::Writer.open(output) do |gzip_io|
   #       yield gzip_io
   #     end
   #   end
@@ -35,12 +35,12 @@ class Athena::Routing::Response
   #
   #   def call(event : ART::Events::Response, dispatcher : AED::EventDispatcherInterface) : Nil
   #     # If the request supports gzip encoding
-  #     if event.request.headers.includes_word?("Accept-Encoding", "gzip")
+  #     if event.request.headers.includes_word?("accept-encoding", "gzip")
   #       # Change the `ART::Response` object's writer to be our `GzipWriter`
   #       event.response.writer = GzipWriter.new
   #
   #       # Set the encoding of the response to gzip
-  #       event.response.headers["Content-Encoding"] = "gzip"
+  #       event.response.headers["content-encoding"] = "gzip"
   #     end
   #   end
   # end
@@ -52,8 +52,8 @@ class Athena::Routing::Response
 
   # The default `ART::Response::Writer` for an `ART::Response`.
   #
-  # `ART::Response` content is written directly to the *output* `IO`.
-  struct PassThroughWriter < Writer
+  # Writes directly to the *output* `IO`.
+  struct DirectWriter < Writer
     # :inherit:
     #
     # The *output* `IO` is yielded directly.
@@ -63,7 +63,7 @@ class Athena::Routing::Response
   end
 
   # See `ART::Response::Writer`.
-  setter writer : ART::Response::Writer = ART::Response::PassThroughWriter.new
+  setter writer : ART::Response::Writer = ART::Response::DirectWriter.new
 
   # The `HTTP::Status` of `self.`
   getter status : HTTP::Status
