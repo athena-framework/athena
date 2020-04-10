@@ -1,4 +1,10 @@
 # Represents an HTTP response that should be returned to the client.
+#
+# Contains the content, status, and headers that should be applied to the actual `HTTP::Server::Response`.
+# This type is used to allow the content, status, and headers to be mutated by `ART::Listeners` before being returned to the client.
+#
+# The content is stored in a proc that gets called when `self` is being written to the response IO.
+# How the output gets written can be customized via an `ART::Response::Writer`.
 class Athena::Routing::Response
   # Determines how the content of an `ART::Response` will be written to the requests' response `IO`.
   #
@@ -74,33 +80,46 @@ class Athena::Routing::Response
   @content_callback : Proc(IO, Nil)
   @content_string : String? = nil
 
+  # Creates a new response with optional *status*, and *headers* arguments.
+  #
+  # The block is captured and called when `self` is being written to the response IO.
   def self.new(status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers = HTTP::Headers.new, &block : IO -> Nil)
     new block, status, headers
   end
 
+  # Creates a new response with optional *content*, *status*, and *headers* arguments.
+  #
+  # A proc is created that will print the given *content* to the response IO.
   def initialize(content : String? = nil, status : HTTP::Status | Int32 = HTTP::Status::OK, @headers : HTTP::Headers = HTTP::Headers.new)
     @status = HTTP::Status.new status
     @content_callback = Proc(IO, Nil).new { |io| io.print content }
   end
 
+  # Creates a new response with the provided *content_callback* and optional *status*, and *headers* arguments.
+  #
+  # The proc is called when `self` is being written to the response IO.
   def initialize(@content_callback : Proc(IO, Nil), status : HTTP::Status | Int32 = HTTP::Status::OK, @headers : HTTP::Headers = HTTP::Headers.new)
     @status = HTTP::Status.new status
   end
 
   # Writes content of `self` to the provided *output*.
   #
-  # Can be customized via a `ART::Response::Writer`.
+  # How the output gets written can be customized via an `ART::Response::Writer`.
   def write(output : IO) : Nil
     @writer.write(output) do |writer_io|
       @content_callback.call writer_io
     end
   end
 
+  # Updates the content of `self`.
+  #
+  # Resets the cached content string.
   def content=(@content_callback : Proc(IO, Nil))
     # Reset the content string if the content changes
     @content_string = nil
   end
 
+  # :ditto:
   def content=(content : String? = nil) : Nil
     self.content = Proc(IO, Nil).new { |io| io.print content }
   end
@@ -110,7 +129,7 @@ class Athena::Routing::Response
   # The content string is cached to avoid unnecessarily regenerating
   # the same string multiple times.
   #
-  # The cached string is cleared when changing the content via `#content=`.
+  # The cached string is cleared when changing `self`'s content via `#content=`.
   def content : String
     @content_string ||= String.build do |io|
       write io
