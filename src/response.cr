@@ -77,7 +77,12 @@ class Athena::Routing::Response
   # The response headers on `self.`
   getter headers : HTTP::Headers
 
+  # Stores the callback that run when `self` is being written to the `HTTP::Server::Response`.
   @content_callback : Proc(IO, Nil)
+
+  # The cached string representation of the content.
+  #
+  # Is reset if the content of `self` changes.
   @content_string : String? = nil
 
   # Creates a new response with optional *status*, and *headers* arguments.
