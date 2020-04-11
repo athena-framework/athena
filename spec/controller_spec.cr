@@ -9,7 +9,7 @@ describe ART::Controller do
 
       response.status.should eq HTTP::Status::OK
       response.headers.should eq HTTP::Headers{"content-type" => "text/html"}
-      response.io.rewind.gets_to_end.should eq "Greetings, TEST!\n"
+      response.content.should eq "Greetings, TEST!\n"
     end
 
     it "creates a proper response for the template with a layout" do
@@ -19,7 +19,7 @@ describe ART::Controller do
 
       response.status.should eq HTTP::Status::OK
       response.headers.should eq HTTP::Headers{"content-type" => "text/html"}
-      response.io.rewind.gets_to_end.should eq "<h1>Content:</h1> Greetings, TEST!\n"
+      response.content.should eq "<h1>Content:</h1> Greetings, TEST!\n"
     end
   end
 
@@ -29,7 +29,7 @@ describe ART::Controller do
 
       response.status.should eq HTTP::Status::FOUND
       response.headers.should eq HTTP::Headers{"location" => "URL"}
-      response.io.rewind.gets_to_end.should be_empty
+      response.content.should be_empty
     end
   end
 end

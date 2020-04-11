@@ -10,7 +10,7 @@ describe ART::Listeners::View do
     response = event.response.should_not be_nil
     response.status.should eq HTTP::Status::NO_CONTENT
     response.headers.should eq HTTP::Headers{"content-type" => "application/json"}
-    response.io.rewind.gets_to_end.should be_empty
+    response.content.should be_empty
   end
 
   it "with a non Nil return type" do
@@ -21,6 +21,6 @@ describe ART::Listeners::View do
     response = event.response.should_not be_nil
     response.status.should eq HTTP::Status::OK
     response.headers.should eq HTTP::Headers{"content-type" => "application/json"}
-    response.io.rewind.gets_to_end.should eq %("DATA")
+    response.content.should eq %("DATA")
   end
 end

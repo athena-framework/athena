@@ -17,14 +17,14 @@ struct Athena::Routing::Listeners::View
   end
 
   def call(event : ART::Events::View, dispatcher : AED::EventDispatcherInterface) : Nil
-    if event.request.route.return_type == Nil
-      data = ""
-      status = HTTP::Status::NO_CONTENT
-    else
-      data = event.view.data.to_json
-      status = HTTP::Status::OK
-    end
+    event.response = if event.request.route.return_type == Nil?
+                       ART::Response.new status: :no_content, headers: get_headers
+                     else
+                       ART::Response.new(headers: get_headers) { |io| event.view.data.to_json io }
+                     end
+  end
 
-    event.response = ART::Response.new data, status, HTTP::Headers{"content-type" => "application/json"}
+  private def get_headers : HTTP::Headers
+    HTTP::Headers{"content-type" => "application/json"}
   end
 end

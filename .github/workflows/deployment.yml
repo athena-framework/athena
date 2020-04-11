@@ -15,7 +15,7 @@ jobs:
       - name: Install Dependencies
         run: shards install --production
       - name: Build
-        run: crystal docs lib/athena-event_dispatcher/src/athena-event_dispatcher.cr lib/athena-config/src/athena-config.cr lib/athena-dependency_injection/src/athena-dependency_injection.cr src/athena.cr
+        run: make docs
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@2.0.1
         env:
