@@ -2,7 +2,7 @@ require "./spec_helper"
 
 describe ART::ErrorRenderer do
   it ART::Exceptions::HTTPException do
-    exception = ART::Exceptions::TooManyRequests.new 42, "cool your jets"
+    exception = ART::Exceptions::TooManyRequests.new "cool your jets", 42
 
     renderer = ART::ErrorRenderer.new
 
