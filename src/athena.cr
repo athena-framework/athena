@@ -72,7 +72,9 @@ module Athena::Routing
   # NOTE: In order for `Athena::Routing` to pick up your custom listener, be sure to `ADI::Register` it as a service, and tag it as `"athena.event_dispatcher.listener"`.
   #
   # See each listener for more detailed information.
-  module Athena::Routing::Listeners; end
+  module Athena::Routing::Listeners
+    TAG = "athena.event_dispatcher.listener"
+  end
 
   # Namespace for types related to handling route action parameters.
   #
@@ -151,12 +153,8 @@ module Athena::Routing
     def initialize(@port : Int32 = 3000, @host : String = "0.0.0.0", @ssl : OpenSSL::SSL::Context::Server | Bool | Nil = nil, @reuse_port : Bool = false)
       # Define the server
       @server = HTTP::Server.new do |context|
-        # Instantiate a new instance of the container so that
-        # the container objects do not bleed between requests
-        Fiber.current.container = ADI::ServiceContainer.new
-
-        # Instantiate a new route handler object
-        ART::RouteHandler.new.handle context
+        # Handle the request
+        ADI.container.athena_routing_route_handler.handle context
       end
     end
 

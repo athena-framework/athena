@@ -3,8 +3,6 @@
 #
 # Can be injected to access the request from a non controller context.
 class Athena::Routing::RequestStore
-  include ADI::Service
-
   @request : HTTP::Request? = nil
 
   # Resets the store, removing the reference to the request.

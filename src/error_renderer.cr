@@ -2,7 +2,6 @@
 # The default `ART::ErrorRendererInterface`, JSON serializes the exception.
 struct Athena::Routing::ErrorRenderer
   include Athena::Routing::ErrorRendererInterface
-  include ADI::Service
 
   # :inherit:
   def render(exception : ::Exception) : ART::Response

@@ -1,4 +1,4 @@
-@[ADI::Register(tags: ["athena.event_dispatcher.listener"])]
+@[ADI::Register(tags: [ART::Listeners::TAG])]
 # The view listener attempts to resolve a non `ART::Response` into an `ART::Response`.
 # Currently this is achieved by JSON serializing the controller action's resulting value.
 #
@@ -8,7 +8,6 @@
 # TODO: Implement a format negotiation algorithm.
 struct Athena::Routing::Listeners::View
   include AED::EventListenerInterface
-  include ADI::Service
 
   def self.subscribed_events : AED::SubscribedEvents
     AED::SubscribedEvents{

@@ -9,7 +9,6 @@ end
 # A service that encapsulates the logic for resolving action arguments from a request.
 struct Athena::Routing::ArgumentResolver
   include Athena::Routing::ArgumentResolverInterface
-  include ADI::Service
 
   # Returns an array of parameters for the `ART::Route` associated with the given *request*.
   def resolve(request : HTTP::Request, route : ART::Action) : Array
