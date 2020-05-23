@@ -3,7 +3,7 @@ module Athena::Routing::ArgumentResolverInterface
   abstract def resolve(request : HTTP::Request, route : ART::Action) : Array
 end
 
-@[ADI::Register]
+@[ADI::Register(name: "argument_resolver")]
 # :nodoc:
 #
 # A service that encapsulates the logic for resolving action arguments from a request.

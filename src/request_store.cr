@@ -1,4 +1,4 @@
-@[ADI::Register]
+@[ADI::Register(name: "request_store", public: true)]
 # Stores the current `HTTP::Request` object.
 #
 # Can be injected to access the request from a non controller context.
