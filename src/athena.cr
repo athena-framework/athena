@@ -12,6 +12,7 @@ require "./argument_resolver"
 require "./controller"
 require "./error_renderer_interface"
 require "./error_renderer"
+require "./logging"
 require "./param_converter_interface"
 require "./redirect_response"
 require "./response"
@@ -165,17 +166,7 @@ module Athena::Routing
     end
 
     def start : Nil
-      unless @server.each_address { break true }
-        {% if flag?(:without_openssl) %}
-          @server.bind_tcp(@host, @port, reuse_port: @reuse_port)
-        {% else %}
-          if (ssl_context = @ssl) && ssl_context.is_a?(OpenSSL::SSL::Context::Server)
-            @server.bind_tls(@host, @port, ssl_context, reuse_port: @reuse_port)
-          else
-            @server.bind_tcp(@host, @port, reuse_port: @reuse_port)
-          end
-        {% end %}
-      end
+      @server.bind_tcp(@host, @port, reuse_port: @reuse_port)
 
       # Handle exiting correctly on stop/kill signals
       Signal::INT.trap { stop }
