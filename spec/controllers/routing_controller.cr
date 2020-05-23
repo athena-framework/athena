@@ -1,8 +1,7 @@
 require "../spec_helper"
 
+@[ADI::Register(public: true)]
 class RoutingController < ART::Controller
-  include ADI::Injectable
-
   def initialize(@request_store : Athena::Routing::RequestStore); end
 
   @[ART::Get("get/safe")]

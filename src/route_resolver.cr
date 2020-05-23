@@ -110,7 +110,18 @@ class Athena::Routing::RouteResolver
           {{"/" + prefix + path}},
           # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
           Route({{klass.id}}, Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
-            ->{ %instance{m_idx} = {{klass.id}}.new; ->%instance{m_idx}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
+            ->{
+                # If the controller is not registered as a service, simply new one up
+                # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
+                {% if ann = klass.annotation(ADI::Register) %}
+                  {% raise "Service '#{klass.id}' must be declared as public." unless ann[:public] %}
+                  %instance{m_idx + 1} = ADI.container.get({{klass.id}})
+                {% else %}
+                  %instance{m_idx + 1} = {{klass.id}}.new
+                {% end %}
+
+                ->%instance{m_idx + 1}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %}
+              },
             {{m.name.stringify}},
             {{method}},
             %params{m_idx},
@@ -123,7 +134,18 @@ class Athena::Routing::RouteResolver
             {{"/" + prefix + path}},
             # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
             Route({{klass.id}}, Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
-              ->{ %instance{m_idx + 1} = {{klass.id}}.new; ->%instance{m_idx + 1}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
+              ->{
+                  # If the controller is not registered as a service, simply new one up
+                  # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
+                  {% if ann = klass.annotation(ADI::Register) %}
+                    {% raise "Service '#{klass.id}' must be declared as public." unless ann[:public] %}
+                    %instance{m_idx + 1} = ADI.container.get({{klass.id}})
+                  {% else %}
+                    %instance{m_idx + 1} = {{klass.id}}.new
+                  {% end %}
+
+                  ->%instance{m_idx + 1}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %}
+                },
               {{m.name.stringify}},
               "HEAD",
               %params{m_idx},
