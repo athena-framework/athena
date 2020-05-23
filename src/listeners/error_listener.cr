@@ -1,8 +1,7 @@
-@[ADI::Register("@error_renderer", tags: ["athena.event_dispatcher.listener"])]
+@[ADI::Register(tags: [ART::Listeners::TAG])]
 # Handles an exception by converting it into an `ART::Response` via an `ART::ErrorRendererInterface`.
 struct Athena::Routing::Listeners::Error
   include AED::EventListenerInterface
-  include ADI::Service
 
   def self.subscribed_events : AED::SubscribedEvents
     AED::SubscribedEvents{

@@ -1,8 +1,7 @@
-@[ADI::Register]
+@[ADI::Register(name: "error_renderer", alias: Athena::Routing::ErrorRendererInterface)]
 # The default `ART::ErrorRendererInterface`, JSON serializes the exception.
 struct Athena::Routing::ErrorRenderer
   include Athena::Routing::ErrorRendererInterface
-  include ADI::Service
 
   # :inherit:
   def render(exception : ::Exception) : ART::Response
