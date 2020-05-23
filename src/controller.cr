@@ -3,7 +3,7 @@
 #
 # Additional annotations also exist for setting a query param or a param converter.  See `ART::QueryParam` and `ART::ParamConverter` respectively.
 #
-# Child controllers must inherit from `ART::Controller` (or an abstract child of it).  Each request gets its own instance of the controller to better allow for DI via `Athena::DI`.
+# Child controllers must inherit from `ART::Controller` (or an abstract child of it).  Each request gets its own instance of the controller to better allow for DI via `Athena::DependencyInjection`.
 #
 # A route action can either return an `ART::Response`, or some other type.  If an `ART::Response` is returned, then it is used directly.  Otherwise an `ART::Events::View` is emitted to convert
 # the action result into an `ART::Response`.  By default, `ART::Listeners::View` will JSON encode the value if it is not handled earlier by another listener.
@@ -22,7 +22,7 @@
 #   # A GET endpoint returning an `ART::Response`.
 #   @[ART::Get(path: "/css")]
 #   def css : ART::Response
-#     ART::Response.new ".some_class { color: blue; }", 200, HTTP::Headers{"content-type" => MIME.from_extension(".css")}
+#     ART::Response.new ".some_class { color: blue; }", headers: HTTP::Headers{"content-type" => MIME.from_extension(".css")}
 #   end
 #
 #   # A GET endpoint using a param converter to render a template.

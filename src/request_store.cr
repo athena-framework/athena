@@ -2,6 +2,21 @@
 # Stores the current `HTTP::Request` object.
 #
 # Can be injected to access the request from a non controller context.
+#
+# ```
+# @[ADI::Register(public: true)]
+# class ExampleController < ART::Controller
+#   def initialize(@request_store : ART::RequestStore); end
+#
+#   get "/" do
+#     @request_store.method
+#   end
+# end
+#
+# ART.run
+#
+# # GET / # => GET
+# ```
 class Athena::Routing::RequestStore
   @request : HTTP::Request? = nil
 

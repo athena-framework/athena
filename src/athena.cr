@@ -36,19 +36,202 @@ require "./ext/request"
 # Convenience alias to make referencing `Athena::Routing` types easier.
 alias ART = Athena::Routing
 
-# Athena's Routing component, `ART` for short, provides an event based framework for converting a request into a response
-# and includes various abstractions/useful types to make that process easier.
+# Athena is a set of independent, reusable [components](https://github.com/athena-framework) with the goal of providing
+# a set of high quality, flexible, and robust framework building blocks.  These components could be used on their own,
+# or outside of the Athena ecosystem, to prevent every framework/project from needing to "reinvent the wheel."
 #
-# Athena is an event based framework; meaning it emits `ART::Events` that are acted upon to handle the request.
-# Athena also utilizes `Athena::DependencyInjection` to provide a service container layer.  The service container layer
-# allows a project to share/inject useful objects between various types, such as a custom `AED::EventListenerInterface`, `ART::Controller`, or `ART::ParamConverterInterface`.
-# See the corresponding types for more information.
+# The `Athena::Routing` component is the result of combining these components into a single robust, flexible, and self-contained framework.
 #
-# * See `ART::Controller` for documentation on defining controllers/route actions.
-# * See `ART::Config` for documentation on configuration options available for the Routing component.
-# * See `ART::Events` for documentation on the events that can be listened on during the request's life-cycle.
-# * See `ART::ParamConverterInterface` for documentation on using param converters.
-# * See `ART::Exceptions` for documentation on exception handling.
+# ## Getting Started
+#
+# Athena does not have any other dependencies outside of `Crystal`/`Shards`.
+# It is designed in such a way to be non-intrusive/strict in regards to how a project is setup;
+# this allows it to use a minimal amount of setup boilerplate while not preventing it for more complex projects.
+#
+# ### Installation
+#
+# Add the dependency to your `shard.yml`:
+#
+# ```yaml
+# dependencies:
+#   athena:
+#     github: athena-framework/athena
+# ```
+#
+# Run `shards install`.  This will install Athena and its required dependencies.
+#
+# ### Usage
+#
+# Athena has a goal of being easy to start using for simple use cases, while still allowing flexibility/customizability for larger more complex cases.
+#
+# #### Routing
+#
+# Athena is a MVC based framework, as such, the logic to handle a given route is defined in an `ART::Controller` class.
+#
+# ```
+# require "athena"
+#
+# # Define a controller
+# class ExampleController < ART::Controller
+#   # Define an action to handle the related route
+#   @[ART::Get("/")]
+#   def index : String
+#     "Hello World"
+#   end
+#
+#   # The macro DSL can also be used
+#   get "/" do
+#     "Hello World"
+#   end
+# end
+#
+# # Run the server
+# ART.run
+#
+# # GET / # => Hello World
+# ```
+# Annotations applied to the methods are used to define the HTTP method this method handles, such as `ART::Get` or `ART::Post`.  A macro DSL also exists to make them a bit less verbose;
+# `ART::Controller.get` or `ART::Controller.post`.
+#
+# Controllers are simply classes and routes are simply methods.  Controllers and actions can be documented/tested as you would any Crystal class/method.
+#
+# #### Route Parameters
+#
+# Parameters, such as path/query parameters are also defined via annotations and map directly to the method's arguments.
+#
+# ```
+# require "athena"
+#
+# class ExampleController < ART::Controller
+#   @[ART::QueryParam("negative")]
+#   @[ART::Get("/add/:value1/:value2")]
+#   def add(value1 : Int32, value2 : Int32, negative : Bool = false) : Int32
+#     sum = value1 + value2
+#     negative ? -sum : sum
+#   end
+# end
+#
+# ART.run
+#
+# # GET /add/2/3               # => 5
+# # GET /add/5/5?negative=true # => -10
+# # GET /add/foo/12            # => {"code":422,"message":"Required parameter 'value1' with value 'foo' could not be converted into a valid 'Int32'"}
+# ```
+#
+# Arguments are converted to their expected types if possible, otherwise an error response is automatically returned.
+# The values are provided directly as method arguments, thus preventing the need for `env.params.url["name"]` and any boilerplate related to it.
+# Just like normal methods arguments, default values can be defined. The method's return type adds some type safety to ensure the expected value is being returned.
+#
+# An `ART::Response` can also be used in order to fully customize the response, such as returning a specific status code, adding some one-off headers, or saving memory by directly
+# writing the response value to the Response IO.
+#
+# ```
+# require "athena"
+#
+# class ExampleController < ART::Controller
+#   # A GET endpoint returning an `ART::Response`.
+#   @[ART::Get(path: "/css")]
+#   def css : ART::Response
+#     ART::Response.new ".some_class { color: blue; }", headers: HTTP::Headers{"content-type" => MIME.from_extension(".css")}
+#   end
+# end
+#
+# ART.run
+#
+# # GET /css # => ".some_class { color: blue; }"
+# ```
+#
+# An `ART::Events::View` is emitted if the returned value is _NOT_ an `ART::Response`.  By default, non `ART::Response`s are JSON serialized.
+# However, this event can be listened on to customize how the value is serialized.
+#
+# ### Advanced Usage
+#
+#
+#
+# #### Param Converters
+# `ART::ParamConverterInterface`s allow complex types to be supplied to an action via its arguments.
+# An example of this could be extracting the id from `/users/10`, doing a DB query to lookup the user with the PK of `10`, then providing the full user object to the action.
+# This abstracts any custom parameter handling that would otherwise have to be done in each action.
+#
+# ```
+# require "athena"
+#
+# struct DoubleConverter
+#   include ART::ParamConverterInterface(Int32)
+#
+#   # :inherit:
+#   def convert(request : HTTP::Request) : T
+#     num = request.path_params["num"]
+#     num.to_i * 2
+#   rescue ex : ArgumentError
+#     raise ART::Exceptions::BadRequest.new "Invalid Int32: '#{num}'", cause: ex
+#   end
+# end
+#
+# class ExampleController < ART::Controller
+#   @[ART::ParamConverter("num", converter: DoubleConverter)]
+#   @[ART::Get(path: "/double/:num")]
+#   def double(num : Int32) : Int32
+#     num
+#   end
+# end
+#
+# ART.run
+#
+# # GET /double/10 # => 20
+# ```
+#
+# #### Middleware
+#
+# Athena is an event based framework; meaning it emits `ART::Events` that are acted upon internally to handle the request.
+# These same events can also be listened on by custom listeners, via `AED::EventListenerInterface`, in order to tap into the life-cycle of the request.
+# An example use case of this could be: adding common headers, cookies, compressing the response, authentication, or even returning a response early like `ART::Listeners::CORS`.
+#
+# ```
+# require "athena"
+#
+# @[ADI::Register(tags: [ART::Listeners::TAG])]
+# struct CustomListener
+#   include AED::EventListenerInterface
+#
+#   # Specify that we want to listen on the `Response` event.
+#   # The value of the hash represents this listener's priority;
+#   # the higher the value the sooner it gets executed.
+#   def self.subscribed_events : AED::SubscribedEvents
+#     AED::SubscribedEvents{
+#       ART::Events::Response => 25,
+#     }
+#   end
+#
+#   def call(event : ART::Events::Response, dispatcher : AED::EventDispatcherInterface) : Nil
+#     event.response.headers["FOO"] = "BAR"
+#   end
+# end
+#
+# class ExampleController < ART::Controller
+#   get "/" do
+#     "Hello World"
+#   end
+# end
+#
+# ART.run
+#
+# # GET / # => Hello World (with `FOO => BAR` header)
+# ```
+#
+# #### Dependency Injection
+#
+# Athena utilizes `Athena::DependencyInjection` to provide a service container layer.
+# DI allows controllers/other services to be decoupled from specific implementations.
+# This makes testing easier as test implementations of the dependencies can be used.
+#
+# In Athena, most everything is a service that belongs to the container.  The major benefit of this is it allows various types to be shared amongst the services.
+# For example, allowing param converters, controllers, etc. to have access to the current request via the `ART::RequestStore` service.
+#
+# Another example would be defining a service to store a `UUID` to represent the current request, then using this service to include the UUID in the response headers.
+#
+# ```
+# ```
 module Athena::Routing
   protected class_getter route_resolver : ART::RouteResolver { ART::RouteResolver.new }
 
@@ -65,7 +248,7 @@ module Athena::Routing
   # if it is an `ART::Exceptions::HTTPException`. See `ART::Listeners::Error` and `ART::ErrorRendererInterface` for more information on how exceptions are handled by default.
   #
   # To provide the best response to the client, non `ART::Exceptions::HTTPException` should be rescued and converted into a corresponding `ART::Exceptions::HTTPException`.
-  # Custom HTTP errors can also be defined by inheriting from `ART::Exceptions::HTTPException`.  A use case for this could be allowing for additional data/context to be included
+  # Custom HTTP errors can also be defined by inheriting from `ART::Exceptions::HTTPException` or a child type.  A use case for this could be allowing for additional data/context to be included
   # within the exception that ultimately could be used in a `ART::Events::Exception` listener.
   module Athena::Routing::Exceptions; end
 

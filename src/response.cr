@@ -86,7 +86,17 @@ class Athena::Routing::Response
 
   # Creates a new response with optional *status*, and *headers* arguments.
   #
-  # The block is captured and called when `self` is being written to the response IO.
+  # The block is captured and called when `self` is being written to the response `IO`.
+  # This can be useful to reduce memory overhead when needing to return large responses.
+  #
+  # ```
+  # @[ART::Get(path: "/users")]
+  # def users : ART::Response
+  #   ART::Response.new do |io|
+  #     fetch_all_users.to_json io
+  #   end
+  # end
+  # ```
   def self.new(status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers = HTTP::Headers.new, &block : IO -> Nil)
     new block, status, headers
   end
