@@ -33,7 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Install Dependencies
-        run: shards install
+        run: shards install --production
       - name: Specs
         run: make spec
   test_nightly:
@@ -43,6 +43,6 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Install Dependencies
-        run: shards install
+        run: shards install --production
       - name: Specs
         run: make spec
