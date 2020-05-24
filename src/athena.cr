@@ -14,6 +14,7 @@ require "./error_renderer"
 require "./logging"
 require "./parameter_bag"
 require "./param_converter_interface"
+require "./param_converter_metadata"
 require "./redirect_response"
 require "./response"
 require "./request_store"
@@ -112,11 +113,14 @@ module Athena::Routing
     # The name of the the controller action related to `self`.
     getter action_name : String
 
+    getter param_converters : Array(ART::ParamConverterMetadata)
+
     def initialize(
       @action : ActionType,
       @action_name : String,
       @method : String,
       @arguments : ArgumentsType,
+      @param_converters : Array(ART::ParamConverterMetadata),
       # Don't bother making these ivars since we just need them to set the generic types
       _controller : Controller.class,
       _return_type : ReturnType.class,

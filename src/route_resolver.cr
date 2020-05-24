@@ -101,15 +101,22 @@ class Athena::Routing::RouteResolver
             {% arguments << %(ART::Arguments::ArgumentMetadata(#{arg.restriction}).new(#{arg.name.stringify}, #{!arg.default_value.is_a?(Nop)}, #{arg.restriction.resolve.nilable?}, #{arg.default_value.is_a?(Nop) ? nil : arg.default_value})).id %}
           {% end %}
 
-          # Make sure query params have a corresponding action argument.
-          {% for qp in m.annotations(ART::QueryParam) %}
-            {% qp.raise "Route action '#{klass.name}##{m.name}'s QueryParam annotation is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless qp_name = (qp[0] || qp[:name]) %}
-            {% qp.raise "Route action '#{klass.name}##{m.name}'s '#{qp_name.id}' query parameter does not have a corresponding action argument." unless arg_names.includes? qp_name %}
+          # Build out param converters array.
+          {% param_converters = [] of Nil %}
+          {% param_converter_arg_names = [] of Nil %}
+
+          {% for converter in m.annotations(ART::ParamConverter) %}
+            {% converter.raise "Route action '#{klass.name}##{m.name}'s ParamConverter annotation is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (converter[0] || converter[:name]) %}
+            {% converter.raise "Route action '#{klass.name}##{m.name}'s '#{arg_name.id}' param converter does not have a corresponding action argument." unless arg_names.includes? arg_name %}
+            {% converter.raise "Route action '#{klass.name}##{m.name}'s ParamConverter annotation is missing the converter class.  It was not provided via the 'converter' field." unless converter_class = converter[:converter] %}
+            {% metadata_class = converter_class.resolve.has_constant?("METADATA") ? converter_class.resolve.constant("METADATA") : ART::DefaultParamConverterMetadata %}
+            {% param_converters << %(#{metadata_class}.new(name: #{arg_name.id.stringify}, #{converter.named_args.double_splat})).id %}
           {% end %}
 
-          # Make sure path arguments have a corresponding action argument.
-          {% for placeholder in full_path.split('/').select &.starts_with? ':' %}
-            {% m.raise "Route action '#{klass.name}##{m.name}'s '#{placeholder[1..-1].id}' path argument does not have a corresponding action argument." unless arg_names.includes? placeholder[1..-1] %}
+          # Make sure query params have a corresponding action argument.
+          {% for qp in m.annotations(ART::QueryParam) %}
+            {% qp.raise "Route action '#{klass.name}##{m.name}'s QueryParam annotation is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (qp[0] || qp[:name]) %}
+            {% qp.raise "Route action '#{klass.name}##{m.name}'s '#{arg_name.id}' query parameter does not have a corresponding action argument." unless arg_names.includes? arg_name %}
           {% end %}
 
           # Add the route to the router
@@ -120,7 +127,7 @@ class Athena::Routing::RouteResolver
                   # If the controller is not registered as a service, simply new one up
                   # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
                   {% if ann = klass.annotation(ADI::Register) %}
-                    {% raise "Service '#{klass.id}' must be declared as public." unless ann[:public] %}
+                    {% klass.raise "Service '#{klass.id}' must be declared as public." unless ann[:public] %}
                     %instance = ADI.container.get({{klass.id}})
                   {% else %}
                     %instance = {{klass.id}}.new
@@ -131,6 +138,7 @@ class Athena::Routing::RouteResolver
               {{m.name.stringify}},
               {{method}},
               {{arguments.empty? ? "Array(ART::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},
+              ({{param_converters}} of ART::ParamConverterMetadata),
               {{klass.id}},
               {{m.return_type}},
               {{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}
@@ -146,7 +154,7 @@ class Athena::Routing::RouteResolver
                   # If the controller is not registered as a service, simply new one up
                   # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
                   {% if ann = klass.annotation(ADI::Register) %}
-                    {% raise "Service '#{klass.id}' must be declared as public." unless ann[:public] %}
+                    {% klass.raise "Service '#{klass.id}' must be declared as public." unless ann[:public] %}
                     %instance = ADI.container.get({{klass.id}})
                   {% else %}
                     %instance = {{klass.id}}.new
@@ -157,6 +165,7 @@ class Athena::Routing::RouteResolver
                 {{m.name.stringify}},
                 "HEAD",
                 {{arguments.empty? ? "Array(ART::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},
+                ({{param_converters}} of ART::ParamConverterMetadata),
                 {{klass.id}},
                 {{m.return_type}},
                 {{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}

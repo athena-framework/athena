@@ -22,6 +22,7 @@ macro create_route(return_type, &)
     "fake_method",
     "GET",
     Array(ART::Arguments::ArgumentMetadata(Nil)).new,
+    Array(ART::ParamConverterMetadata).new,
     TestController,
     {{return_type}},
     typeof(Tuple.new)
@@ -42,6 +43,7 @@ def new_route(arguments : Array(ART::Arguments::ArgumentMetadata) = Array(ART::A
     "get_test",
     "GET",
     arguments,
+    Array(ART::ParamConverterMetadata).new,
     TestController,
     String,
     typeof(Tuple.new)

@@ -32,7 +32,7 @@ struct Athena::Routing::Arguments::ArgumentResolver
       if resolver = @argument_resolvers.find &.supports? request, param
         resolver.resolve request, param
       else
-        raise ART::Exceptions::BadRequest.new "Missing required parameter '#{param.name}'"
+        raise RuntimeError.new "Could not resolve required argument '#{param.name}'."
       end
     end
   end

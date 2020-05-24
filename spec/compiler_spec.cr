@@ -22,10 +22,6 @@ describe Athena::Routing do
       assert_error "compiler/nonexistant_query_param.cr", "Route action 'CompileController#action's 'foo' query parameter does not have a corresponding action argument."
     end
 
-    it "path argument missing corresponding action argument" do
-      assert_error "compiler/nonexistant_path_argument.cr", "Route action 'CompileController#action's 'id' path argument does not have a corresponding action argument."
-    end
-
     it "when action does not have a path" do
       assert_error "compiler/missing_path.cr", "Route action 'CompileController#action' is annotated as a 'GET' route but is missing the path."
     end
