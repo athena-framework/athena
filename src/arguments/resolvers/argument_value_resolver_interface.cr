@@ -1,17 +1,12 @@
 # Argument value resolvers handle resolving the arguments for a controller action from a request, or other source.
 #
-# Custom resolvers can be defined by creating a service that implements this interface, and is tagged with `"athena.argument_value_resolver"`.
+# Custom resolvers can be defined by creating a service that implements this interface, and is tagged with `ART::Arguments::Resolvers::TAG`,
+# optionally with a priority to determine the order in which the resolvers are executed.
 #
 # ```
-# @[ADI::Register(tags: ["athena.argument_value_resolver"])]
+# @[ADI::Register(tags: [{name: ART::Arguments::Resolvers::TAG, priority: 10}])]
 # struct CustomResolver
 #   include Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface
-#   include ADI::Service
-#
-#   # :inherit:
-#   def self.priority : Int32
-#     10
-#   end
 #
 #   # :inherit:
 #   def supports?(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata) : Bool
@@ -29,11 +24,6 @@
 # end
 # ```
 module Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface
-  # The priority of `self`.  The higher the value the sooner the resolver gets executed.
-  def self.priority : Int32
-    0
-  end
-
   # Returns `true` if `self` is able to resolve a value from the provided *request* and *argument*.
   abstract def supports?(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata) : Bool
 

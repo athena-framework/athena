@@ -8,11 +8,6 @@ struct TrueResolver
   include Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface
 
   # :inherit:
-  def self.priority : Int32
-    0
-  end
-
-  # :inherit:
   def supports?(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata) : Bool
     true
   end
@@ -24,16 +19,6 @@ struct TrueResolver
 end
 
 describe ART::Arguments::ArgumentResolver do
-  describe "#initialize" do
-    it "sorts the resolvers on init" do
-      resolver = ART::Arguments::ArgumentResolver.new [ART::Arguments::Resolvers::DefaultValue.new, ART::Arguments::Resolvers::Request.new] of ART::Arguments::Resolvers::ArgumentValueResolverInterface
-
-      resolvers = resolver.resolvers
-      resolvers[0].should be_a ART::Arguments::Resolvers::Request
-      resolvers[1].should be_a ART::Arguments::Resolvers::DefaultValue
-    end
-  end
-
   describe "#get_arguments" do
     describe "when a value was able to be resolved" do
       it "should return an array of values" do

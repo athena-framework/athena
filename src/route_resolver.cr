@@ -82,7 +82,7 @@ class Athena::Routing::RouteResolver
           {% if conflicting_route = registered_routes[normalized_path] %}
             # If the path was previously registered, and both don't have constraints or they're equal, raise a compile time error
             {% if (!conflicting_route[:constraints] && !route_def[:constraints]) || ((previous_constraints = conflicting_route[:constraints]) && (current_constraint = route_def[:constraints]) && previous_constraints == current_constraint) %}
-              {% raise "Route action #{klass.name}##{m.name}'s path #{full_path} conflicts with #{conflicting_route[:action]}'s path #{conflicting_route[:path]}." %}
+              {% m.raise "Route action #{klass.name}##{m.name}'s path #{full_path} conflicts with #{conflicting_route[:action]}'s path #{conflicting_route[:path]}." %}
             {% end %}
           {% else %}
             {% registered_routes[normalized_path] = {action: "#{klass.name}##{m.name}".id, path: full_path, constraints: route_def[:constraints]} %}
@@ -97,48 +97,26 @@ class Athena::Routing::RouteResolver
 
           {% for arg in m.args %}
             # Raise compile time error if an action argument doesn't have a type restriction.
-            {% raise "Route action argument '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction." if arg.restriction.is_a? Nop %}
+            {% arg.raise "Route action argument '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction." if arg.restriction.is_a? Nop %}
             {% arguments << %(ART::Arguments::ArgumentMetadata(#{arg.restriction}).new(#{arg.name.stringify}, #{!arg.default_value.is_a?(Nop)}, #{arg.restriction.resolve.nilable?}, #{arg.default_value.is_a?(Nop) ? nil : arg.default_value})).id %}
           {% end %}
 
           # Make sure query params have a corresponding action argument.
           {% for qp in m.annotations(ART::QueryParam) %}
-            {% raise "Route action '#{klass.name}##{m.name}'s QueryParam annotation is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless qp_name = (qp[0] || qp[:name]) %}
-            {% raise "Route action '#{klass.name}##{m.name}'s '#{qp_name.id}' query parameter does not have a corresponding action argument." unless arg_names.includes? qp_name %}
+            {% qp.raise "Route action '#{klass.name}##{m.name}'s QueryParam annotation is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless qp_name = (qp[0] || qp[:name]) %}
+            {% qp.raise "Route action '#{klass.name}##{m.name}'s '#{qp_name.id}' query parameter does not have a corresponding action argument." unless arg_names.includes? qp_name %}
           {% end %}
 
           # Make sure path arguments have a corresponding action argument.
           {% for placeholder in full_path.split('/').select &.starts_with? ':' %}
-            {% raise "Route action '#{klass.name}##{m.name}'s '#{placeholder[1..-1].id}' path argument does not have a corresponding action argument." unless arg_names.includes? placeholder[1..-1] %}
+            {% m.raise "Route action '#{klass.name}##{m.name}'s '#{placeholder[1..-1].id}' path argument does not have a corresponding action argument." unless arg_names.includes? placeholder[1..-1] %}
           {% end %}
-        # Add the route to the router
-        @routes.add(
-          {{"/" + prefix + path}},
-          # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
-          Route({{klass.id}}, Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
-            ->{
-                # If the controller is not registered as a service, simply new one up
-                # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
-                {% if ann = klass.annotation(ADI::Register) %}
-                  {% raise "Service '#{klass.id}' must be declared as public." unless ann[:public] %}
-                  %instance{m_idx + 1} = ADI.container.get({{klass.id}})
-                {% else %}
-                  %instance{m_idx + 1} = {{klass.id}}.new
-                {% end %}
-
-                ->%instance{m_idx + 1}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %}
-              },
-            {{m.name.stringify}},
-            {{method}},
-            %params{m_idx},
-          ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}
-        )
 
           # Add the route to the router
           @routes.add(
             {{"/" + prefix + path}},
             # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
-            Route({{klass.id}}, Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
+            Route.new(
               ->{
                   # If the controller is not registered as a service, simply new one up
                   # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
@@ -165,7 +143,18 @@ class Athena::Routing::RouteResolver
             @routes.add(
               {{full_path}},
               Route.new(
-                ->{ %instance = {{klass.id}}.new; ->%instance.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
+                ->{
+                  # If the controller is not registered as a service, simply new one up
+                  # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
+                  {% if ann = klass.annotation(ADI::Register) %}
+                    {% raise "Service '#{klass.id}' must be declared as public." unless ann[:public] %}
+                    %instance{m_idx + 1} = ADI.container.get({{klass.id}})
+                  {% else %}
+                    %instance{m_idx + 1} = {{klass.id}}.new
+                  {% end %}
+
+                  ->%instance{m_idx + 1}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %}
+                },
                 {{m.name.stringify}},
                 "HEAD",
                 {{arguments.empty? ? "Array(ART::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},

@@ -1,10 +1,6 @@
 require "../../spec_helper"
 
 describe ART::Arguments::Resolvers::RequestAttribute do
-  it ".priority" do
-    ART::Arguments::Resolvers::RequestAttribute.priority.should eq 100
-  end
-
   describe "#supports" do
     it "that exists in the request attributes" do
       request = new_request

@@ -1,10 +1,6 @@
 require "../../spec_helper"
 
 describe ART::Arguments::Resolvers::DefaultValue do
-  it ".priority" do
-    ART::Arguments::Resolvers::DefaultValue.priority.should eq -100
-  end
-
   describe "#supports" do
     it "with a default value" do
       argument = ART::Arguments::ArgumentMetadata(Int32).new("id", true, false)

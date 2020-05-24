@@ -1,4 +1,4 @@
-@[ADI::Register(tags: ["athena.argument_value_resolver"])]
+@[ADI::Register(tags: [{name: ART::Arguments::Resolvers::TAG, priority: 100}])]
 # Handles resolving a value that is stored in the request's `ART::ParameterBag`.
 # This includes any path/query parameters, or custom types values stored via an `AED::EventListenerInterface`.
 #
@@ -10,12 +10,6 @@
 # ```
 struct Athena::Routing::Arguments::Resolvers::RequestAttribute
   include Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface
-  include ADI::Service
-
-  # :inherit:
-  def self.priority : Int32
-    100
-  end
 
   # :inherit:
   def supports?(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata) : Bool

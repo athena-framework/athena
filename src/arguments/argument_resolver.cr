@@ -17,17 +17,12 @@ class Array
   end
 end
 
-@[ADI::Register("!athena.argument_value_resolver")]
+@[ADI::Register(_resolvers: "!athena.argument_value_resolver")]
 # The default implementation of `ART::Arguments::ArgumentResolverInterface`.
 struct Athena::Routing::Arguments::ArgumentResolver
   include Athena::Routing::Arguments::ArgumentResolverInterface
-  include ADI::Service
 
-  @resolvers : Array(Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface)
-
-  def initialize(resolvers : Array(Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface))
-    @resolvers = resolvers.sort_by!(&.class.priority).reverse!
-  end
+  def initialize(@resolvers : Array(Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface)); end
 
   # :inherit:
   def get_arguments(request : HTTP::Request, route : ART::Action) : Array

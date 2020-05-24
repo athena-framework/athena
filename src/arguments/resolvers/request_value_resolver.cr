@@ -1,4 +1,4 @@
-@[ADI::Register(tags: ["athena.argument_value_resolver"])]
+@[ADI::Register(tags: [{name: ART::Arguments::Resolvers::TAG, priority: 50}])]
 # Handles resolving a value for action arguments type as `HTTP::Request`.
 #
 # ```
@@ -9,12 +9,6 @@
 # ```
 struct Athena::Routing::Arguments::Resolvers::Request
   include Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface
-  include ADI::Service
-
-  # :inherit:
-  def self.priority : Int32
-    50
-  end
 
   # :inherit:
   def supports?(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata) : Bool

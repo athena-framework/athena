@@ -4,10 +4,6 @@ class CustomRequest < HTTP::Request
 end
 
 describe ART::Arguments::Resolvers::Request do
-  it ".priority" do
-    ART::Arguments::Resolvers::Request.priority.should eq 50
-  end
-
   describe "#supports" do
     it HTTP::Request do
       argument = ART::Arguments::ArgumentMetadata(HTTP::Request).new("id", false, false)

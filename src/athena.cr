@@ -88,7 +88,9 @@ module Athena::Routing
   # NOTE: In order for `Athena::Routing` to pick up your custom value resolvers, be sure to `ADI::Register` it as a service, and tag it as `"athena.argument_value_resolver"`.
   #
   # See each resolver for more detailed information.
-  module Athena::Routing::Arguments::Resolvers; end
+  module Athena::Routing::Arguments::Resolvers
+    TAG = "athena.argument_value_resolver"
+  end
 
   # Parent type of a route just used for typing.
   #

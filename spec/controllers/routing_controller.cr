@@ -2,7 +2,7 @@ require "../spec_helper"
 
 @[ADI::Register(public: true)]
 class RoutingController < ART::Controller
-  def initialize(@request_store : Athena::Routing::RequestStore); end
+  def initialize(@request_store : ART::RequestStore); end
 
   @[ART::Get("get/safe")]
   def safe_request_check : String
