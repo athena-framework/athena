@@ -93,7 +93,7 @@ describe ART::Listeners::CORS do
       listener.call event, TracableEventDispatcher.new
 
       event.response.should be_nil
-      event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
+      event.request.attributes.has?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
     end
 
     it "without the origin header" do
@@ -103,7 +103,7 @@ describe ART::Listeners::CORS do
       listener.call event, TracableEventDispatcher.new
 
       event.response.should be_nil
-      event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
+      event.request.attributes.has?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
     end
 
     describe "preflight" do
@@ -121,7 +121,7 @@ describe ART::Listeners::CORS do
           response = event.response.should_not be_nil
           response.headers["vary"].should eq "origin"
           response.headers["access-control-allow-methods"].should eq "GET, POST, HEAD"
-          event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
+          event.request.attributes.has?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
         end
       end
 
@@ -137,7 +137,7 @@ describe ART::Listeners::CORS do
 
         response = event.response.should_not be_nil
         response.status.should eq HTTP::Status::METHOD_NOT_ALLOWED
-        event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
+        event.request.attributes.has?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
 
         assert_headers response
       end
@@ -155,7 +155,7 @@ describe ART::Listeners::CORS do
           listener.call event, TracableEventDispatcher.new
         end
 
-        event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
+        event.request.attributes.has?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
 
         event.response.should be_nil
       end
@@ -171,7 +171,7 @@ describe ART::Listeners::CORS do
 
         listener.call event, TracableEventDispatcher.new
 
-        event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
+        event.request.attributes.has?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
 
         assert_headers event.response.should_not be_nil
       end
@@ -186,7 +186,7 @@ describe ART::Listeners::CORS do
 
         listener.call event, TracableEventDispatcher.new
 
-        event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
+        event.request.attributes.has?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
 
         assert_headers event.response.should_not be_nil
       end
@@ -201,7 +201,7 @@ describe ART::Listeners::CORS do
 
         listener.call event, TracableEventDispatcher.new
 
-        event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
+        event.request.attributes.has?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
 
         assert_headers_with_wildcard_config_without_request_headers event.response.should_not be_nil
       end
@@ -219,7 +219,7 @@ describe ART::Listeners::CORS do
 
         listener.call event, TracableEventDispatcher.new
 
-        event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
+        event.request.attributes.has?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
         event.response.should be_nil
       end
 
@@ -234,7 +234,7 @@ describe ART::Listeners::CORS do
 
         listener.call event, TracableEventDispatcher.new
 
-        event.request.attributes.has_key?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_true
+        event.request.attributes.has?(Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN).should be_true
         event.response.should be_nil
       end
     end
@@ -249,7 +249,7 @@ describe ART::Listeners::CORS do
         request.headers.add "access-control-request-method", "GET"
         request.headers.add "access-control-request-headers", "X-FOO"
 
-        request.attributes[Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN] = true
+        request.attributes.set Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN, true
       end
 
       listener.call event, TracableEventDispatcher.new
@@ -267,7 +267,7 @@ describe ART::Listeners::CORS do
         request.headers.add "access-control-request-method", "GET"
         request.headers.add "access-control-request-headers", "X-FOO"
 
-        request.attributes[Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN] = false
+        request.attributes.set Athena::Routing::Listeners::CORS::ALLOW_SET_ORIGIN, false
       end
 
       listener.call event, TracableEventDispatcher.new

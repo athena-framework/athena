@@ -14,16 +14,16 @@ describe Athena::Routing do
       assert_error "compiler/class_method_action.cr", "Routes can only be defined as instance methods.  Did you mean 'CompileController#class_method'?"
     end
 
-    it "query parameter annotation but missing action argument" do
+    it "query parameter annotation but missing name" do
       assert_error "compiler/query_param_missing_name.cr", "Route action 'CompileController#action's QueryParam annotation is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field."
     end
 
-    it "param converter annotation but missing action argument" do
-      assert_error "compiler/param_converter_missing_name.cr", "Route action 'CompileController#action's ParamConverter annotation is missing the argument's name.  It was not provided as the first positional argument nor via the 'param' field."
+    it "query parameter missing corresponding action argument" do
+      assert_error "compiler/nonexistant_query_param.cr", "Route action 'CompileController#action's 'foo' query parameter does not have a corresponding action argument."
     end
 
-    it "when action argument count does not equal expected count" do
-      assert_error "compiler/argument_count_mismatch.cr", "Route action 'CompileController#action' doesn't have the correct number of arguments.  Expected 1 but got 0."
+    it "path argument missing corresponding action argument" do
+      assert_error "compiler/nonexistant_path_argument.cr", "Route action 'CompileController#action's 'id' path argument does not have a corresponding action argument."
     end
 
     it "when action does not have a path" do
@@ -36,6 +36,20 @@ describe Athena::Routing do
 
     it "when a type has the prefix annotation but is missing a value" do
       assert_error "compiler/missing_prefix.cr", "Controller 'CompileController' has the `Prefix` annotation but is missing the prefix."
+    end
+
+    describe "route collision detection" do
+      it "same path" do
+        assert_error "compiler/conflicting_route.cr", "Route action OtherController#action2's path \"/some/path/:id\" conflicts with TestController#action1's path \"/some/path/:id\"."
+      end
+
+      it "same path different argument names" do
+        assert_error "compiler/conflicting_route_different_argument_name.cr", "Route action OtherController#action2's path \"/user/:user_id\" conflicts with TestController#action1's path \"/user/:id\"."
+      end
+
+      it "same path and constraints" do
+        assert_error "compiler/conflicting_route_constraints.cr", "Route action OtherController#action2's path \"/user/:id\" conflicts with TestController#action1's path \"/user/:id\"."
+      end
     end
   end
 end

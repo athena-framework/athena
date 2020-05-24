@@ -8,11 +8,11 @@ require "athena-dependency_injection"
 require "athena-event_dispatcher"
 
 require "./annotations"
-require "./argument_resolver"
 require "./controller"
 require "./error_renderer_interface"
 require "./error_renderer"
 require "./logging"
+require "./parameter_bag"
 require "./param_converter_interface"
 require "./redirect_response"
 require "./response"
@@ -21,11 +21,11 @@ require "./route_handler"
 require "./route_resolver"
 require "./view"
 
+require "./arguments/**"
 require "./config/*"
 require "./events/*"
 require "./exceptions/*"
 require "./listeners/*"
-require "./parameters/*"
 
 require "./ext/configuration_resolver"
 require "./ext/conversion_types"
@@ -70,63 +70,73 @@ module Athena::Routing
 
   # The `AED::EventListenerInterface` that act upon `ART::Events` to handle a request.  Custom listeners can also be defined, see `AED::EventListenerInterface`.
   #
-  # NOTE: In order for `Athena::Routing` to pick up your custom listener, be sure to `ADI::Register` it as a service, and tag it as `"athena.event_dispatcher.listener"`.
+  # NOTE: In order for `Athena::Routing` to pick up your custom listener, be sure to `ADI::Register` it as a service, and tag it as `ART::Listeners::TAG`.
   #
   # See each listener for more detailed information.
   module Athena::Routing::Listeners
+    # The tag name for Athena event listeners.
     TAG = "athena.event_dispatcher.listener"
   end
 
-  # Namespace for types related to handling route action parameters.
+  # Namespace for types related to controller action arguments.
   #
-  # See `ART::Parameters::Parameter`.
-  module Athena::Routing::Parameters; end
+  # See `ART::Arguments::ArgumentMetadata`.
+  module Athena::Routing::Arguments; end
+
+  # The default `ART::Arguments::Resolvers::ArgumentValueResolverInterface`s that will handle resolving controller action arguments from a request (or other source).
+  # Custom argument value resolvers can also be defined, see `ART::Arguments::Resolvers::ArgumentValueResolverInterface`.
+  #
+  # NOTE: In order for `Athena::Routing` to pick up your custom value resolvers, be sure to `ADI::Register` it as a service, and tag it as `ART::Arguments::Resolvers::TAG`.
+  #
+  # See each resolver for more detailed information.
+  module Athena::Routing::Arguments::Resolvers
+    # The tag name for `ART::Arguments::Resolvers::ArgumentValueResolverInterface`s.
+    TAG = "athena.argument_value_resolver"
+  end
 
   # Parent type of a route just used for typing.
   #
   # See `ART::Route`.
-  abstract class Action; end
+  abstract struct Action; end
 
   # Represents an endpoint within the application.
   #
-  # Includes metadata about the endpoint, such as the controller its on,
-  # the parameters it accepts, its return type, and the action should be executed
-  # to handle the request.
-  class Route(Controller, ActionType, ReturnType, *ArgTypes) < Action
-    # The `ART::Controller` that handles `self` by default.
-    getter controller : ART::Controller.class = Controller
-
-    # A `Proc(Proc)` representing the controller action that handles the `HTTP::Request` on `self`.
-    #
-    # The outer proc instantiates the controller instance and creates a proc with the action.
-    # This ensures each request gets its own instance of the controller to prevent leaking state.
-    getter action : ActionType
-
-    # The name of the associated controller action.
-    getter action_name : String
-
-    # The HTTP method associated with this route.
+  # Includes metadata about the endpoint, such as its controller, arguments, return type, and the action should be executed.
+  struct Route(Controller, ActionType, ReturnType, ArgTypeTuple, ArgumentsType) < Action
+    # The HTTP method associated with `self`.
     getter method : String
 
-    # The parameters that need to be parsed from the request.
-    #
-    # Includes route, body, and query params.
-    getter parameters : Array(ART::Parameters::Param)
+    # An `Array(ART::Arguments::ArgumentMetadata)` that `self` requires.
+    getter arguments : ArgumentsType
 
-    # The return type of the action.
-    getter return_type : ReturnType.class = ReturnType
+    # The name of the the controller action related to `self`.
+    getter action_name : String
 
     def initialize(
       @action : ActionType,
       @action_name : String,
       @method : String,
-      @parameters : Array(ART::Parameters::Param) = [] of ART::Parameters::Param
+      @arguments : ArgumentsType,
+      # Don't bother making these ivars since we just need them to set the generic types
+      _controller : Controller.class,
+      _return_type : ReturnType.class,
+      _arg_types : ArgTypeTuple.class
     )
     end
 
-    # Executes `#action` with the given *arguments* array.
+    # The type that `self`'s route should return.
+    def return_type : ReturnType.class
+      ReturnType
+    end
+
+    # The `ART::Controller` that includes `self`.
+    def controller : Controller.class
+      Controller
+    end
+
+    # Executes `#action` with the provided *arguments* array.
     def execute(arguments : Array) : ReturnType
-      @action.call.call *{{ArgTypes.empty? ? "Tuple.new".id : ArgTypes}}.from arguments
+      @action.call.call *{{ArgTypeTuple.type_vars.empty? ? "Tuple.new".id : ArgTypeTuple}}.from arguments
     end
   end
 

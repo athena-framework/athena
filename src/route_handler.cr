@@ -6,7 +6,7 @@ struct Athena::Routing::RouteHandler
   def initialize(
     @event_dispatcher : AED::EventDispatcherInterface,
     @request_store : ART::RequestStore,
-    @argument_resolver : ART::ArgumentResolverInterface
+    @argument_resolver : ART::Arguments::ArgumentResolverInterface
   )
   end
 
@@ -62,7 +62,7 @@ struct Athena::Routing::RouteHandler
     end
 
     # Resolve the arguments for this route from the request
-    arguments = @argument_resolver.resolve request, request.route
+    arguments = @argument_resolver.get_arguments request, request.route
 
     # Possibly add another event here to allow modification of the resolved arguments?
 
@@ -70,7 +70,7 @@ struct Athena::Routing::RouteHandler
     response = request.route.execute arguments
 
     unless response.is_a? ART::Response
-      view_event = ART::Events::View.new request, ART::View.new(response)
+      view_event = ART::Events::View.new request, ART::View.new response
       @event_dispatcher.dispatch view_event
 
       unless response = view_event.response

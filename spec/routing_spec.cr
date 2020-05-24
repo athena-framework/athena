@@ -6,7 +6,7 @@ describe Athena::Routing do
   it "is concurrently safe" do
     spawn do
       sleep 1
-      HTTP::Client.get("http://localhost:3000/get/safe?bar").body.should eq %("safe")
+      CLIENT.get("/get/safe?bar").body.should eq %("safe")
     end
     CLIENT.get("/get/safe?foo").body.should eq %("safe")
   end
