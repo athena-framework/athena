@@ -1,4 +1,4 @@
-@[ADI::Register(tags: [{name: ART::Arguments::Resolvers::TAG, priority: 100}])]
+@[ADI::Register(name: "argument_resolver_request_attribute", tags: [{name: ART::Arguments::Resolvers::TAG, priority: 100}])]
 # Handles resolving a value that is stored in the request's `ART::ParameterBag`.
 # This includes any path/query parameters, or custom types values stored via an `AED::EventListenerInterface`.
 #

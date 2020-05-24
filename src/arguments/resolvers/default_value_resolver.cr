@@ -1,4 +1,4 @@
-@[ADI::Register(tags: [{name: ART::Arguments::Resolvers::TAG, priority: -100}])]
+@[ADI::Register(name: "argument_resolver_default", tags: [{name: ART::Arguments::Resolvers::TAG, priority: -100}])]
 # Handles resolving an argument's default value if no other value was able to be resolved.
 #
 # ```

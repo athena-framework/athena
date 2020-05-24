@@ -17,17 +17,19 @@ class Array
   end
 end
 
-@[ADI::Register(_resolvers: "!athena.argument_value_resolver")]
+ADI.bind argument_resolvers, "!athena.argument_value_resolver"
+
+@[ADI::Register]
 # The default implementation of `ART::Arguments::ArgumentResolverInterface`.
 struct Athena::Routing::Arguments::ArgumentResolver
   include Athena::Routing::Arguments::ArgumentResolverInterface
 
-  def initialize(@resolvers : Array(Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface)); end
+  def initialize(@argument_resolvers : Array(Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface)); end
 
   # :inherit:
   def get_arguments(request : HTTP::Request, route : ART::Action) : Array
     route.arguments.map_first_type do |param|
-      if resolver = @resolvers.find &.supports? request, param
+      if resolver = @argument_resolvers.find &.supports? request, param
         resolver.resolve request, param
       else
         raise ART::Exceptions::BadRequest.new "Missing required parameter '#{param.name}'"

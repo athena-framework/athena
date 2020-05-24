@@ -1,4 +1,4 @@
-@[ADI::Register(tags: [{name: ART::Arguments::Resolvers::TAG, priority: 50}])]
+@[ADI::Register(name: "argument_resolver_request", tags: [{name: ART::Arguments::Resolvers::TAG, priority: 50}])]
 # Handles resolving a value for action arguments type as `HTTP::Request`.
 #
 # ```
