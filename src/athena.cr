@@ -70,10 +70,11 @@ module Athena::Routing
 
   # The `AED::EventListenerInterface` that act upon `ART::Events` to handle a request.  Custom listeners can also be defined, see `AED::EventListenerInterface`.
   #
-  # NOTE: In order for `Athena::Routing` to pick up your custom listener, be sure to `ADI::Register` it as a service, and tag it as `"athena.event_dispatcher.listener"`.
+  # NOTE: In order for `Athena::Routing` to pick up your custom listener, be sure to `ADI::Register` it as a service, and tag it as `ART::Listeners::TAG`.
   #
   # See each listener for more detailed information.
   module Athena::Routing::Listeners
+    # The tag name for Athena event listeners.
     TAG = "athena.event_dispatcher.listener"
   end
 
@@ -85,10 +86,11 @@ module Athena::Routing
   # The default `ART::Arguments::Resolvers::ArgumentValueResolverInterface`s that will handle resolving controller action arguments from a request (or other source).
   # Custom argument value resolvers can also be defined, see `ART::Arguments::Resolvers::ArgumentValueResolverInterface`.
   #
-  # NOTE: In order for `Athena::Routing` to pick up your custom value resolvers, be sure to `ADI::Register` it as a service, and tag it as `"athena.argument_value_resolver"`.
+  # NOTE: In order for `Athena::Routing` to pick up your custom value resolvers, be sure to `ADI::Register` it as a service, and tag it as `ART::Arguments::Resolvers::TAG`.
   #
   # See each resolver for more detailed information.
   module Athena::Routing::Arguments::Resolvers
+    # The tag name for `ART::Arguments::Resolvers::ArgumentValueResolverInterface`s.
     TAG = "athena.argument_value_resolver"
   end
 

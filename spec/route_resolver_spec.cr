@@ -4,7 +4,7 @@ private class TestRouteResolver < ART::RouteResolver
   def initialize; end
 
   def build(&) : Nil
-    with @routes yield
+    with @router yield
   end
 end
 

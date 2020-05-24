@@ -1,6 +1,6 @@
 # Registers an `ART::Route` for each action with the router.  This type is a singleton as opposed to a service to prevent all the routes from having to be redefined on each request.
 class Athena::Routing::RouteResolver
-  @routes : Amber::Router::RouteSet(Action) = Amber::Router::RouteSet(Action).new
+  @router : Amber::Router::RouteSet(Action) = Amber::Router::RouteSet(Action).new
 
   def initialize
     {% begin %}
@@ -13,7 +13,7 @@ class Athena::Routing::RouteResolver
 
         # Raise compile time error if a route is defined as a class method.
         {% unless class_actions.empty? %}
-          {% raise "Routes can only be defined as instance methods.  Did you mean '#{klass.name}##{class_actions.first.name}'?" %}
+          {% class_actions.first.raise "Routes can only be defined as instance methods.  Did you mean '#{klass.name}##{class_actions.first.name}'?" %}
         {% end %}
 
         {% parent_prefix = "" %}
@@ -24,15 +24,15 @@ class Athena::Routing::RouteResolver
             {% if (name = prefix_ann[0] || prefix_ann[:prefix]) %}
               {% parent_prefix = (name.starts_with?('/') ? name : "/" + name) + parent_prefix %}
             {% else %}
-             {% raise "Controller '#{parent.name}' has the `Prefix` annotation but is missing the prefix." %}
+             {% klass.raise "Controller '#{parent.name}' has the `Prefix` annotation but is missing the prefix." %}
             {% end %}
           {% end %}
         {% end %}
 
         # Build out the routes
-        {% for m, m_idx in methods %}
+        {% for m in methods %}
           # Raise compile time error if the action doesn't have a return type.
-          {% raise "Route action return type must be set for '#{klass.name}##{m.name}'." if m.return_type.is_a? Nop %}
+          {% m.raise "Route action return type must be set for '#{klass.name}##{m.name}'." if m.return_type.is_a? Nop %}
 
           # Set the route_def and method based on annotation.
           {% if d = m.annotation(Get) %}
@@ -57,7 +57,7 @@ class Athena::Routing::RouteResolver
             {% if (name = prefix_ann[0] || prefix_ann[:prefix]) %}
               {% prefix = parent_prefix + (name.starts_with?('/') ? name : "/" + name) %}
             {% else %}
-             {% raise "Controller '#{klass.name}' has the `Prefix` annotation but is missing the prefix." %}
+             {% klass.raise "Controller '#{klass.name}' has the `Prefix` annotation but is missing the prefix." %}
             {% end %}
           {% else %}
             {% prefix = parent_prefix %}
@@ -67,7 +67,7 @@ class Athena::Routing::RouteResolver
           {% path = route_def[0] || route_def[:path] %}
 
           # Raise compile time error if the path is not provided
-          {% raise "Route action '#{klass.name}##{m.name}' is annotated as a '#{method.id}' route but is missing the path." unless path %}
+          {% m.raise "Route action '#{klass.name}##{m.name}' is annotated as a '#{method.id}' route but is missing the path." unless path %}
 
           # Normalize the path.
           {% path = path.starts_with?('/') ? path : "/" + path %}
@@ -113,21 +113,20 @@ class Athena::Routing::RouteResolver
           {% end %}
 
           # Add the route to the router
-          @routes.add(
-            {{"/" + prefix + path}},
-            # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
+          @router.add(
+            {{full_path}},
             Route.new(
               ->{
                   # If the controller is not registered as a service, simply new one up
                   # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
                   {% if ann = klass.annotation(ADI::Register) %}
                     {% raise "Service '#{klass.id}' must be declared as public." unless ann[:public] %}
-                    %instance{m_idx + 1} = ADI.container.get({{klass.id}})
+                    %instance = ADI.container.get({{klass.id}})
                   {% else %}
-                    %instance{m_idx + 1} = {{klass.id}}.new
+                    %instance = {{klass.id}}.new
                   {% end %}
 
-                  ->%instance{m_idx + 1}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %}
+                  ->%instance.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %}
                 },
               {{m.name.stringify}},
               {{method}},
@@ -140,7 +139,7 @@ class Athena::Routing::RouteResolver
 
           # Also add a HEAD route for GET endpoints.
           {% if method == "GET" %}
-            @routes.add(
+            @router.add(
               {{full_path}},
               Route.new(
                 ->{
@@ -148,12 +147,12 @@ class Athena::Routing::RouteResolver
                   # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
                   {% if ann = klass.annotation(ADI::Register) %}
                     {% raise "Service '#{klass.id}' must be declared as public." unless ann[:public] %}
-                    %instance{m_idx + 1} = ADI.container.get({{klass.id}})
+                    %instance = ADI.container.get({{klass.id}})
                   {% else %}
-                    %instance{m_idx + 1} = {{klass.id}}.new
+                    %instance = {{klass.id}}.new
                   {% end %}
 
-                  ->%instance{m_idx + 1}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %}
+                  ->%instance.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %}
                 },
                 {{m.name.stringify}},
                 "HEAD",
@@ -175,7 +174,7 @@ class Athena::Routing::RouteResolver
   # Raises an `ART::Exceptions::MethodNotAllowed` exception if a route was matched but does not support the *request*'s method.
   def resolve(request : HTTP::Request) : Amber::Router::RoutedResult(Athena::Routing::Action)
     # Get the routes that match the given path
-    matching_routes = @routes.find_routes request.path
+    matching_routes = @router.find_routes request.path
 
     # Raise a 404 if it's empty
     raise ART::Exceptions::NotFound.new "No route found for '#{request.method} #{request.path}'" if matching_routes.empty?
