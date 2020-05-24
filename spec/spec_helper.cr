@@ -1,4 +1,6 @@
 require "spec"
+require "log/spec"
+
 require "../src/athena"
 require "./controllers/*"
 

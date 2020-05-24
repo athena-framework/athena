@@ -1,7 +1,10 @@
 # :nodoc:
 class ::Exception
-  def to_json(io : IO)
-    {code: 500, message: "Internal Server Error"}.to_json io
+  def to_json(builder : JSON::Builder) : Nil
+    builder.object do
+      builder.field "code", 500
+      builder.field "message", "Internal Server Error"
+    end
   end
 end
 
@@ -40,21 +43,10 @@ class Athena::Routing::Exceptions::HTTPException < Exception
   end
 
   # Serializes `self` to JSON in the format of `{"code":400,"message":"Exception message"}`
-  def to_json(io : IO) : Nil
-    {code: status_code, message: @message}.to_json io
-  end
-
-  macro inherited
-    macro finished
-      {% verbatim do %}
-        # Define an initializer if the child doesn't implement one on its own
-        {% unless @type.class.overrides? Athena::Routing::Exceptions::HTTPException.class, "new" %}
-          # See `Athena::Routing::Exceptions::HTTPException#new`.
-          def initialize(message : String, cause : Exception? = nil, headers : HTTP::Headers = HTTP::Headers.new)
-            super {{@type.name.split("::").last.underscore.id.symbolize}}, message, cause, headers
-          end
-        {% end %}
-      {% end %}
+  def to_json(builder : JSON::Builder) : Nil
+    builder.object do
+      builder.field "code", self.status_code
+      builder.field "message", @message
     end
   end
 end

@@ -111,12 +111,46 @@ class Athena::Routing::RouteResolver
           {% for placeholder in full_path.split('/').select &.starts_with? ':' %}
             {% raise "Route action '#{klass.name}##{m.name}'s '#{placeholder[1..-1].id}' path argument does not have a corresponding action argument." unless arg_names.includes? placeholder[1..-1] %}
           {% end %}
+        # Add the route to the router
+        @routes.add(
+          {{"/" + prefix + path}},
+          # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
+          Route({{klass.id}}, Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
+            ->{
+                # If the controller is not registered as a service, simply new one up
+                # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
+                {% if ann = klass.annotation(ADI::Register) %}
+                  {% raise "Service '#{klass.id}' must be declared as public." unless ann[:public] %}
+                  %instance{m_idx + 1} = ADI.container.get({{klass.id}})
+                {% else %}
+                  %instance{m_idx + 1} = {{klass.id}}.new
+                {% end %}
+
+                ->%instance{m_idx + 1}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %}
+              },
+            {{m.name.stringify}},
+            {{method}},
+            %params{m_idx},
+          ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}
+        )
 
           # Add the route to the router
           @routes.add(
-            {{full_path}},
-            Route.new(
-              ->{ %instance = {{klass.id}}.new; ->%instance.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %} },
+            {{"/" + prefix + path}},
+            # TODO: Just do `Route(ReturnType, *Args)` once https://github.com/crystal-lang/crystal/issues/8520 is fixed.
+            Route({{klass.id}}, Proc(Proc({{arg_types.splat}}{% if m.args.size > 0 %},{% end %}{{m.return_type}})), {{m.return_type}}, {{arg_types.splat}}).new(
+              ->{
+                  # If the controller is not registered as a service, simply new one up
+                  # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
+                  {% if ann = klass.annotation(ADI::Register) %}
+                    {% raise "Service '#{klass.id}' must be declared as public." unless ann[:public] %}
+                    %instance{m_idx + 1} = ADI.container.get({{klass.id}})
+                  {% else %}
+                    %instance{m_idx + 1} = {{klass.id}}.new
+                  {% end %}
+
+                  ->%instance{m_idx + 1}.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %}
+                },
               {{m.name.stringify}},
               {{method}},
               {{arguments.empty? ? "Array(ART::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},

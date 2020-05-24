@@ -1,13 +1,7 @@
-@[ADI::Register(tags: ["athena.event_dispatcher.listener"])]
+@[ADI::Register(tags: [ART::Listeners::TAG])]
 # Sets the related `ART::Route` on the current request using `ART::RouteResolver`.
 struct Athena::Routing::Listeners::Routing
   include AED::EventListenerInterface
-  include ADI::Service
-
-  def initialize
-    # TODO: Refactor logger to be service based
-    # and optionally inject a logger instance
-  end
 
   def self.subscribed_events : AED::SubscribedEvents
     AED::SubscribedEvents{
@@ -23,7 +17,11 @@ struct Athena::Routing::Listeners::Routing
     # Other option would be to new up a route resolver for every request. :shrug:
     route = ART.route_resolver.resolve event.request
 
-    event.request.route = route.payload.not_nil!
+    request = event.request
+
+    LOGGER.info &.emit "Matched route #{request.path}", uri: request.path, method: request.method, path_params: route.params, query_params: request.query_params.to_h
+
+    request.route = route.payload.not_nil!.dup
 
     route.params.not_nil!.merge!(event.request.query_params.to_h).each do |key, value|
       event.request.attributes.set key, value

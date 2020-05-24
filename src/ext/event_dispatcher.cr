@@ -1,4 +1,3 @@
-@[ADI::Register("!athena.event_dispatcher.listener")]
+@[ADI::Register(_listeners: "!athena.event_dispatcher.listener", name: "event_dispatcher", alias: AED::EventDispatcherInterface)]
 class AED::EventDispatcher
-  include ADI::Service
 end

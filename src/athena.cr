@@ -11,6 +11,7 @@ require "./annotations"
 require "./controller"
 require "./error_renderer_interface"
 require "./error_renderer"
+require "./logging"
 require "./parameter_bag"
 require "./param_converter_interface"
 require "./redirect_response"
@@ -72,7 +73,9 @@ module Athena::Routing
   # NOTE: In order for `Athena::Routing` to pick up your custom listener, be sure to `ADI::Register` it as a service, and tag it as `"athena.event_dispatcher.listener"`.
   #
   # See each listener for more detailed information.
-  module Athena::Routing::Listeners; end
+  module Athena::Routing::Listeners
+    TAG = "athena.event_dispatcher.listener"
+  end
 
   # Namespace for types related to controller action arguments.
   #
@@ -157,12 +160,8 @@ module Athena::Routing
     def initialize(@port : Int32 = 3000, @host : String = "0.0.0.0", @ssl : OpenSSL::SSL::Context::Server | Bool | Nil = nil, @reuse_port : Bool = false)
       # Define the server
       @server = HTTP::Server.new do |context|
-        # Instantiate a new instance of the container so that
-        # the container objects do not bleed between requests
-        Fiber.current.container = ADI::ServiceContainer.new
-
-        # Instantiate a new route handler object
-        ART::RouteHandler.new.handle context
+        # Handle the request
+        ADI.container.athena_routing_route_handler.handle context
       end
     end
 
@@ -171,17 +170,7 @@ module Athena::Routing
     end
 
     def start : Nil
-      unless @server.each_address { break true }
-        {% if flag?(:without_openssl) %}
-          @server.bind_tcp(@host, @port, reuse_port: @reuse_port)
-        {% else %}
-          if (ssl_context = @ssl) && ssl_context.is_a?(OpenSSL::SSL::Context::Server)
-            @server.bind_tls(@host, @port, ssl_context, reuse_port: @reuse_port)
-          else
-            @server.bind_tcp(@host, @port, reuse_port: @reuse_port)
-          end
-        {% end %}
-      end
+      @server.bind_tcp(@host, @port, reuse_port: @reuse_port)
 
       # Handle exiting correctly on stop/kill signals
       Signal::INT.trap { stop }

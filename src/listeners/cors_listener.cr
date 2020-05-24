@@ -1,11 +1,10 @@
-@[ADI::Register("@configuration_resolver", tags: ["athena.event_dispatcher.listener"])]
+@[ADI::Register(tags: [ART::Listeners::TAG])]
 # Handles [Cross-Origin Resource Sharing](https://enable-cors.org) (CORS).
 #
 # Handles CORS preflight `OPTIONS` requests as well as adding CORS headers to each response.
 # See `ART::Config::CORS` for information on configuring the listener.
 struct Athena::Routing::Listeners::CORS
   include AED::EventListenerInterface
-  include ADI::Service
 
   # Encapsulates logic to set CORS response headers
   private struct ResponseHeaders
