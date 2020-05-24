@@ -22,7 +22,7 @@ struct Athena::Routing::Arguments::Resolvers::RequestAttribute
 
     argument.type.from_parameter value
   rescue ex : ArgumentError
-    # Catch type cast errors and bubble it up as an UnprocessableEntity
-    raise ART::Exceptions::UnprocessableEntity.new "Required parameter '#{argument.name}' with value '#{value}' could not be converted into a valid '#{argument.type}'", cause: ex
+    # Catch type cast errors and bubble it up as an BadRequest
+    raise ART::Exceptions::BadRequest.new "Required parameter '#{argument.name}' with value '#{value}' could not be converted into a valid '#{argument.type}'", cause: ex
   end
 end

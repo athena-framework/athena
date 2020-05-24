@@ -70,7 +70,7 @@ struct Athena::Routing::RouteHandler
     response = request.route.execute arguments
 
     unless response.is_a? ART::Response
-      view_event = ART::Events::View.new request, ART::View.new(response)
+      view_event = ART::Events::View.new request, ART::View.new response
       @event_dispatcher.dispatch view_event
 
       unless response = view_event.response

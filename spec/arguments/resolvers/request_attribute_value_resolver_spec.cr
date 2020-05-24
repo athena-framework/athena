@@ -47,7 +47,7 @@ describe ART::Arguments::Resolvers::RequestAttribute do
         request = new_request
         request.attributes.set "id", "foo"
 
-        expect_raises ART::Exceptions::UnprocessableEntity, "Required parameter 'id' with value 'foo' could not be converted into a valid 'Int32'" do
+        expect_raises ART::Exceptions::BadRequest, "Required parameter 'id' with value 'foo' could not be converted into a valid 'Int32'" do
           ART::Arguments::Resolvers::RequestAttribute.new.resolve request, argument
         end
       end

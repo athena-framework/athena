@@ -1,7 +1,7 @@
 # A container for storing key/value pairs.  Can be used to store arbitrary data within the context of a request.
 struct Athena::Routing::ParameterBag
   private abstract struct Param
-    def value; end
+    abstract def value
   end
 
   private record Parameter(T) < Param, value : T
@@ -22,7 +22,7 @@ struct Athena::Routing::ParameterBag
   #
   # Raises a `KeyError` if no parameter with that name exists.
   def get(name : String)
-    get?(name) || raise KeyError.new "No parameter exists with the name '#{name}'"
+    get?(name) || raise KeyError.new "No parameter exists with the name '#{name}'."
   end
 
   {% for type in [Bool, Int, Float, String] %}

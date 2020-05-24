@@ -1,7 +1,7 @@
 require "../spec_helper"
 
 struct Athena::Routing::Arguments::ArgumentResolver
-  getter resolvers : Array(Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface)
+  getter argument_resolvers : Array(Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface)
 end
 
 struct TrueResolver

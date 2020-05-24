@@ -5,5 +5,5 @@ class HTTP::Request
   property! route : ART::Action
 
   # See `ART::ParameterBag`.
-  property attributes : ART::ParameterBag = ART::ParameterBag.new
+  getter attributes : ART::ParameterBag = ART::ParameterBag.new
 end
