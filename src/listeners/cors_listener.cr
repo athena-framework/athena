@@ -112,7 +112,7 @@ struct Athena::Routing::Listeners::CORS
 
     return unless check_origin config, event.request
 
-    event.request.attributes.set ALLOW_SET_ORIGIN, true
+    event.request.attributes.set ALLOW_SET_ORIGIN, true, Bool
   end
 
   def call(event : ART::Events::Response, dispatcher : AED::EventDispatcherInterface) : Nil

@@ -37,6 +37,11 @@ struct Athena::Routing::ParameterBag
     @parameters[name] = Parameter.new value
   end
 
+  # Sets a parameter with the provided *name* to *value*, restricted to the given *type*.
+  def set(name : String, value : _, type : T.class) : Nil forall T
+    @parameters[name] = Parameter(T).new value
+  end
+
   # Removes the parameter with the provided *name*.
   def remove(name : String) : Nil
     @parameters.delete name

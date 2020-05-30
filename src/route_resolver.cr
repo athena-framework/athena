@@ -103,7 +103,6 @@ class Athena::Routing::RouteResolver
 
           # Build out param converters array.
           {% param_converters = [] of Nil %}
-          {% param_converter_arg_names = [] of Nil %}
 
           {% for converter in m.annotations(ART::ParamConverter) %}
             {% converter.raise "Route action '#{klass.name}##{m.name}'s ParamConverter annotation is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (converter[0] || converter[:name]) %}
@@ -127,13 +126,13 @@ class Athena::Routing::RouteResolver
                   # If the controller is not registered as a service, simply new one up
                   # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
                   {% if ann = klass.annotation(ADI::Register) %}
-                    {% klass.raise "Service '#{klass.id}' must be declared as public." unless ann[:public] %}
+                    {% klass.raise "Controller service '#{klass.id}' must be declared as public." unless ann[:public] %}
                     %instance = ADI.container.get({{klass.id}})
                   {% else %}
                     %instance = {{klass.id}}.new
                   {% end %}
 
-                  ->%instance.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %}
+                  ->%instance.{{m.name.id}}{% if !m.args.empty? %}({{arg_types.splat}}){% end %}
                 },
               {{m.name.stringify}},
               {{method}},
@@ -154,13 +153,13 @@ class Athena::Routing::RouteResolver
                   # If the controller is not registered as a service, simply new one up
                   # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
                   {% if ann = klass.annotation(ADI::Register) %}
-                    {% klass.raise "Service '#{klass.id}' must be declared as public." unless ann[:public] %}
+                    {% klass.raise "Controller service '#{klass.id}' must be declared as public." unless ann[:public] %}
                     %instance = ADI.container.get({{klass.id}})
                   {% else %}
                     %instance = {{klass.id}}.new
                   {% end %}
 
-                  ->%instance.{{m.name.id}}{% if m.args.size > 0 %}({{arg_types.splat}}){% end %}
+                  ->%instance.{{m.name.id}}{% if !m.args.empty? %}({{arg_types.splat}}){% end %}
                 },
                 {{m.name.stringify}},
                 "HEAD",

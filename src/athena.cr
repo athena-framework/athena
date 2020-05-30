@@ -107,12 +107,13 @@ module Athena::Routing
     # The HTTP method associated with `self`.
     getter method : String
 
-    # An `Array(ART::Arguments::ArgumentMetadata)` that `self` requires.
-    getter arguments : ArgumentsType
-
     # The name of the the controller action related to `self`.
     getter action_name : String
 
+    # An `Array(ART::Arguments::ArgumentMetadata)` that `self` requires.
+    getter arguments : ArgumentsType
+
+    # An `Array(ART::ParamConverterMetadata)` representing the `ART::ParamConverter`s applied to `self.
     getter param_converters : Array(ART::ParamConverterMetadata)
 
     def initialize(
