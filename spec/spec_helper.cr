@@ -37,13 +37,16 @@ def new_argument(has_default : Bool = false, is_nillable : Bool = false, default
   ART::Arguments::ArgumentMetadata(Int32).new("id", has_default, is_nillable, default)
 end
 
-def new_route(arguments : Array(ART::Arguments::ArgumentMetadata) = Array(ART::Arguments::ArgumentMetadata(Nil)).new) : ART::Route
+def new_route(
+  arguments : Array(ART::Arguments::ArgumentMetadata)? = nil,
+  param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface)? = nil
+) : ART::Route
   ART::Route.new(
     ->{ test_controller = TestController.new; ->test_controller.get_test },
     "get_test",
     "GET",
-    arguments,
-    Array(ART::ParamConverterInterface::ConfigurationInterface).new,
+    arguments || Array(ART::Arguments::ArgumentMetadata(Nil)).new,
+    param_converters || Array(ART::ParamConverterInterface::ConfigurationInterface).new,
     TestController,
     String,
     typeof(Tuple.new)

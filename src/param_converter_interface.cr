@@ -13,6 +13,12 @@ abstract struct Athena::Routing::ParamConverterInterface
 
   struct Configuration < ConfigurationInterface; end
 
+  def apply(request : HTTP::Request, configuration : Configuration) : Nil
+    {% if @type < ART::ParamConverterInterface %}
+      {% @type.raise "abstract `def Athena::Routing::ParamConverterInterface#apply(request : HTTP::Request, configuration : Configuration)` must be implemented by #{@type}" %}
+    {% end %}
+  end
+
   def apply(request : HTTP::Request, configuration) : Nil; end
 
   private macro configuration(*args)
