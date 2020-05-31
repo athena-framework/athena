@@ -1,5 +1,36 @@
 abstract struct Athena::Routing::ParamConverterInterface
+  abstract struct ConfigurationInterface
+    # The name of the argument the converter should be applied to.
+    getter name : String
+
+    # The converter class that should be used to convert the argument.
+    getter converter : ART::ParamConverterInterface.class
+
+    def initialize(@name : String, @converter : ART::ParamConverterInterface.class); end
+  end
+
+  struct Configuration < ConfigurationInterface; end
+
   TAG = "athena.param_converter"
 
   def apply(request : HTTP::Request, configuration) : Nil; end
+
+  private macro configuration(*args)
+    struct Configuration < ConfigurationInterface
+      {% for arg in args %}
+        getter {{arg}}
+      {% end %}
+
+      def initialize(
+        {% for arg in args %}
+          @{{arg}},
+        {% end %}
+        name : String,
+        converter : ART::ParamConverterInterface.class
+      )
+        super name, converter
+      end
+    end
+    {{debug}}
+  end
 end

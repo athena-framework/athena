@@ -106,10 +106,9 @@ class Athena::Routing::RouteResolver
 
           {% for converter in m.annotations(ART::ParamConverter) %}
             {% converter.raise "Route action '#{klass.name}##{m.name}'s ParamConverter annotation is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (converter[0] || converter[:name]) %}
-            {% converter.raise "Route action '#{klass.name}##{m.name}'s '#{arg_name.id}' param converter does not have a corresponding action argument." unless arg_names.includes? arg_name %}
+            {% converter.raise "Route action '#{klass.name}##{m.name}'s '#{arg_name.id}' ParamConverter annotation does not have a corresponding action argument." unless arg_names.includes? arg_name %}
             {% converter.raise "Route action '#{klass.name}##{m.name}'s ParamConverter annotation is missing the converter class.  It was not provided via the 'converter' field." unless converter_class = converter[:converter] %}
-            {% metadata_class = converter_class.resolve.has_constant?("METADATA") ? converter_class.resolve.constant("METADATA") : ART::DefaultParamConverterMetadata %}
-            {% param_converters << %(#{metadata_class}.new(name: #{arg_name.id.stringify}, #{converter.named_args.double_splat})).id %}
+            {% param_converters << %(#{converter_class.resolve}::Configuration.new(name: #{arg_name.id.stringify}, #{converter.named_args.double_splat})).id %}
           {% end %}
 
           # Make sure query params have a corresponding action argument.
@@ -137,7 +136,7 @@ class Athena::Routing::RouteResolver
               {{m.name.stringify}},
               {{method}},
               {{arguments.empty? ? "Array(ART::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},
-              ({{param_converters}} of ART::ParamConverterMetadata),
+              ({{param_converters}} of ART::ParamConverterInterface::ConfigurationInterface),
               {{klass.id}},
               {{m.return_type}},
               {{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}
@@ -164,7 +163,7 @@ class Athena::Routing::RouteResolver
                 {{m.name.stringify}},
                 "HEAD",
                 {{arguments.empty? ? "Array(ART::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},
-                ({{param_converters}} of ART::ParamConverterMetadata),
+                ({{param_converters}} of ART::ParamConverterInterface::ConfigurationInterface),
                 {{klass.id}},
                 {{m.return_type}},
                 {{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}
