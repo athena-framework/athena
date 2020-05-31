@@ -1,4 +1,6 @@
 abstract struct Athena::Routing::ParamConverterInterface
+  TAG = "athena.param_converter"
+
   abstract struct ConfigurationInterface
     # The name of the argument the converter should be applied to.
     getter name : String
@@ -10,8 +12,6 @@ abstract struct Athena::Routing::ParamConverterInterface
   end
 
   struct Configuration < ConfigurationInterface; end
-
-  TAG = "athena.param_converter"
 
   def apply(request : HTTP::Request, configuration) : Nil; end
 
@@ -31,6 +31,5 @@ abstract struct Athena::Routing::ParamConverterInterface
         super name, converter
       end
     end
-    {{debug}}
   end
 end

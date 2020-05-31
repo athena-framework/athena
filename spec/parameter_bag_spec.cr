@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-describe ART::ParameterBag, focus: true do
+describe ART::ParameterBag do
   describe "#has?" do
     it "returns false if that value isn't in the bag" do
       bag = ART::ParameterBag.new

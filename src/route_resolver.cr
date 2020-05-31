@@ -105,16 +105,16 @@ class Athena::Routing::RouteResolver
           {% param_converters = [] of Nil %}
 
           {% for converter in m.annotations(ART::ParamConverter) %}
-            {% converter.raise "Route action '#{klass.name}##{m.name}'s ParamConverter annotation is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (converter[0] || converter[:name]) %}
-            {% converter.raise "Route action '#{klass.name}##{m.name}'s '#{arg_name.id}' ParamConverter annotation does not have a corresponding action argument." unless arg_names.includes? arg_name %}
-            {% converter.raise "Route action '#{klass.name}##{m.name}'s ParamConverter annotation is missing the converter class.  It was not provided via the 'converter' field." unless converter_class = converter[:converter] %}
+            {% converter.raise "Route action '#{klass.name}##{m.name}' has an ART::ParamConverter annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (converter[0] || converter[:name]) %}
+            {% converter.raise "Route action '#{klass.name}##{m.name}' has an ART::ParamConverter annotation but does not have a corresponding action argument for '#{arg_name.id}'." unless arg_names.includes? arg_name %}
+            {% converter.raise "Route action '#{klass.name}##{m.name}' has an ART::ParamConverter annotation but is missing the converter class.  It was not provided via the 'converter' field." unless converter_class = converter[:converter] %}
             {% param_converters << %(#{converter_class.resolve}::Configuration.new(name: #{arg_name.id.stringify}, #{converter.named_args.double_splat})).id %}
           {% end %}
 
           # Make sure query params have a corresponding action argument.
           {% for qp in m.annotations(ART::QueryParam) %}
-            {% qp.raise "Route action '#{klass.name}##{m.name}'s QueryParam annotation is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (qp[0] || qp[:name]) %}
-            {% qp.raise "Route action '#{klass.name}##{m.name}'s '#{arg_name.id}' query parameter does not have a corresponding action argument." unless arg_names.includes? arg_name %}
+            {% qp.raise "Route action '#{klass.name}##{m.name}' has an ART::QueryParam annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (qp[0] || qp[:name]) %}
+            {% qp.raise "Route action '#{klass.name}##{m.name}' has an ART::QueryParam annotation but does not have a corresponding action argument for '#{arg_name.id}'." unless arg_names.includes? arg_name %}
           {% end %}
 
           # Add the route to the router
