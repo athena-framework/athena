@@ -19,6 +19,7 @@ require "./response"
 require "./request_store"
 require "./route_handler"
 require "./route_resolver"
+require "./time_converter"
 require "./view"
 
 require "./arguments/**"
@@ -181,8 +182,8 @@ module Athena::Routing
       @server.bind_tcp(@host, @port, reuse_port: @reuse_port)
 
       # Handle exiting correctly on stop/kill signals
-      Signal::INT.trap { stop }
-      Signal::TERM.trap { stop }
+      Signal::INT.trap { self.stop }
+      Signal::TERM.trap { self.stop }
 
       @server.listen
     end

@@ -10,6 +10,12 @@ struct TestConverter < Athena::Routing::ParamConverterInterface
   def apply(request : HTTP::Request, configuration : Configuration) : Nil; end
 end
 
+struct DefaultValueConverter < Athena::Routing::ParamConverterInterface
+  configuration enabled : Bool = false
+
+  def apply(request : HTTP::Request, configuration : Configuration) : Nil; end
+end
+
 describe ART::ParamConverterInterface do
   describe ART::ParamConverterInterface::ConfigurationInterface do
     describe ".configuration" do
@@ -23,6 +29,10 @@ describe ART::ParamConverterInterface do
 
       it "creates a configuration struct with the provided arguments" do
         TestConverter::Configuration.new(value: 1, converter: TestConverter, name: "arg").value.should eq 1
+      end
+
+      it "allows default values" do
+        DefaultValueConverter::Configuration.new(converter: DefaultValueConverter, name: "arg").enabled.should be_false
       end
     end
   end

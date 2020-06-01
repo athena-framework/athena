@@ -141,11 +141,11 @@ abstract struct Athena::Routing::ParamConverterInterface
       {% end %}
 
       def initialize(
+        name : String,
+        converter : ART::ParamConverterInterface.class,
         {% for arg in args %}
           @{{arg}},
         {% end %}
-        name : String,
-        converter : ART::ParamConverterInterface.class
       )
         super name, converter
       end
