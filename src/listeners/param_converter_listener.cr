@@ -1,5 +1,7 @@
 @[ADI::Register(_param_converters: "!athena.param_converter", tags: [ART::Listeners::TAG])]
 # Applies any `ART::ParamConverterInterface` defined on a given `ART::Route`.
+#
+# Injects all `ART::ParamConverterInterface` tagged with `ART::ParamConverterInterface::TAG`.
 struct Athena::Routing::Listeners::ParamConverter
   include AED::EventListenerInterface
 

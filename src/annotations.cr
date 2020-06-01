@@ -73,19 +73,20 @@ module Athena::Routing
 
   # Applies an `ART::ParamConverterInterface` to a given parameter.
   #
-  # NOTE: The related action argument's type must be compatible with the converter's return type.
-  #
   # See `ART::ParamConverterInterface` for more information on defining a param converter.
   #
   # ## Fields
-  # * param : `String` - The param that should be converted, may also be provided as the first positional argument.
-  # * converter : `ART::ParamConverterInterface.class` - The `ART::ParamConverterInterface` that should be used to convert this parameter.
+  #
+  # * name : `String` - The name of the argument that should be converted, may also be provided as the first positional argument.
+  # * converter : `ART::ParamConverterInterface.class` - The `ART::ParamConverterInterface` that should be used to convert this argument.
   #
   # ## Example
+  #
   # ```
-  # @[ART::ParamConverter(param: "user", converter: DBConverter(User))]
-  # @[ART::Get(path: "/users/:id")]
-  # def get_user(user : User) : Nil
+  # @[ART::Get(path: "/multiply/:num")]
+  # @[ART::ParamConverter("num", converter: MultiplyConverter)]
+  # def multiply(num : Int32) : Int32
+  #   num
   # end
   # ```
   annotation ParamConverter; end
@@ -98,26 +99,32 @@ module Athena::Routing
   # A nilable type denotes it as optional.  If the parameter is not supplied (or could not be converted), and no default value is assigned, it is `nil`.
   #
   # ## Fields
+  #
   # * name : `String` - The name of the query parameter, may also be provided as the first positional argument.
   # * constraints : `Regex` - A pattern the query param must match to be considered valid.
-  # * converter : `ART::ParamConverterInterface.class` - The `ART::ParamConverterInterface` that should be used to convert this parameter.
   #
   # ## Example
+  #
   # ```
-  # @[ART::QueryParam(name: "value")]
   # @[ART::Get(path: "/example")]
+  # @[ART::QueryParam(name: "value")]
   # def get_user(name : String) : Nil
   # end
   # ```
   annotation QueryParam; end
 
-  # Apply a *prefix* to all actions within `self`.
+  # Apply a *prefix* to all actions within `self`.  Can be a static string, but may also contain path arguments.
+  #
+  # ## Fields
+  #
+  # * prefix : `String` - The path prefix to use, may also be provided as the first positional argument.
   #
   # ## Example
+  #
   # ```
-  # @[ART::Prefix("calendar")] # It can also use a named argument `@[ART::Prefix(prefix: "calendar")]
+  # @[ART::Prefix(prefix: "calendar")]
   # class CalendarController < ART::Controller
-  #   # The route of this action would be `GET /calendar/events`
+  #   # The route of this action would be `GET /calendar/events`.
   #   @[ART::Get(path: "events")]
   #   def events : String
   #     "events"
