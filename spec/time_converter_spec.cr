@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-describe ART::TimeConverter, focus: true do
+describe ART::TimeConverter do
   it "noops if the argument isn't within the request attributes" do
     configuration = ART::TimeConverter::Configuration.new "time", ART::TimeConverter
     request = new_request

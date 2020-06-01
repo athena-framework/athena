@@ -31,6 +31,13 @@ describe Athena::Routing do
     response.body.should be_empty
   end
 
+  describe ART::ParamConverter do
+    it "works with a query param" do
+      CLIENT.get "/events"
+      CLIENT.get "/events?since=2020-04-08T12:34:56Z"
+    end
+  end
+
   describe "macro DSL" do
     it "nil return type results in 204" do
       response = CLIENT.get "/macro/get-nil"

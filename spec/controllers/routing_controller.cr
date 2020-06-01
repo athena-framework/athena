@@ -23,6 +23,17 @@ class RoutingController < ART::Controller
     ART::RedirectResponse.new "https://crystal-lang.org"
   end
 
+  @[ART::Get("events")]
+  @[ART::ParamConverter("since", converter: ART::TimeConverter)]
+  @[ART::QueryParam("since")]
+  def events(since : Time? = nil) : Nil
+    if s = since
+      s.should be_a Time
+    else
+      s.should be_nil
+    end
+  end
+
   get "/macro/:foo", foo : String, constraints: {"foo" => /foo/} do
     foo
   end
