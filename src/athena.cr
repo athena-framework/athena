@@ -19,6 +19,7 @@ require "./response"
 require "./request_store"
 require "./route_handler"
 require "./route_resolver"
+require "./time_converter"
 require "./view"
 
 require "./arguments/**"
@@ -106,17 +107,21 @@ module Athena::Routing
     # The HTTP method associated with `self`.
     getter method : String
 
+    # The name of the the controller action related to `self`.
+    getter action_name : String
+
     # An `Array(ART::Arguments::ArgumentMetadata)` that `self` requires.
     getter arguments : ArgumentsType
 
-    # The name of the the controller action related to `self`.
-    getter action_name : String
+    # An `Array(ART::ParamConverterInterface::ConfigurationInterface)` representing the `ART::ParamConverter`s applied to `self.
+    getter param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface)
 
     def initialize(
       @action : ActionType,
       @action_name : String,
       @method : String,
       @arguments : ArgumentsType,
+      @param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface),
       # Don't bother making these ivars since we just need them to set the generic types
       _controller : Controller.class,
       _return_type : ReturnType.class,
@@ -177,8 +182,8 @@ module Athena::Routing
       @server.bind_tcp(@host, @port, reuse_port: @reuse_port)
 
       # Handle exiting correctly on stop/kill signals
-      Signal::INT.trap { stop }
-      Signal::TERM.trap { stop }
+      Signal::INT.trap { self.stop }
+      Signal::TERM.trap { self.stop }
 
       @server.listen
     end

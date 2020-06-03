@@ -13,7 +13,7 @@ jobs:
     container:
       image: crystallang/crystal:latest-alpine
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Format
         run: crystal tool format --check
   coding_standards:
@@ -21,7 +21,7 @@ jobs:
     container:
       image: crystallang/crystal:latest-alpine
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Install Dependencies
         run: shards install
       - name: Ameba
@@ -31,7 +31,7 @@ jobs:
     container:
       image: crystallang/crystal:latest-alpine
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Install Dependencies
         run: shards install --production
       - name: Specs
@@ -41,7 +41,7 @@ jobs:
     container:
       image: crystallang/crystal:nightly-alpine
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Install Dependencies
         run: shards install --production
       - name: Specs

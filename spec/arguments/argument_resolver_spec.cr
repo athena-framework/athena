@@ -4,7 +4,7 @@ struct Athena::Routing::Arguments::ArgumentResolver
   getter argument_resolvers : Array(Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface)
 end
 
-struct TrueResolver
+private struct TrueResolver
   include Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface
 
   # :inherit:
@@ -29,10 +29,10 @@ describe ART::Arguments::ArgumentResolver do
     end
 
     describe "when a value was not able to be resolved" do
-      it "should raise a bad request exception" do
+      it "should raise a runtime error" do
         route = new_route arguments: [new_argument]
 
-        expect_raises(ART::Exceptions::BadRequest, "Missing required parameter 'id'") do
+        expect_raises(RuntimeError, "Could not resolve required argument 'id' for 'TestController#get_test'.") do
           ART::Arguments::ArgumentResolver.new([] of ART::Arguments::Resolvers::ArgumentValueResolverInterface).get_arguments(new_request, route)
         end
       end

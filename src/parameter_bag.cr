@@ -25,16 +25,21 @@ struct Athena::Routing::ParameterBag
     get?(name) || raise KeyError.new "No parameter exists with the name '#{name}'."
   end
 
-  {% for type in [Bool, Int, Float, String] %}
+  {% for type in [Bool, String] + Number::Primitive.union_types %}
     # Returns the value of the parameter with the provided *name* as a `{{type}}`.
     def get(name : String, _type : {{type}}.class) : {{type}}
-      get(name).as({{type}})
+      {{type}}.from_parameter(get(name)).as {{type}}
     end
   {% end %}
 
   # Sets a parameter with the provided *name* to *value*.
   def set(name : String, value : _) : Nil
     @parameters[name] = Parameter.new value
+  end
+
+  # Sets a parameter with the provided *name* to *value*, restricted to the given *type*.
+  def set(name : String, value : _, type : T.class) : Nil forall T
+    @parameters[name] = Parameter(T).new value
   end
 
   # Removes the parameter with the provided *name*.
