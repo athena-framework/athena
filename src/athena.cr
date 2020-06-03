@@ -56,13 +56,14 @@ alias ART = Athena::Routing
 # dependencies:
 #   athena:
 #     github: athena-framework/athena
+#     version: 0.9.0
 # ```
 #
 # Run `shards install`.  This will install Athena and its required dependencies.
 #
 # ### Usage
 #
-# Athena has a goal of being easy to start using for simple use cases, while still allowing flexibility/customizability for larger more complex cases.
+# Athena has a goal of being easy to start using for simple use cases, while still allowing flexibility/customizability for larger more complex use cases.
 #
 # #### Routing
 #
@@ -144,6 +145,41 @@ alias ART = Athena::Routing
 # An `ART::Events::View` is emitted if the returned value is _NOT_ an `ART::Response`.  By default, non `ART::Response`s are JSON serialized.
 # However, this event can be listened on to customize how the value is serialized.
 #
+# #### Error Handling
+#
+# Exception handling in Athena is similar to exception handling in any Crystal program, with the addition of a new unique exception type, `ART::Exceptions::HTTPException`.
+# Custom `HTTP` errors can also be defined by inheriting from `ART::Exceptions::HTTPException` or a child type.
+# A use case for this could be allowing for additional data/context to be included within the exception.
+#
+# Non `ART::Exceptions::HTTPException` exceptions are represented as a `500 Internal Server Error`.
+#
+# When an exception is raised, Athena emits the `ART::Events::Exception` event to allow an opportunity for it to be handled.
+# By default these exceptions will return a `JSON` serialized version of the exception, via `ART::ErrorRenderer`, that includes the message and code; with the proper response status set.
+# If the exception goes unhandled, i.e. no listener set an `ART::Response` on the event, then the request is finished and the exception is reraised.
+#
+# ```
+# require "athena"
+#
+# class ExampleController < ART::Controller
+#   get "divide/:num1/:num2", num1 : Int32, num2 : Int32, return_type: Int32 do
+#     num1 // num2
+#   end
+#
+#   get "divide_rescued/:num1/:num2", num1 : Int32, num2 : Int32, return_type: Int32 do
+#     num1 // num2
+#     # Rescue a non `ART::Exceptions::HTTPException`
+#   rescue ex : DivisionByZeroError
+#     # in order to raise an `ART::Exceptions::HTTPException` to provide a better error message to the client.
+#     raise ART::Exceptions::BadRequest.new "Invalid num2:  Cannot divide by zero"
+#   end
+# end
+#
+# ART.run
+#
+# # GET /divide/10/0 # => {"code":500,"message":"Internal Server Error"}
+# # GET /divide_rescued/10/0 # => {"code":400,"message":"Invalid num2:  Cannot divide by zero"}
+# ```
+#
 # ### Advanced Usage
 #
 #
@@ -156,29 +192,30 @@ alias ART = Athena::Routing
 # ```
 # require "athena"
 #
-# struct DoubleConverter
-#   include ART::ParamConverterInterface(Int32)
-#
+# @[ADI::Register(tags: [ART::ParamConverterInterface::TAG])]
+# struct MultiplyConverter < ART::ParamConverterInterface
 #   # :inherit:
-#   def convert(request : HTTP::Request) : T
-#     num = request.path_params["num"]
-#     num.to_i * 2
-#   rescue ex : ArgumentError
-#     raise ART::Exceptions::BadRequest.new "Invalid Int32: '#{num}'", cause: ex
+#   def apply(request : HTTP::Request, configuration : Configuration) : Nil
+#     arg_name = configuration.name
+#
+#     return unless request.attributes.has? arg_name
+#
+#     value = request.attributes.get arg_name, Int32
+#     request.attributes.set arg_name, value * 2, Int32
 #   end
 # end
 #
-# class ExampleController < ART::Controller
-#   @[ART::ParamConverter("num", converter: DoubleConverter)]
-#   @[ART::Get(path: "/double/:num")]
-#   def double(num : Int32) : Int32
+# class ParamConverterController < ART::Controller
+#   @[ART::Get(path: "/multiply/:num")]
+#   @[ART::ParamConverter("num", converter: MultiplyConverter)]
+#   def multiply(num : Int32) : Int32
 #     num
 #   end
 # end
 #
 # ART.run
 #
-# # GET /double/10 # => 20
+# # GET / multiply/3 # => 6
 # ```
 #
 # #### Middleware
@@ -290,8 +327,8 @@ alias ART = Athena::Routing
 # within the message in order to expand tracing to async contexts.  Without DI, like in other frameworks, there would not be an easy to way to share the same instance of an object between
 # different types.  It also wouldn't be easy to have access to data outside the request context.
 #
-# DI is also what "wires" everything else.  For example, say there is an external shard that defines a listener.  All that would be required to use that lister is install and require the shard,
-# DI takes care of the rest.  This is much easier and more flexible than needing to update code to add a new instance of a `HTTP::Handler` to an array.
+# DI is also what "wires" everything together.  For example, say there is an external shard that defines a listener.  All that would be required to use that listener is install and require the shard,
+# DI takes care of the rest.  This is much easier and more flexible than needing to update code to add a new `HTTP::Handler` instance to an array.
 module Athena::Routing
   protected class_getter route_resolver : ART::RouteResolver { ART::RouteResolver.new }
 
@@ -303,7 +340,7 @@ module Athena::Routing
 
   # Exception handling in Athena is similar to exception handling in any Crystal program, with the addition of a new unique exception type, `ART::Exceptions::HTTPException`.
   #
-  # When an exception is raised, Athena emits the `ART::Events::Exception` event to allow an opportunity for it to be handled.  If the exception goes unhanded, i.e. no listener set
+  # When an exception is raised, Athena emits the `ART::Events::Exception` event to allow an opportunity for it to be handled.  If the exception goes unhandled, i.e. no listener set
   # an `ART::Response` on the event, then the request is finished and the exception is reraised.  Otherwise, that response is returned, setting the status and merging the headers on the exceptions
   # if it is an `ART::Exceptions::HTTPException`. See `ART::Listeners::Error` and `ART::ErrorRendererInterface` for more information on how exceptions are handled by default.
   #
