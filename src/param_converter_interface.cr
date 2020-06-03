@@ -52,7 +52,7 @@
 # ```
 #
 # #### Additional Configuration
-# By default, the `configuration` argument to `#apply` contains the name of the argument that should be converted, and a reference to the class of `self`.
+# By default, the *configuration* argument to `#apply` contains the name of the argument that should be converted, and a reference to the class of `self`.
 # However, it can be augmented with additional data by using the `ART::ParamConverterInterface.configuration` macro.
 #
 # For example, lets enhance the previous example to allow specifying the multiplier, versus it being hard-coded as `2`.
