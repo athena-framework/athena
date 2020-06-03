@@ -1,5 +1,5 @@
 module Athena::Routing
-  # Defines a GET endpoint.
+  # Defines a `GET` endpoint.
   #
   # A corresponding `HEAD` endpoint is also defined.
   #
@@ -15,7 +15,7 @@ module Athena::Routing
   # ```
   annotation Get; end
 
-  # Defines a POST endpoint.
+  # Defines a `POST` endpoint.
   #
   # ## Fields
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
@@ -29,7 +29,7 @@ module Athena::Routing
   # ```
   annotation Post; end
 
-  # Defines a PUT endpoint.
+  # Defines a `PUT` endpoint.
   #
   # ## Fields
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
@@ -43,7 +43,7 @@ module Athena::Routing
   # ```
   annotation Put; end
 
-  # Defines a PATCH endpoint.
+  # Defines a `PATCH` endpoint.
   #
   # ## Fields
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
@@ -57,7 +57,7 @@ module Athena::Routing
   # ```
   annotation Patch; end
 
-  # Defines a DELETE endpoint.
+  # Defines a `DELETE` endpoint.
   #
   # ## Fields
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
@@ -71,7 +71,7 @@ module Athena::Routing
   # ```
   annotation Delete; end
 
-  # Applies an `ART::ParamConverterInterface` to a given parameter.
+  # Applies an `ART::ParamConverterInterface` to a given argument.
   #
   # See `ART::ParamConverterInterface` for more information on defining a param converter.
   #
@@ -91,7 +91,7 @@ module Athena::Routing
   # ```
   annotation ParamConverter; end
 
-  # Defines a `ART::Parameters::QueryParameter` tied to a given route.
+  # Defines a query parameter tied to a given argument.
   #
   # The type of the query param is derived from the type restriction of the associated controller action argument.
   #
@@ -107,8 +107,8 @@ module Athena::Routing
   #
   # ```
   # @[ART::Get(path: "/example")]
-  # @[ART::QueryParam(name: "value")]
-  # def get_user(name : String) : Nil
+  # @[ART::QueryParam("query_param")]
+  # def get_user(query_param : String) : Nil
   # end
   # ```
   annotation QueryParam; end

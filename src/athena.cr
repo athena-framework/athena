@@ -296,7 +296,7 @@ module Athena::Routing
   protected class_getter route_resolver : ART::RouteResolver { ART::RouteResolver.new }
 
   # The `AED::Event` that are emitted via `Athena::EventDispatcher` to handle a request during its life-cycle.
-  # Athena adds a `HTTP::Request#attributes` getter that returns a `Hash(String, Bool | Int32 | String | Float64 | Nil)` which can be used to store simple information that can be used later.
+  # Custom events can also be defined and dispatched within a controller, listener, or some other service.
   #
   # See each specific event for more detailed information.
   module Athena::Routing::Events; end
@@ -358,7 +358,7 @@ module Athena::Routing
     # An `Array(ART::Arguments::ArgumentMetadata)` that `self` requires.
     getter arguments : ArgumentsType
 
-    # An `Array(ART::ParamConverterInterface::ConfigurationInterface)` representing the `ART::ParamConverter`s applied to `self.
+    # An `Array(ART::ParamConverterInterface::ConfigurationInterface)` representing the `ART::ParamConverter`s applied to `self`.
     getter param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface)
 
     def initialize(
@@ -384,7 +384,7 @@ module Athena::Routing
       Controller
     end
 
-    # Executes `#action` with the provided *arguments* array.
+    # Executes the action related to `self` with the provided *arguments* array.
     def execute(arguments : Array) : ReturnType
       @action.call.call *{{ArgTypeTuple.type_vars.empty? ? "Tuple.new".id : ArgTypeTuple}}.from arguments
     end

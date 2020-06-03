@@ -4,11 +4,12 @@
 # to allow rendering errors differently, such as via HTML.
 #
 # ```
-# @[ADI::Register(name: "error_renderer")]
-# # A custom error renderer must redefine the default `ART::ErrorRenderer` by registering a service with the name `"error_renderer"`.
+# require "athena"
+#
+# # Alias this service to be used when the `ART::ErrorRendererInterface` type is encountered.
+# @[ADI::Register(alias: ART::ErrorRendererInterface)]
 # struct Athena::Routing::CustomErrorRenderer
 #   include Athena::Routing::ErrorRendererInterface
-#   include ADI::Service
 #
 #   # :inherit:
 #   def render(exception : ::Exception) : ART::Response
@@ -36,6 +37,16 @@
 #     ART::Response.new body, status, headers
 #   end
 # end
+#
+# class TestController < ART::Controller
+#   get "/" do
+#     raise "some error"
+#   end
+# end
+#
+# ART.run
+#
+# # GET / # =>   <html><head><title>Uh oh</title></head><body><h1>Uh oh, something went wrong</h1></body></html>
 # ```
 module Athena::Routing::ErrorRendererInterface
   # Renders the given *exception* into an `ART::Response`.

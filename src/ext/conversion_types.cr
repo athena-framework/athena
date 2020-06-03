@@ -1,7 +1,9 @@
+# :nodoc:
 def Object.from_parameter(value)
   value
 end
 
+# :nodoc:
 def Bool.from_parameter(value : String) : Bool
   if value == "true"
     true
@@ -12,6 +14,7 @@ def Bool.from_parameter(value : String) : Bool
   end
 end
 
+# :nodoc:
 def Union.from_parameter(value : String)
   # Process non nilable types first as they are more likely to work.
   {% for type in T.sort_by { |t| t.nilable? ? 1 : 0 } %}
@@ -19,6 +22,7 @@ def Union.from_parameter(value : String)
   {% end %}
 end
 
+# :nodoc:
 def Number.from_parameter(value : String) : Number
   new value
 end

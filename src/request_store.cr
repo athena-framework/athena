@@ -4,6 +4,8 @@
 # Can be injected to access the request from a non controller context.
 #
 # ```
+# require "athena"
+#
 # @[ADI::Register(public: true)]
 # class ExampleController < ART::Controller
 #   def initialize(@request_store : ART::RequestStore); end

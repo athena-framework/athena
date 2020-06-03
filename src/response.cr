@@ -16,19 +16,20 @@ class Athena::Routing::Response
   # ### Example
   #
   # ```
-  # require "gzip"
+  # require "athena"
+  # require "compress/gzip"
   #
   # # Define a custom writer to gzip the response
   # struct GzipWriter < ART::Response::Writer
   #   def write(output : IO, & : IO -> Nil) : Nil
-  #     Gzip::Writer.open(output) do |gzip_io|
+  #     Compress::Gzip::Writer.open(output) do |gzip_io|
   #       yield gzip_io
   #     end
   #   end
   # end
   #
+  # # Define a new event listener to handle applying this writer
   # @[ADI::Register]
-  # # Next define a new event listener to handle applying this writer
   # struct CompressionListener
   #   include AED::EventListenerInterface
   #
@@ -49,6 +50,17 @@ class Athena::Routing::Response
   #     end
   #   end
   # end
+  #
+  # class ExampleController < ART::Controller
+  #   @[ART::Get("/users")]
+  #   def users : Array(User)
+  #     User.all
+  #   end
+  # end
+  #
+  # ART.run
+  #
+  # # GET /users # => [{"id":1,...},...] (gzipped)
   # ```
   abstract struct Writer
     # Accepts an *output* `IO` that the content of the response should be written to.
@@ -90,12 +102,20 @@ class Athena::Routing::Response
   # This can be useful to reduce memory overhead when needing to return large responses.
   #
   # ```
-  # @[ART::Get(path: "/users")]
-  # def users : ART::Response
-  #   ART::Response.new do |io|
-  #     fetch_all_users.to_json io
+  # require "athena"
+  #
+  # class ExampleController < ART::Controller
+  #   @[ART::Get("/users")]
+  #   def users : ART::Response
+  #     ART::Response.new headers: HTTP::Headers{"content-type" => "application/json"} do |io|
+  #       User.all.to_json io
+  #     end
   #   end
   # end
+  #
+  # ART.run
+  #
+  # # GET /users # => [{"id":1,...},...]
   # ```
   def self.new(status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers = HTTP::Headers.new, &block : IO -> Nil)
     new block, status, headers
