@@ -1,4 +1,4 @@
-@[ADI::Register(tags: [ART::Listeners::TAG])]
+@[ADI::Register]
 # Handles [Cross-Origin Resource Sharing](https://enable-cors.org) (CORS).
 #
 # Handles CORS preflight `OPTIONS` requests as well as adding CORS headers to each response.

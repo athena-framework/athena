@@ -1,4 +1,4 @@
-@[ADI::Register(tags: [ART::Listeners::TAG])]
+@[ADI::Register]
 # Sets the related `ART::Route` on the current request using `ART::RouteResolver`.
 struct Athena::Routing::Listeners::Routing
   include AED::EventListenerInterface

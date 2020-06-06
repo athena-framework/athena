@@ -27,11 +27,10 @@ class Athena::Routing::Response
   #   end
   # end
   #
-  # @[ADI::Register(tags: ["athena.event_dispatcher.listener"])]
+  # @[ADI::Register]
   # # Next define a new event listener to handle applying this writer
   # struct CompressionListener
   #   include AED::EventListenerInterface
-  #   include ADI::Service
   #
   #   def self.subscribed_events : AED::SubscribedEvents
   #     AED::SubscribedEvents{

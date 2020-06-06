@@ -1,4 +1,4 @@
-@[ADI::Register(tags: [ART::Listeners::TAG])]
+@[ADI::Register]
 # The view listener attempts to resolve a non `ART::Response` into an `ART::Response`.
 # Currently this is achieved by JSON serializing the controller action's resulting value.
 #
