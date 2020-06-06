@@ -71,12 +71,13 @@ module Athena::Routing
 
   # The `AED::EventListenerInterface` that act upon `ART::Events` to handle a request.  Custom listeners can also be defined, see `AED::EventListenerInterface`.
   #
-  # NOTE: In order for `Athena::Routing` to pick up your custom listener, be sure to `ADI::Register` it as a service, and tag it as `ART::Listeners::TAG`.
-  #
   # See each listener for more detailed information.
   module Athena::Routing::Listeners
     # The tag name for Athena event listeners.
     TAG = "athena.event_dispatcher.listener"
+
+    # Apply `TAG` to all `AED::EventListenerInterface` instances automatically.
+    ADI.auto_configure AED::EventListenerInterface, {tags: [ART::Listeners::TAG]}
   end
 
   # Namespace for types related to controller action arguments.
@@ -88,6 +89,7 @@ module Athena::Routing
   # Custom argument value resolvers can also be defined, see `ART::Arguments::Resolvers::ArgumentValueResolverInterface`.
   #
   # NOTE: In order for `Athena::Routing` to pick up your custom value resolvers, be sure to `ADI::Register` it as a service, and tag it as `ART::Arguments::Resolvers::TAG`.
+  # A `priority` field can also be optionally included in the annotation, the higher the value the sooner in the array it'll be when injected.
   #
   # See each resolver for more detailed information.
   module Athena::Routing::Arguments::Resolvers

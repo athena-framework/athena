@@ -1,8 +1,5 @@
-# Responsible for resolving the arguments that will be passed to a controller action.
-module Athena::Routing::Arguments::ArgumentResolverInterface
-  # Returns an array of arguments resolved from the provided *request* for the given *route*.
-  abstract def get_arguments(request : HTTP::Request, route : ART::Action) : Array
-end
+require "./resolvers/argument_value_resolver_interface"
+require "./argument_resolver_interface"
 
 # :nodoc:
 #
@@ -17,7 +14,7 @@ class Array
   end
 end
 
-ADI.bind argument_resolvers, "!athena.argument_value_resolver"
+ADI.bind argument_resolvers : Array(Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface), "!athena.argument_value_resolver"
 
 @[ADI::Register]
 # The default implementation of `ART::Arguments::ArgumentResolverInterface`.

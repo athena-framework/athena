@@ -98,6 +98,9 @@ abstract struct Athena::Routing::ParamConverterInterface
   # The tag name to apply to `self` in order for it to be registered with `ART::Listeners::ParamConverter`.
   TAG = "athena.param_converter"
 
+  # Apply `TAG` to all `AED::EventListenerInterface` instances automatically.
+  ADI.auto_configure Athena::Routing::ParamConverterInterface, {tags: [ART::ParamConverterInterface::TAG]}
+
   # Allows defining extra configuration data that can be supplied within the `ART::ParamConverter` annotation.
   # By default this type includes the name of the argument that should be converted and the
   # the `ART::ParamConverterInterface` that should be used for the conversion.

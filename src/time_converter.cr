@@ -29,7 +29,7 @@ require "./param_converter_interface"
 #
 # # GET /event/2020-04-07/2020-04-08T12:34:56Z
 # ```
-@[ADI::Register(tags: [ART::ParamConverterInterface::TAG])]
+@[ADI::Register]
 struct Athena::Routing::TimeConverter < Athena::Routing::ParamConverterInterface
   configuration format : String? = nil, location : Time::Location = Time::Location::UTC
 

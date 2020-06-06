@@ -1,4 +1,4 @@
-@[ADI::Register(tags: [ART::Listeners::TAG])]
+@[ADI::Register]
 # Handles an exception by converting it into an `ART::Response` via an `ART::ErrorRendererInterface`.
 struct Athena::Routing::Listeners::Error
   include AED::EventListenerInterface
