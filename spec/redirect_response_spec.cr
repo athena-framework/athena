@@ -7,7 +7,7 @@ describe ART::RedirectResponse do
     end
 
     it "disallows non redirect codes" do
-      expect_raises(ArgumentError, "422 is not an HTTP redirect status code.") do
+      expect_raises(ArgumentError, "'422' is not an HTTP redirect status code.") do
         ART::RedirectResponse.new("addresss", 422)
       end
     end

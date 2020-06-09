@@ -32,6 +32,6 @@ class Athena::Routing::RedirectResponse < Athena::Routing::Response
 
     super "", status, headers
 
-    raise ArgumentError.new "#{@status.value} is not an HTTP redirect status code." unless @status.redirection?
+    raise ArgumentError.new "'#{@status.value}' is not an HTTP redirect status code." unless @status.redirection?
   end
 end

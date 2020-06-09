@@ -444,15 +444,15 @@ module Athena::Routing
   # ART.run
   # ```
   # See `ART::Controller` for more information on defining controllers/route actions.
-  def self.run(port : Int32 = 3000, host : String = "0.0.0.0", ssl : OpenSSL::SSL::Context::Server | Bool | Nil = nil, reuse_port : Bool = false)
-    ART::Server.new(port, host, ssl, reuse_port).start
+  def self.run(port : Int32 = 3000, host : String = "0.0.0.0", reuse_port : Bool = false) : Nil
+    ART::Server.new(port, host, reuse_port).start
   end
 
   # :nodoc:
   #
   # Currently an implementation detail.  In the future could be exposed to allow having separate "groups" of controllers that a `Server` instance handles.
   struct Server
-    def initialize(@port : Int32 = 3000, @host : String = "0.0.0.0", @ssl : OpenSSL::SSL::Context::Server | Bool | Nil = nil, @reuse_port : Bool = false)
+    def initialize(@port : Int32 = 3000, @host : String = "0.0.0.0", @reuse_port : Bool = false)
       # Define the server
       @server = HTTP::Server.new do |context|
         # Handle the request
