@@ -20,7 +20,7 @@
 # @[ART::Prefix("athena")]
 # class TestController < ART::Controller
 #   # A GET endpoint returning an `ART::Response`.
-#   @[ART::Get(path: "/css")]
+#   @[ART::Get("/css")]
 #   def css : ART::Response
 #     ART::Response.new ".some_class { color: blue; }", headers: HTTP::Headers{"content-type" => MIME.from_extension(".css")}
 #   end
@@ -32,8 +32,8 @@
 #   # # user.ecr
 #   # Morning, <%= user.name %> it is currently <%= time %>.
 #   # ```
-#   @[ART::ParamConverter(param: "user", converter: SomeConverter(User))]
-#   @[ART::Get(path: "/wakeup/:id")]
+#   @[ART::ParamConverter("user", converter: SomeConverter)]
+#   @[ART::Get("/wakeup/:id")]
 #   def wakeup(user : User) : ART::Response
 #     # Template variables not supplied in the action's arguments must be defined manually
 #     time = Time.utc
@@ -45,7 +45,7 @@
 #   # A GET endpoint with no params returning a `String`.
 #   #
 #   # Action return type restrictions are required.
-#   @[ART::Get(path: "/me")]
+#   @[ART::Get("/me")]
 #   def get_me : String
 #     "Jim"
 #   end
@@ -53,7 +53,7 @@
 #   # A GET endpoint with no params returning `Nil`.
 #   # `Nil` return types are returned with a status
 #   # of 204 no content
-#   @[ART::Get(path: "/no_content")]
+#   @[ART::Get("/no_content")]
 #   def get_no_content : Nil
 #     # Do stuff
 #   end
@@ -62,7 +62,7 @@
 #   #
 #   # The parameters of a route _MUST_ match the arguments of the action.
 #   # Type restrictions on action arguments are required.
-#   @[ART::Get(path: "/add/:val1/:val2")]
+#   @[ART::Get("/add/:val1/:val2")]
 #   def add(val1 : Int32, val2 : Int32) : Int32
 #     val1 + val2
 #   end
@@ -71,7 +71,7 @@
 #   #
 #   # A non-nilable type denotes it as required.  If the parameter is not supplied, and no default value is assigned, an `ART::Exceptions::BadRequest` exception is raised.
 #   @[ART::QueryParam("time", constraints: /\d:\d:\d/)]
-#   @[ART::Get(path: "/event/:event_name/")]
+#   @[ART::Get("/event/:event_name/")]
 #   def event_time(event_name : String, time : String) : String
 #     "#{event_name} occurred at #{time}"
 #   end
@@ -80,13 +80,13 @@
 #   #
 #   # A nilable type denotes it as optional.  If the parameter is not supplied (or could not be converted), and no default value is assigned, it is `nil`.
 #   @[ART::QueryParam("user_id")]
-#   @[ART::Get(path: "/events/(:page)")]
+#   @[ART::Get("/events/(:page)")]
 #   def events(user_id : Int32?, page : Int32 = 1) : NamedTuple(user_id: Int32?, page: Int32)
 #     {user_id: user_id, page: page}
 #   end
 #
 #   # A GET endpoint with param constraints.  The param must match the supplied Regex or it will not match and return a 404 error.
-#   @[ART::Get(path: "/time/:time/", constraints: {"time" => /\d{2}:\d{2}:\d{2}/})]
+#   @[ART::Get("/time/:time/", constraints: {"time" => /\d{2}:\d{2}:\d{2}/})]
 #   def get_constraint(time : String) : String
 #     time
 #   end
@@ -95,27 +95,25 @@
 #   #
 #   # It is recommended to use param converters to pass an actual object representing the data (assuming the body is JSON)
 #   # to the route's action; however the raw request body can be accessed by typing an action argument as `HTTP::Request`.
-#   @[ART::Post(path: "/test/:expected")]
+#   @[ART::Post("/test/:expected")]
 #   def post_body(expected : String, request : HTTP::Request) : Bool
 #     expected == request.body.try &.gets_to_end
 #   end
 # end
 #
-# spawn ART.run
+# ART.run
 #
-# CLIENT = HTTP::Client.new "localhost", 3000
-#
-# CLIENT.get("/athena/css").body                     # => .some_class { color: blue; }
-# CLIENT.get("/athena/wakeup/17").body               # => Morning, Allison it is currently 2020-02-01 18:38:12 UTC.
-# CLIENT.get("/athena/me").body                      # => "Jim"
-# CLIENT.get("/athena/add/50/25").body               # => 75
-# CLIENT.get("/athena/event/foobar?time=1:1:1").body # => "foobar occurred at 1:1:1"
-# CLIENT.get("/athena/events").body                  # => {"user_id":null,"page":1}
-# CLIENT.get("/athena/events/17?user_id=19").body    # => {"user_id":19,"page":17}
-# CLIENT.get("/athena/time/12:45:30").body           # => "12:45:30"
-# CLIENT.get("/athena/time/12:aa:30").body           # => 404 not found
-# CLIENT.get("/athena/no_content").body              # => 204 no content
-# CLIENT.post("/athena/test/foo", body: "foo").body  # => true
+# # GET /athena/css"                     # => .some_class { color: blue; }
+# # GET /athena/wakeup/17"               # => Morning, Allison it is currently 2020-02-01 18:38:12 UTC.
+# # GET /athena/me"                      # => "Jim"
+# # GET /athena/add/50/25"               # => 75
+# # GET /athena/event/foobar?time=1:1:1" # => "foobar occurred at 1:1:1"
+# # GET /athena/events"                  # => {"user_id":null,"page":1}
+# # GET /athena/events/17?user_id=19"    # => {"user_id":19,"page":17}
+# # GET /athena/time/12:45:30"           # => "12:45:30"
+# # GET /athena/time/12:aa:30"           # => 404 not found
+# # GET /athena/no_content"              # => 204 no content
+# # POST /athena/test/foo", body: "foo"  # => true
 # ```
 abstract class Athena::Routing::Controller
   # Renders a template.
@@ -138,10 +136,9 @@ abstract class Athena::Routing::Controller
   #   end
   # end
   #
-  # spawn ART.run
+  # ART.run
   #
-  # CLIENT = HTTP::Client.new "localhost", 3000
-  # CLIENT.get("/Fred").body # => Greetings, Fred!
+  # # GET /Fred # => Greetings, Fred!
   # ```
   macro render(template)
     Athena::Routing::Response.new(headers: HTTP::Headers{"content-type" => "text/html"}) do |io|
@@ -165,10 +162,9 @@ abstract class Athena::Routing::Controller
   #   end
   # end
   #
-  # spawn ART.run
+  # ART.run
   #
-  # CLIENT = HTTP::Client.new "localhost", 3000
-  # CLIENT.get("/Fred").body # => <h1>Content:</h1> Greetings, Fred!
+  # # GET /Fred # => <h1>Content:</h1> Greetings, Fred!
   # ```
   macro render(template, layout)
     content = ECR.render {{template}}

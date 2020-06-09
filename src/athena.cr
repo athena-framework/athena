@@ -128,6 +128,7 @@ alias ART = Athena::Routing
 #
 # ```
 # require "athena"
+# require "mime"
 #
 # class ExampleController < ART::Controller
 #   # A GET endpoint returning an `ART::Response`.
@@ -149,7 +150,7 @@ alias ART = Athena::Routing
 #
 # Exception handling in Athena is similar to exception handling in any Crystal program, with the addition of a new unique exception type, `ART::Exceptions::HTTPException`.
 # Custom `HTTP` errors can also be defined by inheriting from `ART::Exceptions::HTTPException` or a child type.
-# A use case for this could be allowing for additional data/context to be included within the exception.
+# A use case for this could be allowing additional data/context to be included within the exception.
 #
 # Non `ART::Exceptions::HTTPException` exceptions are represented as a `500 Internal Server Error`.
 #
@@ -182,17 +183,18 @@ alias ART = Athena::Routing
 #
 # ### Advanced Usage
 #
-#
+# Athena also ships with some more advanced features to provide more flexibility/control for an application.
+# These features may not be required for a simple application; however as the application grows they may become more useful.
 #
 # #### Param Converters
 # `ART::ParamConverterInterface`s allow complex types to be supplied to an action via its arguments.
 # An example of this could be extracting the id from `/users/10`, doing a DB query to lookup the user with the PK of `10`, then providing the full user object to the action.
-# This abstracts any custom parameter handling that would otherwise have to be done in each action.
+# Param converters abstract any custom parameter handling that would otherwise have to be done in each action.
 #
 # ```
 # require "athena"
 #
-# @[ADI::Register(tags: [ART::ParamConverterInterface::TAG])]
+# @[ADI::Register]
 # struct MultiplyConverter < ART::ParamConverterInterface
 #   # :inherit:
 #   def apply(request : HTTP::Request, configuration : Configuration) : Nil
@@ -227,7 +229,7 @@ alias ART = Athena::Routing
 # ```
 # require "athena"
 #
-# @[ADI::Register(tags: [ART::Listeners::TAG])]
+# @[ADI::Register]
 # struct CustomListener
 #   include AED::EventListenerInterface
 #
@@ -275,7 +277,7 @@ alias ART = Athena::Routing
 # struct RequestIDStore
 #   HEADER_NAME = "X-Request-ID"
 #
-#   # Inject the RequestStore in order to have access to the current request's headers.
+#   # Inject `ART::RequestStore` in order to have access to the current request's headers.
 #   def initialize(@request_store : ART::RequestStore); end
 #
 #   property request_id : String? = nil do
@@ -293,7 +295,7 @@ alias ART = Athena::Routing
 #   end
 # end
 #
-# @[ADI::Register(tags: [ART::Listeners::TAG])]
+# @[ADI::Register]
 # struct RequestIDListener
 #   include AED::EventListenerInterface
 #
@@ -430,6 +432,8 @@ module Athena::Routing
   # Runs an `HTTP::Server` listening on the given *port* and *host*.
   #
   # ```
+  # require "athena"
+  #
   # class ExampleController < ART::Controller
   #   @[ART::Get("/")]
   #   def root : String

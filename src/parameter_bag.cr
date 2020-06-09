@@ -9,7 +9,7 @@
 # require "athena"
 #
 # # Define a request listener to add our value before the action is executed.
-# @[ADI::Register(tags: [ART::Listeners::TAG])]
+# @[ADI::Register]
 # struct TestListener
 #   include AED::EventListenerInterface
 #
@@ -61,7 +61,7 @@ struct Athena::Routing::ParameterBag
   #
   # Raises a `KeyError` if no parameter with that name exists.
   def get(name : String)
-    get?(name) || raise KeyError.new "No parameter exists with the name '#{name}'."
+    self.get?(name) || raise KeyError.new "No parameter exists with the name '#{name}'."
   end
 
   {% for type in [Bool, String] + Number::Primitive.union_types %}
@@ -72,8 +72,8 @@ struct Athena::Routing::ParameterBag
   {% end %}
 
   # Sets a parameter with the provided *name* to *value*.
-  def set(name : String, value : _) : Nil
-    @parameters[name] = Parameter.new value
+  def set(name : String, value : T) : Nil forall T
+    self.set name, value, T
   end
 
   # Sets a parameter with the provided *name* to *value*, restricted to the given *type*.
