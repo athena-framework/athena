@@ -24,7 +24,7 @@ class Athena::Routing::RequestStore
 
   # Resets the store, removing the reference to the request.
   #
-  # Used internally after the request has been returned.
+  # Used internally after the response has been returned.
   protected def reset : Nil
     @request = nil
   end
