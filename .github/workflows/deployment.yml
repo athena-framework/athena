@@ -12,8 +12,10 @@ jobs:
       image: crystallang/crystal
     steps:
       - uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: shards install --production
       - name: Build
-        run: crystal docs
+        run: make docs
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@2.0.1
         env:
