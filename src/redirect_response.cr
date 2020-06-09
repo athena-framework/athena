@@ -2,15 +2,21 @@ require "./response"
 
 # Represents an HTTP response that does a redirect.
 #
-# Can be used as an easier way to handle redirects as well as providing type saftey that a route should redirect.
+# Can be used as an easier way to handle redirects as well as providing type safety that a route should redirect.
 #
 # ```
+# require "athena"
+#
 # class RedirectController < ART::Controller
 #   @[ART::Get(path: "/go_to_crystal")]
 #   def redirect_to_crystal : ART::RedirectResponse
 #     ART::RedirectResponse.new "https://crystal-lang.org"
 #   end
 # end
+#
+# ART.run
+#
+# # GET /go_to_crystal # => (redirected to https://crystal-lang.org)
 # ```
 class Athena::Routing::RedirectResponse < Athena::Routing::Response
   # The url that the request will be redirected to.
@@ -26,6 +32,6 @@ class Athena::Routing::RedirectResponse < Athena::Routing::Response
 
     super "", status, headers
 
-    raise ArgumentError.new "#{@status.value} is not an HTTP redirect status code." unless @status.redirection?
+    raise ArgumentError.new "'#{@status.value}' is not an HTTP redirect status code." unless @status.redirection?
   end
 end

@@ -1,6 +1,6 @@
 name: athena
 
-version: 0.8.0
+version: 0.9.0
 
 crystal: 0.35.0
 
@@ -25,7 +25,7 @@ dependencies:
     version: ~> 0.1.0
   athena-dependency_injection:
     github: athena-framework/dependency-injection
-    branch: di-refactor-v2
+    version: ~> 0.2.0
   amber_router:
     github: amberframework/amber-router
     version: ~> 0.4.1

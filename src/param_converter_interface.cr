@@ -17,7 +17,7 @@
 # require "athena"
 #
 # # Create a param converter struct to contain our conversion logic.
-# @[ADI::Register(tags: [ART::ParamConverterInterface::TAG])]
+# @[ADI::Register]
 # struct MultiplyConverter < ART::ParamConverterInterface
 #   # :inherit:
 #   def apply(request : HTTP::Request, configuration : Configuration) : Nil
@@ -60,7 +60,7 @@
 # ```
 # require "athena"
 #
-# @[ADI::Register(tags: [ART::ParamConverterInterface::TAG])]
+# @[ADI::Register]
 # struct MultiplyConverter < ART::ParamConverterInterface
 #   # Use the `configuration` macro to define the configuration object that `self` should use.
 #   # Adds an additional argument to allow specifying the multiplier.

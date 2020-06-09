@@ -5,18 +5,6 @@
 
 A web framework comprised of reusable, independent components.
 
-## Installation
-
-1. Add the dependency to your `shard.yml`:
-
-```yaml
-dependencies:
-  athena:
-    github: athena-framework/athena
-```
-
-2. Run `shards install`
-
 ## Documentation
 
 Everything is documented in the [API Docs](https://athena-framework.github.io/athena/Athena/Routing.html).

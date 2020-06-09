@@ -9,17 +9,14 @@ jobs:
   deploy_docs:
     runs-on: ubuntu-latest
     container:
-      image: crystallang/crystal:latest-alpine
+      image: crystallang/crystal
     steps:
       - uses: actions/checkout@v2
-      - name: Install Dependencies
-        run: shards install --production
       - name: Build
-        run: make docs
+        run: crystal docs
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@3.5.2
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: JamesIves/github-pages-deploy-action@2.0.1
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           BRANCH: gh-pages
           FOLDER: docs
-          SINGLE_COMMIT: true

@@ -1,4 +1,4 @@
-@[ADI::Register(name: "error_renderer", alias: Athena::Routing::ErrorRendererInterface)]
+@[ADI::Register(alias: Athena::Routing::ErrorRendererInterface)]
 # The default `ART::ErrorRendererInterface`, JSON serializes the exception.
 struct Athena::Routing::ErrorRenderer
   include Athena::Routing::ErrorRendererInterface
