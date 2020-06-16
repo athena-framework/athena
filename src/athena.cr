@@ -455,6 +455,9 @@ module Athena::Routing
     def initialize(@port : Int32 = 3000, @host : String = "0.0.0.0", @reuse_port : Bool = false)
       # Define the server
       @server = HTTP::Server.new do |context|
+        # Reinitialize the container since keep-alive requests reuse the same fiber
+        Fiber.current.container = ADI::ServiceContainer.new
+
         # Handle the request
         ADI.container.athena_routing_route_handler.handle context
       end
