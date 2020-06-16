@@ -11,6 +11,14 @@ describe Athena::Routing do
     CLIENT.get("/get/safe?foo").body.should eq %("safe")
   end
 
+  it "creates a new container on each request with keep-alive connection" do
+    client = HTTP::Client.new "localhost", 3000
+
+    response1 = client.get("/container/id", headers: HTTP::Headers{"connection" => "keep-alive"}).body
+    response2 = client.get("/container/id", headers: HTTP::Headers{"connection" => "keep-alive"}).body
+    response1.should_not eq response2
+  end
+
   it "404s if a route doesn't exist" do
     response = CLIENT.get("/fake/route")
     response.status.should eq HTTP::Status::NOT_FOUND

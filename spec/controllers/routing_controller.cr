@@ -13,6 +13,10 @@ class RoutingController < ART::Controller
     initial_query == check_query ? "safe" : "unsafe"
   end
 
+  get "/container/id", return_type: UInt64 do
+    ADI.container.object_id
+  end
+
   @[ART::Get("art/response")]
   def response : ART::Response
     ART::Response.new "FOO", 418, HTTP::Headers{"content-type" => "BAR"}
