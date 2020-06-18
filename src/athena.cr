@@ -123,6 +123,25 @@ alias ART = Athena::Routing
 # The values are provided directly as method arguments, thus preventing the need for `env.params.url["name"]` and any boilerplate related to it.
 # Just like normal methods arguments, default values can be defined. The method's return type adds some type safety to ensure the expected value is being returned.
 #
+# Restricting an action argument to `HTTP::Request` will provide the raw request object, which can be used to retrieve the request data.
+# This approach is fine for simple or one-off endpoints, however for more complex/common request data processing, it is suggested to create
+# a [Param Converter](./Routing.html#param-converters).
+#
+# ```
+# require "athena"
+#
+# class ExampleController < ART::Controller
+#   @[ART::Post("/data")]
+#   def data(request : HTTP::Request) : String?
+#     request.body.try &.gets_to_end
+#   end
+# end
+#
+# ART.run
+#
+# # POST /data body: "foo--bar" # => "foo--bar"
+# ```
+#
 # An `ART::Response` can also be used in order to fully customize the response, such as returning a specific status code, adding some one-off headers, or saving memory by directly
 # writing the response value to the Response IO.
 #
@@ -473,6 +492,8 @@ module Athena::Routing
       # Handle exiting correctly on stop/kill signals
       Signal::INT.trap { self.stop }
       Signal::TERM.trap { self.stop }
+
+      Log.info { "Server has started and is listening at http://#{@server.addresses.first}" }
 
       @server.listen
     end
