@@ -16,11 +16,15 @@ struct Athena::Routing::Listeners::View
   end
 
   def call(event : ART::Events::View, dispatcher : AED::EventDispatcherInterface) : Nil
-    event.response = if event.request.route.return_type == Nil?
+    event.response = if event.request.route.return_type == Nil
                        ART::Response.new status: :no_content, headers: get_headers
                      else
-                       ART::Response.new(headers: get_headers) { |io| event.view.data.to_json io }
+                       ART::Response.new(headers: get_headers) { |io| serialize event.view.data, io }
                      end
+  end
+
+  protected def serialize(data, io : IO)
+    data.to_json io
   end
 
   private def get_headers : HTTP::Headers
