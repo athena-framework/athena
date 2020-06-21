@@ -24,7 +24,9 @@ struct Athena::Routing::Listeners::View
                        ART::Response.new(headers: get_headers) do |io|
                          data = event.view.data
 
-                         if data.is_a? JSON::Serializable
+                         # Still use `#to_json` for `JSON::Serializable`,
+                         # but prioritize `ASR::Serializable` if the type includes both.
+                         if data.is_a? JSON::Serializable && !data.is_a? ASR::Serializable
                            data.to_json io
                          else
                            @serializer.serialize data, :json, io
