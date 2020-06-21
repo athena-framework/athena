@@ -29,8 +29,11 @@ dependencies:
   amber_router:
     github: amberframework/amber-router
     version: ~> 0.4.1
+  athena-serializer:
+    github: athena-framework/serializer
+    branch: master
 
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
-    version: ~> 0.12.0
+    version: ~> 0.13.0

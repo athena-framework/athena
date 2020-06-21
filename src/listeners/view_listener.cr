@@ -15,16 +15,22 @@ struct Athena::Routing::Listeners::View
     }
   end
 
+  def initialize(@serializer : ASR::SerializerInterface); end
+
   def call(event : ART::Events::View, dispatcher : AED::EventDispatcherInterface) : Nil
     event.response = if event.request.route.return_type == Nil
                        ART::Response.new status: :no_content, headers: get_headers
                      else
-                       ART::Response.new(headers: get_headers) { |io| serialize event.view.data, io }
-                     end
-  end
+                       ART::Response.new(headers: get_headers) do |io|
+                         data = event.view.data
 
-  protected def serialize(data, io : IO)
-    data.to_json io
+                         if data.is_a? JSON::Serializable
+                           data.to_json io
+                         else
+                           @serializer.serialize data, :json, io
+                         end
+                       end
+                     end
   end
 
   private def get_headers : HTTP::Headers

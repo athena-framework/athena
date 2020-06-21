@@ -6,6 +6,7 @@ require "amber_router"
 require "athena-config"
 require "athena-dependency_injection"
 require "athena-event_dispatcher"
+require "athena-serializer"
 
 require "./annotations"
 require "./controller"
@@ -32,6 +33,7 @@ require "./ext/configuration_resolver"
 require "./ext/conversion_types"
 require "./ext/event_dispatcher"
 require "./ext/request"
+require "./ext/serializer"
 
 # Convenience alias to make referencing `Athena::Routing` types easier.
 alias ART = Athena::Routing
