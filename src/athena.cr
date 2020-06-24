@@ -94,7 +94,7 @@ alias ART = Athena::Routing
 # # GET / # => Hello World
 # ```
 # Annotations applied to the methods are used to define the HTTP method this method handles, such as `ART::Get` or `ART::Post`.  A macro DSL also exists to make them a bit less verbose;
-# `ART::Controller.get` or `ART::Controller.post`.
+# `ART::Controller.get` or `ART::Controller.post`.  The `ART::Route` annotation can also be used to define custom `HTTP` methods.
 #
 # Controllers are simply classes and routes are simply methods.  Controllers and actions can be documented/tested as you would any Crystal class/method.
 #
@@ -402,13 +402,13 @@ module Athena::Routing
 
   # Parent type of a route just used for typing.
   #
-  # See `ART::Route`.
-  abstract struct Action; end
+  # See `ART::Action`.
+  abstract struct ActionBase; end
 
   # Represents an endpoint within the application.
   #
   # Includes metadata about the endpoint, such as its controller, arguments, return type, and the action should be executed.
-  struct Route(Controller, ActionType, ReturnType, ArgTypeTuple, ArgumentsType) < Action
+  struct Action(Controller, ActionType, ReturnType, ArgTypeTuple, ArgumentsType) < ActionBase
     # The HTTP method associated with `self`.
     getter method : String
 

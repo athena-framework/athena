@@ -24,7 +24,7 @@ struct Athena::Routing::Arguments::ArgumentResolver
   def initialize(@argument_resolvers : Array(Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface)); end
 
   # :inherit:
-  def get_arguments(request : HTTP::Request, route : ART::Action) : Array
+  def get_arguments(request : HTTP::Request, route : ART::ActionBase) : Array
     route.arguments.map_first_type do |param|
       if resolver = @argument_resolvers.find &.supports? request, param
         resolver.resolve request, param

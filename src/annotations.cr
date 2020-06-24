@@ -71,6 +71,20 @@ module Athena::Routing
   # ```
   annotation Delete; end
 
+  # Defines a `LINK` endpoint.
+  #
+  # ## Fields
+  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
+  #
+  # ## Example
+  # ```
+  # @[ART::Link(path: "/users/:id")]
+  # def link_user(id : Int32) : Nil
+  # end
+  # ```
+  annotation Link; end
+
   # Applies an `ART::ParamConverterInterface` to a given argument.
   #
   # See `ART::ParamConverterInterface` for more information on defining a param converter.
@@ -90,6 +104,26 @@ module Athena::Routing
   # end
   # ```
   annotation ParamConverter; end
+
+  # Apply a *prefix* to all actions within `self`.  Can be a static string, but may also contain path arguments.
+  #
+  # ## Fields
+  #
+  # * prefix : `String` - The path prefix to use, may also be provided as the first positional argument.
+  #
+  # ## Example
+  #
+  # ```
+  # @[ART::Prefix(prefix: "calendar")]
+  # class CalendarController < ART::Controller
+  #   # The route of this action would be `GET /calendar/events`.
+  #   @[ART::Get(path: "events")]
+  #   def events : String
+  #     "events"
+  #   end
+  # end
+  # ```
+  annotation Prefix; end
 
   # Defines a query parameter tied to a given argument.
   #
@@ -113,23 +147,32 @@ module Athena::Routing
   # ```
   annotation QueryParam; end
 
-  # Apply a *prefix* to all actions within `self`.  Can be a static string, but may also contain path arguments.
+  # Defines an endpoint with an arbitrary `HTTP` method.  Can be used for defining non-standard `HTTP` method routes.
   #
   # ## Fields
-  #
-  # * prefix : `String` - The path prefix to use, may also be provided as the first positional argument.
+  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * method : `String` - The `HTTP` method to use for the endpoint.
+  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
-  #
   # ```
-  # @[ART::Prefix(prefix: "calendar")]
-  # class CalendarController < ART::Controller
-  #   # The route of this action would be `GET /calendar/events`.
-  #   @[ART::Get(path: "events")]
-  #   def events : String
-  #     "events"
-  #   end
+  # @[ART::Route("/some/path", method: "TRACE")]
+  # def trace_route : Nil
   # end
   # ```
-  annotation Prefix; end
+  annotation Route; end
+
+  # Defines an `UNLINK` endpoint.
+  #
+  # ## Fields
+  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
+  #
+  # ## Example
+  # ```
+  # @[ART::Unlink(path: "/users/:id")]
+  # def unlink_user(id : Int32) : Nil
+  # end
+  # ```
+  annotation Unlink; end
 end

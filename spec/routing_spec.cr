@@ -39,6 +39,10 @@ describe Athena::Routing do
     response.body.should be_empty
   end
 
+  it "supports custom HTTP method endpoints" do
+    CLIENT.exec("FOO", "/custom-method").body.should eq %("FOO")
+  end
+
   describe ART::ParamConverter do
     it "works with a query param" do
       CLIENT.get "/events"
@@ -83,6 +87,14 @@ describe Athena::Routing do
 
     it "works with DELETE endpoints" do
       CLIENT.delete("/macro").body.should eq %("DELETE")
+    end
+
+    it "works with LINK endpoints" do
+      CLIENT.exec("LINK", "/macro").body.should eq %("LINK")
+    end
+
+    it "works with UNLINK endpoints" do
+      CLIENT.exec("UNLINK", "/macro").body.should eq %("UNLINK")
     end
 
     describe :constraints do

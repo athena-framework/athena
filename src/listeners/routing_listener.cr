@@ -1,5 +1,5 @@
 @[ADI::Register]
-# Sets the related `ART::Route` on the current request using `ART::RouteResolver`.
+# Sets the related `ART::Action` on the current request using `ART::RouteResolver`.
 struct Athena::Routing::Listeners::Routing
   include AED::EventListenerInterface
 
@@ -9,7 +9,7 @@ struct Athena::Routing::Listeners::Routing
     }
   end
 
-  # Assigns the resolved `ART::Route` and path parameters to the request.
+  # Assigns the resolved `ART::Action` and path parameters to the request.
   #
   # The resolved route is dupped to avoid mutating the master copy in the singleton.
   def call(event : ART::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
