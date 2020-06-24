@@ -15,11 +15,23 @@ struct Athena::Routing::Listeners::View
     }
   end
 
+  def initialize(@serializer : ASR::SerializerInterface); end
+
   def call(event : ART::Events::View, dispatcher : AED::EventDispatcherInterface) : Nil
-    event.response = if event.request.route.return_type == Nil?
+    event.response = if event.request.route.return_type == Nil
                        ART::Response.new status: :no_content, headers: get_headers
                      else
-                       ART::Response.new(headers: get_headers) { |io| event.view.data.to_json io }
+                       ART::Response.new(headers: get_headers) do |io|
+                         data = event.view.data
+
+                         # Still use `#to_json` for `JSON::Serializable`,
+                         # but prioritize `ASR::Serializable` if the type includes both.
+                         if data.is_a? JSON::Serializable && !data.is_a? ASR::Serializable
+                           data.to_json io
+                         else
+                           @serializer.serialize data, :json, io
+                         end
+                       end
                      end
   end
 
