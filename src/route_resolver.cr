@@ -8,8 +8,8 @@ class Athena::Routing::RouteResolver
       {% registered_routes = {} of String => String %}
 
       {% for klass, c_idx in Athena::Routing::Controller.all_subclasses.reject &.abstract? %}
-        {% methods = klass.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) || m.annotation(Patch) } %}
-        {% class_actions = klass.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) || m.annotation(Patch) } %}
+        {% methods = klass.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) || m.annotation(Patch) || m.annotation(Link) || m.annotation(Unlink) || m.annotation(Route) } %}
+        {% class_actions = klass.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) || m.annotation(Patch) || m.annotation(Link) || m.annotation(Unlink) || m.annotation(Route) } %}
 
         # Raise compile time error if a route is defined as a class method.
         {% unless class_actions.empty? %}
@@ -49,6 +49,15 @@ class Athena::Routing::RouteResolver
             {% route_def = d %}
           {% elsif d = m.annotation(Delete) %}
             {% method = "DELETE" %}
+            {% route_def = d %}
+          {% elsif d = m.annotation(Link) %}
+            {% method = "LINK" %}
+            {% route_def = d %}
+          {% elsif d = m.annotation(Unlink) %}
+            {% method = "UNLINK" %}
+            {% route_def = d %}
+          {% elsif d = m.annotation(Route) %}
+            {% method = d[:method] || m.raise "Route action '#{klass.name}##{m.name}' is missing the HTTP method.  It was not provided via the 'method' field." %}
             {% route_def = d %}
           {% end %}
 

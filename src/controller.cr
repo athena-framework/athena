@@ -186,7 +186,7 @@ abstract class Athena::Routing::Controller
   end
 
   {% begin %}
-    {% for method in ["GET", "POST", "PUT", "PATCH", "DELETE"] %}
+    {% for method in ["GET", "POST", "PUT", "PATCH", "DELETE", "LINK", "UNLINK"] %}
       # Helper DSL macro for creating `{{method.id}}` actions.
       #
       # The first argument is the path that the action should handle; which maps to path on the HTTP method annotation.
