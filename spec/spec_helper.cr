@@ -17,7 +17,7 @@ class TestController < ART::Controller
 end
 
 macro create_route(return_type, &)
-  ART::Route.new(
+  ART::Action.new(
     ->{ ->{ {{yield}} } },
     "fake_method",
     "GET",
@@ -40,8 +40,8 @@ end
 def new_route(
   arguments : Array(ART::Arguments::ArgumentMetadata)? = nil,
   param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface)? = nil
-) : ART::Route
-  ART::Route.new(
+) : ART::ActionBase
+  ART::Action.new(
     ->{ test_controller = TestController.new; ->test_controller.get_test },
     "get_test",
     "GET",
@@ -53,7 +53,7 @@ def new_route(
   )
 end
 
-def new_request(*, path : String = "/test", method : String = "GET", route : ART::Action = new_route) : HTTP::Request
+def new_request(*, path : String = "/test", method : String = "GET", route : ART::ActionBase = new_route) : HTTP::Request
   request = HTTP::Request.new method, path
   request.route = route
   request

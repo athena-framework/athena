@@ -1,6 +1,6 @@
-# Registers an `ART::Route` for each action with the router.  This type is a singleton as opposed to a service to prevent all the routes from having to be redefined on each request.
+# Registers an `ART::Action` for each action with the router.  This type is a singleton as opposed to a service to prevent all the routes from having to be redefined on each request.
 class Athena::Routing::RouteResolver
-  @router : Amber::Router::RouteSet(Action) = Amber::Router::RouteSet(Action).new
+  @router : Amber::Router::RouteSet(ActionBase) = Amber::Router::RouteSet(ActionBase).new
 
   def initialize
     {% begin %}
@@ -120,7 +120,7 @@ class Athena::Routing::RouteResolver
           # Add the route to the router
           @router.add(
             {{full_path}},
-            Route.new(
+            Action.new(
               ->{
                   # If the controller is not registered as a service, simply new one up
                   # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
@@ -147,7 +147,7 @@ class Athena::Routing::RouteResolver
           {% if method == "GET" %}
             @router.add(
               {{full_path}},
-              Route.new(
+              Action.new(
                 ->{
                   # If the controller is not registered as a service, simply new one up
                   # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
@@ -175,11 +175,11 @@ class Athena::Routing::RouteResolver
     {% end %}
   end
 
-  # Attempts to resolve the *request* into an `Amber::Router::RoutedResult(Athena::Routing::Action)`.
+  # Attempts to resolve the *request* into an `Amber::Router::RoutedResult(Athena::Routing::ActionBase)`.
   #
-  # Raises an `ART::Exceptions::NotFound` exception if a corresponding `ART::Route` could not be resolved.
+  # Raises an `ART::Exceptions::NotFound` exception if a corresponding `ART::Action` could not be resolved.
   # Raises an `ART::Exceptions::MethodNotAllowed` exception if a route was matched but does not support the *request*'s method.
-  def resolve(request : HTTP::Request) : Amber::Router::RoutedResult(Athena::Routing::Action)
+  def resolve(request : HTTP::Request) : Amber::Router::RoutedResult(Athena::Routing::ActionBase)
     # Get the routes that match the given path
     matching_routes = @router.find_routes request.path
 

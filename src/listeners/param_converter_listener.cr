@@ -1,5 +1,5 @@
 @[ADI::Register(_param_converters: "!athena.param_converter")]
-# Applies any `ART::ParamConverterInterface` defined on a given `ART::Route`.
+# Applies any `ART::ParamConverterInterface` defined on a given `ART::Action`.
 #
 # Injects all `ART::ParamConverterInterface` tagged with `ART::ParamConverterInterface::TAG`.
 struct Athena::Routing::Listeners::ParamConverter

@@ -402,13 +402,13 @@ module Athena::Routing
 
   # Parent type of a route just used for typing.
   #
-  # See `ART::Route`.
-  abstract struct Action; end
+  # See `ART::Action`.
+  abstract struct ActionBase; end
 
   # Represents an endpoint within the application.
   #
   # Includes metadata about the endpoint, such as its controller, arguments, return type, and the action should be executed.
-  struct Route(Controller, ActionType, ReturnType, ArgTypeTuple, ArgumentsType) < Action
+  struct Action(Controller, ActionType, ReturnType, ArgTypeTuple, ArgumentsType) < ActionBase
     # The HTTP method associated with `self`.
     getter method : String
 
