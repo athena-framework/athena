@@ -21,7 +21,6 @@ require "./request_store"
 require "./route_handler"
 require "./route_resolver"
 require "./time_converter"
-require "./view"
 
 require "./arguments/**"
 require "./config/*"

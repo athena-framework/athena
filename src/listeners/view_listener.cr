@@ -22,7 +22,7 @@ struct Athena::Routing::Listeners::View
                        ART::Response.new status: :no_content, headers: get_headers
                      else
                        ART::Response.new(headers: get_headers) do |io|
-                         data = event.view.data
+                         data = event.action_result
 
                          # Still use `#to_json` for `JSON::Serializable`,
                          # but prioritize `ASR::Serializable` if the type includes both.

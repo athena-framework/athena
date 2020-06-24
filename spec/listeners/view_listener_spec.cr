@@ -29,7 +29,7 @@ end
 describe ART::Listeners::View do
   it "with a Nil return type" do
     route = create_route(Nil) { }
-    event = ART::Events::View.new new_request(route: route), ART::View.new nil
+    event = ART::Events::View.new new_request(route: route), nil
 
     ART::Listeners::View.new(TestSerializer.new).call(event, TracableEventDispatcher.new)
 
@@ -42,7 +42,7 @@ describe ART::Listeners::View do
   describe "with a non Nil return type" do
     describe JSON::Serializable do
       it "should just use .to_json" do
-        event = ART::Events::View.new new_request, ART::View.new JSONSerializableModel.new 123
+        event = ART::Events::View.new new_request, JSONSerializableModel.new 123
 
         ART::Listeners::View.new(TestSerializer.new).call(event, TracableEventDispatcher.new)
 
@@ -55,7 +55,7 @@ describe ART::Listeners::View do
 
     describe "JSON::Serializable and ASR::Serializable" do
       it "prioritizes ASR::Serializable" do
-        event = ART::Events::View.new new_request, ART::View.new BothSerializableModel.new 456
+        event = ART::Events::View.new new_request, BothSerializableModel.new 456
 
         ART::Listeners::View.new(TestSerializer.new).call(event, TracableEventDispatcher.new)
 
@@ -68,7 +68,7 @@ describe ART::Listeners::View do
 
     describe "non JSON::Serializable" do
       it "should use the serializer object" do
-        event = ART::Events::View.new new_request, ART::View.new "DATA"
+        event = ART::Events::View.new new_request, "DATA"
 
         ART::Listeners::View.new(TestSerializer.new).call(event, TracableEventDispatcher.new)
 

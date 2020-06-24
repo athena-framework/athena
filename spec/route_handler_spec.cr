@@ -40,7 +40,7 @@ describe Athena::Routing::RouteHandler do
     describe "view layer" do
       it "should use the resolve the returned value into a response" do
         listener = AED.create_listener(ART::Events::View) do
-          event.response = ART::Response.new event.view.data.to_json, 201, HTTP::Headers{"content-type" => "application/json"}
+          event.response = ART::Response.new event.action_result.to_json, 201, HTTP::Headers{"content-type" => "application/json"}
         end
 
         dispatcher = TracableEventDispatcher.new
