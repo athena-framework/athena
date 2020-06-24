@@ -22,6 +22,10 @@ describe Athena::Routing do
       assert_error "compiler/controller_service_not_public.cr", "Controller service 'CompileController' must be declared as public."
     end
 
+    it "when action is defined with ART::Route, but does not specify the method" do
+      assert_error "compiler/missing_route_method.cr", "CompileController#action' is missing the HTTP method.  It was not provided via the 'method' field."
+    end
+
     describe ART::Prefix do
       it "when a parent type has the prefix annotation but is missing a value" do
         assert_error "compiler/parent_missing_prefix.cr", "Controller 'PrefixController' has the `Prefix` annotation but is missing the prefix."

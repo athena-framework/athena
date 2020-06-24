@@ -38,6 +38,11 @@ class RoutingController < ART::Controller
     end
   end
 
+  @[ART::Route("/custom-method", method: "FOO")]
+  def custom_http_method : String
+    "FOO"
+  end
+
   get "/macro/:foo", foo : String, constraints: {"foo" => /foo/} do
     foo
   end
@@ -65,5 +70,13 @@ class RoutingController < ART::Controller
 
   delete "/macro" do
     "DELETE"
+  end
+
+  link "/macro" do
+    "LINK"
+  end
+
+  unlink "/macro" do
+    "UNLINK"
   end
 end

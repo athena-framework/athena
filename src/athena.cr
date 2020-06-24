@@ -94,7 +94,7 @@ alias ART = Athena::Routing
 # # GET / # => Hello World
 # ```
 # Annotations applied to the methods are used to define the HTTP method this method handles, such as `ART::Get` or `ART::Post`.  A macro DSL also exists to make them a bit less verbose;
-# `ART::Controller.get` or `ART::Controller.post`.
+# `ART::Controller.get` or `ART::Controller.post`.  The `ART::Route` annotation can also be used to define custom `HTTP` methods.
 #
 # Controllers are simply classes and routes are simply methods.  Controllers and actions can be documented/tested as you would any Crystal class/method.
 #
