@@ -128,7 +128,7 @@ class Athena::Routing::RouteResolver
 
           {% view = "ART::Action::View.new".id %}
 
-          {% if (view_ann = m.annotation(View)) %}
+          {% if view_ann = m.annotation(View) %}
             {% view = %(ART::Action::View.new(#{view_ann.named_args.double_splat})).id %}
           {% end %}
 
