@@ -10,9 +10,22 @@ class Athena::Routing::Events::View < AED::Event
   include Athena::Routing::Events::SettableResponse
   include Athena::Routing::Events::RequestAware
 
-  getter view : ViewBase
+  private module ContainerBase; end
 
-  def initialize(request : HTTP::Request, @view : ViewBase)
+  private record ResultContainer(T), data : T do
+    include ContainerBase
+  end
+
+  @result : ContainerBase
+
+  def initialize(request : HTTP::Request, action_result : _)
     super request
+
+    @result = ResultContainer.new action_result
+  end
+
+  # Returns the value returned from the related controller action.
+  def action_result
+    @result.data
   end
 end

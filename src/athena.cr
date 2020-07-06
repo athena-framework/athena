@@ -21,7 +21,6 @@ require "./request_store"
 require "./route_handler"
 require "./route_resolver"
 require "./time_converter"
-require "./view"
 
 require "./arguments/**"
 require "./config/*"
@@ -58,7 +57,7 @@ alias ART = Athena::Routing
 # dependencies:
 #   athena:
 #     github: athena-framework/athena
-#     version: 0.9.0
+#     version: ~> 0.10.0
 # ```
 #
 # Run `shards install`.  This will install Athena and its required dependencies.
@@ -407,8 +406,30 @@ module Athena::Routing
 
   # Represents an endpoint within the application.
   #
-  # Includes metadata about the endpoint, such as its controller, arguments, return type, and the action should be executed.
+  # Includes metadata about the endpoint, such as its controller, arguments, return type, and the action that should be executed.
   struct Action(Controller, ActionType, ReturnType, ArgTypeTuple, ArgumentsType) < ActionBase
+    # Stores runtime configuration data from the `ART::View` annotation about how to render the output of the related action.
+    #
+    # This includes the action's `HTTP::Status` and any serialization related configuration options.
+    struct View
+      # Returns `true` if the action related to `self` defined a custom status via the `ART::View` annotation, otherwise `false`.
+      getter? has_custom_status : Bool
+
+      # The `HTTP::Status` this action should return.  Defaults to `HTTP::Status::OK` (200).
+      getter status : HTTP::Status
+
+      # The serialization groups to use for this route as part of `ASR::ExclusionStrategies::Groups`.
+      getter serialization_groups : Array(String)
+
+      # If `nil` values should be serialized.
+      getter emit_nil : Bool = false
+
+      def initialize(status : HTTP::Status? = nil, @serialization_groups : Array(String) = ["default"], @emit_nil : Bool = false)
+        @has_custom_status = !status.nil?
+        @status = status || HTTP::Status::OK
+      end
+    end
+
     # The HTTP method associated with `self`.
     getter method : String
 
@@ -421,12 +442,16 @@ module Athena::Routing
     # An `Array(ART::ParamConverterInterface::ConfigurationInterface)` representing the `ART::ParamConverter`s applied to `self`.
     getter param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface)
 
+    # The `ART::Action::View` configuration related to `self`.
+    getter view : View
+
     def initialize(
       @action : ActionType,
       @action_name : String,
       @method : String,
       @arguments : ArgumentsType,
       @param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface),
+      @view : View,
       # Don't bother making these ivars since we just need them to set the generic types
       _controller : Controller.class,
       _return_type : ReturnType.class,
