@@ -43,6 +43,12 @@ class RoutingController < ART::Controller
     "FOO"
   end
 
+  @[ART::Get("custom-status")]
+  @[ART::View(status: :accepted)]
+  def custom_status : String
+    "foo"
+  end
+
   get "/macro/:foo", foo : String, constraints: {"foo" => /foo/} do
     foo
   end

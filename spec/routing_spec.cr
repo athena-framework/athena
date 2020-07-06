@@ -43,6 +43,20 @@ describe Athena::Routing do
     CLIENT.exec("FOO", "/custom-method").body.should eq %("FOO")
   end
 
+  describe "custom response statuses" do
+    it "works for GET endpoints" do
+      response = CLIENT.get("/custom-status")
+      response.status.should eq HTTP::Status::ACCEPTED
+      response.body.should eq %("foo")
+    end
+
+    it "works for HEAD endpoints" do
+      response = CLIENT.head("/custom-status")
+      response.status.should eq HTTP::Status::ACCEPTED
+      response.body.should be_empty
+    end
+  end
+
   describe ART::ParamConverter do
     it "works with a query param" do
       CLIENT.get "/events"

@@ -16,16 +16,17 @@ class TestController < ART::Controller
   end
 end
 
-macro create_route(return_type, &)
+macro create_route(return_type, view = nil, &)
   ART::Action.new(
     ->{ ->{ {{yield}} } },
     "fake_method",
     "GET",
     Array(ART::Arguments::ArgumentMetadata(Nil)).new,
     Array(ART::ParamConverterInterface::ConfigurationInterface).new,
+    {{view}} || ART::Action::View.new,
     TestController,
     {{return_type}},
-    typeof(Tuple.new)
+    typeof(Tuple.new),
   )
 end
 
@@ -39,7 +40,8 @@ end
 
 def new_route(
   arguments : Array(ART::Arguments::ArgumentMetadata)? = nil,
-  param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface)? = nil
+  param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface)? = nil,
+  view : ART::Action::View = ART::Action::View.new
 ) : ART::ActionBase
   ART::Action.new(
     ->{ test_controller = TestController.new; ->test_controller.get_test },
@@ -47,9 +49,10 @@ def new_route(
     "GET",
     arguments || Array(ART::Arguments::ArgumentMetadata(Nil)).new,
     param_converters || Array(ART::ParamConverterInterface::ConfigurationInterface).new,
+    view,
     TestController,
     String,
-    typeof(Tuple.new)
+    typeof(Tuple.new),
   )
 end
 

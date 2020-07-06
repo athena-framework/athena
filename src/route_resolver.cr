@@ -126,6 +126,12 @@ class Athena::Routing::RouteResolver
             {% qp.raise "Route action '#{klass.name}##{m.name}' has an ART::QueryParam annotation but does not have a corresponding action argument for '#{arg_name.id}'." unless arg_names.includes? arg_name %}
           {% end %}
 
+          {% view = "ART::Action::View.new".id %}
+
+          {% if (view_ann = m.annotation(View)) %}
+            {% view = %(ART::Action::View.new(#{view_ann.named_args.double_splat})).id %}
+          {% end %}
+
           # Add the route to the router
           @router.add(
             {{full_path}},
@@ -146,6 +152,7 @@ class Athena::Routing::RouteResolver
               {{method}},
               {{arguments.empty? ? "Array(ART::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},
               ({{param_converters}} of ART::ParamConverterInterface::ConfigurationInterface),
+              {{view}},
               {{klass.id}},
               {{m.return_type}},
               {{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}
@@ -173,6 +180,7 @@ class Athena::Routing::RouteResolver
                 "HEAD",
                 {{arguments.empty? ? "Array(ART::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},
                 ({{param_converters}} of ART::ParamConverterInterface::ConfigurationInterface),
+                {{view}},
                 {{klass.id}},
                 {{m.return_type}},
                 {{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}
