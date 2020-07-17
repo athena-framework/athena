@@ -132,6 +132,19 @@ class Athena::Routing::RouteResolver
             {% view = %(ART::Action::View.new(#{view_ann.named_args.double_splat})).id %}
           {% end %}
 
+          {% custom_configurations = {} of Nil => Nil %}
+
+          {% for ann_class in ACF::CUSTOM_ANNOTATIONS %}
+            {% ann_class = ann_class.resolve %}
+            {% annotations = [] of Nil %}
+
+            {% for ann in m.annotations ann_class %}
+              {% annotations << "#{ann_class}Configuration.new(#{ann.args.empty? ? "".id : "#{ann.args.splat},".id}#{ann.named_args.double_splat})".id %}
+            {% end %}
+
+            {% custom_configurations[ann_class] = "(#{annotations} of ACF::AnnotationConfigurations::ConfigurationBase)".id unless annotations.empty? %}
+          {% end %}
+
           # Add the route to the router
           @router.add(
             {{full_path}},
@@ -153,6 +166,7 @@ class Athena::Routing::RouteResolver
               {{arguments.empty? ? "Array(ART::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},
               ({{param_converters}} of ART::ParamConverterInterface::ConfigurationInterface),
               {{view}},
+              ACF::AnnotationConfigurations.new({{custom_configurations}} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)),
               {{klass.id}},
               {{m.return_type}},
               {{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}
@@ -181,6 +195,7 @@ class Athena::Routing::RouteResolver
                 {{arguments.empty? ? "Array(ART::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},
                 ({{param_converters}} of ART::ParamConverterInterface::ConfigurationInterface),
                 {{view}},
+                ACF::AnnotationConfigurations.new({{custom_configurations}} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)),
                 {{klass.id}},
                 {{m.return_type}},
                 {{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}
