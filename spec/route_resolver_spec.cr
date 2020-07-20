@@ -12,7 +12,7 @@ describe ART::RouteResolver do
   describe "#resolve" do
     it "resolves correctly" do
       resolver = TestRouteResolver.new
-      route = new_route
+      route = new_action
 
       resolver.build do
         add "test", route
@@ -33,7 +33,7 @@ describe ART::RouteResolver do
       resolver = TestRouteResolver.new
 
       resolver.build do
-        add "test", new_route
+        add "test", new_action
       end
 
       expect_raises ART::Exceptions::MethodNotAllowed, "No route found for 'POST /test': (Allow: GET)" do

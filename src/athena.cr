@@ -445,7 +445,8 @@ module Athena::Routing
     # The `ART::Action::View` configuration related to `self`.
     getter view : View
 
-    getter custom_configurations : ACF::AnnotationConfigurations
+    # Returns annotations configurations registered via `Athena::Config.configuration_annotation` and applied to `self`.
+    getter annotation_configurations : ACF::AnnotationConfigurations
 
     def initialize(
       @action : ActionType,
@@ -454,7 +455,7 @@ module Athena::Routing
       @arguments : ArgumentsType,
       @param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface),
       @view : View,
-      @custom_configurations : ACF::AnnotationConfigurations,
+      @annotation_configurations : ACF::AnnotationConfigurations,
       # Don't bother making these ivars since we just need them to set the generic types
       _controller : Controller.class,
       _return_type : ReturnType.class,

@@ -21,7 +21,7 @@ struct Athena::Routing::Listeners::Routing
 
     LOGGER.info &.emit "Matched route #{request.path}", uri: request.path, method: request.method, path_params: route.params, query_params: request.query_params.to_h
 
-    request.route = route.payload.not_nil!.dup
+    request.action = route.payload.not_nil!.dup
 
     route.params.not_nil!.merge!(event.request.query_params.to_h).each do |key, value|
       event.request.attributes.set key, value

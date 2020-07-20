@@ -22,7 +22,7 @@ describe ART::Arguments::ArgumentResolver do
   describe "#get_arguments" do
     describe "when a value was able to be resolved" do
       it "should return an array of values" do
-        route = new_route arguments: [new_argument]
+        route = new_action arguments: [new_argument]
 
         ART::Arguments::ArgumentResolver.new([TrueResolver.new] of ART::Arguments::Resolvers::ArgumentValueResolverInterface).get_arguments(new_request, route).should eq [17]
       end
@@ -30,7 +30,7 @@ describe ART::Arguments::ArgumentResolver do
 
     describe "when a value was not able to be resolved" do
       it "should raise a runtime error" do
-        route = new_route arguments: [new_argument]
+        route = new_action arguments: [new_argument]
 
         expect_raises(RuntimeError, "Could not resolve required argument 'id' for 'TestController#get_test'.") do
           ART::Arguments::ArgumentResolver.new([] of ART::Arguments::Resolvers::ArgumentValueResolverInterface).get_arguments(new_request, route)

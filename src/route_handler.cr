@@ -61,20 +61,20 @@ struct Athena::Routing::RouteHandler
       return finish_response response, request
     end
 
-    # Resolve the arguments for this route from the request
-    arguments = @argument_resolver.get_arguments request, request.route
+    # Resolve the arguments for this action from the request
+    arguments = @argument_resolver.get_arguments request, request.action
 
     # Possibly add another event here to allow modification of the resolved arguments?
 
     # Call the action and get the response
-    response = request.route.execute arguments
+    response = request.action.execute arguments
 
     unless response.is_a? ART::Response
       view_event = ART::Events::View.new request, response
       @event_dispatcher.dispatch view_event
 
       unless response = view_event.response
-        raise "#{request.route.controller}##{request.route.action_name} must return an `ART::Response` but it returned '#{response}'."
+        raise "#{request.action.controller}##{request.action.action_name} must return an `ART::Response` but it returned '#{response}'."
       end
     end
 

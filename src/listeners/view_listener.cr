@@ -19,11 +19,11 @@ struct Athena::Routing::Listeners::View
   def initialize(@serializer : ASR::SerializerInterface); end
 
   def call(event : ART::Events::View, dispatcher : AED::EventDispatcherInterface) : Nil
-    route = event.request.route
-    view = route.view
+    action = event.request.action
+    view = action.view
 
-    if route.return_type == Nil
-      # Return an empty response if the route's return type is `Nil`, using the specified status if a custom one was defined
+    if action.return_type == Nil
+      # Return an empty response if the action's return type is `Nil`, using the specified status if a custom one was defined
       return event.response = ART::Response.new status: view.has_custom_status? ? view.status : HTTP::Status::NO_CONTENT, headers: get_headers
     end
 

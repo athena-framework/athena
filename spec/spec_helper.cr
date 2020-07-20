@@ -16,7 +16,7 @@ class TestController < ART::Controller
   end
 end
 
-macro create_route(return_type, view = nil, &)
+macro create_action(return_type, view = nil, &)
   ART::Action.new(
     ->{ ->{ {{yield}} } },
     "fake_method",
@@ -39,7 +39,7 @@ def new_argument(has_default : Bool = false, is_nillable : Bool = false, default
   ART::Arguments::ArgumentMetadata(Int32).new("id", has_default, is_nillable, default)
 end
 
-def new_route(
+def new_action(
   arguments : Array(ART::Arguments::ArgumentMetadata)? = nil,
   param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface)? = nil,
   view : ART::Action::View = ART::Action::View.new
@@ -58,9 +58,9 @@ def new_route(
   )
 end
 
-def new_request(*, path : String = "/test", method : String = "GET", route : ART::ActionBase = new_route) : HTTP::Request
+def new_request(*, path : String = "/test", method : String = "GET", action : ART::ActionBase = new_action) : HTTP::Request
   request = HTTP::Request.new method, path
-  request.route = route
+  request.action = action
   request
 end
 
