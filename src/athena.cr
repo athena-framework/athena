@@ -176,7 +176,7 @@ alias ART = Athena::Routing
 #
 # When an exception is raised, Athena emits the `ART::Events::Exception` event to allow an opportunity for it to be handled.
 # By default these exceptions will return a `JSON` serialized version of the exception, via `ART::ErrorRenderer`, that includes the message and code; with the proper response status set.
-# If the exception goes unhandled, i.e. no listener set an `ART::Response` on the event, then the request is finished and the exception is reraised.
+# If the exception goes unhandled, i.e. no listener sets an `ART::Response` on the event, then the request is finished and the exception is reraised.
 #
 # ```
 # require "athena"
@@ -207,9 +207,13 @@ alias ART = Athena::Routing
 # These features may not be required for a simple application; however as the application grows they may become more useful.
 #
 # #### Param Converters
+#
 # `ART::ParamConverterInterface`s allow complex types to be supplied to an action via its arguments.
 # An example of this could be extracting the id from `/users/10`, doing a DB query to lookup the user with the PK of `10`, then providing the full user object to the action.
 # Param converters abstract any custom parameter handling that would otherwise have to be done in each action.
+#
+# User defined annotations registered via `Athena::Config.configuration_annotation` may also be used to allow for more advanced logic for use within your param converters.
+# See `ART::Events::RequestAware` for more information.
 #
 # ```
 # require "athena"
@@ -245,6 +249,9 @@ alias ART = Athena::Routing
 # Athena is an event based framework; meaning it emits `ART::Events` that are acted upon internally to handle the request.
 # These same events can also be listened on by custom listeners, via `AED::EventListenerInterface`, in order to tap into the life-cycle of the request.
 # An example use case of this could be: adding common headers, cookies, compressing the response, authentication, or even returning a response early like `ART::Listeners::CORS`.
+#
+# User defined annotations registered via `Athena::Config.configuration_annotation` may also be used to allow for more advanced logic for use within your middleware.
+# An example of this could be a `@[Paginated]` or `@[RateLimited]` annotation.  See `ART::Events::RequestAware` for more information.
 #
 # ```
 # require "athena"
@@ -351,6 +358,19 @@ alias ART = Athena::Routing
 #
 # DI is also what "wires" everything together.  For example, say there is an external shard that defines a listener.  All that would be required to use that listener is install and require the shard,
 # DI takes care of the rest.  This is much easier and more flexible than needing to update code to add a new `HTTP::Handler` instance to an array.
+#
+# #### Serialization
+# Athena comes bundled with `Athena::Serializer` component which may optionally be used when more advanced serialization features are required.
+# See the API documentation for more detailed information, or [this forum post](https://forum.crystal-lang.org/t/athena-0-10-0/2326/1) for a quick overview.
+#
+# Some highlights:
+#
+# * [ASRA::Name](https://athena-framework.github.io/serializer/Athena/Serializer/Annotations/Name.html) - Supporting different keys when deserializing versus serializing
+# * [ASRA::VirtualProperty](https://athena-framework.github.io/serializer/Athena/Serializer/Annotations/VirtualProperty.html) - Allow a method to appear as a property upon serialization
+# * [ASRA::IgnoreOnSerialize](https://athena-framework.github.io/serializer/Athena/Serializer/Annotations/IgnoreOnSerialize.html) - Allow a property to be set on deserialization, but should not be serialized (or vice versa)
+# * [ASRA::Expose](https://athena-framework.github.io/serializer/Athena/Serializer/Annotations/Expose.html) - Allows for more granular control over which properties should be (de)serialized
+# * [ASR::ExclusionStrategies::ExclusionStrategyInterface](https://athena-framework.github.io/serializer/Athena/Serializer/ExclusionStrategies/ExclusionStrategyInterface.html)  - Allows defining runtime logic to determine if a given property should be (de)serialized
+# * [ASR::ObjectConstructorInterface](https://athena-framework.github.io/serializer/Athena/Serializer/ObjectConstructorInterface.html) - Determine how a new object is constructed during deserialization, e.x. sourcing an object from the DB
 module Athena::Routing
   protected class_getter route_resolver : ART::RouteResolver { ART::RouteResolver.new }
 
@@ -446,6 +466,8 @@ module Athena::Routing
     getter view : View
 
     # Returns annotations configurations registered via `Athena::Config.configuration_annotation` and applied to `self`.
+    #
+    # These configurations could then be accessed within `ART::ParamConverterInterface`s and/or `ART::Listeners`s.
     getter annotation_configurations : ACF::AnnotationConfigurations
 
     def initialize(
