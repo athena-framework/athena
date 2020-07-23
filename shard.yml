@@ -22,7 +22,7 @@ dependencies:
     version: ~> 0.1.0
   athena-config:
     github: athena-framework/config
-    branch: configuration-annotations
+    version: ~> 0.1.2
   athena-dependency_injection:
     github: athena-framework/dependency-injection
     version: ~> 0.2.0
@@ -31,7 +31,7 @@ dependencies:
     version: ~> 0.4.1
   athena-serializer:
     github: athena-framework/serializer
-    branch: custom-configurations
+    version: ~> 0.2.0
 
 development_dependencies:
   ameba:
