@@ -138,7 +138,7 @@ class Athena::Routing::RouteResolver
             {% ann_class = ann_class.resolve %}
             {% annotations = [] of Nil %}
 
-            {% for ann in m.annotations ann_class %}
+            {% for ann in klass.annotations(ann_class) + m.annotations(ann_class) %}
               {% annotations << "#{ann_class}Configuration.new(#{ann.args.empty? ? "".id : "#{ann.args.splat},".id}#{ann.named_args.double_splat})".id %}
             {% end %}
 
