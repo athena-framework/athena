@@ -9,7 +9,7 @@ end
 describe ART::Listeners::ParamConverter do
   it "applies param converters related to the given route" do
     converters = [MockParamConverter::Configuration.new("argument", MockParamConverter)] of ART::ParamConverterInterface::ConfigurationInterface
-    event = ART::Events::Request.new new_request(route: new_route(param_converters: converters))
+    event = ART::Events::Request.new new_request(action: new_action(param_converters: converters))
 
     event.request.attributes.has?("argument").should be_false
 

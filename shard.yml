@@ -22,16 +22,16 @@ dependencies:
     version: ~> 0.1.0
   athena-config:
     github: athena-framework/config
-    version: ~> 0.1.0
+    version: ~> 0.1.2
   athena-dependency_injection:
     github: athena-framework/dependency-injection
+    version: ~> 0.2.0
+  athena-serializer:
+    github: athena-framework/serializer
     version: ~> 0.2.0
   amber_router:
     github: amberframework/amber-router
     version: ~> 0.4.1
-  athena-serializer:
-    github: athena-framework/serializer
-    version: ~> 0.1.0
 
 development_dependencies:
   ameba:

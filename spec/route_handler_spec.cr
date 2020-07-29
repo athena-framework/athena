@@ -5,7 +5,7 @@ private struct MockArgumentResolver
 
   def initialize(@exception : ::Exception? = nil); end
 
-  def get_arguments(request : HTTP::Request, route : ART::ActionBase) : Array
+  def get_arguments(request : HTTP::Request, action : ART::ActionBase) : Array
     if ex = @exception
       raise ex
     end
@@ -20,12 +20,12 @@ describe Athena::Routing::RouteHandler do
       it "should use the returned response" do
         dispatcher = TracableEventDispatcher.new
         handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new
-        route = create_route(ART::Response) do
+        action = create_action(ART::Response) do
           ART::Response.new "TEST"
         end
         io = IO::Memory.new
 
-        context = new_context request: new_request(route: route), response: new_response(io: io)
+        context = new_context request: new_request(action: action), response: new_response(io: io)
 
         handler.handle context
 

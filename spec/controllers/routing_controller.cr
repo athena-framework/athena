@@ -1,5 +1,24 @@
 require "../spec_helper"
 
+ACF.configuration_annotation SpecAnnotation
+
+@[ADI::Register]
+struct SpecAnnotationListener
+  include AED::EventListenerInterface
+
+  def self.subscribed_events : AED::SubscribedEvents
+    AED::SubscribedEvents{
+      ART::Events::Response => 26,
+    }
+  end
+
+  def call(event : ART::Events::Response, dispatcher : AED::EventDispatcherInterface) : Nil
+    if (action = event.request.action?) && (action.annotation_configurations.has?(SpecAnnotation))
+      event.response.headers["ANNOTATION"] = "true"
+    end
+  end
+end
+
 @[ADI::Register(public: true)]
 class RoutingController < ART::Controller
   def initialize(@request_store : ART::RequestStore); end
@@ -48,6 +67,10 @@ class RoutingController < ART::Controller
   def custom_status : String
     "foo"
   end
+
+  @[SpecAnnotation]
+  get("/with-ann", return_type: Nil) { }
+  get("/without-ann", return_type: Nil) { }
 
   get "/macro/:foo", foo : String, constraints: {"foo" => /foo/} do
     foo

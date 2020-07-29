@@ -20,7 +20,7 @@ struct Athena::Routing::Listeners::ParamConverter
   end
 
   def call(event : ART::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
-    event.request.route.param_converters.each do |configuration|
+    event.request.action.param_converters.each do |configuration|
       @param_converters[configuration.converter].apply event.request, configuration
     end
   end

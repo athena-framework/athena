@@ -33,8 +33,8 @@ end
 describe ART::Listeners::View do
   describe "with a Nil return type" do
     it "with the default status" do
-      route = create_route(Nil) { }
-      event = ART::Events::View.new new_request(route: route), nil
+      route = create_action(Nil) { }
+      event = ART::Events::View.new new_request(action: route), nil
 
       ART::Listeners::View.new(TestSerializer.new).call(event, TracableEventDispatcher.new)
 
@@ -45,8 +45,8 @@ describe ART::Listeners::View do
     end
 
     it "with a customized status" do
-      route = create_route(Nil, view: ART::Action::View.new(status: :im_a_teapot)) { }
-      event = ART::Events::View.new new_request(route: route), nil
+      route = create_action(Nil, view: ART::Action::View.new(status: :im_a_teapot)) { }
+      event = ART::Events::View.new new_request(action: route), nil
 
       ART::Listeners::View.new(TestSerializer.new).call(event, TracableEventDispatcher.new)
 
@@ -57,8 +57,8 @@ describe ART::Listeners::View do
     end
 
     it "with a 200 status" do
-      route = create_route(Nil, view: ART::Action::View.new(status: :ok)) { }
-      event = ART::Events::View.new new_request(route: route), nil
+      route = create_action(Nil, view: ART::Action::View.new(status: :ok)) { }
+      event = ART::Events::View.new new_request(action: route), nil
 
       ART::Listeners::View.new(TestSerializer.new).call(event, TracableEventDispatcher.new)
 
@@ -96,7 +96,7 @@ describe ART::Listeners::View do
       end
 
       it "allows setting the serializer context" do
-        event = ART::Events::View.new new_request(route: new_route(view: ART::Action::View.new(serialization_groups: ["some_group"], emit_nil: true))), "foo"
+        event = ART::Events::View.new new_request(action: new_action(view: ART::Action::View.new(serialization_groups: ["some_group"], emit_nil: true))), "foo"
         serializer = TestSerializer.new ->(context : ASR::SerializationContext) do
           context.emit_nil?.should be_true
           context.groups.should eq ["some_group"]
@@ -120,7 +120,7 @@ describe ART::Listeners::View do
     end
 
     it "allows defining a custom response status" do
-      event = ART::Events::View.new new_request(route: new_route(view: ART::Action::View.new(status: HTTP::Status::IM_A_TEAPOT))), "foo"
+      event = ART::Events::View.new new_request(action: new_action(view: ART::Action::View.new(status: HTTP::Status::IM_A_TEAPOT))), "foo"
 
       ART::Listeners::View.new(TestSerializer.new).call(event, TracableEventDispatcher.new)
 
