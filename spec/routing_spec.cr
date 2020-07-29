@@ -43,6 +43,16 @@ describe Athena::Routing do
     CLIENT.exec("FOO", "/custom-method").body.should eq %("FOO")
   end
 
+  describe SpecAnnotationListener do
+    it "with the annotation" do
+      CLIENT.get("/with-ann").headers.includes_word?("ANNOTATION", "true").should be_true
+    end
+
+    it "without the annotation" do
+      CLIENT.get("/without-ann").headers.includes_word?("ANNOTATION", "true").should be_false
+    end
+  end
+
   describe "custom response statuses" do
     it "works for GET endpoints" do
       response = CLIENT.get("/custom-status")

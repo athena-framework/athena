@@ -360,17 +360,18 @@ alias ART = Athena::Routing
 # DI takes care of the rest.  This is much easier and more flexible than needing to update code to add a new `HTTP::Handler` instance to an array.
 #
 # #### Serialization
-# Athena comes bundled with `Athena::Serializer` component which may optionally be used when more advanced serialization features are required.
+#
+# Athena comes bundled with the `Athena::Serializer` component; which may be used when more advanced serialization features are required.
 # See the API documentation for more detailed information, or [this forum post](https://forum.crystal-lang.org/t/athena-0-10-0/2326/1) for a quick overview.
 #
 # Some highlights:
 #
-# * [ASRA::Name](https://athena-framework.github.io/serializer/Athena/Serializer/Annotations/Name.html) - Supporting different keys when deserializing versus serializing
-# * [ASRA::VirtualProperty](https://athena-framework.github.io/serializer/Athena/Serializer/Annotations/VirtualProperty.html) - Allow a method to appear as a property upon serialization
-# * [ASRA::IgnoreOnSerialize](https://athena-framework.github.io/serializer/Athena/Serializer/Annotations/IgnoreOnSerialize.html) - Allow a property to be set on deserialization, but should not be serialized (or vice versa)
-# * [ASRA::Expose](https://athena-framework.github.io/serializer/Athena/Serializer/Annotations/Expose.html) - Allows for more granular control over which properties should be (de)serialized
-# * [ASR::ExclusionStrategies::ExclusionStrategyInterface](https://athena-framework.github.io/serializer/Athena/Serializer/ExclusionStrategies/ExclusionStrategyInterface.html)  - Allows defining runtime logic to determine if a given property should be (de)serialized
-# * [ASR::ObjectConstructorInterface](https://athena-framework.github.io/serializer/Athena/Serializer/ObjectConstructorInterface.html) - Determine how a new object is constructed during deserialization, e.x. sourcing an object from the DB
+# * `ASRA::Name` - Supporting different keys when deserializing versus serializing
+# * `ASRA::VirtualProperty` Annotations/VirtualProperty.html) - Allow a method to appear as a property upon serialization
+# * `ASRA::IgnoreOnSerialize` Annotations/IgnoreOnSerialize.html) - Allow a property to be set on deserialization, but should not be serialized (or vice versa)
+# * `ASRA::Expose` Annotations/Expose.html) - Allows for more granular control over which properties should be (de)serialized
+# * `ASR::ExclusionStrategies` Serializer/ExclusionStrategies/ExclusionStrategyInterface.html)  - Allows defining runtime logic to determine if a given property should be (de)serialized
+# * `ASR::ObjectConstructorInterface` ObjectConstructorInterface.html) - Determine how a new object is constructed during deserialization, e.x. sourcing an object from the DB
 module Athena::Routing
   protected class_getter route_resolver : ART::RouteResolver { ART::RouteResolver.new }
 
@@ -465,7 +466,7 @@ module Athena::Routing
     # The `ART::Action::View` configuration related to `self`.
     getter view : View
 
-    # Returns annotations configurations registered via `Athena::Config.configuration_annotation` and applied to `self`.
+    # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to `self`.
     #
     # These configurations could then be accessed within `ART::ParamConverterInterface`s and/or `ART::Listeners`s.
     getter annotation_configurations : ACF::AnnotationConfigurations

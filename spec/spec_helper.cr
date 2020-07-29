@@ -4,10 +4,6 @@ require "log/spec"
 require "../src/athena"
 require "./controllers/*"
 
-Spec.before_suite do
-  ENV[Athena::ENV_NAME] = "test"
-end
-
 CLIENT = HTTP::Client.new "localhost", 3000
 
 class TestController < ART::Controller
