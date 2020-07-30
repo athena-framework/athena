@@ -61,6 +61,9 @@ struct Athena::Routing::RouteHandler
       return finish_response response, request
     end
 
+    # Emit the action event
+    @event_dispatcher.dispatch ART::Events::Action.new request, request.action
+
     # Resolve the arguments for this action from the request
     arguments = @argument_resolver.get_arguments request, request.action
 

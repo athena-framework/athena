@@ -7,7 +7,7 @@ struct Athena::Routing::Listeners::ParamConverter
 
   def self.subscribed_events : AED::SubscribedEvents
     AED::SubscribedEvents{
-      ART::Events::Request => -250,
+      ART::Events::Action => -250,
     }
   end
 
@@ -19,8 +19,8 @@ struct Athena::Routing::Listeners::ParamConverter
     end
   end
 
-  def call(event : ART::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
-    event.request.action.param_converters.each do |configuration|
+  def call(event : ART::Events::Action, dispatcher : AED::EventDispatcherInterface) : Nil
+    event.action.param_converters.each do |configuration|
       @param_converters[configuration.converter].apply event.request, configuration
     end
   end

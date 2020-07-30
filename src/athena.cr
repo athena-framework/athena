@@ -469,6 +469,7 @@ module Athena::Routing
     # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to `self`.
     #
     # These configurations could then be accessed within `ART::ParamConverterInterface`s and/or `ART::Listeners`s.
+    # See `ART::Events::RequestAware` for an example.
     getter annotation_configurations : ACF::AnnotationConfigurations
 
     def initialize(

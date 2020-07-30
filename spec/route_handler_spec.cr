@@ -29,7 +29,7 @@ describe Athena::Routing::RouteHandler do
 
         handler.handle context
 
-        dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Response, ART::Events::Terminate]
+        dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Action, ART::Events::Response, ART::Events::Terminate]
         context.response.closed?.should be_true
         context.response.status.should eq HTTP::Status::OK
 
@@ -53,7 +53,7 @@ describe Athena::Routing::RouteHandler do
 
         handler.handle context
 
-        dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::View, ART::Events::Response, ART::Events::Terminate]
+        dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Action, ART::Events::View, ART::Events::Response, ART::Events::Terminate]
         context.response.closed?.should be_true
         context.response.headers["content-type"].should eq "application/json"
         context.response.status.should eq HTTP::Status::CREATED
@@ -114,7 +114,7 @@ describe Athena::Routing::RouteHandler do
 
         handler.handle context
 
-        dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Exception, ART::Events::Response, ART::Events::Terminate]
+        dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Action, ART::Events::Exception, ART::Events::Response, ART::Events::Terminate]
         context.response.closed?.should be_true
         context.response.status.should eq HTTP::Status::BAD_REQUEST
 
@@ -135,7 +135,7 @@ describe Athena::Routing::RouteHandler do
           handler.handle context
         end
 
-        dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Exception]
+        dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Action, ART::Events::Exception]
       end
     end
   end
