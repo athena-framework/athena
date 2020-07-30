@@ -3,7 +3,11 @@ require "./settable_response"
 
 # Emitted very early in the request's life-cycle; before the corresponding `ART::Action` (if any) has been resolved.
 #
-# This event can be listened on to add information to the request, or return a response before even triggering the router; `ART::Listeners::CORS` is an example of this.
+# This event can be listened on in order to:
+# * Add information to the request, via its `ART::ParameterBag`
+# * Return a response immediately if there is enough information available; `ART::Listeners::CORS` is an example of this
+#
+# NOTE: If your listener logic requires that the the corresponding `ART::Action` has been resolved, use `ART::Events::Action` instead.
 class Athena::Routing::Events::Request < AED::Event
   include Athena::Routing::Events::SettableResponse
   include Athena::Routing::Events::RequestAware

@@ -1,5 +1,11 @@
 @[ADI::Register]
 # Handles an exception by converting it into an `ART::Response` via an `ART::ErrorRendererInterface`.
+#
+# This listener defines a `log_exception` protected method that determines how the exception gets logged.
+# Non `ART::Exceptions::HTTPException`s and server errors are logged as errors.
+# Validation errors (`ART::Exceptions::UnprocessableEntity`) are logged as notice.
+# Everything else is logged as a warning.
+# The method can be redefined if different logic is desired.
 struct Athena::Routing::Listeners::Error
   include AED::EventListenerInterface
 
