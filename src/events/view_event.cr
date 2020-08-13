@@ -28,4 +28,12 @@ class Athena::Routing::Events::View < AED::Event
   def action_result
     @result.data
   end
+
+  # Overrides the return value of the related controller action.
+  #
+  # Can be used to mutate the controller action's returned value within a listener context;
+  # such as for pagination.
+  def action_result=(value : _) : Nil
+    @result = ResultContainer.new value
+  end
 end
