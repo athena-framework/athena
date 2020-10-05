@@ -1,10 +1,9 @@
-class Athena::Validator::Exceptions::ValidationFailed < Athena::Routing::Exceptions::UnprocessableEntity
+class Athena::Validator::Exceptions::ValidationFailedError < Athena::Routing::Exceptions::UnprocessableEntity
   getter violations : Athena::Validator::Violation::ConstraintViolationList
 
   def initialize(violations : AVD::Violation::ConstraintViolationInterface | AVD::Violation::ConstraintViolationList, cause : Exception? = nil, headers : HTTP::Headers = HTTP::Headers.new)
     if violations.is_a? AVD::Violation::ConstraintViolationInterface
-      violations = AVD::Violation::ConstraintViolationList.new
-      violations.add violations
+      violations = AVD::Violation::ConstraintViolationList.new [violations]
     end
 
     @violations = violations
