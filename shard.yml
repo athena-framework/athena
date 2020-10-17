@@ -1,6 +1,6 @@
 name: athena
 
-version: 0.10.0
+version: 0.11.0
 
 crystal: 0.35.0
 
@@ -34,7 +34,7 @@ dependencies:
     version: ~> 0.4.1
   athena-validator:
     github: athena-framework/validator
-    branch: better-support-di
+    version: ~> 0.1.0
 
 development_dependencies:
   ameba:
