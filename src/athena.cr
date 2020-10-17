@@ -403,7 +403,7 @@ alias ART = Athena::Routing
 #
 # ##### Custom Constraints
 #
-# In addition to the general information for defining [Custom Constraints](https://athena-framework.github.io/validator/Athena/Validator.html#custom-constraints),
+# In addition to the general information for defining [Custom Constraints](https://athena-framework.github.io/validator/Athena/Validator/Constraint.html#custom-constraints),
 # the validator component defines a specific type for defining service based constraint validators: `AVD::ServiceConstraintValidator`.
 # This type should be inherited from instead of `AVD::ConstraintValidator` _IF_ the validator for your custom constraint needs to be a service, E.x.
 #
@@ -490,12 +490,19 @@ module Athena::Routing
       getter status : HTTP::Status
 
       # The serialization groups to use for this route as part of `ASR::ExclusionStrategies::Groups`.
-      getter serialization_groups : Array(String)
+      getter serialization_groups : Array(String)?
 
       # If `nil` values should be serialized.
       getter emit_nil : Bool = false
 
-      def initialize(status : HTTP::Status? = nil, @serialization_groups : Array(String) = ["default"], @emit_nil : Bool = false)
+      getter validation_groups : Array(String)?
+
+      def initialize(
+        status : HTTP::Status? = nil,
+        @emit_nil : Bool = false,
+        @serialization_groups : Array(String)? = nil,
+        @validation_groups : Array(String)? = nil
+      )
         @has_custom_status = !status.nil?
         @status = status || HTTP::Status::OK
       end

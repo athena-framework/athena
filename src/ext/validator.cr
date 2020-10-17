@@ -11,6 +11,3 @@ ADI.auto_configure AVD::ServiceConstraintValidator, {tags: ["athena.validator.co
 struct Athena::Validator::ConstraintValidatorFactory; end
 
 ADI.bind constraint_validators : Array(AVD::ServiceConstraintValidator), "!athena.validator.constraint_validator"
-
-# Compiler doesn't like there not being any instances of this
-private struct FakeConstraintValidator < AVD::ServiceConstraintValidator; end

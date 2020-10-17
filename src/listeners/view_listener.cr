@@ -37,7 +37,10 @@ struct Athena::Routing::Listeners::View
       else
         context = ASR::SerializationContext.new
 
-        context.groups = view.serialization_groups
+        view.serialization_groups.try do |groups|
+          context.groups = groups
+        end
+
         context.emit_nil = view.emit_nil
 
         @serializer.serialize data, :json, io, context
