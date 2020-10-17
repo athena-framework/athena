@@ -373,7 +373,7 @@ alias ART = Athena::Routing
 # ### Serialization
 #
 # The `Athena::Serializer` component adds enhanced (de)serialization features.
-# See the API documentation for more detailed information, or [this forum post](https://forum.crystal-lang.org/t/athena-0-10-0/2326/1) for a quick overview.
+# See the API documentation for more detailed information, or [this forum post](https://forum.crystal-lang.org/t/athena-0-11-0/2627) for a quick overview.
 #
 # Some highlights:
 #
