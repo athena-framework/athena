@@ -35,11 +35,11 @@
 #
 #   def self.subscribed_events : AED::SubscribedEvents
 #     AED::SubscribedEvents{
-#       ART::Events::Request => 24, # Set the priority to run right after the action for this request has been resolved.
+#       ART::Events::Action => 24, # Runs after the action has been resolved, but before executing it.
 #     }
 #   end
 #
-#   def call(event : ART::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
+#   def call(event : ART::Events::Action, dispatcher : AED::EventDispatcherInterface) : Nil
 #     # Get access to the current request object.
 #     request = event.request
 #
