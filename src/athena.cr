@@ -482,20 +482,28 @@ module Athena::Routing
     # Stores runtime configuration data from the `ART::View` annotation about how to render the output of the related action.
     #
     # This includes the action's `HTTP::Status` and any serialization related configuration options.
-    struct View
+    class ViewContext
       # Returns `true` if the action related to `self` defined a custom status via the `ART::View` annotation, otherwise `false`.
       getter? has_custom_status : Bool
 
-      # The `HTTP::Status` this action should return.  Defaults to `HTTP::Status::OK` (200).
-      getter status : HTTP::Status
+      # Returns the `HTTP::Status` this action should return.  Defaults to `HTTP::Status::OK` (200).
+      property status : HTTP::Status
 
-      # The serialization groups to use for this route as part of `ASR::ExclusionStrategies::Groups`.
-      getter serialization_groups : Array(String)?
+      # Returns the groups that should be used for serialization as part of `ASR::ExclusionStrategies::Groups`.
+      property serialization_groups : Array(String)?
 
-      # If `nil` values should be serialized.
-      getter emit_nil : Bool = false
+      # Returns `true` if `nil` values should be serialized.
+      property emit_nil : Bool = false
 
-      getter validation_groups : Array(String)?
+      # Returns the groups that should be used to validate any objects related to this route.
+      #
+      # See `AVD::Constraint@validation-groups`.
+      property validation_groups : Array(String)?
+
+      # Returns the serialization version to use for this route as part of `ASR::ExclusionStrategies::Version`.
+      #
+      # Can be set as part of an `ART::Events::Action` event listener based on the resolved version of the request.
+      property version : String?
 
       def initialize(
         status : HTTP::Status? = nil,
@@ -508,20 +516,20 @@ module Athena::Routing
       end
     end
 
-    # The HTTP method associated with `self`.
+    # Returns the HTTP method associated with `self`.
     getter method : String
 
-    # The name of the the controller action related to `self`.
+    # Returns the name of the the controller action related to `self`.
     getter action_name : String
 
-    # An `Array(ART::Arguments::ArgumentMetadata)` that `self` requires.
+    # Returns an `Array(ART::Arguments::ArgumentMetadata)` that `self` requires.
     getter arguments : ArgumentsType
 
-    # An `Array(ART::ParamConverterInterface::ConfigurationInterface)` representing the `ART::ParamConverter`s applied to `self`.
+    # Returns an `Array(ART::ParamConverterInterface::ConfigurationInterface)` representing the `ART::ParamConverter`s applied to `self`.
     getter param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface)
 
-    # The `ART::Action::View` configuration related to `self`.
-    getter view : View
+    # Returns the `ART::Action::ViewContext` related to `self`.
+    getter view_context : ART::Action::ViewContext
 
     # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to `self`.
     #
@@ -535,7 +543,7 @@ module Athena::Routing
       @method : String,
       @arguments : ArgumentsType,
       @param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface),
-      @view : View,
+      @view_context : ART::Action::ViewContext,
       @annotation_configurations : ACF::AnnotationConfigurations,
       # Don't bother making these ivars since we just need them to set the generic types
       _controller : Controller.class,

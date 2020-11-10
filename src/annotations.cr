@@ -194,12 +194,13 @@ module Athena::Routing
 
   # Configures how the endpoint should be rendered.
   #
-  # See `ART::Action::View`.
+  # See `ART::Action::ViewContext`.
   #
   # ## Fields
   #
   # * status : `HTTP::Status` - The `HTTP::Status` the endpoint should return.  Defaults to `HTTP::Status::OK` (200).
-  # * serialization_groups : `Array(String)` - The serialization groups to use for this route as part of `ASR::ExclusionStrategies::Groups`.  Defaults to `["default"]`.
+  # * serialization_groups : `Array(String)?` - The serialization groups to use for this route as part of `ASR::ExclusionStrategies::Groups`.
+  # * validation_groups : `Array(String)?` - Groups that should be used to validate any objects related to this route; see `AVD::Constraint@validation-groups`.
   # * emit_nil : `Bool` - If `nil` values should be serialized.  Defaults to `false`.
   #
   # ## Example

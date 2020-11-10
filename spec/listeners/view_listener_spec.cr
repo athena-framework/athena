@@ -45,7 +45,7 @@ describe ART::Listeners::View do
     end
 
     it "with a customized status" do
-      route = create_action(Nil, view: ART::Action::View.new(status: :im_a_teapot)) { }
+      route = create_action(Nil, view_context: ART::Action::ViewContext.new(status: :im_a_teapot)) { }
       event = ART::Events::View.new new_request(action: route), nil
 
       ART::Listeners::View.new(TestSerializer.new).call(event, TracableEventDispatcher.new)
@@ -57,7 +57,7 @@ describe ART::Listeners::View do
     end
 
     it "with a 200 status" do
-      route = create_action(Nil, view: ART::Action::View.new(status: :ok)) { }
+      route = create_action(Nil, view_context: ART::Action::ViewContext.new(status: :ok)) { }
       event = ART::Events::View.new new_request(action: route), nil
 
       ART::Listeners::View.new(TestSerializer.new).call(event, TracableEventDispatcher.new)
@@ -96,10 +96,18 @@ describe ART::Listeners::View do
       end
 
       it "allows setting the serializer context" do
-        event = ART::Events::View.new new_request(action: new_action(view: ART::Action::View.new(serialization_groups: ["some_group"], emit_nil: true))), "foo"
+        view_context = ART::Action::ViewContext.new
+
+        # Simulate some listener setting this.
+        # In practice it'll be retrieved off the action object.
+        view_context.version = "1.2.3"
+
+        event = ART::Events::View.new new_request(action: new_action(view_context: view_context)), "foo"
+
         serializer = TestSerializer.new ->(context : ASR::SerializationContext) do
           context.emit_nil?.should be_true
           context.groups.should eq ["some_group"]
+          context.version.should eq "1.2.3"
         end
 
         ART::Listeners::View.new(serializer).call(event, TracableEventDispatcher.new)
@@ -120,7 +128,7 @@ describe ART::Listeners::View do
     end
 
     it "allows defining a custom response status" do
-      event = ART::Events::View.new new_request(action: new_action(view: ART::Action::View.new(status: HTTP::Status::IM_A_TEAPOT))), "foo"
+      event = ART::Events::View.new new_request(action: new_action(view_context: ART::Action::ViewContext.new(status: HTTP::Status::IM_A_TEAPOT))), "foo"
 
       ART::Listeners::View.new(TestSerializer.new).call(event, TracableEventDispatcher.new)
 

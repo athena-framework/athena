@@ -12,14 +12,14 @@ class TestController < ART::Controller
   end
 end
 
-macro create_action(return_type, view = nil, &)
+macro create_action(return_type, view_context = nil, &)
   ART::Action.new(
     ->{ ->{ {{yield}} } },
     "fake_method",
     "GET",
     Array(ART::Arguments::ArgumentMetadata(Nil)).new,
     Array(ART::ParamConverterInterface::ConfigurationInterface).new,
-    {{view}} || ART::Action::View.new,
+    {{view_context}} || ART::Action::ViewContext.new,
     ACF::AnnotationConfigurations.new,
     TestController,
     {{return_type}},
@@ -38,7 +38,7 @@ end
 def new_action(
   arguments : Array(ART::Arguments::ArgumentMetadata)? = nil,
   param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface)? = nil,
-  view : ART::Action::View = ART::Action::View.new
+  view_context : ART::Action::ViewContext = ART::Action::ViewContext.new
 ) : ART::ActionBase
   ART::Action.new(
     ->{ test_controller = TestController.new; ->test_controller.get_test },
@@ -46,7 +46,7 @@ def new_action(
     "GET",
     arguments || Array(ART::Arguments::ArgumentMetadata(Nil)).new,
     param_converters || Array(ART::ParamConverterInterface::ConfigurationInterface).new,
-    view,
+    view_context,
     ACF::AnnotationConfigurations.new,
     TestController,
     String,
