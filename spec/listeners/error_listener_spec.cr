@@ -15,7 +15,7 @@ describe ART::Listeners::Error do
   it "converts an exception into a response and logs the exception as warning" do
     event = ART::Events::Exception.new new_request, MockException.new "Something went wrong"
 
-    ART::Listeners::Error.new(MockErrorRenderer.new).call(event, TracableEventDispatcher.new)
+    ART::Listeners::Error.new(MockErrorRenderer.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
     response = event.response.should_not be_nil
     response.status.should eq HTTP::Status::IM_A_TEAPOT
@@ -28,7 +28,7 @@ describe ART::Listeners::Error do
       event = ART::Events::Exception.new new_request, Exception.new "err"
 
       Log.capture do |logs|
-        ART::Listeners::Error.new(MockErrorRenderer.new).call(event, TracableEventDispatcher.new)
+        ART::Listeners::Error.new(MockErrorRenderer.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
         logs.check :error, /Exception:err/
       end
@@ -38,7 +38,7 @@ describe ART::Listeners::Error do
       event = ART::Events::Exception.new new_request, ART::Exceptions::NotImplemented.new "nope"
 
       Log.capture do |logs|
-        ART::Listeners::Error.new(MockErrorRenderer.new).call(event, TracableEventDispatcher.new)
+        ART::Listeners::Error.new(MockErrorRenderer.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
         logs.check :error, /Athena::Routing::Exceptions::NotImplemented:nope/
       end
@@ -48,7 +48,7 @@ describe ART::Listeners::Error do
       event = ART::Events::Exception.new new_request, ART::Exceptions::UnprocessableEntity.new "Vaidation tests failed"
 
       Log.capture do |logs|
-        ART::Listeners::Error.new(MockErrorRenderer.new).call(event, TracableEventDispatcher.new)
+        ART::Listeners::Error.new(MockErrorRenderer.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
         logs.check :notice, /Athena::Routing::Exceptions::UnprocessableEntity:Vaidation tests failed/
       end
@@ -58,7 +58,7 @@ describe ART::Listeners::Error do
       event = ART::Events::Exception.new new_request, MockException.new "Something went wrong"
 
       Log.capture do |logs|
-        ART::Listeners::Error.new(MockErrorRenderer.new).call(event, TracableEventDispatcher.new)
+        ART::Listeners::Error.new(MockErrorRenderer.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
         logs.check :warn, /MockException:Something went wrong/
       end

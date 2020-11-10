@@ -13,7 +13,7 @@ describe ART::Listeners::ParamConverter do
 
     event.request.attributes.has?("argument").should be_false
 
-    ART::Listeners::ParamConverter.new([MockParamConverter.new]).call event, TracableEventDispatcher.new
+    ART::Listeners::ParamConverter.new([MockParamConverter.new]).call event, AED::Spec::TracableEventDispatcher.new
 
     event.request.attributes.has?("argument").should be_true
   end

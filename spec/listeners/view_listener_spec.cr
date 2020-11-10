@@ -36,7 +36,7 @@ describe ART::Listeners::View do
       route = create_action(Nil) { }
       event = ART::Events::View.new new_request(action: route), nil
 
-      ART::Listeners::View.new(TestSerializer.new).call(event, TracableEventDispatcher.new)
+      ART::Listeners::View.new(TestSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
       response = event.response.should_not be_nil
       response.status.should eq HTTP::Status::NO_CONTENT
@@ -48,7 +48,7 @@ describe ART::Listeners::View do
       route = create_action(Nil, view_context: ART::Action::ViewContext.new(status: :im_a_teapot)) { }
       event = ART::Events::View.new new_request(action: route), nil
 
-      ART::Listeners::View.new(TestSerializer.new).call(event, TracableEventDispatcher.new)
+      ART::Listeners::View.new(TestSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
       response = event.response.should_not be_nil
       response.status.should eq HTTP::Status::IM_A_TEAPOT
@@ -60,7 +60,7 @@ describe ART::Listeners::View do
       route = create_action(Nil, view_context: ART::Action::ViewContext.new(status: :ok)) { }
       event = ART::Events::View.new new_request(action: route), nil
 
-      ART::Listeners::View.new(TestSerializer.new).call(event, TracableEventDispatcher.new)
+      ART::Listeners::View.new(TestSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
       response = event.response.should_not be_nil
       response.status.should eq HTTP::Status::OK
@@ -74,7 +74,7 @@ describe ART::Listeners::View do
       it "should just use .to_json" do
         event = ART::Events::View.new new_request, JSONSerializableModel.new 123
 
-        ART::Listeners::View.new(TestSerializer.new).call(event, TracableEventDispatcher.new)
+        ART::Listeners::View.new(TestSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
         response = event.response.should_not be_nil
         response.status.should eq HTTP::Status::OK
@@ -87,7 +87,7 @@ describe ART::Listeners::View do
       it "should use the serializer object" do
         event = ART::Events::View.new new_request, "DATA"
 
-        ART::Listeners::View.new(TestSerializer.new).call(event, TracableEventDispatcher.new)
+        ART::Listeners::View.new(TestSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
         response = event.response.should_not be_nil
         response.status.should eq HTTP::Status::OK
@@ -110,7 +110,7 @@ describe ART::Listeners::View do
           context.version.should eq "1.2.3"
         end
 
-        ART::Listeners::View.new(serializer).call(event, TracableEventDispatcher.new)
+        ART::Listeners::View.new(serializer).call(event, AED::Spec::TracableEventDispatcher.new)
       end
     end
 
@@ -118,7 +118,7 @@ describe ART::Listeners::View do
       it "prioritizes ASR::Serializable" do
         event = ART::Events::View.new new_request, BothSerializableModel.new 456
 
-        ART::Listeners::View.new(TestSerializer.new).call(event, TracableEventDispatcher.new)
+        ART::Listeners::View.new(TestSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
         response = event.response.should_not be_nil
         response.status.should eq HTTP::Status::OK
@@ -130,7 +130,7 @@ describe ART::Listeners::View do
     it "allows defining a custom response status" do
       event = ART::Events::View.new new_request(action: new_action(view_context: ART::Action::ViewContext.new(status: HTTP::Status::IM_A_TEAPOT))), "foo"
 
-      ART::Listeners::View.new(TestSerializer.new).call(event, TracableEventDispatcher.new)
+      ART::Listeners::View.new(TestSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
       response = event.response.should_not be_nil
       response.status.should eq HTTP::Status::IM_A_TEAPOT

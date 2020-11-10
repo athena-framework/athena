@@ -18,7 +18,7 @@ describe Athena::Routing::RouteHandler do
   describe "#handle - request" do
     describe ART::Response do
       it "should use the returned response" do
-        dispatcher = TracableEventDispatcher.new
+        dispatcher = AED::Spec::TracableEventDispatcher.new
         handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new
         action = create_action(ART::Response) do
           ART::Response.new "TEST"
@@ -43,7 +43,7 @@ describe Athena::Routing::RouteHandler do
           event.response = ART::Response.new event.action_result.to_json, 201, HTTP::Headers{"content-type" => "application/json"}
         end
 
-        dispatcher = TracableEventDispatcher.new
+        dispatcher = AED::Spec::TracableEventDispatcher.new
         dispatcher.add_listener ART::Events::View, listener
 
         handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new
@@ -62,7 +62,7 @@ describe Athena::Routing::RouteHandler do
       end
 
       it "should raise an exception if the value was not handled" do
-        dispatcher = TracableEventDispatcher.new
+        dispatcher = AED::Spec::TracableEventDispatcher.new
 
         handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new
 
@@ -78,7 +78,7 @@ describe Athena::Routing::RouteHandler do
           event.response = ART::Response.new "", HTTP::Status::IM_A_TEAPOT, HTTP::Headers{"FOO" => "BAR"}
         end
 
-        dispatcher = TracableEventDispatcher.new
+        dispatcher = AED::Spec::TracableEventDispatcher.new
         dispatcher.add_listener ART::Events::Request, listener
 
         handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new
@@ -104,7 +104,7 @@ describe Athena::Routing::RouteHandler do
           event.response = ART::Response.new "HANDLED", HTTP::Status::BAD_REQUEST
         end
 
-        dispatcher = TracableEventDispatcher.new
+        dispatcher = AED::Spec::TracableEventDispatcher.new
         dispatcher.add_listener ART::Events::Exception, listener
 
         handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new ART::Exceptions::BadRequest.new "TEST_EX"
@@ -124,7 +124,7 @@ describe Athena::Routing::RouteHandler do
 
     describe "that is not_handled" do
       it "should emit the proper events and set correct response" do
-        dispatcher = TracableEventDispatcher.new
+        dispatcher = AED::Spec::TracableEventDispatcher.new
 
         handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new ART::Exceptions::BadRequest.new "TEST_EX"
         io = IO::Memory.new

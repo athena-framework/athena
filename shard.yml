@@ -19,7 +19,7 @@ authors:
 dependencies:
   athena-event_dispatcher:
     github: athena-framework/event-dispatcher
-    version: ~> 0.1.0
+    branch: spec-module
   athena-config:
     github: athena-framework/config
     version: ~> 0.1.2
