@@ -619,12 +619,3 @@ module Athena::Routing
     end
   end
 end
-
-# class ExampleController < ART::Controller
-#   get "/" do
-#     "Hello World"
-#   end
-# end
-
-# # Run the server
-# ART.run
