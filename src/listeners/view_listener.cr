@@ -20,14 +20,14 @@ struct Athena::Routing::Listeners::View
 
   def call(event : ART::Events::View, dispatcher : AED::EventDispatcherInterface) : Nil
     action = event.request.action
-    view = action.view
+    view_context = action.view_context
 
     if action.return_type == Nil
       # Return an empty response if the action's return type is `Nil`, using the specified status if a custom one was defined
-      return event.response = ART::Response.new status: view.has_custom_status? ? view.status : HTTP::Status::NO_CONTENT, headers: get_headers
+      return event.response = ART::Response.new status: view_context.has_custom_status? ? view_context.status : HTTP::Status::NO_CONTENT, headers: get_headers
     end
 
-    event.response = ART::Response.new(headers: get_headers, status: view.status) do |io|
+    event.response = ART::Response.new(headers: get_headers, status: view_context.status) do |io|
       data = event.action_result
 
       # Still use `#to_json` for `JSON::Serializable`,
@@ -37,11 +37,15 @@ struct Athena::Routing::Listeners::View
       else
         context = ASR::SerializationContext.new
 
-        view.serialization_groups.try do |groups|
+        view_context.serialization_groups.try do |groups|
           context.groups = groups
         end
 
-        context.emit_nil = view.emit_nil
+        view_context.version.try do |version|
+          context.version = version
+        end
+
+        context.emit_nil = view_context.emit_nil
 
         @serializer.serialize data, :json, io, context
       end
