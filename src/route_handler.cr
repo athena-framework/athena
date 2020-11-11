@@ -10,7 +10,7 @@ struct Athena::Routing::RouteHandler
   )
   end
 
-  def handle(context : HTTP::Server::Context) : Nil
+  def handle(context : HTTP::Server::Context) : ART::Response
     return_response handle_raw(context.request), context
   rescue ex : ::Exception
     event = ART::Events::Exception.new context.request, ex
@@ -32,7 +32,12 @@ struct Athena::Routing::RouteHandler
     return_response finish_response(response, context.request), context
   end
 
-  private def return_response(response : ART::Response, context : HTTP::Server::Context) : Nil
+  def terminate(request : HTTP::Request, response : ART::Response) : Nil
+    # Emit the terminate event
+    @event_dispatcher.dispatch ART::Events::Terminate.new request, response
+  end
+
+  private def return_response(response : ART::Response, context : HTTP::Server::Context) : ART::Response
     # Apply the `ART::Response` to the actual `HTTP::Server::Response` object
     context.response.headers.merge! response.headers
     context.response.status = response.status
@@ -41,11 +46,7 @@ struct Athena::Routing::RouteHandler
     # See https://github.com/crystal-lang/crystal/issues/8712
     response.write context.response
 
-    # Close the response
-    context.response.close
-
-    # Emit the terminate event
-    @event_dispatcher.dispatch ART::Events::Terminate.new context.request, response
+    response
   end
 
   private def handle_raw(request : HTTP::Request) : ART::Response
