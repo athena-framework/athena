@@ -4,12 +4,13 @@ require "log/spec"
 require "../src/athena"
 require "./controllers/*"
 
-require "athena-event_dispatcher/spec"
 require "athena-spec"
+require "athena-event_dispatcher/spec"
+require "../src/spec"
 
 include ASPEC::Methods
 
-CLIENT = HTTP::Client.new "localhost", 3000
+ASPEC.run_all
 
 class TestController < ART::Controller
   get "test" do
@@ -67,19 +68,4 @@ end
 
 def new_response(*, io : IO = IO::Memory.new) : HTTP::Server::Response
   HTTP::Server::Response.new io
-end
-
-def run_server : Nil
-  around_all do |example|
-    server = ART::Server.new
-    spawn { server.not_nil!.start }
-    sleep 0.5
-    example.run
-  ensure
-    server.not_nil!.stop
-  end
-
-  before_each do
-    CLIENT.close # Close the client so each spec file gets its own connection.
-  end
 end

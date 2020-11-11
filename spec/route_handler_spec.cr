@@ -25,9 +25,16 @@ describe Athena::Routing::RouteHandler do
         end
         io = IO::Memory.new
 
-        context = new_context request: new_request(action: action), response: new_response(io: io)
+        request = new_request(action: action)
 
-        handler.handle context
+        context = new_context request: request, response: new_response(io: io)
+
+        art_response = handler.handle context
+
+        # Next two lines are abstracted out of `RouteHandler` to better allow testing.
+        # Let's call them manually to assert everything still works as expected.
+        context.response.close
+        handler.terminate request, art_response
 
         dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Action, ART::Events::Response, ART::Events::Terminate]
         context.response.closed?.should be_true
@@ -49,9 +56,16 @@ describe Athena::Routing::RouteHandler do
         handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new
         io = IO::Memory.new
 
-        context = new_context response: new_response(io: io)
+        request = new_request
 
-        handler.handle context
+        context = new_context request: request, response: new_response(io: io)
+
+        art_response = handler.handle context
+
+        # Next two lines are abstracted out of `RouteHandler` to better allow testing.
+        # Let's call them manually to assert everything still works as expected.
+        context.response.close
+        handler.terminate request, art_response
 
         dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Action, ART::Events::View, ART::Events::Response, ART::Events::Terminate]
         context.response.closed?.should be_true
@@ -84,9 +98,16 @@ describe Athena::Routing::RouteHandler do
         handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new
         io = IO::Memory.new
 
-        context = new_context response: new_response(io: io)
+        request = new_request
 
-        handler.handle context
+        context = new_context request: request, response: new_response(io: io)
+
+        art_response = handler.handle context
+
+        # Next two lines are abstracted out of `RouteHandler` to better allow testing.
+        # Let's call them manually to assert everything still works as expected.
+        context.response.close
+        handler.terminate request, art_response
 
         dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Response, ART::Events::Terminate]
         context.response.closed?.should be_true
@@ -110,9 +131,16 @@ describe Athena::Routing::RouteHandler do
         handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new ART::Exceptions::BadRequest.new "TEST_EX"
         io = IO::Memory.new
 
-        context = new_context response: new_response io: io
+        request = new_request
 
-        handler.handle context
+        context = new_context request: request, response: new_response(io: io)
+
+        art_response = handler.handle context
+
+        # Next two lines are abstracted out of `RouteHandler` to better allow testing.
+        # Let's call them manually to assert everything still works as expected.
+        context.response.close
+        handler.terminate request, art_response
 
         dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Action, ART::Events::Exception, ART::Events::Response, ART::Events::Terminate]
         context.response.closed?.should be_true

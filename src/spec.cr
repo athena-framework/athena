@@ -5,10 +5,17 @@ require "athena-dependency_injection/spec"
 #
 # Monkey patch HTTP::Server::Response to allow accessing the response body directly.
 class HTTP::Server::Response
-  @body : String? = nil
+  @body_io : IO = IO::Memory.new
+  getter body : String? = nil
+
+  def write(slice : Bytes) : Nil
+    @body_io.write slice
+
+    previous_def
+  end
 
   def body : String
-    @body ||= @io.to_s.split("\r\n\r\n").last
+    @body ||= @body_io.to_s
   end
 end
 
@@ -55,9 +62,11 @@ module Athena::Routing::Spec
 
       response = HTTP::Server::Response.new IO::Memory.new
 
-      route_handler.terminate request, route_handler.handle(HTTP::Server::Context.new(request, response))
+      athena_response = route_handler.handle(HTTP::Server::Context.new(request, response))
 
       response.close
+
+      route_handler.terminate request, athena_response
 
       response
     end
@@ -65,12 +74,8 @@ module Athena::Routing::Spec
 
   abstract struct WebTestCase < ASPEC::TestCase
     # Returns the `AbstractBrowser` instance to use for the tests.
-    def self.create_client : AbstractBrowser
-      HTTPBrowser.new
-    end
-
     def create_client : AbstractBrowser
-      self.class.create_client
+      HTTPBrowser.new
     end
   end
 
@@ -78,14 +83,20 @@ module Athena::Routing::Spec
     getter! client : AbstractBrowser
 
     def initialize
-      # Force there to be a new container for each unique spec
-      Fiber.current.container = ADI::Spec::MockableServiceContainer.new
+      # Ensure each test method has a unique container.
+      self.init_container
 
       @client = self.create_client
     end
 
     def request(method : String, path : String, body : String | Bytes | IO | Nil = nil, headers : HTTP::Headers = HTTP::Headers.new) : HTTP::Server::Response
       self.client.request method, path, headers, body
+    end
+
+    # Helper method to init the container.
+    # Creates a new container instance and assigns it to the current fiber.
+    protected def init_container : Nil
+      Fiber.current.container = ADI::Spec::MockableServiceContainer.new
     end
   end
 end

@@ -1,22 +1,16 @@
 require "./spec_helper"
 
-describe Athena::Routing::Prefix do
-  run_server
-
-  it "should route correctly" do
-    CLIENT.get("/calendar/events").body.should eq %("events")
-    CLIENT.get("/calendar/external").body.should eq %("calendars")
+struct PrefixControllerTest < ART::Spec::APITestCase
+  def test_it_routes_correctly : Nil
+    self.request("GET", "/calendar/events").body.should eq %("events")
+    self.request("GET", "/calendar/external").body.should eq %("calendars")
   end
 
-  describe "with a path param" do
-    it "should route correctly" do
-      CLIENT.get("/calendar/external/99999999").body.should eq "99999999"
-    end
+  def test_with_path_param : Nil
+    self.request("GET", "/calendar/external/99999999").body.should eq "99999999"
   end
 
-  describe "that has parent prefixes" do
-    it "should route correctly" do
-      CLIENT.get("/calendar/athena/child1").body.should eq %("child1 + athena")
-    end
+  def test_with_parent_prefixes : Nil
+    self.request("GET", "/calendar/athena/child1").body.should eq %("child1 + athena")
   end
 end

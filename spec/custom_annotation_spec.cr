@@ -1,22 +1,20 @@
 require "./spec_helper"
 
-describe CustomAnnotationListener do
-  run_server
-
-  it "with the annotation" do
-    headers = CLIENT.get("/with-ann").headers
+struct CustomAnnotationControllerTest < ART::Spec::APITestCase
+  def test_with_annotation : Nil
+    headers = self.request("GET", "/with-ann").headers
     headers["ANNOTATION"]?.should eq "true"
     headers["ANNOTATION_VALUE"]?.should eq "1"
   end
 
-  it "without the annotation" do
-    headers = CLIENT.get("/without-ann").headers
+  def test_without_annotation : Nil
+    headers = self.request("GET", "/without-ann").headers
     headers["ANNOTATION"]?.should be_nil
     headers["ANNOTATION_VALUE"]?.should eq "1"
   end
 
-  it "overriding the class's annotation" do
-    headers = CLIENT.get("/with-ann-override").headers
+  def test_overriding_class_annotation : Nil
+    headers = self.request("GET", "/with-ann-override").headers
     headers["ANNOTATION"]?.should be_nil
     headers["ANNOTATION_VALUE"]?.should eq "2"
   end

@@ -1,126 +1,97 @@
 require "./spec_helper"
 
-describe Athena::Routing do
-  run_server
-
-  it "is concurrently safe" do
+struct RoutingTest < ART::Spec::APITestCase
+  def test_is_concurrently_safe : Nil
     spawn do
       sleep 1
-      CLIENT.get("/get/safe?bar").body.should eq %("safe")
+      self.request("GET", "/get/safe?bar").body.should eq %("safe")
     end
-    CLIENT.get("/get/safe?foo").body.should eq %("safe")
+    self.request("GET", "/get/safe?foo").body.should eq %("safe")
   end
 
-  it "creates a new container on each request with keep-alive connection" do
-    client = HTTP::Client.new "localhost", 3000
+  def test_does_not_reuse_container_with_keep_alive_connections : Nil
+    response1 = self.request("GET", "/container/id", headers: HTTP::Headers{"connection" => "keep-alive"}).body
 
-    response1 = client.get("/container/id", headers: HTTP::Headers{"connection" => "keep-alive"}).body
-    response2 = client.get("/container/id", headers: HTTP::Headers{"connection" => "keep-alive"}).body
+    self.init_container
+
+    response2 = self.request("GET", "/container/id", headers: HTTP::Headers{"connection" => "keep-alive"}).body
+
     response1.should_not eq response2
   end
 
-  it "404s if a route doesn't exist" do
-    response = CLIENT.get("/fake/route")
+  def test_route_doesnt_exist : Nil
+    response = self.request "GET", "/fake/route"
     response.status.should eq HTTP::Status::NOT_FOUND
     response.body.should eq %({"code":404,"message":"No route found for 'GET /fake/route'"})
   end
 
-  it "allows returning an ART::Response" do
-    response = CLIENT.get("/art/response")
+  def test_allows_returning_an_athena_response : Nil
+    response = self.request "GET", "/art/response"
     response.status.should eq HTTP::Status::IM_A_TEAPOT
     response.headers["content-type"].should eq "BAR"
     response.body.should eq "FOO"
   end
 
-  it "supports redirection" do
-    response = CLIENT.get("/art/redirect")
+  def test_it_supports_redirects : Nil
+    response = self.request "GET", "/art/redirect"
     response.status.should eq HTTP::Status::FOUND
     response.headers["location"].should eq "https://crystal-lang.org"
     response.body.should be_empty
   end
 
-  it "supports custom HTTP method endpoints" do
-    CLIENT.exec("FOO", "/custom-method").body.should eq %("FOO")
+  def test_it_supports_custom_http_methods : Nil
+    self.request("FOO", "/custom-method").body.should eq %("FOO")
   end
 
-  describe "custom response statuses" do
-    it "works for GET endpoints" do
-      response = CLIENT.get("/custom-status")
-      response.status.should eq HTTP::Status::ACCEPTED
-      response.body.should eq %("foo")
-    end
-
-    it "works for HEAD endpoints" do
-      response = CLIENT.head("/custom-status")
-      response.status.should eq HTTP::Status::ACCEPTED
-      response.body.should be_empty
-    end
+  def test_custom_response_status_get : Nil
+    response = self.request "GET", "/custom-status"
+    response.status.should eq HTTP::Status::ACCEPTED
   end
 
-  describe ART::ParamConverter do
-    it "works with a query param" do
-      CLIENT.get "/events"
-      CLIENT.get "/events?since=2020-04-08T12:34:56Z"
-    end
+  def test_custom_response_status_head : Nil
+    response = self.request "HEAD", "/custom-status"
+    response.status.should eq HTTP::Status::ACCEPTED
   end
 
-  describe "macro DSL" do
-    it "nil return type results in 204" do
-      response = CLIENT.get "/macro/get-nil"
-      response.body.should be_empty
-      response.status.should eq HTTP::Status::NO_CONTENT
-    end
+  def test_works_with_param_converters : Nil
+    self.request "GET", "/events"
+    self.request "GET", "/events?since=2020-04-08T12:34:56Z"
+  end
 
-    it "works with arguments" do
-      CLIENT.get("/macro/add/50/25").body.should eq "75"
-    end
+  def test_macro_dsl_nil_return_type : Nil
+    response = self.request "GET", "/macro/get-nil"
+    response.status.should eq HTTP::Status::NO_CONTENT
+    response.body.should be_empty
+  end
 
-    it "works with GET endpoints" do
-      response = CLIENT.get("/macro")
-      response.body.should eq %("GET")
-      response.status.should eq HTTP::Status::OK
-    end
+  def test_macro_dsl_with_arguments : Nil
+    self.request("GET", "/macro/add/50/25").body.should eq "75"
+  end
 
-    it "adds a HEAD route for GET requests" do
-      response = CLIENT.head("/macro")
-      response.body.should be_empty
-      response.status.should eq HTTP::Status::OK
-    end
+  def test_macro_dsl_get : Nil
+    response = self.request "GET", "/macro"
+    response.status.should eq HTTP::Status::OK
+    response.body.should eq %("GET")
+  end
 
-    it "works with POST endpoints" do
-      CLIENT.post("/macro").body.should eq %("POST")
-    end
+  def test_macro_dsl_head : Nil
+    response = self.request "HEAD", "/macro"
+    response.status.should eq HTTP::Status::OK
+  end
 
-    it "works with PUT endpoints" do
-      CLIENT.put("/macro").body.should eq %("PUT")
+  {% for method in ["POST", "PUT", "PATCH", "DELETE", "LINK", "UNLINK"] %}
+    def test_macro_dsl_{{method.downcase.id}} : Nil
+      self.request({{method}}, "/macro").body.should eq %({{method}})
     end
+  {% end %}
 
-    it "works with PATCH endpoints" do
-      CLIENT.patch("/macro").body.should eq %("PATCH")
-    end
+  def test_constraints_404_if_no_match : Nil
+    response = self.request "GET", "/macro/bar"
+    response.status.should eq HTTP::Status::NOT_FOUND
+    response.body.should eq %({"code":404,"message":"No route found for 'GET /macro/bar'"})
+  end
 
-    it "works with DELETE endpoints" do
-      CLIENT.delete("/macro").body.should eq %("DELETE")
-    end
-
-    it "works with LINK endpoints" do
-      CLIENT.exec("LINK", "/macro").body.should eq %("LINK")
-    end
-
-    it "works with UNLINK endpoints" do
-      CLIENT.exec("UNLINK", "/macro").body.should eq %("UNLINK")
-    end
-
-    describe :constraints do
-      it "should 404 if it does not match" do
-        response = CLIENT.get "/macro/bar"
-        response.body.should eq %({"code":404,"message":"No route found for 'GET /macro/bar'"})
-        response.status.should eq HTTP::Status::NOT_FOUND
-      end
-
-      it "should route correctly if correct" do
-        CLIENT.get("/macro/foo").body.should eq %("foo")
-      end
-    end
+  def test_constraints_routes_if_match : Nil
+    self.request("GET", "/macro/foo").body.should eq %("foo")
   end
 end
