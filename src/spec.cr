@@ -58,15 +58,9 @@ module Athena::Routing::Spec
     end
 
     protected def do_request(request : HTTP::Request) : HTTP::Server::Response
-      route_handler = ADI.container.athena_routing_route_handler
-
       response = HTTP::Server::Response.new IO::Memory.new
 
-      athena_response = route_handler.handle(HTTP::Server::Context.new(request, response))
-
-      response.close
-
-      route_handler.terminate request, athena_response
+      ADI.container.athena_routing_route_handler.handle(HTTP::Server::Context.new(request, response))
 
       response
     end

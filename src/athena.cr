@@ -598,14 +598,7 @@ module Athena::Routing
         Fiber.current.container = ADI::ServiceContainer.new
 
         # Handle the request
-        route_handler = ADI.container.athena_routing_route_handler
-
-        athena_response = route_handler.handle context
-
-        # Close the response
-        context.response.close
-
-        route_handler.terminate context.request, athena_response
+        ADI.container.athena_routing_route_handler.handle context
       end
     end
 
