@@ -8,7 +8,8 @@ docs: ## Generates Athena documentation
 		lib/athena-serializer/src/athena-serializer.cr \
 		lib/athena-validator/src/athena-validator.cr \
 		lib/athena-validator/src/spec.cr \
-		src/athena.cr
+		src/athena.cr \
+		src/spec.cr
 
 .PHONY: spec
 spec: ## Runs the Athena spec suite

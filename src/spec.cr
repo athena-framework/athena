@@ -34,10 +34,15 @@ end
 # See the individual types for more information.
 module Athena::Routing::Spec
   # Simulates a browser to make requests to some destination.
+  #
+  # NOTE: Currently just acts as a client to make HTTP requests.  This type exists to allow for introduction of other functionality in the future.
   abstract struct AbstractBrowser
+    # :nodoc:
+    #
     # Makes a *request* and returns the response.
     abstract def do_request(request : HTTP::Request) : HTTP::Server::Response
 
+    # Makes an HTTP request with the provided *method*, at the provided *path*, with the provided *body* and/or *headers* and returns the resulting response.
     def request(
       method : String,
       path : String,
@@ -53,6 +58,7 @@ module Athena::Routing::Spec
 
   # Simulates a browser and makes a requests to `ART::RouteHandler`.
   struct HTTPBrowser < AbstractBrowser
+    # Returns a reference to an `ADI::Spec::MockableServiceContainer` to allow configuring the container before a test.
     def container : ADI::Spec::MockableServiceContainer
       ADI.container.as(ADI::Spec::MockableServiceContainer)
     end
@@ -66,15 +72,122 @@ module Athena::Routing::Spec
     end
   end
 
+  # Base `ASPEC::TestCase` for web based integration tests.
+  #
+  # NOTE: Currently only `API` based tests are supported.  This type exists to allow for introduction of other types in the future.
   abstract struct WebTestCase < ASPEC::TestCase
-    # Returns the `AbstractBrowser` instance to use for the tests.
+    # Returns the `AbstractBrowser` instance to which requests should be made against.
     def create_client : AbstractBrowser
       HTTPBrowser.new
     end
   end
 
+  # A `WebTestCase` implementation with the intent of testing API controllers.
+  # Can be extended to add additional application specific configuration, such as setting up an authenticated user to make the request as.
+  #
+  # ## Usage
+  #
+  # Say we want to test the following controller:
+  #
+  # ```
+  # class ExampleController < ART::Controller
+  #   @[ART::QueryParam("negative")]
+  #   @[ART::Get("/add/:value1/:value2")]
+  #   def add(value1 : Int32, value2 : Int32, negative : Bool = false) : Int32
+  #     sum = value1 + value2
+  #     negative ? -sum : sum
+  #   end
+  # end
+  # ```
+  #
+  # We can define a struct inheriting from `self` to implement our test logic:
+  #
+  # ```
+  # struct ExampleControllerTest < ART::Spec::APITestCase
+  #   def test_add_positive : Nil
+  #     self.request("GET", "/add/5/3").body.should eq "8"
+  #   end
+  #
+  #   def test_add_negative : Nil
+  #     self.request("GET", "/add/5/3?negative=true").body.should eq "-8"
+  #   end
+  # end
+  # ```
+  #
+  # The `#request` method is used to make our requests to the API, then we run are assertions against the resulting `HTTP::Server::Response`.
+  # A key thing to point out is that there is no `HTTP::Server` involved, thus resulting in more performant specs.
+  #
+  # ### Mocking External Dependencies
+  #
+  # The previous example was quite simple.  However, most likely a controller is going to have dependencies on various other services; such as an API client to make requests to a third party API.
+  # By default each test will be executed with the same services as it would normally, i.e. those requests to the third party API would actually be made.
+  # To solve this we can create a mock implementation of the API client and make it so that implementation is injected when the test runs.
+  #
+  # ```
+  # # Create an example API client.
+  # @[ADI::Register]
+  # class APIClient
+  #   def fetch_latest_data : String
+  #     # Assume this method actually makes an HTTP request to get the latest data.
+  #     "DATA"
+  #   end
+  # end
+  #
+  # # Define a mock implementation of our APIClient that does not make a request and just returns mock data.
+  # class MockAPIClient < APIClient
+  #   def fetch_latest_data : String
+  #     # This could also be an ivar that gets set when this mock is created.
+  #     "MOCK_DATA"
+  #   end
+  # end
+  #
+  # # Enable our API client to be replaced in the service container.
+  # class ADI::Spec::MockableServiceContainer
+  #   # Use the block version of the `property` macro to use our mocked client by default, while still allowing it to be replaced at runtime.
+  #   #
+  #   # The block version of `getter` could also be used if you don't need to set it at runtime.
+  #   # The `setter` macro could be also if you only want to allow replacing it at runtime.
+  #   property(api_client) { MockAPIClient.new }
+  # end
+  #
+  # @[ADI::Register(public: true)]
+  # class ExampleServiceController < ART::Controller
+  #   def initialize(@api_client : APIClient); end
+  #
+  #   @[ART::Post("/sync")]
+  #   def sync_data : String
+  #     # Use the injected api client to get the latest data to sync.
+  #     data = @api_client.fetch_latest_data
+  #
+  #     # ...
+  #
+  #     data
+  #   end
+  # end
+  #
+  # struct ExampleServiceControllerTest < ART::Spec::APITestCase
+  #   def initialize
+  #     super
+  #
+  #     # Our API client could also have been replaced at runtime;
+  #     # such as if you wanted provide it what data it should return on a test by test basis.
+  #     # self.client.container.api_client = MockAPIClient.new
+  #   end
+  #
+  #   def test_sync_data : Nil
+  #     self.request("POST", "/sync").body.should eq %("MOCK_DATA")
+  #   end
+  # end
+  # ```
+  #
+  # NOTE: See `ADI::Spec::MockableServiceContainer` for more details on mocking services.
+  #
+  # Each `test_*` method has its own service container instance.
+  # Any services that are mutated/replaced within the `initialize` method will affect all `test_*` methods.
+  # However, it can also happen within specific `test_*` methods to scope it that particular test;
+  # just be sure that you do it _before_ calling `#request`.
   abstract struct APITestCase < WebTestCase
-    getter! client : AbstractBrowser
+    @client : AbstractBrowser?
 
     def initialize
       # Ensure each test method has a unique container.
@@ -83,6 +196,12 @@ module Athena::Routing::Spec
       @client = self.create_client
     end
 
+    # Returns a reference to the `AbstractBrowser` being used for the test.
+    def client : AbstractBrowser
+      @client.not_nil!
+    end
+
+    # See `AbstractBrowser#request`.
     def request(method : String, path : String, body : String | Bytes | IO | Nil = nil, headers : HTTP::Headers = HTTP::Headers.new) : HTTP::Server::Response
       self.client.request method, path, headers, body
     end
