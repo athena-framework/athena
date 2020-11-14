@@ -367,7 +367,7 @@ alias ART = Athena::Routing
 # If these principles are followed then any of the previously mentioned concepts, param converters, event listeners, and/or controllers,
 # can easily be unit tested on their own as you would any Crystal type, possibly utilizing `ASPEC::TestCase` to provide helpful abstractions around common testing/helper logic for sets of common types.
 #
-# However, Athena also comes bundled with `ART::Spec::APITestCase` to allow for easy creating integration tests for `ART::Controller`s.
+# However, Athena also comes bundled with `ART::Spec::APITestCase` to allow for easily creating integration tests for `ART::Controller`s.
 #
 # ```
 # require "athena"

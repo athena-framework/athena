@@ -117,6 +117,8 @@ module Athena::Routing::Spec
   # The `#request` method is used to make our requests to the API, then we run are assertions against the resulting `HTTP::Server::Response`.
   # A key thing to point out is that there is no `HTTP::Server` involved, thus resulting in more performant specs.
   #
+  # NOTE: Be sure to call `Athena::Spec.run_all` to your `spec_helper.cr` to ensure all test case instances are executed.
+  #
   # ### Mocking External Dependencies
   #
   # The previous example was quite simple.  However, most likely a controller is going to have dependencies on various other services; such as an API client to make requests to a third party API.
@@ -136,7 +138,7 @@ module Athena::Routing::Spec
   # # Define a mock implementation of our APIClient that does not make a request and just returns mock data.
   # class MockAPIClient < APIClient
   #   def fetch_latest_data : String
-  #     # This could also be an ivar that gets set when this mock is created.
+  #     # This could also be an instance variable that gets set when this mock is created.
   #     "MOCK_DATA"
   #   end
   # end
@@ -184,7 +186,7 @@ module Athena::Routing::Spec
   #
   # Each `test_*` method has its own service container instance.
   # Any services that are mutated/replaced within the `initialize` method will affect all `test_*` methods.
-  # However, it can also happen within specific `test_*` methods to scope it that particular test;
+  # However, services can also be mutated/replaced within specific `test_*` methods to scope it that particular test;
   # just be sure that you do it _before_ calling `#request`.
   abstract struct APITestCase < WebTestCase
     @client : AbstractBrowser?
