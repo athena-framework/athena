@@ -359,6 +359,43 @@ alias ART = Athena::Routing
 # DI is also what "wires" everything together.  For example, say there is an external shard that defines a listener.  All that would be required to use that listener is install and require the shard,
 # DI takes care of the rest.  This is much easier and more flexible than needing to update code to add a new `HTTP::Handler` instance to an array.
 #
+# ### Testing
+#
+# Athena strongly suggests following the [SOLID](https://en.wikipedia.org/wiki/SOLID) design principles;
+# especially the [Dependency inversion principle](https://en.wikipedia.org/wiki/Dependency_inversion_principle) in order to create types that are easy to test.
+#
+# If these principles are followed then any of the previously mentioned concepts, param converters, event listeners, and/or controllers,
+# can easily be unit tested on their own as you would any Crystal type, possibly utilizing `ASPEC::TestCase` to provide helpful abstractions around common testing/helper logic for sets of common types.
+#
+# However, Athena also comes bundled with `ART::Spec::APITestCase` to allow for easily creating integration tests for `ART::Controller`s.
+#
+# ```
+# require "athena"
+# require "athena/spec"
+#
+# class ExampleController < ART::Controller
+#   @[ART::QueryParam("negative")]
+#   @[ART::Get("/add/:value1/:value2")]
+#   def add(value1 : Int32, value2 : Int32, negative : Bool = false) : Int32
+#     sum = value1 + value2
+#     negative ? -sum : sum
+#   end
+# end
+#
+# struct ExampleControllerTest < ART::Spec::APITestCase
+#   def test_add_positive : Nil
+#     self.request("GET", "/add/5/3").body.should eq "8"
+#   end
+#
+#   def test_add_negative : Nil
+#     self.request("GET", "/add/5/3?negative=true").body.should eq "-8"
+#   end
+# end
+# ```
+#
+# Integration tests allow testing the full system, including event listeners, param converters, etc at once.
+# These tests do not utilize an `HTTP::Server` which results in more performant specs.
+#
 # ## Extensions
 #
 # Athena comes bundled with some additional potentially useful components (shards).
