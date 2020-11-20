@@ -158,6 +158,7 @@ module Athena::Routing
   # end
   # ```
   annotation QueryParam; end
+  annotation RequestParam; end
 
   # Defines an endpoint with an arbitrary `HTTP` method.  Can be used for defining non-standard `HTTP` method routes.
   #
