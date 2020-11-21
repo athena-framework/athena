@@ -661,114 +661,11 @@ module Athena::Routing
   end
 end
 
-module ParamFetcherInterface
-  abstract def get(name : String, strict : Bool? = nil)
-  abstract def each(strict : Bool = true, & : _ -> Nil) : Nil
-end
-
-@[ADI::Register]
-class ParamFetcher
-  include ParamFetcherInterface
-
-  private getter params : Hash(String, ART::Params::ParamInterfaceBase) do
-    self.request.action.params.each_with_object({} of String => ART::Params::ParamInterfaceBase) do |param, params|
-      params[param.name] = param
-    end
-  end
-
-  def initialize(
-    @request_store : ART::RequestStore,
-    @validator : AVD::Validator::ValidatorInterface
-  )
-  end
-
-  def get(name : String, strict : Bool? = nil)
-    param = self.params.fetch(name) { raise KeyError.new "Unknown parameter '#{name}'." }
-
-    default = param.default
-    strict = strict.nil? ? param.strict? : strict
-
-    value = param.parse_value self.request
-
-    self.validate_param param, value, strict, default
-  end
-
-  private def validate_param(param : ART::Params::ParamInterfaceBase, value : _, strict : Bool, default : _)
-    self.check_not_incompatible_params param
-
-    return value if !default.nil? && default == value
-    return if (constraints = param.constraints).empty?
-
-    begin
-      errors = @validator.validate value, constraints
-    rescue ex : AVD::Exceptions::ValidatorError
-      violation = AVD::Violation::ConstraintViolation.new(
-        ex.message || "Unhandled exception while validating '#{param.name}' param.",
-        ex.message || "Unhandled exception while validating '#{param.name}' param.",
-        Hash(String, String).new,
-        value,
-        "",
-        AVD::ValueContainer.new(value),
-      )
-
-      errors = AVD::Violation::ConstraintViolationList.new [violation]
-    end
-
-    return value if errors.empty?
-
-    raise ART::Exceptions::InvalidParameterException.with_violations param, errors if strict
-
-    default.nil? ? "" : default
-  end
-
-  private def check_not_incompatible_params(param : ART::Params::ParamInterfaceBase) : Nil
-    return if param.parse_value(self.request, nil).nil?
-
-    param.incompatibilities.each do |incompatible_param_name|
-      incompatible_param = self.params.fetch(incompatible_param_name) { raise KeyError.new "Unknown parameter '#{incompatible_param_name}'." }
-
-      unless incompatible_param.parse_value(self.request, nil).nil?
-        raise ART::Exceptions::BadRequest.new "'#{param.name}' param is incompatible with '#{incompatible_param.name}' param."
-      end
-    end
-  end
-
-  private def request : HTTP::Request
-    @request_store.request
-  end
-end
-
-@[ADI::Register]
-# Sets the related `ART::Action` on the current request using `ART::RouteResolver`.
-struct ParamListener
-  include AED::EventListenerInterface
-
-  def self.subscribed_events : AED::SubscribedEvents
-    AED::SubscribedEvents{
-      ART::Events::Action => 0,
-    }
-  end
-
-  def initialize(@param_fetcher : ParamFetcherInterface); end
-
-  # Assigns the resolved `ART::Action` and path parameters to the request.
-  #
-  # The resolved route is dupped to avoid mutating the master copy in the singleton.
-  def call(event : ART::Events::Action, dispatcher : AED::EventDispatcherInterface) : Nil
-    # pp event.request.action
-    pp @param_fetcher.get "username"
-    pp @param_fetcher.get "password"
-    # pp @param_fetcher.get "page"
-    # pp event.action
-  end
-end
-
 class ExampleController < ART::Controller
-  @[ART::RequestParam("username")]
-  @[ART::RequestParam("password")]
+  @[ART::QueryParam("page", requirements: @[Assert::Range(0..10)])]
   @[ART::Get("/")]
-  def index(username : String, password : String) : String
-    "Hello World #{username}"
+  def index(page : Int32) : String
+    "Hello World: #{page}"
   end
 end
 

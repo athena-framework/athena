@@ -7,13 +7,13 @@ class HTTP::Request
   # See `ART::ParameterBag`.
   getter attributes : ART::ParameterBag = ART::ParameterBag.new
 
-  @form_data : HTTP::Params?
+  @request_data : HTTP::Params?
 
-  def form_data
-    @form_data ||= self.parse_form_data
+  def request_data
+    @request_data ||= self.parse_request_data
   end
 
-  private def parse_form_data : HTTP::Params
+  private def parse_request_data : HTTP::Params
     HTTP::Params.parse self.body.try(&.gets_to_end) || ""
   end
 end

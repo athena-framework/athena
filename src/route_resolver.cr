@@ -142,10 +142,7 @@ class Athena::Routing::RouteResolver
               {% if constraint = AVD::Constraint.all_subclasses.reject(&.abstract?).find { |c| requirement_name == c.name(generic_args: false).split("::").last } %}
                 {% default_arg = requirements.args.empty? ? nil : requirements.args.first %}
 
-                {% requirements = %(#{constraint.name(generic_args: false).id}.new(
-                    #{default_arg ? "#{default_arg},".id : "".id}
-                    #{requirements.named_args.double_splat})
-                  ).id %}
+                {% requirements = %(#{constraint.name(generic_args: false).id}.new(#{default_arg ? "#{default_arg},".id : "".id}#{requirements.named_args.double_splat})).id %}
               {% end %}
             {% else %}
               {% requirements = nil %}
@@ -161,8 +158,6 @@ class Athena::Routing::RouteResolver
                 #{ann_args.double_splat}
               )).id %}
           {% end %}
-
-          {{pp params}}
 
           {% view_context = "ART::Action::ViewContext.new".id %}
 

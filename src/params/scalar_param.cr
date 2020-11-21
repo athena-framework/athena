@@ -3,12 +3,15 @@ abstract struct Athena::Routing::Params::ScalarParam(T) < Athena::Routing::Param
 
   getter? map : Bool = false
 
+  getter converter : ART::ParamConverterInterface.class | Nil = nil
+
   def initialize(
     name : String,
     has_default : Bool = false,
     incompatibilities : Array(String) = [] of String,
     @requirements : AVD::Constraint | Array(AVD::Constraint) | Regex | Nil = nil,
     @map : Bool = false,
+    @converter : ART::ParamConverterInterface.class | Nil = nil,
     is_nillable : Bool = false,
     strict : Bool = true,
     key : String? = nil,
