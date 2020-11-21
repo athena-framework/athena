@@ -4,6 +4,11 @@ def Object.from_parameter(value)
 end
 
 # :nodoc:
+def Array.from_parameter(value : Array)
+  value.map { |item| T.from_parameter(item).as T }
+end
+
+# :nodoc:
 def Bool.from_parameter(value : String) : Bool
   if value == "true"
     true

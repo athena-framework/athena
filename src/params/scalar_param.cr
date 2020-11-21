@@ -3,7 +3,7 @@ abstract struct Athena::Routing::Params::ScalarParam(T) < Athena::Routing::Param
 
   getter? map : Bool = false
 
-  getter converter : ART::ParamConverterInterface.class | Nil = nil
+  getter converter : ART::ParamConverterInterface::ConfigurationInterface? = nil
 
   def initialize(
     name : String,
@@ -11,7 +11,7 @@ abstract struct Athena::Routing::Params::ScalarParam(T) < Athena::Routing::Param
     incompatibilities : Array(String) = [] of String,
     @requirements : AVD::Constraint | Array(AVD::Constraint) | Regex | Nil = nil,
     @map : Bool = false,
-    @converter : ART::ParamConverterInterface.class | Nil = nil,
+    @converter : ART::ParamConverterInterface::ConfigurationInterface? = nil,
     is_nillable : Bool = false,
     strict : Bool = true,
     key : String? = nil,

@@ -7,7 +7,7 @@ class Athena::Routing::Params::ParamFetcher
   private getter params : Hash(String, ART::Params::ParamInterfaceBase) do
     self.request.action.params.each_with_object({} of String => ART::Params::ParamInterfaceBase) do |param, params|
       if converter = param.converter
-        self.request.action.param_converters << converter.create param.name
+        self.request.action.param_converters << converter
       end
 
       params[param.name] = param

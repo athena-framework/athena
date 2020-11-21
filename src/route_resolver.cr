@@ -150,6 +150,23 @@ class Athena::Routing::RouteResolver
 
             {% ann_args[:requirements] = requirements %}
 
+            # Handle query param specific param converters
+            {% converter = nil %}
+
+            {% if converter = ann_args[:converter] %}
+              {% if (converter.is_a?(NamedTupleLiteral) || converter.is_a?(HashLiteral)) %}
+                {% converter_args = converter %}
+                {% converter_args[:converter] = converter_args[:name] %}
+                {% converter_args[:name] = arg_name %}
+              {% else %}
+                {% converter_args = {converter: converter, name: arg_name} %}
+              {% end %}
+
+              {% converter = %(#{converter_args[:converter].resolve}::Configuration.new(#{converter_args.double_splat})).id %}
+            {% end %}
+
+            {% ann_args[:converter] = converter %}
+
             {% params << %(ART::Params::QueryParam(#{arg.restriction}).new(
                 name: #{arg_name},
                 has_default: #{!arg.default_value.is_a?(Nop)},
