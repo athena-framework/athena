@@ -1,4 +1,4 @@
-class Athena::Routing::Exceptions::InvalidParameterException < Athena::Routing::Exceptions::BadRequest
+class Athena::Routing::Exceptions::InvalidParameter < Athena::Routing::Exceptions::BadRequest
   getter parameter : ART::Params::ParamInterfaceBase
   getter violations : AVD::Violation::ConstraintViolationListInterface
 
@@ -7,7 +7,7 @@ class Athena::Routing::Exceptions::InvalidParameterException < Athena::Routing::
       violations.each do |violation|
         invalid_value = violation.invalid_value
 
-        str.puts "Parameter '#{parameter.name}' of value '#{invalid_value}' violated a constraint: '#{violation.message}'"
+        str << "Parameter '#{parameter.name}' of value '#{invalid_value}' violated a constraint: '#{violation.message}'"
       end
     end
 
