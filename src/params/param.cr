@@ -39,7 +39,7 @@ abstract struct Athena::Routing::Params::Param(T)
   def constraints : Array(AVD::Constraint)
     constraints = [] of AVD::Constraint
 
-    unless self.nilable?
+    if !self.nilable? && !@has_default
       constraints << AVD::Constraints::NotNil.new
     end
 

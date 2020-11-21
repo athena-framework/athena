@@ -123,57 +123,71 @@ class Athena::Routing::RouteResolver
           # Build out param metadata
           {% params = [] of Nil %}
 
-          # Make sure query params have a corresponding action argument.
-          {% for qp in m.annotations(ART::QueryParam) %}
-            {% qp.raise "Route action '#{klass.name}##{m.name}' has an ART::QueryParam annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (qp[0] || qp[:name]) %}
-            {% arg = m.args.find &.name.stringify.==(arg_name) %}
-            {% qp.raise "Route action '#{klass.name}##{m.name}' has an ART::QueryParam annotation but does not have a corresponding action argument for '#{arg_name.id}'." unless arg_names.includes? arg_name %}
-            
-            {% ann_args = qp.named_args %}
+          # Process query and request params
+          {% for param in [{ART::QueryParam, "ART::Params::QueryParam"}, {ART::RequestParam, "ART::Params::RequestParam"}] %}
+            {% param_ann = param[0] %}
+            {% param = param[1].id %}
 
-            # It's possible the `requirements` field is/are `Assert` annotations,
-            # resolve them into constraint objects.
-            {% requirements = ann_args[:requirements] %}
+            {% for qp in m.annotations(param_ann) %}
+              {% qp.raise "Route action '#{klass.name}##{m.name}' has an ART::QueryParam annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (qp[0] || qp[:name]) %}
+              {% arg = m.args.find &.name.stringify.==(arg_name) %}
+              {% qp.raise "Route action '#{klass.name}##{m.name}' has an ART::QueryParam annotation but does not have a corresponding action argument for '#{arg_name.id}'." unless arg_names.includes? arg_name %}
+              
+              {% ann_args = qp.named_args %}
 
-            {% if requirements.is_a? RegexLiteral %}
+              # It's possible the `requirements` field is/are `Assert` annotations,
+              # resolve them into constraint objects.
               {% requirements = ann_args[:requirements] %}
-            {% elsif requirements.is_a? Annotation %}
-              {% requirement_name = requirements.stringify.gsub(/Assert::/, "").gsub(/\(.*\)/, "").tr("@[]", "") %}
-              {% if constraint = AVD::Constraint.all_subclasses.reject(&.abstract?).find { |c| requirement_name == c.name(generic_args: false).split("::").last } %}
-                {% default_arg = requirements.args.empty? ? nil : requirements.args.first %}
 
-                {% requirements = %(#{constraint.name(generic_args: false).id}.new(#{default_arg ? "#{default_arg},".id : "".id}#{requirements.named_args.double_splat})).id %}
-              {% end %}
-            {% else %}
-              {% requirements = nil %}
-            {% end %}
+              {% if requirements.is_a? RegexLiteral %}
+                {% requirements = ann_args[:requirements] %}
+              {% elsif requirements.is_a? Annotation %}
+                {% requirement_name = requirements.stringify.gsub(/Assert::/, "").gsub(/\(.*\)/, "").tr("@[]", "") %}
+                {% if constraint = AVD::Constraint.all_subclasses.reject(&.abstract?).find { |c| requirement_name == c.name(generic_args: false).split("::").last } %}
+                  {% default_arg = requirements.args.empty? ? nil : requirements.args.first %}
 
-            {% ann_args[:requirements] = requirements %}
+                  {% requirements = %(#{constraint.name(generic_args: false).id}.new(#{default_arg ? "#{default_arg},".id : "".id}#{requirements.named_args.double_splat})).id %}
+                {% end %}
+              {% elsif requirements.is_a? ArrayLiteral %}
+                {% requirements = requirements.map do |r|
+                     requirement_name = r.stringify.gsub(/Assert::/, "").gsub(/\(.*\)/, "").tr("@[]", "")
 
-            # Handle query param specific param converters
-            {% converter = nil %}
+                     if constraint = AVD::Constraint.all_subclasses.reject(&.abstract?).find { |c| requirement_name == c.name(generic_args: false).split("::").last }
+                       default_arg = r.args.empty? ? nil : r.args.first
 
-            {% if converter = ann_args[:converter] %}
-              {% if (converter.is_a?(NamedTupleLiteral) || converter.is_a?(HashLiteral)) %}
-                {% converter_args = converter %}
-                {% converter_args[:converter] = converter_args[:name] %}
-                {% converter_args[:name] = arg_name %}
+                       %(#{constraint.name(generic_args: false).id}.new(#{default_arg ? "#{default_arg},".id : "".id}#{r.named_args.double_splat})).id
+                     end
+                   end %}
               {% else %}
-                {% converter_args = {converter: converter, name: arg_name} %}
+                {% requirements = nil %}
               {% end %}
 
-              {% converter = %(#{converter_args[:converter].resolve}::Configuration.new(#{converter_args.double_splat})).id %}
+              {% ann_args[:requirements] = requirements %}
+
+              # Handle query param specific param converters
+              {% if converter = ann_args[:converter] %}
+                {% if (converter.is_a?(NamedTupleLiteral) || converter.is_a?(HashLiteral)) %}
+                  {% converter_args = converter %}
+                  {% converter_args[:converter] = converter_args[:name] %}
+                  {% converter_args[:name] = arg_name %}
+                {% else %}
+                  {% converter_args = {converter: converter, name: arg_name} %}
+                {% end %}
+
+                {% param_converters << %(#{converter_args[:converter].resolve}::Configuration.new(#{converter_args.double_splat})).id %}
+              {% end %}
+
+              # TODO: Use `.delete :converter` and remove `converter` argument from `ScalarParam`.
+              {% ann_args[:converter] = nil %}
+
+              {% params << %(#{param}(#{arg.restriction}).new(
+                  name: #{arg_name},
+                  has_default: #{!arg.default_value.is_a?(Nop)},
+                  is_nillable: #{arg.restriction.resolve.nilable?},
+                  default: #{arg.default_value.is_a?(Nop) ? nil : arg.default_value},
+                  #{ann_args.double_splat}
+                )).id %}
             {% end %}
-
-            {% ann_args[:converter] = converter %}
-
-            {% params << %(ART::Params::QueryParam(#{arg.restriction}).new(
-                name: #{arg_name},
-                has_default: #{!arg.default_value.is_a?(Nop)},
-                is_nillable: #{arg.restriction.resolve.nilable?},
-                default: #{arg.default_value.is_a?(Nop) ? nil : arg.default_value},
-                #{ann_args.double_splat}
-              )).id %}
           {% end %}
 
           {% view_context = "ART::Action::ViewContext.new".id %}

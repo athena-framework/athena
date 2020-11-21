@@ -6,10 +6,6 @@ class Athena::Routing::Params::ParamFetcher
 
   private getter params : Hash(String, ART::Params::ParamInterfaceBase) do
     self.request.action.params.each_with_object({} of String => ART::Params::ParamInterfaceBase) do |param, params|
-      if converter = param.converter
-        self.request.action.param_converters << converter
-      end
-
       params[param.name] = param
     end
   end
@@ -29,11 +25,13 @@ class Athena::Routing::Params::ParamFetcher
   def get(name : String, strict : Bool? = nil)
     param = self.params.fetch(name) { raise KeyError.new "Unknown parameter '#{name}'." }
 
+    default = param.default
+
     self.validate_param(
       param,
-      param.parse_value(self.request),
+      param.parse_value(self.request, default),
       strict.nil? ? param.strict? : strict,
-      param.default
+      default
     )
   end
 
