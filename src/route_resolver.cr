@@ -231,7 +231,7 @@ class Athena::Routing::RouteResolver
               ({{param_converters}} of ART::ParamConverterInterface::ConfigurationInterface),
               {{view_context}},
               ACF::AnnotationConfigurations.new({{annotation_configurations}} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)),
-              ({{params}} of ART::Params::ParamInterfaceBase),
+              ({{params}} of ART::Params::ParamInterface),
               {{klass.id}},
               {{m.return_type}},
               {{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}
@@ -261,7 +261,7 @@ class Athena::Routing::RouteResolver
                 ({{param_converters}} of ART::ParamConverterInterface::ConfigurationInterface),
                 {{view_context}},
                 ACF::AnnotationConfigurations.new({{annotation_configurations}} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)),
-                ({{params}} of ART::Params::ParamInterfaceBase),
+                ({{params}} of ART::Params::ParamInterface),
                 {{klass.id}},
                 {{m.return_type}},
                 {{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}

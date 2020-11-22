@@ -1,6 +1,8 @@
 require "./scalar_param"
 
-struct Athena::Routing::Params::QueryParam(T) < Athena::Routing::Params::ScalarParam(T)
+struct Athena::Routing::Params::QueryParam(T) < Athena::Routing::Params::ScalarParam
+  define_initializer
+
   def parse_value(request : HTTP::Request, default = nil)
     query_params = request.query_params
 

@@ -6,6 +6,7 @@ require "./controllers/*"
 
 require "athena-spec"
 require "athena-event_dispatcher/spec"
+require "athena-validator/spec"
 require "../src/spec"
 
 include ASPEC::Methods
@@ -27,7 +28,7 @@ macro create_action(return_type, view_context = nil, &)
     Array(ART::ParamConverterInterface::ConfigurationInterface).new,
     {{view_context}} || ART::Action::ViewContext.new,
     ACF::AnnotationConfigurations.new,
-    Array(ART::Params::ParamInterfaceBase).new,
+    Array(ART::Params::ParamInterface).new,
     TestController,
     {{return_type}},
     typeof(Tuple.new),
@@ -45,7 +46,8 @@ end
 def new_action(
   arguments : Array(ART::Arguments::ArgumentMetadata)? = nil,
   param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface)? = nil,
-  view_context : ART::Action::ViewContext = ART::Action::ViewContext.new
+  view_context : ART::Action::ViewContext = ART::Action::ViewContext.new,
+  params : Array(ART::Params::ParamInterface) = Array(ART::Params::ParamInterface).new
 ) : ART::ActionBase
   ART::Action.new(
     ->{ test_controller = TestController.new; ->test_controller.get_test },
@@ -55,7 +57,7 @@ def new_action(
     param_converters || Array(ART::ParamConverterInterface::ConfigurationInterface).new,
     view_context,
     ACF::AnnotationConfigurations.new,
-    Array(ART::Params::ParamInterfaceBase).new,
+    params,
     TestController,
     String,
     typeof(Tuple.new),

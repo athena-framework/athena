@@ -4,8 +4,8 @@ require "./param_fetcher_interface"
 class Athena::Routing::Params::ParamFetcher
   include Athena::Routing::Params::ParamFetcherInterface
 
-  private getter params : Hash(String, ART::Params::ParamInterfaceBase) do
-    self.request.action.params.each_with_object({} of String => ART::Params::ParamInterfaceBase) do |param, params|
+  private getter params : Hash(String, ART::Params::ParamInterface) do
+    self.request.action.params.each_with_object({} of String => ART::Params::ParamInterface) do |param, params|
       params[param.name] = param
     end
   end
@@ -35,14 +35,15 @@ class Athena::Routing::Params::ParamFetcher
     )
   end
 
-  private def validate_param(param : ART::Params::ParamInterfaceBase, value : _, strict : Bool, default : _)
+  private def validate_param(param : ART::Params::ParamInterface, value : _, strict : Bool, default : _)
     self.check_not_incompatible_params param
 
     begin
       value = param.type.from_parameter value
     rescue ex : ArgumentError
-      # Catch type cast errors and bubble it up as an BadRequest
-      raise ART::Exceptions::BadRequest.new "Required parameter '#{param.name}' with value '#{value}' could not be converted into a valid '#{param.type}'", cause: ex
+      # Catch type cast errors and bubble it up as an BadRequest if strict
+      raise ART::Exceptions::BadRequest.new "Required parameter '#{param.name}' with value '#{value}' could not be converted into a valid '#{param.type}'", cause: ex if strict
+      return default
     end
 
     return value if !default.nil? && default == value
@@ -60,21 +61,22 @@ class Athena::Routing::Params::ParamFetcher
         AVD::ValueContainer.new(value),
       )
 
-      errors = AVD::Violation::ConstraintViolationList.new [violation]
+      errors = AVD::Violation::ConstraintViolationList.new [violation] of AVD::Violation::ConstraintViolationInterface
     end
 
     unless errors.empty?
       raise ART::Exceptions::InvalidParameter.with_violations param, errors if strict
-      return default.nil? ? "" : default
+      return default
     end
 
     value
   end
 
-  private def check_not_incompatible_params(param : ART::Params::ParamInterfaceBase) : Nil
+  private def check_not_incompatible_params(param : ART::Params::ParamInterface) : Nil
     return if param.parse_value(self.request, nil).nil?
+    return unless (incompatibilities = param.incompatibilities)
 
-    param.incompatibilities.each do |incompatible_param_name|
+    incompatibilities.each do |incompatible_param_name|
       incompatible_param = self.params.fetch(incompatible_param_name) { raise KeyError.new "Unknown parameter '#{incompatible_param_name}'." }
 
       unless incompatible_param.parse_value(self.request, nil).nil?

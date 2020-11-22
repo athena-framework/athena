@@ -34,7 +34,8 @@ dependencies:
     version: ~> 0.4.1
   athena-validator:
     github: athena-framework/validator
-    version: ~> 0.1.0
+    # version: ~> 0.1.0
+    branch: choice-constraint
 
 development_dependencies:
   ameba:

@@ -575,7 +575,7 @@ module Athena::Routing
     # See `ART::Events::RequestAware` for an example.
     getter annotation_configurations : ACF::AnnotationConfigurations
 
-    getter params : Array(ART::Params::ParamInterfaceBase)
+    getter params : Array(ART::Params::ParamInterface)
 
     def initialize(
       @action : ActionType,
@@ -585,7 +585,7 @@ module Athena::Routing
       @param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface),
       @view_context : ART::Action::ViewContext,
       @annotation_configurations : ACF::AnnotationConfigurations,
-      @params : Array(ART::Params::ParamInterfaceBase),
+      @params : Array(ART::Params::ParamInterface),
       # Don't bother making these ivars since we just need them to set the generic types
       _controller : Controller.class,
       _return_type : ReturnType.class,
