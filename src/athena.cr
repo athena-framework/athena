@@ -660,14 +660,3 @@ module Athena::Routing
     end
   end
 end
-
-class ExampleController < ART::Controller
-  @[ART::QueryParam("page", requirements: @[Assert::Range(0..10)])]
-  @[ART::Get("/")]
-  def index(page : Int32) : String
-    "Hello World: #{page}"
-  end
-end
-
-# Run the server
-ART.run
