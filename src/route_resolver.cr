@@ -183,7 +183,7 @@ class Athena::Routing::RouteResolver
               {% params << %(#{param}(#{arg.restriction}).new(
                   name: #{arg_name},
                   has_default: #{!arg.default_value.is_a?(Nop)},
-                  is_nillable: #{arg.restriction.resolve.nilable?},
+                  is_nilable: #{arg.restriction.resolve.nilable?},
                   default: #{arg.default_value.is_a?(Nop) ? nil : arg.default_value},
                   #{ann_args.double_splat}
                 )).id %}

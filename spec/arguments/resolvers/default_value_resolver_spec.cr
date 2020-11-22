@@ -8,7 +8,7 @@ describe ART::Arguments::Resolvers::DefaultValue do
       ART::Arguments::Resolvers::DefaultValue.new.supports?(new_request, argument).should be_true
     end
 
-    it "nillable not Nil type" do
+    it "nilable not Nil type" do
       argument = ART::Arguments::ArgumentMetadata(Int32?).new("id", false, true)
 
       ART::Arguments::Resolvers::DefaultValue.new.supports?(new_request, argument).should be_true
@@ -20,7 +20,7 @@ describe ART::Arguments::Resolvers::DefaultValue do
       ART::Arguments::Resolvers::DefaultValue.new.supports?(new_request, argument).should be_false
     end
 
-    it "not nillable not Nil type" do
+    it "not nilable not Nil type" do
       argument = ART::Arguments::ArgumentMetadata(Int32).new("id", false, false)
 
       ART::Arguments::Resolvers::DefaultValue.new.supports?(new_request, argument).should be_false

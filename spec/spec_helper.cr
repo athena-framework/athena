@@ -38,8 +38,8 @@ def new_context(*, request : HTTP::Request = new_request, response : HTTP::Serve
   HTTP::Server::Context.new request, response
 end
 
-def new_argument(has_default : Bool = false, is_nillable : Bool = false, default : Int32? = nil) : ART::Arguments::ArgumentMetadata
-  ART::Arguments::ArgumentMetadata(Int32).new("id", has_default, is_nillable, default)
+def new_argument(has_default : Bool = false, is_nilable : Bool = false, default : Int32? = nil) : ART::Arguments::ArgumentMetadata
+  ART::Arguments::ArgumentMetadata(Int32).new("id", has_default, is_nilable, default)
 end
 
 def new_action(

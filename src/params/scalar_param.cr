@@ -9,14 +9,14 @@ abstract struct Athena::Routing::Params::ScalarParam(T) < Athena::Routing::Param
     incompatibilities : Array(String) = [] of String,
     @requirements : AVD::Constraint | Array(AVD::Constraint) | Regex | Nil = nil,
     @map : Bool = false,
-    is_nillable : Bool = false,
+    is_nilable : Bool = false,
     strict : Bool = true,
     key : String? = nil,
     default : T? = nil,
     type : T.class = T,
     converter : Nil? = nil # TODO: Remove this
   )
-    super name, has_default, incompatibilities, is_nillable, strict, key, default, type
+    super name, has_default, incompatibilities, is_nilable, strict, key, default, type
   end
 
   def constraints : Array(AVD::Constraint)

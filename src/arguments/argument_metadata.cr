@@ -15,9 +15,9 @@ struct Athena::Routing::Arguments::ArgumentMetadata(T)
   getter? has_default : Bool
 
   # If `nil` is a valid argument for the argument.
-  getter? nillable : Bool
+  getter? nilable : Bool
 
-  def initialize(@name : String, @has_default : Bool, is_nillable : Bool = false, @default : T? = nil, @type : T.class = T)
-    @nillable = is_nillable || @type == Nil || (@has_default && @default.nil?)
+  def initialize(@name : String, @has_default : Bool, is_nilable : Bool = false, @default : T? = nil, @type : T.class = T)
+    @nilable = is_nilable || @type == Nil || (@has_default && @default.nil?)
   end
 end

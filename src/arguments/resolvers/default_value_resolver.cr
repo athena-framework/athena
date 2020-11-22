@@ -14,7 +14,7 @@ struct Athena::Routing::Arguments::Resolvers::DefaultValue
 
   # :inherit:
   def supports?(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata) : Bool
-    argument.has_default? || (argument.type != Nil && argument.nillable?)
+    argument.has_default? || (argument.type != Nil && argument.nilable?)
   end
 
   # :inherit:
