@@ -98,6 +98,12 @@ struct ParamFetcherTest < ASPEC::TestCase
     end
   end
 
+  def test_get_conversion_error_unstrict : Nil
+    self.set_params [new_param("foo", default: 10, type: Int32?)] of ART::Params::ParamInterface
+    @request_store.request.query = "foo=value"
+    @param_fetcher.get("foo", false).should eq 10
+  end
+
   def test_get_missing_incompatible : Nil
     self.set_params([
       self.new_param("fos"),
@@ -123,6 +129,23 @@ struct ParamFetcherTest < ASPEC::TestCase
     expect_raises ART::Exceptions::BadRequest, "'bar' param is incompatible with 'fos' param." do
       @param_fetcher.get "bar"
     end
+  end
+
+  def test_all : Nil
+    self.set_params([
+      self.new_param("foo"),
+      self.new_param("bar"),
+    ] of ART::Params::ParamInterface)
+
+    @request_store.request.query = "foo=bar&bar=foo"
+
+    values = [] of String
+
+    @param_fetcher.each do |value|
+      values << value
+    end
+
+    values.should eq ["foo", "bar"]
   end
 
   private def set_params(params : Array(ART::Params::ParamInterface)) : Nil

@@ -5,10 +5,14 @@ abstract struct Athena::Routing::Params::Param
 
   # :inherit:
   getter name : String
+
+  # :inherit:
   getter description : String?
 
+  # :inherit:
   getter incompatibilities : Array(String)?
 
+  # :inherit:
   getter? strict : Bool = true
 
   # If this argument has a default value.
@@ -28,6 +32,7 @@ abstract struct Athena::Routing::Params::Param
   )
   end
 
+  # :inherit:
   def constraints : Array(AVD::Constraint)
     constraints = [] of AVD::Constraint
 

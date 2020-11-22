@@ -17,6 +17,7 @@ abstract struct Athena::Routing::Params::ScalarParam < Athena::Routing::Params::
     super name, has_default, incompatibilities, strict, nilable, key, description
   end
 
+  # :inherit:
   def constraints : Array(AVD::Constraint)
     constraints = super
 

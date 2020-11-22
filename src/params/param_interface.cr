@@ -13,6 +13,4 @@ module Athena::Routing::Params::ParamInterface
   abstract def strict? : Bool
 
   abstract def parse_value(request : HTTP::Request, default)
-
-  abstract def type
 end
