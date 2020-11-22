@@ -61,13 +61,13 @@ struct Athena::Routing::ParameterBag
   #
   # Raises a `KeyError` if no parameter with that name exists.
   def get(name : String)
-    self.get?(name) || raise KeyError.new "No parameter exists with the name '#{name}'."
+    @parameters.fetch(name) { raise KeyError.new "No parameter exists with the name '#{name}'." }.value
   end
 
   {% for type in [Bool, String] + Number::Primitive.union_types %}
     # Returns the value of the parameter with the provided *name* as a `{{type}}`.
     def get(name : String, _type : {{type}}.class) : {{type}}
-      {{type}}.from_parameter(get(name)).as {{type}}
+      {{type}}.from_parameter(self.get(name)).as {{type}}
     end
   {% end %}
 

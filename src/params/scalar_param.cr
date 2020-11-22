@@ -47,7 +47,7 @@ abstract struct Athena::Routing::Params::ScalarParam < Athena::Routing::Params::
 
     def initialize(
       name : String,
-      has_default : Bool,
+      has_default : Bool = false,
       incompatibilities : Array(String)? = nil,
       requirements : AVD::Constraint | Array(AVD::Constraint) | Regex | Nil = nil,
       map : Bool = false,

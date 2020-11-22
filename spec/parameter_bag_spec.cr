@@ -41,6 +41,14 @@ describe ART::ParameterBag do
         bag.set "value", "foo"
         bag.get("value").should eq "foo"
       end
+
+      it "is able to get falsey values" do
+        bag = ART::ParameterBag.new
+        bag.set "n", nil
+        bag.set "f", false
+        bag.get("n").should be_nil
+        bag.get("f").should be_false
+      end
     end
 
     describe "by name and type" do

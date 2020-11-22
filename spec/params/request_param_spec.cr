@@ -3,8 +3,8 @@ require "../spec_helper"
 describe ART::Params::RequestParam do
   describe "#initialize" do
     describe "#nilable?" do
-      it "when is_nilable is true" do
-        ART::Params::RequestParam(Int32).new("id", has_default: false, is_nilable: true).nilable?.should be_true
+      it "when nilable" do
+        ART::Params::RequestParam(Int32?).new("id", has_default: false, is_nilable: true).nilable?.should be_true
       end
 
       it "type is Nil" do

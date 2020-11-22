@@ -7,7 +7,7 @@ class Athena::Routing::Exceptions::InvalidParameter < Athena::Routing::Exception
       violations.each do |violation|
         invalid_value = violation.invalid_value
 
-        str << "Parameter '#{parameter.name}#{violation.property_path}' of value '#{invalid_value}' violated a constraint: '#{violation.message}'"
+        str.puts "Parameter '#{parameter.name}#{violation.property_path}' of value '#{invalid_value}' violated a constraint: '#{violation.message}'"
       end
     end
 
