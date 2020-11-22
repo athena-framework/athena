@@ -132,7 +132,7 @@ class Athena::Routing::RouteResolver
               {% qp.raise "Route action '#{klass.name}##{m.name}' has an ART::QueryParam annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (qp[0] || qp[:name]) %}
               {% arg = m.args.find &.name.stringify.==(arg_name) %}
               {% qp.raise "Route action '#{klass.name}##{m.name}' has an ART::QueryParam annotation but does not have a corresponding action argument for '#{arg_name.id}'." unless arg_names.includes? arg_name %}
-              
+
               {% ann_args = qp.named_args %}
 
               # It's possible the `requirements` field is/are `Assert` annotations,

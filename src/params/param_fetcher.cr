@@ -17,7 +17,7 @@ class Athena::Routing::Params::ParamFetcher
   end
 
   def each(strict : Bool? = nil, & : -> Nil) : Nil
-    self.params.each do |key, param|
+    self.params.each_key do |key|
       yield key, self.get(key, strict)
     end
   end
