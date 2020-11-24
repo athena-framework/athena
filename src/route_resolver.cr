@@ -126,12 +126,12 @@ class Athena::Routing::RouteResolver
           # Process query and request params
           {% for param in [{ART::QueryParam, "ART::Params::QueryParam"}, {ART::RequestParam, "ART::Params::RequestParam"}] %}
             {% param_ann = param[0] %}
-            {% param = param[1].id %}
+            {% param_class = param[1].id %}
 
             {% for qp in m.annotations(param_ann) %}
-              {% qp.raise "Route action '#{klass.name}##{m.name}' has an ART::QueryParam annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (qp[0] || qp[:name]) %}
+              {% qp.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (qp[0] || qp[:name]) %}
               {% arg = m.args.find &.name.stringify.==(arg_name) %}
-              {% qp.raise "Route action '#{klass.name}##{m.name}' has an ART::QueryParam annotation but does not have a corresponding action argument for '#{arg_name.id}'." unless arg_names.includes? arg_name %}
+              {% qp.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation but does not have a corresponding action argument for '#{arg_name.id}'." unless arg_names.includes? arg_name %}
 
               {% ann_args = qp.named_args %}
 
@@ -142,6 +142,7 @@ class Athena::Routing::RouteResolver
               {% if requirements.is_a? RegexLiteral %}
                 {% requirements = ann_args[:requirements] %}
               {% elsif requirements.is_a? Annotation %}
+                {% requirements.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation whose 'requirements' value is invalid.  Expected `Assert` annotation, got '#{requirements}'." if !requirements.stringify.starts_with? "@[Assert::" %}
                 {% requirement_name = requirements.stringify.gsub(/Assert::/, "").gsub(/\(.*\)/, "").tr("@[]", "") %}
                 {% if constraint = AVD::Constraint.all_subclasses.reject(&.abstract?).find { |c| requirement_name == c.name(generic_args: false).split("::").last } %}
                   {% default_arg = requirements.args.empty? ? nil : requirements.args.first %}
@@ -149,29 +150,37 @@ class Athena::Routing::RouteResolver
                   {% requirements = %(#{constraint.name(generic_args: false).id}.new(#{default_arg ? "#{default_arg},".id : "".id}#{requirements.named_args.double_splat})).id %}
                 {% end %}
               {% elsif requirements.is_a? ArrayLiteral %}
-                {% requirements = requirements.map do |r|
+                {% requirements = requirements.map_with_index do |r, idx|
+                     r.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation whose 'requirements' array contains an invalid value.  Expected `Assert` annotation, got '#{r}' at index #{idx}." if !r.is_a?(Annotation) || !r.stringify.starts_with? "@[Assert::"
+
                      requirement_name = r.stringify.gsub(/Assert::/, "").gsub(/\(.*\)/, "").tr("@[]", "")
 
+                     # Use the name of the annotation as a way to match it up with the constraint until there is a better way.
                      if constraint = AVD::Constraint.all_subclasses.reject(&.abstract?).find { |c| requirement_name == c.name(generic_args: false).split("::").last }
+                       # Don't support default args of nested annotations due to complexity,
+                       # can revisit when macro code can be shared.
                        default_arg = r.args.empty? ? nil : r.args.first
 
                        %(#{constraint.name(generic_args: false).id}.new(#{default_arg ? "#{default_arg},".id : "".id}#{r.named_args.double_splat})).id
                      end
                    end %}
               {% else %}
-                {% requirements = nil %}
+                {% qp.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'requirements' type: '#{requirements.class_name.id}'.  Only Regex, NamedTuple, or Array values are supported." unless requirements.is_a? NilLiteral %}
               {% end %}
 
               {% ann_args[:requirements] = requirements %}
 
               # Handle query param specific param converters
               {% if converter = ann_args[:converter] %}
-                {% if (converter.is_a?(NamedTupleLiteral) || converter.is_a?(HashLiteral)) %}
+                {% if converter.is_a?(NamedTupleLiteral) %}
                   {% converter_args = converter %}
-                  {% converter_args[:converter] = converter_args[:name] %}
+                  {% converter_args[:converter] = converter_args[:name] || converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter'. The converter's name was not provided via the 'name' field." %}
                   {% converter_args[:name] = arg_name %}
+                {% elsif converter.is_a? Path %}
+                  {% converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter' value.  Expected 'ART::ParamConverterInterface.class' got '#{converter.resolve.id}'." unless converter.resolve <= ART::ParamConverterInterface %}
+                  {% converter_args = {converter: converter.resolve, name: arg_name} %}
                 {% else %}
-                  {% converter_args = {converter: converter, name: arg_name} %}
+                  {% converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter' type: '#{converter.class_name.id}'.  Only NamedTuples, or the converter class are supported." %}
                 {% end %}
 
                 {% param_converters << %(#{converter_args[:converter].resolve}::Configuration.new(#{converter_args.double_splat})).id %}
@@ -180,7 +189,7 @@ class Athena::Routing::RouteResolver
               # TODO: Use `.delete :converter` and remove `converter` argument from `ScalarParam`.
               {% ann_args[:converter] = nil %}
 
-              {% params << %(#{param}(#{arg.restriction}).new(
+              {% params << %(#{param_class}(#{arg.restriction}).new(
                   name: #{arg_name},
                   has_default: #{!arg.default_value.is_a?(Nop)},
                   is_nilable: #{arg.restriction.resolve.nilable?},
