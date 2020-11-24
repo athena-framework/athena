@@ -6,7 +6,7 @@ abstract struct Athena::Routing::Params::ScalarParam < Athena::Routing::Params::
   def initialize(
     name : String,
     has_default : Bool = false,
-    incompatibilities : Array(String)? = nil,
+    incompatibles : Array(String)? = nil,
     @requirements : AVD::Constraint | Array(AVD::Constraint) | Regex | Nil = nil,
     @map : Bool = false,
     strict : Bool = true,
@@ -14,7 +14,7 @@ abstract struct Athena::Routing::Params::ScalarParam < Athena::Routing::Params::
     key : String? = nil,
     description : String? = nil
   )
-    super name, has_default, incompatibilities, strict, nilable, key, description
+    super name, has_default, incompatibles, strict, nilable, key, description
   end
 
   # :inherit:
@@ -48,7 +48,7 @@ abstract struct Athena::Routing::Params::ScalarParam < Athena::Routing::Params::
     def initialize(
       name : String,
       has_default : Bool = false,
-      incompatibilities : Array(String)? = nil,
+      incompatibles : Array(String)? = nil,
       requirements : AVD::Constraint | Array(AVD::Constraint) | Regex | Nil = nil,
       map : Bool = false,
       is_nilable : Bool = false,
@@ -59,7 +59,7 @@ abstract struct Athena::Routing::Params::ScalarParam < Athena::Routing::Params::
       @type : T.class = T,
       converter : Nil? = nil # TODO: Remove this
     )
-      super name, has_default, incompatibilities, requirements, map, strict, (is_nilable || @type == Nil || (has_default && @default.nil?)), key, description
+      super name, has_default, incompatibles, requirements, map, strict, (is_nilable || @type == Nil || (has_default && @default.nil?)), key, description
     end
   end
 end

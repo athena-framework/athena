@@ -43,5 +43,17 @@ describe Athena::Routing do
         Array(Int32 | Bool).from_parameter([1, false]).should eq [1, false]
       end
     end
+
+    describe Nil do
+      it "valid" do
+        Nil.from_parameter("null").should be_nil
+      end
+
+      it "invalid" do
+        expect_raises ArgumentError, "Invalid Nil: foo" do
+          Nil.from_parameter("foo")
+        end
+      end
+    end
   end
 end

@@ -45,7 +45,7 @@ class Athena::Routing::Params::ParamFetcher
       value = param.type.from_parameter value
     rescue ex : ArgumentError
       # Catch type cast errors and bubble it up as an BadRequest if strict
-      raise ART::Exceptions::BadRequest.new "Required parameter '#{param.name}' with value '#{value}' could not be converted into a valid '#{param.type}'", cause: ex if strict
+      raise ART::Exceptions::BadRequest.new "Required parameter '#{param.name}' with value '#{value}' could not be converted into a valid '#{param.type}'.", cause: ex if strict
       return default
     end
 
@@ -77,13 +77,13 @@ class Athena::Routing::Params::ParamFetcher
 
   private def check_not_incompatible_params(param : ART::Params::ParamInterface) : Nil
     return if param.parse_value(self.request, nil).nil?
-    return unless (incompatibilities = param.incompatibilities)
+    return unless (incompatibles = param.incompatibles)
 
-    incompatibilities.each do |incompatible_param_name|
+    incompatibles.each do |incompatible_param_name|
       incompatible_param = self.params.fetch(incompatible_param_name) { raise KeyError.new "Unknown parameter '#{incompatible_param_name}'." }
 
       unless incompatible_param.parse_value(self.request, nil).nil?
-        raise ART::Exceptions::BadRequest.new "'#{param.name}' param is incompatible with '#{incompatible_param.name}' param."
+        raise ART::Exceptions::BadRequest.new "Parameter '#{param.name}' is incompatible with parameter '#{incompatible_param.name}'."
       end
     end
   end

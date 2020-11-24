@@ -10,7 +10,7 @@ abstract struct Athena::Routing::Params::Param
   getter description : String?
 
   # :inherit:
-  getter incompatibilities : Array(String)?
+  getter incompatibles : Array(String)?
 
   # :inherit:
   getter? strict : Bool = true
@@ -24,7 +24,7 @@ abstract struct Athena::Routing::Params::Param
   def initialize(
     @name : String,
     @has_default : Bool = false,
-    @incompatibilities : Array(String)? = nil,
+    @incompatibles : Array(String)? = nil,
     @strict : Bool = true,
     @nilable : Bool = false,
     @key : String? = nil,

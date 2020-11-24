@@ -6,7 +6,7 @@ module Athena::Routing::Params::ParamInterface
 
   abstract def description : String?
 
-  abstract def incompatibilities : Array(String)?
+  abstract def incompatibles : Array(String)?
 
   abstract def constraints : Array(AVD::Constraint)
 
