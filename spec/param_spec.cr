@@ -82,9 +82,15 @@ struct ParamTest < ART::Spec::APITestCase
   end
 
   def test_param_converter_class : Nil
+    self.request("GET", "/query/time?time=2020-04-07T12:34:56Z").body.should eq %("Today is: 2020-04-07 12:34:56 UTC")
+  end
+
+  def test_param_converter_default_missing : Nil
+    self.request("GET", "/query/time").body.should eq %("Today is: 2020-10-01 00:00:00 UTC")
   end
 
   def test_param_converter_named_tuple : Nil
+    self.request("GET", "/query/nt_time?time=2020--10//20  12:34:56").body.should eq %("Today is: 2020-10-20 12:34:56 UTC")
   end
 
   def test_incompatible_params_one : Nil
@@ -102,5 +108,10 @@ struct ParamTest < ART::Spec::APITestCase
   end
 
   def test_request_param : Nil
+    self.request(
+      "POST",
+      "/query/login",
+      "username=George&password=abc123"
+    ).body.should eq %("R2VvcmdlOmFiYzEyMw==")
   end
 end

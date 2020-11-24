@@ -50,7 +50,25 @@ class QueryParamController < ART::Controller
     search || by_author
   end
 
-  # Param converter class
+  # Param converter type
+  @[ART::QueryParam("time", converter: ART::TimeConverter)]
+  @[ART::Get("/time")]
+  def time(time : Time = Time.utc(2020, 10, 1)) : String
+    "Today is: #{time}"
+  end
 
   # Param converter named tuple
+  @[ART::QueryParam("time", converter: {name: ART::TimeConverter, format: "%Y--%m//%d  %T"})]
+  @[ART::Get("/nt_time")]
+  def nt_time(time : Time) : String
+    "Today is: #{time}"
+  end
+
+  # Request param
+  @[ART::RequestParam("username")]
+  @[ART::RequestParam("password")]
+  @[ART::Post("/login")]
+  def login(username : String, password : String) : String
+    Base64.strict_encode "#{username}:#{password}"
+  end
 end
