@@ -1,39 +1,39 @@
 require "./spec_helper"
 
 struct ParamTest < ART::Spec::APITestCase
-  def test_optional_query_param_provided : Nil
+  def test_required_query_param_provided : Nil
     self.request("GET", "/query?search=blah").body.should eq %("blah")
   end
 
-  def test_optional_query_param_missing : Nil
+  def test_required_query_param_missing : Nil
     self.request("GET", "/query").body.should eq %({"code":400,"message":"Parameter 'search' of value '' violated a constraint: 'This value should not be null.'\\n"})
   end
 
-  def test_required_regex_query_param_provided : Nil
+  def test_regex_query_param_provided_with_default : Nil
     self.request("GET", "/query/page?page=10").body.should eq %(10)
   end
 
-  def test_required_regex_query_param_invalid : Nil
+  def test_regex_query_param_invalid_with_default : Nil
     response = self.request("GET", "/query/page?page=foo")
     response.status.should eq HTTP::Status::BAD_REQUEST
     response.body.should eq %({"code":400,"message":"Required parameter 'page' with value 'foo' could not be converted into a valid 'Int32'."})
   end
 
-  def test_required_regex_query_param_missing : Nil
+  def test_regex_query_param_missing_with_default : Nil
     self.request("GET", "/query/page").body.should eq %(5)
   end
 
-  def test_nilable_regex_query_param_provided : Nil
+  def test_nilable_not_strict_regex_query_param_provided : Nil
     self.request("GET", "/query/page-nilable?page=10").body.should eq %(10)
   end
 
-  def test_nilable_regex_query_param_invalid : Nil
+  def test_nilable_not_strict_regex_query_param_invalid : Nil
     response = self.request("GET", "/query/page-nilable?page=foo")
     response.status.should eq HTTP::Status::OK
     response.body.should eq %(null)
   end
 
-  def test_nilable_regex_query_param_missing : Nil
+  def test_nilable_not_strict_regex_query_param_missing : Nil
     response = self.request("GET", "/query/page-nilable")
     response.status.should eq HTTP::Status::OK
     response.body.should eq %(null)
