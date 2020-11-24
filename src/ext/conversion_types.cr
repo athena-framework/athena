@@ -23,7 +23,11 @@ end
 def Union.from_parameter(value : String)
   # Process non nilable types first as they are more likely to work.
   {% for type in T.sort_by { |t| t.nilable? ? 1 : 0 } %}
-    return {{type}}.from_parameter value
+    begin
+      return {{type}}.from_parameter value 
+    rescue
+      # Noop to allow next T to be tried.
+    end
   {% end %}
 end
 
