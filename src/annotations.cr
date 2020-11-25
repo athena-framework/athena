@@ -329,6 +329,52 @@ module Athena::Routing
   # # GET /?foo=foo         # => "foo-"
   # # GET /?foo=foo&bar=bar # => {"code":400,"message":"Parameter 'foo' is incompatible with parameter 'bar'."}
   # ```
+  #
+  # ### Param Converters
+  #
+  # While Athena is able to auto convert query parameters from their `String` representation to `Bool`, or `Number` types, it is unable to do that for more complex types, such as `Time`.
+  # In such cases an `ART::ParamConverterInterface` is required.
+  #
+  # For simple converters that do not require any additional configuration, you can just specify the `ART::ParamConverterInterface.class` you wish to use for this query parameter.
+  # Default and nilable values work as they do when not using a converter.
+  #
+  # ```
+  # class ExampleController < ART::Controller
+  #   @[ART::QueryParam("start_time", converter: ART::TimeConverter)]
+  #   @[ART::Get("/time")]
+  #   def time(start_time : Time = Time.utc) : String
+  #     "Starting at: #{start_time}"
+  #   end
+  # end
+  #
+  # ART.run
+  #
+  # # GET /time                                 # => "Starting at: 2020-11-25 20:29:55 UTC"
+  # # GET /time?start_time=2020-04-07T12:34:56Z # => "Starting at: 2020-04-07 12:34:56 UTC"
+  # ```
+  #
+  # #### Extra Configuration
+  #
+  # In some cases a param converter may require [additional configuration](./ParamConverterInterface.html#additional-configuration).
+  # In this case a `NamedTuple` may be provided as the value of `converter`.
+  # The named tuple must contain a `name` key that represents the `ART::ParamConverterInterface.class` you wish to use for this query parameter.
+  # Any additional key/value pairs will be passed to the param converter.
+  #
+  # ```
+  # class ExampleController < ART::Controller
+  #   @[ART::QueryParam("start_time", converter: {name: ART::TimeConverter, format: "%Y--%m//%d  %T"})]
+  #   @[ART::Get("/time")]
+  #   def time(start_time : Time) : String
+  #     "Starting at: #{start_time}"
+  #   end
+  # end
+  #
+  # ART.run
+  #
+  # # GET /time?start_time="2020--04//07  12:34:56" # => "Starting at: 2020-04-07 12:34:56 UTC"
+  # ```
+  #
+  # NOTE:  The dedicated `ART::ParamConverter` annotation may be used as well, just be sure to give it and the query parameter the same name.
   annotation QueryParam; end
 
   # Represents a form data request parameter.
