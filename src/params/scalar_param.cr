@@ -24,7 +24,7 @@ abstract struct Athena::Routing::Params::ScalarParam < Athena::Routing::Params::
     case (requirements = @requirements)
     when Array(AVD::Constraint) then constraints.concat requirements
     when AVD::Constraint        then constraints << requirements
-    when Regex                  then constraints << AVD::Constraints::Regex.new requirements, message: "Parameter '#{@name}' value does not match requirements '{{ pattern }}'"
+    when Regex                  then constraints << AVD::Constraints::Regex.new ::Regex.new("^#{requirements}$"), message: "Parameter '#{@name}' value does not match requirements: {{ pattern }}"
     end
 
     if @map

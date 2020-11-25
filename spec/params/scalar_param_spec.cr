@@ -43,7 +43,9 @@ describe ART::Params::ScalarParam do
       it Regex do
         constraints = MockScalarParam(Int32).new("id", has_default: false, is_nilable: true, requirements: /\d+/).constraints
         constraints.size.should eq 1
-        constraints[0].should be_a AVD::Constraints::Regex
+        constraint = constraints[0].should be_a AVD::Constraints::Regex
+
+        constraint.pattern.should eq /^(?-imsx:\d+)$/
       end
 
       it AVD::Constraint do
