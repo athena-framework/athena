@@ -1,6 +1,13 @@
+# Extension of `ART::Params::Param` that allows for more granular validation of scalar parameters.
 abstract struct Athena::Routing::Params::ScalarParam < Athena::Routing::Params::Param
+  # Returns the requirements that the value is required to pass in order to be considered valid.
+  #
+  # See [ART::QueryParam@requirements](../QueryParam.html#requirements).
   getter requirements : AVD::Constraint | Array(AVD::Constraint) | Regex | Nil
 
+  # Denotes whether the `#requirements` should be applied to the whole value, or to each item a part of the value.
+  #
+  # See [ART::QueryParam@map](../QueryParam.html#map).
   getter? map : Bool = false
 
   def initialize(
@@ -40,6 +47,7 @@ abstract struct Athena::Routing::Params::ScalarParam < Athena::Routing::Params::
 
   # Used in QueryParam and RequestParam to reduce duplication when defining default and type getters.
   private macro define_initializer
+    # :inherit:
     getter default : T?
 
     # The type of the parameter, i.e. what its type restriction is.

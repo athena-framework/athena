@@ -17,26 +17,26 @@ describe ART::Params::QueryParam do
     end
   end
 
-  describe "#parse_value" do
+  describe "#extract_value" do
     it "missing" do
       request = new_request
       request.query = "bar=1"
 
-      ART::Params::QueryParam(String).new("name", false, key: "key").parse_value(request, "default").should eq "default"
+      ART::Params::QueryParam(String).new("name", false, key: "key").extract_value(request, "default").should eq "default"
     end
 
     it "scalar" do
       request = new_request
       request.query = "key=1"
 
-      ART::Params::QueryParam(String).new("name", false, key: "key").parse_value(request, "default").should eq "1"
+      ART::Params::QueryParam(String).new("name", false, key: "key").extract_value(request, "default").should eq "1"
     end
 
     it "array" do
       request = new_request
       request.query = "key=1&key=2"
 
-      ART::Params::QueryParam(Array(String)).new("name", false, key: "key").parse_value(request, "default").should eq ["1", "2"]
+      ART::Params::QueryParam(Array(String)).new("name", false, key: "key").extract_value(request, "default").should eq ["1", "2"]
     end
   end
 end

@@ -3,7 +3,7 @@ require "../spec_helper"
 private struct MockScalarParam(T) < ART::Params::ScalarParam
   define_initializer
 
-  def parse_value(request : HTTP::Request, default = nil) : Nil
+  def extract_value(request : HTTP::Request, default = nil) : Nil
   end
 end
 

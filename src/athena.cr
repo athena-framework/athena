@@ -510,6 +510,11 @@ module Athena::Routing
     TAG = "athena.argument_value_resolver"
   end
 
+  # Namespace for types related to request parameter processing.
+  #
+  # See `ART::QueryParam` and `ART::RequestParam`.
+  module Athena::Routing::Params; end
+
   # Parent type of a route just used for typing.
   #
   # See `ART::Action`.

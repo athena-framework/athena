@@ -1,5 +1,6 @@
 require "./param_interface"
 
+# Base implementation of `ART::Params::ParamInterface`.
 abstract struct Athena::Routing::Params::Param
   include Athena::Routing::Params::ParamInterface
 
@@ -43,6 +44,9 @@ abstract struct Athena::Routing::Params::Param
     constraints
   end
 
+  # Returns the key that should be used to access `self` from a given request.
+  #
+  # Defaults to `#name`, but may be customized.  See [ART::QueryParam@key](../QueryParam.html#key).
   def key : String
     @key || @name
   end

@@ -338,8 +338,6 @@ module Athena::Routing
   # NOTE: The entire request body is consumed to parse the form data.
   #
   # ```
-  # require "athena"
-  #
   # class ExampleController < ART::Controller
   #   @[ART::Post(path: "/login")]
   #   @[ART::RequestParam("username")]

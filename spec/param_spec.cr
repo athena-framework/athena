@@ -48,7 +48,7 @@ struct ParamTest < ART::Spec::APITestCase
   def test_nilable_strict_regex_query_param_invalid_value : Nil
     response = self.request("GET", "/query/page-nilable-strict?page=20")
     response.status.should eq HTTP::Status::UNPROCESSABLE_ENTITY
-    response.body.should eq %({"code":422,"message":"Parameter 'page' of value '20' violated a constraint: 'Parameter 'page' value does not match requirements '(?-imsx:1\\\\d)''\\n"})
+    response.body.should eq %({"code":422,"message":"Parameter 'page' of value '20' violated a constraint: 'Parameter 'page' value does not match requirements: (?-imsx:^(?-imsx:1\\\\d)$)'\\n"})
   end
 
   def test_nilable_strict_regex_query_param_missing : Nil

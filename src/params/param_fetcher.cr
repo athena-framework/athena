@@ -1,6 +1,9 @@
 require "./param_fetcher_interface"
 
 @[ADI::Register]
+# Basic implementation of `ART::Params::ParamFetcherInterface`.
+#
+# NOTE: May only be used _after_ the related `ART::Action` has been resolved.
 class Athena::Routing::Params::ParamFetcher
   include Athena::Routing::Params::ParamFetcherInterface
 
@@ -19,12 +22,14 @@ class Athena::Routing::Params::ParamFetcher
   def each(strict : Bool? = nil, &) : Nil
   end
 
+  # :inherit:
   def each(strict : Bool? = nil, &) : Nil
     self.params.each_key do |key|
       yield key, self.get(key, strict)
     end
   end
 
+  # :inherit:
   def get(name : String, strict : Bool? = nil)
     param = self.params.fetch(name) { raise KeyError.new "Unknown parameter '#{name}'." }
 
@@ -32,7 +37,7 @@ class Athena::Routing::Params::ParamFetcher
 
     self.validate_param(
       param,
-      param.parse_value(self.request, default),
+      param.extract_value(self.request, default),
       strict.nil? ? param.strict? : strict,
       default
     )
@@ -76,13 +81,13 @@ class Athena::Routing::Params::ParamFetcher
   end
 
   private def check_not_incompatible_params(param : ART::Params::ParamInterface) : Nil
-    return if param.parse_value(self.request, nil).nil?
+    return if param.extract_value(self.request, nil).nil?
     return unless (incompatibles = param.incompatibles)
 
     incompatibles.each do |incompatible_param_name|
       incompatible_param = self.params.fetch(incompatible_param_name) { raise KeyError.new "Unknown parameter '#{incompatible_param_name}'." }
 
-      unless incompatible_param.parse_value(self.request, nil).nil?
+      unless incompatible_param.extract_value(self.request, nil).nil?
         raise ART::Exceptions::BadRequest.new "Parameter '#{param.name}' is incompatible with parameter '#{incompatible_param.name}'."
       end
     end
