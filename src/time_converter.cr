@@ -39,7 +39,9 @@ struct Athena::Routing::TimeConverter < Athena::Routing::ParamConverterInterface
 
     return unless request.attributes.has? arg_name
 
-    value = request.attributes.get arg_name, String
+    value = request.attributes.get arg_name
+
+    return if value.is_a?(Time) || !value.is_a?(String)
 
     time = (format = configuration.format) ? Time.parse(value, format, configuration.location) : Time.parse_rfc3339(value)
 

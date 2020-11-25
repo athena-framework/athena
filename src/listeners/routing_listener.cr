@@ -23,7 +23,7 @@ struct Athena::Routing::Listeners::Routing
 
     request.action = route.payload.not_nil!.dup
 
-    route.params.not_nil!.merge!(event.request.query_params.to_h).each do |key, value|
+    route.params.not_nil!.each do |key, value|
       event.request.attributes.set key, value
     end
   end

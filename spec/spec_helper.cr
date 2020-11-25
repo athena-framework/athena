@@ -6,6 +6,7 @@ require "./controllers/*"
 
 require "athena-spec"
 require "athena-event_dispatcher/spec"
+require "athena-validator/spec"
 require "../src/spec"
 
 include ASPEC::Methods
@@ -27,6 +28,7 @@ macro create_action(return_type, view_context = nil, &)
     Array(ART::ParamConverterInterface::ConfigurationInterface).new,
     {{view_context}} || ART::Action::ViewContext.new,
     ACF::AnnotationConfigurations.new,
+    Array(ART::Params::ParamInterface).new,
     TestController,
     {{return_type}},
     typeof(Tuple.new),
@@ -37,14 +39,15 @@ def new_context(*, request : HTTP::Request = new_request, response : HTTP::Serve
   HTTP::Server::Context.new request, response
 end
 
-def new_argument(has_default : Bool = false, is_nillable : Bool = false, default : Int32? = nil) : ART::Arguments::ArgumentMetadata
-  ART::Arguments::ArgumentMetadata(Int32).new("id", has_default, is_nillable, default)
+def new_argument(has_default : Bool = false, is_nilable : Bool = false, default : Int32? = nil) : ART::Arguments::ArgumentMetadata
+  ART::Arguments::ArgumentMetadata(Int32).new("id", has_default, is_nilable, default)
 end
 
 def new_action(
   arguments : Array(ART::Arguments::ArgumentMetadata)? = nil,
   param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface)? = nil,
-  view_context : ART::Action::ViewContext = ART::Action::ViewContext.new
+  view_context : ART::Action::ViewContext = ART::Action::ViewContext.new,
+  params : Array(ART::Params::ParamInterface) = Array(ART::Params::ParamInterface).new
 ) : ART::ActionBase
   ART::Action.new(
     ->{ test_controller = TestController.new; ->test_controller.get_test },
@@ -54,6 +57,7 @@ def new_action(
     param_converters || Array(ART::ParamConverterInterface::ConfigurationInterface).new,
     view_context,
     ACF::AnnotationConfigurations.new,
+    params,
     TestController,
     String,
     typeof(Tuple.new),

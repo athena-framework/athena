@@ -20,9 +20,10 @@
 # @[ART::Prefix("athena")]
 # class TestController < ART::Controller
 #   # A GET endpoint returning an `ART::Response`.
-#   @[ART::Get("/css")]
-#   def css : ART::Response
-#     ART::Response.new ".some_class { color: blue; }", headers: HTTP::Headers{"content-type" => MIME.from_extension(".css")}
+#   # Can be used to return raw data, such as HTML or CSS etc, in a one-off manor.
+#   @[ART::Get(path: "/index")]
+#   def index : ART::Response
+#     ART::Response.new "<h1>Welcome to my website!</h1>", headers: HTTP::Headers{"content-type" => MIME.from_extension(".html")}
 #   end
 #
 #   # A GET endpoint using a param converter to render a template.
@@ -103,7 +104,7 @@
 #
 # ART.run
 #
-# # GET /athena/css"                     # => .some_class { color: blue; }
+# # GET /athena/index"                   # => <h1>Welcome to my website!</h1>
 # # GET /athena/wakeup/17"               # => Morning, Allison it is currently 2020-02-01 18:38:12 UTC.
 # # GET /athena/me"                      # => "Jim"
 # # GET /athena/add/50/25"               # => 75

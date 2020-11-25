@@ -11,6 +11,18 @@ describe ART::TimeConverter do
     request.attributes.has?("time").should be_false
   end
 
+  it "retuurns the value as is if it's already a Time instance" do
+    now = Time.utc
+
+    configuration = ART::TimeConverter::Configuration.new "time", ART::TimeConverter
+    request = new_request
+    request.attributes.set "time", now
+
+    ART::TimeConverter.new.apply request, configuration
+
+    request.attributes.get("time").should eq now
+  end
+
   it "parses RFC 3339 by default" do
     configuration = ART::TimeConverter::Configuration.new "time", ART::TimeConverter
     request = new_request

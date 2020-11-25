@@ -34,7 +34,7 @@ dependencies:
     version: ~> 0.4.1
   athena-validator:
     github: athena-framework/validator
-    version: ~> 0.1.0
+    version: ~> 0.1.2
 
 development_dependencies:
   ameba:

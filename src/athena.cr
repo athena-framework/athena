@@ -13,6 +13,7 @@ require "./error_renderer_interface"
 require "./error_renderer"
 require "./logging"
 require "./parameter_bag"
+require "./params/*"
 require "./param_converter_interface"
 require "./redirect_response"
 require "./response"
@@ -99,7 +100,7 @@ alias ART = Athena::Routing
 #
 # #### Route Parameters
 #
-# Parameters, such as path/query parameters, are also defined via annotations and map directly to the method's arguments.
+# `ART::QueryParam` and `ART::RequestParam`s are defined via annotations and map directly to the method's arguments.  See the related annotation docs for more information.
 #
 # ```
 # require "athena"
@@ -117,14 +118,14 @@ alias ART = Athena::Routing
 #
 # # GET /add/2/3               # => 5
 # # GET /add/5/5?negative=true # => -10
-# # GET /add/foo/12            # => {"code":422,"message":"Required parameter 'value1' with value 'foo' could not be converted into a valid 'Int32'"}
+# # GET /add/foo/12            # => {"code":400,"message":"Required parameter 'value1' with value 'foo' could not be converted into a valid 'Int32'"}
 # ```
 #
 # Arguments are converted to their expected types if possible, otherwise an error response is automatically returned.
 # The values are provided directly as method arguments, thus preventing the need for `env.params.url["name"]` and any boilerplate related to it.
 # Just like normal methods arguments, default values can be defined. The method's return type adds some type safety to ensure the expected value is being returned.
 #
-# Restricting an action argument to `HTTP::Request` will provide the raw request object, which can be used to retrieve the request data.
+# Restricting an action argument to `HTTP::Request` will provide the raw request object.
 # This approach is fine for simple or one-off endpoints, however for more complex/common request data processing, it is suggested to create
 # a [Param Converter](./Routing.html#param-converters).
 #
@@ -143,8 +144,9 @@ alias ART = Athena::Routing
 # # POST /data body: "foo--bar" # => "foo--bar"
 # ```
 #
-# An `ART::Response` can also be used in order to fully customize the response, such as returning a specific status code, adding some one-off headers, or saving memory by directly
-# writing the response value to the Response IO.
+# ##### Returning Raw Data
+#
+# An `ART::Response` can also be used in order to fully customize the response, such as returning a specific status code, adding some one-off headers, or saving memory by directly writing the response value to the Response IO.
 #
 # ```
 # require "athena"
@@ -152,15 +154,16 @@ alias ART = Athena::Routing
 #
 # class ExampleController < ART::Controller
 #   # A GET endpoint returning an `ART::Response`.
-#   @[ART::Get(path: "/css")]
-#   def css : ART::Response
-#     ART::Response.new ".some_class { color: blue; }", headers: HTTP::Headers{"content-type" => MIME.from_extension(".css")}
+#   # Can be used to return raw data, such as HTML or CSS etc, in a one-off manor.
+#   @[ART::Get(path: "/index")]
+#   def index : ART::Response
+#     ART::Response.new "<h1>Welcome to my website!</h1>", headers: HTTP::Headers{"content-type" => MIME.from_extension(".html")}
 #   end
 # end
 #
 # ART.run
 #
-# # GET /css # => ".some_class { color: blue; }"
+# # GET /index # => "<h1>Welcome to my website!</h1>"
 # ```
 #
 # An `ART::Events::View` is emitted if the returned value is _NOT_ an `ART::Response`.  By default, non `ART::Response`s are JSON serialized.
@@ -507,6 +510,11 @@ module Athena::Routing
     TAG = "athena.argument_value_resolver"
   end
 
+  # Namespace for types related to request parameter processing.
+  #
+  # See `ART::QueryParam` and `ART::RequestParam`.
+  module Athena::Routing::Params; end
+
   # Parent type of a route just used for typing.
   #
   # See `ART::Action`.
@@ -574,6 +582,8 @@ module Athena::Routing
     # See `ART::Events::RequestAware` for an example.
     getter annotation_configurations : ACF::AnnotationConfigurations
 
+    getter params : Array(ART::Params::ParamInterface)
+
     def initialize(
       @action : ActionType,
       @action_name : String,
@@ -582,6 +592,7 @@ module Athena::Routing
       @param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface),
       @view_context : ART::Action::ViewContext,
       @annotation_configurations : ACF::AnnotationConfigurations,
+      @params : Array(ART::Params::ParamInterface),
       # Don't bother making these ivars since we just need them to set the generic types
       _controller : Controller.class,
       _return_type : ReturnType.class,
