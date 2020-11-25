@@ -1,4 +1,6 @@
-class Athena::Routing::Exceptions::InvalidParameter < Athena::Routing::Exceptions::BadRequest
+require "./unprocessable_entity"
+
+class Athena::Routing::Exceptions::InvalidParameter < Athena::Routing::Exceptions::UnprocessableEntity
   getter parameter : ART::Params::ParamInterface
   getter violations : AVD::Violation::ConstraintViolationListInterface
 

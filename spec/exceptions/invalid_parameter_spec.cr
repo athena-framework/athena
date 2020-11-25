@@ -18,7 +18,7 @@ describe ART::Exceptions::InvalidParameter do
       exception = ART::Exceptions::InvalidParameter.with_violations param, errors
 
       exception.message.should eq "Parameter 'id' of value '' violated a constraint: 'ERROR'\n"
-      exception.status.should eq HTTP::Status::BAD_REQUEST
+      exception.status.should eq HTTP::Status::UNPROCESSABLE_ENTITY
       exception.violations.should eq errors
       exception.parameter.name.should eq "id"
     end
