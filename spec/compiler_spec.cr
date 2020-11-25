@@ -59,6 +59,10 @@ describe Athena::Routing do
         assert_error "compiler/query_param_missing_action_argument.cr", "Route action 'CompileController#action' has an Athena::Routing::QueryParam annotation but does not have a corresponding action argument for 'foo'."
       end
 
+      it "disallows non nilable non strict and no default params" do
+        assert_error "compiler/query_param_not_strict_not_nilable_no_default.cr", "Route action 'CompileController#action' has an Athena::Routing::QueryParam annotation with `strict: false` but the related action argument is not nilable nor has a default value."
+      end
+
       describe "requirements" do
         describe "only allows `Assert` annotations as requirements (other than regex)" do
           it "with a single annotation" do

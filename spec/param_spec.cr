@@ -28,15 +28,11 @@ struct ParamTest < ART::Spec::APITestCase
   end
 
   def test_nilable_not_strict_regex_query_param_invalid : Nil
-    response = self.request("GET", "/query/page-nilable?page=foo")
-    response.status.should eq HTTP::Status::OK
-    response.body.should eq %(null)
+    self.request("GET", "/query/page-nilable?page=foo").body.should eq %(null)
   end
 
   def test_nilable_not_strict_regex_query_param_missing : Nil
-    response = self.request("GET", "/query/page-nilable")
-    response.status.should eq HTTP::Status::OK
-    response.body.should eq %(null)
+    self.request("GET", "/query/page-nilable").body.should eq %(null)
   end
 
   def test_nilable_strict_regex_query_param_provided : Nil
@@ -56,9 +52,7 @@ struct ParamTest < ART::Spec::APITestCase
   end
 
   def test_nilable_strict_regex_query_param_missing : Nil
-    response = self.request("GET", "/query/page-nilable-strict")
-    response.status.should eq HTTP::Status::OK
-    response.body.should eq %(null)
+    self.request("GET", "/query/page-nilable-strict").body.should eq %(null)
   end
 
   def test_annotation_query_param_valid : Nil

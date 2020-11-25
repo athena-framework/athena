@@ -128,12 +128,12 @@ class Athena::Routing::RouteResolver
             {% param_ann = param[0] %}
             {% param_class = param[1].id %}
 
-            {% for qp in m.annotations(param_ann) %}
-              {% qp.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (qp[0] || qp[:name]) %}
+            {% for ann in m.annotations(param_ann) %}
+              {% ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (ann[0] || ann[:name]) %}
               {% arg = m.args.find &.name.stringify.==(arg_name) %}
-              {% qp.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation but does not have a corresponding action argument for '#{arg_name.id}'." unless arg_names.includes? arg_name %}
+              {% ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation but does not have a corresponding action argument for '#{arg_name.id}'." unless arg_names.includes? arg_name %}
 
-              {% ann_args = qp.named_args %}
+              {% ann_args = ann.named_args %}
 
               # It's possible the `requirements` field is/are `Assert` annotations,
               # resolve them into constraint objects.
@@ -165,7 +165,7 @@ class Athena::Routing::RouteResolver
                      end
                    end %}
               {% else %}
-                {% qp.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'requirements' type: '#{requirements.class_name.id}'.  Only Regex, NamedTuple, or Array values are supported." unless requirements.is_a? NilLiteral %}
+                {% ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'requirements' type: '#{requirements.class_name.id}'.  Only Regex, NamedTuple, or Array values are supported." unless requirements.is_a? NilLiteral %}
               {% end %}
 
               {% ann_args[:requirements] = requirements %}
@@ -184,6 +184,11 @@ class Athena::Routing::RouteResolver
                 {% end %}
 
                 {% param_converters << %(#{converter_args[:converter].resolve}::Configuration.new(#{converter_args.double_splat})).id %}
+              {% end %}
+
+              # Non strict parameters must be nilable or have a default value.
+              {% if ann_args[:strict] == false && !arg.restriction.resolve.nilable? && arg.default_value.is_a?(Nop) %}
+                {% ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with `strict: false` but the related action argument is not nilable nor has a default value." %}
               {% end %}
 
               # TODO: Use `.delete :converter` and remove `converter` argument from `ScalarParam`.
