@@ -1,5 +1,3 @@
-require "./url_generator_interface"
-
 @[ADI::Register]
 class Athena::Routing::Router
   include Athena::Routing::RequestMatcherInterface
