@@ -49,10 +49,6 @@ class RoutingController < ART::Controller
     "foo"
   end
 
-  get "/macro/:foo", foo : String, constraints: {"foo" => /foo/} do
-    foo
-  end
-
   get "/macro/get-nil", return_type: Nil do
   end
 
@@ -61,6 +57,10 @@ class RoutingController < ART::Controller
   end
 
   get "/macro" { "GET" }
+
+  get "/macro/:foo", foo : String, constraints: {"foo" => /foo/} do
+    foo
+  end
 
   post "/macro" do
     "POST"

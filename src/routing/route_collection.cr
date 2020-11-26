@@ -1,8 +1,12 @@
-# Registers an `ART::Action` for each action with the router.  This type is a singleton as opposed to a service to prevent all the routes from having to be redefined on each request.
-class Athena::Routing::RouteResolver
-  @router : Amber::Router::RouteSet(ActionBase) = Amber::Router::RouteSet(ActionBase).new
+# Wrapper around all the registered routes of an application.
+# Routes are cached as a class variables since they're immutable once the program has been built.
+class Athena::Routing::RouteCollection
+  include Enumerable({String, Athena::Routing::ActionBase})
+  include Iterable({String, Athena::Routing::ActionBase})
 
-  def initialize
+  protected class_getter routes : Hash(String, ART::ActionBase) do
+    routes = Hash(String, ART::ActionBase).new
+
     {% begin %}
       # Define a hash to store registered routes.  Will be used to raise on duplicate routes.
       {% registered_routes = {} of String => String %}
@@ -223,97 +227,69 @@ class Athena::Routing::RouteResolver
             {% annotation_configurations[ann_class] = "(#{annotations} of ACF::AnnotationConfigurations::ConfigurationBase)".id unless annotations.empty? %}
           {% end %}
 
-          # Add the route to the router
-          @router.add(
-            {{full_path}},
-            Action.new(
-              ->{
-                  # If the controller is not registered as a service, simply new one up
-                  # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
-                  {% if ann = klass.annotation(ADI::Register) %}
-                    {% klass.raise "Controller service '#{klass.id}' must be declared as public." unless ann[:public] %}
-                    %instance = ADI.container.get({{klass.id}})
-                  {% else %}
-                    %instance = {{klass.id}}.new
-                  {% end %}
-
-                  ->%instance.{{m.name.id}}{% if !m.args.empty? %}({{arg_types.splat}}){% end %}
-                },
-              {{m.name.stringify}},
-              {{method}},
-              {{arguments.empty? ? "Array(ART::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},
-              ({{param_converters}} of ART::ParamConverterInterface::ConfigurationInterface),
-              {{view_context}},
-              ACF::AnnotationConfigurations.new({{annotation_configurations}} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)),
-              ({{params}} of ART::Params::ParamInterface),
-              {{klass.id}},
-              {{m.return_type}},
-              {{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}
-            ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}
-          )
-
-          # Also add a HEAD route for GET endpoints.
-          {% if method == "GET" %}
-            @router.add(
-              {{full_path}},
-              Action.new(
-                ->{
-                  # If the controller is not registered as a service, simply new one up
-                  # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
-                  {% if ann = klass.annotation(ADI::Register) %}
-                    {% klass.raise "Controller service '#{klass.id}' must be declared as public." unless ann[:public] %}
-                    %instance = ADI.container.get({{klass.id}})
-                  {% else %}
-                    %instance = {{klass.id}}.new
-                  {% end %}
-
-                  ->%instance.{{m.name.id}}{% if !m.args.empty? %}({{arg_types.splat}}){% end %}
-                },
-                {{m.name.stringify}},
-                "HEAD",
-                {{arguments.empty? ? "Array(ART::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},
-                ({{param_converters}} of ART::ParamConverterInterface::ConfigurationInterface),
-                {{view_context}},
-                ACF::AnnotationConfigurations.new({{annotation_configurations}} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)),
-                ({{params}} of ART::Params::ParamInterface),
-                {{klass.id}},
-                {{m.return_type}},
-                {{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}
-              ){% if constraints = route_def[:constraints] %}, {{constraints}} {% end %}
-            )
+          {% if name = route_def[:name] %}
+            {% route_name = name %}
+          {% else %}
+            {% route_name = "#{klass.name.stringify.split("::").last.underscore.downcase.id}_#{m.name.id}" %}
           {% end %}
+
+          {% constraints = {} of Nil => Nil %}
+
+          {% if constraint = route_def[:constraints] %}
+            {% for key, value in constraint %}
+              {% constraints[key.id.stringify] = value %}
+            {% end %}
+          {% end %}
+
+          # Add the route to the router
+          routes[{{route_name}}] = Action.new(
+            action: ->{
+                # If the controller is not registered as a service, simply new one up
+                # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
+                {% if ann = klass.annotation(ADI::Register) %}
+                  {% klass.raise "Controller service '#{klass.id}' must be declared as public." unless ann[:public] %}
+                  %instance = ADI.container.get({{klass.id}})
+                {% else %}
+                  %instance = {{klass.id}}.new
+                {% end %}
+
+                ->%instance.{{m.name.id}}{% if !m.args.empty? %}({{arg_types.splat}}){% end %}
+              },
+            name: {{m.name.stringify}},
+            method: {{method}},
+            path: {{full_path}},
+            constraints: ({{constraints}} of String => Regex),
+            arguments: {{arguments.empty? ? "Array(ART::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},
+            param_converters: ({{param_converters}} of ART::ParamConverterInterface::ConfigurationInterface),
+            view_context: {{view_context}},
+            annotation_configurations: ACF::AnnotationConfigurations.new({{annotation_configurations}} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)),
+            params: ({{params}} of ART::Params::ParamInterface),
+            _controller: {{klass.id}},
+            _return_type: {{m.return_type}},
+            _arg_types: {{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}
+          )
         {% end %}
       {% end %}
+
+      routes
     {% end %}
   end
 
-  # Attempts to resolve the *request* into an `Amber::Router::RoutedResult(Athena::Routing::ActionBase)`.
-  #
-  # Raises an `ART::Exceptions::NotFound` exception if a corresponding `ART::Action` could not be resolved.
-  # Raises an `ART::Exceptions::MethodNotAllowed` exception if a route was matched but does not support the *request*'s method.
-  def resolve(request : HTTP::Request) : Amber::Router::RoutedResult(Athena::Routing::ActionBase)
-    # Get the routes that match the given path
-    matching_routes = @router.find_routes request.path
-
-    # Raise a 404 if it's empty
-    raise ART::Exceptions::NotFound.new "No route found for '#{request.method} #{request.path}'" if matching_routes.empty?
-
-    supported_methods = [] of String
-
-    # Iterate over each of the matched routes
-    route = matching_routes.find do |r|
-      action = r.payload.not_nil!
-
-      # Create an array of supported methods for the given action
-      # This'll be used if none of the routes support the request's method
-      # to show the supported methods in the error messaging
-      supported_methods << action.method
-
-      # Look for an action that supports the request's method
-      action.method == request.method
+  def each : Nil
+    self.routes.each do |k, v|
+      yield({k, v})
     end
+  end
 
-    # Return the matched route, or raise a 405 if none of them handle the request's method
-    route || raise ART::Exceptions::MethodNotAllowed.new "No route found for '#{request.method} #{request.path}': (Allow: #{supported_methods.join(", ")})"
+  def each
+    self.routes.each
+  end
+
+  def routes : Hash(String, ART::ActionBase)
+    self.class.routes
+  end
+
+  def get(name : String) : ART::ActionBase?
+    self.routes[name]?
   end
 end

@@ -77,7 +77,7 @@ struct Athena::Routing::RouteHandler
       @event_dispatcher.dispatch view_event
 
       unless response = view_event.response
-        raise "#{request.action.controller}##{request.action.action_name} must return an `ART::Response` but it returned '#{response}'."
+        raise "#{request.action.controller}##{request.action.name} must return an `ART::Response` but it returned '#{response}'."
       end
     end
 
