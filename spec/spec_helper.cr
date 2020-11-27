@@ -46,6 +46,11 @@ def new_argument(has_default : Bool = false, is_nilable : Bool = false, default 
 end
 
 def new_action(
+  *,
+  name : String = "test",
+  path : String = "/test",
+  method : String = "GET",
+  constraints : Hash(String, Regex) = Hash(String, Regex).new,
   arguments : Array(ART::Arguments::ArgumentMetadata)? = nil,
   param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface)? = nil,
   view_context : ART::Action::ViewContext = ART::Action::ViewContext.new,
@@ -53,10 +58,10 @@ def new_action(
 ) : ART::ActionBase
   ART::Action.new(
     ->{ test_controller = TestController.new; ->test_controller.get_test },
-    "get_test",
-    "GET",
-    "/test",
-    Hash(String, Regex).new,
+    name,
+    method,
+    path,
+    constraints,
     arguments || Array(ART::Arguments::ArgumentMetadata(Nil)).new,
     param_converters || Array(ART::ParamConverterInterface::ConfigurationInterface).new,
     view_context,

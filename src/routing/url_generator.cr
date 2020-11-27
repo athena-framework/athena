@@ -10,21 +10,30 @@ class Athena::Routing::URLGenerator
 
     # Create a hash of params based on passed in params object as well as route argument defaults.
     merged_params = route.arguments.to_h do |argument|
-      if !argument.has_default? && !argument.nilable? && !params.try &.has_key? argument.name
-        raise "Missing required param"
+      if !argument.has_default? && !argument.nilable? && !params.try(&.has_key?(argument.name))
+        raise ArgumentError.new "Route argument '#{argument.name}' is not nilable and was not provided nor has a default value."
       end
 
+      # Cast the value to a string since everything is going to be a string anyway;
+      # avoids a compiler type error :shrug:.
       value = if !params.try &.has_key? argument.name
                 argument.default
               else
-                params.try &.delete argument.name
-              end
+                params_value = params.try &.delete argument.name
+                raise ArgumentError.new "Route argument '#{argument.name}' is not nilable." if params_value.nil? && !argument.nilable? && argument.default.nil?
+                params_value
+              end.to_s
+
+      if requirements = route.constraints[argument.name]?
+        raise ArgumentError.new "Route argument '#{argument.name}' for route '#{route.name}' must match '#{requirements}', got '#{value}'." unless value.matches? requirements
+      end
 
       {":#{argument.name}", value}
     end
 
     # Use any extra passed in params as query params.
     query = if params && !params.empty?
+              params.compact!
               HTTP::Params.encode params.transform_values &.to_s
             end
 
@@ -35,9 +44,9 @@ class Athena::Routing::URLGenerator
 
     uri = URI.new(
       scheme: "https", # TODO: Should this be configurable in some way?
-      host: @request.host,
+      host: @request.host || "localhost",
       port: port,
-      path: route.path.gsub(/(?:(:\w+))/, merged_params),
+      path: route.path.gsub(/(?:(:\w+))/, merged_params).gsub(/\/+$/, ""),
       query: query,
       fragment: fragment
     )

@@ -5,7 +5,7 @@ describe ART::Controller do
     it "creates a proper response for the template" do
       # ameba:disable Lint/UselessAssign
       name = "TEST"
-      response = ART::Controller.render "spec/greeting.ecr"
+      response = ART::Controller.render "spec/assets/greeting.ecr"
 
       response.status.should eq HTTP::Status::OK
       response.headers.should eq HTTP::Headers{"content-type" => "text/html"}
@@ -15,7 +15,7 @@ describe ART::Controller do
     it "creates a proper response for the template with a layout" do
       # ameba:disable Lint/UselessAssign
       name = "TEST"
-      response = ART::Controller.render "spec/greeting.ecr", "spec/layout.ecr"
+      response = ART::Controller.render "spec/assets/greeting.ecr", "spec/assets/layout.ecr"
 
       response.status.should eq HTTP::Status::OK
       response.headers.should eq HTTP::Headers{"content-type" => "text/html"}
