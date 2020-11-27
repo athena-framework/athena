@@ -21,7 +21,7 @@ class Athena::Routing::Router
   def initialize(@request_store : ART::RequestStore); end
 
   def generate(route_name : String, params : Hash(String, _)? = nil, reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path) : String
-    self.generator.generate route_name, params
+    self.generator.generate route_name, params, reference_type
   end
 
   # Raises an `ART::Exceptions::NotFound` exception if a corresponding `ART::Action` could not be resolved.

@@ -6,7 +6,7 @@ class Athena::Routing::URLGenerator
   def generate(route_name : String, params : Hash(String, _)? = nil, reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path) : String
     route = @routes.get route_name
 
-    fragment = params.delete("_fragment").to_s.presence
+    fragment = params.try &.delete("_fragment").to_s.presence
 
     # Create a hash of params based on passed in params object as well as route argument defaults.
     merged_params = route.arguments.to_h do |argument|
@@ -28,10 +28,15 @@ class Athena::Routing::URLGenerator
               HTTP::Params.encode params.transform_values &.to_s
             end
 
+    # If the port is not a common one, 80 or 443, use it as the port; otherwise, don't bother setting it.
+    port = if (p = (@request.host_with_port.try &.split(':').last?.try &.to_i)) && !p.in? 80, 443
+             p
+           end
+
     uri = URI.new(
       scheme: "https", # TODO: Should this be configurable in some way?
       host: @request.host,
-      port: (@request.host_with_port.try &.split(':').last?.try &.to_i),
+      port: port,
       path: route.path.gsub(/(?:(:\w+))/, merged_params),
       query: query,
       fragment: fragment
@@ -40,8 +45,8 @@ class Athena::Routing::URLGenerator
     case reference_type
     in .absolute_path? then uri.full_path
     in .absolute_url?  then uri.to_s
-    in .relative_path? then ""
-    in .network_path?  then ""
+    in .relative_path? then raise NotImplementedError.new("Relative path reference type is currently not supported.")
+    in .network_path?  then raise NotImplementedError.new("TODO")
     end
   end
 end

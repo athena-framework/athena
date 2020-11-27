@@ -2,7 +2,10 @@ module Athena::Routing::URLGeneratorInterface
   enum ReferenceType
     ABSOLUTE_URL
     ABSOLUTE_PATH
+
+    # TODO: Implement this.
     RELATIVE_PATH
+
     NETWORK_PATH
   end
 
