@@ -293,7 +293,11 @@ class Athena::Routing::RouteCollection
     self.class.routes
   end
 
-  def get(name : String) : ART::ActionBase?
+  def get(name : String) : ART::ActionBase
+    self.routes.fetch(name) { raise KeyError.new "Unknown route: '#{name}'." }
+  end
+
+  def get?(name : String) : ART::ActionBase?
     self.routes[name]?
   end
 end
