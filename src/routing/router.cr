@@ -1,6 +1,6 @@
 require "./router_interface"
 
-@[ADI::Register]
+@[ADI::Register(name: "router", public: true)]
 class Athena::Routing::Router
   include Athena::Routing::RouterInterface
 

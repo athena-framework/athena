@@ -1,7 +1,7 @@
 require "./spec_helper"
 
 describe ART::Controller do
-  describe "#render" do
+  describe ".render" do
     it "creates a proper response for the template" do
       # ameba:disable Lint/UselessAssign
       name = "TEST"

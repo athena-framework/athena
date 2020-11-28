@@ -43,7 +43,7 @@ describe ART::Listeners::ParamListener do
 
     event = ART::Events::Action.new request, new_action
 
-    expect_raises ArgumentError, "Parameter 'foo' conflicts with a path parameter for route 'get_test'." do
+    expect_raises ArgumentError, "Parameter 'foo' conflicts with a path parameter for route 'test'." do
       ART::Listeners::ParamListener.new(MockParamFetcher.new).call(event, AED::Spec::TracableEventDispatcher.new)
     end
   end

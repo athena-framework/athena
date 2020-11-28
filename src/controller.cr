@@ -117,6 +117,26 @@
 # # POST /athena/test/foo", body: "foo"  # => true
 # ```
 abstract class Athena::Routing::Controller
+  # Generates a URL to the provided *route* with the provided *params*.
+  def generate_url(route : String, params : Hash(String, _)? = nil, reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path) : String
+    ADI.container.router.generate route, params, reference_type
+  end
+
+  # :ditto:
+  def generate_url(route : String, reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path, **params)
+    self.generate_url route, params.to_h.transform_keys(&.to_s), reference_type
+  end
+
+  # Returns an `ART::RedirectResponse` to the provided *route* with the provided *params*.
+  def redirect_to_route(route : String, params : Hash(String, _)? = nil, status : HTTP::Status = :found) : ART::RedirectResponse
+    self.redirect(self.generate_url(route, params), status)
+  end
+
+  # :ditto:
+  def redirect_to_route(route : String, status : HTTP::Status = :found, **params) : ART::RedirectResponse
+    self.redirect_to_route route, params.to_h.transform_keys(&.to_s.as(String)), status
+  end
+
   # Renders a template.
   #
   # Uses `ECR` to render the *template*, creating an `ART::Response` with its rendered content and adding a `text/html` `content-type` header.

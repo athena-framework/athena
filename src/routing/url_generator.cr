@@ -3,6 +3,8 @@ class Athena::Routing::URLGenerator
 
   def initialize(@routes : ART::RouteCollection, @request : HTTP::Request); end
 
+  # OPTIMIZE: Make URL generation more robust.
+  # ameba:disable Metrics/CyclomaticComplexity
   def generate(route_name : String, params : Hash(String, _)? = nil, reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path) : String
     route = @routes.get route_name
 
@@ -42,7 +44,7 @@ class Athena::Routing::URLGenerator
     # Use any extra passed in params as query params.
     query = if params && !params.empty?
               params.compact!
-              HTTP::Params.encode params.transform_values &.to_s
+              HTTP::Params.encode params.transform_values &.to_s.as(String)
             end
 
     # If the port is not a common one, 80 or 443, use it as the port; otherwise, don't bother setting it.

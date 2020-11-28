@@ -35,7 +35,7 @@ private def generator(routes : ART::RouteCollection, params : Hash(String, Strin
   ART::URLGenerator.new routes, request
 end
 
-describe ART::URLGenerator, focus: true do
+describe ART::URLGenerator do
   describe "#generate" do
     it "with no routes" do
       expect_raises KeyError, "Unknown route: 'foo'." do
