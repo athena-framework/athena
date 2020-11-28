@@ -62,7 +62,18 @@ class Athena::Routing::URLGenerator
     )
 
     case reference_type
-    in .absolute_path? then uri.full_path
+    in .absolute_path?
+      String.build do |str|
+        str << uri.path
+
+        if q = uri.query.presence
+          str << '?' << q
+        end
+
+        if f = uri.fragment.presence
+          str << '#' << f
+        end
+      end
     in .absolute_url?  then uri.to_s
     in .relative_path? then raise NotImplementedError.new("Relative path reference type is currently not supported.")
     in .network_path?

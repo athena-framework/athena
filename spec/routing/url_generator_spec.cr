@@ -1,24 +1,7 @@
 require "../spec_helper"
 
-# TODO: Move this to the `ART::Spec` module.
-private class MockRouteCollection < Athena::Routing::RouteCollection
-  @routes : Hash(String, ART::ActionBase) = Hash(String, ART::ActionBase).new
-
-  def add(name : String, route : ART::ActionBase) : Nil
-    @routes[name] = route
-  end
-
-  def add(route : ART::ActionBase) : Nil
-    self.add route.name, route
-  end
-
-  def routes : Hash(String, ART::ActionBase)
-    @routes
-  end
-end
-
 private def route_collection(route : ART::ActionBase) : ART::RouteCollection
-  routes = MockRouteCollection.new
+  routes = ART::Spec::MockRouteCollection.new
   routes.add route
   routes
 end

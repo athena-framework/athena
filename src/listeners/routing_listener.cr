@@ -22,8 +22,6 @@ struct Athena::Routing::Listeners::Routing
       request.method = "GET"
     end
 
-    # The route_resolver must be called here for controller DI to work.
-    # Other option would be to new up a route resolver for every request. :shrug:
     route = @matcher.match request
 
     LOGGER.info &.emit "Matched route #{request.path}", uri: request.path, method: request.method, path_params: route.params, query_params: request.query_params.to_h
