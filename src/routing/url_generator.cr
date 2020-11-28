@@ -14,19 +14,27 @@ class Athena::Routing::URLGenerator
         raise ArgumentError.new "Route argument '#{argument.name}' is not nilable and was not provided nor has a default value."
       end
 
-      # Cast the value to a string since everything is going to be a string anyway;
-      # avoids a compiler type error :shrug:.
+      # Cast the value to a string since everything is going to be a string anyway; avoids a compiler type error :shrug:.
       value = if !params.try &.has_key? argument.name
                 argument.default
               else
-                params_value = params.try &.delete argument.name
+                params_value = params.try &.[argument.name]
                 raise ArgumentError.new "Route argument '#{argument.name}' is not nilable." if params_value.nil? && !argument.nilable? && argument.default.nil?
                 params_value
               end.to_s
 
+      # Validate the param matches any route constraints for that param defined on the route.
       if requirements = route.constraints[argument.name]?
         raise ArgumentError.new "Route argument '#{argument.name}' for route '#{route.name}' must match '#{requirements}', got '#{value}'." unless value.matches? requirements
       end
+
+      # Skip params whose value isn't the same as the default,
+      # Allows the value to be added as query params.
+      if (param = route.params.find(&.name.==(argument.name))) && (param.default.to_s != value)
+        next {"", ""}
+      end
+
+      params.try &.delete argument.name
 
       {":#{argument.name}", value}
     end
@@ -55,7 +63,9 @@ class Athena::Routing::URLGenerator
     in .absolute_path? then uri.full_path
     in .absolute_url?  then uri.to_s
     in .relative_path? then raise NotImplementedError.new("Relative path reference type is currently not supported.")
-    in .network_path?  then raise NotImplementedError.new("TODO")
+    in .network_path?
+      uri.scheme = nil
+      uri.to_s
     end
   end
 end

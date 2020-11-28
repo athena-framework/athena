@@ -17,3 +17,20 @@ class HTTP::Request
     HTTP::Params.parse self.body.try(&.gets_to_end) || ""
   end
 end
+
+# Monkey patch this until it is released upstream:
+# TODO: Remove this once it is fixed [upstream](https://github.com/crystal-lang/crystal/pull/9990).
+class URI
+  def full_path : String
+    String.build do |str|
+      str << (@path.empty? ? '/' : @path)
+      if query = @query.presence
+        str << '?' << query
+      end
+
+      if fragment = @fragment.presence
+        str << '#' << fragment
+      end
+    end
+  end
+end

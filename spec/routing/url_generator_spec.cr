@@ -109,6 +109,45 @@ describe ART::URLGenerator, focus: true do
       generator(route_collection(action)).generate("test", {"default" => nil}).should eq "/test"
     end
 
+    it "doesn't include query params that are the same as the default" do
+      action = new_action(
+        arguments: [
+          ART::Arguments::ArgumentMetadata(Int32).new("page", true, default: 1),
+        ],
+        params: [
+          ART::Params::QueryParam(Int32).new("page", true, default: 1),
+        ] of ART::Params::ParamInterface
+      )
+
+      generator(route_collection(action)).generate("test", {"page" => 2}).should eq "/test?page=2"
+      generator(route_collection(action)).generate("test", {"page" => 1}).should eq "/test"
+      generator(route_collection(action)).generate("test", {"page" => "1"}).should eq "/test"
+      generator(route_collection(action)).generate("test").should eq "/test"
+    end
+
+    it "doesn't include array query params that are the same as the default" do
+      action = new_action(
+        arguments: [
+          ART::Arguments::ArgumentMetadata(Array(String)).new("array", true, default: ["foo", "bar"]),
+        ],
+        params: [
+          ART::Params::QueryParam(Array(String)).new("array", true, default: ["foo", "bar"]),
+        ] of ART::Params::ParamInterface
+      )
+
+      generator(route_collection(action)).generate("test", {"array" => ["bar", "foo"]}).should eq "/test?array=%5B%22bar%22%2C+%22foo%22%5D"
+      generator(route_collection(action)).generate("test", {"array" => ["foo", "bar"]}).should eq "/test"
+      generator(route_collection(action)).generate("test").should eq "/test"
+    end
+
+    it "with special route name" do
+      generator(route_collection(new_action(name: "$péß^a|"))).generate("$péß^a|").should eq "/test"
+    end
+
+    it "with fragment" do
+      generator(route_collection(new_action)).generate("test", {"_fragment" => "anchor"}).should eq "/test#anchor"
+    end
+
     describe "absolute url" do
       it "with port 80" do
         generator(route_collection(new_action), {"host" => "localhost:80"}).generate("test", reference_type: :absolute_url).should eq "https://localhost/test"
@@ -218,12 +257,38 @@ describe ART::URLGenerator, focus: true do
         generator(route_collection(action)).generate("test", reference_type: :absolute_path).should eq "/"
       end
 
+      it "includes defaults if there is a non variable segments after" do
+        action = new_action(
+          path: "/:slug/:page/foo",
+          arguments: [
+            ART::Arguments::ArgumentMetadata(String).new("slug", true, default: "index"),
+            ART::Arguments::ArgumentMetadata(Int32).new("page", true, default: 0),
+          ]
+        )
+
+        generator(route_collection(action)).generate("test", reference_type: :absolute_path).should eq "/index/0/foo"
+      end
+
       it "extra params" do
         generator(route_collection(new_action)).generate("test", {"foo" => "bar"}).should eq "/test?foo=bar"
       end
 
       it "null extra param" do
         generator(route_collection(new_action)).generate("test", {"foo" => nil}).should eq "/test"
+      end
+    end
+
+    describe "network path" do
+      it "generates correctly" do
+        action = new_action(
+          path: "/:name",
+          arguments: [
+            ART::Arguments::ArgumentMetadata(String).new("name", false),
+          ],
+        )
+
+        generator(route_collection(action)).generate("test", {"name" => "George"}, :network_path).should eq "//localhost/George"
+        generator(route_collection(action)).generate("test", {"name" => "George", "query" => "string"}, :network_path).should eq "//localhost/George?query=string"
       end
     end
   end
