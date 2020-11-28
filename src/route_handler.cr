@@ -29,7 +29,11 @@ struct Athena::Routing::RouteHandler
       response.headers.merge! exception.headers
     end
 
-    return_response finish_response(response, context.request), context
+    begin
+      return_response finish_response(response, context.request), context
+    rescue
+      return_response response, context
+    end
   end
 
   private def return_response(response : ART::Response, context : HTTP::Server::Context) : Nil

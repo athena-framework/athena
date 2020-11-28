@@ -138,5 +138,38 @@ describe Athena::Routing::RouteHandler do
         dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Action, ART::Events::Exception]
       end
     end
+
+    describe "when another exception is raised in the response listener" do
+      it "should return the previous response" do
+        listener = AED.create_listener(ART::Events::Response) do
+          raise ART::Exceptions::NotFound.new "NOT_FOUND"
+        end
+
+        ex_listener = AED.create_listener(ART::Events::Exception) do
+          event.response = ART::Response.new "HANDLED", HTTP::Status::NOT_FOUND
+        end
+
+        dispatcher = AED::Spec::TracableEventDispatcher.new
+        dispatcher.add_listener ART::Events::Response, listener
+        dispatcher.add_listener ART::Events::Exception, ex_listener
+
+        handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new
+        io = IO::Memory.new
+
+        action = create_action(ART::Response) do
+          ART::Response.new "TEST"
+        end
+
+        context = new_context request: new_request(action: action), response: new_response io: io
+
+        handler.handle context
+
+        dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Action, ART::Events::Response, ART::Events::Exception, ART::Events::Response, ART::Events::Terminate]
+        context.response.closed?.should be_true
+        context.response.status.should eq HTTP::Status::NOT_FOUND
+
+        io.rewind.gets_to_end.should end_with %(HANDLED)
+      end
+    end
   end
 end
