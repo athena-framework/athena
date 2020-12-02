@@ -1,6 +1,5 @@
 @[ADI::Register]
-# Handles processing request attributes such as `ART::QueryParam` or `ART::RequestParam`.
-struct Athena::Routing::Listeners::ParamFetcher
+struct Athena::Routing::Listeners::ParamListener
   include AED::EventListenerInterface
 
   def self.subscribed_events : AED::SubscribedEvents
