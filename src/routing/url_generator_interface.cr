@@ -7,21 +7,21 @@ module Athena::Routing::URLGeneratorInterface
     # Includes an absolute URL including protocol, hostname, and path: `https://api.example.com/add/10/5`.
     #
     # NOTE: The generated URL's protocol is always `https`.
-    ABSOLUTE_URL
+    Absolute_URL
 
     # The default type, includes an absolute path from the root to the generated route: `/add/10/5`.
-    ABSOLUTE_PATH
+    Absolute_Path
 
     # TODO: Implement this.
-    RELATIVE_PATH
+    Relative_Path
 
-    # Similar to `ABSOLUTE_URL`, but reuses the current protocol: `//api.example.com/add/10/5`.
-    NETWORK_PATH
+    # Similar to `Absolute_URL`, but reuses the current protocol: `//api.example.com/add/10/5`.
+    Network_Path
   end
 
   # Generates a URL to the provided *route* with the provided *params*.
   #
-  # By default the path is an `ART::URLGeneratorInterface::ReferenceType::ABSOLUTE_PATH`,
+  # By default the path is an `ART::URLGeneratorInterface::ReferenceType::Absolute_Path`,
   # but can be changed via the *reference_type* argument.
   #
   # Any *params* not related to an argument for the provided *route* will be added as query params.
