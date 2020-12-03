@@ -117,6 +117,78 @@
 # # POST /athena/test/foo", body: "foo"  # => true
 # ```
 abstract class Athena::Routing::Controller
+  # Generates a URL to the provided *route* with the provided *params*.
+  #
+  # See `ART::URLGeneratorInterface#generate`.
+  def generate_url(route : String, params : Hash(String, _)? = nil, reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path) : String
+    ADI.container.router.generate route, params, reference_type
+  end
+
+  # Generates a URL to the provided *route* with the provided *params*.
+  #
+  # See `ART::URLGeneratorInterface#generate`.
+  def generate_url(route : String, reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path, **params)
+    self.generate_url route, params.to_h.transform_keys(&.to_s), reference_type
+  end
+
+  # Returns an `ART::RedirectResponse` to the provided *route* with the provided *params*.
+  #
+  # ```
+  # require "athena"
+  #
+  # class ExampleController < ART::Controller
+  #   # Define a route to redirect to, explicitly naming this route `add`.
+  #   # The default route name is controller + method down snake-cased; e.x. `example_controller_add`.
+  #   @[ART::Get("/add/:value1/:value2", name: "add")]
+  #   def add(value1 : Int32, value2 : Int32, negative : Bool = false) : Int32
+  #     sum = value1 + value2
+  #     negative ? -sum : sum
+  #   end
+  #
+  #   # Define a route that redirects to the `add` route with fixed parameters.
+  #   @[ART::Get("/")]
+  #   def redirect : ART::RedirectResponse
+  #     self.redirect_to_route "add", {"value1" => 8, "value2" => 2}
+  #   end
+  # end
+  #
+  # ART.run
+  #
+  # # GET / # => 10
+  # ```
+  def redirect_to_route(route : String, params : Hash(String, _)? = nil, status : HTTP::Status = :found) : ART::RedirectResponse
+    self.redirect(self.generate_url(route, params), status)
+  end
+
+  # Returns an `ART::RedirectResponse` to the provided *route* with the provided *params*.
+  #
+  # ```
+  # require "athena"
+  #
+  # class ExampleController < ART::Controller
+  #   # Define a route to redirect to, explicitly naming this route `add`.
+  #   # The default route name is controller + method down snake-cased; e.x. `example_controller_add`.
+  #   @[ART::Get("/add/:value1/:value2", name: "add")]
+  #   def add(value1 : Int32, value2 : Int32, negative : Bool = false) : Int32
+  #     sum = value1 + value2
+  #     negative ? -sum : sum
+  #   end
+  #
+  #   # Define a route that redirects to the `add` route with fixed parameters.
+  #   @[ART::Get("/")]
+  #   def redirect : ART::RedirectResponse
+  #     self.redirect_to_route "add", value1: 8, value2: 2
+  #   end
+  # end
+  #
+  # ART.run
+  #
+  # # GET / # => 10
+  # ```
+  def redirect_to_route(route : String, status : HTTP::Status = :found, **params) : ART::RedirectResponse
+    self.redirect_to_route route, params.to_h.transform_keys(&.to_s.as(String)), status
+  end
+
   # Renders a template.
   #
   # Uses `ECR` to render the *template*, creating an `ART::Response` with its rendered content and adding a `text/html` `content-type` header.
@@ -178,7 +250,7 @@ abstract class Athena::Routing::Controller
   # class ExampleController < ART::Controller
   #   @[ART::Get("redirect_to_google")]
   #   def redirect_to_google : ART::RedirectResponse
-  #     redirect "https://google.com"
+  #     self.redirect "https://google.com"
   #   end
   # end
   # ```

@@ -214,4 +214,21 @@ module Athena::Routing::Spec
       Fiber.current.container = ADI::Spec::MockableServiceContainer.new
     end
   end
+
+  # Test implementation of `ART::RouteCollection` that allows routes to be scoped to a specific instance and added manually.
+  class MockRouteCollection < Athena::Routing::RouteCollection
+    @routes : Hash(String, ART::ActionBase) = Hash(String, ART::ActionBase).new
+
+    def add(name : String, route : ART::ActionBase) : Nil
+      @routes[name] = route
+    end
+
+    def add(route : ART::ActionBase) : Nil
+      self.add route.name, route
+    end
+
+    def routes : Hash(String, ART::ActionBase)
+      @routes
+    end
+  end
 end

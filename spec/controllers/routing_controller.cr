@@ -27,6 +27,46 @@ class RoutingController < ART::Controller
     ART::RedirectResponse.new "https://crystal-lang.org"
   end
 
+  @[ART::Get("url")]
+  def generate_url : String
+    self.generate_url "routing_controller_response"
+  end
+
+  @[ART::Get("url-hash")]
+  def generate_url_hash : String
+    self.generate_url "routing_controller_response", {"id" => 10}
+  end
+
+  @[ART::Get("url-nt")]
+  def generate_url_nt : String
+    self.generate_url "routing_controller_response", id: 10
+  end
+
+  @[ART::Get("url-nt-abso")]
+  def generate_url_nt_absolute : String
+    self.generate_url "routing_controller_response", id: 10, reference_type: :absolute_url
+  end
+
+  @[ART::Get("redirect-url")]
+  def redirect_url : ART::RedirectResponse
+    self.redirect_to_route "routing_controller_response"
+  end
+
+  @[ART::Get("redirect-url-status")]
+  def redirect_url_status : ART::RedirectResponse
+    self.redirect_to_route "routing_controller_response", :permanent_redirect
+  end
+
+  @[ART::Get("redirect-url-hash")]
+  def redirect_url_hash : ART::RedirectResponse
+    self.redirect_to_route "routing_controller_response", {"id" => 10}
+  end
+
+  @[ART::Get("redirect-url-nt")]
+  def redirect_url_nt : ART::RedirectResponse
+    self.redirect_to_route "routing_controller_response", id: 10
+  end
+
   @[ART::Get("events")]
   @[ART::ParamConverter("since", converter: ART::TimeConverter)]
   @[ART::QueryParam("since")]
@@ -49,10 +89,6 @@ class RoutingController < ART::Controller
     "foo"
   end
 
-  get "/macro/:foo", foo : String, constraints: {"foo" => /foo/} do
-    foo
-  end
-
   get "/macro/get-nil", return_type: Nil do
   end
 
@@ -61,6 +97,10 @@ class RoutingController < ART::Controller
   end
 
   get "/macro" { "GET" }
+
+  get "/macro/:foo", foo : String, constraints: {"foo" => /foo/} do
+    foo
+  end
 
   post "/macro" do
     "POST"

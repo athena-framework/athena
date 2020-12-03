@@ -25,6 +25,12 @@ struct RoutingTest < ART::Spec::APITestCase
     response.body.should eq %({"code":404,"message":"No route found for 'GET /fake/route'"})
   end
 
+  def test_invalid_method : Nil
+    response = self.request "POST", "/art/response"
+    response.status.should eq HTTP::Status::METHOD_NOT_ALLOWED
+    response.body.should eq %({"code":405,"message":"No route found for 'POST /art/response': (Allow: GET)"})
+  end
+
   def test_allows_returning_an_athena_response : Nil
     response = self.request "GET", "/art/response"
     response.status.should eq HTTP::Status::IM_A_TEAPOT
@@ -93,5 +99,45 @@ struct RoutingTest < ART::Spec::APITestCase
 
   def test_constraints_routes_if_match : Nil
     self.request("GET", "/macro/foo").body.should eq %("foo")
+  end
+
+  def test_generate_url_no_args : Nil
+    self.request("GET", "/url").body.should eq %("/art/response")
+  end
+
+  def test_generate_url_hash : Nil
+    self.request("GET", "/url-hash").body.should eq %("/art/response?id=10")
+  end
+
+  def test_generate_url_named_tuple : Nil
+    self.request("GET", "/url-nt").body.should eq %("/art/response?id=10")
+  end
+
+  def test_generate_url_named_tuple_abso : Nil
+    self.request("GET", "/url-nt-abso").body.should eq %("https://localhost/art/response?id=10")
+  end
+
+  def test_redirect_to_route : Nil
+    response = self.request("GET", "/redirect-url")
+    response.status.should eq HTTP::Status::FOUND
+    response.headers["location"].should eq "/art/response"
+  end
+
+  def test_redirect_to_route_status : Nil
+    response = self.request("GET", "/redirect-url-status")
+    response.status.should eq HTTP::Status::PERMANENT_REDIRECT
+    response.headers["location"].should eq "/art/response"
+  end
+
+  def test_redirect_to_route_hash : Nil
+    response = self.request("GET", "/redirect-url-hash")
+    response.status.should eq HTTP::Status::FOUND
+    response.headers["location"].should eq "/art/response?id=10"
+  end
+
+  def test_redirect_to_route_nt : Nil
+    response = self.request("GET", "/redirect-url-nt")
+    response.status.should eq HTTP::Status::FOUND
+    response.headers["location"].should eq "/art/response?id=10"
   end
 end

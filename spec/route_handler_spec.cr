@@ -66,7 +66,7 @@ describe Athena::Routing::RouteHandler do
 
         handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new
 
-        expect_raises Exception, "TestController#get_test must return an `ART::Response` but it returned ''." do
+        expect_raises Exception, "TestController#test must return an `ART::Response` but it returned ''." do
           handler.handle new_context
         end
       end

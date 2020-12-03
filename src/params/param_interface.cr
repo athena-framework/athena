@@ -1,4 +1,6 @@
 # Represents a request parameter; e.x. query param, form data, a file, etc.
+#
+# See `ART::QueryParam` and `ART::RequestParam`.
 module Athena::Routing::Params::ParamInterface
   # Returns the name of the parameter, maps to the controller action argument name.
   abstract def name : String
