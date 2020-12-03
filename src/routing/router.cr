@@ -1,6 +1,7 @@
 require "./router_interface"
 
 @[ADI::Register(name: "router", public: true)]
+# Default implementation of `ART::RouterInterface`.
 class Athena::Routing::Router
   include Athena::Routing::RouterInterface
 
@@ -20,12 +21,14 @@ class Athena::Routing::Router
 
   def initialize(@request_store : ART::RequestStore); end
 
-  def generate(route_name : String, params : Hash(String, _)? = nil, reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path) : String
-    self.generator.generate route_name, params, reference_type
+  # :inherit:
+  def generate(route : String, params : Hash(String, _)? = nil, reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path) : String
+    self.generator.generate route, params, reference_type
   end
 
-  # Raises an `ART::Exceptions::NotFound` exception if a corresponding `ART::Action` could not be resolved.
-  # Raises an `ART::Exceptions::MethodNotAllowed` exception if a route was matched but does not support the *request*'s method.
+  # :inherit:
+  #
+  # OPTIMIZE: Possibly raise a non `ART::Exceptions::HTTPException` here to allow caller to determine what to do.
   def match(request : HTTP::Request) : Amber::Router::RoutedResult(Athena::Routing::ActionBase)
     # Get the routes that match the given path
     matching_routes = self.class.matcher.find_routes request.path
@@ -52,6 +55,7 @@ class Athena::Routing::Router
     route || raise ART::Exceptions::MethodNotAllowed.new "No route found for '#{request.method} #{request.path}': (Allow: #{supported_methods.join(", ")})"
   end
 
+  # :inherit:
   def route_collection : ART::RouteCollection
     self.class.route_collection
   end

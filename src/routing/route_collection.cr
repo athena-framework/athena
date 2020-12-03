@@ -279,24 +279,31 @@ class Athena::Routing::RouteCollection
     end
   end
 
+  # Yields the name and `ART::Action` object for each registered route.
   def each : Nil
     self.routes.each do |k, v|
       yield({k, v})
     end
   end
 
+  # Returns an `Iterator` for each registered route.
   def each
     self.routes.each
   end
 
+  # Returns the routes hash.
   def routes : Hash(String, ART::ActionBase)
     self.class.routes
   end
 
+  # Returns the `ART::Action` with the provided *name*.
+  #
+  # Raises a `KeyError` if a route with the provided *name* does not exist.
   def get(name : String) : ART::ActionBase
     self.routes.fetch(name) { raise KeyError.new "Unknown route: '#{name}'." }
   end
 
+  # Returns the `ART::Action` with the provided *name*, or `nil` if it does not exist.
   def get?(name : String) : ART::ActionBase?
     self.routes[name]?
   end

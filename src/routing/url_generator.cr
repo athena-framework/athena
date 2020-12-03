@@ -1,12 +1,17 @@
+# Default implementation of `ART::URLGeneratorInterface`.
 class Athena::Routing::URLGenerator
   include Athena::Routing::URLGeneratorInterface
 
   def initialize(@routes : ART::RouteCollection, @request : HTTP::Request); end
 
+  # :inherit:
+  #
+  # *params* are validated to ensure they are all provided, and meet any route constraints defined on the action.
+  #
   # OPTIMIZE: Make URL generation more robust.
   # ameba:disable Metrics/CyclomaticComplexity
-  def generate(route_name : String, params : Hash(String, _)? = nil, reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path) : String
-    route = @routes.get route_name
+  def generate(route : String, params : Hash(String, _)? = nil, reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path) : String
+    route = @routes.get route
 
     fragment = params.try &.delete("_fragment").to_s.presence
 
