@@ -6,6 +6,7 @@ module Athena::Routing
   # ## Fields
   #
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
@@ -22,6 +23,7 @@ module Athena::Routing
   # ## Fields
   #
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
@@ -38,6 +40,7 @@ module Athena::Routing
   # ## Fields
   #
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
@@ -54,6 +57,7 @@ module Athena::Routing
   # ## Fields
   #
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
@@ -70,6 +74,7 @@ module Athena::Routing
   # ## Fields
   #
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
@@ -86,6 +91,7 @@ module Athena::Routing
   # ## Fields
   #
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
@@ -285,6 +291,8 @@ module Athena::Routing
   # # GET /?page=-5 # => {"code":422,"message":"Parameter 'page' of value '-9' violated a constraint: 'This value should be positive or zero.'\n"}
   # ```
   #
+  # See the [external documentation](https://athenaframework.org/components/validator/) for more information.
+  #
   # ### Map
   #
   # By default, the parameter's requirements are applied against the resulting value, which makes sense when working with scalar values.
@@ -404,6 +412,7 @@ module Athena::Routing
   # ## Fields
   #
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
   # * method : `String` - The `HTTP` method to use for the endpoint.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
@@ -421,6 +430,7 @@ module Athena::Routing
   # ## Fields
   #
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
@@ -454,5 +464,7 @@ module Athena::Routing
   #   article
   # end
   # ```
+  #
+  # See the [external documentation](https://athenaframework.org/components/serializer/) for more information.
   annotation View; end
 end

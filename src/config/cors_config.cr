@@ -4,7 +4,7 @@ require "./routing_config"
 #
 # TODO: Allow scoping CORS options to specific routes versus applying them to all routes.
 #
-# Also see `ART::Config`.
+# See `ART::Config` and the [external documentation](https://athenaframework.org/components/config/#cors) for more information.
 struct Athena::Routing::Config::CORS
   include ACF::Configuration
 

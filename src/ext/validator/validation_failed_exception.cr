@@ -1,7 +1,8 @@
-class Athena::Validator::Exceptions::ValidationFailedError < Athena::Routing::Exceptions::UnprocessableEntity
+# Wraps an `AVD::Violation::ConstraintViolationListInterface` as an `ART::Exceptions::UnprocessableEntity`; exposing the violations within the response body.
+class Athena::Validator::Exceptions::ValidationFailed < Athena::Routing::Exceptions::UnprocessableEntity
   getter violations : Athena::Validator::Violation::ConstraintViolationList
 
-  def initialize(violations : AVD::Violation::ConstraintViolationInterface | AVD::Violation::ConstraintViolationList, cause : Exception? = nil, headers : HTTP::Headers = HTTP::Headers.new)
+  def initialize(violations : AVD::Violation::ConstraintViolationInterface | AVD::Violation::ConstraintViolationListInterface, cause : Exception? = nil, headers : HTTP::Headers = HTTP::Headers.new)
     if violations.is_a? AVD::Violation::ConstraintViolationInterface
       violations = AVD::Violation::ConstraintViolationList.new [violations]
     end
