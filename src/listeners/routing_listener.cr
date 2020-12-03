@@ -1,5 +1,5 @@
 @[ADI::Register]
-# Sets the related `ART::Action` on the current request using `ART::RouteResolver`.
+# Sets the related `ART::Action` on the current request via an `ART::RequestMatcherInterface`.
 struct Athena::Routing::Listeners::Routing
   include AED::EventListenerInterface
 
