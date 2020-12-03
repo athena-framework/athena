@@ -4,6 +4,8 @@ require "./request_aware"
 #
 # This event can be listened on to modify the response object further before it is returned;
 # such as adding headers/cookies, compressing the response, etc.
+#
+# See the [external documentation](https://athenaframework.org/components/#5-response-event) for more information.
 class Athena::Routing::Events::Response < AED::Event
   include Athena::Routing::Events::RequestAware
 

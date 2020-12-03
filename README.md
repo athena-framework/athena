@@ -7,7 +7,8 @@ A web framework comprised of reusable, independent components.
 
 ## Documentation
 
-Everything is documented in the [API Docs](https://athena-framework.github.io/athena/Athena/Routing.html).
+* [External Docs](https://athenaframework.org)
+* [API Docs](https://athena-framework.github.io/athena/Athena/Routing.html)
 
 ## Contributing
 

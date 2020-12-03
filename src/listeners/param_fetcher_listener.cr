@@ -1,5 +1,5 @@
 @[ADI::Register]
-struct Athena::Routing::Listeners::ParamListener
+struct Athena::Routing::Listeners::ParamFetcher
   include AED::EventListenerInterface
 
   def self.subscribed_events : AED::SubscribedEvents

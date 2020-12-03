@@ -8,6 +8,8 @@ require "./settable_response"
 # * Return a response immediately if there is enough information available; `ART::Listeners::CORS` is an example of this
 #
 # NOTE: If your listener logic requires that the the corresponding `ART::Action` has been resolved, use `ART::Events::Action` instead.
+#
+# See the [external documentation](https://athenaframework.org/components/#1-request-event) for more information.
 class Athena::Routing::Events::Request < AED::Event
   include Athena::Routing::Events::SettableResponse
   include Athena::Routing::Events::RequestAware

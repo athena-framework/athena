@@ -5,7 +5,7 @@ require "./settable_response"
 #
 # This event can be listened on to handle converting a non `ART::Response` into an `ART::Response`.
 #
-# See `ART::Listeners::View`.
+# See `ART::Listeners::View` and the [external documentation](https://athenaframework.org/components/#4-view-event) for more information.
 class Athena::Routing::Events::View < AED::Event
   include Athena::Routing::Events::SettableResponse
   include Athena::Routing::Events::RequestAware
