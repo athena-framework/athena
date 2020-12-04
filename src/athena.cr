@@ -9,6 +9,7 @@ require "athena-event_dispatcher"
 
 require "./action"
 require "./annotations"
+require "./binary_file_response"
 require "./controller"
 require "./error_renderer_interface"
 require "./error_renderer"

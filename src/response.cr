@@ -149,4 +149,39 @@ class Athena::Routing::Response
       writer_io.print @content
     end
   end
+
+  def etag : String?
+    @headers["etag"]?
+  end
+
+  def set_etag(etag : String? = nil, weak : Bool = false) : Nil
+    if etag.nil?
+      @headers.delete "etag"
+      return
+    end
+
+    unless etag.includes? '"'
+      etag = %("#{etag}")
+    end
+
+    @headers["etag"] = "#{weak ? "W/" : ""}#{etag}"
+  end
+
+  def last_modified : Time?
+    if header = @headers["last-modified"]?
+      Time::Format::HTTP_DATE.parse header
+    end
+  end
+
+  def last_modified=(time : Time? = nil) : Nil
+    if time.nil?
+      @headers.delete "last-modified"
+      return
+    end
+
+    @headers["last-modified"] = Time::Format::HTTP_DATE.format(time)
+  end
+
+  protected def prepare(request : HTTP::Request) : Nil
+  end
 end

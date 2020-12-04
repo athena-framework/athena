@@ -13,6 +13,10 @@ class HTTP::Request
     @request_data ||= self.parse_request_data
   end
 
+  def safe? : Bool
+    @method.in? "GET", "HEAD", "OPTIONS", "TRACE"
+  end
+
   private def parse_request_data : HTTP::Params
     HTTP::Params.parse self.body.try(&.gets_to_end) || ""
   end
