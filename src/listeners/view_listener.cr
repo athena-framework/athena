@@ -53,6 +53,6 @@ struct Athena::Routing::Listeners::View
   end
 
   private def get_headers : HTTP::Headers
-    HTTP::Headers{"content-type" => "application/json"}
+    HTTP::Headers{"content-type" => "application/json; charset=UTF-8"}
   end
 end

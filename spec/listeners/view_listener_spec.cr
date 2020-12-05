@@ -40,7 +40,7 @@ describe ART::Listeners::View do
 
       response = event.response.should_not be_nil
       response.status.should eq HTTP::Status::NO_CONTENT
-      response.headers.should eq HTTP::Headers{"content-type" => "application/json"}
+      response.headers.should eq HTTP::Headers{"content-type" => "application/json; charset=UTF-8"}
       response.content.should be_empty
     end
 
@@ -52,7 +52,7 @@ describe ART::Listeners::View do
 
       response = event.response.should_not be_nil
       response.status.should eq HTTP::Status::IM_A_TEAPOT
-      response.headers.should eq HTTP::Headers{"content-type" => "application/json"}
+      response.headers.should eq HTTP::Headers{"content-type" => "application/json; charset=UTF-8"}
       response.content.should be_empty
     end
 
@@ -64,7 +64,7 @@ describe ART::Listeners::View do
 
       response = event.response.should_not be_nil
       response.status.should eq HTTP::Status::OK
-      response.headers.should eq HTTP::Headers{"content-type" => "application/json"}
+      response.headers.should eq HTTP::Headers{"content-type" => "application/json; charset=UTF-8"}
       response.content.should be_empty
     end
   end
@@ -78,7 +78,7 @@ describe ART::Listeners::View do
 
         response = event.response.should_not be_nil
         response.status.should eq HTTP::Status::OK
-        response.headers.should eq HTTP::Headers{"content-type" => "application/json"}
+        response.headers.should eq HTTP::Headers{"content-type" => "application/json; charset=UTF-8"}
         response.content.should eq %({"id":123})
       end
     end
@@ -91,7 +91,7 @@ describe ART::Listeners::View do
 
         response = event.response.should_not be_nil
         response.status.should eq HTTP::Status::OK
-        response.headers.should eq HTTP::Headers{"content-type" => "application/json"}
+        response.headers.should eq HTTP::Headers{"content-type" => "application/json; charset=UTF-8"}
         response.content.should eq %("SERIALIZED_DATA")
       end
 
@@ -122,7 +122,7 @@ describe ART::Listeners::View do
 
         response = event.response.should_not be_nil
         response.status.should eq HTTP::Status::OK
-        response.headers.should eq HTTP::Headers{"content-type" => "application/json"}
+        response.headers.should eq HTTP::Headers{"content-type" => "application/json; charset=UTF-8"}
         response.content.should eq %("SERIALIZED_DATA")
       end
     end
@@ -134,7 +134,7 @@ describe ART::Listeners::View do
 
       response = event.response.should_not be_nil
       response.status.should eq HTTP::Status::IM_A_TEAPOT
-      response.headers.should eq HTTP::Headers{"content-type" => "application/json"}
+      response.headers.should eq HTTP::Headers{"content-type" => "application/json; charset=UTF-8"}
       response.content.should eq %("SERIALIZED_DATA")
     end
   end
