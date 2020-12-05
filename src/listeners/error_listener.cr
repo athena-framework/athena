@@ -40,6 +40,9 @@ struct Athena::Routing::Listeners::Error
     elsif exception.is_a? ART::Exceptions::UnprocessableEntity
       # Log failed validations as notice
       LOGGER.notice(exception: exception) { yield }
+    elsif exception.is_a? ART::Exceptions::NotFound
+      # Log 404s without stack trace given it's non actionable.
+      LOGGER.warn { yield }
     else
       # Log everything else as warnings
       LOGGER.warn(exception: exception) { yield }
