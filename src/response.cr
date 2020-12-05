@@ -184,17 +184,8 @@ class Athena::Routing::Response
       @headers.delete "content-type"
       @headers.delete "content-length"
     else
-      if @headers.has_key? "transfer-encoding"
-        @headers.delete "content-length"
-      end
-
-      if "HEAD" == request.method
-        length = @headers["content-length"]?
-        self.content = nil
-        if length
-          @headers["content-length"] = length
-        end
-      end
+      @headers.delete "content-length" if @headers.has_key? "transfer-encoding"
+      self.content = nil if "HEAD" == request.method
     end
 
     if "HTTP/1.0" == request.version && @headers["cache-control"]?.try &.includes? "no-cache"

@@ -117,14 +117,19 @@ describe ART::Response do
       request = HTTP::Request.new "GET", "/"
 
       response = ART::Response.new "CONTENT"
+      response.headers["content-length"] = "5"
+      response.headers["content-type"] = "text/plain"
       response.status = 101
 
       response.prepare request
 
       response.content.should be_empty
       response.headers.has_key?("content-length").should be_false
+      response.headers.has_key?("content-type").should be_false
 
       response.content = "CONTENT"
+      response.headers["content-length"] = "5"
+      response.headers["content-type"] = "text/plain"
       response.status = 204
 
       response.prepare request
@@ -151,7 +156,7 @@ describe ART::Response do
       response.headers.has_key?("content-length").should be_false
     end
 
-    it "sets pragma header on HTTP1.0 request" do
+    it "sets pragma & expires headers on HTTP/1.0 request" do
       request = HTTP::Request.new "HEAD", "/", version: "HTTP/1.0"
 
       response = ART::Response.new "CONTENT"
