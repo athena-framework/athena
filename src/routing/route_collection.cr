@@ -16,7 +16,7 @@ class Athena::Routing::RouteCollection
 
         {% for klass, c_idx in Athena::Routing::Controller.all_subclasses.reject &.abstract? %}
           {% methods = klass.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) || m.annotation(Patch) || m.annotation(Link) || m.annotation(Unlink) || m.annotation(Head) || m.annotation(Route) } %}
-          {% class_actions = klass.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) || m.annotation(Patch) || m.annotation(Link) || m.annotation(Unlink) || m.annotation(Unlink) || m.annotation(Route) } %}
+          {% class_actions = klass.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) || m.annotation(Patch) || m.annotation(Link) || m.annotation(Unlink) || m.annotation(Head) || m.annotation(Route) } %}
 
           # Raise compile time error if a route is defined as a class method.
           {% unless class_actions.empty? %}
