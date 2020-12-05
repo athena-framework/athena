@@ -37,6 +37,8 @@ struct Athena::Routing::RouteHandler
   end
 
   private def return_response(response : ART::Response, context : HTTP::Server::Context) : Nil
+    response.prepare context.request
+
     # Apply the `ART::Response` to the actual `HTTP::Server::Response` object
     context.response.headers.merge! response.headers
     context.response.status = response.status

@@ -28,7 +28,7 @@ struct RoutingTest < ART::Spec::APITestCase
   def test_invalid_method : Nil
     response = self.request "POST", "/art/response"
     response.status.should eq HTTP::Status::METHOD_NOT_ALLOWED
-    response.body.should eq %({"code":405,"message":"No route found for 'POST /art/response': (Allow: GET)"})
+    response.body.should eq %({"code":405,"message":"No route found for 'POST /art/response': (Allow: GET, HEAD)"})
   end
 
   def test_allows_returning_an_athena_response : Nil

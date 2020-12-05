@@ -15,8 +15,8 @@ class Athena::Routing::RouteCollection
         {% registered_routes = {} of String => String %}
 
         {% for klass, c_idx in Athena::Routing::Controller.all_subclasses.reject &.abstract? %}
-          {% methods = klass.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) || m.annotation(Patch) || m.annotation(Link) || m.annotation(Unlink) || m.annotation(Route) } %}
-          {% class_actions = klass.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) || m.annotation(Patch) || m.annotation(Link) || m.annotation(Unlink) || m.annotation(Route) } %}
+          {% methods = klass.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) || m.annotation(Patch) || m.annotation(Link) || m.annotation(Unlink) || m.annotation(Head) || m.annotation(Route) } %}
+          {% class_actions = klass.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) || m.annotation(Patch) || m.annotation(Link) || m.annotation(Unlink) || m.annotation(Unlink) || m.annotation(Route) } %}
 
           # Raise compile time error if a route is defined as a class method.
           {% unless class_actions.empty? %}
@@ -62,6 +62,9 @@ class Athena::Routing::RouteCollection
               {% route_def = d %}
             {% elsif d = m.annotation(Unlink) %}
               {% method = "UNLINK" %}
+              {% route_def = d %}
+            {% elsif d = m.annotation(Head) %}
+              {% method = "HEAD" %}
               {% route_def = d %}
             {% elsif d = m.annotation(Route) %}
               {% method = d[:method] || m.raise "Route action '#{klass.name}##{m.name}' is missing the HTTP method.  It was not provided via the 'method' field." %}
@@ -245,7 +248,7 @@ class Athena::Routing::RouteCollection
             {% end %}
 
             # Add the route to the router
-            routes[{{route_name}}] = Action.new(
+            routes[{{route_name}}] = %action{route_name} = Action.new(
               action: ->{
                   # If the controller is not registered as a service, simply new one up
                   # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
@@ -258,7 +261,7 @@ class Athena::Routing::RouteCollection
 
                   ->%instance.{{m.name.id}}{% if !m.args.empty? %}({{arg_types.splat}}){% end %}
                 },
-              name: {{m.name.stringify}},
+              name: {{route_name}},
               method: {{method}},
               path: {{full_path}},
               constraints: ({{constraints}} of String => Regex),
@@ -271,6 +274,11 @@ class Athena::Routing::RouteCollection
               _return_type: {{m.return_type}},
               _arg_types: {{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}
             )
+
+            # Add a HEAD route for GET requests
+            {% if "GET" == method %}
+              routes[{{route_name + "_head"}}] = %action{route_name}.copy_with method: "HEAD", name: {{route_name + "_head"}}
+            {% end %}
           {% end %}
         {% end %}
       {% end %}

@@ -1,74 +1,4 @@
 module Athena::Routing
-  # Defines a `GET` endpoint.
-  #
-  # A corresponding `HEAD` endpoint is also defined.
-  #
-  # ## Fields
-  #
-  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
-  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
-  #
-  # ## Example
-  #
-  # ```
-  # @[ART::Get(path: "/users/:id")]
-  # def get_user(id : Int32) : Nil
-  # end
-  # ```
-  annotation Get; end
-
-  # Defines a `POST` endpoint.
-  #
-  # ## Fields
-  #
-  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
-  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
-  #
-  # ## Example
-  #
-  # ```
-  # @[ART::Post(path: "/users")]
-  # def new_user : Nil
-  # end
-  # ```
-  annotation Post; end
-
-  # Defines a `PUT` endpoint.
-  #
-  # ## Fields
-  #
-  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
-  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
-  #
-  # ## Example
-  #
-  # ```
-  # @[ART::Put(path: "/users/:id")]
-  # def update_user(id : Int32) : Nil
-  # end
-  # ```
-  annotation Put; end
-
-  # Defines a `PATCH` endpoint.
-  #
-  # ## Fields
-  #
-  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
-  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
-  #
-  # ## Example
-  #
-  # ```
-  # @[ART::Patch(path: "/users/:id")]
-  # def partial_update_user(id : Int32) : Nil
-  # end
-  # ```
-  annotation Patch; end
-
   # Defines a `DELETE` endpoint.
   #
   # ## Fields
@@ -85,6 +15,40 @@ module Athena::Routing
   # end
   # ```
   annotation Delete; end
+
+  # Defines a `GET` endpoint.
+  #
+  # ## Fields
+  #
+  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
+  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
+  #
+  # ## Example
+  #
+  # ```
+  # @[ART::Get(path: "/users/:id")]
+  # def get_user(id : Int32) : Nil
+  # end
+  # ```
+  annotation Get; end
+
+  # Defines a `HEAD` endpoint.
+  #
+  # ## Fields
+  #
+  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
+  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
+  #
+  # ## Example
+  #
+  # ```
+  # @[ART::Head(path: "/users")]
+  # def head_user : Nil
+  # end
+  # ```
+  annotation Head; end
 
   # Defines a `LINK` endpoint.
   #
@@ -123,6 +87,40 @@ module Athena::Routing
   # ```
   annotation ParamConverter; end
 
+  # Defines a `PATCH` endpoint.
+  #
+  # ## Fields
+  #
+  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
+  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
+  #
+  # ## Example
+  #
+  # ```
+  # @[ART::Patch(path: "/users/:id")]
+  # def partial_update_user(id : Int32) : Nil
+  # end
+  # ```
+  annotation Patch; end
+
+  # Defines a `POST` endpoint.
+  #
+  # ## Fields
+  #
+  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
+  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
+  #
+  # ## Example
+  #
+  # ```
+  # @[ART::Post(path: "/users")]
+  # def new_user : Nil
+  # end
+  # ```
+  annotation Post; end
+
   # Apply a *prefix* to all actions within `self`.  Can be a static string, but may also contain path arguments.
   #
   # ## Fields
@@ -142,6 +140,23 @@ module Athena::Routing
   # end
   # ```
   annotation Prefix; end
+
+  # Defines a `PUT` endpoint.
+  #
+  # ## Fields
+  #
+  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
+  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
+  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
+  #
+  # ## Example
+  #
+  # ```
+  # @[ART::Put(path: "/users/:id")]
+  # def update_user(id : Int32) : Nil
+  # end
+  # ```
+  annotation Put; end
 
   # Used to define (and configure) a query parameter tied to a given argument.
   #
