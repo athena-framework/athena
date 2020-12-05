@@ -25,13 +25,22 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
   )
     super nil, status, headers
 
-    raise File::Error.new("File '#{file_path}' must be readable.", file: file_path.to_s) unless File.readable?(file_path)
+    raise File::Error.new("File '#{file_path}' must be readable.", file: file_path.to_s) unless File.readable? file_path
 
     @file_path = Path.new(file_path).expand
 
+    self.set_public if public
     self.set_auto_etag if auto_etag
     self.auto_last_modified if auto_last_modified
     self.set_content_disposition content_disposition if content_disposition
+  end
+
+  def content=(_data) : Nil
+    raise "The content cannot be set on a BinaryFileResponse instance."
+  end
+
+  def content : String
+    ""
   end
 
   # :inherit:
@@ -46,7 +55,7 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
     end
 
     @writer.write(output) do |writer_io|
-      File.open(@file_path) do |file|
+      File.open(@file_path, "rb") do |file|
         file.skip @offset
 
         if limit = @max_length
@@ -113,8 +122,6 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
           else
             s = s.to_i
           end
-
-          pp s, e
 
           if s <= e
             e = Math.min e, file_size - 1

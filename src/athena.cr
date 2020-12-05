@@ -34,7 +34,7 @@ require "./routing/*"
 require "./ext/configuration_resolver"
 require "./ext/conversion_types"
 require "./ext/event_dispatcher"
-require "./ext/request"
+require "./ext/http"
 require "./ext/serializer"
 require "./ext/validator"
 

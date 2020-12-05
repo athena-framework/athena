@@ -150,6 +150,11 @@ class Athena::Routing::Response
     end
   end
 
+  def set_public : Nil
+    @headers.add_cache_control_directive "public"
+    @headers.remove_cache_control_directive "private"
+  end
+
   def etag : String?
     @headers["etag"]?
   end
