@@ -13,4 +13,4 @@ docs: ## Generates Athena documentation
 
 .PHONY: spec
 spec: ## Runs the Athena spec suite
-	crystal spec --order random --error-on-warnings
+	crystal spec --order random --error-on-warnings --exclude-warnings ./spec
