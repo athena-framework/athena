@@ -1,9 +1,14 @@
+# Represents an `ART::Response` whose content should be streamed to the client as opposed to being written all at once.
+# This can be useful in cases where the response content is too large to fit into memory.
+#
+# The content is stored in a proc that gets called when `self` is being written to the response IO.
+# How the output gets written can be customized via an `ART::Response::Writer`.
 class Athena::Routing::StreamedResponse < Athena::Routing::Response
   @streamed : Bool = false
 
   # Creates a new response with optional *status*, and *headers* arguments.
   #
-  # The block is captured and called when `self` is being written to the response `IO`.
+  # The block is captured and called when `self` is being written to the response's `IO`.
   # This can be useful to reduce memory overhead when needing to return large responses.
   #
   # ```
@@ -26,16 +31,25 @@ class Athena::Routing::StreamedResponse < Athena::Routing::Response
     new block, status, headers
   end
 
-  # Creates a new response with the provided *content_callback* and optional *status*, and *headers* arguments.
+  # Creates a new response with the provided *callback* and optional *status*, and *headers* arguments.
   #
-  # The proc is called when `self` is being written to the response IO.
+  # The proc is called when `self` is being written to the response's `IO`.
   def initialize(@callback : Proc(IO, Nil), status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers = HTTP::Headers.new)
     super nil, status, headers
   end
 
-  # Writes content of `self` to the provided *output*.
-  #
-  # How the output gets written can be customized via an `ART::Response::Writer`.
+  # Updates the callback of `self`.
+  def content=(@callback : Proc(IO, Nil))
+  end
+
+  # :nodoc:
+  def content=(content : String?) : Nil
+    raise "The content cannot be set on a StreamedResponse instance." unless content.nil?
+
+    @streamed = true
+  end
+
+  # :inherit:
   def write(output : IO) : Nil
     return if @streamed
 
@@ -44,16 +58,5 @@ class Athena::Routing::StreamedResponse < Athena::Routing::Response
     @writer.write(output) do |writer_io|
       @callback.call writer_io
     end
-  end
-
-  # Updates the content of `self`.
-  def content=(@callback : Proc(IO, Nil))
-  end
-
-  # :ditto:
-  def content=(content : String?) : Nil
-    raise "The content cannot be set on a StreamedResponse instance." unless content.nil?
-
-    @streamed = true
   end
 end

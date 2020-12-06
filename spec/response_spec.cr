@@ -16,46 +16,25 @@ describe ART::Response do
       response.status.should eq HTTP::Status::OK
     end
 
-    it "accepts an Int" do
+    it "accepts an Int status" do
       ART::Response.new(status: 201).status.should eq HTTP::Status::CREATED
     end
 
-    it "accepts an HTTP::Status" do
+    it "accepts an HTTP::Status status" do
       ART::Response.new(status: HTTP::Status::CREATED).status.should eq HTTP::Status::CREATED
     end
 
-    it "accepts a string" do
+    it "accepts string content" do
       ART::Response.new("FOO").content.should eq "FOO"
     end
 
-    pending "accepts a block" do
-      (ART::Response.new { |io| io << "BAZ" }).content.should eq "BAZ"
+    it "accepts nil content" do
+      ART::Response.new(nil).content.should eq ""
     end
 
-    pending "accepts a proc" do
-      ART::Response.new(->(io : IO) { io << "BAR" }).content.should eq "BAR"
-    end
-  end
-
-  describe "#content" do
-    pending "only executes the proc once" do
-      value = 0
-      response = ART::Response.new(->(io : IO) { io << "STRING"; value += 1 })
-      response.content.should eq "STRING"
-      value.should eq 1
-      response.content.should eq "STRING"
-      value.should eq 1
-    end
-
-    pending "gets recalculated if the content changes" do
-      value = 0
-      response = ART::Response.new(->(io : IO) { io << "FOO"; value += 1 })
-      response.content.should eq "FOO"
-      value.should eq 1
-
-      response.content = ->(io : IO) { io << "BAR"; value += 1 }
-      response.content.should eq "BAR"
-      value.should eq 2
+    # TODO: Remove this in 0.13.0
+    it "accepts a block" do
+      (ART::Response.new { |io| io << "BAZ" }).should be_a ART::StreamedResponse
     end
   end
 
@@ -87,7 +66,7 @@ describe ART::Response do
       io = IO::Memory.new
       ART::Response.new("FOO BAR").write io
 
-      io.rewind.to_s.should eq "FOO BAR"
+      io.to_s.should eq "FOO BAR"
     end
 
     it "supports customization via an ART::Response::Writer" do
@@ -97,7 +76,7 @@ describe ART::Response do
       response.writer = TestWriter.new
       response.write io
 
-      io.rewind.to_s.should eq "FOO BAREOF"
+      io.to_s.should eq "FOO BAREOF"
     end
   end
 

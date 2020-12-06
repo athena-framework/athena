@@ -3,8 +3,7 @@
 # Contains the content, status, and headers that should be applied to the actual `HTTP::Server::Response`.
 # This type is used to allow the content, status, and headers to be mutated by `ART::Listeners` before being returned to the client.
 #
-# The content is stored in a proc that gets called when `self` is being written to the response IO.
-# How the output gets written can be customized via an `ART::Response::Writer`.
+# The `#content` is written all at once to the actual response's `IO`.
 class Athena::Routing::Response
   # Determines how the content of an `ART::Response` will be written to the requests' response `IO`.
   #
