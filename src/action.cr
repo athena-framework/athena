@@ -105,4 +105,23 @@ struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple,
   def execute(arguments : Array) : ReturnType
     @action.call.call *{{ArgTypeTuple.type_vars.empty? ? "Tuple.new".id : ArgTypeTuple}}.from arguments
   end
+
+  # :nodoc:
+  protected def copy_with(name _name = @name, method _method = @method)
+    self.class.new(
+      action: @action,
+      name: _name,
+      method: _method,
+      path: @path,
+      constraints: @constraints,
+      arguments: @arguments,
+      param_converters: @param_converters,
+      view_context: @view_context,
+      annotation_configurations: @annotation_configurations,
+      params: @params,
+      _controller: Controller,
+      _return_type: ReturnType,
+      _arg_types: ArgTypeTuple,
+    )
+  end
 end

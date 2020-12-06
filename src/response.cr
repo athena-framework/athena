@@ -154,7 +154,7 @@ class Athena::Routing::Response
   end
 
   # :ditto:
-  def content=(content : String? = nil) : Nil
+  def content=(content : String?) : Nil
     self.content = Proc(IO, Nil).new { |io| io.print content }
   end
 
@@ -173,5 +173,24 @@ class Athena::Routing::Response
   # The `HTTP::Status` of `self.`
   def status=(code : HTTP::Status | Int32) : Nil
     @status = HTTP::Status.new code
+  end
+
+  # :nodoc:
+  #
+  # Do any preparation to ensure the response is RFC compliant.
+  def prepare(request : HTTP::Request) : Nil
+    if @status.informational? || @status.no_content? || @status.not_modified?
+      self.content = nil
+      @headers.delete "content-type"
+      @headers.delete "content-length"
+    else
+      @headers.delete "content-length" if @headers.has_key? "transfer-encoding"
+      self.content = nil if "HEAD" == request.method
+    end
+
+    if "HTTP/1.0" == request.version && @headers["cache-control"]?.try &.includes? "no-cache"
+      @headers["pragma"] = "no-cache"
+      @headers["expires"] = "-1"
+    end
   end
 end

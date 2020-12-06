@@ -100,4 +100,81 @@ describe ART::Response do
       io.rewind.to_s.should eq "FOO BAREOF"
     end
   end
+
+  describe "#prepare" do
+    it "removes content for head requests" do
+      response = ART::Response.new "CONTENT"
+      request = HTTP::Request.new "HEAD", "/"
+      response.headers["content-length"] = "5"
+
+      response.prepare request
+
+      response.content.should be_empty
+      response.headers["content-length"].should eq "5"
+    end
+
+    it "removes content for informational & empty responses" do
+      request = HTTP::Request.new "GET", "/"
+
+      response = ART::Response.new "CONTENT"
+      response.headers["content-length"] = "5"
+      response.headers["content-type"] = "text/plain"
+      response.status = 101
+
+      response.prepare request
+
+      response.content.should be_empty
+      response.headers.has_key?("content-length").should be_false
+      response.headers.has_key?("content-type").should be_false
+
+      response.content = "CONTENT"
+      response.headers["content-length"] = "5"
+      response.headers["content-type"] = "text/plain"
+      response.status = 204
+
+      response.prepare request
+
+      response.content.should be_empty
+      response.headers.has_key?("content-length").should be_false
+      response.headers.has_key?("content-type").should be_false
+    end
+
+    it "removes content-length if transfer-encoding is set" do
+      request = HTTP::Request.new "GET", "/"
+
+      response = ART::Response.new "CONTENT"
+      response.headers["content-length"] = "100"
+
+      response.prepare request
+
+      response.headers["content-length"].should eq "100"
+
+      response.headers["transfer-encoding"] = "chunked"
+
+      response.prepare request
+
+      response.headers.has_key?("content-length").should be_false
+    end
+
+    it "sets pragma & expires headers on HTTP/1.0 request" do
+      request = HTTP::Request.new "HEAD", "/", version: "HTTP/1.0"
+
+      response = ART::Response.new "CONTENT"
+      response.headers["cache-control"] = "no-cache"
+
+      response.prepare request
+
+      response.content.should be_empty
+      response.headers["pragma"]?.should eq "no-cache"
+      response.headers["expires"]?.should eq "-1"
+
+      request.version = "HTTP/1.1"
+      response = ART::Response.new "CONTENT"
+
+      response.prepare request
+
+      response.headers.has_key?("pragma").should be_false
+      response.headers.has_key?("expires").should be_false
+    end
+  end
 end

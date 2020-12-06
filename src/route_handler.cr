@@ -37,43 +37,46 @@ struct Athena::Routing::RouteHandler
   end
 
   private def return_response(response : ART::Response, context : HTTP::Server::Context) : Nil
-    # Apply the `ART::Response` to the actual `HTTP::Server::Response` object
+    # Ensure the response is valid.
+    response.prepare context.request
+
+    # Apply the `ART::Response` to the actual `HTTP::Server::Response` object.
     context.response.headers.merge! response.headers
     context.response.status = response.status
 
-    # Write the response content last on purpose
+    # Write the response content last on purpose.
     # See https://github.com/crystal-lang/crystal/issues/8712
     response.write context.response
 
-    # Close the response
+    # Close the response.
     context.response.close
 
-    # Emit the terminate event
+    # Emit the terminate event.
     @event_dispatcher.dispatch ART::Events::Terminate.new context.request, response
   end
 
   private def handle_raw(request : HTTP::Request) : ART::Response
-    # Set the current request in the RequestStore
+    # Set the current request in the RequestStore.
     @request_store.request = request
 
-    # Emit the request event
+    # Emit the request event.
     request_event = ART::Events::Request.new request
     @event_dispatcher.dispatch request_event
 
-    # Return the event early if the request event handled the request
+    # Return the event early if the request event handled the request.
     if response = request_event.response
       return finish_response response, request
     end
 
-    # Emit the action event
+    # Emit the action event.
     @event_dispatcher.dispatch ART::Events::Action.new request, request.action
 
-    # Resolve the arguments for this action from the request
+    # Resolve the arguments for this action from the request.
     arguments = @argument_resolver.get_arguments request, request.action
 
     # Possibly add another event here to allow modification of the resolved arguments?
 
-    # Call the action and get the response
+    # Call the action and get the response.
     response = request.action.execute arguments
 
     unless response.is_a? ART::Response
@@ -89,7 +92,7 @@ struct Athena::Routing::RouteHandler
   end
 
   private def finish_response(response : ART::Response, request : HTTP::Request) : ART::Response
-    # Emit the response event
+    # Emit the response event.
     event = ART::Events::Response.new request, response
 
     @event_dispatcher.dispatch event
@@ -100,7 +103,7 @@ struct Athena::Routing::RouteHandler
   end
 
   private def finish_request : Nil
-    # Reset the request store
+    # Reset the request store.
     @request_store.reset
   end
 end
