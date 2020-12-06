@@ -1,9 +1,9 @@
-# Represents an HTTP response that should be returned to the client.
+# Represents an `HTTP` response that should be returned to the client.
 #
 # Contains the content, status, and headers that should be applied to the actual `HTTP::Server::Response`.
 # This type is used to allow the content, status, and headers to be mutated by `ART::Listeners` before being returned to the client.
 #
-# The `#content` is written all at once to the actual response's `IO`.
+# The `#content` is written all at once to the server response's `IO`.
 class Athena::Routing::Response
   # Determines how the content of an `ART::Response` will be written to the requests' response `IO`.
   #
@@ -81,34 +81,32 @@ class Athena::Routing::Response
   # See `ART::Response::Writer`.
   setter writer : ART::Response::Writer = ART::Response::DirectWriter.new
 
-  # The `HTTP::Status` of `self.`
+  # Returns the `HTTP::Status` of this response.
   getter status : HTTP::Status
 
-  # The response headers on `self.`
+  # Returns the response headers of this response.
   getter headers : HTTP::Headers
 
-  # The contents of the response body.
+  # Returns the contents of this response.
   getter content : String
 
-  # DEPRECATED:  See `ART::StreamedResponse.new`.
-  @[Deprecated("Use ART::StreamedResponse.new instead. This will be removed in Athena 0.13.0.")]
-  def self.new(status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers = HTTP::Headers.new, &block : IO -> Nil)
+  @[Deprecated("Use `ART::StreamedResponse.new` instead. This will be removed in Athena `0.13.0`.")]
+  def self.new(status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers = HTTP::Headers.new, &block : IO -> Nil) : ART::StreamedResponse
     ART::StreamedResponse.new block, status, headers
   end
 
   # Creates a new response with optional *content*, *status*, and *headers* arguments.
-  #
-  # A proc is created that will print the given *content* to the response IO.
   def initialize(content : String? = nil, status : HTTP::Status | Int32 = HTTP::Status::OK, @headers : HTTP::Headers = HTTP::Headers.new)
     @content = content || ""
     @status = HTTP::Status.new status
   end
 
+  # Sets the response content.
   def content=(content : String?)
     @content = content || ""
   end
 
-  # The `HTTP::Status` of `self.`
+  # Sets the status of this response.
   def status=(code : HTTP::Status | Int32) : Nil
     @status = HTTP::Status.new code
   end
@@ -132,7 +130,7 @@ class Athena::Routing::Response
     end
   end
 
-  # Writes content of `self` to the provided *output*.
+  # Writes the `#content` to the provided *output*.
   #
   # How the output gets written can be customized via an `ART::Response::Writer`.
   def write(output : IO) : Nil
