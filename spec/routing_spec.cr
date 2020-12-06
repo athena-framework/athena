@@ -9,6 +9,12 @@ struct RoutingTest < ART::Spec::APITestCase
     self.request("GET", "/get/safe?foo").body.should eq %("safe")
   end
 
+  def test_head_request : Nil
+    response = self.request "HEAD", "/head"
+    response.status.should eq HTTP::Status::OK
+    response.body.should be_empty
+  end
+
   def test_does_not_reuse_container_with_keep_alive_connections : Nil
     response1 = self.request("GET", "/container/id", headers: HTTP::Headers{"connection" => "keep-alive"}).body
 
@@ -83,6 +89,7 @@ struct RoutingTest < ART::Spec::APITestCase
   def test_macro_dsl_head : Nil
     response = self.request "HEAD", "/macro"
     response.status.should eq HTTP::Status::OK
+    response.body.should be_empty
   end
 
   {% for method in ["POST", "PUT", "PATCH", "DELETE", "LINK", "UNLINK"] %}

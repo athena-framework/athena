@@ -17,6 +17,11 @@ class RoutingController < ART::Controller
     ADI.container.object_id
   end
 
+  @[ART::Head("/head")]
+  def head : String
+    "HEAD"
+  end
+
   @[ART::Get("art/response")]
   def response : ART::Response
     ART::Response.new "FOO", 418, HTTP::Headers{"content-type" => "BAR"}
@@ -124,5 +129,9 @@ class RoutingController < ART::Controller
 
   unlink "/macro" do
     "UNLINK"
+  end
+
+  head "/macro" do
+    "HEAD"
   end
 end
