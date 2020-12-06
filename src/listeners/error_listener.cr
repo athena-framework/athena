@@ -6,6 +6,25 @@
 # Validation errors (`ART::Exceptions::UnprocessableEntity`) are logged as notice.
 # Everything else is logged as a warning.
 # The method can be redefined if different logic is desired.
+#
+# ```
+# class ART::Listeners::Error
+#   # :inherit:
+#   protected def log_exception(exception : Exception, & : -> String) : Nil
+#     # Don't log anything if an exception is some specific type.
+#     return if exception.is_a? MyException
+#
+#     # Exception types could also include modules to act as interfaces to determine their level, E.g. `include NoticeException`.
+#     if exception.is_a? NoticeException
+#       LOGGER.notice(exception: exception) { yield }
+#       return
+#     end
+#
+#     # Otherwise fallback to the default implementation.
+#     previous_def
+#   end
+# end
+# ```
 struct Athena::Routing::Listeners::Error
   include AED::EventListenerInterface
 
