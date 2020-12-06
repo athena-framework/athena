@@ -88,86 +88,25 @@ class Athena::Routing::Response
   # The response headers on `self.`
   getter headers : HTTP::Headers
 
-  # Stores the callback that run when `self` is being written to the `HTTP::Server::Response`.
-  @content_callback : Proc(IO, Nil)
+  # The contents of the response body.
+  getter content : String
 
-  # The cached string representation of the content.
-  #
-  # Is reset if the content of `self` changes.
-  @content_string : String? = nil
-
-  # Creates a new response with optional *status*, and *headers* arguments.
-  #
-  # The block is captured and called when `self` is being written to the response `IO`.
-  # This can be useful to reduce memory overhead when needing to return large responses.
-  #
-  # ```
-  # require "athena"
-  #
-  # class ExampleController < ART::Controller
-  #   @[ART::Get("/users")]
-  #   def users : ART::Response
-  #     ART::Response.new headers: HTTP::Headers{"content-type" => "application/json"} do |io|
-  #       User.all.to_json io
-  #     end
-  #   end
-  # end
-  #
-  # ART.run
-  #
-  # # GET /users # => [{"id":1,...},...]
-  # ```
+  # DEPRECATED:  See `ART::StreamedResponse.new`.
+  @[Deprecated("Use ART::StreamedResponse.new instead. This will be removed in Athena 0.13.0.")]
   def self.new(status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers = HTTP::Headers.new, &block : IO -> Nil)
-    new block, status, headers
+    ART::StreamedResponse.new block, status, headers
   end
 
   # Creates a new response with optional *content*, *status*, and *headers* arguments.
   #
   # A proc is created that will print the given *content* to the response IO.
   def initialize(content : String? = nil, status : HTTP::Status | Int32 = HTTP::Status::OK, @headers : HTTP::Headers = HTTP::Headers.new)
-    @status = HTTP::Status.new status
-    @content_callback = Proc(IO, Nil).new { |io| io.print content }
-  end
-
-  # Creates a new response with the provided *content_callback* and optional *status*, and *headers* arguments.
-  #
-  # The proc is called when `self` is being written to the response IO.
-  def initialize(@content_callback : Proc(IO, Nil), status : HTTP::Status | Int32 = HTTP::Status::OK, @headers : HTTP::Headers = HTTP::Headers.new)
+    @content = content || ""
     @status = HTTP::Status.new status
   end
 
-  # Writes content of `self` to the provided *output*.
-  #
-  # How the output gets written can be customized via an `ART::Response::Writer`.
-  def write(output : IO) : Nil
-    @writer.write(output) do |writer_io|
-      @content_callback.call writer_io
-    end
-  end
-
-  # Updates the content of `self`.
-  #
-  # Resets the cached content string.
-  def content=(@content_callback : Proc(IO, Nil))
-    # Reset the content string if the content changes
-    @content_string = nil
-  end
-
-  # :ditto:
-  def content=(content : String?) : Nil
-    self.content = Proc(IO, Nil).new { |io| io.print content }
-  end
-
-  # Returns the content of `self` as a `String`.
-  #
-  # The content string is cached to avoid unnecessarily regenerating
-  # the same string multiple times.
-  #
-  # The cached string is cleared when changing `self`'s content via `#content=`.
-  def content : String
-    @content_string ||= String.build do |io|
-      write io
-    end
+  def content=(content : String?)
+    @content = content || ""
   end
 
   # The `HTTP::Status` of `self.`
@@ -191,6 +130,15 @@ class Athena::Routing::Response
     if "HTTP/1.0" == request.version && @headers["cache-control"]?.try &.includes? "no-cache"
       @headers["pragma"] = "no-cache"
       @headers["expires"] = "-1"
+    end
+  end
+
+  # Writes content of `self` to the provided *output*.
+  #
+  # How the output gets written can be customized via an `ART::Response::Writer`.
+  def write(output : IO) : Nil
+    @writer.write(output) do |writer_io|
+      writer_io.print @content
     end
   end
 end

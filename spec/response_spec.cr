@@ -28,17 +28,17 @@ describe ART::Response do
       ART::Response.new("FOO").content.should eq "FOO"
     end
 
-    it "accepts a block" do
+    pending "accepts a block" do
       (ART::Response.new { |io| io << "BAZ" }).content.should eq "BAZ"
     end
 
-    it "accepts a proc" do
+    pending "accepts a proc" do
       ART::Response.new(->(io : IO) { io << "BAR" }).content.should eq "BAR"
     end
   end
 
   describe "#content" do
-    it "only executes the proc once" do
+    pending "only executes the proc once" do
       value = 0
       response = ART::Response.new(->(io : IO) { io << "STRING"; value += 1 })
       response.content.should eq "STRING"
@@ -47,7 +47,7 @@ describe ART::Response do
       value.should eq 1
     end
 
-    it "gets recalculated if the content changes" do
+    pending "gets recalculated if the content changes" do
       value = 0
       response = ART::Response.new(->(io : IO) { io << "FOO"; value += 1 })
       response.content.should eq "FOO"
