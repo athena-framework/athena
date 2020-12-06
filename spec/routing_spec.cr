@@ -41,7 +41,18 @@ struct RoutingTest < ART::Spec::APITestCase
     response = self.request "GET", "/art/response"
     response.status.should eq HTTP::Status::IM_A_TEAPOT
     response.headers["content-type"].should eq "BAR"
+    response.headers["content-length"].should eq "3"
+    response.headers.has_key?("transfer-encoding").should be_false
     response.body.should eq "FOO"
+  end
+
+  def test_allows_returning_a_streamed_response : Nil
+    response = self.request "GET", "/art/streamed-response"
+    response.status.should eq HTTP::Status::IM_A_TEAPOT
+    response.headers["content-type"].should eq "BAR"
+    response.headers.has_key?("content-length").should be_false
+    response.headers["transfer-encoding"].should eq "chunked"
+    response.body.should eq %("FOO")
   end
 
   def test_it_supports_redirects : Nil

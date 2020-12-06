@@ -27,6 +27,13 @@ class RoutingController < ART::Controller
     ART::Response.new "FOO", 418, HTTP::Headers{"content-type" => "BAR"}
   end
 
+  @[ART::Get("art/streamed-response")]
+  def streamed_response : ART::Response
+    ART::StreamedResponse.new 418, HTTP::Headers{"content-type" => "BAR"} do |io|
+      "FOO".to_json io
+    end
+  end
+
   @[ART::Get("art/redirect")]
   def redirect : ART::RedirectResponse
     ART::RedirectResponse.new "https://crystal-lang.org"

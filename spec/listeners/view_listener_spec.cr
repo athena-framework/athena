@@ -12,7 +12,7 @@ private struct TestSerializer
   end
 
   def serialize(data : _, format : ASR::Format | String, io : IO, context : ASR::SerializationContext = ASR::SerializationContext.new, **named_args) : Nil
-    io << "SERIALIZED_DATA".to_json
+    "SERIALIZED_DATA".to_json io
 
     @context_assertion.try &.call context
   end
@@ -96,7 +96,7 @@ describe ART::Listeners::View do
       end
 
       it "allows setting the serializer context" do
-        view_context = ART::Action::ViewContext.new
+        view_context = ART::Action::ViewContext.new emit_nil: true, serialization_groups: ["some_group"]
 
         # Simulate some listener setting this.
         # In practice it'll be retrieved off the action object.
@@ -107,7 +107,7 @@ describe ART::Listeners::View do
         serializer = TestSerializer.new ->(context : ASR::SerializationContext) do
           context.emit_nil?.should be_true
           context.groups.should eq ["some_group"]
-          context.version.should eq "1.2.3"
+          context.version.to_s.should eq "1.2.3"
         end
 
         ART::Listeners::View.new(serializer).call(event, AED::Spec::TracableEventDispatcher.new)

@@ -15,8 +15,6 @@ struct Athena::Routing::ErrorRenderer
 
     headers["content-type"] = "application/json; charset=UTF-8"
 
-    ART::Response.new status, headers do |io|
-      exception.to_json io
-    end
+    ART::Response.new exception.to_json, status, headers
   end
 end

@@ -26,6 +26,15 @@
 #     ART::Response.new "<h1>Welcome to my website!</h1>", headers: HTTP::Headers{"content-type" => MIME.from_extension(".html")}
 #   end
 #
+#   # A GET endpoint returning an `ART::StreamedResponse`.
+#   # Can be used to stream the response content to the client; useful if the content is too large to fit into memory.
+#   @[ART::Get(path: "/users")]
+#   def users : ART::Response
+#     ART::StreamedResponse.new headers: HTTP::Headers{"content-type" => "application/json; charset=UTF-8"} do |io|
+#       User.all.to_json io
+#     end
+#   end
+#
 #   # A GET endpoint using a param converter to render a template.
 #   #
 #   # Assumes there is a `User` object that exposes their name, and an `ART::ParamConverterInterface` to provide the user with the provided *id*.
@@ -105,6 +114,7 @@
 # ART.run
 #
 # # GET /athena/index"                   # => <h1>Welcome to my website!</h1>
+# # GET /athena/users"                   # => [{"id":1,...},...]
 # # GET /athena/wakeup/17"               # => Morning, Allison it is currently 2020-02-01 18:38:12 UTC.
 # # GET /athena/me"                      # => "Jim"
 # # GET /athena/add/50/25"               # => 75
@@ -214,9 +224,7 @@ abstract class Athena::Routing::Controller
   # # GET /Fred # => Greetings, Fred!
   # ```
   macro render(template)
-    Athena::Routing::Response.new(headers: HTTP::Headers{"content-type" => "text/html"}) do |io|
-      ECR.embed {{template}}, io
-    end
+    Athena::Routing::Response.new ECR.render({{template}}), headers: HTTP::Headers{"content-type" => "text/html"}
   end
 
   # Renders a template within a layout.

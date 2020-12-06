@@ -19,6 +19,7 @@ require "./redirect_response"
 require "./response"
 require "./request_store"
 require "./route_handler"
+require "./streamed_response"
 require "./time_converter"
 
 require "./arguments/**"
