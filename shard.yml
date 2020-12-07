@@ -31,7 +31,7 @@ dependencies:
     version: ~> 0.2.2
   amber_router:
     github: amberframework/amber-router
-    version: ~> 0.4.1
+    version: ~> 0.4.3
   athena-validator:
     github: athena-framework/validator
     version: ~> 0.1.3
