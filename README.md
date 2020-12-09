@@ -3,6 +3,8 @@
 [![CI](https://github.com/athena-framework/athena/workflows/CI/badge.svg)](https://github.com/athena-framework/athena/actions?query=workflow%3ACI)
 [![Latest release](https://img.shields.io/github/release/athena-framework/athena.svg)](https://github.com/athena-framework/athena/releases)
 
+[![CI](logo.png)](https://athenaframework.org)
+
 A web framework comprised of reusable, independent components.
 
 ## Documentation
