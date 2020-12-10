@@ -8,7 +8,7 @@
 # The method can be redefined if different logic is desired.
 #
 # ```
-# class ART::Listeners::Error
+# struct ART::Listeners::Error
 #   # :inherit:
 #   protected def log_exception(exception : Exception, & : -> String) : Nil
 #     # Don't log anything if an exception is some specific type.
