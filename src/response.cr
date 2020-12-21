@@ -51,7 +51,7 @@ class Athena::Routing::Response
   # end
   #
   # class ExampleController < ART::Controller
-  #   @[ART::Get("/users")]
+  #   @[ARTA::Get("/users")]
   #   def users : Array(User)
   #     User.all
   #   end

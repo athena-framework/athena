@@ -40,6 +40,9 @@ require "./ext/validator"
 # Convenience alias to make referencing `Athena::Routing` types easier.
 alias ART = Athena::Routing
 
+# Convenience alias to make referencing `Athena::Routing::Annotations` types easier.
+alias ARTA = ART::Annotations
+
 # See the [external documentation](https://athenaframework.org) for an introduction to `Athena`.
 #
 # Also checkout the [Components](https://athenaframework.org/components) for an overview of how `Athena` is designed.
@@ -91,7 +94,7 @@ module Athena::Routing
 
   # Namespace for types related to request parameter processing.
   #
-  # See `ART::QueryParam` and `ART::RequestParam`.
+  # See `ARTA::QueryParam` and `ARTA::RequestParam`.
   module Athena::Routing::Params; end
 
   # Runs an `HTTP::Server` listening on the given *port* and *host*.
@@ -100,7 +103,7 @@ module Athena::Routing
   # require "athena"
   #
   # class ExampleController < ART::Controller
-  #   @[ART::Get("/")]
+  #   @[ARTA::Get("/")]
   #   def root : String
   #     "At the index"
   #   end

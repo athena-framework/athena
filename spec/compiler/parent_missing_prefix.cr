@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-@[ART::Prefix]
+@[ARTA::Prefix]
 abstract class PrefixController < Athena::Routing::Controller
 end
 

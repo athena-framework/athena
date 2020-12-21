@@ -7,11 +7,11 @@ abstract struct Athena::Routing::ActionBase; end
 #
 # Includes metadata about the endpoint, such as its controller, arguments, return type, and the action that should be executed.
 struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple, ArgumentsType) < Athena::Routing::ActionBase
-  # Stores runtime configuration data from the `ART::View` annotation about how to render the output of the related action.
+  # Stores runtime configuration data from the `ARTA::View` annotation about how to render the output of the related action.
   #
   # This includes the action's `HTTP::Status` and any serialization related configuration options.
   class ViewContext
-    # Returns `true` if the action related to `self` defined a custom status via the `ART::View` annotation, otherwise `false`.
+    # Returns `true` if the action related to `self` defined a custom status via the `ARTA::View` annotation, otherwise `false`.
     getter? has_custom_status : Bool
 
     # Returns the `HTTP::Status` this action should return.  Defaults to `HTTP::Status::OK` (200).
@@ -59,7 +59,7 @@ struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple,
   # Returns an `Array(ART::Arguments::ArgumentMetadata)` that `self` requires.
   getter arguments : ArgumentsType
 
-  # Returns an `Array(ART::ParamConverterInterface::ConfigurationInterface)` representing the `ART::ParamConverter`s applied to `self`.
+  # Returns an `Array(ART::ParamConverterInterface::ConfigurationInterface)` representing the `ARTA::ParamConverter`s applied to `self`.
   getter param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface)
 
   # Returns the `ART::Action::ViewContext` related to `self`.
