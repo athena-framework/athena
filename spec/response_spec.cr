@@ -31,11 +31,6 @@ describe ART::Response do
     it "accepts nil content" do
       ART::Response.new(nil).content.should eq ""
     end
-
-    # TODO: Remove this in 0.13.0
-    it "accepts a block" do
-      (ART::Response.new { |io| io << "BAZ" }).should be_a ART::StreamedResponse
-    end
   end
 
   describe "#content=" do
