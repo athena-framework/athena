@@ -65,7 +65,7 @@ abstract struct Athena::Routing::Params::ScalarParam < Athena::Routing::Params::
       description : String? = nil,
       @default : T? = nil,
       @type : T.class = T,
-      converter : Nil? = nil # TODO: Remove this
+      converter : Nil? = nil # TODO: Remove this when `#delete` is added to `NamedTupleLiteral`.
     )
       super name, has_default, incompatibles, requirements, map, strict, (is_nilable || @type == Nil || (has_default && @default.nil?)), key, description
     end
