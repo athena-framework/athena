@@ -32,6 +32,7 @@ require "./listeners/*"
 require "./parameters/*"
 require "./params/*"
 require "./routing/*"
+require "./view/*"
 
 require "./ext/configuration_resolver"
 require "./ext/conversion_types"

@@ -69,6 +69,12 @@ struct Athena::Routing::ParameterBag
     def get(name : String, _type : {{type}}.class) : {{type}}
       {{type}}.from_parameter(self.get(name)).as {{type}}
     end
+
+    # Returns the value of the parameter with the provided *name* as a `{{type}}`, or `nil` if it does not exist.
+    def get?(name : String, _type : {{type}}?.class) : {{type}}?
+      return nil unless (value = self.get? name)
+      {{type}}.from_parameter(value).as {{type}}?
+    end
   {% end %}
 
   # Sets a parameter with the provided *name* to *value*.
