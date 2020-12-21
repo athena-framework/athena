@@ -1,3 +1,5 @@
+# Contains all the `Athena::Routing` based annotations.
+# See each annotation for more information.
 module Athena::Routing::Annotations
   # Defines a `DELETE` endpoint.
   #
