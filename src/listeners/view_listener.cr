@@ -20,15 +20,27 @@ struct Athena::Routing::Listeners::View
     request = event.request
     action = request.action
 
-    configuration = action.view_context
-
     view = event.action_result
 
     unless view.is_a? ART::View
       view = action.create_view view
     end
 
-    # TODO: Apply the configuration from the View annotation onto the view instance
+    if configuration = event.request.action.annotation_configurations[ARTA::View]?
+      if (status = configuration.status) && (view.status.nil? || view.status.not_nil!.ok?)
+        view.status = status
+      end
+
+      context = view.context
+
+      if groups = configuration.serialization_groups
+        if context_groups = context.groups
+          context.groups = context_groups | groups
+        else
+          context.groups = groups
+        end
+      end
+    end
 
     if view.format.nil?
       view.format = request.format

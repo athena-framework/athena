@@ -94,8 +94,7 @@ class Athena::Routing::View::ViewHandler
       # TODO: Support Form typed views.
       data = view.data
 
-      # TODO: Create correct serialization context.
-      content = @serializer.serialize data, format
+      content = @serializer.serialize data, format, view.context
     end
 
     response = view.response

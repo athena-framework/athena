@@ -461,14 +461,11 @@ module Athena::Routing::Annotations
 
   # Configures how the endpoint should be rendered.
   #
-  # See `ART::Action::ViewContext`.
-  #
   # ## Fields
   #
   # * status : `HTTP::Status` - The `HTTP::Status` the endpoint should return.  Defaults to `HTTP::Status::OK` (200).
   # * serialization_groups : `Array(String)?` - The serialization groups to use for this route as part of `ASR::ExclusionStrategies::Groups`.
   # * validation_groups : `Array(String)?` - Groups that should be used to validate any objects related to this route; see `AVD::Constraint@validation-groups`.
-  # * emit_nil : `Bool` - If `nil` values should be serialized.  Defaults to `false`.
   #
   # ## Example
   #
@@ -482,6 +479,9 @@ module Athena::Routing::Annotations
   # end
   # ```
   #
-  # See the [external documentation](/components/serializer/) for more information.
-  annotation View; end
+  # See the [external documentation](https://athenaframework.org/components/serializer/) for more information.
+  ACF.configuration_annotation Athena::Routing::Annotations::View,
+    status : HTTP::Status? = nil,
+    serialization_groups : Array(String)? = nil,
+    validation_groups : Array(String)? = nil
 end

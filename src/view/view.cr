@@ -3,11 +3,10 @@ class Athena::Routing::View(T)
   property status : HTTP::Status?
   property format : String? = nil
   property route_params : Hash(String, String)? = nil
+  property context : ASR::SerializationContext { ASR::SerializationContext.new }
 
   getter location : String? = nil
   getter route : String? = nil
-
-  getter! view_context : ART::Action::ViewContext
 
   property response : ART::Response do
     response = ART::Response.new
@@ -75,8 +74,4 @@ class Athena::Routing::View(T)
     self.response.headers.clear
     self.response.headers.merge! headers
   end
-
-  # :nodoc:
-  # def view_context=(@view_context : ART::Action::ViewContext)
-  # end
 end
