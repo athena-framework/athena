@@ -9,7 +9,6 @@ class Athena::Routing::URLGenerator
   # *params* are validated to ensure they are all provided, and meet any route constraints defined on the action.
   #
   # OPTIMIZE: Make URL generation more robust.
-  # ameba:disable Metrics/CyclomaticComplexity
   def generate(route : String, params : Hash(String, _)? = nil, reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path) : String
     route = @routes.get route
 
@@ -57,6 +56,7 @@ class Athena::Routing::URLGenerator
              p
            end
 
+    # TODO: Remove this after Crystal 1.0.0 is released.
     host = {% if compare_versions(Crystal::VERSION, "1.0.0-0") >= 0 %}
              @request.hostname
            {% else %}
