@@ -107,6 +107,14 @@ struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple,
   end
 
   # :nodoc:
+  #
+  # Creates an `ART::View` populated with the provided *data*.
+  # Uses the action's return type to type the view.
+  protected def create_view(data : _) : ART::View
+    ART::View(ReturnType).new data
+  end
+
+  # :nodoc:
   protected def copy_with(name _name = @name, method _method = @method)
     self.class.new(
       action: @action,

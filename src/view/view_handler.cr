@@ -11,7 +11,6 @@ class Athena::Routing::View::ViewHandler
     @url_generator : ART::URLGeneratorInterface,
     @serializer : ASR::SerializerInterface,
     @request_store : ART::RequestStore,
-    @failed_validation_status : HTTP::Status = HTTP::Status::UNPROCESSABLE_ENTITY,
     @empty_content_status : HTTP::Status = HTTP::Status::NO_CONTENT
   ); end
 
@@ -35,38 +34,59 @@ class Athena::Routing::View::ViewHandler
 
   # :inherit:
   def create_response(view : ART::View, request : HTTP::Request, format : String) : ART::Response
-    route = view.route
-
-    location = route ? @url_generator.generate(route, view.route_parameters, :absolute_url) : view.location
-
-    if location
-      # return self.create_redirect_response view, location, format
+    view.route.try do |route|
+      if location = route ? @url_generator.generate(route, view.route_parameters, :absolute_url) : view.location
+        return self.create_redirect_response view, location, format
+      end
     end
 
     response = self.init_response view, format
+
+    unless response.headers.has_key? "content-type"
+      # TODO: Support setting content-type header based on the negotiated format.
+
+      response.headers["content-type"] = "application/json; charset=UTF-8"
+    end
+
+    response
+  end
+
+  # :inherit:
+  def create_redirect_response(view : ART::View, location : String, format : String) : ART::Response
+    content = nil
+
+    if (vs = view.status) && (vs.created? || vs.accepted?) && !view.data.nil?
+      response = self.init_response view, format
+    else
+      status = self.status view, content
+      response = ART::RedirectResponse.new location, status, view.headers
+    end
+
+    response
   end
 
   private def init_response(view : ART::View, format : String) : ART::Response
     content = nil
 
-    unless view.data.nil?
+    # Skip serialization if the action's return type is explicitly `Nil`.
+    unless view.return_type == Nil
       # TODO: Support Form typed views.
       data = view.data
 
-      # TODO: Create correct serialization context
+      # TODO: Create correct serialization context.
       content = @serializer.serialize data, format
     end
 
     response = view.response
-    response.status = self.status_code view, content
+    response.status = self.status view, content
 
     response.content = content unless content.nil?
 
     response
   end
 
-  private def status_code(view : ART::View, content : _) : HTTP::Status
-    # TODO: Handle validating Form data
+  private def status(view : ART::View, content : _) : HTTP::Status
+    # TODO: Handle validating Form data.
 
     if status = view.status
       return status

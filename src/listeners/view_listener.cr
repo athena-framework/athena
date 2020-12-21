@@ -18,13 +18,14 @@ struct Athena::Routing::Listeners::View
 
   def call(event : ART::Events::View, dispatcher : AED::EventDispatcherInterface) : Nil
     request = event.request
+    action = request.action
 
-    configuration = request.action.view_context
+    configuration = action.view_context
 
     view = event.action_result
 
     unless view.is_a? ART::View
-      view = ART::View.new view
+      view = action.create_view view
     end
 
     # TODO: Apply the configuration from the View annotation onto the view instance

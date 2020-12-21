@@ -28,6 +28,10 @@ class Athena::Routing::View(T)
     @status = HTTP::Status.new status if status
   end
 
+  def return_type : T.class
+    T
+  end
+
   # :nodoc:
   # def view_context=(@view_context : ART::Action::ViewContext)
   # end
