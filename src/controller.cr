@@ -199,6 +199,65 @@ abstract class Athena::Routing::Controller
     self.redirect_to_route route, params.to_h.transform_keys(&.to_s.as(String)), status
   end
 
+  # Returns an `ART::RedirectResponse` to the provided *url*, optionally with the provided *status*.
+  #
+  # ```
+  # class ExampleController < ART::Controller
+  #   @[ARTA::Get("redirect_to_google")]
+  #   def redirect_to_google : ART::RedirectResponse
+  #     self.redirect "https://google.com"
+  #   end
+  # end
+  # ```
+  def redirect(url : String | Path, status : HTTP::Status = HTTP::Status::FOUND) : ART::RedirectResponse
+    ART::RedirectResponse.new url, status
+  end
+
+  def redirect_view(url : Status, status : HTTP::Status = HTTP::Status::FOUND, headers : HTTP::Headers = HTTP::Headers.new) : ART::View
+    ART::View.create_redirect url, status, headers
+  end
+
+  def route_redirect_view(route : Status, params : Hash(String, _)? = nil, status : HTTP::Status = HTTP::Status::CREATED, headers : HTTP::Headers = HTTP::Headers.new) : ART::View
+    ART::View.create_route_redirect route, params
+  end
+
+  def view(data = nil, status : HTTP::Status? = nil, headers : HTTP::Headers = HTTP::Headers.new) : ART::View
+    ART::View.new data, status, headers
+  end
+
+  {% begin %}
+    {% for method in ["DELETE", "GET", "HEAD", "PATCH", "POST", "PUT", "LINK", "UNLINK"] %}
+      # Helper DSL macro for creating `{{method.id}}` actions.
+      #
+      # The first argument is the path that the action should handle; which maps to path on the HTTP method annotation.
+      # The second argument is a variable amount of arguments with a syntax similar to Crystal's `record`.
+      # There are also a few optional named arguments that map to the corresponding field on the HTTP method annotation.
+      #
+      # The macro simply defines a method based on the options passed to it.  Additional annotations, such as for query params
+      # or a param converter can simply be added on top of the macro.
+      #
+      # ### Optional Named Arguments
+      # - `return_type` - The return type to set for the action.  Defaults to `String` if not provided.
+      # - `constraints` - Any constraints that should be applied to the route.
+      #
+      # ### Example
+      #
+      # ```
+      # class ExampleController < ART::Controller
+      #   {{method.downcase.id}} "values/:value1/:value2", value1 : Int32, value2 : Float64, constraints: {"value1" => /\d+/, "value2" => /\d+\.\d+/} do
+      #     "Value1: #{value1} - Value2: #{value2}"
+      #   end
+      # end
+      # ```
+      macro {{method.downcase.id}}(path, *args, **named_args, &)
+        @[ARTA::{{method.capitalize.id}}(path: \{{path}}, constraints: \{{named_args[:constraints]}})]
+        def {{method.downcase.id}}_\{{path.gsub(/\W/, "_").id}}(\{{*args}}) : \{{named_args[:return_type] || String}}
+          \{{yield}}
+        end
+      end
+    {% end %}
+  {% end %}
+
   # Renders a template.
   #
   # Uses `ECR` to render the *template*, creating an `ART::Response` with its rendered content and adding a `text/html` `content-type` header.
@@ -251,51 +310,4 @@ abstract class Athena::Routing::Controller
     content = ECR.render {{template}}
     {{@type}}.render {{layout}}
   end
-
-  # Returns an `ART::RedirectResponse` to the provided *url*, optionally with the provided *status*.
-  #
-  # ```
-  # class ExampleController < ART::Controller
-  #   @[ARTA::Get("redirect_to_google")]
-  #   def redirect_to_google : ART::RedirectResponse
-  #     self.redirect "https://google.com"
-  #   end
-  # end
-  # ```
-  def redirect(url : String | Path, status : HTTP::Status = HTTP::Status::FOUND) : ART::RedirectResponse
-    ART::RedirectResponse.new url, status
-  end
-
-  {% begin %}
-    {% for method in ["DELETE", "GET", "HEAD", "PATCH", "POST", "PUT", "LINK", "UNLINK"] %}
-      # Helper DSL macro for creating `{{method.id}}` actions.
-      #
-      # The first argument is the path that the action should handle; which maps to path on the HTTP method annotation.
-      # The second argument is a variable amount of arguments with a syntax similar to Crystal's `record`.
-      # There are also a few optional named arguments that map to the corresponding field on the HTTP method annotation.
-      #
-      # The macro simply defines a method based on the options passed to it.  Additional annotations, such as for query params
-      # or a param converter can simply be added on top of the macro.
-      #
-      # ### Optional Named Arguments
-      # - `return_type` - The return type to set for the action.  Defaults to `String` if not provided.
-      # - `constraints` - Any constraints that should be applied to the route.
-      #
-      # ### Example
-      #
-      # ```
-      # class ExampleController < ART::Controller
-      #   {{method.downcase.id}} "values/:value1/:value2", value1 : Int32, value2 : Float64, constraints: {"value1" => /\d+/, "value2" => /\d+\.\d+/} do
-      #     "Value1: #{value1} - Value2: #{value2}"
-      #   end
-      # end
-      # ```
-      macro {{method.downcase.id}}(path, *args, **named_args, &)
-        @[ARTA::{{method.capitalize.id}}(path: \{{path}}, constraints: \{{named_args[:constraints]}})]
-        def {{method.downcase.id}}_\{{path.gsub(/\W/, "_").id}}(\{{*args}}) : \{{named_args[:return_type] || String}}
-          \{{yield}}
-        end
-      end
-    {% end %}
-  {% end %}
 end
