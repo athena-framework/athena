@@ -2,8 +2,8 @@
 # Handles resolving an argument's default value if no other value was able to be resolved.
 #
 # ```
-# @[ART::Get("/")]
-# @[ART::QueryParam("query_param")]
+# @[ARTA::Get("/")]
+# @[ARTA::QueryParam("query_param")]
 # def get_query_param(query_param : Int32 = 123) : Int32
 #   # `query_param` would be `123` if the request does not include a query parameter named `query_param`.
 #   query_param

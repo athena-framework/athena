@@ -2,7 +2,7 @@
 # Handles resolving a value for action arguments typed as `HTTP::Request`.
 #
 # ```
-# @[ART::Get("/")]
+# @[ARTA::Get("/")]
 # def get_request_path(request : HTTP::Request) : String
 #   request.path
 # end

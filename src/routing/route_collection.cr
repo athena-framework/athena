@@ -15,8 +15,8 @@ class Athena::Routing::RouteCollection
         {% registered_routes = {} of String => String %}
 
         {% for klass, c_idx in Athena::Routing::Controller.all_subclasses.reject &.abstract? %}
-          {% methods = klass.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) || m.annotation(Patch) || m.annotation(Link) || m.annotation(Unlink) || m.annotation(Head) || m.annotation(Route) } %}
-          {% class_actions = klass.class.methods.select { |m| m.annotation(Get) || m.annotation(Post) || m.annotation(Put) || m.annotation(Delete) || m.annotation(Patch) || m.annotation(Link) || m.annotation(Unlink) || m.annotation(Head) || m.annotation(Route) } %}
+          {% methods = klass.methods.select { |m| m.annotation(ARTA::Get) || m.annotation(ARTA::Post) || m.annotation(ARTA::Put) || m.annotation(ARTA::Delete) || m.annotation(ARTA::Patch) || m.annotation(ARTA::Link) || m.annotation(ARTA::Unlink) || m.annotation(ARTA::Head) || m.annotation(ARTA::Route) } %}
+          {% class_actions = klass.class.methods.select { |m| m.annotation(ARTA::Get) || m.annotation(ARTA::Post) || m.annotation(ARTA::Put) || m.annotation(ARTA::Delete) || m.annotation(ARTA::Patch) || m.annotation(ARTA::Link) || m.annotation(ARTA::Unlink) || m.annotation(ARTA::Head) || m.annotation(ARTA::Route) } %}
 
           # Raise compile time error if a route is defined as a class method.
           {% unless class_actions.empty? %}
@@ -27,7 +27,7 @@ class Athena::Routing::RouteCollection
 
           # Add prefixes from parent classes.
           {% for parent in klass.ancestors %}
-            {% if (prefix_ann = parent.annotation(Prefix)) %}
+            {% if (prefix_ann = parent.annotation(ARTA::Prefix)) %}
               {% if (name = prefix_ann[0] || prefix_ann[:prefix]) %}
                 {% parent_prefix = (name.starts_with?('/') ? name : "/" + name) + parent_prefix %}
               {% else %}
@@ -42,37 +42,37 @@ class Athena::Routing::RouteCollection
             {% m.raise "Route action return type must be set for '#{klass.name}##{m.name}'." if m.return_type.is_a? Nop %}
 
             # Set the route_def and method based on annotation.
-            {% if d = m.annotation(Get) %}
+            {% if d = m.annotation(ARTA::Get) %}
               {% method = "GET" %}
               {% route_def = d %}
-            {% elsif d = m.annotation(Post) %}
+            {% elsif d = m.annotation(ARTA::Post) %}
               {% method = "POST" %}
               {% route_def = d %}
-            {% elsif d = m.annotation(Put) %}
+            {% elsif d = m.annotation(ARTA::Put) %}
               {% method = "PUT" %}
               {% route_def = d %}
-            {% elsif d = m.annotation(Patch) %}
+            {% elsif d = m.annotation(ARTA::Patch) %}
               {% method = "PATCH" %}
               {% route_def = d %}
-            {% elsif d = m.annotation(Delete) %}
+            {% elsif d = m.annotation(ARTA::Delete) %}
               {% method = "DELETE" %}
               {% route_def = d %}
-            {% elsif d = m.annotation(Link) %}
+            {% elsif d = m.annotation(ARTA::Link) %}
               {% method = "LINK" %}
               {% route_def = d %}
-            {% elsif d = m.annotation(Unlink) %}
+            {% elsif d = m.annotation(ARTA::Unlink) %}
               {% method = "UNLINK" %}
               {% route_def = d %}
-            {% elsif d = m.annotation(Head) %}
+            {% elsif d = m.annotation(ARTA::Head) %}
               {% method = "HEAD" %}
               {% route_def = d %}
-            {% elsif d = m.annotation(Route) %}
+            {% elsif d = m.annotation(ARTA::Route) %}
               {% method = d[:method] || m.raise "Route action '#{klass.name}##{m.name}' is missing the HTTP method.  It was not provided via the 'method' field." %}
               {% route_def = d %}
             {% end %}
 
             # Set and normalize the final prefix if any.
-            {% if prefix_ann = klass.annotation(Prefix) %}
+            {% if prefix_ann = klass.annotation(ARTA::Prefix) %}
               {% if (name = prefix_ann[0] || prefix_ann[:prefix]) %}
                 {% prefix = parent_prefix + (name.starts_with?('/') ? name : "/" + name) %}
               {% else %}
@@ -123,10 +123,10 @@ class Athena::Routing::RouteCollection
             # Build out param converters array.
             {% param_converters = [] of Nil %}
 
-            {% for converter in m.annotations(ART::ParamConverter) %}
-              {% converter.raise "Route action '#{klass.name}##{m.name}' has an ART::ParamConverter annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (converter[0] || converter[:name]) %}
-              {% converter.raise "Route action '#{klass.name}##{m.name}' has an ART::ParamConverter annotation but does not have a corresponding action argument for '#{arg_name.id}'." unless arg_names.includes? arg_name %}
-              {% converter.raise "Route action '#{klass.name}##{m.name}' has an ART::ParamConverter annotation but is missing the converter class.  It was not provided via the 'converter' field." unless converter_class = converter[:converter] %}
+            {% for converter in m.annotations(ARTA::ParamConverter) %}
+              {% converter.raise "Route action '#{klass.name}##{m.name}' has an ARTA::ParamConverter annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (converter[0] || converter[:name]) %}
+              {% converter.raise "Route action '#{klass.name}##{m.name}' has an ARTA::ParamConverter annotation but does not have a corresponding action argument for '#{arg_name.id}'." unless arg_names.includes? arg_name %}
+              {% converter.raise "Route action '#{klass.name}##{m.name}' has an ARTA::ParamConverter annotation but is missing the converter class.  It was not provided via the 'converter' field." unless converter_class = converter[:converter] %}
               {% param_converters << %(#{converter_class.resolve}::Configuration.new(name: #{arg_name.id.stringify}, #{converter.named_args.double_splat})).id %}
             {% end %}
 
@@ -134,7 +134,7 @@ class Athena::Routing::RouteCollection
             {% params = [] of Nil %}
 
             # Process query and request params
-            {% for param in [{ART::QueryParam, "ART::Params::QueryParam"}, {ART::RequestParam, "ART::Params::RequestParam"}] %}
+            {% for param in [{ARTA::QueryParam, "ART::Params::QueryParam"}, {ARTA::RequestParam, "ART::Params::RequestParam"}] %}
               {% param_ann = param[0] %}
               {% param_class = param[1].id %}
 
@@ -216,7 +216,7 @@ class Athena::Routing::RouteCollection
 
             {% view_context = "ART::Action::ViewContext.new".id %}
 
-            {% if view_ann = m.annotation(View) %}
+            {% if view_ann = m.annotation(ARTA::View) %}
               {% view_context = %(ART::Action::ViewContext.new(#{view_ann.named_args.double_splat})).id %}
             {% end %}
 

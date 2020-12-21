@@ -16,9 +16,9 @@ require "./param_converter_interface"
 # require "athena"
 #
 # class ExampleController < ART::Controller
-#   @[ART::Get(path: "/event/:start_time/:end_time")]
-#   @[ART::ParamConverter("start_time", converter: ART::TimeConverter, format: "%F", location: Time::Location.load("Europe/Berlin"))]
-#   @[ART::ParamConverter("end_time", converter: ART::TimeConverter)]
+#   @[ARTA::Get(path: "/event/:start_time/:end_time")]
+#   @[ARTA::ParamConverter("start_time", converter: ART::TimeConverter, format: "%F", location: Time::Location.load("Europe/Berlin"))]
+#   @[ARTA::ParamConverter("end_time", converter: ART::TimeConverter)]
 #   def event(start_time : Time, end_time : Time) : Nil
 #     start_time # => 2020-04-07 00:00:00.0 +02:00 Europe/Berlin
 #     end_time   # => 2020-04-08 12:34:56.0 UTC

@@ -1,6 +1,6 @@
 require "./scalar_param"
 
-# Represents form data with a request's body.  See `ART::RequestParam`.
+# Represents form data with a request's body.  See `ARTA::RequestParam`.
 struct Athena::Routing::Params::RequestParam(T) < Athena::Routing::Params::ScalarParam
   # This is included here because of https://github.com/crystal-lang/crystal/issues/7584
   include Athena::Routing::Params::ParamInterface

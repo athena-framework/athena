@@ -91,8 +91,8 @@ module Athena::Routing::Spec
   #
   # ```
   # class ExampleController < ART::Controller
-  #   @[ART::QueryParam("negative")]
-  #   @[ART::Get("/add/:value1/:value2")]
+  #   @[ARTA::QueryParam("negative")]
+  #   @[ARTA::Get("/add/:value1/:value2")]
   #   def add(value1 : Int32, value2 : Int32, negative : Bool = false) : Int32
   #     sum = value1 + value2
   #     negative ? -sum : sum
@@ -156,7 +156,7 @@ module Athena::Routing::Spec
   # class ExampleServiceController < ART::Controller
   #   def initialize(@api_client : APIClient); end
   #
-  #   @[ART::Post("/sync")]
+  #   @[ARTA::Post("/sync")]
   #   def sync_data : String
   #     # Use the injected api client to get the latest data to sync.
   #     data = @api_client.fetch_latest_data

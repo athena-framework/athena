@@ -2,12 +2,12 @@
 abstract struct Athena::Routing::Params::ScalarParam < Athena::Routing::Params::Param
   # Returns the requirements that the value is required to pass in order to be considered valid.
   #
-  # See [ART::QueryParam@requirements](../QueryParam.html#requirements).
+  # See [ARTA::QueryParam@requirements](../QueryParam.html#requirements).
   getter requirements : AVD::Constraint | Array(AVD::Constraint) | Regex | Nil
 
   # Denotes whether the `#requirements` should be applied to the whole value, or to each item a part of the value.
   #
-  # See [ART::QueryParam@map](../QueryParam.html#map).
+  # See [ARTA::QueryParam@map](../QueryParam.html#map).
   getter? map : Bool = false
 
   def initialize(
