@@ -19,7 +19,7 @@ class TestController < ART::Controller
   end
 end
 
-macro create_action(return_type, view_context = nil, &)
+macro create_action(return_type, &)
   ART::Action.new(
     ->{ ->{ {{yield}} } },
     "fake_method",
@@ -28,7 +28,6 @@ macro create_action(return_type, view_context = nil, &)
     Hash(String, Regex).new,
     Array(ART::Arguments::ArgumentMetadata(Nil)).new,
     Array(ART::ParamConverterInterface::ConfigurationInterface).new,
-    {{view_context}} || ART::Action::ViewContext.new,
     ACF::AnnotationConfigurations.new,
     Array(ART::Params::ParamInterface).new,
     TestController,
@@ -53,7 +52,6 @@ def new_action(
   constraints : Hash(String, Regex) = Hash(String, Regex).new,
   arguments : Array(ART::Arguments::ArgumentMetadata)? = nil,
   param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface)? = nil,
-  view_context : ART::Action::ViewContext = ART::Action::ViewContext.new,
   params : Array(ART::Params::ParamInterface) = Array(ART::Params::ParamInterface).new
 ) : ART::ActionBase
   ART::Action.new(
@@ -64,7 +62,6 @@ def new_action(
     constraints,
     arguments || Array(ART::Arguments::ArgumentMetadata(Nil)).new,
     param_converters || Array(ART::ParamConverterInterface::ConfigurationInterface).new,
-    view_context,
     ACF::AnnotationConfigurations.new,
     params,
     TestController,

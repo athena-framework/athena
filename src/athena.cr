@@ -38,6 +38,7 @@ require "./ext/configuration_resolver"
 require "./ext/conversion_types"
 require "./ext/event_dispatcher"
 require "./ext/http"
+require "./ext/negotiation"
 require "./ext/serializer"
 require "./ext/validator"
 

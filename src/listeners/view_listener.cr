@@ -1,10 +1,4 @@
 @[ADI::Register]
-# The view listener attempts to resolve a non `ART::Response` into an `ART::Response`.
-# Currently this is achieved by JSON serializing the controller action's resulting value;
-# either via `Object#to_json` or `ASR::Serializer`, depending on what type the resulting value is.
-#
-# In the future this listener will handle executing the correct view handler based on the
-# registered formats and the format that the initial `HTTP::Request` requires.
 struct Athena::Routing::Listeners::View
   include AED::EventListenerInterface
 
@@ -32,6 +26,7 @@ struct Athena::Routing::Listeners::View
       end
 
       context = view.context
+      context.emit_nil = configuration.serialize_nil
 
       if groups = configuration.serialization_groups
         if context_groups = context.groups
@@ -43,7 +38,7 @@ struct Athena::Routing::Listeners::View
     end
 
     if view.format.nil?
-      view.format = request.format
+      view.format = request.request_format
     end
 
     event.response = @view_handler.handle view, request

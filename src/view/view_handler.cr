@@ -37,13 +37,13 @@ class Athena::Routing::View::ViewHandler
   end
 
   # :inherit:
-  def handle(view : ART::View, request : HTTP::Request? = nil) : ART::Response
+  def handle(view : ART::ViewBase, request : HTTP::Request? = nil) : ART::Response
     request = @request_store.request if request.nil?
 
-    format = view.format || request.format
+    format = view.format || request.request_format
 
     unless self.supports? format
-      raise ART::Exceptions::UnsupportedMediaType.new "Format '#{format}' has no built in handler.  A custom handler must be implemented."
+      raise ART::Exceptions::NotAcceptable.new "The server is unable to return a response in the requested format: '#{format}'"
     end
 
     if custom_handler = @custom_handlers[format]?
@@ -54,7 +54,7 @@ class Athena::Routing::View::ViewHandler
   end
 
   # :inherit:
-  def create_response(view : ART::View, request : HTTP::Request, format : String) : ART::Response
+  def create_response(view : ART::ViewBase, request : HTTP::Request, format : String) : ART::Response
     view.route.try do |route|
       if location = route ? @url_generator.generate(route, view.route_params, :absolute_url) : view.location
         return self.create_redirect_response view, location, format
@@ -73,7 +73,7 @@ class Athena::Routing::View::ViewHandler
   end
 
   # :inherit:
-  def create_redirect_response(view : ART::View, location : String, format : String) : ART::Response
+  def create_redirect_response(view : ART::ViewBase, location : String, format : String) : ART::Response
     content = nil
 
     if (vs = view.status) && (vs.created? || vs.accepted?) && !view.data.nil?
@@ -86,7 +86,7 @@ class Athena::Routing::View::ViewHandler
     response
   end
 
-  private def init_response(view : ART::View, format : String) : ART::Response
+  private def init_response(view : ART::ViewBase, format : String) : ART::Response
     content = nil
 
     # Skip serialization if the action's return type is explicitly `Nil`.
@@ -105,7 +105,7 @@ class Athena::Routing::View::ViewHandler
     response
   end
 
-  private def status(view : ART::View, content : _) : HTTP::Status
+  private def status(view : ART::ViewBase, content : _) : HTTP::Status
     # TODO: Handle validating Form data.
 
     if status = view.status

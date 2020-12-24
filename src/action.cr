@@ -70,7 +70,12 @@ struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple,
   # Creates an `ART::View` populated with the provided *data*.
   # Uses the action's return type to type the view.
   protected def create_view(data : _) : ART::View
-    ART::View(ReturnType).new data
+    {% unless ReturnType <= ART::Response %}
+      return ART::View(ReturnType).new data.as(ReturnType)
+    {% end %}
+
+    # A view should never be created when the return type is an ART::Response.
+    raise "BUG: Creating view with ART::Response."
   end
 
   # :nodoc:

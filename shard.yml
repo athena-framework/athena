@@ -26,6 +26,9 @@ dependencies:
   athena-dependency_injection:
     github: athena-framework/dependency-injection
     version: ~> 0.2.4
+  athena-negotiation:
+    github: athena-framework/negotiation
+    version: ~> 0.1.0
   athena-serializer:
     github: athena-framework/serializer
     version: ~> 0.2.4
