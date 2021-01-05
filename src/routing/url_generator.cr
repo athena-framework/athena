@@ -9,7 +9,6 @@ class Athena::Routing::URLGenerator
   # *params* are validated to ensure they are all provided, and meet any route constraints defined on the action.
   #
   # OPTIMIZE: Make URL generation more robust.
-  # ameba:disable Metrics/CyclomaticComplexity
   def generate(route : String, params : Hash(String, _)? = nil, reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path) : String
     route = @routes.get route
 
@@ -53,13 +52,20 @@ class Athena::Routing::URLGenerator
             end
 
     # If the port is not a common one, 80 or 443, use it as the port; otherwise, don't bother setting it.
-    port = if (p = (@request.host_with_port.try &.split(':').last?.try &.to_i)) && !p.in? 80, 443
+    port = if (p = (@request.headers["Host"]?.try &.split(':').last?.try &.to_i)) && !p.in? 80, 443
              p
            end
 
+    # TODO: Remove this after Crystal 1.0.0 is released.
+    host = {% if compare_versions(Crystal::VERSION, "1.0.0-0") >= 0 %}
+             @request.hostname
+           {% else %}
+             @request.host
+           {% end %}
+
     uri = URI.new(
       scheme: "https", # TODO: Should this be configurable in some way?
-      host: @request.host || "localhost",
+      host: host || "localhost",
       port: port,
       path: route.path.gsub(/(?:(:\w+))/, merged_params).gsub(/\/+$/, ""),
       query: query,

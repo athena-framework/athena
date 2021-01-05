@@ -44,7 +44,7 @@ abstract struct Athena::Routing::Params::Param
 
   # Returns the key that should be used to access `self` from a given request.
   #
-  # Defaults to `#name`, but may be customized.  See the "Key" section of `ART::QueryParam`.
+  # Defaults to `#name`, but may be customized.  See the "Key" section of `ARTA::QueryParam`.
   def key : String
     @key || @name
   end

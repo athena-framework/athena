@@ -1,6 +1,6 @@
 require "./scalar_param"
 
-# Represents a request's query parameter.  See `ART::QueryParam`.
+# Represents a request's query parameter.  See `ARTA::QueryParam`.
 struct Athena::Routing::Params::QueryParam(T) < Athena::Routing::Params::ScalarParam
   # This is included here because of https://github.com/crystal-lang/crystal/issues/7584
   include Athena::Routing::Params::ParamInterface

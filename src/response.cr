@@ -51,7 +51,7 @@ class Athena::Routing::Response
   # end
   #
   # class ExampleController < ART::Controller
-  #   @[ART::Get("/users")]
+  #   @[ARTA::Get("/users")]
   #   def users : Array(User)
   #     User.all
   #   end
@@ -89,11 +89,6 @@ class Athena::Routing::Response
 
   # Returns the contents of this response.
   getter content : String
-
-  @[Deprecated("Use `ART::StreamedResponse.new` instead. This will be removed in Athena `0.13.0`.")]
-  def self.new(status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers = HTTP::Headers.new, &block : IO -> Nil) : ART::StreamedResponse
-    ART::StreamedResponse.new block, status, headers
-  end
 
   # Creates a new response with optional *content*, *status*, and *headers* arguments.
   def initialize(content : String? = nil, status : HTTP::Status | Int32 = HTTP::Status::OK, @headers : HTTP::Headers = HTTP::Headers.new)

@@ -15,7 +15,7 @@ class Athena::Routing::StreamedResponse < Athena::Routing::Response
   # require "athena"
   #
   # class ExampleController < ART::Controller
-  #   @[ART::Get("/users")]
+  #   @[ARTA::Get("/users")]
   #   def users : ART::Response
   #     ART::StreamedResponse.new headers: HTTP::Headers{"content-type" => "application/json; charset=UTF-8"} do |io|
   #       User.all.to_json io

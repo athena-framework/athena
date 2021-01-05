@@ -1,7 +1,7 @@
-# The core of any framework is routing; how a route is tied to an action.  Athena takes an annotation based approach; an annotation, such as `ART::Get` is applied to an instance method of a controller class,
+# The core of any framework is routing; how a route is tied to an action.  Athena takes an annotation based approach; an annotation, such as `ARTA::Get` is applied to an instance method of a controller class,
 # which will be executed when that endpoint receives a request.  The annotation includes the path as well as any constraints that a parameter must meet in order for the route to be invoked.
 #
-# Additional annotations also exist for setting a query param or a param converter.  See `ART::QueryParam` and `ART::ParamConverter` respectively.
+# Additional annotations also exist for setting a query param or a param converter.  See `ARTA::QueryParam` and `ARTA::ParamConverter` respectively.
 #
 # Child controllers must inherit from `ART::Controller` (or an abstract child of it).  Each request gets its own instance of the controller to better allow for DI via `Athena::DependencyInjection`.
 #
@@ -16,19 +16,19 @@
 # require "athena"
 # require "mime"
 #
-# # The `ART::Prefix` annotation can be applied to a controller to define a prefix to use for all routes within `self`.
-# @[ART::Prefix("athena")]
+# # The `ARTA::Prefix` annotation can be applied to a controller to define a prefix to use for all routes within `self`.
+# @[ARTA::Prefix("athena")]
 # class TestController < ART::Controller
 #   # A GET endpoint returning an `ART::Response`.
 #   # Can be used to return raw data, such as HTML or CSS etc, in a one-off manor.
-#   @[ART::Get(path: "/index")]
+#   @[ARTA::Get(path: "/index")]
 #   def index : ART::Response
 #     ART::Response.new "<h1>Welcome to my website!</h1>", headers: HTTP::Headers{"content-type" => MIME.from_extension(".html")}
 #   end
 #
 #   # A GET endpoint returning an `ART::StreamedResponse`.
 #   # Can be used to stream the response content to the client; useful if the content is too large to fit into memory.
-#   @[ART::Get(path: "/users")]
+#   @[ARTA::Get(path: "/users")]
 #   def users : ART::Response
 #     ART::StreamedResponse.new headers: HTTP::Headers{"content-type" => "application/json; charset=UTF-8"} do |io|
 #       User.all.to_json io
@@ -42,8 +42,8 @@
 #   # # user.ecr
 #   # Morning, <%= user.name %> it is currently <%= time %>.
 #   # ```
-#   @[ART::ParamConverter("user", converter: SomeConverter)]
-#   @[ART::Get("/wakeup/:id")]
+#   @[ARTA::ParamConverter("user", converter: SomeConverter)]
+#   @[ARTA::Get("/wakeup/:id")]
 #   def wakeup(user : User) : ART::Response
 #     # Template variables not supplied in the action's arguments must be defined manually
 #     time = Time.utc
@@ -55,7 +55,7 @@
 #   # A GET endpoint with no params returning a `String`.
 #   #
 #   # Action return type restrictions are required.
-#   @[ART::Get("/me")]
+#   @[ARTA::Get("/me")]
 #   def get_me : String
 #     "Jim"
 #   end
@@ -63,7 +63,7 @@
 #   # A GET endpoint with no params returning `Nil`.
 #   # `Nil` return types are returned with a status
 #   # of 204 no content
-#   @[ART::Get("/no_content")]
+#   @[ARTA::Get("/no_content")]
 #   def get_no_content : Nil
 #     # Do stuff
 #   end
@@ -72,7 +72,7 @@
 #   #
 #   # The parameters of a route _MUST_ match the arguments of the action.
 #   # Type restrictions on action arguments are required.
-#   @[ART::Get("/add/:val1/:val2")]
+#   @[ARTA::Get("/add/:val1/:val2")]
 #   def add(val1 : Int32, val2 : Int32) : Int32
 #     val1 + val2
 #   end
@@ -80,8 +80,8 @@
 #   # A GET endpoint with an `String` route param, and a required string query param that must match the given pattern; returning a `String`.
 #   #
 #   # A non-nilable type denotes it as required.  If the parameter is not supplied, and no default value is assigned, an `ART::Exceptions::BadRequest` exception is raised.
-#   @[ART::QueryParam("time", constraints: /\d:\d:\d/)]
-#   @[ART::Get("/event/:event_name/")]
+#   @[ARTA::QueryParam("time", constraints: /\d:\d:\d/)]
+#   @[ARTA::Get("/event/:event_name/")]
 #   def event_time(event_name : String, time : String) : String
 #     "#{event_name} occurred at #{time}"
 #   end
@@ -89,14 +89,14 @@
 #   # A GET endpoint with an optional query parameter and optional path param with a default value; returning a `NamedTuple(user_id : Int32?, page : Int32)`.
 #   #
 #   # A nilable type denotes it as optional.  If the parameter is not supplied (or could not be converted), and no default value is assigned, it is `nil`.
-#   @[ART::QueryParam("user_id")]
-#   @[ART::Get("/events/(:page)")]
+#   @[ARTA::QueryParam("user_id")]
+#   @[ARTA::Get("/events/(:page)")]
 #   def events(user_id : Int32?, page : Int32 = 1) : NamedTuple(user_id: Int32?, page: Int32)
 #     {user_id: user_id, page: page}
 #   end
 #
 #   # A GET endpoint with param constraints.  The param must match the supplied Regex or it will not match and return a 404 error.
-#   @[ART::Get("/time/:time/", constraints: {"time" => /\d{2}:\d{2}:\d{2}/})]
+#   @[ARTA::Get("/time/:time/", constraints: {"time" => /\d{2}:\d{2}:\d{2}/})]
 #   def get_constraint(time : String) : String
 #     time
 #   end
@@ -105,7 +105,7 @@
 #   #
 #   # It is recommended to use param converters to pass an actual object representing the data (assuming the body is JSON)
 #   # to the route's action; however the raw request body can be accessed by typing an action argument as `HTTP::Request`.
-#   @[ART::Post("/test/:expected")]
+#   @[ARTA::Post("/test/:expected")]
 #   def post_body(expected : String, request : HTTP::Request) : Bool
 #     expected == request.body.try &.gets_to_end
 #   end
@@ -149,14 +149,14 @@ abstract class Athena::Routing::Controller
   # class ExampleController < ART::Controller
   #   # Define a route to redirect to, explicitly naming this route `add`.
   #   # The default route name is controller + method down snake-cased; e.x. `example_controller_add`.
-  #   @[ART::Get("/add/:value1/:value2", name: "add")]
+  #   @[ARTA::Get("/add/:value1/:value2", name: "add")]
   #   def add(value1 : Int32, value2 : Int32, negative : Bool = false) : Int32
   #     sum = value1 + value2
   #     negative ? -sum : sum
   #   end
   #
   #   # Define a route that redirects to the `add` route with fixed parameters.
-  #   @[ART::Get("/")]
+  #   @[ARTA::Get("/")]
   #   def redirect : ART::RedirectResponse
   #     self.redirect_to_route "add", {"value1" => 8, "value2" => 2}
   #   end
@@ -178,14 +178,14 @@ abstract class Athena::Routing::Controller
   # class ExampleController < ART::Controller
   #   # Define a route to redirect to, explicitly naming this route `add`.
   #   # The default route name is controller + method down snake-cased; e.x. `example_controller_add`.
-  #   @[ART::Get("/add/:value1/:value2", name: "add")]
+  #   @[ARTA::Get("/add/:value1/:value2", name: "add")]
   #   def add(value1 : Int32, value2 : Int32, negative : Bool = false) : Int32
   #     sum = value1 + value2
   #     negative ? -sum : sum
   #   end
   #
   #   # Define a route that redirects to the `add` route with fixed parameters.
-  #   @[ART::Get("/")]
+  #   @[ARTA::Get("/")]
   #   def redirect : ART::RedirectResponse
   #     self.redirect_to_route "add", value1: 8, value2: 2
   #   end
@@ -213,7 +213,7 @@ abstract class Athena::Routing::Controller
   #
   # # example_controller.cr
   # class ExampleController < ART::Controller
-  #   @[ART::Get("/:name")]
+  #   @[ARTA::Get("/:name")]
   #   def greet(name : String) : ART::Response
   #     render "greeting.ecr"
   #   end
@@ -237,7 +237,7 @@ abstract class Athena::Routing::Controller
   #
   # # example_controller.cr
   # class ExampleController < ART::Controller
-  #   @[ART::Get("/:name")]
+  #   @[ARTA::Get("/:name")]
   #   def greet(name : String) : ART::Response
   #     render "greeting.ecr", "layout.ecr"
   #   end
@@ -256,7 +256,7 @@ abstract class Athena::Routing::Controller
   #
   # ```
   # class ExampleController < ART::Controller
-  #   @[ART::Get("redirect_to_google")]
+  #   @[ARTA::Get("redirect_to_google")]
   #   def redirect_to_google : ART::RedirectResponse
   #     self.redirect "https://google.com"
   #   end
@@ -291,7 +291,7 @@ abstract class Athena::Routing::Controller
       # end
       # ```
       macro {{method.downcase.id}}(path, *args, **named_args, &)
-        @[ART::{{method.capitalize.id}}(path: \{{path}}, constraints: \{{named_args[:constraints]}})]
+        @[ARTA::{{method.capitalize.id}}(path: \{{path}}, constraints: \{{named_args[:constraints]}})]
         def {{method.downcase.id}}_\{{path.gsub(/\W/, "_").id}}(\{{*args}}) : \{{named_args[:return_type] || String}}
           \{{yield}}
         end

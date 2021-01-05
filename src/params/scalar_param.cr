@@ -2,12 +2,12 @@
 abstract struct Athena::Routing::Params::ScalarParam < Athena::Routing::Params::Param
   # Returns the requirements that the value is required to pass in order to be considered valid.
   #
-  # See the "Requirements" section of `ART::QueryParam`.
+  # See the "Requirements" section of `ARTA::QueryParam`.
   getter requirements : AVD::Constraint | Array(AVD::Constraint) | Regex | Nil
 
   # Denotes whether the `#requirements` should be applied to the whole value, or to each item a part of the value.
   #
-  # See the "Map" section of `ART::QueryParam`.
+  # See the "Map" section of `ARTA::QueryParam`.
   getter? map : Bool = false
 
   def initialize(
@@ -65,7 +65,7 @@ abstract struct Athena::Routing::Params::ScalarParam < Athena::Routing::Params::
       description : String? = nil,
       @default : T? = nil,
       @type : T.class = T,
-      converter : Nil? = nil # TODO: Remove this
+      converter : Nil? = nil # TODO: Remove this when `#delete` is added to `NamedTupleLiteral`.
     )
       super name, has_default, incompatibles, requirements, map, strict, (is_nilable || @type == Nil || (has_default && @default.nil?)), key, description
     end

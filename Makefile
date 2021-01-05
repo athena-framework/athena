@@ -12,5 +12,9 @@ docs: ## Generates Athena documentation
 		src/spec.cr
 
 .PHONY: spec
-spec: ## Runs the Athena spec suite
+spec: ## Runs the Athena spec suite against Crystal latest
 	crystal spec --order random --error-on-warnings --exclude-warnings ./spec
+
+.PHONY: nightly_spec
+nightly_spec: ## Runs the Athena spec suite against Crystal nightly
+	docker run --rm -v $(PWD):/athena -w /athena crystallang/crystal:nightly-alpine make spec

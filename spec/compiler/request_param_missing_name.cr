@@ -1,8 +1,8 @@
 require "../spec_helper"
 
 class CompileController < Athena::Routing::Controller
-  @[ART::Get(path: "/")]
-  @[ART::RequestParam]
+  @[ARTA::Get(path: "/")]
+  @[ARTA::RequestParam]
   def action(all : Bool) : Int32
     123
   end
