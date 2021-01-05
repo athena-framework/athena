@@ -378,7 +378,7 @@ module Athena::Routing
   #
   # #### Extra Configuration
   #
-  # In some cases a param converter may require [additional configuration](./ParamConverterInterface.html#additional-configuration).
+  # In some cases a param converter may require [additional configuration][Athena::Routing::ParamConverterInterface].
   # In this case a `NamedTuple` may be provided as the value of `converter`.
   # The named tuple must contain a `name` key that represents the `ART::ParamConverterInterface.class` you wish to use for this query parameter.
   # Any additional key/value pairs will be passed to the param converter.
