@@ -105,7 +105,7 @@ abstract struct Athena::Routing::ParamConverterInterface
   # By default this type includes the name of the argument that should be converted and the
   # the `ART::ParamConverterInterface` that should be used for the conversion.
   #
-  # See the [Additional Configuration](../ParamConverterInterface.html#additional-configuration) example for more information.
+  # See the "Additional Configuration" example of `ParamConverterInterface` for more information.
   abstract struct ConfigurationInterface
     # The name of the argument the converter should be applied to.
     getter name : String
@@ -136,7 +136,7 @@ abstract struct Athena::Routing::ParamConverterInterface
   # Helper macro for defining an `ART::ParamConverterInterface::ConfigurationInterface`; similar to the `record` macro.
   # Accepts a variable amount of variable names, types, and optionally default values.
   #
-  # See the [Additional Configuration](./ParamConverterInterface.html#additional-configuration) example for more information.
+  # See the "Additional Configuration" example of `ParamConverterInterface` for more information.
   macro configuration(*args)
     struct Configuration < ConfigurationInterface
       {% for arg in args %}
