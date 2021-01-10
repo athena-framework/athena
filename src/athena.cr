@@ -6,6 +6,7 @@ require "amber_router"
 require "athena-config"
 require "athena-dependency_injection"
 require "athena-event_dispatcher"
+require "athena-negotiation"
 
 require "./action"
 require "./annotations"
@@ -161,3 +162,52 @@ module Athena::Routing
     end
   end
 end
+
+# @[ADI::Register]
+# class SomeDep
+#   def initialize
+#     pp "New Dep Instance"
+#   end
+# end
+
+# @[ADI::Register]
+# class SomeService
+#   getter value : String = "foo"
+
+#   def initialize(@some_dep : SomeDep)
+#     pp "New Instance"
+#   end
+# end
+
+# @[ADI::Register]
+# class HTMLFormatHandler
+#   include Athena::Routing::View::FormatHandlerInterface
+
+#   def format : String
+#     "html"
+#   end
+
+#   def call(view_handler : ART::View::ViewHandlerInterface, view : ART::ViewBase, request : HTTP::Request, format : String) : ART::Response
+#     ART::Response.new "<h1>#{view.data}</h1>", headers: HTTP::Headers{"content-type" => "text/html"}
+#   end
+# end
+
+# @[ADI::Register(public: true)]
+# class ExampleController < ART::Controller
+#   def initialize(@service : SomeService); end
+
+#   @[ARTA::Get("/")]
+#   def root : String
+#     @service.value
+#   end
+# end
+
+@[ADI::Register(public: true)]
+class Example2Controller < ART::Controller
+  @[ARTA::Get("/static")]
+  def static : String
+    "static value"
+  end
+end
+
+ART.run

@@ -43,7 +43,7 @@ class Athena::Routing::View::ViewHandler
     format = view.format || request.request_format
 
     unless self.supports? format
-      raise ART::Exceptions::NotAcceptable.new "The server is unable to return a response in the requested format: '#{format}'"
+      raise ART::Exceptions::NotAcceptable.new "The server is unable to return a response in the requested format: '#{format}'."
     end
 
     if custom_handler = @custom_handlers[format]?

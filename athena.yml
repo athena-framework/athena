@@ -1,0 +1,5 @@
+---
+routing:
+  content_negotiation:
+    rules:
+      - { path: '^/', priorities: ['json', 'html'], fallback_format: false }
