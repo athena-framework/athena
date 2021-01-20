@@ -56,4 +56,12 @@ describe Athena::Routing do
       end
     end
   end
+
+  describe ART::Server do
+    describe "#initialize" do
+      it "creates a server with the provided args" do
+        ART::Server.new 1234, "google.com", false
+      end
+    end
+  end
 end

@@ -126,14 +126,16 @@ module Athena::Routing
         # Reinitialize the container since keep-alive requests reuse the same fiber.
         Fiber.current.container = ADI::ServiceContainer.new
 
+        handler = ADI.container.athena_routing_route_handler
+
         # Handle the request.
-        athena_response = ADI.container.athena_routing_route_handler.handle context.request
+        athena_response = handler.handle context.request
 
         # Send the respones based on the current context.
         athena_response.send context
 
         # Emit the terminate event now that the response has been sent.
-        handler.terminate request, athena_response
+        handler.terminate context.request, athena_response
       end
     end
 
