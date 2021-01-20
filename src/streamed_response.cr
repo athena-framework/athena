@@ -49,10 +49,7 @@ class Athena::Routing::StreamedResponse < Athena::Routing::Response
     @streamed = true
   end
 
-  # Streams the data in the stored `Proc` to the provided *output*.
-  #
-  # How the output gets written can be customized via an `ART::Response::Writer`.
-  def write(output : IO) : Nil
+  protected def write(output : IO) : Nil
     return if @streamed
 
     @streamed = true

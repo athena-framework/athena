@@ -101,6 +101,25 @@ class Athena::Routing::Response
     @content = content || ""
   end
 
+  # Sends `self` to the client based on the provided *context*.
+  #
+  # How the content gets written can be customized via an `ART::Response::Writer`.
+  def send(context : HTTP::Server::Context) : Nil
+    # Ensure the response is valid.
+    self.prepare context.request
+
+    # Apply the `ART::Response` to the actual `HTTP::Server::Response` object.
+    context.response.headers.merge! @headers
+    context.response.status = @status
+
+    # Write the response content last on purpose.
+    # See https://github.com/crystal-lang/crystal/issues/8712
+    self.write context.response
+
+    # Close the response.
+    context.response.close
+  end
+
   # Sets the status of this response.
   def status=(code : HTTP::Status | Int32) : Nil
     @status = HTTP::Status.new code
@@ -125,10 +144,7 @@ class Athena::Routing::Response
     end
   end
 
-  # Writes the `#content` to the provided *output*.
-  #
-  # How the output gets written can be customized via an `ART::Response::Writer`.
-  def write(output : IO) : Nil
+  protected def write(output : IO) : Nil
     @writer.write(output) do |writer_io|
       writer_io.print @content
     end

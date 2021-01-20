@@ -66,7 +66,12 @@ module Athena::Routing::Spec
     protected def do_request(request : HTTP::Request) : HTTP::Server::Response
       response = HTTP::Server::Response.new IO::Memory.new
 
-      ADI.container.athena_routing_route_handler.handle(HTTP::Server::Context.new(request, response))
+      handler = ADI.container.athena_routing_route_handler
+      athena_response = handler.handle request
+
+      athena_response.send HTTP::Server::Context.new request, response
+
+      handler.terminate request, athena_response
 
       response
     end
