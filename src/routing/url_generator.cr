@@ -57,7 +57,7 @@ class Athena::Routing::URLGenerator
            end
 
     # TODO: Remove this after Crystal 1.0.0 is released.
-    host = {% if compare_versions(Crystal::VERSION, "1.0.0-0") >= 0 %}
+    host = {% if compare_versions(Crystal::VERSION, "0.36.0-0") >= 0 %}
              @request.hostname
            {% else %}
              @request.host
