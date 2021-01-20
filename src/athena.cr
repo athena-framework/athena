@@ -123,11 +123,19 @@ module Athena::Routing
     def initialize(@port : Int32 = 3000, @host : String = "0.0.0.0", @reuse_port : Bool = false)
       # Define the server
       @server = HTTP::Server.new do |context|
-        # Reinitialize the container since keep-alive requests reuse the same fiber
+        # Reinitialize the container since keep-alive requests reuse the same fiber.
         Fiber.current.container = ADI::ServiceContainer.new
 
-        # Handle the request
-        ADI.container.athena_routing_route_handler.handle context
+        handler = ADI.container.athena_routing_route_handler
+
+        # Handle the request.
+        athena_response = handler.handle context.request
+
+        # Send the respones based on the current context.
+        athena_response.send context
+
+        # Emit the terminate event now that the response has been sent.
+        handler.terminate context.request, athena_response
       end
     end
 

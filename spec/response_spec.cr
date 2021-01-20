@@ -42,6 +42,22 @@ describe ART::Response do
     end
   end
 
+  describe "#send" do
+    it "sends the response to the client" do
+      io = IO::Memory.new
+      response = new_response io: io
+      request = new_request
+
+      ART::Response.new("DATA", 418, HTTP::Headers{"FOO" => "BAR"}).send HTTP::Server::Context.new request, response
+
+      response.status.should eq HTTP::Status::IM_A_TEAPOT
+      response.headers.should eq HTTP::Headers{"FOO" => "BAR", "content-length" => "4"}
+      response.closed?.should be_true
+
+      io.rewind.gets_to_end.should end_with "DATA"
+    end
+  end
+
   describe "#status=" do
     it "accepts an Int" do
       response = ART::Response.new

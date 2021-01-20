@@ -1,6 +1,6 @@
 # The entry-point into `Athena::Routing`.
 #
-# Emits events that handle a given request.
+# Emits events that handle a given request and returns the resulting `ART::Response`.
 @[ADI::Register(public: true)]
 struct Athena::Routing::RouteHandler
   def initialize(
@@ -10,10 +10,10 @@ struct Athena::Routing::RouteHandler
   )
   end
 
-  def handle(context : HTTP::Server::Context) : Nil
-    return_response handle_raw(context.request), context
+  def handle(request : HTTP::Request) : ART::Response
+    handle_raw request
   rescue ex : ::Exception
-    event = ART::Events::Exception.new context.request, ex
+    event = ART::Events::Exception.new request, ex
     @event_dispatcher.dispatch event
 
     exception = event.exception
@@ -30,29 +30,17 @@ struct Athena::Routing::RouteHandler
     end
 
     begin
-      return_response finish_response(response, context.request), context
+      finish_response response, request
     rescue
-      return_response response, context
+      response
     end
   end
 
-  private def return_response(response : ART::Response, context : HTTP::Server::Context) : Nil
-    # Ensure the response is valid.
-    response.prepare context.request
-
-    # Apply the `ART::Response` to the actual `HTTP::Server::Response` object.
-    context.response.headers.merge! response.headers
-    context.response.status = response.status
-
-    # Write the response content last on purpose.
-    # See https://github.com/crystal-lang/crystal/issues/8712
-    response.write context.response
-
-    # Close the response.
-    context.response.close
-
-    # Emit the terminate event.
-    @event_dispatcher.dispatch ART::Events::Terminate.new context.request, response
+  # Terminates a request/response lifecycle.
+  #
+  # Should be called after sending the response to the client.
+  def terminate(request : HTTP::Request, response : ART::Response) : Nil
+    @event_dispatcher.dispatch ART::Events::Terminate.new request, response
   end
 
   private def handle_raw(request : HTTP::Request) : ART::Response
@@ -97,7 +85,7 @@ struct Athena::Routing::RouteHandler
 
     @event_dispatcher.dispatch event
 
-    finish_request
+    self.finish_request
 
     event.response
   end
