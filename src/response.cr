@@ -90,10 +90,13 @@ class Athena::Routing::Response
   # Returns the contents of this response.
   getter content : String
 
+  getter upgrade_handler : Proc(IO, Nil) | Nil
+
   # Creates a new response with optional *content*, *status*, and *headers* arguments.
-  def initialize(content : String? = nil, status : HTTP::Status | Int32 = HTTP::Status::OK, @headers : HTTP::Headers = HTTP::Headers.new)
+  def initialize(content : String? = nil, status : HTTP::Status | Int32 = HTTP::Status::OK, @headers : HTTP::Headers = HTTP::Headers.new, upgrade_handler = nil)
     @content = content || ""
     @status = HTTP::Status.new status
+    @upgrade_handler = upgrade_handler
   end
 
   # Sets the response content.
@@ -111,9 +114,11 @@ class Athena::Routing::Response
     # Apply the `ART::Response` to the actual `HTTP::Server::Response` object.
     context.response.headers.merge! @headers
     context.response.status = @status
+    context.response.upgrade_handler = @upgrade_handler
 
     # Write the response content last on purpose.
     # See https://github.com/crystal-lang/crystal/issues/8712
+
     self.write context.response
 
     # Close the response.
