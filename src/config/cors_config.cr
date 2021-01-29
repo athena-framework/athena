@@ -8,38 +8,53 @@ require "./routing_config"
 # See the [external documentation](https://athenaframework.org/components/config) for more general information on configuration an Athena application.
 @[ACFA::Resolvable("routing.cors")]
 struct Athena::Routing::Config::CORS
+  def self.configure : self?
+    nil
+  end
+
   # Indicates whether the request can be made using credentials.
   #
   # Maps to the `access-control-allow-credentials` header.
-  getter allow_credentials : Bool = false
+  getter allow_credentials : Bool
 
   # A white-listed array of valid origins.
   #
   # Can be set to `["*"]` to allow any origin.
   #
   # TODO: Allow `Regex` based origins.
-  getter allow_origin : Array(String) = [] of String
+  getter allow_origin : Array(String)
 
   # The header or headers that can be used when making the actual request.
   #
   # Can be set to `["*"]` to allow any headers.
   #
   # maps to the `access-control-allow-headers` header.
-  getter allow_headers : Array(String) = [] of String
+  getter allow_headers : Array(String)
 
   # The method or methods allowed when accessing the resource.
   #
   # Maps to the `access-control-allow-methods` header.
   # Defaults to the [CORS-safelisted methods](https://fetch.spec.whatwg.org/#cors-safelisted-method).
-  getter allow_methods : Array(String) = Athena::Routing::Listeners::CORS::SAFELISTED_METHODS
+  getter allow_methods : Array(String)
 
   # Array of headers that the browser is allowed to read from the response.
   #
   # Maps to the `access-control-expose-headers` header.
-  getter expose_headers : Array(String) = [] of String
+  getter expose_headers : Array(String)
 
   # Number of seconds that the results of a preflight request can be cached.
   #
   # Maps to the `access-control-max-age` header.
-  getter max_age : Int32 = 0
+  getter max_age : Int32
+
+  # See `.configure`.
+  def initialize(
+    @allow_credentials : Bool = false,
+    @allow_origin : Array(String) = [] of String,
+    @allow_headers : Array(String) = [] of String,
+    @allow_methods : Array(String) = Athena::Routing::Listeners::CORS::SAFELISTED_METHODS,
+    @expose_headers : Array(String) = [] of String,
+    @max_age : Int32 = 0
+  )
+  end
 end

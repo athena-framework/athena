@@ -7,7 +7,7 @@ struct Athena::Routing::Config
   # Configuration related to `Athena::Routing::Listeners::CORS`.
   #
   # Disables the listener if not defined.
-  getter cors : ART::Config::CORS? = nil
+  getter cors : ART::Config::CORS? = ART::Config::CORS.configure
 end
 
 class Athena::Config::Base
