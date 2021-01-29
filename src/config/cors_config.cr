@@ -1,13 +1,27 @@
 require "./routing_config"
 
-# Configuration options for `ART::Listeners::CORS`.
-# By default the listener is disabled unless this type is set and configured.
+# Configuration options for `ART::Listeners::CORS`.  See `.configure`.
 #
 # TODO: Allow scoping CORS options to specific routes versus applying them to all routes.
 #
 # See the [external documentation](https://athenaframework.org/components/config) for more general information on configuration an Athena application.
 @[ACFA::Resolvable("routing.cors")]
 struct Athena::Routing::Config::CORS
+  # This method should be overriden in order to provide the configuration for `ART::Listeners::CORS`.
+  # See the [external documentation](https://athenaframework.org/components/config#configuration) for more details.
+  #
+  # By default it returns `nil`, which disables the listener.
+  #
+  # ```
+  # Returns an `ART::Config::CORS` instance that will determine how the listener functions.
+  # def ART::Config::CORS.configure : ART::Config::CORS?
+  #   new(
+  #     allow_credentials: true,
+  #     allow_origin: %(https://app.example.com),
+  #     expose_headers: %w(X-Transaction-ID X-Some-Custom-Header),
+  #   )
+  # end
+  # ```
   def self.configure : self?
     nil
   end
