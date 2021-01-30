@@ -8,13 +8,13 @@ private struct MockCorsConfigResolver
   end
 
   def self.get_config_with_wildcards : ART::Config::CORS
-    ART::Config::CORS.from_yaml <<-YAML
-      allow_credentials: true
-      max_age: 123
-      expose_headers: ["*"]
-      allow_headers: ["*"]
-      allow_origin: ["*"]
-    YAML
+    ART::Config::CORS.new(
+      allow_credentials: true,
+      allow_headers: %w(*),
+      allow_origin: %w(*),
+      expose_headers: %w(*),
+      max_age: 123,
+    )
   end
 
   def initialize(@config : ART::Config::CORS? = get_config); end
@@ -31,20 +31,14 @@ private struct MockCorsConfigResolver
   end
 
   private def get_config : ART::Config::CORS
-    ART::Config::CORS.from_yaml <<-YAML
-      allow_credentials: true
+    ART::Config::CORS.new(
+      allow_credentials: true,
+      allow_headers: %w(X-FOO),
+      allow_methods: %w(POST GET),
+      allow_origin: %w(https://example.com),
+      expose_headers: %w(HEADER1 HEADER2),
       max_age: 123
-      expose_headers:
-        - HEADER1
-        - HEADER2
-      allow_headers:
-        - X-FOO
-      allow_origin:
-        - https://example.com
-      allow_methods:
-        - POST
-        - GET
-    YAML
+    )
   end
 end
 
