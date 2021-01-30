@@ -19,7 +19,7 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
     status : HTTP::Status | Int32 = HTTP::Status::OK,
     headers : HTTP::Headers = HTTP::Headers.new,
     public : Bool = true,
-    content_disposition : ART::BinaryFileResponse::ContentDisposition = :attachment,
+    content_disposition : ART::BinaryFileResponse::ContentDisposition? = :attachment,
     auto_etag : Bool = false,
     auto_last_modified : Bool = true
   )
@@ -49,18 +49,38 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
     ""
   end
 
-  # Sets the `content-disposition` header on `self` based on the provided *disposition* and optionally *file_name*.
-  def set_content_disposition(disposition : ART::BinaryFileResponse::ContentDisposition, file_name : String? = nil)
-    if file_name.nil?
-      file_name = File.basename @file_path
+  # Sets the `content-disposition` header on `self` based on the provided *disposition* and optionally *filename*.
+  def set_content_disposition(disposition : ART::BinaryFileResponse::ContentDisposition, filename : String? = nil, fallback_filename : String? = nil)
+    if filename.nil?
+      filename = @file_path.basename
+    end
+
+    if fallback_filename.nil? && (!filename.ascii_only? || filename.includes?('%'))
+      fallback_filename = filename.gsub { |chr| chr.ascii? ? chr : '_' }
+    end
+
+    if fallback_filename.nil?
+      fallback_filename = filename
+    end
+
+    # Ensure both file names don't include path separators.
+    if Path::SEPARATORS.any? { |s| filename.includes? s }
+      raise ArgumentError.new "The filename cannot include path separators (#{Path::SEPARATORS})."
+    elsif Path::SEPARATORS.any? { |s| fallback_filename.includes? s }
+      raise ArgumentError.new "The fallback_filename cannot include path separators (#{Path::SEPARATORS})."
     end
 
     @headers["content-disposition"] = String.build do |io|
       disposition.to_s.downcase io
 
       io << "; filename=\""
-      HTTP.quote_string(file_name, io)
+      HTTP.quote_string(fallback_filename, io)
       io << '"'
+
+      if filename != fallback_filename
+        io << "; filename*=UTF-8''"
+        URI.encode filename, io
+      end
     end
   end
 
