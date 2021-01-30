@@ -56,16 +56,9 @@ class Athena::Routing::URLGenerator
              p
            end
 
-    # TODO: Remove this after Crystal 1.0.0 is released.
-    host = {% if compare_versions(Crystal::VERSION, "0.36.0-0") >= 0 %}
-             @request.hostname
-           {% else %}
-             @request.host
-           {% end %}
-
     uri = URI.new(
       scheme: "https", # TODO: Should this be configurable in some way?
-      host: host || "localhost",
+      host: @request.hostname || "localhost",
       port: port,
       path: route.path.gsub(/(?:(:\w+))/, merged_params).gsub(/\/+$/, ""),
       query: query,

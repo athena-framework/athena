@@ -4,10 +4,10 @@ require "mime"
 
 class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
   getter file_path : Path
+  setter delete_file_after_send : Bool = false
 
   @offset : Int32 = 0
   @max_length : Int32? = nil
-  setter delete_file_after_send : Bool = false
 
   enum ContentDisposition
     Attachment
@@ -43,48 +43,18 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
     ""
   end
 
-  # :inherit:
-  def write(output : IO) : Nil
-    unless @status.success?
-      super output
-      return
-    end
-
-    if @max_length.try &.zero?
-      return
-    end
-
-    @writer.write(output) do |writer_io|
-      File.open(@file_path, "rb") do |file|
-        file.skip @offset
-
-        if limit = @max_length
-          IO.copy file, writer_io, limit
-        else
-          IO.copy file, writer_io
-        end
-      end
-    end
-
-    if @delete_file_after_send && File.file?(@file_path)
-      File.delete @file_path
-    end
-  end
-
   def set_content_disposition(disposition : ART::BinaryFileResponse::ContentDisposition, file_name : String? = nil)
     if file_name.nil?
       file_name = File.basename @file_path
     end
 
-    disposition_header = String.build do |io|
+    @headers["content-disposition"] = String.build do |io|
       disposition.to_s.downcase io
 
       io << "; filename=\""
       HTTP.quote_string(file_name, io)
       io << '"'
     end
-
-    @headers["content-disposition"] = disposition_header
   end
 
   def set_auto_etag : Nil
@@ -98,7 +68,7 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
   # TODO: Support multiple ranges
   protected def prepare(request : HTTP::Request) : Nil
     unless @headers.has_key? "content-type"
-      @headers["content-type"] = MIME.from_filename(@file_path.to_s, "application/octet-stream")
+      @headers["content-type"] = MIME.from_filename(@file_path, "application/octet-stream")
     end
 
     file_size = File.info(@file_path).size
@@ -140,6 +110,32 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
           end
         end
       end
+    end
+  end
+
+  protected def write(output : IO) : Nil
+    unless @status.success?
+      return super output
+    end
+
+    if @max_length.try &.zero?
+      return
+    end
+
+    @writer.write(output) do |writer_io|
+      File.open(@file_path, "rb") do |file|
+        file.skip @offset
+
+        if limit = @max_length
+          IO.copy file, writer_io, limit
+        else
+          IO.copy file, writer_io
+        end
+      end
+    end
+
+    if @delete_file_after_send && File.file?(@file_path)
+      File.delete @file_path
     end
   end
 
