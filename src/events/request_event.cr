@@ -9,7 +9,7 @@ require "./settable_response"
 #
 # NOTE: If your listener logic requires that the the corresponding `ART::Action` has been resolved, use `ART::Events::Action` instead.
 #
-# See the [external documentation](https://athenaframework.org/components/#1-request-event) for more information.
+# See the [external documentation](/components/#1-request-event) for more information.
 class Athena::Routing::Events::Request < AED::Event
   include Athena::Routing::Events::SettableResponse
   include Athena::Routing::Events::RequestAware
