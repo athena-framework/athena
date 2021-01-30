@@ -308,7 +308,7 @@ module Athena::Routing::Annotations
   # # GET /?page=-5 # => {"code":422,"message":"Parameter 'page' of value '-9' violated a constraint: 'This value should be positive or zero.'\n"}
   # ```
   #
-  # See the [external documentation](https://athenaframework.org/components/validator/) for more information.
+  # See the [external documentation](/components/validator/) for more information.
   #
   # ### Map
   #
@@ -482,6 +482,6 @@ module Athena::Routing::Annotations
   # end
   # ```
   #
-  # See the [external documentation](https://athenaframework.org/components/serializer/) for more information.
+  # See the [external documentation](/components/serializer/) for more information.
   annotation View; end
 end

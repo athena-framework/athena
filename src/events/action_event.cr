@@ -2,7 +2,7 @@ require "./request_aware"
 
 # Emitted after `ART::Events::Request` and the related `ART::Action` has been resolved, but before it has been executed.
 #
-# See the [external documentation](https://athenaframework.org/components/#2-action-event) for more information.
+# See the [external documentation](/components/#2-action-event) for more information.
 class Athena::Routing::Events::Action < AED::Event
   include Athena::Routing::Events::RequestAware
 
