@@ -161,8 +161,7 @@ class Athena::Routing::Response
 
   def set_etag(etag : String? = nil, weak : Bool = false) : Nil
     if etag.nil?
-      @headers.delete "etag"
-      return
+      return @headers.delete "etag"
     end
 
     unless etag.includes? '"'
@@ -180,13 +179,9 @@ class Athena::Routing::Response
 
   def last_modified=(time : Time? = nil) : Nil
     if time.nil?
-      @headers.delete "last-modified"
-      return
+      return @headers.delete "last-modified"
     end
 
     @headers["last-modified"] = Time::Format::HTTP_DATE.format(time)
-  end
-
-  protected def prepare(request : HTTP::Request) : Nil
   end
 end
