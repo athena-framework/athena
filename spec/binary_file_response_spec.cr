@@ -1,6 +1,5 @@
 require "./spec_helper"
 
-@[ASPEC::TestCase::Focus]
 struct Athena::Routing::BinaryFileResponseTest < ASPEC::TestCase
   def after_all : Nil
     path = "#{__DIR__}/assets/to_delete"
@@ -236,10 +235,7 @@ struct Athena::Routing::BinaryFileResponseTest < ASPEC::TestCase
     request = HTTP::Request.new "GET", "/", HTTP::Headers{"range" => request_range}
 
     response.prepare request
-
-    output = String.build do |io|
-      response.write io
-    end
+    response.write IO::Memory.new
 
     response.status.should eq HTTP::Status::RANGE_NOT_SATISFIABLE
     response.headers["content-range"]?.should eq "bytes */35"
