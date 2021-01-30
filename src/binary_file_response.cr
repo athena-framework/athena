@@ -35,14 +35,21 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
     self.set_content_disposition content_disposition if content_disposition
   end
 
+  # :inherit:
+  #
+  # NOTE: Cannot set the response content via this method on `self`.
   def content=(_data) : Nil
     raise "The content cannot be set on a BinaryFileResponse instance."
   end
 
+  # :inherit:
+  #
+  # NOTE: Cannot get the response content via this method on `self`.
   def content : String
     ""
   end
 
+  # Sets the `content-disposition` header on `self` based on the provided *disposition* and optionally *file_name*.
   def set_content_disposition(disposition : ART::BinaryFileResponse::ContentDisposition, file_name : String? = nil)
     if file_name.nil?
       file_name = File.basename @file_path
@@ -57,15 +64,21 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
     end
   end
 
+  # Sets the `etag` header on `self` based on a `SHA256` hash of the file.
   def set_auto_etag : Nil
     self.set_etag Digest::SHA256.base64digest { |ctx| ctx.file @file_path }
   end
 
+  # Sets the `last-modified` header on `self` based on the modification time of the file.
   def auto_last_modified : Nil
     self.last_modified = File.info(@file_path).modification_time
   end
 
-  # TODO: Support multiple ranges
+  # TODO: Support multiple ranges.
+  #
+  # OPTIMIZE: Make this less complex.
+  #
+  # ameba:disable Metrics/CyclomaticComplexity
   protected def prepare(request : HTTP::Request) : Nil
     unless @headers.has_key? "content-type"
       @headers["content-type"] = MIME.from_filename(@file_path, "application/octet-stream")
@@ -73,7 +86,7 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
 
     file_size = File.info(@file_path).size
 
-    @headers["Content-Length"] = file_size.to_s
+    @headers["content-length"] = file_size.to_s
 
     unless @headers.has_key? "accept-ranges"
       @headers["accept-ranges"] = request.safe? ? "bytes" : "none"
