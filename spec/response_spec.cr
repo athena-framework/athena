@@ -51,7 +51,9 @@ describe ART::Response do
       ART::Response.new("DATA", 418, HTTP::Headers{"FOO" => "BAR"}).send HTTP::Server::Context.new request, response
 
       response.status.should eq HTTP::Status::IM_A_TEAPOT
-      response.headers.should eq HTTP::Headers{"FOO" => "BAR", "content-length" => "4"}
+      response.headers["foo"].should eq "BAR"
+      response.headers["content-length"].should eq "4"
+      response.headers.has_key?("date").should be_true
       response.closed?.should be_true
 
       io.rewind.gets_to_end.should end_with "DATA"
@@ -150,7 +152,7 @@ describe ART::Response do
       request = HTTP::Request.new "HEAD", "/", version: "HTTP/1.0"
 
       response = ART::Response.new "CONTENT"
-      response.headers["cache-control"] = "no-cache"
+      response.headers.add_cache_control_directive "no-cache"
 
       response.prepare request
 
@@ -165,6 +167,127 @@ describe ART::Response do
 
       response.headers.has_key?("pragma").should be_false
       response.headers.has_key?("expires").should be_false
+    end
+
+    describe "cache-control" do
+      it "sets cache-control if not already set" do
+        request = HTTP::Request.new "GET", "/"
+
+        response = ART::Response.new
+
+        response.prepare request
+
+        response.headers["cache-control"].should eq "private, no-cache"
+      end
+
+      it "sets the correct directive if last-modified header is included" do
+        request = HTTP::Request.new "GET", "/"
+
+        response = ART::Response.new headers: HTTP::Headers{"last-modified" => "MODIFIED"}
+
+        response.prepare request
+
+        response.headers["cache-control"].should eq "private, must-revalidate"
+      end
+
+      it "sets the correct directive if expires header is included" do
+        request = HTTP::Request.new "GET", "/"
+
+        response = ART::Response.new headers: HTTP::Headers{"expires" => "EXPIRES"}
+
+        response.prepare request
+
+        response.headers["cache-control"].should eq "private, must-revalidate"
+      end
+
+      it "does not override if already set" do
+        request = HTTP::Request.new "GET", "/"
+
+        response = ART::Response.new headers: HTTP::Headers{"cache-control" => "CACHE"}
+        response.headers["cache-control"].should eq "CACHE"
+
+        response.prepare request
+
+        response.headers["cache-control"].should eq "CACHE"
+      end
+    end
+
+    describe "date" do
+      it "sets date if not set" do
+        request = HTTP::Request.new "GET", "/"
+
+        response = ART::Response.new
+        response.headers.has_key?("date").should be_false
+
+        response.prepare request
+
+        response.headers.has_key?("date").should be_true
+      end
+
+      it "does not override if already present" do
+        request = HTTP::Request.new "GET", "/"
+
+        response = ART::Response.new headers: HTTP::Headers{"date" => "DATE"}
+        response.headers["date"].should eq "DATE"
+
+        response.prepare request
+
+        response.headers["date"].should eq "DATE"
+      end
+
+      it "does not set a date if informational response" do
+        request = HTTP::Request.new "GET", "/"
+
+        response = ART::Response.new status: HTTP::Status::CONTINUE
+        response.headers.has_key?("date").should be_false
+
+        response.prepare request
+
+        response.headers.has_key?("date").should be_false
+      end
+    end
+  end
+
+  it "#set_public" do
+    response = ART::Response.new
+    response.set_public
+
+    response.headers["cache-control"].should eq "public"
+  end
+
+  describe "#set_etag" do
+    it "sets the etag" do
+      response = ART::Response.new
+      response.set_etag "ETAG"
+      response.etag.should eq %("ETAG")
+    end
+
+    it "removes the etag if value is `nil`" do
+      response = ART::Response.new headers: HTTP::Headers{"etag" => "ETAG"}
+      response.set_etag nil
+      response.etag.should be_nil
+    end
+
+    it "allows setting a weak etag" do
+      response = ART::Response.new
+      response.set_etag "ETAG", true
+      response.etag.should eq %(W/"ETAG")
+    end
+  end
+
+  describe "#last_modified=" do
+    it "sets the last-modified header" do
+      now = Time.utc
+
+      response = ART::Response.new
+      response.last_modified = now
+      response.last_modified.should eq now.at_beginning_of_second
+    end
+
+    it "removes the header if the value is `nil`" do
+      response = ART::Response.new headers: HTTP::Headers{"last-modified" => "TIME"}
+      response.last_modified = nil
+      response.last_modified.should be_nil
     end
   end
 end

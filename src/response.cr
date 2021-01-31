@@ -120,7 +120,7 @@ class Athena::Routing::Response
     context.response.close
   end
 
-  # Sets the status of this response.
+  # Sets the `HTTP::Status` of this response.
   def status=(code : HTTP::Status | Int32) : Nil
     @status = HTTP::Status.new code
   end
@@ -128,7 +128,26 @@ class Athena::Routing::Response
   # :nodoc:
   #
   # Do any preparation to ensure the response is RFC compliant.
+  #
+  # ameba:disable Metrics/CyclomaticComplexity
   def prepare(request : HTTP::Request) : Nil
+    # TODO: Move this logic directly into HTTP::Headers.
+    # See https://tools.ietf.org/html/rfc2616#section-14.18.
+    if !@headers.has_key?("date") && !@status.continue? && !@status.switching_protocols?
+      @headers["date"] = Time::Format::HTTP_DATE.format(Time.utc)
+    end
+
+    # Set sensible default cache-control header.
+    unless @headers.has_key? "cache-control"
+      @headers.add_cache_control_directive "private"
+
+      if @headers.has_key?("last-modified") || @headers.has_key?("expires")
+        @headers.add_cache_control_directive "must-revalidate"
+      else
+        @headers.add_cache_control_directive "no-cache"
+      end
+    end
+
     if @status.informational? || @status.no_content? || @status.not_modified?
       self.content = nil
       @headers.delete "content-type"
@@ -138,10 +157,54 @@ class Athena::Routing::Response
       self.content = nil if "HEAD" == request.method
     end
 
-    if "HTTP/1.0" == request.version && @headers["cache-control"]?.try &.includes? "no-cache"
+    if "HTTP/1.0" == request.version && @headers.has_cache_control_directive?("no-cache")
       @headers["pragma"] = "no-cache"
       @headers["expires"] = "-1"
     end
+  end
+
+  # Marks `self` as "public".
+  #
+  # Adds the `public` `cache-control` directive and removes the `private` directive.
+  def set_public : Nil
+    @headers.add_cache_control_directive "public"
+    @headers.remove_cache_control_directive "private"
+  end
+
+  # Returns the value of the `etag` header if set, otherwise `nil`.
+  def etag : String?
+    @headers["etag"]?
+  end
+
+  # Updates the `etag` header to the provided, optionally *weak*, *etag*.
+  # Removes the header if *etag* is `nil`.
+  def set_etag(etag : String? = nil, weak : Bool = false) : Nil
+    if etag.nil?
+      return @headers.delete "etag"
+    end
+
+    unless etag.includes? '"'
+      etag = %("#{etag}")
+    end
+
+    @headers["etag"] = "#{weak ? "W/" : ""}#{etag}"
+  end
+
+  # Returns a `Time`representing the `last-modified` header if set, otherwise `nil`.
+  def last_modified : Time?
+    if header = @headers["last-modified"]?
+      Time::Format::HTTP_DATE.parse header
+    end
+  end
+
+  # Updates the `last-modified` header to the provided *time*.
+  # Removes the header if *time* is `nil`.
+  def last_modified=(time : Time? = nil) : Nil
+    if time.nil?
+      return @headers.delete "last-modified"
+    end
+
+    @headers["last-modified"] = Time::Format::HTTP_DATE.format(time)
   end
 
   protected def write(output : IO) : Nil
