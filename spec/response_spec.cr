@@ -247,4 +247,47 @@ describe ART::Response do
       end
     end
   end
+
+  it "#set_public" do
+    response = ART::Response.new
+    response.set_public
+
+    response.headers["cache-control"].should eq "public"
+  end
+
+  describe "#set_etag" do
+    it "sets the etag" do
+      response = ART::Response.new
+      response.set_etag "ETAG"
+      response.etag.should eq %("ETAG")
+    end
+
+    it "removes the etag if value is `nil`" do
+      response = ART::Response.new headers: HTTP::Headers{"etag" => "ETAG"}
+      response.set_etag nil
+      response.etag.should be_nil
+    end
+
+    it "allows setting a weak etag" do
+      response = ART::Response.new
+      response.set_etag "ETAG", true
+      response.etag.should eq %(W/"ETAG")
+    end
+  end
+
+  describe "#last_modified=" do
+    it "sets the last-modified header" do
+      now = Time.utc
+
+      response = ART::Response.new
+      response.last_modified = now
+      response.last_modified.should eq now.at_beginning_of_second
+    end
+
+    it "removes the header if the value is `nil`" do
+      response = ART::Response.new headers: HTTP::Headers{"last-modified" => "TIME"}
+      response.last_modified = nil
+      response.last_modified.should be_nil
+    end
+  end
 end

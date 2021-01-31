@@ -161,6 +161,9 @@ class Athena::Routing::Response
     end
   end
 
+  # Marks `self` as "public".
+  #
+  # Adds the `public` `cache-control` directive and removes the `private` directive.
   def set_public : Nil
     @headers.add_cache_control_directive "public"
     @headers.remove_cache_control_directive "private"
