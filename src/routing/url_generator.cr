@@ -2,7 +2,11 @@
 class Athena::Routing::URLGenerator
   include Athena::Routing::URLGeneratorInterface
 
-  def initialize(@routes : ART::RouteCollection, @request : HTTP::Request); end
+  def initialize(
+    @routes : ART::RouteCollection,
+    @request : HTTP::Request,
+    @base_uri : String
+  ); end
 
   # :inherit:
   #
@@ -53,14 +57,26 @@ class Athena::Routing::URLGenerator
               HTTP::Params.encode params.transform_values &.to_s.as(String)
             end
 
-    # If the port is not a common one, 80 or 443, use it as the port; otherwise, don't bother setting it.
-    port = if (p = (@request.headers["Host"]?.try &.split(':').last?.try &.to_i)) && !p.in? 80, 443
-             p
-           end
+    port = nil
+
+    # Only bother setting the port if the `port` value can be extracted from the `host` header, and is no a standard port.
+    if (host_header = @request.headers["host"]?) && (p = host_header.partition(':').last) && !p.in?("", "80", "443")
+      port = p.to_i
+    end
+
+    scheme = "https"
+    host = @base_uri.presence || @request.hostname
+
+    # If there is no host and reference_type is aboslute URL,
+    # fallback to absolute path as we wouldn't know what to make the host.
+    if !host.presence && reference_type.absolute_url?
+      host = nil
+      scheme = nil
+    end
 
     uri = URI.new(
-      scheme: "https", # TODO: Should this be configurable in some way?
-      host: @request.hostname || "localhost",
+      scheme: scheme,
+      host: host,
       port: port,
       path: route.path.gsub(/(?:(:\w+))/, merged_params).gsub(/\/+$/, ""),
       query: query,

@@ -7,7 +7,7 @@ class Athena::Routing::Router
 
   @request_store : ART::RequestStore
 
-  protected getter generator : ART::URLGenerator { ART::URLGenerator.new self.route_collection, @request_store.request }
+  protected getter generator : ART::URLGenerator { ART::URLGenerator.new self.route_collection, @request_store.request, ACF.parameters.routing.base_uri }
   protected class_getter route_collection : ART::RouteCollection { ART::RouteCollection.new }
   protected class_getter matcher : Amber::Router::RouteSet(ART::ActionBase) do
     matcher = Amber::Router::RouteSet(ART::ActionBase).new

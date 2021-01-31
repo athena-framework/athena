@@ -29,6 +29,7 @@ require "./config/*"
 require "./events/*"
 require "./exceptions/*"
 require "./listeners/*"
+require "./parameters/*"
 require "./params/*"
 require "./routing/*"
 

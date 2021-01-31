@@ -6,7 +6,7 @@ private def route_collection(route : ART::ActionBase) : ART::RouteCollection
   routes
 end
 
-private def generator(routes : ART::RouteCollection, params : Hash(String, String) = Hash(String, String).new) : ART::URLGeneratorInterface
+private def generator(routes : ART::RouteCollection, params : Hash(String, String) = Hash(String, String).new, *, base_uri : String = "") : ART::URLGeneratorInterface
   request = new_request
 
   params.each do |p, v|
@@ -15,7 +15,7 @@ private def generator(routes : ART::RouteCollection, params : Hash(String, Strin
     end
   end
 
-  ART::URLGenerator.new routes, request
+  ART::URLGenerator.new routes, request, base_uri
 end
 
 describe ART::URLGenerator do
@@ -26,7 +26,7 @@ describe ART::URLGenerator do
       end
     end
 
-    it "invalid optional pram" do
+    it "invalid optional param" do
       action = new_action(
         path: "/test/:id",
         arguments: [
@@ -40,7 +40,7 @@ describe ART::URLGenerator do
       end
     end
 
-    it "invalid required pram" do
+    it "invalid required param" do
       action = new_action(
         path: "/test/:id",
         arguments: [
@@ -144,8 +144,20 @@ describe ART::URLGenerator do
         generator(route_collection(new_action), {"host" => "localhost:1234"}).generate("test", reference_type: :absolute_url).should eq "https://localhost:1234/test"
       end
 
+      it "when host does not include port" do
+        generator(route_collection(new_action), {"host" => "crystal-lang.org"}).generate("test", reference_type: :absolute_url).should eq "https://crystal-lang.org/test"
+      end
+
       it "extra params" do
-        generator(route_collection(new_action)).generate("test", {"foo" => "bar"}, :absolute_url).should eq "https://localhost/test?foo=bar"
+        generator(route_collection(new_action), {"host" => "localhost:80"}).generate("test", {"foo" => "bar"}, :absolute_url).should eq "https://localhost/test?foo=bar"
+      end
+
+      it "fallback to path if host is empty" do
+        generator(route_collection(new_action)).generate("test", reference_type: :absolute_url).should eq "/test"
+      end
+
+      it "supports using the base_uri parameter if no host is available" do
+        generator(route_collection(new_action), base_uri: "HOSTNAME").generate("test", reference_type: :absolute_url).should eq "https://HOSTNAME/test"
       end
     end
 
@@ -270,8 +282,8 @@ describe ART::URLGenerator do
           ],
         )
 
-        generator(route_collection(action)).generate("test", {"name" => "George"}, :network_path).should eq "//localhost/George"
-        generator(route_collection(action)).generate("test", {"name" => "George", "query" => "string"}, :network_path).should eq "//localhost/George?query=string"
+        generator(route_collection(action), {"host" => "localhost"}).generate("test", {"name" => "George"}, :network_path).should eq "//localhost/George"
+        generator(route_collection(action), {"host" => "localhost"}).generate("test", {"name" => "George", "query" => "string"}, :network_path).should eq "//localhost/George?query=string"
       end
     end
   end

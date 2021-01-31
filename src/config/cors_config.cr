@@ -1,4 +1,6 @@
-require "./routing_config"
+require "./config"
+
+struct Athena::Routing::Config; end
 
 # Configuration options for `ART::Listeners::CORS`.  See `.configure`.
 #
