@@ -128,8 +128,6 @@ class Athena::Routing::Response
   # :nodoc:
   #
   # Do any preparation to ensure the response is RFC compliant.
-  #
-  # ameba:disable Metrics/CyclomaticComplexity
   def prepare(request : HTTP::Request) : Nil
     self.init_date
 
