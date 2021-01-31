@@ -6,7 +6,7 @@ private def route_collection(route : ART::ActionBase) : ART::RouteCollection
   routes
 end
 
-private def generator(routes : ART::RouteCollection, params : Hash(String, String) = Hash(String, String).new, *, base_uri : String = "") : ART::URLGeneratorInterface
+private def generator(routes : ART::RouteCollection, params : Hash(String, String) = Hash(String, String).new, *, base_uri : URI? = nil) : ART::URLGeneratorInterface
   request = new_request
 
   params.each do |p, v|
@@ -157,16 +157,16 @@ describe ART::URLGenerator do
       end
 
       it "uses base_uri parameter if provided" do
-        generator(route_collection(new_action), base_uri: "http://google.com").generate("test", reference_type: :absolute_url).should eq "http://google.com/test"
+        generator(route_collection(new_action), base_uri: URI.parse "http://google.com").generate("test", reference_type: :absolute_url).should eq "http://google.com/test"
       end
 
       it "prioritizes the base_uri parameter" do
-        generator(route_collection(new_action), {"host" => "crystal-lang.org"}, base_uri: "https://google.com").generate("test", reference_type: :absolute_url).should eq "https://google.com/test"
+        generator(route_collection(new_action), {"host" => "crystal-lang.org"}, base_uri: URI.parse "https://google.com").generate("test", reference_type: :absolute_url).should eq "https://google.com/test"
       end
 
       it "appends path to base_uri" do
-        generator(route_collection(new_action), base_uri: "http://example.com/foo/").generate("test", reference_type: :absolute_url).should eq "http://example.com/foo/test"
-        generator(route_collection(new_action), base_uri: "https://example.com/foo").generate("test", reference_type: :absolute_url).should eq "https://example.com/foo/test"
+        generator(route_collection(new_action), base_uri: URI.parse "http://example.com/foo/").generate("test", reference_type: :absolute_url).should eq "http://example.com/foo/test"
+        generator(route_collection(new_action), base_uri: URI.parse "https://example.com/foo").generate("test", reference_type: :absolute_url).should eq "https://example.com/foo/test"
       end
     end
 
@@ -280,10 +280,18 @@ describe ART::URLGenerator do
       it "null extra param" do
         generator(route_collection(new_action)).generate("test", {"foo" => nil}).should eq "/test"
       end
+
+      it "ignores host header" do
+        generator(route_collection(new_action), {"host" => "localhost"}).generate("test", {"foo" => nil}).should eq "/test"
+      end
+
+      it "ignores base_uri parameter" do
+        generator(route_collection(new_action), base_uri: URI.parse "https://crystal-lang.org").generate("test", {"foo" => nil}).should eq "/test"
+      end
     end
 
     describe "network path" do
-      it "generates correctly" do
+      it "falls back to absolute_path if no hostname" do
         action = new_action(
           path: "/:name",
           arguments: [
@@ -291,8 +299,22 @@ describe ART::URLGenerator do
           ],
         )
 
-        generator(route_collection(action), {"host" => "localhost"}).generate("test", {"name" => "George"}, :network_path).should eq "//localhost/George"
+        generator(route_collection(action)).generate("test", {"name" => "George"}, :network_path).should eq "/George"
+      end
+
+      it "utilizes host header" do
+        action = new_action(
+          path: "/:name",
+          arguments: [
+            ART::Arguments::ArgumentMetadata(String).new("name", false),
+          ],
+        )
+
         generator(route_collection(action), {"host" => "localhost"}).generate("test", {"name" => "George", "query" => "string"}, :network_path).should eq "//localhost/George?query=string"
+      end
+
+      it "uses base_uri parameter if defined" do
+        generator(route_collection(new_action), {"host" => "localhost"}, base_uri: URI.parse "https://crystal-lang.org").generate("test", {"foo" => nil}, :network_path).should eq "//crystal-lang.org/test"
       end
     end
   end

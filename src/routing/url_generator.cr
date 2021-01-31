@@ -5,7 +5,7 @@ class Athena::Routing::URLGenerator
   def initialize(
     @routes : ART::RouteCollection,
     @request : HTTP::Request,
-    @base_uri : String
+    @base_uri : URI?
   ); end
 
   # :inherit:
@@ -56,27 +56,28 @@ class Athena::Routing::URLGenerator
               HTTP::Params.encode params.transform_values &.to_s.as(String)
             end
 
-    if (b = @base_uri.presence)
-      base_uri = URI.parse(@base_uri) # TODO: cache this
-    elsif (host = @request.hostname)
-      # Only bother setting the port if the `port` value can be extracted from the `host` header, and is no a standard port.
-      if (host_header = @request.headers["host"]?) && (p = host_header.partition(':').last) && !p.in?("", "80", "443")
-        port = p.to_i
-      end
-      base_uri = URI.new(scheme: "https", host: host, port: port)
-    else
-      base_uri = URI.new
-    end
+    # Use the base_uri parameter if defined.
+    base_uri = if buri = @base_uri
+                 # Use a copy of it as to not mutate the original.
+                 buri.dup
+               elsif (host = @request.hostname)
+                 # Only bother setting the port if the `port` value can be extracted from the `host` header, and is no a standard port.
+                 if (host_header = @request.headers["host"]?) && (p = host_header.partition(':').last) && !p.in?("", "80", "443")
+                   port = p.to_i
+                 end
+                 URI.new scheme: "https", host: host, port: port
+               else
+                 # Fallback to an absolute path if no hostname could be resolved.
+                 URI.new
+               end
 
     path = route.path.gsub(/(?:(:\w+))/, merged_params).gsub(/\/+$/, "")
 
     case reference_type
-    in .absolute_path?
-      base_uri = URI.new(path: base_uri.path)
-    in .absolute_url?
+    in .absolute_path? then base_uri = URI.new path: base_uri.path
+    in .absolute_url? # skip
     in .relative_path? then raise NotImplementedError.new("Relative path reference type is currently not supported.")
-    in .network_path?
-      base_uri.scheme = nil
+    in .network_path?  then base_uri.scheme = nil
     end
 
     base_uri.tap do |uri|
