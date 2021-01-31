@@ -151,7 +151,7 @@ struct ART::BinaryFileResponseTest < ASPEC::TestCase
     response.headers.has_key?("content-type").should be_false
   end
 
-    def test_prepare_cache_request_etag_star : Nil
+  def test_prepare_cache_request_etag_star : Nil
     request = HTTP::Request.new "GET", "/", headers: HTTP::Headers{"if-none-match" => "*"}
     response = ART::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", headers: HTTP::Headers{"accept-ranges" => "foo", "etag" => "\"ETAG\""}
 
