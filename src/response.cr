@@ -128,8 +128,10 @@ class Athena::Routing::Response
   # :nodoc:
   #
   # Do any preparation to ensure the response is RFC compliant.
+  #
+  # ameba:disable Metrics/CyclomaticComplexity
   def prepare(request : HTTP::Request) : Nil
-    # TODO: Move this logic directly into HTTP::Params.
+    # TODO: Move this logic directly into HTTP::Headers.
     # See https://tools.ietf.org/html/rfc2616#section-14.18.
     if !@headers.has_key?("date") && !@status.continue? && !@status.switching_protocols?
       @headers["date"] = Time::Format::HTTP_DATE.format(Time.utc)

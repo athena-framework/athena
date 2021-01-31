@@ -88,12 +88,12 @@ module Athena::Routing::HeaderUtils
   # The key and value of each entry is joined with `=`, quoting the value if needed.
   # All entries are then joined by the provided *separator*.
   def self.to_string(io : IO, collection : Hash, separator : String | Char) : Nil
-    collection.join(io, separator) do |(k, v), io|
+    collection.join(io, separator) do |(k, v), join_io|
       if true == v
-        io << k
+        join_io << k
       else
-        io << k << '='
-        HTTP.quote_string v.to_s, io
+        join_io << k << '='
+        HTTP.quote_string v.to_s, join_io
       end
     end
   end
