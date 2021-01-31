@@ -139,6 +139,44 @@ struct ART::BinaryFileResponseTest < ASPEC::TestCase
     response.headers["accept-ranges"]?.should eq "foo"
   end
 
+  def test_prepare_cache_request_etag : Nil
+    request = HTTP::Request.new "GET", "/", headers: HTTP::Headers{"if-none-match" => "\"ETAG\""}
+    response = ART::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", headers: HTTP::Headers{"accept-ranges" => "foo", "etag" => "\"ETAG\""}
+
+    response.prepare request
+
+    response.status.should eq HTTP::Status::NOT_MODIFIED
+    response.headers.has_key?("date").should be_true
+    response.headers.has_key?("content-length").should be_false
+    response.headers.has_key?("content-type").should be_false
+  end
+
+  def test_prepare_cache_request_etag_star : Nil
+    request = HTTP::Request.new "GET", "/", headers: HTTP::Headers{"if-none-match" => "*"}
+    response = ART::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", headers: HTTP::Headers{"accept-ranges" => "foo", "etag" => "\"ETAG\""}
+
+    response.prepare request
+
+    response.status.should eq HTTP::Status::NOT_MODIFIED
+    response.headers.has_key?("date").should be_true
+    response.headers.has_key?("content-length").should be_false
+    response.headers.has_key?("content-type").should be_false
+  end
+
+  def test_prepare_cache_request_last_modified : Nil
+    now = Time.utc
+
+    request = HTTP::Request.new "GET", "/", headers: HTTP::Headers{"if-modified-since" => HTTP.format_time(now)}
+    response = ART::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", headers: HTTP::Headers{"accept-ranges" => "foo", "last-modified" => HTTP.format_time(now)}
+
+    response.prepare request
+
+    response.status.should eq HTTP::Status::NOT_MODIFIED
+    response.headers.has_key?("date").should be_true
+    response.headers.has_key?("content-length").should be_false
+    response.headers.has_key?("content-type").should be_false
+  end
+
   @[DataProvider("ranges")]
   def test_requests(request_range : String, offset : Int32, length : Int32, response_range : String) : Nil
     response = ART::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", auto_etag: true

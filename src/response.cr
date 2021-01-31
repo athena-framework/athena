@@ -128,14 +128,8 @@ class Athena::Routing::Response
   # :nodoc:
   #
   # Do any preparation to ensure the response is RFC compliant.
-  #
-  # ameba:disable Metrics/CyclomaticComplexity
   def prepare(request : HTTP::Request) : Nil
-    # TODO: Move this logic directly into HTTP::Headers.
-    # See https://tools.ietf.org/html/rfc2616#section-14.18.
-    if !@headers.has_key?("date") && !@status.continue? && !@status.switching_protocols?
-      @headers["date"] = Time::Format::HTTP_DATE.format(Time.utc)
-    end
+    self.init_date
 
     # Set sensible default cache-control header.
     unless @headers.has_key? "cache-control"
@@ -193,7 +187,7 @@ class Athena::Routing::Response
   # Returns a `Time`representing the `last-modified` header if set, otherwise `nil`.
   def last_modified : Time?
     if header = @headers["last-modified"]?
-      Time::Format::HTTP_DATE.parse header
+      HTTP.parse_time header
     end
   end
 
@@ -204,7 +198,15 @@ class Athena::Routing::Response
       return @headers.delete "last-modified"
     end
 
-    @headers["last-modified"] = Time::Format::HTTP_DATE.format(time)
+    @headers["last-modified"] = HTTP.format_time time
+  end
+
+  protected def init_date : Nil
+    # TODO: Move this logic directly into HTTP::Headers.
+    # See https://tools.ietf.org/html/rfc2616#section-14.18.
+    if !@headers.has_key?("date") && !@status.continue? && !@status.switching_protocols?
+      @headers["date"] = HTTP.format_time Time.utc
+    end
   end
 
   protected def write(output : IO) : Nil
