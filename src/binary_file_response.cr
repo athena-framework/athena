@@ -2,12 +2,9 @@ require "./response"
 require "digest/sha256"
 require "mime"
 
-# Represents a static file that should be returned the client;
-# includes various options to enhance the response headers.
-# See `.new` for details.
+# Represents a static file that should be returned the client; includes various options to enhance the response headers. See `.new` for details.
 #
-# See [ART::HeaderUtils.make_disposition][Athena::Routing::HeaderUtils.make_disposition(disposition,filename,fallback_filename)]
-# for an example of handling dynamic files.
+# See `ART::HeaderUtils.make_disposition` for an example of handling dynamic files.
 class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
   # Returns a `Path` instance representing the file that will be sent to the client.
   getter file_path : Path
@@ -15,14 +12,18 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
   # Determines if the file should be deleted after being sent to the client.
   setter delete_file_after_send : Bool = false
 
-  @offset : Int32 = 0
-  @max_length : Int32? = nil
+  @offset : Int64 = 0
+  @max_length : Int64? = nil
 
+  # Represents the possible [content-disposition](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition) header values.
   enum ContentDisposition
+    # Indicates that the file should be downloaded.
     Attachment
+
+    # Indicates that the browser should display the file inside the Web page, or as the Web page.
     Inline
 
-    #
+    # :inherit:
     def to_s(io : IO) : Nil
       case self
       in .attachment? then io << "attachment"
@@ -50,7 +51,7 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
   )
     super nil, status, headers
 
-    raise File::Error.new("File '#{file_path}' must be readable.", file: file_path.to_s) unless File.readable? file_path
+    raise File::Error.new("File '#{file_path}' must be readable.", file: file_path) unless File.readable? file_path
 
     @file_path = Path.new(file_path).expand
 
@@ -118,13 +119,13 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
         if range = request.headers["range"].lchop? "bytes="
           s, e = range.split('-', 2)
 
-          e = e.empty? ? file_size - 1 : e.to_i
+          e = e.empty? ? file_size - 1 : e.to_i64
 
           if s.empty?
             s = file_size - e
             e = file_size - 1
           else
-            s = s.to_i
+            s = s.to_i64
           end
 
           if s <= e
@@ -134,8 +135,8 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
               self.status = :range_not_satisfiable
               @headers["content-range"] = "bytes */#{file_size}"
             elsif e - s < file_size - 1
-              @max_length = e < file_size ? (e - s + 1).to_i : nil
-              @offset = s.to_i
+              @max_length = e < file_size ? (e - s + 1).to_i64 : nil
+              @offset = s.to_i64
 
               self.status = :partial_content
               @headers["content-range"] = "bytes #{s}-#{e}/#{file_size}"
