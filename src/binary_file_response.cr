@@ -2,8 +2,12 @@ require "./response"
 require "digest/sha256"
 require "mime"
 
+# Represents a static file that should be returned the client.
 class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
+  # Returns a `Path` instance representing the file that will be sent to the client.
   getter file_path : Path
+
+  # Determines if the file should be deleted after being sent to the client.
   setter delete_file_after_send : Bool = false
 
   @offset : Int32 = 0
@@ -12,6 +16,14 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
   enum ContentDisposition
     Attachment
     Inline
+
+    # :inherit:
+    def to_s(io : IO) : Nil
+      case self
+      in .attachment? then io << "attachment"
+      in .inline?     then io << "inline"
+      end
+    end
   end
 
   def initialize(
@@ -19,7 +31,7 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
     status : HTTP::Status | Int32 = HTTP::Status::OK,
     headers : HTTP::Headers = HTTP::Headers.new,
     public : Bool = true,
-    content_disposition : ART::BinaryFileResponse::ContentDisposition? = :attachment,
+    content_disposition : ART::BinaryFileResponse::ContentDisposition? = nil,
     auto_etag : Bool = false,
     auto_last_modified : Bool = true
   )
@@ -35,53 +47,28 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
     self.set_content_disposition content_disposition if content_disposition
   end
 
-  # :inherit:
-  #
-  # NOTE: Cannot set the response content via this method on `self`.
+  # !!!caution
+  #     Cannot set the response content via this method on `self`.
   def content=(_data) : Nil
     raise "The content cannot be set on a BinaryFileResponse instance."
   end
 
-  # :inherit:
-  #
-  # NOTE: Cannot get the response content via this method on `self`.
+  # !!!caution
+  #     Cannot get the response content via this method on `self`.
   def content : String
     ""
   end
 
-  # Sets the `content-disposition` header on `self` based on the provided *disposition* and optionally *filename*.
+  # Sets the `content-disposition` header on `self` to the provided *disposition*.
+  # *filename* defaults to the basename of `#file_path`.
+  #
+  # See `ART::HeaderUtils.make_disposition`.
   def set_content_disposition(disposition : ART::BinaryFileResponse::ContentDisposition, filename : String? = nil, fallback_filename : String? = nil)
     if filename.nil?
       filename = @file_path.basename
     end
 
-    if fallback_filename.nil? && (!filename.ascii_only? || filename.includes?('%'))
-      fallback_filename = filename.gsub { |chr| chr.ascii? ? chr : '_' }
-    end
-
-    if fallback_filename.nil?
-      fallback_filename = filename
-    end
-
-    # Ensure both file names don't include path separators.
-    if Path::SEPARATORS.any? { |s| filename.includes? s }
-      raise ArgumentError.new "The filename cannot include path separators (#{Path::SEPARATORS})."
-    elsif Path::SEPARATORS.any? { |s| fallback_filename.includes? s }
-      raise ArgumentError.new "The fallback_filename cannot include path separators (#{Path::SEPARATORS})."
-    end
-
-    @headers["content-disposition"] = String.build do |io|
-      disposition.to_s.downcase io
-
-      io << "; filename=\""
-      HTTP.quote_string(fallback_filename, io)
-      io << '"'
-
-      if filename != fallback_filename
-        io << "; filename*=UTF-8''"
-        URI.encode filename, io
-      end
-    end
+    @headers["content-disposition"] = ART::HeaderUtils.make_disposition disposition, filename, fallback_filename
   end
 
   # Sets the `etag` header on `self` based on a `SHA256` hash of the file.
@@ -95,6 +82,7 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
   end
 
   # TODO: Support multiple ranges.
+  # TODO: Support `X-Sendfile`.
   #
   # OPTIMIZE: Make this less complex.
   #

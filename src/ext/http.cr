@@ -25,7 +25,6 @@ class HTTP::Request
   end
 end
 
-# :nodoc:
 struct HTTP::Headers
   # A Hash representing the current [cache-control](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control) header directives.
   @cache_control : Hash(String, String | Bool) = Hash(String, String | Bool).new
@@ -54,12 +53,6 @@ struct HTTP::Headers
   end
 
   private def cache_control_header : String
-    @cache_control.join(", ") do |k, v|
-      if true == v
-        k
-      else
-        "#{k}=#{HTTP.quote_string v.as(String)}"
-      end
-    end
+    ART::HeaderUtils.to_string @cache_control, ", "
   end
 end

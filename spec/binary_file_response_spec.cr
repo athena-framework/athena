@@ -23,7 +23,7 @@ struct Athena::Routing::BinaryFileResponseTest < ASPEC::TestCase
     response.status.should eq HTTP::Status::IM_A_TEAPOT
     response.headers.has_key?("etag").should be_false
     response.headers.has_key?("content-disposition").should be_true
-    response.headers["content-disposition"]?.should eq %(inline; filename="foo.txt")
+    response.headers["content-disposition"]?.should eq %(inline; filename=foo.txt)
   end
 
   def test_new_with_non_ascii_filename : Nil
@@ -44,14 +44,28 @@ struct Athena::Routing::BinaryFileResponseTest < ASPEC::TestCase
     response = ART::BinaryFileResponse.new __FILE__
     response.set_content_disposition :attachment, "föö.html"
 
-    response.headers["content-disposition"]?.should eq %(attachment; filename="f__.html"; filename*=UTF-8''f%C3%B6%C3%B6.html)
+    response.headers["content-disposition"]?.should eq %(attachment; filename=f__.html; filename*=UTF-8''f%C3%B6%C3%B6.html)
   end
 
   def test_set_content_disposition_generates_safe_fallback_name_for_wrongly_encoded_filename : Nil
     response = ART::BinaryFileResponse.new __FILE__
     response.set_content_disposition :attachment, String.new("föö.html".encode "ISO-8859-1")
 
-    response.headers["content-disposition"]?.should eq %(attachment; filename="f__.html"; filename*=UTF-8''f%F6%F6.html)
+    response.headers["content-disposition"]?.should eq %(attachment; filename=f__.html; filename*=UTF-8''f%F6%F6.html)
+  end
+
+  def test_set_content_disposition_uses_custom_fallback_filename : Nil
+    response = ART::BinaryFileResponse.new __FILE__
+    response.set_content_disposition :attachment, "föö.html", "FILE"
+
+    response.headers["content-disposition"]?.should eq %(attachment; filename=FILE; filename*=UTF-8''f%C3%B6%C3%B6.html)
+  end
+
+  def test_set_content_disposition_does_not_add_fallback_if_valid : Nil
+    response = ART::BinaryFileResponse.new __FILE__
+    response.set_content_disposition :attachment, "foo.html"
+
+    response.headers["content-disposition"]?.should eq %(attachment; filename=foo.html)
   end
 
   def test_range_requests_without_last_modified_header : Nil
