@@ -4,6 +4,12 @@ require "mime"
 
 # Represents a static file that should be returned the client; includes various options to enhance the response headers. See `.new` for details.
 #
+# This response supports [Range](https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests) requests
+# and [Conditional](https://developer.mozilla.org/en-US/docs/Web/HTTP/Conditional_requests) requests via the
+# [If-None-Match](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match),
+# [If-Modified-Since](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-Modified-Since),
+# and [If-Range](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-Range) headers.
+#
 # See `ART::HeaderUtils.make_disposition` for an example of handling dynamic files.
 class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
   # Returns a `Path` instance representing the file that will be sent to the client.
@@ -63,8 +69,8 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
 
   # !!!caution
   #     Cannot set the response content via this method on `self`.
-  def content=(_data) : Nil
-    raise "The content cannot be set on a BinaryFileResponse instance."
+  def content=(data) : Nil
+    raise "The content cannot be set on a BinaryFileResponse instance." unless data.nil?
   end
 
   # !!!caution
@@ -102,6 +108,13 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
   #
   # ameba:disable Metrics/CyclomaticComplexity
   protected def prepare(request : HTTP::Request) : Nil
+    if self.cache_request?(request)
+      self.status = :not_modified
+      return super
+    end
+
+    self.init_date
+
     unless @headers.has_key? "content-type"
       @headers["content-type"] = MIME.from_filename(@file_path, "application/octet-stream")
     end
@@ -117,7 +130,7 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
     if request.headers.has_key?("range") && "GET" == request.method
       if !request.headers.has_key?("if-range") || self.valid_if_range_header?(request.headers["if-range"]?)
         if range = request.headers["range"].lchop? "bytes="
-          s, e = range.split('-', 2)
+          s, e = range.split '-', 2
 
           e = e.empty? ? file_size - 1 : e.to_i64
 
@@ -174,11 +187,30 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
     end
   end
 
+  private def cache_request?(request : HTTP::Request) : Bool
+    # According to RFC 7232:
+    # A recipient must ignore If-Modified-Since if the request contains an If-None-Match header field
+    if (if_none_match = request.if_none_match) && (etag = self.etag)
+      match = {"*", etag}
+      if_none_match.any? { |et| match.includes? et }
+    elsif if_modified_since = request.headers["if-modified-since"]?
+      header_time = HTTP.parse_time if_modified_since
+      last_modified = self.last_modified || File.info(@file_path).modification_time
+
+      # File mtime probably has a higher resolution than the header value.
+      # An exact comparison might be slightly off, so we add 1s padding.
+      # Static files should generally not be modified in subsecond intervals, so this is perfectly safe.
+      !!(header_time && last_modified <= header_time + 1.second)
+    else
+      false
+    end
+  end
+
   private def valid_if_range_header?(header : String?) : Bool
     return true if self.etag == header
 
     return false unless last_modified = self.last_modified
 
-    Time::Format::HTTP_DATE.format(last_modified) == header
+    HTTP.format_time(last_modified) == header
   end
 end
