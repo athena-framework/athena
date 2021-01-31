@@ -2,7 +2,9 @@ require "./response"
 require "digest/sha256"
 require "mime"
 
-# Represents a static file that should be returned the client.
+# Represents a static file that should be returned the client;
+# includes various options to enhance the response headers.
+# See `.new` for details.
 #
 # See [ART::HeaderUtils.make_disposition][Athena::Routing::HeaderUtils.make_disposition(disposition,filename,fallback_filename)]
 # for an example of handling dynamic files.
@@ -29,6 +31,14 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
     end
   end
 
+  # Instantiates `self` wrapping the file at the provided *file_path*, optionally with the provided *status*, and *headers*.
+  #
+  # By default the response is `ART::Response#set_public` and includes a `last-modified` header,
+  # but these can be controlled via the *public* and *auto_last_modified* arguments respectively.
+  #
+  # The *content_disposition* argument can be used to set the `content-disposition` header on `self` if it should be downloadable.
+  #
+  # The *auto_etag* argument can be used to automatically set `ETag` header based on a `SHA256` hash of the file.
   def initialize(
     file_path : String | Path,
     status : HTTP::Status | Int32 = HTTP::Status::OK,
