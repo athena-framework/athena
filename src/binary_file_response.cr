@@ -3,6 +3,9 @@ require "digest/sha256"
 require "mime"
 
 # Represents a static file that should be returned the client.
+#
+# See [ART::HeaderUtils.make_disposition][Athena::Routing::HeaderUtils.make_disposition(disposition,filename,fallback_filename)]
+# for an example of handling dynamic files.
 class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
   # Returns a `Path` instance representing the file that will be sent to the client.
   getter file_path : Path
@@ -17,7 +20,7 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
     Attachment
     Inline
 
-    # :inherit:
+    #
     def to_s(io : IO) : Nil
       case self
       in .attachment? then io << "attachment"

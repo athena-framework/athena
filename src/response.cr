@@ -129,6 +129,23 @@ class Athena::Routing::Response
   #
   # Do any preparation to ensure the response is RFC compliant.
   def prepare(request : HTTP::Request) : Nil
+    # TODO: Move this logic directly into HTTP::Params.
+    # See https://tools.ietf.org/html/rfc2616#section-14.18.
+    if !@headers.has_key?("date") && !@status.continue? && !@status.switching_protocols?
+      @headers["date"] = Time::Format::HTTP_DATE.format(Time.utc)
+    end
+
+    # Set sensible default cache-control header.
+    unless @headers.has_key? "cache-control"
+      @headers.add_cache_control_directive "private"
+
+      if @headers.has_key?("last-modified") || @headers.has_key?("expires")
+        @headers.add_cache_control_directive "must-revalidate"
+      else
+        @headers.add_cache_control_directive "no-cache"
+      end
+    end
+
     if @status.informational? || @status.no_content? || @status.not_modified?
       self.content = nil
       @headers.delete "content-type"
@@ -138,7 +155,7 @@ class Athena::Routing::Response
       self.content = nil if "HEAD" == request.method
     end
 
-    if "HTTP/1.0" == request.version && @headers["cache-control"]?.try &.includes? "no-cache"
+    if "HTTP/1.0" == request.version && @headers.has_cache_control_directive?("no-cache")
       @headers["pragma"] = "no-cache"
       @headers["expires"] = "-1"
     end

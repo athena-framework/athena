@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-struct Athena::Routing::BinaryFileResponseTest < ASPEC::TestCase
+struct ART::BinaryFileResponseTest < ASPEC::TestCase
   def after_all : Nil
     path = "#{__DIR__}/assets/to_delete"
 
@@ -40,28 +40,14 @@ struct Athena::Routing::BinaryFileResponseTest < ASPEC::TestCase
     ART::BinaryFileResponse.new(__FILE__).content.should be_empty
   end
 
-  def test_set_content_disposition_generates_safe_fallback_name : Nil
-    response = ART::BinaryFileResponse.new __FILE__
-    response.set_content_disposition :attachment, "föö.html"
-
-    response.headers["content-disposition"]?.should eq %(attachment; filename=f__.html; filename*=UTF-8''f%C3%B6%C3%B6.html)
-  end
-
-  def test_set_content_disposition_generates_safe_fallback_name_for_wrongly_encoded_filename : Nil
-    response = ART::BinaryFileResponse.new __FILE__
-    response.set_content_disposition :attachment, String.new("föö.html".encode "ISO-8859-1")
-
-    response.headers["content-disposition"]?.should eq %(attachment; filename=f__.html; filename*=UTF-8''f%F6%F6.html)
-  end
-
-  def test_set_content_disposition_uses_custom_fallback_filename : Nil
+  def test_set_content_disposition_custom_fallback_filename : Nil
     response = ART::BinaryFileResponse.new __FILE__
     response.set_content_disposition :attachment, "föö.html", "FILE"
 
     response.headers["content-disposition"]?.should eq %(attachment; filename=FILE; filename*=UTF-8''f%C3%B6%C3%B6.html)
   end
 
-  def test_set_content_disposition_does_not_add_fallback_if_valid : Nil
+  def test_set_content_disposition_custom_filename : Nil
     response = ART::BinaryFileResponse.new __FILE__
     response.set_content_disposition :attachment, "foo.html"
 

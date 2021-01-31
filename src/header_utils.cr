@@ -1,4 +1,4 @@
-# Includes various HTTP header utility methods.
+# Includes various `HTTP` header utility methods.
 module Athena::Routing::HeaderUtils
   # Generates a `HTTP` `content-disposition` header value with the provided *disposition* and *filename*.
   #
@@ -14,6 +14,13 @@ module Athena::Routing::HeaderUtils
   #
   # This method can be used to enable downloads of dynamically generated files.
   # I.e. that can't be handled via a static file event listener.
+  #
+  # ```
+  # ART::Response.new(
+  #   file_contents,
+  #   headers: HTTP::Headers{"content-disposition" => ART::HeaderUtils.make_disposition(:attachment, "foo.pdf")}
+  # )
+  # ```
   #
   # TODO: Add link to StaticFileListener cookbook recipe.
   def self.make_disposition(disposition : ART::BinaryFileResponse::ContentDisposition, filename : String, fallback_filename : String? = nil) : String
@@ -31,10 +38,10 @@ module Athena::Routing::HeaderUtils
     end
 
     # The fallback filename may not contain path separators.
-    if Path::SEPARATORS.any? { |s| filename.includes? s }
-      raise ArgumentError.new "The filename cannot include path separators (#{Path::SEPARATORS})."
-    elsif Path::SEPARATORS.any? { |s| fallback_filename.includes? s }
-      raise ArgumentError.new "The fallback filename cannot include path separators (#{Path::SEPARATORS})."
+    if {'/', '\\'}.any? { |s| filename.includes? s }
+      raise ArgumentError.new "The filename cannot include path separators."
+    elsif {'/', '\\'}.any? { |s| fallback_filename.includes? s }
+      raise ArgumentError.new "The fallback filename cannot include path separators."
     end
 
     params = {
