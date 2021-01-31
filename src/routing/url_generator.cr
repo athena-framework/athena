@@ -65,7 +65,16 @@ class Athena::Routing::URLGenerator
     end
 
     scheme = "https"
-    host = @base_uri.presence || @request.hostname
+    base_uri = nil
+
+    # Apply the `base_uri` parameter parts if present.
+    if base_uri = @base_uri.presence
+      base_uri = URI.parse base_uri
+      scheme = base_uri.scheme
+      host = base_uri.host
+    else
+      host = @request.hostname
+    end
 
     # If there is no host and reference_type is aboslute URL,
     # fallback to absolute path as we wouldn't know what to make the host.
@@ -74,11 +83,13 @@ class Athena::Routing::URLGenerator
       scheme = nil
     end
 
+    path = route.path.gsub(/(?:(:\w+))/, merged_params).gsub(/\/+$/, "")
+
     uri = URI.new(
       scheme: scheme,
       host: host,
       port: port,
-      path: route.path.gsub(/(?:(:\w+))/, merged_params).gsub(/\/+$/, ""),
+      path: base_uri ? Path.posix(base_uri.request_target).join(path).to_s : path,
       query: query,
       fragment: fragment
     )
@@ -86,11 +97,7 @@ class Athena::Routing::URLGenerator
     case reference_type
     in .absolute_path?
       String.build do |str|
-        str << uri.path
-
-        if q = uri.query.presence
-          str << '?' << q
-        end
+        str << uri.request_target
 
         if f = uri.fragment.presence
           str << '#' << f

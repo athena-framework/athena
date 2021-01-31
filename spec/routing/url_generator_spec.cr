@@ -152,12 +152,21 @@ describe ART::URLGenerator do
         generator(route_collection(new_action), {"host" => "localhost:80"}).generate("test", {"foo" => "bar"}, :absolute_url).should eq "https://localhost/test?foo=bar"
       end
 
-      it "fallback to path if host is empty" do
+      it "falls back to absolute_path if host is empty" do
         generator(route_collection(new_action)).generate("test", reference_type: :absolute_url).should eq "/test"
       end
 
-      it "supports using the base_uri parameter if no host is available" do
-        generator(route_collection(new_action), base_uri: "HOSTNAME").generate("test", reference_type: :absolute_url).should eq "https://HOSTNAME/test"
+      it "uses base_uri parameter if provided" do
+        generator(route_collection(new_action), base_uri: "http://google.com").generate("test", reference_type: :absolute_url).should eq "http://google.com/test"
+      end
+
+      it "prioritizes the base_uri parameter" do
+        generator(route_collection(new_action), {"host" => "crystal-lang.org"}, base_uri: "https://google.com").generate("test", reference_type: :absolute_url).should eq "https://google.com/test"
+      end
+
+      it "appends path to base_uri" do
+        generator(route_collection(new_action), base_uri: "http://example.com/foo/").generate("test", reference_type: :absolute_url).should eq "http://example.com/foo/test"
+        generator(route_collection(new_action), base_uri: "https://example.com/foo").generate("test", reference_type: :absolute_url).should eq "https://example.com/foo/test"
       end
     end
 
