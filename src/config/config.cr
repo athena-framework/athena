@@ -2,11 +2,11 @@ require "./cors_config"
 
 # Encompasses all configuration related to the `Athena::Routing` component.
 #
-# For a higher level introduction to configuring Athena components, see `Athena::Config`.
+# For a higher level introduction to using parameters, see the [external documentation](/components/config).
 struct Athena::Routing::Config
   # Configuration related to `Athena::Routing::Listeners::CORS`.
   #
-  # Disables the listener if not defined.
+  # See `ART::Config::CORS.configure`.
   getter cors : ART::Config::CORS? = ART::Config::CORS.configure
 end
 
