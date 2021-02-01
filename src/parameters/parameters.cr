@@ -1,6 +1,6 @@
 # Encompasses parameters related to the `Athena::Routing` component.
 #
-# For a higher level introduction to configuring Athena components, see the [external documentation](/components/config).
+# For a higher level introduction to using parameters, see the [external documentation](/components/config).
 struct Athena::Routing::Parameters
   # This method should be overridden in order to customize the parameters for the `Athena::Routing` component.
   # See the [external documentation](/components/config#parameters) for more details.

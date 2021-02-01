@@ -2,7 +2,7 @@ require "./cors_config"
 
 # Encompasses all configuration related to the `Athena::Routing` component.
 #
-# For a higher level introduction to using parameters, see the [external documentation](/components/config).
+# For a higher level introduction to configuring Athena components, see the [external documentation](/components/config).
 struct Athena::Routing::Config
   # Configuration related to `Athena::Routing::Listeners::CORS`.
   #
