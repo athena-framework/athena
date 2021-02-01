@@ -132,7 +132,7 @@ struct RoutingTest < ART::Spec::APITestCase
   end
 
   def test_generate_url_named_tuple_abso : Nil
-    self.request("GET", "/url-nt-abso").body.should eq %("https://localhost/art/response?id=10")
+    self.request("GET", "/url-nt-abso", headers: HTTP::Headers{"host" => "crystal-lang.org"}).body.should eq %("https://crystal-lang.org/art/response?id=10")
   end
 
   def test_redirect_to_route : Nil

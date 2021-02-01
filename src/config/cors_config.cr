@@ -1,13 +1,13 @@
-require "./routing_config"
+require "./config"
+
+struct Athena::Routing::Config; end
 
 # Configuration options for `ART::Listeners::CORS`.  See `.configure`.
 #
 # TODO: Allow scoping CORS options to specific routes versus applying them to all routes.
-#
-# See the [external documentation](/components/config) for more general information on configuration an Athena application.
 @[ACFA::Resolvable("routing.cors")]
 struct Athena::Routing::Config::CORS
-  # This method should be overriden in order to provide the configuration for `ART::Listeners::CORS`.
+  # This method should be overridden in order to provide the configuration for `ART::Listeners::CORS`.
   # See the [external documentation](/components/config#configuration) for more details.
   #
   # By default it returns `nil`, which disables the listener.

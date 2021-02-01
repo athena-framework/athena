@@ -2,7 +2,11 @@
 class Athena::Routing::URLGenerator
   include Athena::Routing::URLGeneratorInterface
 
-  def initialize(@routes : ART::RouteCollection, @request : HTTP::Request); end
+  def initialize(
+    @routes : ART::RouteCollection,
+    @request : HTTP::Request,
+    @base_uri : URI?
+  ); end
 
   # :inherit:
   #
@@ -48,43 +52,38 @@ class Athena::Routing::URLGenerator
     end
 
     # Use any extra passed in params as query params.
-    query = if params && !params.empty?
-              params.compact!
+    query = if params && !(params.compact!).empty?
               HTTP::Params.encode params.transform_values &.to_s.as(String)
             end
 
-    # If the port is not a common one, 80 or 443, use it as the port; otherwise, don't bother setting it.
-    port = if (p = (@request.headers["Host"]?.try &.split(':').last?.try &.to_i)) && !p.in? 80, 443
-             p
-           end
+    # Use the base_uri parameter if defined.
+    base_uri = if buri = @base_uri
+                 # Use a copy of it as to not mutate the original.
+                 buri.dup
+               elsif (host = @request.hostname)
+                 # Only bother setting the port if the `port` value can be extracted from the `host` header, and is no a standard port.
+                 if (host_header = @request.headers["host"]?) && (p = host_header.partition(':').last) && !p.in?("", "80", "443")
+                   port = p.to_i
+                 end
+                 URI.new scheme: "https", host: host, port: port
+               else
+                 # Fallback to an absolute path if no hostname could be resolved.
+                 URI.new
+               end
 
-    uri = URI.new(
-      scheme: "https", # TODO: Should this be configurable in some way?
-      host: @request.hostname || "localhost",
-      port: port,
-      path: route.path.gsub(/(?:(:\w+))/, merged_params).gsub(/\/+$/, ""),
-      query: query,
-      fragment: fragment
-    )
+    path = route.path.gsub(/(?:(:\w+))/, merged_params).gsub(/\/+$/, "")
 
     case reference_type
-    in .absolute_path?
-      String.build do |str|
-        str << uri.path
-
-        if q = uri.query.presence
-          str << '?' << q
-        end
-
-        if f = uri.fragment.presence
-          str << '#' << f
-        end
-      end
-    in .absolute_url?  then uri.to_s
+    in .absolute_path? then base_uri = URI.new path: base_uri.path
+    in .absolute_url? # skip
     in .relative_path? then raise NotImplementedError.new("Relative path reference type is currently not supported.")
-    in .network_path?
-      uri.scheme = nil
-      uri.to_s
+    in .network_path?  then base_uri.scheme = nil
     end
+
+    base_uri.tap do |uri|
+      uri.path = Path.posix(uri.path).join(path).to_s
+      uri.query = query
+      uri.fragment = fragment
+    end.to_s
   end
 end
