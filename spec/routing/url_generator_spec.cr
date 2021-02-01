@@ -288,6 +288,10 @@ describe ART::URLGenerator do
       it "ignores base_uri parameter" do
         generator(route_collection(new_action), base_uri: URI.parse "https://crystal-lang.org").generate("test", {"foo" => nil}).should eq "/test"
       end
+
+      it "appends path from base_uri parameter" do
+        generator(route_collection(new_action), base_uri: URI.parse "http://example.com/foo/").generate("test", {"foo" => nil}).should eq "/foo/test"
+      end
     end
 
     describe "network path" do
@@ -315,6 +319,10 @@ describe ART::URLGenerator do
 
       it "uses base_uri parameter if defined" do
         generator(route_collection(new_action), {"host" => "localhost"}, base_uri: URI.parse "https://crystal-lang.org").generate("test", {"foo" => nil}, :network_path).should eq "//crystal-lang.org/test"
+      end
+
+      it "appends path from base_uri parameter" do
+        generator(route_collection(new_action), base_uri: URI.parse "http://example.com/foo/").generate("test", {"foo" => nil}, :network_path).should eq "//example.com/foo/test"
       end
     end
   end
