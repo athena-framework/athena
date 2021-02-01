@@ -17,7 +17,7 @@ struct Athena::Routing::Parameters
     new
   end
 
-  # Returns an optional `URI` instance that should be used for within `ART::URLGeneratorInterface#generate`.
+  # Returns an optional `URI` instance for use within `ART::URLGeneratorInterface#generate`.
   getter base_uri : URI?
 
   def initialize(
