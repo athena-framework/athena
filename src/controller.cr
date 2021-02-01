@@ -262,7 +262,7 @@ abstract class Athena::Routing::Controller
   #   end
   # end
   # ```
-  def redirect(url : String, status : HTTP::Status = HTTP::Status::FOUND) : ART::RedirectResponse
+  def redirect(url : String | Path, status : HTTP::Status = HTTP::Status::FOUND) : ART::RedirectResponse
     ART::RedirectResponse.new url, status
   end
 

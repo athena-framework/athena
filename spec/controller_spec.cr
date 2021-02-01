@@ -31,5 +31,13 @@ describe ART::Controller do
       response.headers.should eq HTTP::Headers{"location" => "URL"}
       response.content.should be_empty
     end
+
+    it "allows passing a `Path` instance" do
+      response = TestController.new.redirect Path["/app/assets/foo.txt"]
+
+      response.status.should eq HTTP::Status::FOUND
+      response.headers.should eq HTTP::Headers{"location" => "/app/assets/foo.txt"}
+      response.content.should be_empty
+    end
   end
 end
