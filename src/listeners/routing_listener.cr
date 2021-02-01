@@ -19,7 +19,7 @@ struct Athena::Routing::Listeners::Routing
 
     route = @matcher.match request
 
-    LOGGER.info &.emit "Matched route #{request.path}", uri: request.path, method: request.method, path_params: route.params, query_params: request.query_params.to_h
+    Log.info &.emit "Matched route #{request.path}", uri: request.path, method: request.method, path_params: route.params, query_params: request.query_params.to_h
 
     request.action = route.payload.not_nil!.dup
 
