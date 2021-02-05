@@ -1,6 +1,6 @@
 # Includes various `HTTP` header utility methods.
 module Athena::Routing::HeaderUtils
-  # Generates a `HTTP` `content-disposition` header value with the provided *disposition* and *filename*.
+  # Generates a `HTTP` [content-disposition](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition) header value with the provided *disposition* and *filename*.
   #
   # If *filename* contains non `ASCII` characters, a sanitized version will be used as part of the `filename` directive,
   # while an encoded version of it will be used as the `filename*` directive.
