@@ -175,7 +175,6 @@ struct Athena::Routing::Listeners::CORS
     return true if config.allow_origin.includes?(WILDCARD)
 
     # Use case equality in case an origin is a Regex
-    # TODO: Allow Regex when custom YAML tags are allowed
     config.allow_origin.any? &.===(request.headers["origin"])
   end
 end
