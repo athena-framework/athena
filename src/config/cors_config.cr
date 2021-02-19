@@ -32,11 +32,10 @@ struct Athena::Routing::Config::CORS
   getter allow_credentials : Bool
 
   # A white-listed array of valid origins.
+  # Each origin may be a static `String`, or a `Regex`.
   #
   # Can be set to `["*"]` to allow any origin.
-  #
-  # TODO: Allow `Regex` based origins.
-  getter allow_origin : Array(String)
+  getter allow_origin : Array(String | Regex)
 
   # The header or headers that can be used when making the actual request.
   #
@@ -64,11 +63,12 @@ struct Athena::Routing::Config::CORS
   # See `.configure`.
   def initialize(
     @allow_credentials : Bool = false,
-    @allow_origin : Array(String) = [] of String,
+    allow_origin : Array(String | Regex) = Array(String | Regex).new,
     @allow_headers : Array(String) = [] of String,
     @allow_methods : Array(String) = Athena::Routing::Listeners::CORS::SAFELISTED_METHODS,
     @expose_headers : Array(String) = [] of String,
     @max_age : Int32 = 0
   )
+    @allow_origin = allow_origin.map &.as String | Regex
   end
 end
