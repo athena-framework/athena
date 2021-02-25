@@ -38,11 +38,11 @@ class Athena::Routing::View::FormatNegotiator < ANG::Negotiator
         end
       end
 
-      rule.fallback_format.try do |fallback_format|
-        return if false == fallback_format
+      rule.fallback_format.try do |ff|
+        return if false == ff
 
-        request.mime_type(fallback_format.as(String)).try do |mime_type|
-          return ANG::Accept.new mime_type
+        request.mime_type(ff.as(String)).try do |mt|
+          return ANG::Accept.new mt
         end
       end
     end

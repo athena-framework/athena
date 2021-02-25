@@ -62,17 +62,17 @@ struct Athena::Routing::Config
     #
     # Maps to the `access-control-max-age` header.
     getter max_age : Int32
-  end
 
-  # See `.configure`.
-  def initialize(
-    @allow_credentials : Bool = false,
-    allow_origin : Array(String | Regex) = Array(String | Regex).new,
-    @allow_headers : Array(String) = [] of String,
-    @allow_methods : Array(String) = Athena::Routing::Listeners::CORS::SAFELISTED_METHODS,
-    @expose_headers : Array(String) = [] of String,
-    @max_age : Int32 = 0
-  )
-    @allow_origin = allow_origin.map &.as String | Regex
+    # See `.configure`.
+    def initialize(
+      @allow_credentials : Bool = false,
+      allow_origin : Array(String | Regex) = Array(String | Regex).new,
+      @allow_headers : Array(String) = [] of String,
+      @allow_methods : Array(String) = Athena::Routing::Listeners::CORS::SAFELISTED_METHODS,
+      @expose_headers : Array(String) = [] of String,
+      @max_age : Int32 = 0
+    )
+      @allow_origin = allow_origin.map &.as String | Regex
+    end
   end
 end

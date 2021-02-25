@@ -93,7 +93,7 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
 
   # Sets the `etag` header on `self` based on a `SHA256` hash of the file.
   def set_auto_etag : Nil
-    self.set_etag Digest::SHA256.base64digest { |ctx| ctx.file @file_path }
+    self.set_etag Digest::SHA256.base64digest &.file(@file_path)
   end
 
   # Sets the `last-modified` header on `self` based on the modification time of the file.

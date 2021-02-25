@@ -210,8 +210,6 @@ class Athena::Routing::Response
   end
 
   protected def write(output : IO) : Nil
-    @writer.write(output) do |writer_io|
-      writer_io.print @content
-    end
+    @writer.write(output, &.print(@content))
   end
 end

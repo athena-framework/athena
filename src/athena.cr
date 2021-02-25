@@ -202,12 +202,12 @@ end
 #   end
 # end
 
-@[ADI::Register(public: true)]
-class Example2Controller < ART::Controller
-  @[ARTA::Get("/static")]
-  def static : String
-    "static value"
-  end
-end
+# @[ADI::Register(public: true)]
+# class Example2Controller < ART::Controller
+#   @[ARTA::Get("/static")]
+#   def static : String
+#     "static value"
+#   end
+# end
 
-ART.run
+# ART.run

@@ -1,4 +1,5 @@
 require "./cors_config"
+require "./content_negotiation_config"
 
 # Encompasses all configuration related to the `Athena::Routing` component.
 #
@@ -8,6 +9,11 @@ struct Athena::Routing::Config
   #
   # See `ART::Config::CORS.configure`.
   getter cors : ART::Config::CORS? = ART::Config::CORS.configure
+
+  # Configuration related to `ART::Listeners::Format`.
+  #
+  # Disables the listener if not defined.
+  getter content_negotiation : ART::Config::ContentNegotiation? = ART::Config::ContentNegotiation.configure
 end
 
 class Athena::Config::Base

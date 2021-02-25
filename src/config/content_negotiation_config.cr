@@ -1,23 +1,9 @@
-require "./routing_config"
-
-# :nodoc:
-class Regex
-  def self.new(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : self
-    unless node.is_a?(YAML::Nodes::Scalar)
-      node.raise "Expected scalar, not #{node.class}"
-    end
-
-    new node.value
-  end
-end
+require "./config"
 
 struct Athena::Routing::Config
+  @[ACFA::Resolvable("routing.content_negotiation")]
   struct ContentNegotiation
-    include ACF::Configuration
-
     struct Rule
-      include ACF::Configuration
-
       # Returns the a `Regex` representing the paths this rule should be scoped to.
       getter path : Regex = /^\//
 
@@ -35,14 +21,11 @@ struct Athena::Routing::Config
       getter methods : Array(String)? = nil
     end
 
+    def self.configure : self?
+      nil
+    end
+
     # Returns the content negotiation rules that should be considered when determining the request's format.
     getter rules : Array(ART::Config::ContentNegotiation::Rule) = [] of ART::Config::ContentNegotiation::Rule
-  end
-end
-
-struct Athena::Config::ConfigurationResolver
-  # :inherit:
-  def resolve(_type : Athena::Routing::Config::ContentNegotiation.class) : ART::Config::ContentNegotiation?
-    base.routing.content_negotiation
   end
 end
