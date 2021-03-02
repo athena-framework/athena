@@ -2,6 +2,7 @@ require "./config"
 
 struct Athena::Routing::Config
   @[ACFA::Resolvable("routing.content_negotiation")]
+  # TODO: Add content negoitation docs.
   struct ContentNegotiation
     struct Rule
       # Returns the a `Regex` representing the paths this rule should be scoped to.
@@ -21,6 +22,7 @@ struct Athena::Routing::Config
       getter methods : Array(String)? = nil
     end
 
+    # TODO: Add content negoitation docs.
     def self.configure : self?
       nil
     end

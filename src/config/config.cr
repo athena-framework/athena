@@ -5,14 +5,14 @@ require "./content_negotiation_config"
 #
 # For a higher level introduction to configuring Athena components, see the [external documentation](/components/config).
 struct Athena::Routing::Config
-  # Configuration related to `Athena::Routing::Listeners::CORS`.
+  # Configuration related to `ART::Listeners::CORS`.
   #
   # See `ART::Config::CORS.configure`.
   getter cors : ART::Config::CORS? = ART::Config::CORS.configure
 
   # Configuration related to `ART::Listeners::Format`.
   #
-  # Disables the listener if not defined.
+  # See `ART::Config::ContentNegotiation.configure`.
   getter content_negotiation : ART::Config::ContentNegotiation? = ART::Config::ContentNegotiation.configure
 end
 

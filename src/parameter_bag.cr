@@ -57,11 +57,23 @@ struct Athena::Routing::ParameterBag
     @parameters[name]?.try &.value
   end
 
+  # Returns the value of the parameter with the provided *name* casted to the provied *type* if it exists, otherwise `nil`.
+  def get?(name : String, type : T?.class) : T? forall T
+    self.get?(name).as T?
+  end
+
   # Returns the value of the parameter with the provided *name*.
   #
   # Raises a `KeyError` if no parameter with that name exists.
   def get(name : String)
     @parameters.fetch(name) { raise KeyError.new "No parameter exists with the name '#{name}'." }.value
+  end
+
+  # Returns the value of the parameter with the provided *name*, casted to the provided *type*.
+  #
+  # Raises a `KeyError` if no parameter with that name exists.
+  def get(name : String, type : T.class) : T forall T
+    self.get(name).as T
   end
 
   {% for type in [Bool, String] + Number::Primitive.union_types %}

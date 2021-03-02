@@ -480,7 +480,7 @@ module Athena::Routing::Annotations
   # end
   # ```
   #
-  # See the [external documentation](https://athenaframework.org/components/serializer/) for more information.
+  # See the [external documentation](/components/serializer/) for more information.
   ACF.configuration_annotation Athena::Routing::Annotations::View,
     status : HTTP::Status? = nil,
     serialization_groups : Array(String)? = nil,
