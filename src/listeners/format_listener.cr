@@ -19,15 +19,13 @@ struct Athena::Routing::Listeners::Format
   def call(event : ART::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
     request = event.request
 
-    # Return early if there are no configurations
+    # Return early if there is no content_negotiation configuration.
     return unless @format_negotiator.enabled?
 
     format = request.request_format nil
 
     if format.nil?
       accept = @format_negotiator.best ""
-
-      pp accept
 
       if !accept.nil? && 0.0 < accept.quality
         if format = request.format accept.header
@@ -39,5 +37,7 @@ struct Athena::Routing::Listeners::Format
     raise ART::Exceptions::NotAcceptable.new "No matching accepted Response format could be determined." if format.nil?
 
     request.request_format = format
+  rescue ex : ART::Exceptions::StopFormatListener
+    # ignore
   end
 end

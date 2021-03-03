@@ -13,11 +13,11 @@ class Athena::Routing::View::FormatNegotiator < ANG::Negotiator
 
     return unless config = @configuration_resolver.resolve(ART::Config::ContentNegotiation)
 
-    pp config
-
     config.rules.each do |rule|
       next unless request.path.matches? rule.path
       next unless rule.methods.try &.includes? request.method
+
+      raise ART::Exceptions::StopFormatListener.new "Stopping format listener." if rule.stop?
 
       if priorities.nil? && rule.priorities.nil?
         if (fallback_format = rule.fallback_format)
@@ -28,6 +28,9 @@ class Athena::Routing::View::FormatNegotiator < ANG::Negotiator
 
         next
       end
+
+      # TODO: Support using the request path extension to determine the format.
+      # This would require being able to define routes like `/foo.{_format}` first however.
 
       if header
         # Priorities defined on the rule wont be nil at this point it would have been skipped

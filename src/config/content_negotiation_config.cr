@@ -2,7 +2,7 @@ require "./config"
 
 struct Athena::Routing::Config
   @[ACFA::Resolvable("routing.content_negotiation")]
-  # TODO: Add content negoitation docs.
+  # TODO: Add content negotiation docs.
   struct ContentNegotiation
     struct Rule
       # Returns the a `Regex` representing the paths this rule should be scoped to.
@@ -20,9 +20,12 @@ struct Athena::Routing::Config
 
       # Returns the methods that this rule should optionally be scoped to.
       getter methods : Array(String)? = nil
+
+      # Determines if `ART::Listeners::Format` should be enabled for this rule and any rule following it.
+      getter? stop : Bool = false
     end
 
-    # TODO: Add content negoitation docs.
+    # TODO: Add content negotiation docs.
     def self.configure : self?
       nil
     end

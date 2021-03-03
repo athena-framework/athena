@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-private alias DATA_TYPE = Hash(String, Int32 | String)
+private alias DATATYPE = Hash(String, Int32 | String)
 
 describe ART::ParameterBag do
   describe "#has?" do
@@ -31,10 +31,10 @@ describe ART::ParameterBag do
     describe "with a complex T" do
       it "returns an nilable T" do
         bag = ART::ParameterBag.new
-        bag.set "data", {"foo" => "bar", "baz" => 10}, DATA_TYPE
+        bag.set "data", {"foo" => "bar", "baz" => 10}, DATATYPE
 
-        data = bag.get "data", DATA_TYPE
-        data.class.should eq DATA_TYPE
+        data = bag.get "data", DATATYPE
+        data.class.should eq DATATYPE
         data["foo"].should eq "bar"
       end
     end
@@ -102,13 +102,13 @@ describe ART::ParameterBag do
         bag.set "pi", 3.14, Float64
         bag.set "e", 2.71, Float64
         bag.set "fav", 16, Int32
-        bag.set "data", {"foo" => "bar", "baz" => 10}, DATA_TYPE
+        bag.set "data", {"foo" => "bar", "baz" => 10}, DATATYPE
 
         a, b, c = bag.get("pi", Float64), bag.get("e", Float64), bag.get("fav", Int32)
         (a + b + c).should eq 21.85
 
-        data = bag.get "data", DATA_TYPE
-        data.class.should eq DATA_TYPE
+        data = bag.get "data", DATATYPE
+        data.class.should eq DATATYPE
         data["foo"].should eq "bar"
       end
     end
