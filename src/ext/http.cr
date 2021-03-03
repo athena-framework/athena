@@ -1,10 +1,17 @@
 # :nodoc:
 class HTTP::Request
   private FORMATS = {
-    "html" => Set{"text/html", "application/xhtml+xml"},
-    "txt"  => Set{"text/plain"},
-    "css"  => Set{"text/css"},
-    "json" => Set{"application/json", "application/x-json"},
+    "html"   => Set{"text/html", "application/xhtml+xml"},
+    "txt"    => Set{"text/plain"},
+    "js"     => Set{"application/javascript", "application/x-javascript", "text/javascript"},
+    "css"    => Set{"text/css"},
+    "json"   => Set{"application/json", "application/x-json"},
+    "jsonld" => Set{"application/ld+json"},
+    "xml"    => Set{"text/xml", "application/xml", "application/x-xml"},
+    "rdf"    => Set{"application/rdf+xml"},
+    "atom"   => Set{"application/atom+xml"},
+    "rss"    => Set{"application/rss+xml"},
+    "form"   => Set{"application/x-www-form-urlencoded"},
   }
 
   def self.register_format(format : String, mime_types : Indexable(String)) : Nil
@@ -34,8 +41,8 @@ class HTTP::Request
   def format(mime_type : String) : String?
     canonical_mime_type = nil
 
-    if mime_type.includes? ';'
-      canonical_mime_type = mime_type.split(';').first.strip
+    if mime_type.includes? ";"
+      canonical_mime_type = mime_type.split(";").first.strip
     end
 
     FORMATS.each do |format, mime_types|
@@ -56,7 +63,7 @@ class HTTP::Request
     @request_format || default
   end
 
-  # Returns `true` if this request's `#method` is [safe](https://tools.ietf.org/html/rfc7231#section-4.2.1).
+  # Returns `true` if this request"s `#method` is [safe](https://tools.ietf.org/html/rfc7231#section-4.2.1).
   # Otherwise returns `false`.
   def safe? : Bool
     @method.in? "GET", "HEAD", "OPTIONS", "TRACE"
