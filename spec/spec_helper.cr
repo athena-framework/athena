@@ -19,6 +19,25 @@ class TestController < ART::Controller
   end
 end
 
+class MockContentNegotiationConfigResolver
+  include ACF::ConfigurationResolverInterface
+
+  setter config : ART::Config::ContentNegotiation?
+
+  def initialize(@config : ART::Config::ContentNegotiation? = nil); end
+
+  def resolve(_type : ART::Config::ContentNegotiation.class) : ART::Config::ContentNegotiation?
+    @config
+  end
+
+  def resolve(_type) : Nil
+  end
+
+  def resolve : ACF::Base
+    ACF::Base.new
+  end
+end
+
 macro create_action(return_type, &)
   ART::Action.new(
     ->{ ->{ {{yield}} } },

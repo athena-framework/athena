@@ -3,15 +3,16 @@ class Athena::Routing::View::FormatNegotiator < ANG::Negotiator
   def initialize(
     @request_store : ART::RequestStore,
     @configuration_resolver : ACF::ConfigurationResolverInterface,
-    @mime_types : Array(String) = [] of String
+    @mime_types : Hash(String, Array(String)) = Hash(String, Array(String)).new
   ); end
 
+  # ameba:disable Metrics/CyclomaticComplexity
   def best(header : String, priorities : Indexable(String)? = nil, strict : Bool = false) : HeaderType?
     request = @request_store.request
 
     header = header.presence || request.headers["accept"]?
 
-    return unless config = @configuration_resolver.resolve(ART::Config::ContentNegotiation)
+    return unless config = @configuration_resolver.resolve ART::Config::ContentNegotiation
 
     config.rules.each do |rule|
       next unless request.path.matches? rule.path
@@ -70,6 +71,10 @@ class Athena::Routing::View::FormatNegotiator < ANG::Negotiator
       end
 
       mime_types = mime_types.concat HTTP::Request.mime_types priority
+
+      if @mime_types.has_key? priority
+        mime_types.concat @mime_types[priority]
+      end
     end
 
     mime_types

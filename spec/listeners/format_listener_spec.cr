@@ -1,23 +1,5 @@
 require "../spec_helper"
 
-private struct MockContentNegotiationConfigResolver
-  include ACF::ConfigurationResolverInterface
-
-  def initialize(@config : ART::Config::ContentNegotiation? = nil); end
-
-  def resolve(_type : ART::Config::ContentNegotiation.class) : ART::Config::ContentNegotiation?
-    @config
-  end
-
-  def resolve(_type) : Nil
-  end
-
-  def resolve : ACF::Base
-    ACF::Base.new
-  end
-end
-
-@[ASPEC::TestCase::Focus]
 struct FormatListenerTest < ASPEC::TestCase
   def test_call_no_config : Nil
     event = new_request_event
