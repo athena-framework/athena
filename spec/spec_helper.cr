@@ -76,6 +76,16 @@ def new_request(*, path : String = "/test", method : String = "GET", action : AR
   request
 end
 
+def new_request_event
+  new_request_event { }
+end
+
+def new_request_event(& : HTTP::Request -> _)
+  request = new_request
+  yield request
+  ART::Events::Request.new request
+end
+
 def new_response(*, io : IO = IO::Memory.new) : HTTP::Server::Response
   HTTP::Server::Response.new io
 end

@@ -1,6 +1,5 @@
 require "../spec_helper"
 
-@[ASPEC::TestCase::Focus]
 struct HTTP::RequestTest < ASPEC::TestCase
   @[DataProvider("mime_type_provider")]
   def test_mime_type(format : String, mime_types : Indexable(String)) : Nil

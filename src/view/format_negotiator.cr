@@ -15,7 +15,9 @@ class Athena::Routing::View::FormatNegotiator < ANG::Negotiator
 
     config.rules.each do |rule|
       next unless request.path.matches? rule.path
-      next unless rule.methods.try &.includes? request.method
+      if methods = rule.methods
+        next unless methods.includes? request.method
+      end
 
       raise ART::Exceptions::StopFormatListener.new "Stopping format listener." if rule.stop?
 

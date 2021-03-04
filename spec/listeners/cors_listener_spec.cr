@@ -42,16 +42,6 @@ private struct MockCorsConfigResolver
   end
 end
 
-private def new_request_event
-  new_request_event { }
-end
-
-private def new_request_event(& : HTTP::Request -> _)
-  request = new_request
-  yield request
-  ART::Events::Request.new request
-end
-
 private def new_response_event
   new_response_event() { }
 end
