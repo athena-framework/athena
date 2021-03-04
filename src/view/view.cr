@@ -23,7 +23,7 @@ class Athena::Routing::View(T)
     status : HTTP::Status = HTTP::Status::FOUND,
     headers : HTTP::Headers = HTTP::Headers.new
   ) : self
-    view = new status: status, headers: headers
+    view = ART::View(Nil).new status: status, headers: headers
     view.location = url
 
     view
@@ -35,9 +35,9 @@ class Athena::Routing::View(T)
     status : HTTP::Status = HTTP::Status::FOUND,
     headers : HTTP::Headers = HTTP::Headers.new
   ) : self
-    view = new status: status, headers: headers
+    view = ART::View(Nil).new status: status, headers: headers
     view.route = route
-    view.route_params = params.transform_values &.to_s
+    view.route_params = params.try &.transform_values &.to_s
 
     view
   end
