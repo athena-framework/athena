@@ -28,7 +28,7 @@ class Athena::Routing::View::Context
     self.add_groups groups
   end
 
-  def add_groups(groups : Indexable(String)) : self
+  def add_groups(groups : Enumerable(String)) : self
     groups.each do |group|
       self.add_group group
     end
@@ -36,7 +36,7 @@ class Athena::Routing::View::Context
     self
   end
 
-  def groups=(groups : Indexable(String)) : self
+  def groups=(groups : Enumerable(String)) : self
     @groups = groups.to_set
 
     self

@@ -6,25 +6,36 @@ ADI.bind format_handlers : Array(Athena::Routing::View::FormatHandlerInterface),
 class Athena::Routing::View::ViewHandler
   include Athena::Routing::View::ViewHandlerInterface
 
-  # Only built in supported type at the moment is JSON.
-  @formats : Set(String)
-
   @custom_handlers = Hash(String, ART::View::ViewHandlerInterface::HandlerType).new
 
+  @serialization_groups : Set(String)? = nil
+  @serialization_version : SemanticVersion? = nil
+
+  @empty_content_status : HTTP::Status
+  @failed_validation_status : HTTP::Status
+  @emit_nil : Bool
+
   def initialize(
+    config : ART::Config::ViewHandler,
     @url_generator : ART::URLGeneratorInterface,
     @serializer : ASR::SerializerInterface,
     @request_store : ART::RequestStore,
-    format_handlers : Array(Athena::Routing::View::FormatHandlerInterface),
-    @formats : Set(String) = Set{"json"},
-    @empty_content_status : HTTP::Status = HTTP::Status::NO_CONTENT,
-    @emit_nil : Bool = false
+    format_handlers : Array(Athena::Routing::View::FormatHandlerInterface)
   )
+    @empty_content_status = config.empty_content_status
+    @failed_validation_status = config.failed_validation_status
+    @emit_nil = config.emit_nil?
+
     format_handlers.each do |format_handler|
       self.register_handler format_handler.format, format_handler
     end
   end
 
+  # TODO: Define methods for setting serialization args.
+
+  # :nodoc:
+  #
+  # This method is mainly for testing.
   def register_handler(format : String, &block : ART::View::ViewHandlerInterface, ART::ViewBase, HTTP::Request, String -> ART::Response) : Nil
     self.register_handler format, block
   end
@@ -35,7 +46,8 @@ class Athena::Routing::View::ViewHandler
 
   # :inherit:
   def supports?(format : String) : Bool
-    @custom_handlers.has_key?(format) || @formats.includes?(format)
+    # JSON is the only format supported via the serializer ATM.
+    @custom_handlers.has_key?(format) || "json" == format
   end
 
   # :inherit:
@@ -102,9 +114,30 @@ class Athena::Routing::View::ViewHandler
       # TODO: Support Form typed views.
       data = view.data
 
-      context = view.context
+      context = self.serialization_context view
 
-      content = @serializer.serialize data, format, view.context
+      # TODO: Implement some sort of Adapter system to convert ART::View::Context
+      # into the serializer's required format.  Just do that here for now.
+
+      athena_serializer_context = ASR::SerializationContext.new
+
+      context.emit_nil?.try do |en|
+        athena_serializer_context.emit_nil = en
+      end
+
+      context.version.try do |v|
+        athena_serializer_context.version = v
+      end
+
+      context.groups.try do |g|
+        athena_serializer_context.groups = g
+      end
+
+      context.exclusion_strategies.each do |s|
+        athena_serializer_context.add_exclusion_strategy s
+      end
+
+      content = @serializer.serialize data, format, athena_serializer_context
     end
 
     response = view.response
@@ -113,6 +146,28 @@ class Athena::Routing::View::ViewHandler
     response.content = content unless content.nil?
 
     response
+  end
+
+  private def serialization_context(view : ART::ViewBase) : ART::View::Context
+    context = view.context
+
+    groups = context.groups
+
+    if groups.nil? && (view_handler_groups = @serialization_groups) && !view_handler_groups.empty?
+      context.groups = view_handler_groups
+    end
+
+    if context.version.nil? && (view_handler_version = @serialization_version)
+      context.version = view_handler_version
+    end
+
+    if context.emit_nil?.nil? && (view_handler_emit_nil = @emit_nil)
+      context.emit_nil = view_handler_emit_nil
+    end
+
+    # TOOD: Set status code in context attributes if that's ever implemented.
+
+    context
   end
 
   private def status(view : ART::ViewBase, content : _) : HTTP::Status

@@ -14,7 +14,7 @@ struct FormatNegotiatorTest < ASPEC::TestCase
 
     @negotiator = ART::View::FormatNegotiator.new(
       @request_store,
-      MockContentNegotiationConfigResolver.new(@config),
+      @config,
       {"json" => ["application/json;version=1.0"]}
     )
   end

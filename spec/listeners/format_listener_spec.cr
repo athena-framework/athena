@@ -7,7 +7,7 @@ struct FormatListenerTest < ASPEC::TestCase
     request_store = ART::RequestStore.new
     request_store.request = event.request
 
-    negotiator = ART::View::FormatNegotiator.new request_store, MockContentNegotiationConfigResolver.new
+    negotiator = ART::View::FormatNegotiator.new request_store, nil
 
     listener = ART::Listeners::Format.new negotiator
 
@@ -26,7 +26,7 @@ struct FormatListenerTest < ASPEC::TestCase
       ART::Config::ContentNegotiation::Rule.new(fallback_format: "xml"),
     ]
 
-    negotiator = ART::View::FormatNegotiator.new request_store, MockContentNegotiationConfigResolver.new config
+    negotiator = ART::View::FormatNegotiator.new request_store, config
 
     listener = ART::Listeners::Format.new negotiator
 
@@ -47,7 +47,7 @@ struct FormatListenerTest < ASPEC::TestCase
       ART::Config::ContentNegotiation::Rule.new(fallback_format: "json"),
     ]
 
-    negotiator = ART::View::FormatNegotiator.new request_store, MockContentNegotiationConfigResolver.new config
+    negotiator = ART::View::FormatNegotiator.new request_store, config
 
     listener = ART::Listeners::Format.new negotiator
 
@@ -62,7 +62,7 @@ struct FormatListenerTest < ASPEC::TestCase
     request_store = ART::RequestStore.new
     request_store.request = event.request
 
-    negotiator = ART::View::FormatNegotiator.new request_store, MockContentNegotiationConfigResolver.new ART::Config::ContentNegotiation.new Array(ART::Config::ContentNegotiation::Rule).new
+    negotiator = ART::View::FormatNegotiator.new request_store, ART::Config::ContentNegotiation.new Array(ART::Config::ContentNegotiation::Rule).new
 
     listener = ART::Listeners::Format.new negotiator
 
@@ -87,7 +87,7 @@ struct FormatListenerTest < ASPEC::TestCase
       ART::Config::ContentNegotiation::Rule.new(fallback_format: "xml"),
     ]
 
-    negotiator = ART::View::FormatNegotiator.new request_store, MockContentNegotiationConfigResolver.new config
+    negotiator = ART::View::FormatNegotiator.new request_store, config
 
     listener = ART::Listeners::Format.new negotiator
 

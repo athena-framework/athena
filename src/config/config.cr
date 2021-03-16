@@ -1,5 +1,6 @@
-require "./cors_config"
-require "./content_negotiation_config"
+require "./cors"
+require "./content_negotiation"
+require "./view_handler"
 
 # Encompasses all configuration related to the `Athena::Routing` component.
 #
@@ -14,6 +15,11 @@ struct Athena::Routing::Config
   #
   # See `ART::Config::ContentNegotiation.configure`.
   getter content_negotiation : ART::Config::ContentNegotiation? = ART::Config::ContentNegotiation.configure
+
+  # Configuration related to `ART::Listeners::View`.
+  #
+  # See `ART::Config::ViewHandler.configure`.
+  getter view_handler : ART::Config::ViewHandler = ART::Config::ViewHandler.configure
 end
 
 class Athena::Config::Base
