@@ -1,47 +1,5 @@
 require "../spec_helper"
 
-private struct MockCorsConfigResolver
-  include ACF::ConfigurationResolverInterface
-
-  def self.get_empty_config : ART::Config::CORS
-    ART::Config::CORS.new
-  end
-
-  def self.get_config_with_wildcards : ART::Config::CORS
-    ART::Config::CORS.new(
-      allow_credentials: true,
-      allow_headers: %w(*),
-      allow_origin: %w(*),
-      expose_headers: %w(*),
-      max_age: 123,
-    )
-  end
-
-  def initialize(@config : ART::Config::CORS? = get_config); end
-
-  def resolve(_type : ART::Config::CORS.class) : ART::Config::CORS?
-    @config
-  end
-
-  def resolve(_type) : Nil
-  end
-
-  def resolve : ACF::Base
-    ACF::Base.new
-  end
-
-  private def get_config : ART::Config::CORS
-    ART::Config::CORS.new(
-      allow_credentials: true,
-      allow_headers: %w(X-FOO),
-      allow_methods: %w(POST GET),
-      allow_origin: ["https://example.com", /https:\/\/(?:api|app)\.example\.com/],
-      expose_headers: %w(HEADER1 HEADER2),
-      max_age: 123
-    )
-  end
-end
-
 private def new_response_event
   new_response_event() { }
 end

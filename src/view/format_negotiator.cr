@@ -1,20 +1,22 @@
 @[ADI::Register]
 class Athena::Routing::View::FormatNegotiator < ANG::Negotiator
+  private getter! config : ART::Config::ContentNegotiation?
+
   def initialize(
     @request_store : ART::RequestStore,
-    @configuration_resolver : ACF::ConfigurationResolverInterface,
+    @config : ART::Config::ContentNegotiation?,
     @mime_types : Hash(String, Array(String)) = Hash(String, Array(String)).new
   ); end
 
   # ameba:disable Metrics/CyclomaticComplexity
   def best(header : String, priorities : Indexable(String)? = nil, strict : Bool = false) : HeaderType?
+    return if @config.nil?
+
     request = @request_store.request
 
     header = header.presence || request.headers["accept"]?
 
-    return unless config = @configuration_resolver.resolve ART::Config::ContentNegotiation
-
-    config.rules.each do |rule|
+    self.config.rules.each do |rule|
       next unless request.path.matches? rule.path
       if methods = rule.methods
         next unless methods.includes? request.method
@@ -55,7 +57,7 @@ class Athena::Routing::View::FormatNegotiator < ANG::Negotiator
   end
 
   def enabled? : Bool
-    !@configuration_resolver.resolve(ART::Config::ContentNegotiation).nil?
+    !@config.nil?
   end
 
   private def normalize_mime_types(priorities : Indexable(String)) : Array(String)
