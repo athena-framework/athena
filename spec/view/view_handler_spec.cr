@@ -36,8 +36,8 @@ struct ViewHandlerTest < ASPEC::TestCase
   end
 
   @[DataProvider("format_provider")]
-  def test_supports_format(expected : Bool, formats : Set(String), custom_format_name : String, format : String?) : Nil
-    view_handler = self.create_view_handler formats
+  def test_supports_format(expected : Bool, custom_format_name : String, format : String?) : Nil
+    view_handler = self.create_view_handler
     view_handler.register_handler custom_format_name do
       ART::Response.new
     end
@@ -47,9 +47,9 @@ struct ViewHandlerTest < ASPEC::TestCase
 
   def format_provider : Tuple
     {
-      {false, Set{"css"}, "xml", nil},
-      {true, Set{"html"}, "html", nil},
-      {true, Set{"json"}, "html", "json"},
+      {false, "xml", nil},
+      {true, "html", nil},
+      {true, "html", "json"},
     }
   end
 
@@ -61,7 +61,11 @@ struct ViewHandlerTest < ASPEC::TestCase
              ART::View(Nil).new status: view_status
            end
 
-    view_handler = self.create_view_handler empty_content_status: empty_content_status
+    view_handler = if empty_content_status
+                     self.create_view_handler ART::Config::ViewHandler.new empty_content_status: empty_content_status
+                   else
+                     self.create_view_handler
+                   end
 
     view_handler.create_response(view, HTTP::Request.new("GET", "/"), "json").status.should eq expected_status
   end
@@ -76,7 +80,7 @@ struct ViewHandlerTest < ASPEC::TestCase
   end
 
   def test_create_response_with_location : Nil
-    view_handler = self.create_view_handler empty_content_status: HTTP::Status::USE_PROXY
+    view_handler = self.create_view_handler ART::Config::ViewHandler.new empty_content_status: HTTP::Status::USE_PROXY
 
     view = ART::View(String?).new nil
     view.location = "location"
@@ -127,24 +131,28 @@ struct ViewHandlerTest < ASPEC::TestCase
     response.content.should eq %("SERIALIZED_DATA")
   end
 
-  private def create_view_handler(formats : Set(String) = Set{"json"}, empty_content_status : HTTP::Status? = nil) : ART::View::ViewHandler
-    if empty_content_status
-      ART::View::ViewHandler.new(
-        @url_generator,
-        @serializer,
-        @request_store,
-        ([] of Athena::Routing::View::FormatHandlerInterface),
-        formats,
-        empty_content_status: empty_content_status
-      )
-    else
-      ART::View::ViewHandler.new(
-        @url_generator,
-        @serializer,
-        @request_store,
-        ([] of Athena::Routing::View::FormatHandlerInterface),
-        formats
-      )
-    end
+  def test_serialize_nil : Nil
+  end
+
+  def test_create_response : Nil
+  end
+
+  def test_handle_custom : Nil
+  end
+
+  def test_handle_not_supported : Nil
+  end
+
+  def test_configurable_values : Nil
+  end
+
+  private def create_view_handler(config : ART::Config::ViewHandler = ART::Config::ViewHandler.new) : ART::View::ViewHandler
+    ART::View::ViewHandler.new(
+      config,
+      @url_generator,
+      @serializer,
+      @request_store,
+      ([] of Athena::Routing::View::FormatHandlerInterface),
+    )
   end
 end
