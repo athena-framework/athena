@@ -1,26 +1,5 @@
 require "../spec_helper"
 
-# private struct TestSerializer
-#   include ASR::SerializerInterface
-
-#   def initialize(@context_assertion : Proc(ASR::SerializationContext, Nil)? = nil); end
-
-#   def serialize(data : _, format : ASR::Format | String, context : ASR::SerializationContext = ASR::SerializationContext.new, **named_args) : String
-#     String.build do |str|
-#       serialize data, format, str, context, **named_args
-#     end
-#   end
-
-#   def serialize(data : _, format : ASR::Format | String, io : IO, context : ASR::SerializationContext = ASR::SerializationContext.new, **named_args) : Nil
-#     "SERIALIZED_DATA".to_json io
-
-#     @context_assertion.try &.call context
-#   end
-
-#   def deserialize(type : ASR::Model.class, data : String | IO, format : ASR::Format | String, context : ASR::DeserializationContext = ASR::DeserializationContext.new)
-#   end
-# end
-
 # private record JSONSerializableModel, id : Int32 do
 #   include JSON::Serializable
 # end
@@ -39,7 +18,7 @@ end
 #       route = create_action(Nil) { }
 #       event = ART::Events::View.new new_request(action: route), nil
 
-#       ART::Listeners::View.new(TestSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
+#       ART::Listeners::View.new(MockSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
 #       response = event.response.should_not be_nil
 #       response.status.should eq HTTP::Status::NO_CONTENT
@@ -51,7 +30,7 @@ end
 #       route = create_action(Nil, view_context: ART::Action::ViewContext.new(status: :im_a_teapot)) { }
 #       event = ART::Events::View.new new_request(action: route), nil
 
-#       ART::Listeners::View.new(TestSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
+#       ART::Listeners::View.new(MockSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
 #       response = event.response.should_not be_nil
 #       response.status.should eq HTTP::Status::IM_A_TEAPOT
@@ -63,7 +42,7 @@ end
 #       route = create_action(Nil, view_context: ART::Action::ViewContext.new(status: :ok)) { }
 #       event = ART::Events::View.new new_request(action: route), nil
 
-#       ART::Listeners::View.new(TestSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
+#       ART::Listeners::View.new(MockSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
 #       response = event.response.should_not be_nil
 #       response.status.should eq HTTP::Status::OK
@@ -77,7 +56,7 @@ end
 #       it "should just use .to_json" do
 #         event = ART::Events::View.new new_request, JSONSerializableModel.new 123
 
-#         ART::Listeners::View.new(TestSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
+#         ART::Listeners::View.new(MockSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
 #         response = event.response.should_not be_nil
 #         response.status.should eq HTTP::Status::OK
@@ -90,7 +69,7 @@ end
 #       it "should use the serializer object" do
 #         event = ART::Events::View.new new_request, "DATA"
 
-#         ART::Listeners::View.new(TestSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
+#         ART::Listeners::View.new(MockSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
 #         response = event.response.should_not be_nil
 #         response.status.should eq HTTP::Status::OK
@@ -107,13 +86,7 @@ end
 
 #         event = ART::Events::View.new new_request(action: new_action(view_context: view_context)), "foo"
 
-# serializer = TestSerializer.new ->(context : ASR::SerializationContext) do
-#   context.emit_nil?.should be_true
-#   context.groups.should eq Set{"some_group"}
-#   context.version.to_s.should eq "1.2.3"
-# end
-
-#         serializer = TestSerializer.new ->(context : ASR::SerializationContext) do
+#         serializer = MockSerializer.new ->(context : ASR::SerializationContext) do
 #           context.emit_nil?.should be_true
 #           context.groups.should eq ["some_group"]
 #           context.version.to_s.should eq "1.2.3"
@@ -127,7 +100,7 @@ end
 #       it "prioritizes ASR::Serializable" do
 #         event = ART::Events::View.new new_request, BothSerializableModel.new 456
 
-#         ART::Listeners::View.new(TestSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
+#         ART::Listeners::View.new(MockSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
 #         response = event.response.should_not be_nil
 #         response.status.should eq HTTP::Status::OK
@@ -139,7 +112,7 @@ end
 #     it "allows defining a custom response status" do
 #       event = ART::Events::View.new new_request(action: new_action(view_context: ART::Action::ViewContext.new(status: HTTP::Status::IM_A_TEAPOT))), "foo"
 
-#       ART::Listeners::View.new(TestSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
+#       ART::Listeners::View.new(MockSerializer.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
 #       response = event.response.should_not be_nil
 #       response.status.should eq HTTP::Status::IM_A_TEAPOT

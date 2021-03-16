@@ -7,7 +7,7 @@ class Athena::Routing::View::ViewHandler
   include Athena::Routing::View::ViewHandlerInterface
 
   # Only built in supported type at the moment is JSON.
-  @formats = Set{"json"}
+  @formats : Set(String)
 
   @custom_handlers = Hash(String, ART::View::ViewHandlerInterface::HandlerType).new
 
@@ -16,15 +16,17 @@ class Athena::Routing::View::ViewHandler
     @serializer : ASR::SerializerInterface,
     @request_store : ART::RequestStore,
     format_handlers : Array(Athena::Routing::View::FormatHandlerInterface),
-    @empty_content_status : HTTP::Status = HTTP::Status::NO_CONTENT
+    @formats : Set(String) = Set{"json"},
+    @empty_content_status : HTTP::Status = HTTP::Status::NO_CONTENT,
+    @serialize_null : Bool = false
   )
     format_handlers.each do |format_handler|
       self.register_handler format_handler.format, format_handler
     end
   end
 
-  def register_handler(format : String, &block : ART::View::ViewHandlerInterface, ART::View, HTTP::Request, String -> ART::Response) : Nil
-    self.register_handler format, &block
+  def register_handler(format : String, &block : ART::View::ViewHandlerInterface, ART::ViewBase, HTTP::Request, String -> ART::Response) : Nil
+    self.register_handler format, block
   end
 
   def register_handler(format : String, handler : ART::View::ViewHandlerInterface::HandlerType) : Nil
@@ -55,18 +57,22 @@ class Athena::Routing::View::ViewHandler
 
   # :inherit:
   def create_response(view : ART::ViewBase, request : HTTP::Request, format : String) : ART::Response
-    view.route.try do |route|
-      if location = route ? @url_generator.generate(route, view.route_params, :absolute_url) : view.location
-        return self.create_redirect_response view, location, format
-      end
+    route = view.route
+
+    if location = (route ? @url_generator.generate(route, view.route_params, :absolute_url) : view.location)
+      return self.create_redirect_response view, location, format
     end
 
     response = self.init_response view, format
 
     unless response.headers.has_key? "content-type"
-      # TODO: Support setting content-type header based on the negotiated format.
+      mime_type = request.attributes.get? "media_type", String
 
-      response.headers["content-type"] = "application/json; charset=UTF-8"
+      if mime_type.nil?
+        mime_type = request.mime_type format
+      end
+
+      response.headers["content-type"] = mime_type if mime_type
     end
 
     response
@@ -79,9 +85,11 @@ class Athena::Routing::View::ViewHandler
     if (vs = view.status) && (vs.created? || vs.accepted?) && !view.data.nil?
       response = self.init_response view, format
     else
-      status = self.status view, content
-      response = ART::RedirectResponse.new location, status, view.headers
+      response = view.response
     end
+
+    response.status = self.status view, content
+    response.headers["location"] = location
 
     response
   end
@@ -93,6 +101,8 @@ class Athena::Routing::View::ViewHandler
     unless view.return_type == Nil
       # TODO: Support Form typed views.
       data = view.data
+
+      context = view.context
 
       content = @serializer.serialize data, format, view.context
     end

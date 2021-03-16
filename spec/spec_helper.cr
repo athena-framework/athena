@@ -19,6 +19,27 @@ class TestController < ART::Controller
   end
 end
 
+class MockSerializer
+  include ASR::SerializerInterface
+
+  def initialize(@context_assertion : Proc(ASR::SerializationContext, Nil)? = nil); end
+
+  def serialize(data : _, format : ASR::Format | String, context : ASR::SerializationContext = ASR::SerializationContext.new, **named_args) : String
+    String.build do |str|
+      serialize data, format, str, context, **named_args
+    end
+  end
+
+  def serialize(data : _, format : ASR::Format | String, io : IO, context : ASR::SerializationContext = ASR::SerializationContext.new, **named_args) : Nil
+    "SERIALIZED_DATA".to_json io
+
+    @context_assertion.try &.call context
+  end
+
+  def deserialize(type : ASR::Model.class, data : String | IO, format : ASR::Format | String, context : ASR::DeserializationContext = ASR::DeserializationContext.new)
+  end
+end
+
 class MockContentNegotiationConfigResolver
   include ACF::ConfigurationResolverInterface
 
