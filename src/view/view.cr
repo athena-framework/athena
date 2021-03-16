@@ -3,7 +3,8 @@ class Athena::Routing::View(T)
   property status : HTTP::Status?
   property format : String? = nil
   property route_params : Hash(String, String)? = nil
-  property context : ASR::SerializationContext { ASR::SerializationContext.new }
+
+  property context : ART::View::Context { ART::View::Context.new }
 
   getter location : String? = nil
   getter route : String? = nil

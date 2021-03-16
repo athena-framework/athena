@@ -18,7 +18,7 @@ class Athena::Routing::View::ViewHandler
     format_handlers : Array(Athena::Routing::View::FormatHandlerInterface),
     @formats : Set(String) = Set{"json"},
     @empty_content_status : HTTP::Status = HTTP::Status::NO_CONTENT,
-    @serialize_null : Bool = false
+    @emit_nil : Bool = false
   )
     format_handlers.each do |format_handler|
       self.register_handler format_handler.format, format_handler

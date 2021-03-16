@@ -485,5 +485,5 @@ module Athena::Routing::Annotations
     status : HTTP::Status? = nil,
     serialization_groups : Array(String)? = nil,
     validation_groups : Array(String)? = nil,
-    serialize_nil : Bool = false
+    emit_nil : Bool? = nil
 end

@@ -26,11 +26,12 @@ struct Athena::Routing::Listeners::View
       end
 
       context = view.context
-      context.emit_nil = configuration.serialize_nil
+
+      # context.emit_nil = configuration.emit_nil
 
       if groups = configuration.serialization_groups
         if context_groups = context.groups
-          context.groups = context_groups | groups
+          context_groups.concat groups
         else
           context.groups = groups
         end
