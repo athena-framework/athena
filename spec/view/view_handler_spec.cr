@@ -172,6 +172,19 @@ struct ViewHandlerTest < ASPEC::TestCase
   end
 
   def test_configurable_values : Nil
+    view_handler = self.create_view_handler
+    view_handler.serialization_groups = {"one", "two"}
+    view_handler.serialization_version = "1.2.3"
+    view_handler.serialization_version = SemanticVersion.new 4, 5, 6
+    view_handler.emit_nil = true
+
+    @serializer.context_assertion = ->(context : ASR::SerializationContext) do
+      context.emit_nil?.should be_true
+      context.version.should eq SemanticVersion.new 4, 5, 6
+      context.groups.should eq Set{"one", "two"}
+    end
+
+    view_handler.create_response ART::View(Nil).new, HTTP::Request.new("GET", "/"), "json"
   end
 
   private def create_view_handler(config : ART::Config::ViewHandler = ART::Config::ViewHandler.new) : ART::View::ViewHandler
