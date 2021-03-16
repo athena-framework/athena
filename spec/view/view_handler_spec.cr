@@ -23,7 +23,6 @@ private class MockURLGenerator
   end
 end
 
-@[ASPEC::TestCase::Focus]
 struct ViewHandlerTest < ASPEC::TestCase
   @url_generator : MockURLGenerator
   @serializer : MockSerializer
@@ -131,16 +130,45 @@ struct ViewHandlerTest < ASPEC::TestCase
     response.content.should eq %("SERIALIZED_DATA")
   end
 
-  def test_serialize_nil : Nil
+  @[DataProvider("serialize_nil_provider")]
+  def test_serialize_nil_view_handler(emit_nil : Bool) : Nil
+    view_handler = self.create_view_handler ART::Config::ViewHandler.new emit_nil: emit_nil
+
+    @serializer.context_assertion = ->(context : ASR::SerializationContext) do
+      context.emit_nil?.should eq emit_nil
+    end
+
+    view_handler.create_response ART::View(Nil).new, HTTP::Request.new("GET", "/"), "json"
   end
 
-  def test_create_response : Nil
+  def serialize_nil_provider : Tuple
+    {
+      {true},
+      {false},
+    }
   end
 
-  def test_handle_custom : Nil
+  def test_handle_unsuported_format : Nil
+    request = HTTP::Request.new "GET", "/"
+    request.request_format = "rss"
+
+    expect_raises ART::Exceptions::NotAcceptable, "The server is unable to return a response in the requested format: 'rss'." do
+      self.create_view_handler.handle ART::View(Nil).new, request
+    end
   end
 
-  def test_handle_not_supported : Nil
+  def test_handle_custom_handler : Nil
+    response = ART::Response.new
+
+    view_handler = self.create_view_handler
+    view_handler.register_handler "rss" do
+      response
+    end
+
+    request = HTTP::Request.new "GET", "/"
+    request.request_format = "rss"
+
+    view_handler.handle(ART::View(Nil).new, request).should be response
   end
 
   def test_configurable_values : Nil

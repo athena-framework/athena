@@ -22,6 +22,9 @@ end
 class MockSerializer
   include ASR::SerializerInterface
 
+  setter data : String? = "SERIALIZED_DATA"
+  setter context_assertion : Proc(ASR::SerializationContext, Nil)?
+
   def initialize(@context_assertion : Proc(ASR::SerializationContext, Nil)? = nil); end
 
   def serialize(data : _, format : ASR::Format | String, context : ASR::SerializationContext = ASR::SerializationContext.new, **named_args) : String
@@ -31,7 +34,7 @@ class MockSerializer
   end
 
   def serialize(data : _, format : ASR::Format | String, io : IO, context : ASR::SerializationContext = ASR::SerializationContext.new, **named_args) : Nil
-    "SERIALIZED_DATA".to_json io
+    @data.to_json io
 
     @context_assertion.try &.call context
   end

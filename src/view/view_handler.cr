@@ -1,10 +1,10 @@
-require "./view_handler_interface"
+require "./configurable_view_handler_interface"
 
 ADI.bind format_handlers : Array(Athena::Routing::View::FormatHandlerInterface), "!athena.format_handler"
 
 @[ADI::Register]
 class Athena::Routing::View::ViewHandler
-  include Athena::Routing::View::ViewHandlerInterface
+  include Athena::Routing::View::ConfigurableViewHandlerInterface
 
   @custom_handlers = Hash(String, ART::View::ViewHandlerInterface::HandlerType).new
 
@@ -31,7 +31,19 @@ class Athena::Routing::View::ViewHandler
     end
   end
 
-  # TODO: Define methods for setting serialization args.
+  def serialization_groups=(groups : Enumerable(String)) : Nil
+    @serialization_groups = groups.to_set
+  end
+
+  def serialization_version=(version : String) : Nil
+    self.serialization_version = SemanticVersion.parse version
+  end
+
+  def serialization_version=(@serialization_version : SemanticVersion) : Nil
+  end
+
+  def emit_nil=(@emit_nil : Bool) : Nil
+  end
 
   # :nodoc:
   #
@@ -110,7 +122,7 @@ class Athena::Routing::View::ViewHandler
     content = nil
 
     # Skip serialization if the action's return type is explicitly `Nil`.
-    unless view.return_type == Nil
+    if @emit_nil || view.return_type != Nil
       # TODO: Support Form typed views.
       data = view.data
 
@@ -118,7 +130,6 @@ class Athena::Routing::View::ViewHandler
 
       # TODO: Implement some sort of Adapter system to convert ART::View::Context
       # into the serializer's required format.  Just do that here for now.
-
       athena_serializer_context = ASR::SerializationContext.new
 
       context.emit_nil?.try do |en|

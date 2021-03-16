@@ -1,9 +1,3 @@
-# These live here so `Athena::Routing::View` is correctly created as a class versus a module.
-
-abstract class Athena::Routing::ViewBase; end
-
-class Athena::Routing::View(T) < Athena::Routing::ViewBase; end
-
 # Represents (de)serialization options in a serializer agnostic way.
 class Athena::Routing::View::Context
   getter groups : Set(String)? = nil
