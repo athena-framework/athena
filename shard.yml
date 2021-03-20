@@ -22,19 +22,16 @@ dependencies:
     version: ~> 0.1.2
   athena-config:
     github: athena-framework/config
-    branch: deprecate-configuration-resolver
-    # version: ~> 0.2.0
+    version: ~> 0.3.0
   athena-dependency_injection:
     github: athena-framework/dependency-injection
-    branch: configuration-injection
-    # version: ~> 0.2.4
+    version: ~> 0.3.0
   athena-negotiation:
     github: athena-framework/negotiation
     version: ~> 0.1.0
   athena-serializer:
     github: athena-framework/serializer
-    branch: bump-config-dep
-    # version: ~> 0.2.4
+    version: ~> 0.2.6
   amber_router:
     github: amberframework/amber-router
     version: ~> 0.4.3

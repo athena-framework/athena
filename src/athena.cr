@@ -35,7 +35,6 @@ require "./params/*"
 require "./routing/*"
 require "./view/*"
 
-require "./ext/configuration_resolver"
 require "./ext/conversion_types"
 require "./ext/event_dispatcher"
 require "./ext/http"
