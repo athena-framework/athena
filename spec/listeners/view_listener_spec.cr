@@ -106,7 +106,7 @@ describe ART::Listeners::View do
 
         serializer = TestSerializer.new ->(context : ASR::SerializationContext) do
           context.emit_nil?.should be_true
-          context.groups.should eq ["some_group"]
+          context.groups.should eq Set{"some_group"}
           context.version.to_s.should eq "1.2.3"
         end
 
