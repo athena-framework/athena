@@ -1,6 +1,5 @@
 require "./spec_helper"
 
-@[ASPEC::TestCase::Focus]
 struct ViewControllerTest < ART::Spec::APITestCase
   def test_json_serializable_object : Nil
     self.request("GET", "/view/json").body.should eq %({"id":10,"name":"Bob"})

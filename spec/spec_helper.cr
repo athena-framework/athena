@@ -76,7 +76,8 @@ def new_action(
   constraints : Hash(String, Regex) = Hash(String, Regex).new,
   arguments : Array(ART::Arguments::ArgumentMetadata)? = nil,
   param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface)? = nil,
-  params : Array(ART::Params::ParamInterface) = Array(ART::Params::ParamInterface).new
+  params : Array(ART::Params::ParamInterface) = Array(ART::Params::ParamInterface).new,
+  annotation_configurations = nil
 ) : ART::ActionBase
   ART::Action.new(
     ->{ test_controller = TestController.new; ->test_controller.get_test },
@@ -86,7 +87,7 @@ def new_action(
     constraints,
     arguments || Array(ART::Arguments::ArgumentMetadata(Nil)).new,
     param_converters || Array(ART::ParamConverterInterface::ConfigurationInterface).new,
-    ACF::AnnotationConfigurations.new,
+    annotation_configurations || ACF::AnnotationConfigurations.new,
     params,
     TestController,
     String,
