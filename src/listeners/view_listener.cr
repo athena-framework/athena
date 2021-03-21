@@ -3,9 +3,7 @@ struct Athena::Routing::Listeners::View
   include AED::EventListenerInterface
 
   def self.subscribed_events : AED::SubscribedEvents
-    AED::SubscribedEvents{
-      ART::Events::View => 100,
-    }
+    AED::SubscribedEvents{ART::Events::View => 100}
   end
 
   def initialize(@view_handler : ART::View::ViewHandlerInterface); end

@@ -459,6 +459,12 @@ module Athena::Routing::Annotations
   # ```
   annotation Unlink; end
 
+  ACF.configuration_annotation Athena::Routing::Annotations::View,
+    status : HTTP::Status? = nil,
+    serialization_groups : Array(String)? = nil,
+    validation_groups : Array(String)? = nil,
+    emit_nil : Bool? = nil
+
   # Configures how the endpoint should be rendered.
   #
   # ## Fields
@@ -481,9 +487,5 @@ module Athena::Routing::Annotations
   # ```
   #
   # See the [external documentation](/components/serializer/) for more information.
-  ACF.configuration_annotation Athena::Routing::Annotations::View,
-    status : HTTP::Status? = nil,
-    serialization_groups : Array(String)? = nil,
-    validation_groups : Array(String)? = nil,
-    emit_nil : Bool? = nil
+  annotation View; end
 end
