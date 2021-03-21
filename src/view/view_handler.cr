@@ -126,29 +126,34 @@ class Athena::Routing::View::ViewHandler
       # TODO: Support Form typed views.
       data = view.data
 
-      context = self.serialization_context view
+      # Fallback on `to_json` for non ASR::Serializable types.
+      content = if data.is_a? JSON::Serializable && !data.is_a? ASR::Serializable
+                  data.to_json
+                else
+                  context = self.serialization_context view
 
-      # TODO: Implement some sort of Adapter system to convert ART::View::Context
-      # into the serializer's required format.  Just do that here for now.
-      athena_serializer_context = ASR::SerializationContext.new
+                  # TODO: Implement some sort of Adapter system to convert ART::View::Context
+                  # into the serializer's required format.  Just do that here for now.
+                  athena_serializer_context = ASR::SerializationContext.new
 
-      context.emit_nil?.try do |en|
-        athena_serializer_context.emit_nil = en
-      end
+                  context.emit_nil?.try do |en|
+                    athena_serializer_context.emit_nil = en
+                  end
 
-      context.version.try do |v|
-        athena_serializer_context.version = v
-      end
+                  context.version.try do |v|
+                    athena_serializer_context.version = v
+                  end
 
-      context.groups.try do |g|
-        athena_serializer_context.groups = g
-      end
+                  context.groups.try do |g|
+                    athena_serializer_context.groups = g
+                  end
 
-      context.exclusion_strategies.each do |s|
-        athena_serializer_context.add_exclusion_strategy s
-      end
+                  context.exclusion_strategies.each do |s|
+                    athena_serializer_context.add_exclusion_strategy s
+                  end
 
-      content = @serializer.serialize data, format, athena_serializer_context
+                  @serializer.serialize data, format, athena_serializer_context
+                end
     end
 
     response = view.response

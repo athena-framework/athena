@@ -1,14 +1,5 @@
 require "../spec_helper"
 
-# private record JSONSerializableModel, id : Int32 do
-#   include JSON::Serializable
-# end
-
-# private record BothSerializableModel, id : Int32 do
-#   include JSON::Serializable
-#   include ASR::Serializable
-# end
-
 describe ART::Listeners::View do
 end
 
@@ -88,7 +79,7 @@ end
 
 #         serializer = MockSerializer.new ->(context : ASR::SerializationContext) do
 #           context.emit_nil?.should be_true
-#           context.groups.should eq ["some_group"]
+#           context.groups.should eq Set{"some_group"}
 #           context.version.to_s.should eq "1.2.3"
 #         end
 
