@@ -167,7 +167,7 @@ abstract class Athena::Routing::Controller
   # # GET / # => 10
   # ```
   def redirect_to_route(route : String, params : Hash(String, _)? = nil, status : HTTP::Status = :found) : ART::RedirectResponse
-    self.redirect(self.generate_url(route, params), status)
+    self.redirect self.generate_url(route, params), status
   end
 
   # Returns an `ART::RedirectResponse` to the provided *route* with the provided *params*.
@@ -203,7 +203,7 @@ abstract class Athena::Routing::Controller
   #
   # ```
   # class ExampleController < ART::Controller
-  #   @[ARTA::Get("redirect_to_google")]
+  #   @[ARTA::Get("redirect/google")]
   #   def redirect_to_google : ART::RedirectResponse
   #     self.redirect "https://google.com"
   #   end
