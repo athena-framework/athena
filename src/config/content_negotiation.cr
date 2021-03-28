@@ -2,7 +2,7 @@ require "./config"
 
 struct Athena::Routing::Config
   @[ACFA::Resolvable("routing.content_negotiation")]
-  # TODO: Add content negotiation docs.
+  # Configuration options for `ART::Listeners::Format`.  See `.configure`.
   struct ContentNegotiation
     struct Rule
       # Returns the a `Regex` representing the paths this rule should be scoped to.
@@ -33,13 +33,28 @@ struct Athena::Routing::Config
       ); end
     end
 
-    # TODO: Add content negotiation docs.
+    # This method should be overridden in order to provide the configuration for `ART::Listeners::Format`.
+    # See the [external documentation](/components/negotiation) for more details.
+    #
+    # By default it returns `nil`, which disables the listener.
+    #
+    # ```
+    # def ART::Config::ContentNegotiation.configure : ART::Config::ContentNegotiation?
+    #   new(
+    #     Rule.new(priorities: ["json"], fallback_format: false),
+    #   )
+    # end
+    # ```
     def self.configure : self?
       nil
     end
 
     # Returns the content negotiation rules that should be considered when determining the request's format.
     getter rules : Array(ART::Config::ContentNegotiation::Rule)
+
+    def self.new(*rules : ART::Config::ContentNegotiation::Rule)
+      new rules.to_a
+    end
 
     def initialize(@rules : Array(ART::Config::ContentNegotiation::Rule)); end
   end

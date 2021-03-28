@@ -88,8 +88,9 @@ module Athena::Routing
   # The default `ART::Arguments::Resolvers::ArgumentValueResolverInterface`s that will handle resolving controller action arguments from a request (or other source).
   # Custom argument value resolvers can also be defined, see `ART::Arguments::Resolvers::ArgumentValueResolverInterface`.
   #
-  # NOTE: In order for `Athena::Routing` to pick up your custom value resolvers, be sure to `ADI::Register` it as a service, and tag it as `ART::Arguments::Resolvers::TAG`.
-  # A `priority` field can also be optionally included in the annotation, the higher the value the sooner in the array it'll be when injected.
+  # !!!note
+  #     In order for `Athena::Routing` to pick up your custom value resolvers, be sure to `ADI::Register` it as a service, and tag it as `ART::Arguments::Resolvers::TAG`.
+  #     A `priority` field can also be optionally included in the annotation, the higher the value the sooner in the array it'll be when injected.
   #
   # See each resolver for more detailed information.
   module Athena::Routing::Arguments::Resolvers
