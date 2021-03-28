@@ -9,7 +9,7 @@ struct FormatListenerTest < ASPEC::TestCase
 
     negotiator = ART::View::FormatNegotiator.new request_store, nil
 
-    listener = ART::Listeners::Format.new negotiator
+    listener = ART::Listeners::Format.new nil, negotiator
 
     listener.call event, AED::Spec::TracableEventDispatcher.new
 
@@ -28,7 +28,7 @@ struct FormatListenerTest < ASPEC::TestCase
 
     negotiator = ART::View::FormatNegotiator.new request_store, config
 
-    listener = ART::Listeners::Format.new negotiator
+    listener = ART::Listeners::Format.new config, negotiator
 
     listener.call event, AED::Spec::TracableEventDispatcher.new
 
@@ -49,7 +49,7 @@ struct FormatListenerTest < ASPEC::TestCase
 
     negotiator = ART::View::FormatNegotiator.new request_store, config
 
-    listener = ART::Listeners::Format.new negotiator
+    listener = ART::Listeners::Format.new config, negotiator
 
     listener.call event, AED::Spec::TracableEventDispatcher.new
 
@@ -62,9 +62,11 @@ struct FormatListenerTest < ASPEC::TestCase
     request_store = ART::RequestStore.new
     request_store.request = event.request
 
-    negotiator = ART::View::FormatNegotiator.new request_store, ART::Config::ContentNegotiation.new Array(ART::Config::ContentNegotiation::Rule).new
+    config = ART::Config::ContentNegotiation.new Array(ART::Config::ContentNegotiation::Rule).new
 
-    listener = ART::Listeners::Format.new negotiator
+    negotiator = ART::View::FormatNegotiator.new request_store, config
+
+    listener = ART::Listeners::Format.new config, negotiator
 
     expect_raises ART::Exceptions::NotAcceptable, "No matching accepted Response format could be determined." do
       listener.call event, AED::Spec::TracableEventDispatcher.new
@@ -89,7 +91,7 @@ struct FormatListenerTest < ASPEC::TestCase
 
     negotiator = ART::View::FormatNegotiator.new request_store, config
 
-    listener = ART::Listeners::Format.new negotiator
+    listener = ART::Listeners::Format.new config, negotiator
 
     listener.call event, AED::Spec::TracableEventDispatcher.new
 

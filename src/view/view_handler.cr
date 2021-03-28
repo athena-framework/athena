@@ -3,6 +3,7 @@ require "./configurable_view_handler_interface"
 ADI.bind format_handlers : Array(Athena::Routing::View::FormatHandlerInterface), "!athena.format_handler"
 
 @[ADI::Register]
+# Default implementation of `ART::View::ConfigurableViewHandlerInterface`.
 class Athena::Routing::View::ViewHandler
   include Athena::Routing::View::ConfigurableViewHandlerInterface
 
@@ -31,17 +32,21 @@ class Athena::Routing::View::ViewHandler
     end
   end
 
+  # :inherit:
   def serialization_groups=(groups : Enumerable(String)) : Nil
     @serialization_groups = groups.to_set
   end
 
+  # :inherit:
   def serialization_version=(version : String) : Nil
     self.serialization_version = SemanticVersion.parse version
   end
 
+  # :inherit:
   def serialization_version=(@serialization_version : SemanticVersion) : Nil
   end
 
+  # :inherit:
   def emit_nil=(@emit_nil : Bool) : Nil
   end
 
@@ -52,6 +57,7 @@ class Athena::Routing::View::ViewHandler
     self.register_handler format, block
   end
 
+  # :inherit:
   def register_handler(format : String, handler : ART::View::ViewHandlerInterface::HandlerType) : Nil
     @custom_handlers[format] = handler
   end

@@ -1,4 +1,9 @@
 @[ADI::Register]
+# Listens on the `ART::Events::View` event to convert a non `ART::Response` into an `ART::Response`.
+# Allows creating format agnostic controllers by allowing them to return format agnostic data that
+# is later used to render the content in the expected format.
+#
+# See the [negotiation](/components/negotiation) component for more information.
 struct Athena::Routing::Listeners::View
   include AED::EventListenerInterface
 

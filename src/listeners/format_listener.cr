@@ -1,10 +1,10 @@
 require "mime"
 
 @[ADI::Register]
-# TODO: Support customizing this listener more granularly.
-# E.x. default format/priorities on a per route basis.
-# Probably via something like how CORS can be configured,
-# but TBD depending on how configuration is handled longer term.
+# Attemps to determine the best format for the current request based on its [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) `HTTP` header
+# and the format priority configuration.
+#
+# See the [negotiation](/components/negotiation) component for more information.
 struct Athena::Routing::Listeners::Format
   include AED::EventListenerInterface
 
@@ -13,6 +13,7 @@ struct Athena::Routing::Listeners::Format
   end
 
   def initialize(
+    @config : ART::Config::ContentNegotiation?,
     @format_negotiator : ART::View::FormatNegotiator
   ); end
 
@@ -20,7 +21,7 @@ struct Athena::Routing::Listeners::Format
     request = event.request
 
     # Return early if there is no content_negotiation configuration.
-    return unless @format_negotiator.enabled?
+    return unless @config
 
     format = request.request_format nil
 

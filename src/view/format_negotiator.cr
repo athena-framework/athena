@@ -1,4 +1,7 @@
 @[ADI::Register]
+# An extension of `ANG::Negotiator` that supports resolving the format based on an applications `ART::Config::ContentNegotiation` rules.
+#
+# See the [negotiation](/components/negotiation) component for more information.
 class Athena::Routing::View::FormatNegotiator < ANG::Negotiator
   private getter! config : ART::Config::ContentNegotiation?
 
@@ -8,6 +11,7 @@ class Athena::Routing::View::FormatNegotiator < ANG::Negotiator
     @mime_types : Hash(String, Array(String)) = Hash(String, Array(String)).new
   ); end
 
+  # :inherit:
   # ameba:disable Metrics/CyclomaticComplexity
   def best(header : String, priorities : Indexable(String)? = nil, strict : Bool = false) : HeaderType?
     return if @config.nil?
@@ -54,10 +58,6 @@ class Athena::Routing::View::FormatNegotiator < ANG::Negotiator
         end
       end
     end
-  end
-
-  def enabled? : Bool
-    !@config.nil?
   end
 
   private def normalize_mime_types(priorities : Indexable(String)) : Array(String)
