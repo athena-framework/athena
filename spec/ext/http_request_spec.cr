@@ -1,6 +1,20 @@
 require "../spec_helper"
 
 struct HTTP::RequestTest < ASPEC::TestCase
+  def test_hostname : Nil
+    request = HTTP::Request.new "GET", "/"
+    request.hostname.should be_nil
+
+    request = HTTP::Request.new "GET", "/", HTTP::Headers{"host" => "www.domain.com"}
+    request.hostname.should eq "www.domain.com"
+
+    request = HTTP::Request.new "GET", "/", HTTP::Headers{"host" => "www.domain.com:8080"}
+    request.hostname.should eq "www.domain.com"
+  end
+
+  # def test_hostname_trusted : Nil
+  # end
+
   @[DataProvider("mime_type_provider")]
   def test_mime_type(format : String, mime_types : Indexable(String)) : Nil
     request = HTTP::Request.new "GET", "/"

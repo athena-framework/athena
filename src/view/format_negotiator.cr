@@ -21,9 +21,14 @@ class Athena::Routing::View::FormatNegotiator < ANG::Negotiator
     header = header.presence || request.headers["accept"]?
 
     self.config.rules.each do |rule|
+      # TODO: Abstract request matching logic into a dedicated service.
       next unless request.path.matches? rule.path
       if methods = rule.methods
         next unless methods.includes? request.method
+      end
+
+      if (host_pattern = rule.host) && (hostname = request.hostname)
+        next unless host_pattern.matches? hostname
       end
 
       raise ART::Exceptions::StopFormatListener.new "Stopping format listener." if rule.stop?

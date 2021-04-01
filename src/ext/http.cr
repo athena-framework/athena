@@ -51,6 +51,13 @@ class HTTP::Request
     end
   end
 
+  # Returns the host name the request originated from.
+  #
+  # In the future this will support reading the Host from the `X-Forwarded-Host` header if trusted.
+  def hostname : String?
+    previous_def
+  end
+
   def request_data
     @request_data ||= self.parse_request_data
   end

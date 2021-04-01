@@ -4,9 +4,17 @@ struct Athena::Routing::Config
   @[ACFA::Resolvable("routing.content_negotiation")]
   # Configuration options for `ART::Listeners::Format`.  See `.configure`.
   struct ContentNegotiation
+    # Represents a rule that should be considered when determine the request's format.
+    #
+    # Contains configuration options to control when the content negotiation logic should be applied.
     struct Rule
       # Returns the a `Regex` representing the paths this rule should be scoped to.
       getter path : Regex
+
+      # Returns a `Regex` representing the hostname that this rule should be scoped to.
+      #
+      # [parameters](/components/config#parameters) may be used to generalize this.
+      getter host : Regex?
 
       # Returns the formats that should be considered for this set of routes.
       # Must contain at least one format.
@@ -26,6 +34,7 @@ struct Athena::Routing::Config
 
       def initialize(
         @path : Regex = /^\//,
+        @host : Regex? = nil,
         @priorities : Array(String)? = nil,
         @fallback_format : String | Bool | Nil = false,
         @methods : Array(String)? = nil,

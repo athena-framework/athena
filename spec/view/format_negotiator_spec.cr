@@ -61,23 +61,41 @@ struct FormatNegotiatorTest < ASPEC::TestCase
 
   def test_best_fallback : Nil
     @request.headers["accept"] = "text/html"
-    priorities = ["application/json"]
-    self.add_rule priorities: priorities, fallback_format: "xml"
+    self.add_rule priorities: ["application/json"], fallback_format: "xml"
     @negotiator.best("").should eq ANG::Accept.new "text/xml"
   end
 
   def test_best_format_from_mime_types_hash : Nil
     @request.headers["accept"] = "application/json;version=1.0"
-    priorities = ["json"]
-    self.add_rule priorities: priorities, fallback_format: "xml"
+    self.add_rule priorities: ["json"], fallback_format: "xml"
     @negotiator.best("").should eq ANG::Accept.new "application/json;version=1.0"
   end
 
   def test_best_format : Nil
     @request.headers["accept"] = "application/json"
-    priorities = ["json"]
-    self.add_rule priorities: priorities, fallback_format: "xml"
+    self.add_rule priorities: ["json"], fallback_format: "xml"
     @negotiator.best("").should eq ANG::Accept.new "application/json"
+  end
+
+  def test_best_undesired_path : Nil
+    @request.headers["accept"] = "text/html"
+    @request.path = "/user"
+    self.add_rule priorities: ["html", "json"], fallback_format: "json", path: /^\/admin/
+    @negotiator.best("").should be_nil
+  end
+
+  def test_best_undesired_method : Nil
+    @request.headers["accept"] = "text/html"
+    @request.method = "POST"
+    self.add_rule priorities: ["html", "json"], fallback_format: "json", methods: ["GET"]
+    @negotiator.best("").should be_nil
+  end
+
+  def test_best_undesired_host : Nil
+    @request.headers["accept"] = "text/html"
+    @request.headers["host"] = "app.domain.com"
+    self.add_rule priorities: ["html", "json"], fallback_format: "json", host: /api\.domain\.com/
+    @negotiator.best("").should be_nil
   end
 
   private def add_rule(**args)
