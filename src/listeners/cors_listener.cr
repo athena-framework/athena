@@ -134,7 +134,7 @@ struct Athena::Routing::Listeners::CORS
   end
 
   # Configures the given *response* for CORS preflight
-  private def set_preflight_response(request : HTTP::Request) : ART::Response
+  private def set_preflight_response(request : ART::Request) : ART::Response
     response = ART::Response.new
 
     response_headers = ResponseHeaders.new(response.headers)
@@ -173,7 +173,7 @@ struct Athena::Routing::Listeners::CORS
     response
   end
 
-  private def check_origin(request : HTTP::Request) : Bool
+  private def check_origin(request : ART::Request) : Bool
     return true if self.config.allow_origin.includes?(WILDCARD)
 
     # Use case equality in case an origin is a Regex

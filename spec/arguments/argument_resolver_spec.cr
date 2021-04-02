@@ -8,12 +8,12 @@ private struct TrueResolver
   include Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface
 
   # :inherit:
-  def supports?(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata) : Bool
+  def supports?(request : ART::Request, argument : ART::Arguments::ArgumentMetadata) : Bool
     true
   end
 
   # :inherit:
-  def resolve(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata)
+  def resolve(request : ART::Request, argument : ART::Arguments::ArgumentMetadata)
     17
   end
 end

@@ -77,7 +77,7 @@ class Athena::Routing::View::FormatNegotiator < ANG::Negotiator
         next
       end
 
-      mime_types = mime_types.concat HTTP::Request.mime_types priority
+      mime_types = mime_types.concat ART::Request.mime_types priority
 
       if @mime_types.has_key? priority
         mime_types.concat @mime_types[priority]

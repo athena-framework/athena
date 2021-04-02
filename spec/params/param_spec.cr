@@ -7,7 +7,7 @@ private struct MockParam(T) < ART::Params::Param
     Nil
   end
 
-  def extract_value(request : HTTP::Request, default = nil) : Nil
+  def extract_value(request : ART::Request, default = nil) : Nil
   end
 end
 

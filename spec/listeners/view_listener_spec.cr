@@ -5,14 +5,14 @@ private class MockViewHandler
 
   getter! view : ART::ViewBase
 
-  def register_handler(format : String, handler : ART::View::FormatHandlerInterface | Proc(ART::View::ViewHandlerInterface, ART::ViewBase, HTTP::Request, String, ART::Response)) : Nil
+  def register_handler(format : String, handler : ART::View::FormatHandlerInterface | Proc(ART::View::ViewHandlerInterface, ART::ViewBase, ART::Request, String, ART::Response)) : Nil
   end
 
   def supports?(format : String) : Bool
     true
   end
 
-  def handle(view : ART::ViewBase, request : HTTP::Request? = nil) : ART::Response
+  def handle(view : ART::ViewBase, request : ART::Request? = nil) : ART::Response
     @view = view
 
     ART::Response.new
@@ -22,7 +22,7 @@ private class MockViewHandler
     ART::Response.new
   end
 
-  def create_response(view : ART::ViewBase, request : HTTP::Request, format : String) : ART::Response
+  def create_response(view : ART::ViewBase, request : ART::Request, format : String) : ART::Response
     ART::Response.new
   end
 end

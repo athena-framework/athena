@@ -9,7 +9,7 @@ class Athena::Routing::Events::Action < AED::Event
   # The related `ART::Action` that will be used to handle the current request.
   getter action : ART::ActionBase
 
-  def initialize(request : HTTP::Request, @action : ART::ActionBase)
+  def initialize(request : ART::Request, @action : ART::ActionBase)
     super request
   end
 end

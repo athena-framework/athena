@@ -1,5 +1,5 @@
 # A container for storing key/value pairs.  Can be used to store arbitrary data within the context of a request.
-# It can be accessed via `HTTP::Request#attributes`.
+# It can be accessed via `ART::Request#attributes`.
 #
 # ### Example
 #

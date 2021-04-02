@@ -18,7 +18,7 @@ class Athena::Routing::Events::View < AED::Event
 
   @result : ContainerBase
 
-  def initialize(request : HTTP::Request, action_result : _)
+  def initialize(request : ART::Request, action_result : _)
     super request
 
     @result = ResultContainer.new action_result

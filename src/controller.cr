@@ -104,9 +104,9 @@
 #   # A POST endpoint with a route param and accessing the request body; returning a `Bool`.
 #   #
 #   # It is recommended to use param converters to pass an actual object representing the data (assuming the body is JSON)
-#   # to the route's action; however the raw request body can be accessed by typing an action argument as `HTTP::Request`.
+#   # to the route's action; however the raw request body can be accessed by typing an action argument as `ART::Request`.
 #   @[ARTA::Post("/test/:expected")]
-#   def post_body(expected : String, request : HTTP::Request) : Bool
+#   def post_body(expected : String, request : ART::Request) : Bool
 #     expected == request.body.try &.gets_to_end
 #   end
 # end

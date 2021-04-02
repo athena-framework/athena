@@ -48,7 +48,7 @@ describe ART::Response do
       response = new_response io: io
       request = new_request
 
-      ART::Response.new("DATA", 418, HTTP::Headers{"FOO" => "BAR"}).send HTTP::Server::Context.new request, response
+      ART::Response.new("DATA", 418, HTTP::Headers{"FOO" => "BAR"}).send request, response
 
       response.status.should eq HTTP::Status::IM_A_TEAPOT
       response.headers["foo"].should eq "BAR"
@@ -96,7 +96,7 @@ describe ART::Response do
   describe "#prepare" do
     it "removes content for head requests" do
       response = ART::Response.new "CONTENT"
-      request = HTTP::Request.new "HEAD", "/"
+      request = ART::Request.new "HEAD", "/"
       response.headers["content-length"] = "5"
 
       response.prepare request
@@ -106,7 +106,7 @@ describe ART::Response do
     end
 
     it "removes content for informational & empty responses" do
-      request = HTTP::Request.new "GET", "/"
+      request = ART::Request.new "GET", "/"
 
       response = ART::Response.new "CONTENT"
       response.headers["content-length"] = "5"
@@ -132,7 +132,7 @@ describe ART::Response do
     end
 
     it "removes content-length if transfer-encoding is set" do
-      request = HTTP::Request.new "GET", "/"
+      request = ART::Request.new "GET", "/"
 
       response = ART::Response.new "CONTENT"
       response.headers["content-length"] = "100"
@@ -149,7 +149,7 @@ describe ART::Response do
     end
 
     it "sets pragma & expires headers on HTTP/1.0 request" do
-      request = HTTP::Request.new "HEAD", "/", version: "HTTP/1.0"
+      request = ART::Request.new "HEAD", "/", version: "HTTP/1.0"
 
       response = ART::Response.new "CONTENT"
       response.headers.add_cache_control_directive "no-cache"
@@ -171,7 +171,7 @@ describe ART::Response do
 
     describe "cache-control" do
       it "sets cache-control if not already set" do
-        request = HTTP::Request.new "GET", "/"
+        request = ART::Request.new "GET", "/"
 
         response = ART::Response.new
 
@@ -181,7 +181,7 @@ describe ART::Response do
       end
 
       it "sets the correct directive if last-modified header is included" do
-        request = HTTP::Request.new "GET", "/"
+        request = ART::Request.new "GET", "/"
 
         response = ART::Response.new headers: HTTP::Headers{"last-modified" => "MODIFIED"}
 
@@ -191,7 +191,7 @@ describe ART::Response do
       end
 
       it "sets the correct directive if expires header is included" do
-        request = HTTP::Request.new "GET", "/"
+        request = ART::Request.new "GET", "/"
 
         response = ART::Response.new headers: HTTP::Headers{"expires" => "EXPIRES"}
 
@@ -201,7 +201,7 @@ describe ART::Response do
       end
 
       it "does not override if already set" do
-        request = HTTP::Request.new "GET", "/"
+        request = ART::Request.new "GET", "/"
 
         response = ART::Response.new headers: HTTP::Headers{"cache-control" => "CACHE"}
         response.headers["cache-control"].should eq "CACHE"
@@ -214,7 +214,7 @@ describe ART::Response do
 
     describe "date" do
       it "sets date if not set" do
-        request = HTTP::Request.new "GET", "/"
+        request = ART::Request.new "GET", "/"
 
         response = ART::Response.new
         response.headers.has_key?("date").should be_false
@@ -225,7 +225,7 @@ describe ART::Response do
       end
 
       it "does not override if already present" do
-        request = HTTP::Request.new "GET", "/"
+        request = ART::Request.new "GET", "/"
 
         response = ART::Response.new headers: HTTP::Headers{"date" => "DATE"}
         response.headers["date"].should eq "DATE"
@@ -236,7 +236,7 @@ describe ART::Response do
       end
 
       it "does not set a date if informational response" do
-        request = HTTP::Request.new "GET", "/"
+        request = ART::Request.new "GET", "/"
 
         response = ART::Response.new status: HTTP::Status::CONTINUE
         response.headers.has_key?("date").should be_false

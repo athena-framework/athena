@@ -53,7 +53,7 @@ class Athena::Routing::View::ViewHandler
   # :nodoc:
   #
   # This method is mainly for testing.
-  def register_handler(format : String, &block : ART::View::ViewHandlerInterface, ART::ViewBase, HTTP::Request, String -> ART::Response) : Nil
+  def register_handler(format : String, &block : ART::View::ViewHandlerInterface, ART::ViewBase, ART::Request, String -> ART::Response) : Nil
     self.register_handler format, block
   end
 
@@ -69,7 +69,7 @@ class Athena::Routing::View::ViewHandler
   end
 
   # :inherit:
-  def handle(view : ART::ViewBase, request : HTTP::Request? = nil) : ART::Response
+  def handle(view : ART::ViewBase, request : ART::Request? = nil) : ART::Response
     request = @request_store.request if request.nil?
 
     format = view.format || request.request_format
@@ -86,7 +86,7 @@ class Athena::Routing::View::ViewHandler
   end
 
   # :inherit:
-  def create_response(view : ART::ViewBase, request : HTTP::Request, format : String) : ART::Response
+  def create_response(view : ART::ViewBase, request : ART::Request, format : String) : ART::Response
     route = view.route
 
     if location = (route ? @url_generator.generate(route, view.route_params, :absolute_url) : view.location)

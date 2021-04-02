@@ -60,7 +60,7 @@ macro create_action(return_type, &)
   )
 end
 
-def new_context(*, request : HTTP::Request = new_request, response : HTTP::Server::Response = new_response) : HTTP::Server::Context
+def new_context(*, request : ART::Request = new_request, response : HTTP::Server::Response = new_response) : HTTP::Server::Context
   HTTP::Server::Context.new request, response
 end
 
@@ -95,8 +95,8 @@ def new_action(
   )
 end
 
-def new_request(*, path : String = "/test", method : String = "GET", action : ART::ActionBase = new_action) : HTTP::Request
-  request = HTTP::Request.new method, path
+def new_request(*, path : String = "/test", method : String = "GET", action : ART::ActionBase = new_action) : ART::Request
+  request = ART::Request.new method, path
   request.action = action
   request
 end
@@ -105,7 +105,7 @@ def new_request_event
   new_request_event { }
 end
 
-def new_request_event(& : HTTP::Request -> _)
+def new_request_event(& : ART::Request -> _)
   request = new_request
   yield request
   ART::Events::Request.new request

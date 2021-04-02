@@ -4,7 +4,7 @@ private def new_response_event
   new_response_event() { }
 end
 
-private def new_response_event(& : HTTP::Request -> _)
+private def new_response_event(& : ART::Request -> _)
   request = new_request
   yield request
   ART::Events::Response.new request, ART::Response.new

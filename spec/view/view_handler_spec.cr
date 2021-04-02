@@ -66,7 +66,7 @@ struct ViewHandlerTest < ASPEC::TestCase
                      self.create_view_handler
                    end
 
-    view_handler.create_response(view, HTTP::Request.new("GET", "/"), "json").status.should eq expected_status
+    view_handler.create_response(view, ART::Request.new("GET", "/"), "json").status.should eq expected_status
   end
 
   def status_provider : Hash
@@ -84,7 +84,7 @@ struct ViewHandlerTest < ASPEC::TestCase
     view = ART::View(String?).new nil
     view.location = "location"
 
-    response = view_handler.create_response view, HTTP::Request.new("GET", "/"), "json"
+    response = view_handler.create_response view, ART::Request.new("GET", "/"), "json"
 
     response.status.should eq HTTP::Status::USE_PROXY
     response.headers["location"].should eq "location"
@@ -96,7 +96,7 @@ struct ViewHandlerTest < ASPEC::TestCase
     view = ART::View(String).new "DATA", status: HTTP::Status::CREATED
     view.location = "location"
 
-    response = view_handler.create_response view, HTTP::Request.new("GET", "/"), "json"
+    response = view_handler.create_response view, ART::Request.new("GET", "/"), "json"
 
     response.status.should eq HTTP::Status::CREATED
     response.headers["location"].should eq "location"
@@ -113,7 +113,7 @@ struct ViewHandlerTest < ASPEC::TestCase
     view.route = "some_route"
     view.route_params = {"foo" => "bar"}
 
-    response = view_handler.create_response view, HTTP::Request.new("GET", "/"), "json"
+    response = view_handler.create_response view, ART::Request.new("GET", "/"), "json"
 
     response.status.should eq HTTP::Status::CREATED
     response.headers["location"].should eq "/foo/bar"
@@ -124,7 +124,7 @@ struct ViewHandlerTest < ASPEC::TestCase
 
     view = ART::View.new "DATA"
 
-    response = view_handler.create_response view, HTTP::Request.new("GET", "/"), "json"
+    response = view_handler.create_response view, ART::Request.new("GET", "/"), "json"
 
     response.status.should eq HTTP::Status::OK
     response.content.should eq %("SERIALIZED_DATA")
@@ -138,7 +138,7 @@ struct ViewHandlerTest < ASPEC::TestCase
       context.emit_nil?.should eq emit_nil
     end
 
-    view_handler.create_response ART::View(Nil).new, HTTP::Request.new("GET", "/"), "json"
+    view_handler.create_response ART::View(Nil).new, ART::Request.new("GET", "/"), "json"
   end
 
   def serialize_nil_provider : Tuple
@@ -149,7 +149,7 @@ struct ViewHandlerTest < ASPEC::TestCase
   end
 
   def test_handle_unsuported_format : Nil
-    request = HTTP::Request.new "GET", "/"
+    request = ART::Request.new "GET", "/"
     request.request_format = "rss"
 
     expect_raises ART::Exceptions::NotAcceptable, "The server is unable to return a response in the requested format: 'rss'." do
@@ -165,7 +165,7 @@ struct ViewHandlerTest < ASPEC::TestCase
       response
     end
 
-    request = HTTP::Request.new "GET", "/"
+    request = ART::Request.new "GET", "/"
     request.request_format = "rss"
 
     view_handler.handle(ART::View(Nil).new, request).should be response
@@ -184,7 +184,7 @@ struct ViewHandlerTest < ASPEC::TestCase
       context.groups.should eq Set{"one", "two"}
     end
 
-    view_handler.create_response ART::View(Nil).new, HTTP::Request.new("GET", "/"), "json"
+    view_handler.create_response ART::View(Nil).new, ART::Request.new("GET", "/"), "json"
   end
 
   private def create_view_handler(config : ART::Config::ViewHandler = ART::Config::ViewHandler.new) : ART::View::ViewHandler

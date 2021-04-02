@@ -11,7 +11,7 @@ class Athena::Routing::Events::Terminate < AED::Event
   # The response object.
   getter response : ART::Response
 
-  def initialize(request : HTTP::Request, @response : ART::Response)
+  def initialize(request : ART::Request, @response : ART::Response)
     super request
   end
 end

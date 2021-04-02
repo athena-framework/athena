@@ -1,14 +1,14 @@
-require "../spec_helper"
+require "./spec_helper"
 
-struct HTTP::RequestTest < ASPEC::TestCase
+struct ART::RequestTest < ASPEC::TestCase
   def test_hostname : Nil
-    request = HTTP::Request.new "GET", "/"
+    request = ART::Request.new "GET", "/"
     request.hostname.should be_nil
 
-    request = HTTP::Request.new "GET", "/", HTTP::Headers{"host" => "www.domain.com"}
+    request = ART::Request.new "GET", "/", HTTP::Headers{"host" => "www.domain.com"}
     request.hostname.should eq "www.domain.com"
 
-    request = HTTP::Request.new "GET", "/", HTTP::Headers{"host" => "www.domain.com:8080"}
+    request = ART::Request.new "GET", "/", HTTP::Headers{"host" => "www.domain.com:8080"}
     request.hostname.should eq "www.domain.com"
   end
 
@@ -17,7 +17,7 @@ struct HTTP::RequestTest < ASPEC::TestCase
 
   @[DataProvider("mime_type_provider")]
   def test_mime_type(format : String, mime_types : Indexable(String)) : Nil
-    request = HTTP::Request.new "GET", "/"
+    request = ART::Request.new "GET", "/"
     mime_types.each do |mt|
       request.format(mt).should eq format
     end
@@ -34,16 +34,16 @@ struct HTTP::RequestTest < ASPEC::TestCase
   end
 
   def test_request_format : Nil
-    request = HTTP::Request.new "GET", "/"
+    request = ART::Request.new "GET", "/"
     request.request_format.should eq "json"
 
     request.request_format("html").should eq "html"
     request.request_format("json").should eq "json"
 
-    request = HTTP::Request.new "GET", "/"
+    request = ART::Request.new "GET", "/"
     request.request_format(nil).should be_nil
 
-    request = HTTP::Request.new "GET", "/"
+    request = ART::Request.new "GET", "/"
     request.request_format = "foo"
     request.request_format.should eq "foo"
   end
@@ -62,11 +62,11 @@ struct HTTP::RequestTest < ASPEC::TestCase
   end
 
   def test_safe? : Nil
-    HTTP::Request.new("GET", "/").safe?.should be_true
-    HTTP::Request.new("HEAD", "/").safe?.should be_true
-    HTTP::Request.new("OPTIONS", "/").safe?.should be_true
-    HTTP::Request.new("TRACE", "/").safe?.should be_true
-    HTTP::Request.new("POST", "/").safe?.should be_false
-    HTTP::Request.new("PUT", "/").safe?.should be_false
+    ART::Request.new("GET", "/").safe?.should be_true
+    ART::Request.new("HEAD", "/").safe?.should be_true
+    ART::Request.new("OPTIONS", "/").safe?.should be_true
+    ART::Request.new("TRACE", "/").safe?.should be_true
+    ART::Request.new("POST", "/").safe?.should be_false
+    ART::Request.new("PUT", "/").safe?.should be_false
   end
 end

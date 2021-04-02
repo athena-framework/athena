@@ -35,12 +35,12 @@ end
 module Athena::Routing::Spec
   # Simulates a browser to make requests to some destination.
   #
-  # NOTE: Currently just acts as a client to make HTTP requests.  This type exists to allow for introduction of other functionality in the future.
+  # NOTE: Currently just acts as a client to make `HTTP` requests.  This type exists to allow for introduction of other functionality in the future.
   abstract struct AbstractBrowser
     # :nodoc:
     #
     # Makes a *request* and returns the response.
-    abstract def do_request(request : HTTP::Request) : HTTP::Server::Response
+    abstract def do_request(request : ART::Request) : HTTP::Server::Response
 
     # Makes an HTTP request with the provided *method*, at the provided *path*, with the provided *body* and/or *headers* and returns the resulting response.
     def request(
@@ -52,7 +52,7 @@ module Athena::Routing::Spec
       # At the moment this just calls into `do_request`.
       # Kept this as way allow for future expansion.
 
-      self.do_request HTTP::Request.new method, path, headers, body
+      self.do_request ART::Request.new method, path, headers, body
     end
   end
 
@@ -63,13 +63,13 @@ module Athena::Routing::Spec
       ADI.container.as(ADI::Spec::MockableServiceContainer)
     end
 
-    protected def do_request(request : HTTP::Request) : HTTP::Server::Response
+    protected def do_request(request : ART::Request) : HTTP::Server::Response
       response = HTTP::Server::Response.new IO::Memory.new
 
       handler = ADI.container.athena_routing_route_handler
       athena_response = handler.handle request
 
-      athena_response.send HTTP::Server::Context.new request, response
+      athena_response.send request, response
 
       handler.terminate request, athena_response
 
@@ -135,7 +135,7 @@ module Athena::Routing::Spec
   # @[ADI::Register]
   # class APIClient
   #   def fetch_latest_data : String
-  #     # Assume this method actually makes an HTTP request to get the latest data.
+  #     # Assume this method actually makes an `HTTP` request to get the latest data.
   #     "DATA"
   #   end
   # end

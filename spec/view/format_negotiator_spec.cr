@@ -2,13 +2,13 @@ require "../spec_helper"
 
 struct FormatNegotiatorTest < ASPEC::TestCase
   @request_store : ART::RequestStore
-  @request : HTTP::Request
+  @request : ART::Request
   @negotiator : ART::View::FormatNegotiator
   @config : ART::Config::ContentNegotiation
 
   def initialize
     @request_store = ART::RequestStore.new
-    @request = HTTP::Request.new "GET", "/"
+    @request = ART::Request.new "GET", "/"
     @request_store.request = @request
     @config = ART::Config::ContentNegotiation.new [] of ART::Config::ContentNegotiation::Rule
 

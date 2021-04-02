@@ -9,7 +9,7 @@
 #   include Athena::Routing::View::FormatHandlerInterface
 #
 #   # Turn the provided data into a response that can be returned to the client.
-#   def call(view_handler : ART::View::ViewHandlerInterface, view : ART::ViewBase, request : HTTP::Request, format : String) : ART::Response
+#   def call(view_handler : ART::View::ViewHandlerInterface, view : ART::ViewBase, request : ART::Request, format : String) : ART::Response
 #     ART::Response.new "<h1>#{view.data}</h1>", headers: HTTP::Headers{"content-type" => "text/html"}
 #   end
 #
@@ -31,7 +31,7 @@ module Athena::Routing::View::FormatHandlerInterface
   # Responsible for returning an `ART::Response` for the provided *view* and *request* in the provided *format*.
   #
   # The `ART::View::ViewHandlerInterface` is also provided to ease response creation.
-  abstract def call(view_handler : ART::View::ViewHandlerInterface, view : ART::View, request : HTTP::Request, format : String) : ART::Response
+  abstract def call(view_handler : ART::View::ViewHandlerInterface, view : ART::View, request : ART::Request, format : String) : ART::Response
 
   # Returns the format that `self` handles.
   abstract def format : String

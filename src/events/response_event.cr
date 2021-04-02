@@ -12,7 +12,7 @@ class Athena::Routing::Events::Response < AED::Event
   # The response object.
   property response : ART::Response
 
-  def initialize(request : HTTP::Request, @response : ART::Response)
+  def initialize(request : ART::Request, @response : ART::Response)
     super request
   end
 end

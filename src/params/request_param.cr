@@ -8,7 +8,7 @@ struct Athena::Routing::Params::RequestParam(T) < Athena::Routing::Params::Scala
   define_initializer
 
   # :inherit:
-  def extract_value(request : HTTP::Request, default : _ = nil)
+  def extract_value(request : ART::Request, default : _ = nil)
     request_data = request.request_data
 
     return default unless request_data.has_key? self.key

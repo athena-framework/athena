@@ -3,7 +3,7 @@
 # See the [negotiation](/components/negotiation) component for more information.
 module Athena::Routing::View::ViewHandlerInterface
   # The possible types for a view format handler.
-  alias HandlerType = ART::View::FormatHandlerInterface | Proc(ART::View::ViewHandlerInterface, ART::ViewBase, HTTP::Request, String, ART::Response)
+  alias HandlerType = ART::View::FormatHandlerInterface | Proc(ART::View::ViewHandlerInterface, ART::ViewBase, ART::Request, String, ART::Response)
 
   # Registers the provided *handler* to handle the provided *format*.
   abstract def register_handler(format : String, handler : ART::View::ViewHandlerInterface::HandlerType) : Nil
@@ -17,7 +17,7 @@ module Athena::Routing::View::ViewHandlerInterface
   # Handles the conversion of the provided *view* into an `ART::Response`.
   #
   # If no *request* is provided, it is fetched from `ART::RequestStore`.
-  abstract def handle(view : ART::ViewBase, request : HTTP::Request? = nil) : ART::Response
+  abstract def handle(view : ART::ViewBase, request : ART::Request? = nil) : ART::Response
 
   # Creates an `ART::Response` based on the provided *view* that'll redirect to the provided *location*.
   #
@@ -25,5 +25,5 @@ module Athena::Routing::View::ViewHandlerInterface
   abstract def create_redirect_response(view : ART::ViewBase, location : String, format : String) : ART::Response
 
   # Creates an `ART::Response` based on the provided *view* and *request*.
-  abstract def create_response(view : ART::ViewBase, request : HTTP::Request, format : String) : ART::Response
+  abstract def create_response(view : ART::ViewBase, request : ART::Request, format : String) : ART::Response
 end
