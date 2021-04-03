@@ -34,12 +34,17 @@ struct Athena::Routing::Config
 
       def initialize(
         @path : Regex = /^\//,
-        @host : Regex? = nil,
+        host : Regex | String | Nil = nil,
         @priorities : Array(String)? = nil,
         @fallback_format : String | Bool | Nil = false,
         @methods : Array(String)? = nil,
         @stop : Bool = false
-      ); end
+      )
+        @host = case host
+                when Regex  then host
+                when String then Regex.new host
+                end
+      end
     end
 
     # This method should be overridden in order to provide the configuration for `ART::Listeners::Format`.
