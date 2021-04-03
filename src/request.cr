@@ -45,11 +45,6 @@ class Athena::Routing::Request
 
   forward_missing_to @request
 
-  # :nodoc:
-  macro method_missing(call)
-    previous_def
-  end
-
   def self.new(method : String, path : String, headers : HTTP::Headers? = nil, body : String | Bytes | IO | Nil = nil, version : String = "HTTP/1.1") : self
     new HTTP::Request.new method, path, headers, body, version
   end
