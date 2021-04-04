@@ -30,4 +30,9 @@ class ViewController < ART::Controller
   def custom_status_code : String
     "foo"
   end
+
+  @[ARTA::Get("")]
+  def view : ART::View(String)
+    self.view "DATA", :im_a_teapot
+  end
 end

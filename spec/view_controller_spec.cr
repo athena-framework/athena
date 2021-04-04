@@ -12,4 +12,10 @@ struct ViewControllerTest < ART::Spec::APITestCase
   def test_custom_status : Nil
     self.request("POST", "/view/status").status.accepted?.should be_true
   end
+
+  def test_view : Nil
+    response = self.request("GET", "/view")
+    response.body.should eq %("DATA")
+    response.status.should eq HTTP::Status::IM_A_TEAPOT
+  end
 end
