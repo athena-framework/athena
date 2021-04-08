@@ -16,7 +16,8 @@ module Athena::Routing::URLGeneratorInterface
     # The default type, includes an absolute path from the root to the generated route: `/add/10/5`.
     Absolute_Path
 
-    # TODO: Implement this.
+    # !!!todo
+    #     Implement this.
     Relative_Path
 
     # Similar to `Absolute_URL`, but reuses the current protocol: `//api.example.com/add/10/5`.

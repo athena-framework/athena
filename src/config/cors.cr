@@ -4,7 +4,8 @@ struct Athena::Routing::Config; end
 
 # Configuration options for `ART::Listeners::CORS`.  See `.configure`.
 #
-# TODO: Allow scoping CORS options to specific routes versus applying them to all routes.
+# !!!todo
+#     Allow scoping `CORS` options to specific routes versus applying them to all routes.
 @[ACFA::Resolvable("routing.cors")]
 struct Athena::Routing::Config::CORS
   # This method should be overridden in order to provide the configuration for `ART::Listeners::CORS`.

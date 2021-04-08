@@ -8,9 +8,8 @@ require "./param_converter_interface"
 #
 # Raises an `ART::Exceptions::BadRequest` if the date(time) string could not be parsed.
 #
-# NOTE: The format can be anything supported via [Time::Format](https://crystal-lang.org/api/Time/Format.html).
-#
-# ### Example
+# !!!tip
+#     The format can be anything supported via [Time::Format](https://crystal-lang.org/api/Time/Format.html).
 #
 # ```
 # require "athena"

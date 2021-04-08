@@ -22,7 +22,8 @@ module Athena::Routing::HeaderUtils
   # )
   # ```
   #
-  # TODO: Add link to StaticFileListener cookbook recipe.
+  # !!!tip
+  #     See the [cookbook](/cookbook/listeners#static-files) for an example of how to serve static files.
   def self.make_disposition(disposition : ART::BinaryFileResponse::ContentDisposition, filename : String, fallback_filename : String? = nil) : String
     if fallback_filename.nil? && (!filename.ascii_only? || filename.includes?('%'))
       fallback_filename = filename.gsub { |chr| chr.ascii? ? chr : '_' }
