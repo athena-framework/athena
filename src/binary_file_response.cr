@@ -93,7 +93,7 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
 
   # Sets the `etag` header on `self` based on a `SHA256` hash of the file.
   def set_auto_etag : Nil
-    self.set_etag Digest::SHA256.base64digest { |ctx| ctx.file @file_path }
+    self.set_etag Digest::SHA256.base64digest &.file(@file_path)
   end
 
   # Sets the `last-modified` header on `self` based on the modification time of the file.
@@ -107,7 +107,7 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
   # OPTIMIZE: Make this less complex.
   #
   # ameba:disable Metrics/CyclomaticComplexity
-  protected def prepare(request : HTTP::Request) : Nil
+  protected def prepare(request : ART::Request) : Nil
     if self.cache_request?(request)
       self.status = :not_modified
       return super
@@ -187,7 +187,7 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
     end
   end
 
-  private def cache_request?(request : HTTP::Request) : Bool
+  private def cache_request?(request : ART::Request) : Bool
     # According to RFC 7232:
     # A recipient must ignore If-Modified-Since if the request contains an If-None-Match header field
     if (if_none_match = request.if_none_match) && (etag = self.etag)

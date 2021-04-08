@@ -6,6 +6,7 @@ require "amber_router"
 require "athena-config"
 require "athena-dependency_injection"
 require "athena-event_dispatcher"
+require "athena-negotiation"
 
 require "./action"
 require "./annotations"
@@ -19,6 +20,7 @@ require "./parameter_bag"
 require "./param_converter_interface"
 require "./redirect_response"
 require "./response"
+require "./request"
 require "./request_store"
 require "./route_handler"
 require "./streamed_response"
@@ -32,11 +34,12 @@ require "./listeners/*"
 require "./parameters/*"
 require "./params/*"
 require "./routing/*"
+require "./view/*"
 
-require "./ext/configuration_resolver"
 require "./ext/conversion_types"
 require "./ext/event_dispatcher"
 require "./ext/http"
+require "./ext/negotiation"
 require "./ext/serializer"
 require "./ext/validator"
 
@@ -86,8 +89,9 @@ module Athena::Routing
   # The default `ART::Arguments::Resolvers::ArgumentValueResolverInterface`s that will handle resolving controller action arguments from a request (or other source).
   # Custom argument value resolvers can also be defined, see `ART::Arguments::Resolvers::ArgumentValueResolverInterface`.
   #
-  # NOTE: In order for `Athena::Routing` to pick up your custom value resolvers, be sure to `ADI::Register` it as a service, and tag it as `ART::Arguments::Resolvers::TAG`.
-  # A `priority` field can also be optionally included in the annotation, the higher the value the sooner in the array it'll be when injected.
+  # !!!note
+  #     In order for `Athena::Routing` to pick up your custom value resolvers, be sure to `ADI::Register` it as a service, and tag it as `ART::Arguments::Resolvers::TAG`.
+  #     A `priority` field can also be optionally included in the annotation, the higher the value the sooner in the array it'll be when injected.
   #
   # See each resolver for more detailed information.
   module Athena::Routing::Arguments::Resolvers
@@ -131,14 +135,17 @@ module Athena::Routing
 
         handler = ADI.container.athena_routing_route_handler
 
-        # Handle the request.
-        athena_response = handler.handle context.request
+        # Convert the raw `HTTP::Request` into an `ART::Request` instance.
+        request = ART::Request.new context.request
 
-        # Send the respones based on the current context.
-        athena_response.send context
+        # Handle the request.
+        athena_response = handler.handle request
+
+        # Send the response based on the current context.
+        athena_response.send request, context.response
 
         # Emit the terminate event now that the response has been sent.
-        handler.terminate context.request, athena_response
+        handler.terminate request, athena_response
       end
     end
 

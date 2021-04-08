@@ -15,7 +15,7 @@ class Athena::Routing::Events::Exception < AED::Event
   # Can be replaced by an `ART::Listeners::Error`.
   property exception : ::Exception
 
-  def initialize(request : HTTP::Request, @exception : ::Exception)
+  def initialize(request : ART::Request, @exception : ::Exception)
     super request
   end
 end

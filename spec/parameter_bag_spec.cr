@@ -1,5 +1,7 @@
 require "./spec_helper"
 
+private alias DATATYPE = Hash(String, Int32 | String)
+
 describe ART::ParameterBag do
   describe "#has?" do
     it "returns false if that value isn't in the bag" do
@@ -24,6 +26,17 @@ describe ART::ParameterBag do
       bag = ART::ParameterBag.new
       bag.set "value", "foo"
       bag.get?("value").should eq "foo"
+    end
+
+    describe "with a complex T" do
+      it "returns an nilable T" do
+        bag = ART::ParameterBag.new
+        bag.set "data", {"foo" => "bar", "baz" => 10}, DATATYPE
+
+        data = bag.get "data", DATATYPE
+        data.class.should eq DATATYPE
+        data["foo"].should eq "bar"
+      end
     end
   end
 
@@ -52,44 +65,51 @@ describe ART::ParameterBag do
     end
 
     describe "by name and type" do
-      describe String do
-        it do
-          bag = ART::ParameterBag.new
-          bag.set "value", "foo"
-          value = bag.get "value", String
-          value.should eq "foo"
-          value.should be_a String
-        end
+      it String do
+        bag = ART::ParameterBag.new
+        bag.set "value", "foo"
+        value = bag.get "value", String
+        value.should eq "foo"
+        value.class.should eq String
       end
 
-      describe Bool do
-        it do
-          bag = ART::ParameterBag.new
-          bag.set "value", true
-          value = bag.get "value", Bool
-          value.should be_true
-          value.should be_a Bool
-        end
+      it Bool do
+        bag = ART::ParameterBag.new
+        bag.set "value", true
+        value = bag.get "value", Bool
+        value.should be_true
+        value.class.should eq Bool
       end
 
-      describe Int do
-        it do
-          bag = ART::ParameterBag.new
-          bag.set "value", 123
-          value = bag.get "value", Int32
-          value.should eq 123
-          value.should be_a Int32
-        end
+      it Int do
+        bag = ART::ParameterBag.new
+        bag.set "value", 123
+        value = bag.get "value", Int32
+        value.should eq 123
+        value.class.should eq Int32
       end
 
-      describe Float do
-        it do
-          bag = ART::ParameterBag.new
-          bag.set "value", 3.14
-          value = bag.get "value", Float64
-          value.should eq 3.14
-          value.should be_a Float64
-        end
+      it Float do
+        bag = ART::ParameterBag.new
+        bag.set "value", 3.14
+        value = bag.get "value", Float64
+        value.should eq 3.14
+        value.class.should eq Float64
+      end
+
+      it Union do
+        bag = ART::ParameterBag.new
+        bag.set "pi", 3.14, Float64
+        bag.set "e", 2.71, Float64
+        bag.set "fav", 16, Int32
+        bag.set "data", {"foo" => "bar", "baz" => 10}, DATATYPE
+
+        a, b, c = bag.get("pi", Float64), bag.get("e", Float64), bag.get("fav", Int32)
+        (a + b + c).should eq 21.85
+
+        data = bag.get "data", DATATYPE
+        data.class.should eq DATATYPE
+        data["foo"].should eq "bar"
       end
     end
   end

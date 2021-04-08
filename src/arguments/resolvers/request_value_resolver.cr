@@ -1,9 +1,9 @@
 @[ADI::Register(name: "argument_resolver_request", tags: [{name: ART::Arguments::Resolvers::TAG, priority: 50}])]
-# Handles resolving a value for action arguments typed as `HTTP::Request`.
+# Handles resolving a value for action arguments typed as `ART::Request`.
 #
 # ```
 # @[ARTA::Get("/")]
-# def get_request_path(request : HTTP::Request) : String
+# def get_request_path(request : ART::Request) : String
 #   request.path
 # end
 # ```
@@ -11,12 +11,12 @@ struct Athena::Routing::Arguments::Resolvers::Request
   include Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface
 
   # :inherit:
-  def supports?(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata) : Bool
-    argument.type <= HTTP::Request
+  def supports?(request : ART::Request, argument : ART::Arguments::ArgumentMetadata) : Bool
+    argument.type <= ART::Request
   end
 
   # :inherit:
-  def resolve(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata)
+  def resolve(request : ART::Request, argument : ART::Arguments::ArgumentMetadata)
     request
   end
 end

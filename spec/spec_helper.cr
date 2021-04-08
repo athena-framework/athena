@@ -19,7 +19,31 @@ class TestController < ART::Controller
   end
 end
 
-macro create_action(return_type, view_context = nil, &)
+class MockSerializer
+  include ASR::SerializerInterface
+
+  setter data : String? = "SERIALIZED_DATA"
+  setter context_assertion : Proc(ASR::SerializationContext, Nil)?
+
+  def initialize(@context_assertion : Proc(ASR::SerializationContext, Nil)? = nil); end
+
+  def serialize(data : _, format : ASR::Format | String, context : ASR::SerializationContext = ASR::SerializationContext.new, **named_args) : String
+    String.build do |str|
+      serialize data, format, str, context, **named_args
+    end
+  end
+
+  def serialize(data : _, format : ASR::Format | String, io : IO, context : ASR::SerializationContext = ASR::SerializationContext.new, **named_args) : Nil
+    @data.to_json io
+
+    @context_assertion.try &.call context
+  end
+
+  def deserialize(type : ASR::Model.class, data : String | IO, format : ASR::Format | String, context : ASR::DeserializationContext = ASR::DeserializationContext.new)
+  end
+end
+
+macro create_action(return_type, &)
   ART::Action.new(
     ->{ ->{ {{yield}} } },
     "fake_method",
@@ -28,7 +52,6 @@ macro create_action(return_type, view_context = nil, &)
     Hash(String, Regex).new,
     Array(ART::Arguments::ArgumentMetadata(Nil)).new,
     Array(ART::ParamConverterInterface::ConfigurationInterface).new,
-    {{view_context}} || ART::Action::ViewContext.new,
     ACF::AnnotationConfigurations.new,
     Array(ART::Params::ParamInterface).new,
     TestController,
@@ -37,7 +60,7 @@ macro create_action(return_type, view_context = nil, &)
   )
 end
 
-def new_context(*, request : HTTP::Request = new_request, response : HTTP::Server::Response = new_response) : HTTP::Server::Context
+def new_context(*, request : ART::Request = new_request, response : HTTP::Server::Response = new_response) : HTTP::Server::Context
   HTTP::Server::Context.new request, response
 end
 
@@ -53,8 +76,8 @@ def new_action(
   constraints : Hash(String, Regex) = Hash(String, Regex).new,
   arguments : Array(ART::Arguments::ArgumentMetadata)? = nil,
   param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface)? = nil,
-  view_context : ART::Action::ViewContext = ART::Action::ViewContext.new,
-  params : Array(ART::Params::ParamInterface) = Array(ART::Params::ParamInterface).new
+  params : Array(ART::Params::ParamInterface) = Array(ART::Params::ParamInterface).new,
+  annotation_configurations = nil
 ) : ART::ActionBase
   ART::Action.new(
     ->{ test_controller = TestController.new; ->test_controller.get_test },
@@ -64,8 +87,7 @@ def new_action(
     constraints,
     arguments || Array(ART::Arguments::ArgumentMetadata(Nil)).new,
     param_converters || Array(ART::ParamConverterInterface::ConfigurationInterface).new,
-    view_context,
-    ACF::AnnotationConfigurations.new,
+    annotation_configurations || ACF::AnnotationConfigurations.new,
     params,
     TestController,
     String,
@@ -73,10 +95,20 @@ def new_action(
   )
 end
 
-def new_request(*, path : String = "/test", method : String = "GET", action : ART::ActionBase = new_action) : HTTP::Request
-  request = HTTP::Request.new method, path
+def new_request(*, path : String = "/test", method : String = "GET", action : ART::ActionBase = new_action) : ART::Request
+  request = ART::Request.new method, path
   request.action = action
   request
+end
+
+def new_request_event
+  new_request_event { }
+end
+
+def new_request_event(& : ART::Request -> _)
+  request = new_request
+  yield request
+  ART::Events::Request.new request
 end
 
 def new_response(*, io : IO = IO::Memory.new) : HTTP::Server::Response

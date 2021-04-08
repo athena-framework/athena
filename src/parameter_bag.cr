@@ -1,5 +1,5 @@
 # A container for storing key/value pairs.  Can be used to store arbitrary data within the context of a request.
-# It can be accessed via `HTTP::Request#attributes`.
+# It can be accessed via `ART::Request#attributes`.
 #
 # ### Example
 #
@@ -57,6 +57,11 @@ struct Athena::Routing::ParameterBag
     @parameters[name]?.try &.value
   end
 
+  # Returns the value of the parameter with the provided *name* casted to the provied *type* if it exists, otherwise `nil`.
+  def get?(name : String, type : T?.class) : T? forall T
+    self.get?(name).as T?
+  end
+
   # Returns the value of the parameter with the provided *name*.
   #
   # Raises a `KeyError` if no parameter with that name exists.
@@ -64,10 +69,23 @@ struct Athena::Routing::ParameterBag
     @parameters.fetch(name) { raise KeyError.new "No parameter exists with the name '#{name}'." }.value
   end
 
+  # Returns the value of the parameter with the provided *name*, casted to the provided *type*.
+  #
+  # Raises a `KeyError` if no parameter with that name exists.
+  def get(name : String, type : T.class) : T forall T
+    self.get(name).as T
+  end
+
   {% for type in [Bool, String] + Number::Primitive.union_types %}
     # Returns the value of the parameter with the provided *name* as a `{{type}}`.
     def get(name : String, _type : {{type}}.class) : {{type}}
       {{type}}.from_parameter(self.get(name)).as {{type}}
+    end
+
+    # Returns the value of the parameter with the provided *name* as a `{{type}}`, or `nil` if it does not exist.
+    def get?(name : String, _type : {{type}}?.class) : {{type}}?
+      return nil unless (value = self.get? name)
+      {{type}}.from_parameter(value).as {{type}}?
     end
   {% end %}
 

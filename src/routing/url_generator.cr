@@ -4,7 +4,7 @@ class Athena::Routing::URLGenerator
 
   def initialize(
     @routes : ART::RouteCollection,
-    @request : HTTP::Request,
+    @request : ART::Request,
     @base_uri : URI?
   ); end
 

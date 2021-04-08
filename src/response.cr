@@ -104,20 +104,20 @@ class Athena::Routing::Response
   # Sends `self` to the client based on the provided *context*.
   #
   # How the content gets written can be customized via an `ART::Response::Writer`.
-  def send(context : HTTP::Server::Context) : Nil
+  def send(request : ART::Request, response : HTTP::Server::Response) : Nil
     # Ensure the response is valid.
-    self.prepare context.request
+    self.prepare request
 
     # Apply the `ART::Response` to the actual `HTTP::Server::Response` object.
-    context.response.headers.merge! @headers
-    context.response.status = @status
+    response.headers.merge! @headers
+    response.status = @status
 
     # Write the response content last on purpose.
     # See https://github.com/crystal-lang/crystal/issues/8712
-    self.write context.response
+    self.write response
 
     # Close the response.
-    context.response.close
+    response.close
   end
 
   # Sets the `HTTP::Status` of this response.
@@ -128,7 +128,7 @@ class Athena::Routing::Response
   # :nodoc:
   #
   # Do any preparation to ensure the response is RFC compliant.
-  def prepare(request : HTTP::Request) : Nil
+  def prepare(request : ART::Request) : Nil
     self.init_date
 
     # Set sensible default cache-control header.
@@ -210,8 +210,6 @@ class Athena::Routing::Response
   end
 
   protected def write(output : IO) : Nil
-    @writer.write(output) do |writer_io|
-      writer_io.print @content
-    end
+    @writer.write(output, &.print(@content))
   end
 end

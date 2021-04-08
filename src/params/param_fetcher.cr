@@ -93,7 +93,7 @@ class Athena::Routing::Params::ParamFetcher
     end
   end
 
-  private def request : HTTP::Request
+  private def request : ART::Request
     @request_store.request
   end
 end
