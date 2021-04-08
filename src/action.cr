@@ -74,6 +74,7 @@ struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple,
       # A view should never be created when the return type is an ART::Response.
       raise "BUG: Creating view with ART::Response."
     {% elsif ReturnType <= ART::ViewBase %}
+      # A view should never be created when it's already an ART::View.
       raise "BUG: Creating view with ART::View."
     {% end %}
 

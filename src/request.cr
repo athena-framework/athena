@@ -4,19 +4,20 @@
 class Athena::Routing::Request
   # Represents the supported built in formats; mapping the format name to its valid `MIME` types.
   #
-  # Additional formats may be registered via `#register_format`.
+  # Additional formats may be registered via `.register_format`.
   FORMATS = {
-    "html"   => Set{"text/html", "application/xhtml+xml"},
-    "txt"    => Set{"text/plain"},
-    "js"     => Set{"application/javascript", "application/x-javascript", "text/javascript"},
+    "atom"   => Set{"application/atom+xml"},
     "css"    => Set{"text/css"},
+    "csv"    => Set{"text/csv"},
+    "form"   => Set{"application/x-www-form-urlencoded"},
+    "html"   => Set{"text/html", "application/xhtml+xml"},
+    "js"     => Set{"application/javascript", "application/x-javascript", "text/javascript"},
     "json"   => Set{"application/json", "application/x-json"},
     "jsonld" => Set{"application/ld+json"},
-    "xml"    => Set{"text/xml", "application/xml", "application/x-xml"},
     "rdf"    => Set{"application/rdf+xml"},
-    "atom"   => Set{"application/atom+xml"},
     "rss"    => Set{"application/rss+xml"},
-    "form"   => Set{"application/x-www-form-urlencoded"},
+    "txt"    => Set{"text/plain"},
+    "xml"    => Set{"text/xml", "application/xml", "application/x-xml"},
   }
 
   # Registers the provided *format* with the provided *mime_types*.

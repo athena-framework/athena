@@ -10,6 +10,10 @@ struct Athena::Routing::RouteHandler
   )
   end
 
+  def handle(request : HTTP::Request) : ART::Response
+    self.handle ART::Request.new request
+  end
+
   def handle(request : ART::Request) : ART::Response
     handle_raw request
   rescue ex : ::Exception
