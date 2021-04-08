@@ -6,10 +6,13 @@ struct Athena::Routing::Config::ViewHandler
   # This method should be overridden in order to provide configuration overrides for `ART::View::ViewHandlerInterface`.
   # See the [external documentation](/components/negotiation) for more details.
   #
+  # !!!note
+  #     The `#failed_validation_status` is currently not used.  Included for future work.
+  #
   # ```
   # def ART::Config::ViewHandler.configure : ART::Config::ViewHandler
   #   new(
-  #     failed_validation_status: :bad_request
+  #     empty_content_status: :ok
   #   )
   # end
   # ```
@@ -21,6 +24,8 @@ struct Athena::Routing::Config::ViewHandler
   getter empty_content_status : HTTP::Status
 
   # The `HTTP::Status` used when validations fail.
+  #
+  # Currently not used.  Included for future work.
   getter failed_validation_status : HTTP::Status
 
   # If `nil` values should be serialized.

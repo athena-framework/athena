@@ -213,14 +213,28 @@ abstract class Athena::Routing::Controller
     ART::RedirectResponse.new url, status
   end
 
+  # Returns an `ART::View` that'll redirect to the provided *url*, optionally with the provided *status* and *headers*.
+  #
+  # Is essentially the same as `#redirect`, but invokes the [view](/components#4-view-event) layer.
   def redirect_view(url : Status, status : HTTP::Status = HTTP::Status::FOUND, headers : HTTP::Headers = HTTP::Headers.new) : ART::View
     ART::View.create_redirect url, status, headers
   end
 
+  # Returns an `ART::View` that'll redirect to the provided *route*, optionally with the provided *params*, *status*, and *headers*.
+  #
+  # Is essentially the same as `#redirect_to_route`, but invokes the [view](/components#4-view-event) layer.
   def route_redirect_view(route : Status, params : Hash(String, _)? = nil, status : HTTP::Status = HTTP::Status::CREATED, headers : HTTP::Headers = HTTP::Headers.new) : ART::View
     ART::View.create_route_redirect route, params
   end
 
+  # Returns an `ART::View` with the provided *data*, and optionally *status* and *headers*.
+  #
+  # ```
+  # @[ARTA::Get("/:name")]
+  # def say_hello(name : String) : ART::View(NamedTuple(greeting: String))
+  #   self.view({greeting: "Hello #{name}"}, :im_a_teapot)
+  # end
+  # ```
   def view(data = nil, status : HTTP::Status? = nil, headers : HTTP::Headers = HTTP::Headers.new) : ART::View
     ART::View.new data, status, headers
   end

@@ -20,11 +20,20 @@ class Athena::Routing::Request
   }
 
   # Registers the provided *format* with the provided *mime_types*.
+  # Can also be used to change the *mime_types* supported for an existing *format*.
+  #
+  # ```
+  # ART::Request.register_format "some_format", {"some/mimetype"}
+  # ```
   def self.register_format(format : String, mime_types : Indexable(String)) : Nil
     FORMATS[format] = mime_types.to_set
   end
 
   # Returns the `MIME` types for the provided *format*.
+  #
+  # ```
+  # ART::Request.mime_types "txt" # => Set{"text/plain"}
+  # ```
   def self.mime_types(format : String) : Set(String)
     FORMATS[format]? || Set(String).new
   end
@@ -43,6 +52,7 @@ class Athena::Routing::Request
   # Sets the `#request_format` to the explicitly passed format.
   setter request_format : String? = nil
 
+  # :nodoc:
   forward_missing_to @request
 
   def self.new(method : String, path : String, headers : HTTP::Headers? = nil, body : String | Bytes | IO | Nil = nil, version : String = "HTTP/1.1") : self
@@ -54,13 +64,20 @@ class Athena::Routing::Request
   # :nodoc:
   def action=(@action : ART::ActionBase); end
 
-  # Returns the first `MIME` type for the provided *format* if defined,
-  # otherwise returns `nil`.
+  # Returns the first `MIME` type for the provided *format* if defined, otherwise returns `nil`.
+  #
+  # ```
+  # request.mime_type "txt" # => "text/plain"
+  # ```
   def mime_type(format : String) : String?
     self.class.mime_types(format).first?
   end
 
   # Returns the format for the provided *mime_type*.
+  #
+  # ```
+  # request.format "text/plain" # => "txt"
+  # ```
   def format(mime_type : String) : String?
     canonical_mime_type = nil
 

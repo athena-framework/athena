@@ -55,7 +55,17 @@ struct Athena::Routing::Config
     # ```
     # def ART::Config::ContentNegotiation.configure : ART::Config::ContentNegotiation?
     #   new(
-    #     Rule.new(priorities: ["json"], fallback_format: false),
+    #     # Setting fallback_format to json means that instead of considering
+    #     # the next rule in case of a priority mismatch, json will be used.
+    #     Rule.new(priorities: ["json", "xml"], host: "api.example.com", fallback_format: "json"),
+    #     # Setting fallback_format to false means that instead of considering
+    #     # the next rule in case of a priority mismatch, a 406 will be returned.
+    #     Rule.new(path: /^\/image/, priorities: ["jpeg", "gif"], fallback_format: false),
+    #     # Setting fallback_format to nil (or not including it) means that
+    #     # in case of a priority mismatch the next rule will be considered.
+    #     Rule.new(path: /^\/admin/, priorities: ["xml", "html"]),
+    #     # Setting a priority to */* basically means any format will be matched.
+    #     Rule.new(priorities: ["text/html", "*/*"], fallback_format: "html"),
     #   )
     # end
     # ```

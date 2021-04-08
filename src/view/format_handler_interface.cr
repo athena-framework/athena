@@ -2,7 +2,7 @@
 # that is not handled by default by Athena.  E.g. `HTML`.
 #
 # ```
-# Register our handler as a service.
+# # Register our handler as a service.
 # @[ADI::Register]
 # class HTMLFormatHandler
 #   # Implement the interface.
