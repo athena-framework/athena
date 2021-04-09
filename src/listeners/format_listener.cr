@@ -29,8 +29,10 @@ struct Athena::Routing::Listeners::Format
       accept = @format_negotiator.best ""
 
       if !accept.nil? && 0.0 < accept.quality
-        if format = request.format accept.header
-          request.attributes.set "media_type", format, String
+        format = request.format accept.header
+
+        unless format.nil?
+          request.attributes.set "media_type", accept.header, String
         end
       end
     end

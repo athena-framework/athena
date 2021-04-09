@@ -3,9 +3,11 @@
 # Parent type of a view just used for typing.
 #
 # See `ART::View`.
-abstract class Athena::Routing::ViewBase; end
+module Athena::Routing::ViewBase; end
 
-class Athena::Routing::View(T) < Athena::Routing::ViewBase; end
+class Athena::Routing::View(T)
+  include Athena::Routing::ViewBase
+end
 
 require "./view_handler_interface"
 

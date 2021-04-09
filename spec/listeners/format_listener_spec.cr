@@ -14,6 +14,7 @@ struct FormatListenerTest < ASPEC::TestCase
     listener.call event, AED::Spec::TracableEventDispatcher.new
 
     event.request.request_format.should eq "json"
+    event.request.attributes.get?("media_type").should be_nil
   end
 
   def test_call_fallback_format : Nil
@@ -33,6 +34,7 @@ struct FormatListenerTest < ASPEC::TestCase
     listener.call event, AED::Spec::TracableEventDispatcher.new
 
     event.request.request_format.should eq "xml"
+    event.request.attributes.get?("media_type").should eq "text/xml"
   end
 
   def test_call_stop_listener : Nil
@@ -54,6 +56,7 @@ struct FormatListenerTest < ASPEC::TestCase
     listener.call event, AED::Spec::TracableEventDispatcher.new
 
     event.request.request_format.should eq "xml"
+    event.request.attributes.get?("media_type").should be_nil
   end
 
   def test_call_cannot_resolve_format : Nil
@@ -75,7 +78,7 @@ struct FormatListenerTest < ASPEC::TestCase
 
   @[DataProvider("format_provider")]
   # Doesn't override request format if it was already set.
-  def test_uses_specified_format(format : String?, expected : String) : Nil
+  def test_uses_specified_format(format : String?, expected : String, media_type : String?) : Nil
     event = new_request_event
 
     if format
@@ -96,12 +99,13 @@ struct FormatListenerTest < ASPEC::TestCase
     listener.call event, AED::Spec::TracableEventDispatcher.new
 
     event.request.request_format.should eq expected
+    event.request.attributes.get?("media_type").should eq media_type
   end
 
   def format_provider : Tuple
     {
-      {nil, "xml"},
-      {"html", "html"},
+      {nil, "xml", "text/xml"},
+      {"html", "html", nil},
     }
   end
 end
