@@ -130,12 +130,13 @@ class Athena::Routing::View::ViewHandler
     # Skip serialization if the action's return type is explicitly `Nil`.
     if @emit_nil || view.return_type != Nil
       # TODO: Support Form typed views.
-      data = view.data
 
       # Fallback on `to_json` for non ASR::Serializable types.
-      content = if data.is_a? JSON::Serializable && !data.is_a? ASR::Serializable
+      content = if data = view.serializable_data
                   data.to_json
                 else
+                  data = view.data
+
                   context = self.serialization_context view
 
                   # TODO: Implement some sort of Adapter system to convert ART::View::Context

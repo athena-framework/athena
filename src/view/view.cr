@@ -130,4 +130,18 @@ class Athena::Routing::View(T)
     self.response.headers.clear
     self.response.headers.merge! headers
   end
+
+  # Does type reduction logic to determine what serializer the data should use.
+  # `nil` for `ASR::Serializable`, otherwise `JSON::Serializable`.
+  protected def serializable_data : T?
+    {% if (T <= JSON::Serializable) && !(T <= ASR::Serializable) %}
+      # Single JSON::Serializable object
+      self.data
+    {% elsif (T <= Enumerable) && T.type_vars.any? { |t| (t <= JSON::Serializable) && !(t <= ASR::Serializable) } %}
+      # Array of JSON::Serializable
+      self.data
+    {% else %}
+      nil
+    {% end %}
+  end
 end
