@@ -61,6 +61,25 @@ module Athena::Routing::HeaderUtils
     end
   end
 
+  def self.parse(header : String) : Hash(String, String | Bool)
+    values = Hash(String, String | Bool).new
+
+    header.strip.scan /(?:[^,\"]*+(?:"[^"]*+\")?)+[^,\"]*+/ do |match|
+      match_string = match[0].strip
+
+      next if match_string.blank?
+
+      if match_string.includes? '='
+        key, value = match_string.split '='
+        values[key] = value
+      else
+        values[match_string] = true
+      end
+    end
+
+    values
+  end
+
   # Joins the provided key/value *parts* into a string for use within an `HTTP` header.
   #
   # The key and value of each entry is joined with `=`, quoting the value if needed.

@@ -113,8 +113,6 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
       return super
     end
 
-    self.init_date
-
     unless @headers.has_key? "content-type"
       @headers["content-type"] = MIME.from_filename(@file_path, "application/octet-stream")
     end

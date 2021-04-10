@@ -43,7 +43,7 @@ describe ART::Response do
   end
 
   describe "#send" do
-    it "sends the response to the client" do
+    it "writes the data to the provided IO" do
       io = IO::Memory.new
       response = new_response io: io
       request = new_request
@@ -105,10 +105,10 @@ describe ART::Response do
       response.headers["content-length"].should eq "5"
     end
 
-    it "removes content for informational & empty responses" do
+    it "removes content for informational responses & empty responses" do
       request = ART::Request.new "GET", "/"
-
       response = ART::Response.new "CONTENT"
+
       response.headers["content-length"] = "5"
       response.headers["content-type"] = "text/plain"
       response.status = 101
@@ -118,6 +118,11 @@ describe ART::Response do
       response.content.should be_empty
       response.headers.has_key?("content-length").should be_false
       response.headers.has_key?("content-type").should be_false
+    end
+
+    it "removes content for empty responses" do
+      request = ART::Request.new "GET", "/"
+      response = ART::Response.new "CONTENT"
 
       response.content = "CONTENT"
       response.headers["content-length"] = "5"

@@ -99,7 +99,7 @@ class Athena::Routing::View(T)
   end
 
   # Returns the headers of the underlying `#response`.
-  def headers : HTTP::Headers
+  def headers : ART::Response::Headers
     self.response.headers
   end
 
