@@ -4,6 +4,8 @@ require "mime"
 # Attempts to determine the best format for the current request based on its [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) `HTTP` header
 # and the format priority configuration.
 #
+# `ART::Request::FORMATS` is used to determine the related format from the request's `MIME` type.
+#
 # See the [negotiation](/components/negotiation) component for more information.
 struct Athena::Routing::Listeners::Format
   include AED::EventListenerInterface

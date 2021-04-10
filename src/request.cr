@@ -2,7 +2,7 @@
 #
 # Forwards all additional methods to the wrapped `HTTP::Request` instance.
 class Athena::Routing::Request
-  # Represents the supported built in formats; mapping the format name to its valid `MIME` types.
+  # Represents the supported built in formats; mapping the format name to its valid `MIME` type(s).
   #
   # Additional formats may be registered via `.register_format`.
   FORMATS = {

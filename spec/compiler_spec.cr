@@ -1,7 +1,7 @@
 require "./spec_helper"
 
 describe Athena::Routing do
-  describe "compiler errors" do
+  describe "compiler errors", tags: "compiler" do
     it "action argument missing type restriction" do
       assert_error "compiler/missing_action_argument_type_restriction.cr", "Route action argument 'CompileController#action:id' must have a type restriction."
     end

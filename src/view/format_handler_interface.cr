@@ -8,11 +8,15 @@
 #   # Implement the interface.
 #   include Athena::Routing::View::FormatHandlerInterface
 #
+#   # :inherit:
+#   #
 #   # Turn the provided data into a response that can be returned to the client.
 #   def call(view_handler : ART::View::ViewHandlerInterface, view : ART::ViewBase, request : ART::Request, format : String) : ART::Response
 #     ART::Response.new "<h1>#{view.data}</h1>", headers: HTTP::Headers{"content-type" => "text/html"}
 #   end
 #
+#   # :inherit:
+#   #
 #   # Specify that `self` handles the `HTML` format.
 #   def format : String
 #     "html"
@@ -34,5 +38,8 @@ module Athena::Routing::View::FormatHandlerInterface
   abstract def call(view_handler : ART::View::ViewHandlerInterface, view : ART::View, request : ART::Request, format : String) : ART::Response
 
   # Returns the format that `self` handles.
+  #
+  # The *format* must be registered with the `ART::Request::FORMATS` hash;
+  # either as a built in format, or a custom one that has registered via `ART::Request.register_format`.
   abstract def format : String
 end
