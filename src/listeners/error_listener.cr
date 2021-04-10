@@ -16,7 +16,7 @@
 #
 #     # Exception types could also include modules to act as interfaces to determine their level, E.g. `include NoticeException`.
 #     if exception.is_a? NoticeException
-#       LOGGER.notice(exception: exception) { yield }
+#       Log.notice(exception: exception) { yield }
 #       return
 #     end
 #
@@ -55,13 +55,13 @@ struct Athena::Routing::Listeners::Error
   protected def log_exception(exception : Exception, & : -> String) : Nil
     if !exception.is_a?(ART::Exceptions::HTTPException) || exception.status.server_error?
       # Log non HTTPExceptions and server errors as errors
-      LOGGER.error(exception: exception) { yield }
+      Log.error(exception: exception) { yield }
     elsif exception.is_a? ART::Exceptions::UnprocessableEntity
       # Log failed validations as notice
-      LOGGER.notice(exception: exception) { yield }
+      Log.notice(exception: exception) { yield }
     else
       # Log everything else as warnings
-      LOGGER.warn(exception: exception) { yield }
+      Log.warn(exception: exception) { yield }
     end
   end
 end

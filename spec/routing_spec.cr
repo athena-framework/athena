@@ -132,7 +132,7 @@ struct RoutingTest < ART::Spec::APITestCase
   end
 
   def test_generate_url_named_tuple_abso : Nil
-    self.request("GET", "/url-nt-abso").body.should eq %("https://localhost/art/response?id=10")
+    self.request("GET", "/url-nt-abso", headers: HTTP::Headers{"host" => "crystal-lang.org"}).body.should eq %("https://crystal-lang.org/art/response?id=10")
   end
 
   def test_redirect_to_route : Nil
@@ -157,5 +157,11 @@ struct RoutingTest < ART::Spec::APITestCase
     response = self.request("GET", "/redirect-url-nt")
     response.status.should eq HTTP::Status::FOUND
     response.headers["location"].should eq "/art/response?id=10"
+  end
+
+  def test_using_route_handler_directly_with_http_request : Nil
+    response = self.client.container.athena_routing_route_handler.handle HTTP::Request.new "GET", "/art/response"
+    response.status.should eq HTTP::Status::IM_A_TEAPOT
+    response.content.should eq "FOO"
   end
 end

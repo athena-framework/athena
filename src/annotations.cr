@@ -173,6 +173,8 @@ module Athena::Routing::Annotations
   # A non-nilable type denotes it as required.  If the parameter is not supplied, and no default value is assigned, an `ART::Exceptions::BadRequest` exception is raised.
   #
   # ```
+  # require "athena"
+  #
   # class ExampleController < ART::Controller
   #   @[ARTA::Get("/")]
   #   @[ARTA::QueryParam("page", description: "What page of results to return.")] # The name can also be supplied as a named argument like `@[ARTA::QueryParam(name: "page")]`.
@@ -192,6 +194,8 @@ module Athena::Routing::Annotations
   # In the case of wanting the controller action argument to have a different name than the actual query parameter, the `key` option can be used.
   #
   # ```
+  # require "athena"
+  #
   # class ExampleController < ART::Controller
   #   @[ARTA::Get("/")]
   #   @[ARTA::QueryParam("foo", key: "bar")]
@@ -210,6 +214,8 @@ module Athena::Routing::Annotations
   # A nilable type denotes it as optional.  If the parameter is not supplied, and no default value is assigned, it is `nil`.
   #
   # ```
+  # require "athena"
+  #
   # class ExampleController < ART::Controller
   #   @[ARTA::Get("/")]
   #   @[ARTA::QueryParam("page")] # The name can also be supplied as a named argument like `@[ARTA::QueryParam(name: "page")]`.
@@ -235,9 +241,12 @@ module Athena::Routing::Annotations
   #
   # When strict mode is disabled, the default value (or `nil`) will be used instead of raising an exception if the actual value is invalid.
   #
-  # NOTE: When setting `strict: false`, the related controller action argument must be nilable or have a default value.
+  # !!!note
+  #     When setting `strict: false`, the related controller action argument must be nilable or have a default value.
   #
   # ```
+  # require "athena"
+  #
   # class ExampleController < ART::Controller
   #   @[ARTA::Get("/")]
   #   @[ARTA::QueryParam("page", strict: false)]
@@ -272,6 +281,8 @@ module Athena::Routing::Annotations
   # The most basic form of validation is a `Regex` pattern that asserts a value matches the provided pattern.
   #
   # ```
+  # require "athena"
+  #
   # class ExampleController < ART::Controller
   #   @[ARTA::Get("/")]
   #   @[ARTA::QueryParam("page", requirements: /\d{2}/)]
@@ -294,6 +305,8 @@ module Athena::Routing::Annotations
   # A parameter's requirements can also be set to a specific, or array of, `Assert` `AVD::Constraint` annotations.
   #
   # ```
+  # require "athena"
+  #
   # class ExampleController < ART::Controller
   #   @[ARTA::Get("/")]
   #   @[ARTA::QueryParam("page", requirements: @[Assert::PositiveOrZero])]
@@ -308,7 +321,7 @@ module Athena::Routing::Annotations
   # # GET /?page=-5 # => {"code":422,"message":"Parameter 'page' of value '-9' violated a constraint: 'This value should be positive or zero.'\n"}
   # ```
   #
-  # See the [external documentation](https://athenaframework.org/components/validator/) for more information.
+  # See the [external documentation](/components/validator/) for more information.
   #
   # ### Map
   #
@@ -319,6 +332,8 @@ module Athena::Routing::Annotations
   # This behavior can be enabled by using the `map: true` option, which essentially wraps all the requirements within an `AVD::Constraints::All` constraint.
   #
   # ```
+  # require "athena"
+  #
   # class ExampleController < ART::Controller
   #   @[ARTA::Get("/")]
   #   @[ARTA::QueryParam("ids", map: true, requirements: [@[Assert::Positive], @[Assert::Range(-3..10)]])]
@@ -339,6 +354,8 @@ module Athena::Routing::Annotations
   # Incompatibles represent the parameters that can't be present at the same time.
   #
   # ```
+  # require "athena"
+  #
   # class ExampleController < ART::Controller
   #   @[ARTA::Get("/")]
   #   @[ARTA::QueryParam("bar")]
@@ -364,6 +381,8 @@ module Athena::Routing::Annotations
   # Default and nilable values work as they do when not using a converter.
   #
   # ```
+  # require "athena"
+  #
   # class ExampleController < ART::Controller
   #   @[ARTA::QueryParam("start_time", converter: ART::TimeConverter)]
   #   @[ARTA::Get("/time")]
@@ -386,6 +405,8 @@ module Athena::Routing::Annotations
   # Any additional key/value pairs will be passed to the param converter.
   #
   # ```
+  # require "athena"
+  #
   # class ExampleController < ART::Controller
   #   @[ARTA::QueryParam("start_time", converter: {name: ART::TimeConverter, format: "%Y--%m//%d  %T"})]
   #   @[ARTA::Get("/time")]
@@ -399,16 +420,20 @@ module Athena::Routing::Annotations
   # # GET /time?start_time="2020--04//07  12:34:56" # => "Starting at: 2020-04-07 12:34:56 UTC"
   # ```
   #
-  # NOTE:  The dedicated `ARTA::ParamConverter` annotation may be used as well, just be sure to give it and the query parameter the same name.
+  # !!!note
+  #     The dedicated `ARTA::ParamConverter` annotation may be used as well, just be sure to give it and the query parameter the same name.
   annotation QueryParam; end
 
   # Represents a form data request parameter.
   #
   # See `ARTA::QueryParam` for configuration options/arguments.
   #
-  # NOTE: The entire request body is consumed to parse the form data.
+  # !!!warning
+  #     The entire request body is consumed to parse the form data.
   #
   # ```
+  # require "athena"
+  #
   # class ExampleController < ART::Controller
   #   @[ARTA::Post(path: "/login")]
   #   @[ARTA::RequestParam("username")]
@@ -459,9 +484,13 @@ module Athena::Routing::Annotations
   # ```
   annotation Unlink; end
 
-  # Configures how the endpoint should be rendered.
-  #
-  # See `ART::Action::ViewContext`.
+  ACF.configuration_annotation Athena::Routing::Annotations::View,
+    status : HTTP::Status? = nil,
+    serialization_groups : Array(String)? = nil,
+    validation_groups : Array(String)? = nil,
+    emit_nil : Bool? = nil
+
+  # Configures how the `ART::View::ViewHandlerInterface` should render the related controller action.
   #
   # ## Fields
   #
@@ -482,6 +511,6 @@ module Athena::Routing::Annotations
   # end
   # ```
   #
-  # See the [external documentation](https://athenaframework.org/components/serializer/) for more information.
+  # See the [external documentation](/components/serializer/) for more information.
   annotation View; end
 end

@@ -9,14 +9,14 @@
 #   include Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface
 #
 #   # :inherit:
-#   def supports?(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata) : Bool
+#   def supports?(request : ART::Request, argument : ART::Arguments::ArgumentMetadata) : Bool
 #     # Define the logic that determines if `self` is able to resolve a value for the given request/argument.
 #     # This resolver would handle resolving a value for action arguments whose type is `MyCustomType`.
 #     argument.type == MyCustomType
 #   end
 #
 #   # :inherit:
-#   def resolve(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata)
+#   def resolve(request : ART::Request, argument : ART::Arguments::ArgumentMetadata)
 #     # Return the resolved value.  It could either come from the request itself, an injected service, or hardcoded.
 #     # `#resolve` is only executed if `#supports?` returns `true`.
 #     MyCustomType.new "foo"
@@ -25,8 +25,8 @@
 # ```
 module Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface
   # Returns `true` if `self` is able to resolve a value from the provided *request* and *argument*.
-  abstract def supports?(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata) : Bool
+  abstract def supports?(request : ART::Request, argument : ART::Arguments::ArgumentMetadata) : Bool
 
   # Returns a value resolved from the provided *request* and *argument*.
-  abstract def resolve(request : HTTP::Request, argument : ART::Arguments::ArgumentMetadata)
+  abstract def resolve(request : ART::Request, argument : ART::Arguments::ArgumentMetadata)
 end

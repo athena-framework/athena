@@ -5,7 +5,7 @@ require "./settable_response"
 #
 # This event can be listened on to recover from errors or to modify the exception before it's rendered.
 #
-# See the [external documentation](https://athenaframework.org/components/#8-exception-handling) for more information.
+# See the [external documentation](/components/#8-exception-handling) for more information.
 class Athena::Routing::Events::Exception < AED::Event
   include Athena::Routing::Events::SettableResponse
   include Athena::Routing::Events::RequestAware
@@ -15,7 +15,7 @@ class Athena::Routing::Events::Exception < AED::Event
   # Can be replaced by an `ART::Listeners::Error`.
   property exception : ::Exception
 
-  def initialize(request : HTTP::Request, @exception : ::Exception)
+  def initialize(request : ART::Request, @exception : ::Exception)
     super request
   end
 end

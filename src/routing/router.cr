@@ -7,7 +7,7 @@ class Athena::Routing::Router
 
   @request_store : ART::RequestStore
 
-  protected getter generator : ART::URLGenerator { ART::URLGenerator.new self.route_collection, @request_store.request }
+  protected getter generator : ART::URLGenerator { ART::URLGenerator.new self.route_collection, @request_store.request, @base_uri }
   protected class_getter route_collection : ART::RouteCollection { ART::RouteCollection.new }
   protected class_getter matcher : Amber::Router::RouteSet(ART::ActionBase) do
     matcher = Amber::Router::RouteSet(ART::ActionBase).new
@@ -19,7 +19,10 @@ class Athena::Routing::Router
     matcher
   end
 
-  def initialize(@request_store : ART::RequestStore); end
+  def initialize(
+    @request_store : ART::RequestStore,
+    @base_uri : URI?
+  ); end
 
   # :inherit:
   def generate(route : String, params : Hash(String, _)? = nil, reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path) : String
@@ -28,8 +31,9 @@ class Athena::Routing::Router
 
   # :inherit:
   #
-  # OPTIMIZE: Possibly raise a non `ART::Exceptions::HTTPException` here to allow caller to determine what to do.
-  def match(request : HTTP::Request) : Amber::Router::RoutedResult(Athena::Routing::ActionBase)
+  # !!!todo
+  #     Possibly raise a non `ART::Exceptions::HTTPException` here to allow caller to determine what to do.
+  def match(request : ART::Request) : Amber::Router::RoutedResult(Athena::Routing::ActionBase)
     # Get the routes that match the given path
     matching_routes = self.class.matcher.find_routes request.path
 

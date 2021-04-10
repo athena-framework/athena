@@ -8,9 +8,8 @@ require "./param_converter_interface"
 #
 # Raises an `ART::Exceptions::BadRequest` if the date(time) string could not be parsed.
 #
-# NOTE: The format can be anything supported via [Time::Format](https://crystal-lang.org/api/Time/Format.html).
-#
-# ### Example
+# !!!tip
+#     The format can be anything supported via [Time::Format](https://crystal-lang.org/api/Time/Format.html).
 #
 # ```
 # require "athena"
@@ -34,7 +33,7 @@ struct Athena::Routing::TimeConverter < Athena::Routing::ParamConverterInterface
   configuration format : String? = nil, location : Time::Location = Time::Location::UTC
 
   # :inherit:
-  def apply(request : HTTP::Request, configuration : Configuration) : Nil
+  def apply(request : ART::Request, configuration : Configuration) : Nil
     arg_name = configuration.name
 
     return unless request.attributes.has? arg_name

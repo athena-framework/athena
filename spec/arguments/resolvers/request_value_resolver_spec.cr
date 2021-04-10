@@ -1,12 +1,12 @@
 require "../../spec_helper"
 
-class CustomRequest < HTTP::Request
+class CustomRequest < ART::Request
 end
 
 describe ART::Arguments::Resolvers::Request do
   describe "#supports" do
-    it HTTP::Request do
-      argument = ART::Arguments::ArgumentMetadata(HTTP::Request).new("id", false, false)
+    it ART::Request do
+      argument = ART::Arguments::ArgumentMetadata(ART::Request).new("id", false, false)
 
       ART::Arguments::Resolvers::Request.new.supports?(new_request, argument).should be_true
     end

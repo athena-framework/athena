@@ -1,58 +1,48 @@
 @[ADI::Register]
-# The view listener attempts to resolve a non `ART::Response` into an `ART::Response`.
-# Currently this is achieved by JSON serializing the controller action's resulting value;
-# either via `Object#to_json` or `ASR::Serializer`, depending on what type the resulting value is.
+# Listens on the `ART::Events::View` event to convert a non `ART::Response` into an `ART::Response`.
+# Allows creating format agnostic controllers by allowing them to return format agnostic data that
+# is later used to render the content in the expected format.
 #
-# In the future this listener will handle executing the correct view handler based on the
-# registered formats and the format that the initial `HTTP::Request` requires.
-#
-# TODO: Implement a format negotiation algorithm.
+# See the [negotiation](/components/negotiation) component for more information.
 struct Athena::Routing::Listeners::View
   include AED::EventListenerInterface
 
   def self.subscribed_events : AED::SubscribedEvents
-    AED::SubscribedEvents{
-      ART::Events::View => 25,
-    }
+    AED::SubscribedEvents{ART::Events::View => 100}
   end
 
-  def initialize(@serializer : ASR::SerializerInterface); end
+  def initialize(@view_handler : ART::View::ViewHandlerInterface); end
 
   def call(event : ART::Events::View, dispatcher : AED::EventDispatcherInterface) : Nil
-    action = event.request.action
-    view_context = action.view_context
+    request = event.request
+    action = request.action
 
-    if action.return_type == Nil
-      # Return an empty response if the action's return type is `Nil`, using the specified status if a custom one was defined
-      return event.response = ART::Response.new status: view_context.has_custom_status? ? view_context.status : HTTP::Status::NO_CONTENT, headers: get_headers
+    view = event.action_result
+
+    unless view.is_a? ART::View
+      view = action.create_view view
     end
 
-    result = event.action_result
+    if configuration = event.request.action.annotation_configurations[ARTA::View]?
+      if (status = configuration.status) && (view.status.nil? || view.status.not_nil!.ok?)
+        view.status = status
+      end
 
-    # Still use `#to_json` for `JSON::Serializable`,
-    # but prioritize `ASR::Serializable` if the type includes both.
-    data = if result.is_a? JSON::Serializable && !result.is_a? ASR::Serializable
-             result.to_json
-           else
-             context = ASR::SerializationContext.new
+      context = view.context
 
-             view_context.serialization_groups.try do |groups|
-               context.groups = groups
-             end
+      if groups = configuration.serialization_groups
+        if context_groups = context.groups
+          context_groups.concat groups
+        else
+          context.groups = groups
+        end
+      end
+    end
 
-             view_context.version.try do |version|
-               context.version = version
-             end
+    if view.format.nil?
+      view.format = request.request_format
+    end
 
-             context.emit_nil = view_context.emit_nil
-
-             @serializer.serialize result, :json, context
-           end
-
-    event.response = ART::Response.new data, view_context.status, get_headers
-  end
-
-  private def get_headers : HTTP::Headers
-    HTTP::Headers{"content-type" => "application/json; charset=UTF-8"}
+    event.response = @view_handler.handle view, request
   end
 end

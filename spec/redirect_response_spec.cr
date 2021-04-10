@@ -1,6 +1,22 @@
 require "./spec_helper"
 
 describe ART::RedirectResponse do
+  describe ".new" do
+    it "raises if the url is empty" do
+      expect_raises(ArgumentError, "Cannot redirect to an empty URL.") do
+        ART::RedirectResponse.new ""
+      end
+    end
+
+    it "allows passing a `Path` instance" do
+      response = ART::RedirectResponse.new Path["/app/assets/foo.txt"]
+
+      response.status.should eq HTTP::Status::FOUND
+      response.headers.should eq HTTP::Headers{"location" => "/app/assets/foo.txt"}
+      response.content.should be_empty
+    end
+  end
+
   describe "#status" do
     it "defaults to 302" do
       ART::RedirectResponse.new("addresss").status.should eq HTTP::Status::FOUND

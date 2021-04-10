@@ -22,5 +22,5 @@ module Athena::Routing::Params::ParamInterface
   abstract def strict? : Bool
 
   # Returns the `self`'s value from the provided *request*, or *default* if it was not present.
-  abstract def extract_value(request : HTTP::Request, default : _ = nil)
+  abstract def extract_value(request : ART::Request, default : _ = nil)
 end

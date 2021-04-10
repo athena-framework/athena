@@ -8,7 +8,7 @@ struct Athena::Routing::Params::QueryParam(T) < Athena::Routing::Params::ScalarP
   define_initializer
 
   # :inherit:
-  def extract_value(request : HTTP::Request, default : _ = nil)
+  def extract_value(request : ART::Request, default : _ = nil)
     query_params = request.query_params
 
     return default unless query_params.has_key? self.key

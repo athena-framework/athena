@@ -5,7 +5,7 @@ private struct MockArgumentResolver
 
   def initialize(@exception : ::Exception? = nil); end
 
-  def get_arguments(request : HTTP::Request, action : ART::ActionBase) : Array
+  def get_arguments(request : ART::Request, action : ART::ActionBase) : Array
     if ex = @exception
       raise ex
     end
@@ -37,7 +37,7 @@ describe Athena::Routing::RouteHandler do
       describe "view layer" do
         it "should use the resolve the returned value into a response" do
           listener = AED.create_listener(ART::Events::View) do
-            event.response = ART::Response.new event.action_result.to_json, 201, HTTP::Headers{"content-type" => "application/json"}
+            event.response = ART::Response.new "TEST".to_json, 201, HTTP::Headers{"content-type" => "application/json"}
           end
 
           dispatcher = AED::Spec::TracableEventDispatcher.new

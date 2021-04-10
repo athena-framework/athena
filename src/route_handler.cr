@@ -11,6 +11,10 @@ struct Athena::Routing::RouteHandler
   end
 
   def handle(request : HTTP::Request) : ART::Response
+    self.handle ART::Request.new request
+  end
+
+  def handle(request : ART::Request) : ART::Response
     handle_raw request
   rescue ex : ::Exception
     event = ART::Events::Exception.new request, ex
@@ -39,11 +43,11 @@ struct Athena::Routing::RouteHandler
   # Terminates a request/response lifecycle.
   #
   # Should be called after sending the response to the client.
-  def terminate(request : HTTP::Request, response : ART::Response) : Nil
+  def terminate(request : ART::Request, response : ART::Response) : Nil
     @event_dispatcher.dispatch ART::Events::Terminate.new request, response
   end
 
-  private def handle_raw(request : HTTP::Request) : ART::Response
+  private def handle_raw(request : ART::Request) : ART::Response
     # Set the current request in the RequestStore.
     @request_store.request = request
 
@@ -79,7 +83,7 @@ struct Athena::Routing::RouteHandler
     finish_response response, request
   end
 
-  private def finish_response(response : ART::Response, request : HTTP::Request) : ART::Response
+  private def finish_response(response : ART::Response, request : ART::Request) : ART::Response
     # Emit the response event.
     event = ART::Events::Response.new request, response
 

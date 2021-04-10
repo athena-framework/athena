@@ -6,17 +6,21 @@ require "amber_router"
 require "athena-config"
 require "athena-dependency_injection"
 require "athena-event_dispatcher"
+require "athena-negotiation"
 
 require "./action"
 require "./annotations"
+require "./binary_file_response"
 require "./controller"
 require "./error_renderer_interface"
 require "./error_renderer"
+require "./header_utils"
 require "./logging"
 require "./parameter_bag"
 require "./param_converter_interface"
 require "./redirect_response"
 require "./response"
+require "./request"
 require "./request_store"
 require "./route_handler"
 require "./streamed_response"
@@ -27,13 +31,15 @@ require "./config/*"
 require "./events/*"
 require "./exceptions/*"
 require "./listeners/*"
+require "./parameters/*"
 require "./params/*"
 require "./routing/*"
+require "./view/*"
 
-require "./ext/configuration_resolver"
 require "./ext/conversion_types"
 require "./ext/event_dispatcher"
-require "./ext/request"
+require "./ext/http"
+require "./ext/negotiation"
 require "./ext/serializer"
 require "./ext/validator"
 
@@ -45,12 +51,12 @@ alias ARTA = ART::Annotations
 
 # See the [external documentation](https://athenaframework.org) for an introduction to `Athena`.
 #
-# Also checkout the [Components](https://athenaframework.org/components) for an overview of how `Athena` is designed.
+# Also checkout the [Components](/components) for an overview of how `Athena` is designed.
 module Athena::Routing
   # The `AED::Event` that are emitted via `Athena::EventDispatcher` to handle a request during its life-cycle.
   # Custom events can also be defined and dispatched within a controller, listener, or some other service.
   #
-  # See each specific event and the [external documentation](https://athenaframework.org/components/event_dispatcher/) for more information.
+  # See each specific event and the [external documentation](/components/event_dispatcher/) for more information.
   module Athena::Routing::Events; end
 
   # Exception handling in Athena is similar to exception handling in any Crystal program, with the addition of a new unique exception type, `ART::Exceptions::HTTPException`.
@@ -66,7 +72,7 @@ module Athena::Routing
 
   # The `AED::EventListenerInterface` that act upon `ART::Events` to handle a request.  Custom listeners can also be defined, see `AED::EventListenerInterface`.
   #
-  # See each listener and the [external documentation](https://athenaframework.org/components/event_dispatcher/) for more information.
+  # See each listener and the [external documentation](/components/event_dispatcher/) for more information.
   module Athena::Routing::Listeners
     # The tag name for Athena event listeners.
     TAG = "athena.event_dispatcher.listener"
@@ -83,8 +89,9 @@ module Athena::Routing
   # The default `ART::Arguments::Resolvers::ArgumentValueResolverInterface`s that will handle resolving controller action arguments from a request (or other source).
   # Custom argument value resolvers can also be defined, see `ART::Arguments::Resolvers::ArgumentValueResolverInterface`.
   #
-  # NOTE: In order for `Athena::Routing` to pick up your custom value resolvers, be sure to `ADI::Register` it as a service, and tag it as `ART::Arguments::Resolvers::TAG`.
-  # A `priority` field can also be optionally included in the annotation, the higher the value the sooner in the array it'll be when injected.
+  # !!!note
+  #     In order for `Athena::Routing` to pick up your custom value resolvers, be sure to `ADI::Register` it as a service, and tag it as `ART::Arguments::Resolvers::TAG`.
+  #     A `priority` field can also be optionally included in the annotation, the higher the value the sooner in the array it'll be when injected.
   #
   # See each resolver for more detailed information.
   module Athena::Routing::Arguments::Resolvers
@@ -128,14 +135,17 @@ module Athena::Routing
 
         handler = ADI.container.athena_routing_route_handler
 
-        # Handle the request.
-        athena_response = handler.handle context.request
+        # Convert the raw `HTTP::Request` into an `ART::Request` instance.
+        request = ART::Request.new context.request
 
-        # Send the respones based on the current context.
-        athena_response.send context
+        # Handle the request.
+        athena_response = handler.handle request
+
+        # Send the response based on the current context.
+        athena_response.send request, context.response
 
         # Emit the terminate event now that the response has been sent.
-        handler.terminate context.request, athena_response
+        handler.terminate request, athena_response
       end
     end
 

@@ -1,7 +1,7 @@
 require "../spec_helper"
 
 private struct MockParamConverter < ART::ParamConverterInterface
-  def apply(request : HTTP::Request, configuration : Configuration) : Nil
+  def apply(request : ART::Request, configuration : Configuration) : Nil
     request.attributes.set "argument", true, Bool
   end
 end

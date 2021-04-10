@@ -214,12 +214,6 @@ class Athena::Routing::RouteCollection
               {% end %}
             {% end %}
 
-            {% view_context = "ART::Action::ViewContext.new".id %}
-
-            {% if view_ann = m.annotation(ARTA::View) %}
-              {% view_context = %(ART::Action::ViewContext.new(#{view_ann.named_args.double_splat})).id %}
-            {% end %}
-
             {% annotation_configurations = {} of Nil => Nil %}
 
             {% for ann_class in ACF::CUSTOM_ANNOTATIONS %}
@@ -267,7 +261,6 @@ class Athena::Routing::RouteCollection
               constraints: ({{constraints}} of String => Regex),
               arguments: {{arguments.empty? ? "Array(ART::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},
               param_converters: ({{param_converters}} of ART::ParamConverterInterface::ConfigurationInterface),
-              view_context: {{view_context}},
               annotation_configurations: ACF::AnnotationConfigurations.new({{annotation_configurations}} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)),
               params: ({{params}} of ART::Params::ParamInterface),
               _controller: {{klass.id}},
