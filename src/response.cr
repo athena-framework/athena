@@ -114,7 +114,7 @@ class Athena::Routing::Response
     # Apply the `ART::Response` to the actual `HTTP::Server::Response` object.
     response.headers.merge! @headers
     response.status = @status
-    context.response.upgrade_handler = @upgrade_handler
+    response.upgrade_handler = @upgrade_handler
 
     # Write the response content last on purpose.
     # See https://github.com/crystal-lang/crystal/issues/8712
