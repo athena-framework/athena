@@ -94,14 +94,10 @@ class Athena::Routing::Response
   getter content : String
 
   # Creates a new response with optional *content*, *status*, and *headers* arguments.
-  def initialize(content : String? = nil, status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers | ART::Response::Headers | Nil = nil)
+  def initialize(content : String? = nil, status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers | ART::Response::Headers = ART::Response::Headers.new)
     @content = content || ""
     @status = HTTP::Status.new status
-    @headers = case headers
-               in HTTP::Headers          then ART::Response::Headers.new headers
-               in ART::Response::Headers then headers
-               in Nil                    then ART::Response::Headers.new
-               end
+    @headers = ART::Response::Headers.new headers
   end
 
   # Sets the response content.
@@ -142,13 +138,14 @@ class Athena::Routing::Response
       @headers.delete "content-type"
       @headers.delete "content-length"
     else
+      # Set `content-type` based on the request's format.
       unless @headers.has_key? "content-type"
         if (format = request.request_format nil) && (mime_type = request.mime_type format)
           @headers["content-type"] = mime_type
         end
       end
 
-      # Add charset to text/ based content types.
+      # Add charset to `text/` based content types.
       charset = self.charset
 
       if (content_type = @headers["content-type"]?) && content_type.starts_with?("text/") && !content_type.includes?("charset")
@@ -158,7 +155,7 @@ class Athena::Routing::Response
       @headers.delete "content-length" if @headers.has_key? "transfer-encoding"
 
       if "HEAD" == request.method
-        # See RFC2616 14.13.
+        # See https://tools.ietf.org/html/rfc2616#section-14.13.
         length = @headers["content-length"]?
         self.content = nil
         @headers["content-length"] = length if length
