@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-describe ART::Response::Headers, focus: true do
+describe ART::Response::Headers do
   describe "#initialize" do
     it "sets the date on creation" do
       headers = ART::Response::Headers.new

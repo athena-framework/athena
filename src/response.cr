@@ -132,6 +132,8 @@ class Athena::Routing::Response
   # :nodoc:
   #
   # Do any preparation to ensure the response is RFC compliant.
+  #
+  # ameba:disable Metrics/CyclomaticComplexity
   def prepare(request : ART::Request) : Nil
     if @status.informational? || @status.no_content? || @status.not_modified?
       self.content = nil
