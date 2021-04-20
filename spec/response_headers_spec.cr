@@ -13,19 +13,10 @@ describe ART::Response::Headers, focus: true do
       headers = ART::Response::Headers.new({"date" => time})
       headers["date"].should eq time
     end
-
-    it "reinitializes the date if removed" do
-      time = HTTP.format_time Time.utc 2021, 4, 7, 12, 0, 0
-      headers = ART::Response::Headers.new({"date" => time})
-      headers.delete "date"
-
-      headers.has_key?("date").should be_true
-      headers["date"].should_not eq time
-    end
   end
 
   describe "#[]=" do
-    it "replaces previous values" do
+    it "with string value" do
       headers = ART::Response::Headers.new
       headers["cache-control"].should eq "no-cache, private"
       headers.has_cache_control_directive?("no-cache").should be_true
@@ -37,6 +28,25 @@ describe ART::Response::Headers, focus: true do
       headers["Cache-Control"] = "private"
       headers["cache-control"].should eq "private"
       headers.has_cache_control_directive?("private").should be_true
+    end
+
+    it "string value with set-cookie key" do
+      headers = ART::Response::Headers.new
+      headers["set-cookie"] = "name=value; Secure"
+      headers.cookies["name"].value.should eq "value"
+      headers.cookies["name"].secure.should be_true
+    end
+
+    it "with non string value" do
+      headers = ART::Response::Headers.new
+      headers["key"] = 10
+      headers["key"].should eq "10"
+    end
+
+    it "with cookie value" do
+      headers = ART::Response::Headers.new
+      headers["name"] = HTTP::Cookie.new "name", "value"
+      headers.cookies["name"].value.should eq "value"
     end
   end
 
@@ -57,6 +67,39 @@ describe ART::Response::Headers, focus: true do
     end
   end
 
+  describe "#delete" do
+    it "deletes the provided header" do
+      headers = ART::Response::Headers{"foo" => "bar"}
+      headers.has_key?("foo").should be_true
+      headers.delete "foo"
+      headers.has_key?("foo").should be_false
+    end
+
+    it "removes cache-control header" do
+      headers = ART::Response::Headers.new({"expires" => "Sat, 10 Apr 2021 15:14:59 GMT"})
+      headers.has_cache_control_directive?("must-revalidate").should be_true
+      headers.delete "cache-control"
+      headers.has_cache_control_directive?("must-revalidate").should be_false
+    end
+
+    it "reinitializes the date if deleted" do
+      time = HTTP.format_time Time.utc 2021, 4, 7, 12, 0, 0
+      headers = ART::Response::Headers.new({"date" => time})
+      headers.delete "date"
+
+      headers.has_key?("date").should be_true
+      headers["date"].should_not eq time
+    end
+
+    it "removes cookies when deleting set-cookie" do
+      headers = ART::Response::Headers.new
+      headers.cookies << HTTP::Cookie.new "name", "value"
+      headers.cookies["name"].value.should eq "value"
+      headers.delete "set-cookie"
+      headers.cookies.empty?.should be_true
+    end
+  end
+
   it "#get_cache_control_directive" do
     headers = ART::Response::Headers.new
     headers.add_cache_control_directive "private"
@@ -65,7 +108,7 @@ describe ART::Response::Headers, focus: true do
   end
 
   describe "cache-control" do
-    it "uses defaultes to conservative values" do
+    it "uses defaults to conservative values" do
       headers = ART::Response::Headers.new
       headers["cache-control"].should eq "no-cache, private"
       headers.has_cache_control_directive?("no-cache").should be_true

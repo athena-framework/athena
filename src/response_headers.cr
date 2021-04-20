@@ -5,11 +5,13 @@
 # !!!todo
 #     Figure out if there's a way to support the `hash like` syntax.
 class Athena::Routing::Response::Headers
+  getter cookies : HTTP::Cookies { HTTP::Cookies.new }
+
   # A Hash representing the current [cache-control](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control) header directives.
   @cache_control : Hash(String, String | Bool) = Hash(String, String | Bool).new
   @computed_cache_control : Hash(String, String | Bool) = Hash(String, String | Bool).new
 
-  @headers : HTTP::Headers = HTTP::Headers.new
+  @headers = HTTP::Headers.new
 
   # :nodoc:
   forward_missing_to @headers
@@ -41,7 +43,20 @@ class Athena::Routing::Response::Headers
     end
   end
 
+  def []=(key : String, value : HTTP::Cookie) : Nil
+    self.cookies[key] = value
+  end
+
   def []=(key : String, value : String) : Nil
+    if "set-cookie" == key.downcase
+      # TODO: Use HTTP::Cookie.from_header after https://github.com/crystal-lang/crystal/pull/10647 is merged.
+      if cookie = HTTP::Cookie::Parser.parse_set_cookie value
+        self.cookies << cookie
+      else
+        raise ArgumentError.new "Invalid cookie header: #{value}."
+      end
+    end
+
     @headers[key] = value
 
     if "cache-control" == key.downcase
@@ -82,6 +97,10 @@ class Athena::Routing::Response::Headers
   end
 
   def delete(key : String) : Nil
+    if "set-cookie" == key.downcase
+      return self.cookies.clear
+    end
+
     @headers.delete key
 
     if "cache-control" == key.downcase
