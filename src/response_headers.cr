@@ -1,7 +1,3 @@
-# !!!warning
-#    This type does _NOT_ support [hash like](https://crystal-lang.org/reference/syntax_and_semantics/literals/hash.html#hash-like-type-literal) syntax,
-#    the Hash based `.new` overload instead.
-#
 # !!!todo
 #     Figure out if there's a way to support the `hash like` syntax.
 class Athena::Routing::Response::Headers
@@ -18,14 +14,6 @@ class Athena::Routing::Response::Headers
 
   def self.new(headers : self) : self
     headers
-  end
-
-  def self.new(header_hash : Hash(String, String)) : self
-    new HTTP::Headers.new.merge! header_hash
-  end
-
-  def self.new(header_hash : Hash(String, _)) : self
-    new header_hash.transform_values! &.to_s
   end
 
   def initialize(headers : HTTP::Headers = HTTP::Headers.new)

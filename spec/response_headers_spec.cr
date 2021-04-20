@@ -10,7 +10,7 @@ describe ART::Response::Headers, focus: true do
 
     it "uses the provided date if supplied" do
       time = HTTP.format_time Time.utc 2021, 4, 7, 12, 0, 0
-      headers = ART::Response::Headers.new({"date" => time})
+      headers = ART::Response::Headers{"date" => time}
       headers["date"].should eq time
     end
   end
@@ -63,7 +63,7 @@ describe ART::Response::Headers, focus: true do
     end
 
     it "with an invalid datetime string" do
-      ART::Response::Headers.new({"date" => "foo"}).date.should be_nil
+      ART::Response::Headers{"date" => "foo"}.date.should be_nil
     end
   end
 
@@ -76,7 +76,7 @@ describe ART::Response::Headers, focus: true do
     end
 
     it "removes cache-control header" do
-      headers = ART::Response::Headers.new({"expires" => "Sat, 10 Apr 2021 15:14:59 GMT"})
+      headers = ART::Response::Headers{"expires" => "Sat, 10 Apr 2021 15:14:59 GMT"}
       headers.has_cache_control_directive?("must-revalidate").should be_true
       headers.delete "cache-control"
       headers.has_cache_control_directive?("must-revalidate").should be_false
@@ -84,7 +84,7 @@ describe ART::Response::Headers, focus: true do
 
     it "reinitializes the date if deleted" do
       time = HTTP.format_time Time.utc 2021, 4, 7, 12, 0, 0
-      headers = ART::Response::Headers.new({"date" => time})
+      headers = ART::Response::Headers{"date" => time}
       headers.delete "date"
 
       headers.has_key?("date").should be_true
@@ -129,10 +129,10 @@ describe ART::Response::Headers, focus: true do
     end
 
     it "includes special directive with last-modified header" do
-      ART::Response::Headers.new({"expires" => "Sat, 10 Apr 2021 15:14:59 GMT"})["cache-control"].should eq "private, must-revalidate"
-      ART::Response::Headers.new({"last-modified" => "Sat, 10 Apr 2021 15:14:59 GMT"})["cache-control"].should eq "private, must-revalidate"
-      ART::Response::Headers.new({"last-modified" => "Sat, 10 Apr 2021 15:14:59 GMT", "etag" => "abc123"})["cache-control"].should eq "private, must-revalidate"
-      ART::Response::Headers.new({"last-modified" => "Sat, 10 Apr 2021 15:14:59 GMT", "expires" => "Sat, 10 Apr 2021 15:14:59 GMT"})["cache-control"].should eq "private, must-revalidate"
+      ART::Response::Headers{"expires" => "Sat, 10 Apr 2021 15:14:59 GMT"}["cache-control"].should eq "private, must-revalidate"
+      ART::Response::Headers{"last-modified" => "Sat, 10 Apr 2021 15:14:59 GMT"}["cache-control"].should eq "private, must-revalidate"
+      ART::Response::Headers{"last-modified" => "Sat, 10 Apr 2021 15:14:59 GMT", "etag" => "abc123"}["cache-control"].should eq "private, must-revalidate"
+      ART::Response::Headers{"last-modified" => "Sat, 10 Apr 2021 15:14:59 GMT", "expires" => "Sat, 10 Apr 2021 15:14:59 GMT"}["cache-control"].should eq "private, must-revalidate"
     end
 
     it "adds 'private' to existing cache-control header that doesn't have private or public" do
@@ -140,12 +140,12 @@ describe ART::Response::Headers, focus: true do
     end
 
     it "does not add private or public with s-maxage" do
-      ART::Response::Headers.new({"cache-control" => "s-maxage=100"})["cache-control"].should eq "s-maxage=100"
+      ART::Response::Headers{"cache-control" => "s-maxage=100"}["cache-control"].should eq "s-maxage=100"
     end
 
     it "does not alter with multiple directives" do
-      ART::Response::Headers.new({"cache-control" => "private, max-age=100"})["cache-control"].should eq "private, max-age=100"
-      ART::Response::Headers.new({"cache-control" => "public, max-age=100"})["cache-control"].should eq "public, max-age=100"
+      ART::Response::Headers{"cache-control" => "private, max-age=100"}["cache-control"].should eq "private, max-age=100"
+      ART::Response::Headers{"cache-control" => "public, max-age=100"}["cache-control"].should eq "public, max-age=100"
     end
 
     it "recacluates cache-control when new header is added after creation" do
