@@ -105,7 +105,7 @@ describe ART::Response::Headers do
       headers.cookies << HTTP::Cookie.new "name", "value"
       headers.cookies["name"].value.should eq "value"
       headers.delete "set-cookie"
-      headers.cookies.empty?.should be_true
+      headers.cookies.should be_empty
     end
   end
 
