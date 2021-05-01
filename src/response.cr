@@ -116,6 +116,10 @@ class Athena::Routing::Response
     response.headers.merge! @headers
     response.status = @status
 
+    @headers.cookies.each do |c|
+      response.cookies << c
+    end
+
     # Write the response content last on purpose.
     # See https://github.com/crystal-lang/crystal/issues/8712
     self.write response

@@ -15,6 +15,15 @@ describe ART::Response::Headers do
     end
   end
 
+  describe "#<<" do
+    it "with a cookie" do
+      headers = ART::Response::Headers.new
+      headers.cookies.should be_empty
+      headers << HTTP::Cookie.new "key", "value"
+      headers.cookies["key"].should eq HTTP::Cookie.new "key", "value"
+    end
+  end
+
   describe "#[]=" do
     it "with string value" do
       headers = ART::Response::Headers.new

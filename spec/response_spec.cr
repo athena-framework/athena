@@ -49,12 +49,16 @@ describe ART::Response do
       response = new_response io: io
       request = new_request
 
-      ART::Response.new("DATA", 418, HTTP::Headers{"FOO" => "BAR"}).send request, response
+      art_response = ART::Response.new("DATA", 418, HTTP::Headers{"FOO" => "BAR"})
+      art_response.headers << HTTP::Cookie.new "key", "value"
+
+      art_response.send request, response
 
       response.status.should eq HTTP::Status::IM_A_TEAPOT
       response.headers["foo"].should eq "BAR"
       response.headers["content-length"].should eq "4"
       response.headers.has_key?("date").should be_true
+      response.cookies["key"].should eq HTTP::Cookie.new "key", "value"
       response.closed?.should be_true
 
       io.rewind.gets_to_end.should end_with "DATA"

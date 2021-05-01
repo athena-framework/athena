@@ -29,6 +29,10 @@ class Athena::Routing::Response::Headers
     end
   end
 
+  def <<(cookie : HTTP::Cookie) : Nil
+    self.cookies << cookie
+  end
+
   def []=(key : String, value : HTTP::Cookie) : Nil
     self.cookies[key] = value
   end

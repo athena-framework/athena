@@ -164,4 +164,10 @@ struct RoutingTest < ART::Spec::APITestCase
     response.status.should eq HTTP::Status::IM_A_TEAPOT
     response.content.should eq "FOO"
   end
+
+  def test_applies_cookies_to_actual_response : Nil
+    response = self.request("GET", "/cookies")
+    response.cookies.size.should eq 1
+    response.cookies["key"].should eq HTTP::Cookie.new "key", "value"
+  end
 end
