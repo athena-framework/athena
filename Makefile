@@ -20,11 +20,13 @@ spec :: compiler_spec unit_spec
 
 .PHONY: unit_spec
 unit_spec: ## Run unit tests
-	$(CRYSTAL) spec $(SPEC_FLAGS) --tag ~compiler
+	@printf "Athena Unit Tests:\n\n"
+	@$(CRYSTAL) spec $(SPEC_FLAGS) --tag ~compiler
 
 .PHONY: compiler_spec
 compiler_spec: ## Run compiler tests
-	$(CRYSTAL) spec $(SPEC_FLAGS) --tag compiler
+	@printf "Athena Compiler Tests:\n\n"
+	@$(CRYSTAL) spec $(SPEC_FLAGS) --tag compiler
 
 .PHONY: nightly_spec
 nightly_spec: ## Runs the Athena spec suite against Crystal nightly

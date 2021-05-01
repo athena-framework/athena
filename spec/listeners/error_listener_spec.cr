@@ -19,7 +19,7 @@ describe ART::Listeners::Error do
 
     response = event.response.should_not be_nil
     response.status.should eq HTTP::Status::IM_A_TEAPOT
-    response.headers.should eq HTTP::Headers{"FOO" => "BAR"}
+    response.headers["FOO"].should eq "BAR"
     response.content.should eq "ERR"
   end
 

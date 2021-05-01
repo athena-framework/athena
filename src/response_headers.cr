@@ -1,5 +1,3 @@
-# !!!todo
-#     Figure out if there's a way to support the `hash like` syntax.
 class Athena::Routing::Response::Headers
   getter cookies : HTTP::Cookies { HTTP::Cookies.new }
 
@@ -37,12 +35,13 @@ class Athena::Routing::Response::Headers
 
   def []=(key : String, value : String) : Nil
     if "set-cookie" == key.downcase
-      # TODO: Use HTTP::Cookie.from_header after https://github.com/crystal-lang/crystal/pull/10647 is merged.
       if cookie = HTTP::Cookie::Parser.parse_set_cookie value
         self.cookies << cookie
       else
         raise ArgumentError.new "Invalid cookie header: #{value}."
       end
+
+      return
     end
 
     @headers[key] = value
@@ -59,6 +58,10 @@ class Athena::Routing::Response::Headers
 
   def []=(key : String, value : _) : Nil
     self.[key] = value.to_s
+  end
+
+  def ==(other : HTTP::Headers) : Bool
+    @headers == other
   end
 
   def add(key : String, value : String) : Nil

@@ -12,7 +12,7 @@ describe ART::RedirectResponse do
       response = ART::RedirectResponse.new Path["/app/assets/foo.txt"]
 
       response.status.should eq HTTP::Status::FOUND
-      response.headers.should eq HTTP::Headers{"location" => "/app/assets/foo.txt"}
+      response.headers["location"].should eq "/app/assets/foo.txt"
       response.content.should be_empty
     end
   end
@@ -45,7 +45,7 @@ describe ART::RedirectResponse do
     end
 
     it "adds the location header" do
-      ART::RedirectResponse.new("addresss").headers.should eq HTTP::Headers{"location" => "addresss"}
+      ART::RedirectResponse.new("addresss").headers["location"].should eq "addresss"
     end
   end
 end

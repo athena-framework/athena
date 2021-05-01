@@ -8,7 +8,7 @@ describe ART::Controller do
       response = ART::Controller.render "spec/assets/greeting.ecr"
 
       response.status.should eq HTTP::Status::OK
-      response.headers.should eq HTTP::Headers{"content-type" => "text/html"}
+      response.headers["content-type"].should eq "text/html"
       response.content.should eq "Greetings, TEST!\n"
     end
 
@@ -18,7 +18,7 @@ describe ART::Controller do
       response = ART::Controller.render "spec/assets/greeting.ecr", "spec/assets/layout.ecr"
 
       response.status.should eq HTTP::Status::OK
-      response.headers.should eq HTTP::Headers{"content-type" => "text/html"}
+      response.headers["content-type"].should eq "text/html"
       response.content.should eq "<h1>Content:</h1> Greetings, TEST!\n"
     end
   end
@@ -28,7 +28,7 @@ describe ART::Controller do
       response = TestController.new.redirect "URL"
 
       response.status.should eq HTTP::Status::FOUND
-      response.headers.should eq HTTP::Headers{"location" => "URL"}
+      response.headers["location"].should eq "URL"
       response.content.should be_empty
     end
 
@@ -36,7 +36,7 @@ describe ART::Controller do
       response = TestController.new.redirect Path["/app/assets/foo.txt"]
 
       response.status.should eq HTTP::Status::FOUND
-      response.headers.should eq HTTP::Headers{"location" => "/app/assets/foo.txt"}
+      response.headers["location"].should eq "/app/assets/foo.txt"
       response.content.should be_empty
     end
   end
