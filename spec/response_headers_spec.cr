@@ -18,6 +18,14 @@ describe ART::Response::Headers do
       headers = ART::Response::Headers{"foo" => ["one", "two", "three"]}
       headers["foo"].should eq "one,two,three"
     end
+
+    it "sets the proper `cache-control` header based on the provided HTTP::Headers object" do
+      headers = ART::Response::Headers.new HTTP::Headers{"expires" => "Sat, 10 Apr 2021 15:14:59 GMT"}
+      headers["cache-control"].should eq "private, must-revalidate"
+
+      headers = ART::Response::Headers.new HTTP::Headers{"expires" => "Sat, 10 Apr 2021 15:14:59 GMT", "cache-control" => "max-age=3600"}
+      headers["cache-control"].should eq "max-age=3600, private"
+    end
   end
 
   describe "#<<" do
@@ -160,6 +168,7 @@ describe ART::Response::Headers do
 
     it "adds 'private' to existing cache-control header that doesn't have private or public" do
       ART::Response::Headers{"expires" => "Sat, 10 Apr 2021 15:14:59 GMT", "cache-control" => "max-age=3600"}["cache-control"].should eq "max-age=3600, private"
+      ART::Response::Headers{"cache-control" => "max-age=3600", "expires" => "Sat, 10 Apr 2021 15:14:59 GMT"}["cache-control"].should eq "max-age=3600, private"
     end
 
     it "does not add private or public with s-maxage" do

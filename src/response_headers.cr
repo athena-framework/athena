@@ -23,9 +23,18 @@ class Athena::Routing::Response::Headers
 
   # Creates a new `self`, including the data from the provided *headers*.
   def initialize(headers : HTTP::Headers = HTTP::Headers.new)
-    @headers.merge! headers
+    # Defer setting the cache-control header until other headers are set.
+    # This is due to some other header values determining what the resulting
+    # cache-control header value should be.  E.g. expires.
+    cache_control_header = headers.delete "cache-control"
 
-    unless @headers.has_key? "cache-control"
+    headers.each do |k, v|
+      self.[k] = v
+    end
+
+    if cache_control_header
+      self.["cache-control"] = cache_control_header
+    elsif !@headers.has_key? "cache-control"
       self.["cache-control"] = ""
     end
 
