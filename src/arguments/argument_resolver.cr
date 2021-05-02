@@ -1,10 +1,10 @@
 require "./resolvers/argument_value_resolver_interface"
 require "./argument_resolver_interface"
 
-# :nodoc:
-#
-# TODO: Revert back to `#map` once [this issue](https://github.com/crystal-lang/crystal/issues/8812) is resolved.
 class Array
+  # :nodoc:
+  #
+  # TODO: Revert back to `#map` once [this issue](https://github.com/crystal-lang/crystal/issues/8812) is resolved.
   def map_first_type
     ary = [] of typeof((yield first))
     each do |e|
