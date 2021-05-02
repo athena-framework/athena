@@ -13,6 +13,11 @@ describe ART::Response::Headers do
       headers = ART::Response::Headers{"date" => time}
       headers["date"].should eq time
     end
+
+    it "copies multiple headers with the same key" do
+      headers = ART::Response::Headers{"foo" => ["one", "two", "three"]}
+      headers["foo"].should eq "one,two,three"
+    end
   end
 
   describe "#<<" do
@@ -44,6 +49,15 @@ describe ART::Response::Headers do
       headers["set-cookie"] = "name=value; Secure"
       headers.cookies["name"].value.should eq "value"
       headers.cookies["name"].secure.should be_true
+    end
+
+    it "with an array of set-cookie values" do
+      headers = ART::Response::Headers.new
+      headers["set-cookie"] = ["name=value; Secure", "foo=bar"]
+      headers.cookies["name"].value.should eq "value"
+      headers.cookies["name"].secure.should be_true
+      headers.cookies["foo"].value.should eq "bar"
+      headers.cookies["foo"].secure.should be_false
     end
 
     it "with non string value" do
