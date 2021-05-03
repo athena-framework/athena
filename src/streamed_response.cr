@@ -27,14 +27,14 @@ class Athena::Routing::StreamedResponse < Athena::Routing::Response
   #
   # # GET /users # => [{"id":1,...},...]
   # ```
-  def self.new(status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers = HTTP::Headers.new, &block : IO -> Nil)
+  def self.new(status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers | ART::Response::Headers = ART::Response::Headers.new, &block : IO -> Nil)
     new block, status, headers
   end
 
   # Creates a new response with the provided *callback* and optional *status*, and *headers* arguments.
   #
   # The proc is called when `self` is being written to the response's `IO`.
-  def initialize(@callback : Proc(IO, Nil), status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers = HTTP::Headers.new)
+  def initialize(@callback : Proc(IO, Nil), status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers | ART::Response::Headers = ART::Response::Headers.new)
     super nil, status, headers
   end
 

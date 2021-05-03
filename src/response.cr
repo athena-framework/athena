@@ -84,16 +84,20 @@ class Athena::Routing::Response
   # Returns the `HTTP::Status` of this response.
   getter status : HTTP::Status
 
+  # Returns the character set this response is encoded as.
+  property charset : String = "UTF-8"
+
   # Returns the response headers of this response.
-  getter headers : HTTP::Headers
+  getter headers : ART::Response::Headers
 
   # Returns the contents of this response.
   getter content : String
 
   # Creates a new response with optional *content*, *status*, and *headers* arguments.
-  def initialize(content : String? = nil, status : HTTP::Status | Int32 = HTTP::Status::OK, @headers : HTTP::Headers = HTTP::Headers.new)
+  def initialize(content : String? = nil, status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers | ART::Response::Headers = ART::Response::Headers.new)
     @content = content || ""
     @status = HTTP::Status.new status
+    @headers = ART::Response::Headers.new headers
   end
 
   # Sets the response content.
@@ -112,6 +116,10 @@ class Athena::Routing::Response
     response.headers.merge! @headers
     response.status = @status
 
+    @headers.cookies.each do |c|
+      response.cookies << c
+    end
+
     # Write the response content last on purpose.
     # See https://github.com/crystal-lang/crystal/issues/8712
     self.write response
@@ -128,27 +136,36 @@ class Athena::Routing::Response
   # :nodoc:
   #
   # Do any preparation to ensure the response is RFC compliant.
+  #
+  # ameba:disable Metrics/CyclomaticComplexity
   def prepare(request : ART::Request) : Nil
-    self.init_date
-
-    # Set sensible default cache-control header.
-    unless @headers.has_key? "cache-control"
-      @headers.add_cache_control_directive "private"
-
-      if @headers.has_key?("last-modified") || @headers.has_key?("expires")
-        @headers.add_cache_control_directive "must-revalidate"
-      else
-        @headers.add_cache_control_directive "no-cache"
-      end
-    end
-
     if @status.informational? || @status.no_content? || @status.not_modified?
       self.content = nil
       @headers.delete "content-type"
       @headers.delete "content-length"
     else
+      # Set `content-type` based on the request's format.
+      unless @headers.has_key? "content-type"
+        if (format = request.request_format nil) && (mime_type = request.mime_type format)
+          @headers["content-type"] = mime_type
+        end
+      end
+
+      # Add charset to `text/` based content types.
+      charset = self.charset
+
+      if (content_type = @headers["content-type"]?) && content_type.starts_with?("text/") && !content_type.includes?("charset")
+        @headers["content-type"] = "#{content_type}; charset=#{charset}"
+      end
+
       @headers.delete "content-length" if @headers.has_key? "transfer-encoding"
-      self.content = nil if "HEAD" == request.method
+
+      if "HEAD" == request.method
+        # See https://tools.ietf.org/html/rfc2616#section-14.13.
+        length = @headers["content-length"]?
+        self.content = nil
+        @headers["content-length"] = length if length
+      end
     end
 
     if "HTTP/1.0" == request.version && @headers.has_cache_control_directive?("no-cache")
@@ -199,14 +216,6 @@ class Athena::Routing::Response
     end
 
     @headers["last-modified"] = HTTP.format_time time
-  end
-
-  protected def init_date : Nil
-    # TODO: Move this logic directly into HTTP::Headers.
-    # See https://tools.ietf.org/html/rfc2616#section-14.18.
-    if !@headers.has_key?("date") && !@status.continue? && !@status.switching_protocols?
-      @headers["date"] = HTTP.format_time Time.utc
-    end
   end
 
   protected def write(output : IO) : Nil

@@ -33,6 +33,9 @@ class Athena::Routing::View(T)
   property status : HTTP::Status?
 
   # The format the view should be rendered in.
+  #
+  # The *format* must be registered with the `ART::Request::FORMATS` hash;
+  # either as a built in format, or a custom one that has registered via `ART::Request.register_format`.
   property format : String? = nil
 
   # The parameters that should be used when constructing the redirect `#route` URL.
@@ -96,7 +99,7 @@ class Athena::Routing::View(T)
   end
 
   # Returns the headers of the underlying `#response`.
-  def headers : HTTP::Headers
+  def headers : ART::Response::Headers
     self.response.headers
   end
 

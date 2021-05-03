@@ -285,7 +285,7 @@ describe ART::Listeners::CORS do
 
       listener.call event, AED::Spec::TracableEventDispatcher.new
 
-      event.response.headers.should be_empty
+      event.response.headers.size.should eq 2
     end
 
     it "without a configuration defined" do
@@ -294,7 +294,7 @@ describe ART::Listeners::CORS do
 
       listener.call event, AED::Spec::TracableEventDispatcher.new
 
-      event.response.headers.should be_empty
+      event.response.headers.size.should eq 2
     end
   end
 end

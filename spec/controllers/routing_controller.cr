@@ -22,6 +22,12 @@ class RoutingController < ART::Controller
     "HEAD"
   end
 
+  get "/cookies", return_type: ART::Response do
+    response = ART::Response.new "FOO"
+    response.headers << HTTP::Cookie.new "key", "value"
+    response
+  end
+
   @[ARTA::Get("art/response")]
   def response : ART::Response
     ART::Response.new "FOO", 418, HTTP::Headers{"content-type" => "BAR"}

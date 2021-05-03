@@ -8,7 +8,7 @@ struct Athena::Routing::Listeners::CORS
 
   # Encapsulates logic to set CORS response headers
   private struct ResponseHeaders
-    def initialize(@headers : HTTP::Headers); end
+    def initialize(@headers : ART::Response::Headers); end
 
     {% for header in %w[allow-origin allow-methods allow-headers allow-credentials expose-headers] %}
       {% method_name = header.tr("-", "_").id %}
@@ -23,7 +23,7 @@ struct Athena::Routing::Listeners::CORS
 
       def {{method_name}}=(value : Array(String)) : Nil
         return if value.empty?
-        self.{{method_name}} = value.join(", ")
+        self.{{method_name}} = value.join ", "
       end
 
       def {{method_name}}=(value : Nil) : Nil
@@ -49,7 +49,7 @@ struct Athena::Routing::Listeners::CORS
     def initialize(@headers : HTTP::Headers); end
 
     def request_method : String?
-      @headers["access-control-request-method"]?.try(&.upcase)
+      @headers["access-control-request-method"]?.try &.upcase
     end
 
     def request_headers : Array(String)
@@ -61,7 +61,7 @@ struct Athena::Routing::Listeners::CORS
     end
 
     def has_request_method? : Bool
-      @headers.has_key?("access-control-request-method")
+      @headers.has_key? "access-control-request-method"
     end
   end
 

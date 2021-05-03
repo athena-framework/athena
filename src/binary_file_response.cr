@@ -49,7 +49,7 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
   def initialize(
     file_path : String | Path,
     status : HTTP::Status | Int32 = HTTP::Status::OK,
-    headers : HTTP::Headers = HTTP::Headers.new,
+    headers : HTTP::Headers | ART::Response::Headers = ART::Response::Headers.new,
     public : Bool = true,
     content_disposition : ART::BinaryFileResponse::ContentDisposition? = nil,
     auto_etag : Bool = false,
@@ -112,8 +112,6 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
       self.status = :not_modified
       return super
     end
-
-    self.init_date
 
     unless @headers.has_key? "content-type"
       @headers["content-type"] = MIME.from_filename(@file_path, "application/octet-stream")

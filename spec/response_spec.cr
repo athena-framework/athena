@@ -11,7 +11,8 @@ describe ART::Response do
   describe ".new" do
     it "defaults" do
       response = ART::Response.new
-      response.headers.should be_empty
+      response.headers.has_key?("date").should be_true
+      response.headers.has_key?("cache-control").should be_true
       response.content.should be_empty
       response.status.should eq HTTP::Status::OK
     end
@@ -43,17 +44,21 @@ describe ART::Response do
   end
 
   describe "#send" do
-    it "sends the response to the client" do
+    it "writes the data to the provided IO" do
       io = IO::Memory.new
       response = new_response io: io
       request = new_request
 
-      ART::Response.new("DATA", 418, HTTP::Headers{"FOO" => "BAR"}).send request, response
+      art_response = ART::Response.new("DATA", 418, HTTP::Headers{"FOO" => "BAR"})
+      art_response.headers << HTTP::Cookie.new "key", "value"
+
+      art_response.send request, response
 
       response.status.should eq HTTP::Status::IM_A_TEAPOT
       response.headers["foo"].should eq "BAR"
       response.headers["content-length"].should eq "4"
       response.headers.has_key?("date").should be_true
+      response.cookies["key"].should eq HTTP::Cookie.new "key", "value"
       response.closed?.should be_true
 
       io.rewind.gets_to_end.should end_with "DATA"
@@ -94,21 +99,61 @@ describe ART::Response do
   end
 
   describe "#prepare" do
-    it "removes content for head requests" do
+    it "sets content-type based on format" do
+      request = ART::Request.new "GET", "/"
+      request.request_format = "json"
       response = ART::Response.new "CONTENT"
-      request = ART::Request.new "HEAD", "/"
-      response.headers["content-length"] = "5"
 
       response.prepare request
 
-      response.content.should be_empty
-      response.headers["content-length"].should eq "5"
+      response.headers["content-type"].should eq "application/json"
     end
 
-    it "removes content for informational & empty responses" do
+    it "does not override content-type if already set" do
       request = ART::Request.new "GET", "/"
+      request.request_format = "json"
+      response = ART::Response.new "CONTENT", headers: HTTP::Headers{"content-type" => "application/json; charset=UTF-8"}
 
+      response.prepare request
+
+      response.headers["content-type"].should eq "application/json; charset=UTF-8"
+    end
+
+    it "adds the charset to text based formats" do
+      request = ART::Request.new "GET", "/"
+      request.request_format = "csv"
       response = ART::Response.new "CONTENT"
+
+      response.prepare request
+
+      response.headers["content-type"].should eq "text/csv; charset=UTF-8"
+    end
+
+    it "allows customizing the charset" do
+      request = ART::Request.new "GET", "/"
+      request.request_format = "csv"
+      response = ART::Response.new "CONTENT"
+      response.charset = "ISO-8859-1"
+
+      response.prepare request
+
+      response.headers["content-type"].should eq "text/csv; charset=ISO-8859-1"
+    end
+
+    it "does not override the charset if already included" do
+      request = ART::Request.new "GET", "/"
+      request.request_format = "csv"
+      response = ART::Response.new "CONTENT", headers: HTTP::Headers{"content-type" => "text/csv; charset=ISO-8859-1"}
+
+      response.prepare request
+
+      response.headers["content-type"].should eq "text/csv; charset=ISO-8859-1"
+    end
+
+    it "removes content for informational responses & empty responses" do
+      request = ART::Request.new "GET", "/"
+      response = ART::Response.new "CONTENT"
+
       response.headers["content-length"] = "5"
       response.headers["content-type"] = "text/plain"
       response.status = 101
@@ -118,6 +163,11 @@ describe ART::Response do
       response.content.should be_empty
       response.headers.has_key?("content-length").should be_false
       response.headers.has_key?("content-type").should be_false
+    end
+
+    it "removes content for empty responses" do
+      request = ART::Request.new "GET", "/"
+      response = ART::Response.new "CONTENT"
 
       response.content = "CONTENT"
       response.headers["content-length"] = "5"
@@ -148,6 +198,17 @@ describe ART::Response do
       response.headers.has_key?("content-length").should be_false
     end
 
+    it "removes content and preserves content-length for head requests" do
+      response = ART::Response.new "CONTENT"
+      request = ART::Request.new "HEAD", "/"
+      response.headers["content-length"] = "5"
+
+      response.prepare request
+
+      response.content.should be_empty
+      response.headers["content-length"].should eq "5"
+    end
+
     it "sets pragma & expires headers on HTTP/1.0 request" do
       request = ART::Request.new "HEAD", "/", version: "HTTP/1.0"
 
@@ -168,91 +229,14 @@ describe ART::Response do
       response.headers.has_key?("pragma").should be_false
       response.headers.has_key?("expires").should be_false
     end
-
-    describe "cache-control" do
-      it "sets cache-control if not already set" do
-        request = ART::Request.new "GET", "/"
-
-        response = ART::Response.new
-
-        response.prepare request
-
-        response.headers["cache-control"].should eq "private, no-cache"
-      end
-
-      it "sets the correct directive if last-modified header is included" do
-        request = ART::Request.new "GET", "/"
-
-        response = ART::Response.new headers: HTTP::Headers{"last-modified" => "MODIFIED"}
-
-        response.prepare request
-
-        response.headers["cache-control"].should eq "private, must-revalidate"
-      end
-
-      it "sets the correct directive if expires header is included" do
-        request = ART::Request.new "GET", "/"
-
-        response = ART::Response.new headers: HTTP::Headers{"expires" => "EXPIRES"}
-
-        response.prepare request
-
-        response.headers["cache-control"].should eq "private, must-revalidate"
-      end
-
-      it "does not override if already set" do
-        request = ART::Request.new "GET", "/"
-
-        response = ART::Response.new headers: HTTP::Headers{"cache-control" => "CACHE"}
-        response.headers["cache-control"].should eq "CACHE"
-
-        response.prepare request
-
-        response.headers["cache-control"].should eq "CACHE"
-      end
-    end
-
-    describe "date" do
-      it "sets date if not set" do
-        request = ART::Request.new "GET", "/"
-
-        response = ART::Response.new
-        response.headers.has_key?("date").should be_false
-
-        response.prepare request
-
-        response.headers.has_key?("date").should be_true
-      end
-
-      it "does not override if already present" do
-        request = ART::Request.new "GET", "/"
-
-        response = ART::Response.new headers: HTTP::Headers{"date" => "DATE"}
-        response.headers["date"].should eq "DATE"
-
-        response.prepare request
-
-        response.headers["date"].should eq "DATE"
-      end
-
-      it "does not set a date if informational response" do
-        request = ART::Request.new "GET", "/"
-
-        response = ART::Response.new status: HTTP::Status::CONTINUE
-        response.headers.has_key?("date").should be_false
-
-        response.prepare request
-
-        response.headers.has_key?("date").should be_false
-      end
-    end
   end
 
   it "#set_public" do
     response = ART::Response.new
     response.set_public
 
-    response.headers["cache-control"].should eq "public"
+    response.headers["cache-control"].should contain "public"
+    response.headers["cache-control"].should_not contain "private"
   end
 
   describe "#set_etag" do

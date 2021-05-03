@@ -49,7 +49,7 @@ describe Athena::Routing::RouteHandler do
 
           response.status.should eq HTTP::Status::CREATED
           response.content.should eq %("TEST")
-          response.headers.should eq HTTP::Headers{"content-type" => "application/json"}
+          response.headers["content-type"].should eq "application/json"
 
           dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Action, ART::Events::View, ART::Events::Response]
         end
@@ -82,7 +82,7 @@ describe Athena::Routing::RouteHandler do
 
           response.status.should eq HTTP::Status::IM_A_TEAPOT
           response.content.should be_empty
-          response.headers.should eq HTTP::Headers{"FOO" => "BAR"}
+          response.headers["FOO"].should eq "BAR"
 
           dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Response]
         end
