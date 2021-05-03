@@ -3,8 +3,7 @@ require "./param_fetcher_interface"
 @[ADI::Register]
 # Basic implementation of `ART::Params::ParamFetcherInterface`.
 #
-# !!!warning
-#     May only be used _after_ the related `ART::Action` has been resolved.
+# WARNING: May only be used _after_ the related `ART::Action` has been resolved.
 class Athena::Routing::Params::ParamFetcher
   include Athena::Routing::Params::ParamFetcherInterface
 

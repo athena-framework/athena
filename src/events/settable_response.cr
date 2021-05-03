@@ -1,7 +1,6 @@
 # Represents an event where an `ART::Response` can be set on `self` to handle the original `ART::Request`.
 #
-# !!!warning
-#     Once `#response=` is called, propagation stops; i.e. listeners with lower priority will not be executed.
+# WARNING: Once `#response=` is called, propagation stops; i.e. listeners with lower priority will not be executed.
 module Athena::Routing::Events::SettableResponse
   # The response object, if any.
   getter response : ART::Response? = nil

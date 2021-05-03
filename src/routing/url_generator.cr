@@ -12,8 +12,7 @@ class Athena::Routing::URLGenerator
   #
   # *params* are validated to ensure they are all provided, and meet any route constraints defined on the action.
   #
-  # !!!todo
-  #     Make URL generation more robust.
+  # TODO: Make URL generation more robust.
   #
   # ameba:disable Metrics/CyclomaticComplexity
   def generate(route : String, params : Hash(String, _)? = nil, reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path) : String

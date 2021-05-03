@@ -122,7 +122,7 @@ abstract struct Athena::Routing::ParamConverterInterface
 
   # Applies the conversion logic based on the provided *request* and *configuration*.
   #
-  # Most commonly this involves setting/overriding a value stored in the request's `ART::ParameterBag` via `request.attributes`.
+  # Most commonly this involves setting/overriding a value stored in the request's `ART::Request#attributes`.
   def apply(request : ART::Request, configuration : Configuration) : Nil
     {% if @type < ART::ParamConverterInterface %}
       # Manually check this in order to allow a global overload

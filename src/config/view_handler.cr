@@ -6,8 +6,7 @@ struct Athena::Routing::Config::ViewHandler
   # This method should be overridden in order to provide configuration overrides for `ART::View::ViewHandlerInterface`.
   # See the [external documentation](/components/negotiation) for more details.
   #
-  # !!!note
-  #     The `#failed_validation_status` is currently not used.  Included for future work.
+  # NOTE: The `#failed_validation_status` is currently not used.  Included for future work.
   #
   # ```
   # def ART::Config::ViewHandler.configure : ART::Config::ViewHandler

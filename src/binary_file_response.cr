@@ -67,14 +67,12 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
     self.set_content_disposition content_disposition if content_disposition
   end
 
-  # !!!caution
-  #     Cannot set the response content via this method on `self`.
+  # CAUTION: Cannot set the response content via this method on `self`.
   def content=(data) : Nil
     raise "The content cannot be set on a BinaryFileResponse instance." unless data.nil?
   end
 
-  # !!!caution
-  #     Cannot get the response content via this method on `self`.
+  # CAUTION: Cannot get the response content via this method on `self`.
   def content : String
     ""
   end
