@@ -1,6 +1,7 @@
 require "./resolvers/argument_value_resolver_interface"
 require "./argument_resolver_interface"
 
+# :nodoc:
 class Array
   # :nodoc:
   #

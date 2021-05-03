@@ -51,16 +51,14 @@ class Athena::Routing::Response::Headers
 
   # Sets a cookie with the provided *key* and *value*.
   #
-  # !!!note
-  #     The *key* and cookie name must match.
+  # NOTE: The *key* and cookie name must match.
   def []=(key : String, value : HTTP::Cookie) : Nil
     self.cookies[key] = value
   end
 
   # Sets a header with the provided *key* to the provided *value*.
   #
-  # !!!note
-  #     This method will override the *value* of the provided *key*.
+  # NOTE: This method will override the *value* of the provided *key*.
   def []=(key : String, value : Array(String)) : Nil
     if "set-cookie" == key.downcase
       value.each do |v|
@@ -114,8 +112,7 @@ class Athena::Routing::Response::Headers
 
   # Adds the provided *value* to the the provided *key*.
   #
-  # !!!note
-  #     This method will concatenate the *value* to the provided *key*.
+  # NOTE: This method will concatenate the *value* to the provided *key*.
   def add(key : String, value : String) : Nil
     @headers.add key, value
 

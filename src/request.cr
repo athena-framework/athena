@@ -94,8 +94,7 @@ class Athena::Routing::Request
 
   # Returns the host name the request originated from.
   #
-  # !!!todo
-  #     Support reading the `#hostname` from the `X-Forwarded-Host` header if trusted.
+  # TODO: Support reading the `#hostname` from the `X-Forwarded-Host` header if trusted.
   def hostname : String?
     @request.hostname
   end

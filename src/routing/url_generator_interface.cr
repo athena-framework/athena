@@ -9,15 +9,13 @@ module Athena::Routing::URLGeneratorInterface
     # By default the `Host` header of the request is used as the hostname, with the scheme being `https`.
     # This can be customized via the `ART::Parameters#base_uri` parameter.
     #
-    # !!!note
-    #     If the `base_uri` parameter is not set, and there is no `Host` header, the generated URL will fallback on `Absolute_Path`.
+    # NOTE: If the `base_uri` parameter is not set, and there is no `Host` header, the generated URL will fallback on `Absolute_Path`.
     Absolute_URL
 
     # The default type, includes an absolute path from the root to the generated route: `/add/10/5`.
     Absolute_Path
 
-    # !!!todo
-    #     Implement this.
+    # TODO: Implement this.
     Relative_Path
 
     # Similar to `Absolute_URL`, but reuses the current protocol: `//api.example.com/add/10/5`.

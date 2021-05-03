@@ -31,8 +31,7 @@ class Athena::Routing::Router
 
   # :inherit:
   #
-  # !!!todo
-  #     Possibly raise a non `ART::Exceptions::HTTPException` here to allow caller to determine what to do.
+  # TODO: Possibly raise a non `ART::Exceptions::HTTPException` here to allow caller to determine what to do.
   def match(request : ART::Request) : Amber::Router::RoutedResult(Athena::Routing::ActionBase)
     # Get the routes that match the given path
     matching_routes = self.class.matcher.find_routes request.path

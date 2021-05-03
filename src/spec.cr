@@ -35,8 +35,7 @@ end
 module Athena::Routing::Spec
   # Simulates a browser to make requests to some destination.
   #
-  # !!!note
-  #     Currently just acts as a client to make `HTTP` requests.  This type exists to allow for introduction of other functionality in the future.
+  # NOTE: Currently just acts as a client to make `HTTP` requests.  This type exists to allow for introduction of other functionality in the future.
   abstract struct AbstractBrowser
     # :nodoc:
     #
@@ -80,8 +79,7 @@ module Athena::Routing::Spec
 
   # Base `ASPEC::TestCase` for web based integration tests.
   #
-  # !!!note
-  #     Currently only `API` based tests are supported.  This type exists to allow for introduction of other types in the future.
+  # NOTE: Currently only `API` based tests are supported.  This type exists to allow for introduction of other types in the future.
   abstract struct WebTestCase < ASPEC::TestCase
     # Returns the `AbstractBrowser` instance to which requests should be made against.
     def create_client : AbstractBrowser
@@ -124,8 +122,7 @@ module Athena::Routing::Spec
   # The `#request` method is used to make our requests to the API, then we run are assertions against the resulting `HTTP::Server::Response`.
   # A key thing to point out is that there is no `HTTP::Server` involved, thus resulting in more performant specs.
   #
-  # !!!attention
-  #     Be sure to call `Athena::Spec.run_all` to your `spec_helper.cr` to ensure all test case instances are executed.
+  # ATTENTION: Be sure to call `Athena::Spec.run_all` to your `spec_helper.cr` to ensure all test case instances are executed.
   #
   # ### Mocking External Dependencies
   #
@@ -190,8 +187,7 @@ module Athena::Routing::Spec
   # end
   # ```
   #
-  # !!!tip
-  #     See `ADI::Spec::MockableServiceContainer` for more details on mocking services.
+  # TIP: See `ADI::Spec::MockableServiceContainer` for more details on mocking services.
   #
   # Each `test_*` method has its own service container instance.
   # Any services that are mutated/replaced within the `initialize` method will affect all `test_*` methods.

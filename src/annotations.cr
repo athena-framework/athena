@@ -241,8 +241,7 @@ module Athena::Routing::Annotations
   #
   # When strict mode is disabled, the default value (or `nil`) will be used instead of raising an exception if the actual value is invalid.
   #
-  # !!!note
-  #     When setting `strict: false`, the related controller action argument must be nilable or have a default value.
+  # NOTE: When setting `strict: false`, the related controller action argument must be nilable or have a default value.
   #
   # ```
   # require "athena"
@@ -420,16 +419,14 @@ module Athena::Routing::Annotations
   # # GET /time?start_time="2020--04//07  12:34:56" # => "Starting at: 2020-04-07 12:34:56 UTC"
   # ```
   #
-  # !!!note
-  #     The dedicated `ARTA::ParamConverter` annotation may be used as well, just be sure to give it and the query parameter the same name.
+  # NOTE: The dedicated `ARTA::ParamConverter` annotation may be used as well, just be sure to give it and the query parameter the same name.
   annotation QueryParam; end
 
   # Represents a form data request parameter.
   #
   # See `ARTA::QueryParam` for configuration options/arguments.
   #
-  # !!!warning
-  #     The entire request body is consumed to parse the form data.
+  # WARNING: The entire request body is consumed to parse the form data.
   #
   # ```
   # require "athena"
