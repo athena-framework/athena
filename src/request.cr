@@ -53,6 +53,9 @@ class Athena::Routing::Request
   # Sets the `#request_format` to the explicitly passed format.
   setter request_format : String? = nil
 
+  # Returns the raw wrapped `HTTP::Request` instance.
+  getter request : HTTP::Request
+
   # :nodoc:
   forward_missing_to @request
 
