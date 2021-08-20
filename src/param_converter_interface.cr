@@ -116,42 +116,51 @@ abstract struct Athena::Routing::ParamConverterInterface
     def initialize(@name : String, @converter : ART::ParamConverterInterface.class); end
   end
 
+  # Represents an `ART::ParamConverterInterface::ConfigurationInterface` who is
+  # aware of the related `ART::ParamConverterInterface` argument's type.
+  #
+  # Allows support for generic converters that derive the type to do something from the type of the related argument.
+  abstract struct ArgAwareConfiguration(ArgType) < ConfigurationInterface
+    # The type of the argument the converter is applied to.
+    getter type : ArgType.class = ArgType
+  end
+
   # The default `ART::ParamConverterInterface::ConfigurationInterface` object to use
   # if one was not defined via the `ART::ParamConverterInterface.configuration` macro.
-  struct Configuration < ConfigurationInterface; end
+  struct Configuration(ArgType) < ArgAwareConfiguration(ArgType); end
 
   # Applies the conversion logic based on the provided *request* and *configuration*.
   #
   # Most commonly this involves setting/overriding a value stored in the request's `ART::Request#attributes`.
-  def apply(request : ART::Request, configuration : Configuration) : Nil
-    {% if @type < ART::ParamConverterInterface %}
-      # Manually check this in order to allow a global overload
-      {% @type.raise "abstract `def Athena::Routing::ParamConverterInterface#apply(request : ART::Request, configuration : Configuration)` must be implemented by #{@type}" %}
-    {% end %}
-  end
-
-  # :nodoc:
   def apply(request : ART::Request, configuration) : Nil; end
 
   # Helper macro for defining an `ART::ParamConverterInterface::ConfigurationInterface`; similar to the `record` macro.
   # Accepts a variable amount of variable names, types, and optionally default values.
   #
-  # See the "Additional Configuration" example of `ParamConverterInterface` for more information.
-  macro configuration(*args)
-    struct Configuration < ConfigurationInterface
-      {% for arg in args %}
-        getter {{arg}}
+  # See the [Additional Configuration][Athena::Routing::ParamConverterInterface--additional-configuration] example of `ART::ParamConverterInterface` for more information.
+  macro configuration(*args, type_vars = nil)
+    {% begin %}
+      {% if type_vars %}
+        struct Configuration(ArgType, {{type_vars.is_a?(Path) ? type_vars.id : type_vars.splat}}) < ArgAwareConfiguration(ArgType)
+      {% else %}
+        struct Configuration(ArgType) < ArgAwareConfiguration(ArgType)
       {% end %}
-
-      def initialize(
-        name : String,
-        converter : ART::ParamConverterInterface.class,
         {% for arg in args %}
-          @{{arg}},
+          getter {{arg}}
         {% end %}
-      )
-        super name, converter
+
+        def initialize(
+          name : String,
+          converter : ART::ParamConverterInterface.class,
+          {% for arg in args %}
+            @{{arg}},
+          {% end %}
+        )
+          super name, converter
+        end
+        
+        {{yield}}
       end
-    end
+    {% end %}
   end
 end

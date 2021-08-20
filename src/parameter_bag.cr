@@ -95,7 +95,7 @@ struct Athena::Routing::ParameterBag
   end
 
   # Sets a parameter with the provided *name* to *value*, restricted to the given *type*.
-  def set(name : String, value : _, type : T.class) : Nil forall T
+  def set(name : String, value : T, type : T.class) : Nil forall T
     @parameters[name] = Parameter(T).new value
   end
 

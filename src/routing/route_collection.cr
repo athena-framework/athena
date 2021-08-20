@@ -124,10 +124,14 @@ class Athena::Routing::RouteCollection
             {% param_converters = [] of Nil %}
 
             {% for converter in m.annotations(ARTA::ParamConverter) %}
-              {% converter.raise "Route action '#{klass.name}##{m.name}' has an ARTA::ParamConverter annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (converter[0] || converter[:name]) %}
-              {% converter.raise "Route action '#{klass.name}##{m.name}' has an ARTA::ParamConverter annotation but does not have a corresponding action argument for '#{arg_name.id}'." unless arg_names.includes? arg_name %}
+              {% converter.raise "Route action '#{klass.name}##{m.name}' has an ARTA::ParamConverter annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (converter[0] || converter[:name]).id.stringify %}
+              {% converter.raise "Route action '#{klass.name}##{m.name}' has an ARTA::ParamConverter annotation but does not have a corresponding action argument for '#{arg_name.id}'." unless (arg = m.args.find(&.name.stringify.==(arg_name))) %}
               {% converter.raise "Route action '#{klass.name}##{m.name}' has an ARTA::ParamConverter annotation but is missing the converter class.  It was not provided via the 'converter' field." unless converter_class = converter[:converter] %}
-              {% param_converters << %(#{converter_class.resolve}::Configuration.new(name: #{arg_name.id.stringify}, #{converter.named_args.double_splat})).id %}
+              {% ann_args = converter.named_args %}
+              {% configuration_type = ann_args[:type_vars] != nil ? "Configuration(#{arg.restriction}, #{ann_args[:type_vars].is_a?(Path) ? ann_args[:type_vars].id : ann_args[:type_vars].splat})" : "Configuration(#{arg.restriction})" %}
+              {% configuration_args = {name: arg_name.id.stringify} %}
+              {% converter.named_args.to_a.select { |(k, _)| k != :type_vars }.each { |(k, v)| configuration_args[k] = v } %}
+              {% param_converters << %(#{converter_class.resolve}::#{configuration_type.id}.new(#{configuration_args.double_splat})).id %}
             {% end %}
 
             # Build out param metadata
@@ -193,7 +197,7 @@ class Athena::Routing::RouteCollection
                     {% converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter' type: '#{converter.class_name.id}'.  Only NamedTuples, or the converter class are supported." %}
                   {% end %}
 
-                  {% param_converters << %(#{converter_args[:converter].resolve}::Configuration.new(#{converter_args.double_splat})).id %}
+                  {% param_converters << %(#{converter_args[:converter].resolve}::Configuration(#{arg.restriction}).new(#{converter_args.double_splat})).id %}
                 {% end %}
 
                 # Non strict parameters must be nilable or have a default value.

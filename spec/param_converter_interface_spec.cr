@@ -16,6 +16,18 @@ struct DefaultValueConverter < Athena::Routing::ParamConverterInterface
   def apply(request : ART::Request, configuration : Configuration) : Nil; end
 end
 
+struct SingleGenericConverter < Athena::Routing::ParamConverterInterface
+  configuration type_vars: T
+
+  def apply(request : ART::Request, configuration : Configuration) : Nil; end
+end
+
+struct MultipleGenericConverter < Athena::Routing::ParamConverterInterface
+  configuration type_vars: {A, B}
+
+  def apply(request : ART::Request, configuration : Configuration) : Nil; end
+end
+
 describe ART::ParamConverterInterface do
   describe ART::ParamConverterInterface::ConfigurationInterface do
     describe ".configuration" do
@@ -27,12 +39,20 @@ describe ART::ParamConverterInterface do
         TestConverter::Configuration.should eq TestConverter::Configuration
       end
 
+      it "allows defining a single custom generic argument" do
+        SingleGenericConverter::Configuration(Nil, Int32).should eq SingleGenericConverter::Configuration(Nil, Int32)
+      end
+
+      it "allows defining multiple custom generic arguments" do
+        MultipleGenericConverter::Configuration(Nil, Int32, String).should eq MultipleGenericConverter::Configuration(Nil, Int32, String)
+      end
+
       it "creates a configuration struct with the provided arguments" do
-        TestConverter::Configuration.new(value: 1, converter: TestConverter, name: "arg").value.should eq 1
+        TestConverter::Configuration(Nil).new(value: 1, converter: TestConverter, name: "arg").value.should eq 1
       end
 
       it "allows default values" do
-        DefaultValueConverter::Configuration.new(converter: DefaultValueConverter, name: "arg").enabled.should be_false
+        DefaultValueConverter::Configuration(Nil).new(converter: DefaultValueConverter, name: "arg").enabled.should be_false
       end
     end
   end

@@ -115,12 +115,16 @@ describe ART::ParameterBag do
   end
 
   describe "#set" do
-    describe "with name and type" do
+    it "with name, type, and value" do
       ART::ParameterBag.new.set("value", "foo", String)
+    end
+
+    it "with name and value" do
+      ART::ParameterBag.new.set("value", "foo")
     end
   end
 
-  describe "#remove" do
+  it "#remove" do
     bag = ART::ParameterBag.new
     bag.set "value", "foo"
     bag.has?("value").should be_true

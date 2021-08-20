@@ -2,7 +2,7 @@ require "./spec_helper"
 
 describe ART::TimeConverter do
   it "noops if the argument isn't within the request attributes" do
-    configuration = ART::TimeConverter::Configuration.new "time", ART::TimeConverter
+    configuration = ART::TimeConverter::Configuration(Time).new "time", ART::TimeConverter
     request = new_request
     request.attributes.has?("time").should be_false
 
@@ -14,7 +14,7 @@ describe ART::TimeConverter do
   it "retuurns the value as is if it's already a Time instance" do
     now = Time.utc
 
-    configuration = ART::TimeConverter::Configuration.new "time", ART::TimeConverter
+    configuration = ART::TimeConverter::Configuration(Time).new "time", ART::TimeConverter
     request = new_request
     request.attributes.set "time", now
 
@@ -24,7 +24,7 @@ describe ART::TimeConverter do
   end
 
   it "parses RFC 3339 by default" do
-    configuration = ART::TimeConverter::Configuration.new "time", ART::TimeConverter
+    configuration = ART::TimeConverter::Configuration(Time).new "time", ART::TimeConverter
     request = new_request
     request.attributes.set "time", "2020-04-07T12:34:56Z", String
 
@@ -34,7 +34,7 @@ describe ART::TimeConverter do
   end
 
   it "allows specifying a format" do
-    configuration = ART::TimeConverter::Configuration.new "time", ART::TimeConverter, format: "%Y--%m//%d  %T"
+    configuration = ART::TimeConverter::Configuration(Time).new "time", ART::TimeConverter, format: "%Y--%m//%d  %T"
     request = new_request
     request.attributes.set "time", "2020--04//07  12:34:56", String
 
@@ -44,7 +44,7 @@ describe ART::TimeConverter do
   end
 
   it "allows specifying a location to parse the format in" do
-    configuration = ART::TimeConverter::Configuration.new "time", ART::TimeConverter, format: "%Y--%m//%d  %T", location: Time::Location.load("Europe/Berlin")
+    configuration = ART::TimeConverter::Configuration(Time).new "time", ART::TimeConverter, format: "%Y--%m//%d  %T", location: Time::Location.load("Europe/Berlin")
     request = new_request
     request.attributes.set "time", "2020--04//07  12:34:56", String
 
@@ -54,7 +54,7 @@ describe ART::TimeConverter do
   end
 
   it "raises an ART::Exceptions::BadRequest if a time could not be parsed from the string" do
-    configuration = ART::TimeConverter::Configuration.new "time", ART::TimeConverter
+    configuration = ART::TimeConverter::Configuration(Time).new "time", ART::TimeConverter
     request = new_request
     request.attributes.set "time", "foo", String
 
