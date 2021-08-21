@@ -152,10 +152,11 @@ abstract struct Athena::Routing::ParamConverterInterface
   def apply(request : ART::Request, configuration : Configuration) : Nil
     {% if @type < ART::ParamConverterInterface %}
       # Manually check this in order to allow a global overload
-      {% @type.raise "abstract `def Athena::Routing::ParamConverterInterface#apply(request : ART::Request, configuration : Configuration)` must be implemented by #{@type}" %}
+      {% @type.raise "abstract `def Athena::Routing::ParamConverterInterface#apply(request : ART::Request, configuration : Configuration)` must be implemented by '#{@type}'." %}
     {% end %}
   end
 
+  # :nodoc:
   def apply(request : ART::Request, configuration) : Nil; end
 
   # Helper macro for defining an `ART::ParamConverterInterface::ConfigurationInterface`; similar to the `record` macro.

@@ -50,6 +50,12 @@ describe Athena::Routing do
       end
     end
 
+    describe ART::ParamConverterInterface do
+      it "missing `#apply` definition" do
+        assert_error "compiler/param_converter_missing_apply_method.cr", "abstract `def Athena::Routing::ParamConverterInterface#apply(request : ART::Request, configuration : Configuration)` must be implemented by 'CompileConverter'."
+      end
+    end
+
     describe ARTA::QueryParam do
       it "missing name" do
         assert_error "compiler/query_param_missing_name.cr", "Route action 'CompileController#action' has an Athena::Routing::Annotations::QueryParam annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field."

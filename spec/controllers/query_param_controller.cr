@@ -57,12 +57,6 @@ struct MultipleAdditionalQPGenericConverter < Athena::Routing::ParamConverterInt
   end
 end
 
-# struct MultipleGenericConverter < Athena::Routing::ParamConverterInterface
-#   configuration type_vars: {A, B}
-
-#   def apply(request : ART::Request, configuration : Configuration) : Nil; end
-# end
-
 @[ARTA::Prefix("query")]
 class QueryParamController < ART::Controller
   # Simple, just name/description
