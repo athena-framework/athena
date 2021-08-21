@@ -32,7 +32,7 @@ struct Athena::Routing::TimeConverter < Athena::Routing::ParamConverterInterface
   configuration format : String? = nil, location : Time::Location = Time::Location::UTC
 
   # :inherit:
-  def apply(request : ART::Request, configuration : Configuration(_)) : Nil
+  def apply(request : ART::Request, configuration : Configuration) : Nil
     arg_name = configuration.name
 
     return unless request.attributes.has? arg_name

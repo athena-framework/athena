@@ -1,3 +1,68 @@
+@[ADI::Register]
+struct QPGenericConverter < Athena::Routing::ParamConverterInterface
+  def apply(request : ART::Request, configuration : Configuration(T)) : Nil forall T
+    value = case T
+            in Int32.class  then 1
+            in String.class then 2
+            end
+
+    request.attributes.set "value", value, Int32
+  end
+end
+
+@[ADI::Register]
+struct SingleAdditionalQPGenericConverter < Athena::Routing::ParamConverterInterface
+  configuration type_vars: B
+
+  def apply(request : ART::Request, configuration : Configuration(A, B)) : Nil forall A, B
+    value = 0
+
+    value += case A
+             in Int32.class  then 1
+             in String.class then 2
+             end
+
+    value += case B
+             in Int32.class  then 1
+             in String.class then 2
+             end
+
+    request.attributes.set "value", value, Int32
+  end
+end
+
+@[ADI::Register]
+struct MultipleAdditionalQPGenericConverter < Athena::Routing::ParamConverterInterface
+  configuration type_vars: {B, C}
+
+  def apply(request : ART::Request, configuration : Configuration(A, B, C)) : Nil forall A, B, C
+    value = 0
+
+    value += case A
+             in Int32.class  then 1
+             in String.class then 2
+             end
+
+    value += case B
+             in Int32.class  then 1
+             in String.class then 2
+             end
+
+    value += case C
+             in Int32.class  then 1
+             in String.class then 2
+             end
+
+    request.attributes.set "value", value, Int32
+  end
+end
+
+# struct MultipleGenericConverter < Athena::Routing::ParamConverterInterface
+#   configuration type_vars: {A, B}
+
+#   def apply(request : ART::Request, configuration : Configuration) : Nil; end
+# end
+
 @[ARTA::Prefix("query")]
 class QueryParamController < ART::Controller
   # Simple, just name/description
@@ -55,6 +120,27 @@ class QueryParamController < ART::Controller
   @[ARTA::Get("/time")]
   def time(time : Time = Time.utc(2020, 10, 1)) : String
     "Today is: #{time}"
+  end
+
+  # Param converter type - single generic - arg type
+  @[ARTA::QueryParam("value", converter: QPGenericConverter)]
+  @[ARTA::Get("/generic/single")]
+  def generic_arg_converter(value : Int32 = 0) : Int32
+    value
+  end
+
+  # Param converter type - single additional generic
+  @[ARTA::QueryParam("value", converter: {name: SingleAdditionalQPGenericConverter, type_vars: Int32})]
+  @[ARTA::Get("/generic/single-additional")]
+  def generic_arg_converter_single_additional(value : Int32 = 0) : Int32
+    value
+  end
+
+  # Param converter type - multiple additional generic
+  @[ARTA::QueryParam("value", converter: {name: MultipleAdditionalQPGenericConverter, type_vars: {Int32, String}})]
+  @[ARTA::Get("/generic/multiple-additional")]
+  def generic_arg_converter_multiple_additional(value : Int32 = 0) : Int32
+    value
   end
 
   # Param converter named tuple
