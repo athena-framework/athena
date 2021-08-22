@@ -138,20 +138,19 @@ abstract struct Athena::Routing::ParamConverterInterface
         {% end %}
       {% end %}
     end
-  end
 
-  # Applies the conversion logic based on the provided *request* and *configuration*.
-  #
-  # Most commonly this involves setting/overriding a value stored in the request's `ART::Request#attributes`.
-  def apply(request : ART::Request, configuration : Configuration) : Nil
-    {% if @type < ART::ParamConverterInterface %}
-      # Manually check this in order to allow a global overload
-      {% @type.raise "abstract `def Athena::Routing::ParamConverterInterface#apply(request : ART::Request, configuration : Configuration)` must be implemented by '#{@type}'." %}
-    {% end %}
+    # Applies the conversion logic based on the provided *request* and *configuration*.
+    #
+    # Most commonly this involves setting/overriding a value stored in the request's `ART::Request#attributes`.
+    def apply(request : ART::Request, configuration : Configuration) : Nil
+      \{% @type.raise "abstract `def Athena::Routing::ParamConverterInterface#apply(request : ART::Request, configuration : Configuration)` must be implemented by '#{@type}'." %}
+    end
   end
 
   # :nodoc:
-  def apply(request : ART::Request, configuration) : Nil; end
+  def apply(request : ART::Request, configuration) : NoReturn
+    raise "BUG:  Invoked wrong `apply` overload."
+  end
 
   # Helper macro for defining an `ART::ParamConverterInterface::ConfigurationInterface`; similar to the `record` macro.
   # Accepts a variable amount of variable names, types, and optionally default values.

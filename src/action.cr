@@ -83,7 +83,7 @@ struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple,
   end
 
   protected def create_view(data : _) : NoReturn
-    raise "BUG:  Invoked wrong create_view overload."
+    raise "BUG:  Invoked wrong `create_view` overload."
   end
 
   # :nodoc:
