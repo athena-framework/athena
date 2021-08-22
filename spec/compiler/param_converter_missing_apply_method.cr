@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-struct CompileConverter < ART::ParamConverterInterface; end
+class CompileConverter < ART::ParamConverterInterface; end
 
 class CompileController < Athena::Routing::Controller
   @[ARTA::Get(path: "/")]

@@ -94,7 +94,7 @@
 #
 # # GET /multiply/3 # => 12
 # ```
-abstract struct Athena::Routing::ParamConverterInterface
+abstract class Athena::Routing::ParamConverterInterface
   # The tag name to apply to `self` in order for it to be registered with `ART::Listeners::ParamConverter`.
   TAG = "athena.param_converter"
 
@@ -139,9 +139,7 @@ abstract struct Athena::Routing::ParamConverterInterface
       {% end %}
     end
 
-    # Applies the conversion logic based on the provided *request* and *configuration*.
-    #
-    # Most commonly this involves setting/overriding a value stored in the request's `ART::Request#attributes`.
+    # :nodoc:
     def apply(request : ART::Request, configuration : Configuration) : Nil
       \{% @type.raise "abstract `def Athena::Routing::ParamConverterInterface#apply(request : ART::Request, configuration : Configuration)` must be implemented by '#{@type}'." %}
     end
@@ -158,7 +156,7 @@ abstract struct Athena::Routing::ParamConverterInterface
   # See the [Additional Configuration][Athena::Routing::ParamConverterInterface--additional-configuration] example of `ART::ParamConverterInterface` for more information.
   macro configuration(*args, type_vars = nil)
     {% begin %}
-      # For `{{@type.name}}`.
+      # Configuration for `{{@type.name}}`.
       {% if type_vars %}\
         struct Configuration(ArgType, {{type_vars.is_a?(Path) ? type_vars.id : type_vars.splat}}) < ConfigurationInterface(ArgType)
       {% else %}

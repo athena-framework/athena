@@ -1,28 +1,28 @@
 require "./spec_helper"
 
-private struct DefaultConverter < Athena::Routing::ParamConverterInterface
+private class DefaultConverter < Athena::Routing::ParamConverterInterface
   def apply(request : ART::Request, configuration : Configuration) : Nil; end
 end
 
-private struct TestConverter < Athena::Routing::ParamConverterInterface
+private class TestConverter < Athena::Routing::ParamConverterInterface
   configuration value : Int32
 
   def apply(request : ART::Request, configuration : Configuration) : Nil; end
 end
 
-private struct DefaultValueConverter < Athena::Routing::ParamConverterInterface
+private class DefaultValueConverter < Athena::Routing::ParamConverterInterface
   configuration enabled : Bool = false
 
   def apply(request : ART::Request, configuration : Configuration) : Nil; end
 end
 
-private struct SingleGenericConverter < Athena::Routing::ParamConverterInterface
+private class SingleGenericConverter < Athena::Routing::ParamConverterInterface
   configuration type_vars: T
 
   def apply(request : ART::Request, configuration : Configuration) : Nil; end
 end
 
-private struct MultipleGenericConverter < Athena::Routing::ParamConverterInterface
+private class MultipleGenericConverter < Athena::Routing::ParamConverterInterface
   configuration type_vars: {A, B}
 
   def apply(request : ART::Request, configuration : Configuration) : Nil; end
@@ -48,7 +48,7 @@ describe ART::ParamConverterInterface do
         MultipleGenericConverter::Configuration(Nil, Int32, String).should eq MultipleGenericConverter::Configuration(Nil, Int32, String)
       end
 
-      it "creates a configuration struct with the provided arguments" do
+      it "creates a configuration instance with the provided arguments" do
         TestConverter::Configuration(Nil).new(value: 1, converter: TestConverter, name: "arg").value.should eq 1
       end
 
