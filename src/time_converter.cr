@@ -1,4 +1,4 @@
-require "./param_converter_interface"
+require "./param_converter"
 
 # Converts a date(time) string into a `Time` instance.
 #
@@ -28,7 +28,7 @@ require "./param_converter_interface"
 # # GET /event/2020-04-07/2020-04-08T12:34:56Z
 # ```
 @[ADI::Register]
-class Athena::Routing::TimeConverter < Athena::Routing::ParamConverterInterface
+class Athena::Routing::TimeConverter < Athena::Routing::ParamConverter
   configuration format : String? = nil, location : Time::Location = Time::Location::UTC
 
   # :inherit:

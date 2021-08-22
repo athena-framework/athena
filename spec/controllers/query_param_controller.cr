@@ -1,5 +1,5 @@
 @[ADI::Register]
-class QPGenericConverter < Athena::Routing::ParamConverterInterface
+class QPGenericConverter < Athena::Routing::ParamConverter
   def apply(request : ART::Request, configuration : Configuration(T)) : Nil forall T
     value = case T
             in Int32.class  then 1
@@ -11,7 +11,7 @@ class QPGenericConverter < Athena::Routing::ParamConverterInterface
 end
 
 @[ADI::Register]
-class SingleAdditionalQPGenericConverter < Athena::Routing::ParamConverterInterface
+class SingleAdditionalQPGenericConverter < Athena::Routing::ParamConverter
   configuration type_vars: B
 
   def apply(request : ART::Request, configuration : Configuration(A, B)) : Nil forall A, B
@@ -32,7 +32,7 @@ class SingleAdditionalQPGenericConverter < Athena::Routing::ParamConverterInterf
 end
 
 @[ADI::Register]
-class MultipleAdditionalQPGenericConverter < Athena::Routing::ParamConverterInterface
+class MultipleAdditionalQPGenericConverter < Athena::Routing::ParamConverter
   configuration type_vars: {B, C}
 
   def apply(request : ART::Request, configuration : Configuration(A, B, C)) : Nil forall A, B, C

@@ -9,7 +9,7 @@
 #
 # 1. An implementation of `self` to define the conversion logic.
 # 1. The `ARTA::ParamConverter` annotation applied to an action to specify what argument should be converted, and what converter should be used.
-# 1. An optional `ART::ParamConverterInterface::ConfigurationInterface` instance to define extra configuration options that can be used within the `ARTA::ParamConverter` annotation.
+# 1. An optional `ART::ParamConverter::ConfigurationInterface` instance to define extra configuration options that can be used within the `ARTA::ParamConverter` annotation.
 #
 # Param converters are registered as services, and as such, may use any other registered services as a dependency via DI.
 #
@@ -18,7 +18,7 @@
 #
 # # Create a param converter struct to contain our conversion logic.
 # @[ADI::Register]
-# struct MultiplyConverter < ART::ParamConverterInterface
+# class MultiplyConverter < ART::ParamConverter
 #   # :inherit:
 #   def apply(request : ART::Request, configuration : Configuration) : Nil
 #     arg_name = configuration.name
@@ -53,7 +53,7 @@
 #
 # #### Additional Configuration
 # By default, the *configuration* argument to `#apply` contains the name of the argument that should be converted, and a reference to the class of `self`.
-# However, it can be augmented with additional data by using the `ART::ParamConverterInterface.configuration` macro.
+# However, it can be augmented with additional data by using the `ART::ParamConverter.configuration` macro.
 #
 # For example, lets enhance the previous example to allow specifying the multiplier, versus it being hard-coded as `2`.
 #
@@ -61,7 +61,7 @@
 # require "athena"
 #
 # @[ADI::Register]
-# struct MultiplyConverter < ART::ParamConverterInterface
+# class MultiplyConverter < ART::ParamConverter
 #   # Use the `configuration` macro to define the configuration object that `self` should use.
 #   # Adds an additional argument to allow specifying the multiplier.
 #   #
@@ -94,18 +94,18 @@
 #
 # # GET /multiply/3 # => 12
 # ```
-abstract class Athena::Routing::ParamConverterInterface
+abstract class Athena::Routing::ParamConverter
   # The tag name to apply to `self` in order for it to be registered with `ART::Listeners::ParamConverter`.
   TAG = "athena.param_converter"
 
   # Apply `TAG` to all `AED::EventListenerInterface` instances automatically.
-  ADI.auto_configure Athena::Routing::ParamConverterInterface, {tags: [ART::ParamConverterInterface::TAG]}
+  ADI.auto_configure Athena::Routing::ParamConverter, {tags: [ART::ParamConverter::TAG]}
 
   # Allows defining extra configuration data that can be supplied within the `ARTA::ParamConverter` annotation.
   # By default this type includes the name of the argument that should be converted and the
-  # the `ART::ParamConverterInterface` that should be used for the conversion.
+  # the `ART::ParamConverter` that should be used for the conversion.
   #
-  # See the "Additional Configuration" example of `ParamConverterInterface` for more information.
+  # See the "Additional Configuration" example of `ParamConverter` for more information.
   abstract struct ConfigurationInterface(ArgType)
     # The type of the argument the converter is applied to.
     getter type : ArgType.class = ArgType
@@ -114,16 +114,16 @@ abstract class Athena::Routing::ParamConverterInterface
     getter name : String
 
     # The converter class that should be used to convert the argument.
-    getter converter : ART::ParamConverterInterface.class
+    getter converter : ART::ParamConverter.class
 
-    def initialize(@name : String, @converter : ART::ParamConverterInterface.class); end
+    def initialize(@name : String, @converter : ART::ParamConverter.class); end
   end
 
   # This is defined here so that the manual abstract def checks can "see" the `Configuration` type.
   struct Configuration(ArgType) < ConfigurationInterface(ArgType); end
 
   # Only define the default configuration method if the converter does not define a customer one.
-  # Because the inherited hook is invoked on the same line as the inheritence happens, e.g. `< ART::ParamConverterInterface`,
+  # Because the inherited hook is invoked on the same line as the inheritence happens, e.g. `< ART::ParamConverter`,
   # the `configuration` macro hasn't been expanded yet making it seem like it wasn't defined.
   #
   # Solve this by defining the logic in a `finished` hook to delay execution until all types have been parsed,
@@ -132,8 +132,8 @@ abstract class Athena::Routing::ParamConverterInterface
     macro finished
       {% verbatim do %}
         {% unless @type.has_constant? "Configuration" %}
-          # The default `ART::ParamConverterInterface::ConfigurationInterface` object to use
-          # if one was not defined via the `ART::ParamConverterInterface.configuration` macro.
+          # The default `ART::ParamConverter::ConfigurationInterface` object to use
+          # if one was not defined via the `ART::ParamConverter.configuration` macro.
           struct Configuration(ArgType) < ConfigurationInterface(ArgType); end
         {% end %}
       {% end %}
@@ -141,7 +141,7 @@ abstract class Athena::Routing::ParamConverterInterface
 
     # :nodoc:
     def apply(request : ART::Request, configuration : Configuration) : Nil
-      \{% @type.raise "abstract `def Athena::Routing::ParamConverterInterface#apply(request : ART::Request, configuration : Configuration)` must be implemented by '#{@type}'." %}
+      \{% @type.raise "abstract `def Athena::Routing::ParamConverter#apply(request : ART::Request, configuration : Configuration)` must be implemented by '#{@type}'." %}
     end
   end
 
@@ -150,10 +150,10 @@ abstract class Athena::Routing::ParamConverterInterface
     raise "BUG:  Invoked wrong `apply` overload."
   end
 
-  # Helper macro for defining an `ART::ParamConverterInterface::ConfigurationInterface`; similar to the `record` macro.
+  # Helper macro for defining an `ART::ParamConverter::ConfigurationInterface`; similar to the `record` macro.
   # Accepts a variable amount of variable names, types, and optionally default values.
   #
-  # See the [Additional Configuration][Athena::Routing::ParamConverterInterface--additional-configuration] example of `ART::ParamConverterInterface` for more information.
+  # See the [Additional Configuration][Athena::Routing::ParamConverter--additional-configuration] example of `ART::ParamConverter` for more information.
   macro configuration(*args, type_vars = nil)
     {% begin %}
       # Configuration for `{{@type.name}}`.
@@ -168,7 +168,7 @@ abstract class Athena::Routing::ParamConverterInterface
 
         def initialize(
           name : String,
-          converter : ART::ParamConverterInterface.class,
+          converter : ART::ParamConverter.class,
           {% for arg in args %}
             @{{arg}},
           {% end %}

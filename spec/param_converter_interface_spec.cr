@@ -1,43 +1,43 @@
 require "./spec_helper"
 
-private class DefaultConverter < Athena::Routing::ParamConverterInterface
+private class DefaultConverter < Athena::Routing::ParamConverter
   def apply(request : ART::Request, configuration : Configuration) : Nil; end
 end
 
-private class TestConverter < Athena::Routing::ParamConverterInterface
+private class TestConverter < Athena::Routing::ParamConverter
   configuration value : Int32
 
   def apply(request : ART::Request, configuration : Configuration) : Nil; end
 end
 
-private class DefaultValueConverter < Athena::Routing::ParamConverterInterface
+private class DefaultValueConverter < Athena::Routing::ParamConverter
   configuration enabled : Bool = false
 
   def apply(request : ART::Request, configuration : Configuration) : Nil; end
 end
 
-private class SingleGenericConverter < Athena::Routing::ParamConverterInterface
+private class SingleGenericConverter < Athena::Routing::ParamConverter
   configuration type_vars: T
 
   def apply(request : ART::Request, configuration : Configuration) : Nil; end
 end
 
-private class MultipleGenericConverter < Athena::Routing::ParamConverterInterface
+private class MultipleGenericConverter < Athena::Routing::ParamConverter
   configuration type_vars: {A, B}
 
   def apply(request : ART::Request, configuration : Configuration) : Nil; end
 end
 
-describe ART::ParamConverterInterface do
-  describe ART::ParamConverterInterface::ConfigurationInterface do
+describe ART::ParamConverter do
+  describe ART::ParamConverter::ConfigurationInterface do
     describe ".configuration" do
       it "should automatically define a type specific configuration type if not used" do
-        DefaultConverter::Configuration.should_not eq ART::ParamConverterInterface::Configuration
+        DefaultConverter::Configuration.should_not eq ART::ParamConverter::Configuration
       end
 
       it "overrides the configuration type when used" do
         TestConverter::Configuration.should eq TestConverter::Configuration
-        TestConverter::Configuration.should_not eq ART::ParamConverterInterface::Configuration
+        TestConverter::Configuration.should_not eq ART::ParamConverter::Configuration
       end
 
       it "allows defining a single custom generic argument" do

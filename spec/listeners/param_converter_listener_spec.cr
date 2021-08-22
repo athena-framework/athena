@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-class MockParamConverter < ART::ParamConverterInterface
+class MockParamConverter < ART::ParamConverter
   def apply(request : ART::Request, configuration : Configuration) : Nil
     request.attributes.set "argument", true, Bool
   end

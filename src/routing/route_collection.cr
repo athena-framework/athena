@@ -191,7 +191,7 @@ class Athena::Routing::RouteCollection
                     {% converter_args[:converter] = converter_args[:name] || converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter'. The converter's name was not provided via the 'name' field." %}
                     {% converter_args[:name] = arg_name %}
                   {% elsif converter.is_a? Path %}
-                    {% converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter' value.  Expected 'ART::ParamConverterInterface.class' got '#{converter.resolve.id}'." unless converter.resolve <= ART::ParamConverterInterface %}
+                    {% converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter' value.  Expected 'ART::ParamConverter.class' got '#{converter.resolve.id}'." unless converter.resolve <= ART::ParamConverter %}
                     {% converter_args = {converter: converter.resolve, name: arg_name} %}
                   {% else %}
                     {% converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter' type: '#{converter.class_name.id}'.  Only NamedTuples, or the converter class are supported." %}

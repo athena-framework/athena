@@ -22,12 +22,12 @@ struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple,
   # Returns an `Array(ART::Arguments::ArgumentMetadata)` that `self` requires.
   getter arguments : ArgumentsType
 
-  # Returns an `Array(ART::ParamConverterInterface::ConfigurationInterface)` representing the `ARTA::ParamConverter`s applied to `self`.
+  # Returns an `Array(ART::ParamConverter::ConfigurationInterface)` representing the `ARTA::ParamConverter`s applied to `self`.
   getter param_converters : ParamConverterType
 
   # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to `self`.
   #
-  # These configurations could then be accessed within `ART::ParamConverterInterface`s and/or `ART::Listeners`s.
+  # These configurations could then be accessed within `ART::ParamConverter`s and/or `ART::Listeners`s.
   # See `ART::Events::RequestAware` for an example.
   getter annotation_configurations : ACF::AnnotationConfigurations
 
@@ -65,7 +65,7 @@ struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple,
     @action.call.call *{{ArgTypeTuple.type_vars.empty? ? "Tuple.new".id : ArgTypeTuple}}.from arguments
   end
 
-  protected def apply_param_converters(converters : Hash(ART::ParamConverterInterface.class, ART::ParamConverterInterface), request : ART::Request) : Nil
+  protected def apply_param_converters(converters : Hash(ART::ParamConverter.class, ART::ParamConverter), request : ART::Request) : Nil
     {% begin %}
       {% for idx in (0...ParamConverterType.size) %}
         %configuration = @param_converters[{{idx}}]
