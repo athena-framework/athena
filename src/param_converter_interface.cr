@@ -106,7 +106,10 @@ abstract struct Athena::Routing::ParamConverterInterface
   # the `ART::ParamConverterInterface` that should be used for the conversion.
   #
   # See the "Additional Configuration" example of `ParamConverterInterface` for more information.
-  abstract struct ConfigurationInterface
+  abstract struct ConfigurationInterface(ArgType)
+    # The type of the argument the converter is applied to.
+    getter type : ArgType.class = ArgType
+
     # The name of the argument the converter should be applied to.
     getter name : String
 
@@ -116,17 +119,8 @@ abstract struct Athena::Routing::ParamConverterInterface
     def initialize(@name : String, @converter : ART::ParamConverterInterface.class); end
   end
 
-  # Represents an `ART::ParamConverterInterface::ConfigurationInterface` who is
-  # aware of the related `ART::ParamConverterInterface` argument's type.
-  #
-  # Allows support for generic converters that derive the type to do something from the type of the related argument.
-  abstract struct ArgAwareConfiguration(ArgType) < ConfigurationInterface
-    # The type of the argument the converter is applied to.
-    getter type : ArgType.class = ArgType
-  end
-
   # This is defined here so that the manual abstract def checks can "see" the `Configuration` type.
-  struct Configuration(ArgType) < ArgAwareConfiguration(ArgType); end
+  struct Configuration(ArgType) < ConfigurationInterface(ArgType); end
 
   # Only define the default configuration method if the converter does not define a customer one.
   # Because the inherited hook is invoked on the same line as the inheritence happens, e.g. `< ART::ParamConverterInterface`,
@@ -140,7 +134,7 @@ abstract struct Athena::Routing::ParamConverterInterface
         {% unless @type.has_constant? "Configuration" %}
           # The default `ART::ParamConverterInterface::ConfigurationInterface` object to use
           # if one was not defined via the `ART::ParamConverterInterface.configuration` macro.
-          struct Configuration(ArgType) < ArgAwareConfiguration(ArgType); end
+          struct Configuration(ArgType) < ConfigurationInterface(ArgType); end
         {% end %}
       {% end %}
     end
@@ -167,9 +161,9 @@ abstract struct Athena::Routing::ParamConverterInterface
     {% begin %}
       # For `{{@type.name}}`.
       {% if type_vars %}\
-        struct Configuration(ArgType, {{type_vars.is_a?(Path) ? type_vars.id : type_vars.splat}}) < ArgAwareConfiguration(ArgType)
+        struct Configuration(ArgType, {{type_vars.is_a?(Path) ? type_vars.id : type_vars.splat}}) < ConfigurationInterface(ArgType)
       {% else %}
-        struct Configuration(ArgType) < ArgAwareConfiguration(ArgType)
+        struct Configuration(ArgType) < ConfigurationInterface(ArgType)
       {% end %}
         {% for arg in args %}
           getter {{arg}}

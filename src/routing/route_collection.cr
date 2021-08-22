@@ -268,7 +268,7 @@ class Athena::Routing::RouteCollection
               path: {{full_path}},
               constraints: ({{constraints}} of String => Regex),
               arguments: {{arguments.empty? ? "Array(ART::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},
-              param_converters: ({{param_converters}} of ART::ParamConverterInterface::ConfigurationInterface),
+              param_converters: {{param_converters.empty? ? "typeof(Tuple.new)".id : "{#{param_converters.splat}}".id}},
               annotation_configurations: ACF::AnnotationConfigurations.new({{annotation_configurations}} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)),
               params: ({{params}} of ART::Params::ParamInterface),
               _controller: {{klass.id}},

@@ -6,7 +6,7 @@ abstract struct Athena::Routing::ActionBase; end
 # Represents an endpoint within the application.
 
 # Includes metadata about the endpoint, such as its controller, arguments, return type, and the action that should be executed.
-struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple, ArgumentsType) < Athena::Routing::ActionBase
+struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple, ArgumentsType, ParamConverterType) < Athena::Routing::ActionBase
   # Returns the HTTP method associated with `self`.
   getter method : String
 
@@ -23,7 +23,7 @@ struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple,
   getter arguments : ArgumentsType
 
   # Returns an `Array(ART::ParamConverterInterface::ConfigurationInterface)` representing the `ARTA::ParamConverter`s applied to `self`.
-  getter param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface)
+  getter param_converters : ParamConverterType
 
   # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to `self`.
   #
@@ -40,7 +40,7 @@ struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple,
     @path : String,
     @constraints : Hash(String, Regex),
     @arguments : ArgumentsType,
-    @param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface),
+    @param_converters : ParamConverterType,
     @annotation_configurations : ACF::AnnotationConfigurations,
     @params : Array(ART::Params::ParamInterface),
     # Don't bother making these ivars since we just need them to set the generic types
@@ -63,6 +63,15 @@ struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple,
   # Executes the action related to `self` with the provided *arguments* array.
   def execute(arguments : Array) : ReturnType
     @action.call.call *{{ArgTypeTuple.type_vars.empty? ? "Tuple.new".id : ArgTypeTuple}}.from arguments
+  end
+
+  protected def apply_param_converters(converters : Hash(ART::ParamConverterInterface.class, ART::ParamConverterInterface), request : ART::Request) : Nil
+    {% begin %}
+      {% for idx in (0...ParamConverterType.size) %}
+        %configuration = @param_converters[{{idx}}]
+        converters[%configuration.converter].apply request, %configuration
+      {% end %}
+    {% end %}
   end
 
   # :nodoc:
