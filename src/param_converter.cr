@@ -1,7 +1,7 @@
 # A param converter allows applying custom logic in order to convert a primitive request parameter into a more complex type.
 #
 # A few common examples could be converting a date-time string into a `Time` object,
-# converting a user's id into an actual `User` object, or deserializing a request body into an instance of T.
+# converting a user's id into an actual `User` object, or deserializing a request body into an instance of `T`.
 #
 # ### Examples
 #
@@ -27,7 +27,7 @@
 #     # The converter could also be setup to only set a value if it hasn't been set already.
 #     return unless request.attributes.has? arg_name
 #
-#     # Retieve the argument from the request's attributes as an Int32.
+#     # Retrieve the argument from the request's attributes as an Int32.
 #     # Converters should also handle any errors that may occur,
 #     # such as type conversion, validation, or business logic errors.
 #     value = request.attributes.get arg_name, Int32
@@ -52,6 +52,7 @@
 # ```
 #
 # #### Additional Configuration
+#
 # By default, the *configuration* argument to `#apply` contains the name of the argument that should be converted, and a reference to the class of `self`.
 # However, it can be augmented with additional data by using the `ART::ParamConverter.configuration` macro.
 #
@@ -94,6 +95,42 @@
 #
 # # GET /multiply/3 # => 12
 # ```
+#
+# #### Type Safety
+#
+# From the previous examples, if you were to use the `MultiplyConverter` on a controller argument that is _NOT_ an `Int32` type,
+# you would get a `500` response at runtime due to the `String` argument not being able to be casted to an `Int32` when fetching the attribute's value.
+# This is less than ideal as it could lead to a hard to catch bug. To better solve this, and give a better error message when incorrectly used, we can utilize free variables.
+#
+# Each `ART::ParamConverter::ConfigurationInterface` exposes the related controller action's type via a generic.
+# This feature can be used to create overloads of `ART::ParamConverter#apply` to handle specific types, or a catch all that could raise a compile time error.
+#
+# For example, let's iterate on the `MultiplyConverter` to make it handle `Int32` arguments and raise a compile time error if used on something else:
+#
+# ```
+# @[ADI::Register]
+# class MultiplyConverter < ART::ParamConverter
+#   # `configuration` macro is same as previous example.
+#
+#   # :inherit:
+#   def apply(request : ART::Request, configuration : Configuration(Int32)) : Nil
+#     # Method body is same as previous example.
+#   end
+#
+#   # :inherit:
+#   def apply(request : ART::Request, configuration : Configuration(T)) : Nil forall T
+#     {% T.raise "MultiplyConverter does not support arguments of type '#{T}'." %}
+#   end
+# end
+# ```
+#
+# In this example we updated the second argument of the `#apply` method to take an `Int32` generic argument.
+# This will restrict that method to only handle instances where the param converter was applied to an argument of type `Int32`.
+# The second overload handles all other types as it is a free variable.
+# This overload then raises a compile time error if this converter is ever applied to an argument that is _NOT_ an `Int32`.
+# Ultimately, this makes the converter compile time safe.
+#
+# This approach could also be used to handle multiple types of arguments within dedicated methods where the type is more well known.
 abstract class Athena::Routing::ParamConverter
   # The tag name to apply to `self` in order for it to be registered with `ART::Listeners::ParamConverter`.
   TAG = "athena.param_converter"
@@ -105,25 +142,29 @@ abstract class Athena::Routing::ParamConverter
   # By default this type includes the name of the argument that should be converted and the
   # the `ART::ParamConverter` that should be used for the conversion.
   #
-  # See the "Additional Configuration" example of `ParamConverter` for more information.
+  # The `ArgType` generic represents the type of the controller action argument `self` relates to.
+  #
+  # See the [Additional Configuration][Athena::Routing::ParamConverter--additional-configuration] example of `ART::ParamConverter` for more information.
   abstract struct ConfigurationInterface(ArgType)
-    # The type of the argument the converter is applied to.
+    # Returns the type of the argument the converter is applied to.
     getter type : ArgType.class = ArgType
 
-    # The name of the argument the converter should be applied to.
+    # Returns the name of the argument the converter should be applied to.
     getter name : String
 
-    # The converter class that should be used to convert the argument.
+    # Returns the converter class that should be used to convert the argument.
     getter converter : ART::ParamConverter.class
 
     def initialize(@name : String, @converter : ART::ParamConverter.class); end
   end
 
+  # :nodoc:
+  #
   # This is defined here so that the manual abstract def checks can "see" the `Configuration` type.
   struct Configuration(ArgType) < ConfigurationInterface(ArgType); end
 
   # Only define the default configuration method if the converter does not define a customer one.
-  # Because the inherited hook is invoked on the same line as the inheritence happens, e.g. `< ART::ParamConverter`,
+  # Because the inherited hook is invoked on the same line as the inheritance happens, e.g. `< ART::ParamConverter`,
   # the `configuration` macro hasn't been expanded yet making it seem like it wasn't defined.
   #
   # Solve this by defining the logic in a `finished` hook to delay execution until all types have been parsed,
@@ -132,8 +173,7 @@ abstract class Athena::Routing::ParamConverter
     macro finished
       {% verbatim do %}
         {% unless @type.has_constant? "Configuration" %}
-          # The default `ART::ParamConverter::ConfigurationInterface` object to use
-          # if one was not defined via the `ART::ParamConverter.configuration` macro.
+          # Configuration for `{{@type.name}}`.
           struct Configuration(ArgType) < ConfigurationInterface(ArgType); end
         {% end %}
       {% end %}
@@ -152,6 +192,9 @@ abstract class Athena::Routing::ParamConverter
 
   # Helper macro for defining an `ART::ParamConverter::ConfigurationInterface`; similar to the `record` macro.
   # Accepts a variable amount of variable names, types, and optionally default values.
+  #
+  # Optionally allows for one or more *type_vars* constants that will be added to the generated configuration type as generic variables.
+  # This macro can be used with a block in order to define additional methods to the generated configuration type, same as the `record` macro.
   #
   # See the [Additional Configuration][Athena::Routing::ParamConverter--additional-configuration] example of `ART::ParamConverter` for more information.
   macro configuration(*args, type_vars = nil)

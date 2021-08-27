@@ -22,7 +22,7 @@ struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple,
   # Returns an `Array(ART::Arguments::ArgumentMetadata)` that `self` requires.
   getter arguments : ArgumentsType
 
-  # Returns an `Array(ART::ParamConverter::ConfigurationInterface)` representing the `ARTA::ParamConverter`s applied to `self`.
+  # Returns a `Tuple` of `ART::ParamConverter::ConfigurationInterface` representing the `ARTA::ParamConverter`s applied to `self`.
   getter param_converters : ParamConverterType
 
   # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to `self`.
@@ -65,6 +65,10 @@ struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple,
     @action.call.call *{{ArgTypeTuple.type_vars.empty? ? "Tuple.new".id : ArgTypeTuple}}.from arguments
   end
 
+  # Applies all of the `ART::ParamConverter::ConfigurationInterface`s on `self` against the provided `request` and *converters*.
+  #
+  # This is defined in here as opposed to `ART::Listeners::ParamConverter` so that the free vars are resolved correctly.
+  # See https://forum.crystal-lang.org/t/incorrect-overload-selected-with-freevar-and-generic-inheritance/3625.
   protected def apply_param_converters(converters : Hash(ART::ParamConverter.class, ART::ParamConverter), request : ART::Request) : Nil
     {% begin %}
       {% for idx in (0...ParamConverterType.size) %}
@@ -74,8 +78,6 @@ struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple,
     {% end %}
   end
 
-  # :nodoc:
-  #
   # Creates an `ART::View` populated with the provided *data*.
   # Uses the action's return type to type the view.
   protected def create_view(data : ReturnType) : ART::View
@@ -86,7 +88,6 @@ struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple,
     raise "BUG:  Invoked wrong `create_view` overload."
   end
 
-  # :nodoc:
   protected def copy_with(name _name = @name, method _method = @method)
     self.class.new(
       action: @action,
