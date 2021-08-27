@@ -21,9 +21,7 @@ class Athena::Routing::RequestBodyConverter < Athena::Routing::ParamConverter
           {% ArgType.raise "'#{@type}' cannot convert '#{ArgType}', as it is not serializable. '#{ArgType}' must include `JSON::Serializable` or `ASR::Serializable`." %}
         {% end %}
       rescue ex : JSON::ParseException | ASR::Exceptions::DeserializationException
-        message = ex.message.not_nil!
-        message = "Request body is empty." if message.includes? "<EOF>"
-        raise ART::Exceptions::BadRequest.new message, cause: ex
+        raise ART::Exceptions::BadRequest.new "Malformed JSON payload.", cause: ex
       end
 
       if object.is_a? AVD::Validatable

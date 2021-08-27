@@ -33,13 +33,13 @@ struct RequestBodyConverterTest < ASPEC::TestCase
   end
 
   def test_it_raises_on_empty_body : Nil
-    expect_raises ART::Exceptions::BadRequest, "Request body is empty." do
+    expect_raises ART::Exceptions::BadRequest, "Malformed JSON payload." do
       @target.apply new_request(body: ""), self.get_config(MockJSONSerializableEntity)
     end
   end
 
   def test_it_raises_on_invalid_json : Nil
-    expect_raises ART::Exceptions::BadRequest do
+    expect_raises ART::Exceptions::BadRequest, "Malformed JSON payload." do
       @target.apply new_request(body: "<abc123>"), self.get_config(MockJSONSerializableEntity)
     end
   end
