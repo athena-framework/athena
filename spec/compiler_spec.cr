@@ -54,6 +54,12 @@ describe Athena::Routing do
       it "missing `#apply` definition" do
         assert_error "compiler/param_converter_missing_apply_method.cr", "abstract `def Athena::Routing::ParamConverter#apply(request : ART::Request, configuration : Configuration)` must be implemented by 'CompileConverter'."
       end
+
+      describe ART::RequestBodyConverter do
+        it "when the action argument is not serializable" do
+          assert_error "compiler/request_body_converter_not_serializable.cr", "'Athena::Routing::RequestBodyConverter' cannot convert 'Foo', as it is not serializable. 'Foo' must include `JSON::Serializable` or `ASR::Serializable`"
+        end
+      end
     end
 
     describe ARTA::QueryParam do

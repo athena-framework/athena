@@ -43,6 +43,14 @@ class MockSerializer
   end
 end
 
+class DeserializableMockSerializer(T) < MockSerializer
+  setter deserialized_response : T? = nil
+
+  def deserialize(type : ASR::Model.class, data : String | IO, format : ASR::Format | String, context : ASR::DeserializationContext = ASR::DeserializationContext.new)
+    @deserialized_response
+  end
+end
+
 macro create_action(return_type = String, param_converters = nil, &)
   ART::Action.new(
     ->{ ->{ {{yield}} } },
@@ -94,8 +102,8 @@ def new_action(
   )
 end
 
-def new_request(*, path : String = "/test", method : String = "GET", action : ART::ActionBase = new_action) : ART::Request
-  request = ART::Request.new method, path
+def new_request(*, path : String = "/test", method : String = "GET", action : ART::ActionBase = new_action, body : String | IO | Nil = nil) : ART::Request
+  request = ART::Request.new method, path, body: body
   request.action = action
   request
 end

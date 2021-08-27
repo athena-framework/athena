@@ -11,7 +11,7 @@ struct Athena::Routing::Listeners::ParamConverter
     }
   end
 
-  @param_converters : Hash(ART::ParamConverter.class, ART::ParamConverter) = Hash(ART::ParamConverter.class, ART::ParamConverter).new
+  @param_converters = Hash(ART::ParamConverter.class, ART::ParamConverter).new
 
   def initialize(param_converters : Array(ART::ParamConverter))
     param_converters.each do |converter|
