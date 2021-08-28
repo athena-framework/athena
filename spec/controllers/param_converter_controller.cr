@@ -59,7 +59,7 @@ end
 
 @[ARTA::Prefix("param-converter")]
 class ParamConverterController < ART::Controller
-  # # Param converter type - single generic - arg type
+  # Param converter type - single generic - arg type
   @[ARTA::Post("/")]
   @[ARTA::ParamConverter("value", converter: GenericConverter)]
   def happy_path(value : Int32 = 0) : Int32
