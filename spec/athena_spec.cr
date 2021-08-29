@@ -7,8 +7,20 @@ describe Athena::Routing do
         Int64.from_parameter("123").should eq 123_i64
       end
 
+      it "Int with whitespace" do
+        expect_raises ArgumentError, "Invalid Int32:    123" do
+          Int32.from_parameter("   123")
+        end
+      end
+
       it Float32 do
         Float32.from_parameter("3.14").should eq 3.14_f32
+      end
+
+      it "Float with whitespace" do
+        expect_raises ArgumentError, "Invalid Float64:    123.5" do
+          Float64.from_parameter("   123.5")
+        end
       end
     end
 
