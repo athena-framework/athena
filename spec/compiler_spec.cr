@@ -50,6 +50,18 @@ describe Athena::Routing do
       end
     end
 
+    describe ART::ParamConverter do
+      it "missing `#apply` definition" do
+        assert_error "compiler/param_converter_missing_apply_method.cr", "abstract `def Athena::Routing::ParamConverter#apply(request : ART::Request, configuration : Configuration)` must be implemented by 'CompileConverter'."
+      end
+
+      describe ART::RequestBodyConverter do
+        it "when the action argument is not serializable" do
+          assert_error "compiler/request_body_converter_not_serializable.cr", "'Athena::Routing::RequestBodyConverter' cannot convert 'Foo', as it is not serializable. 'Foo' must include `JSON::Serializable` or `ASR::Serializable`"
+        end
+      end
+    end
+
     describe ARTA::QueryParam do
       it "missing name" do
         assert_error "compiler/query_param_missing_name.cr", "Route action 'CompileController#action' has an Athena::Routing::Annotations::QueryParam annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field."
@@ -90,8 +102,8 @@ describe Athena::Routing do
           assert_error "compiler/query_param_invalid_converter_type.cr", "Route action 'CompileController#action' has an Athena::Routing::Annotations::QueryParam annotation with an invalid 'converter' type: 'StringLiteral'.  Only NamedTuples, or the converter class are supported."
         end
 
-        it "disallows non ART::ParamConverterInterface types" do
-          assert_error "compiler/query_param_invalid_converter_class.cr", "Route action 'CompileController#action' has an Athena::Routing::Annotations::QueryParam annotation with an invalid 'converter' value.  Expected 'ART::ParamConverterInterface.class' got 'Athena::Routing::Controller'."
+        it "disallows non ART::ParamConverter types" do
+          assert_error "compiler/query_param_invalid_converter_class.cr", "Route action 'CompileController#action' has an Athena::Routing::Annotations::QueryParam annotation with an invalid 'converter' value.  Expected 'ART::ParamConverter.class' got 'Athena::Routing::Controller'."
         end
 
         it "requires the name to be provided when using a NamedTuple" do

@@ -43,7 +43,15 @@ class MockSerializer
   end
 end
 
-macro create_action(return_type, &)
+class DeserializableMockSerializer(T) < MockSerializer
+  setter deserialized_response : T? = nil
+
+  def deserialize(type : ASR::Model.class, data : String | IO, format : ASR::Format | String, context : ASR::DeserializationContext = ASR::DeserializationContext.new)
+    @deserialized_response
+  end
+end
+
+macro create_action(return_type = String, param_converters = nil, &)
   ART::Action.new(
     ->{ ->{ {{yield}} } },
     "fake_method",
@@ -51,7 +59,7 @@ macro create_action(return_type, &)
     "/test",
     Hash(String, Regex).new,
     Array(ART::Arguments::ArgumentMetadata(Nil)).new,
-    Array(ART::ParamConverterInterface::ConfigurationInterface).new,
+    {{param_converters ? param_converters : "Tuple.new".id}},
     ACF::AnnotationConfigurations.new,
     Array(ART::Params::ParamInterface).new,
     TestController,
@@ -75,7 +83,6 @@ def new_action(
   method : String = "GET",
   constraints : Hash(String, Regex) = Hash(String, Regex).new,
   arguments : Array(ART::Arguments::ArgumentMetadata)? = nil,
-  param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface)? = nil,
   params : Array(ART::Params::ParamInterface) = Array(ART::Params::ParamInterface).new,
   annotation_configurations = nil
 ) : ART::ActionBase
@@ -86,7 +93,7 @@ def new_action(
     path,
     constraints,
     arguments || Array(ART::Arguments::ArgumentMetadata(Nil)).new,
-    param_converters || Array(ART::ParamConverterInterface::ConfigurationInterface).new,
+    Tuple.new,
     annotation_configurations || ACF::AnnotationConfigurations.new,
     params,
     TestController,
@@ -95,8 +102,8 @@ def new_action(
   )
 end
 
-def new_request(*, path : String = "/test", method : String = "GET", action : ART::ActionBase = new_action) : ART::Request
-  request = ART::Request.new method, path
+def new_request(*, path : String = "/test", method : String = "GET", action : ART::ActionBase = new_action, body : String | IO | Nil = nil) : ART::Request
+  request = ART::Request.new method, path, body: body
   request.action = action
   request
 end

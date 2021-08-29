@@ -69,14 +69,14 @@ module Athena::Routing::Annotations
   # ```
   annotation Link; end
 
-  # Applies an `ART::ParamConverterInterface` to a given argument.
+  # Applies an `ART::ParamConverter` to a given argument.
   #
-  # See `ART::ParamConverterInterface` for more information on defining a param converter.
+  # See `ART::ParamConverter` for more information on defining a param converter.
   #
   # ## Fields
   #
   # * name : `String` - The name of the argument that should be converted, may also be provided as the first positional argument.
-  # * converter : `ART::ParamConverterInterface.class` - The `ART::ParamConverterInterface` that should be used to convert this argument.
+  # * converter : `ART::ParamConverter.class` - The `ART::ParamConverter` that should be used to convert this argument.
   #
   # ## Example
   #
@@ -374,9 +374,9 @@ module Athena::Routing::Annotations
   # ### Param Converters
   #
   # While Athena is able to auto convert query parameters from their `String` representation to `Bool`, or `Number` types, it is unable to do that for more complex types, such as `Time`.
-  # In such cases an `ART::ParamConverterInterface` is required.
+  # In such cases an `ART::ParamConverter` is required.
   #
-  # For simple converters that do not require any additional configuration, you can just specify the `ART::ParamConverterInterface.class` you wish to use for this query parameter.
+  # For simple converters that do not require any additional configuration, you can just specify the `ART::ParamConverter.class` you wish to use for this query parameter.
   # Default and nilable values work as they do when not using a converter.
   #
   # ```
@@ -398,9 +398,9 @@ module Athena::Routing::Annotations
   #
   # #### Extra Configuration
   #
-  # In some cases a param converter may require [additional configuration][Athena::Routing::ParamConverterInterface].
+  # In some cases a param converter may require [additional configuration][Athena::Routing::ParamConverter].
   # In this case a `NamedTuple` may be provided as the value of `converter`.
-  # The named tuple must contain a `name` key that represents the `ART::ParamConverterInterface.class` you wish to use for this query parameter.
+  # The named tuple must contain a `name` key that represents the `ART::ParamConverter.class` you wish to use for this query parameter.
   # Any additional key/value pairs will be passed to the param converter.
   #
   # ```

@@ -6,7 +6,7 @@ abstract struct Athena::Routing::ActionBase; end
 # Represents an endpoint within the application.
 
 # Includes metadata about the endpoint, such as its controller, arguments, return type, and the action that should be executed.
-struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple, ArgumentsType) < Athena::Routing::ActionBase
+struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple, ArgumentsType, ParamConverterType) < Athena::Routing::ActionBase
   # Returns the HTTP method associated with `self`.
   getter method : String
 
@@ -22,12 +22,12 @@ struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple,
   # Returns an `Array(ART::Arguments::ArgumentMetadata)` that `self` requires.
   getter arguments : ArgumentsType
 
-  # Returns an `Array(ART::ParamConverterInterface::ConfigurationInterface)` representing the `ARTA::ParamConverter`s applied to `self`.
-  getter param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface)
+  # Returns a `Tuple` of `ART::ParamConverter::ConfigurationInterface` representing the `ARTA::ParamConverter`s applied to `self`.
+  getter param_converters : ParamConverterType
 
   # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to `self`.
   #
-  # These configurations could then be accessed within `ART::ParamConverterInterface`s and/or `ART::Listeners`s.
+  # These configurations could then be accessed within `ART::ParamConverter`s and/or `ART::Listeners`s.
   # See `ART::Events::RequestAware` for an example.
   getter annotation_configurations : ACF::AnnotationConfigurations
 
@@ -40,7 +40,7 @@ struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple,
     @path : String,
     @constraints : Hash(String, Regex),
     @arguments : ArgumentsType,
-    @param_converters : Array(ART::ParamConverterInterface::ConfigurationInterface),
+    @param_converters : ParamConverterType,
     @annotation_configurations : ACF::AnnotationConfigurations,
     @params : Array(ART::Params::ParamInterface),
     # Don't bother making these ivars since we just need them to set the generic types
@@ -65,8 +65,19 @@ struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple,
     @action.call.call *{{ArgTypeTuple.type_vars.empty? ? "Tuple.new".id : ArgTypeTuple}}.from arguments
   end
 
-  # :nodoc:
+  # Applies all of the `ART::ParamConverter::ConfigurationInterface`s on `self` against the provided `request` and *converters*.
   #
+  # This is defined in here as opposed to `ART::Listeners::ParamConverter` so that the free vars are resolved correctly.
+  # See https://forum.crystal-lang.org/t/incorrect-overload-selected-with-freevar-and-generic-inheritance/3625.
+  protected def apply_param_converters(converters : Hash(ART::ParamConverter.class, ART::ParamConverter), request : ART::Request) : Nil
+    {% begin %}
+      {% for idx in (0...ParamConverterType.size) %}
+        %configuration = @param_converters[{{idx}}]
+        converters[%configuration.converter].apply request, %configuration
+      {% end %}
+    {% end %}
+  end
+
   # Creates an `ART::View` populated with the provided *data*.
   # Uses the action's return type to type the view.
   protected def create_view(data : ReturnType) : ART::View
@@ -74,10 +85,9 @@ struct Athena::Routing::Action(Controller, ActionType, ReturnType, ArgTypeTuple,
   end
 
   protected def create_view(data : _) : NoReturn
-    raise "BUG:  Invoked wrong create_view overload."
+    raise "BUG:  Invoked wrong `create_view` overload."
   end
 
-  # :nodoc:
   protected def copy_with(name _name = @name, method _method = @method)
     self.class.new(
       action: @action,

@@ -79,6 +79,18 @@ struct ParamTest < ART::Spec::APITestCase
     self.request("GET", "/query/time?time=2020-04-07T12:34:56Z").body.should eq %("Today is: 2020-04-07 12:34:56 UTC")
   end
 
+  def test_param_converter_class_single_generic : Nil
+    self.request("GET", "/query/generic/single").body.should eq "1"
+  end
+
+  def test_param_converter_class_single_additional_generic : Nil
+    self.request("GET", "/query/generic/single-additional").body.should eq "2"
+  end
+
+  def test_param_converter_class_multiple_additional_generic : Nil
+    self.request("GET", "/query/generic/multiple-additional").body.should eq "4"
+  end
+
   def test_param_converter_default_missing : Nil
     self.request("GET", "/query/time").body.should eq %("Today is: 2020-10-01 00:00:00 UTC")
   end

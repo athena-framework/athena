@@ -37,7 +37,7 @@
 #
 #   # A GET endpoint using a param converter to render a template.
 #   #
-#   # Assumes there is a `User` object that exposes their name, and an `ART::ParamConverterInterface` to provide the user with the provided *id*.
+#   # Assumes there is a `User` object that exposes their name, and an `ART::ParamConverter` to provide the user with the provided *id*.
 #   # ```
 #   # # user.ecr
 #   # Morning, <%= user.name %> it is currently <%= time %>.

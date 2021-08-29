@@ -125,9 +125,13 @@ class Athena::Routing::RouteCollection
 
             {% for converter in m.annotations(ARTA::ParamConverter) %}
               {% converter.raise "Route action '#{klass.name}##{m.name}' has an ARTA::ParamConverter annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (converter[0] || converter[:name]) %}
-              {% converter.raise "Route action '#{klass.name}##{m.name}' has an ARTA::ParamConverter annotation but does not have a corresponding action argument for '#{arg_name.id}'." unless arg_names.includes? arg_name %}
+              {% converter.raise "Route action '#{klass.name}##{m.name}' has an ARTA::ParamConverter annotation but does not have a corresponding action argument for '#{arg_name.id}'." unless (arg = m.args.find(&.name.stringify.==(arg_name.id.stringify))) %}
               {% converter.raise "Route action '#{klass.name}##{m.name}' has an ARTA::ParamConverter annotation but is missing the converter class.  It was not provided via the 'converter' field." unless converter_class = converter[:converter] %}
-              {% param_converters << %(#{converter_class.resolve}::Configuration.new(name: #{arg_name.id.stringify}, #{converter.named_args.double_splat})).id %}
+              {% ann_args = converter.named_args %}
+              {% configuration_type = ann_args[:type_vars] != nil ? "Configuration(#{arg.restriction}, #{ann_args[:type_vars].is_a?(Path) ? ann_args[:type_vars].id : ann_args[:type_vars].splat})" : "Configuration(#{arg.restriction})" %}
+              {% configuration_args = {name: arg_name.id.stringify} %}
+              {% converter.named_args.to_a.select { |(k, _)| k != :type_vars }.each { |(k, v)| configuration_args[k] = v } %}
+              {% param_converters << %(#{converter_class.resolve}::#{configuration_type.id}.new(#{configuration_args.double_splat})).id %}
             {% end %}
 
             # Build out param metadata
@@ -187,13 +191,17 @@ class Athena::Routing::RouteCollection
                     {% converter_args[:converter] = converter_args[:name] || converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter'. The converter's name was not provided via the 'name' field." %}
                     {% converter_args[:name] = arg_name %}
                   {% elsif converter.is_a? Path %}
-                    {% converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter' value.  Expected 'ART::ParamConverterInterface.class' got '#{converter.resolve.id}'." unless converter.resolve <= ART::ParamConverterInterface %}
+                    {% converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter' value.  Expected 'ART::ParamConverter.class' got '#{converter.resolve.id}'." unless converter.resolve <= ART::ParamConverter %}
                     {% converter_args = {converter: converter.resolve, name: arg_name} %}
                   {% else %}
                     {% converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter' type: '#{converter.class_name.id}'.  Only NamedTuples, or the converter class are supported." %}
                   {% end %}
 
-                  {% param_converters << %(#{converter_args[:converter].resolve}::Configuration.new(#{converter_args.double_splat})).id %}
+                  {% configuration_type = converter_args[:type_vars] != nil ? "Configuration(#{arg.restriction}, #{converter_args[:type_vars].is_a?(Path) ? converter_args[:type_vars].id : converter_args[:type_vars].splat})" : "Configuration(#{arg.restriction})" %}
+                  {% configuration_args = {name: converter_args[:name]} %}
+                  {% converter_args.to_a.select { |(k, _)| k != :type_vars }.each { |(k, v)| configuration_args[k] = v } %}
+
+                  {% param_converters << %(#{converter_args[:converter].resolve}::#{configuration_type.id}.new(#{configuration_args.double_splat})).id %}
                 {% end %}
 
                 # Non strict parameters must be nilable or have a default value.
@@ -244,23 +252,23 @@ class Athena::Routing::RouteCollection
             # Add the route to the router
             routes[{{route_name}}] = %action{route_name} = Action.new(
               action: ->{
-                  # If the controller is not registered as a service, simply new one up
-                  # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
-                  {% if ann = klass.annotation(ADI::Register) %}
-                    {% klass.raise "Controller service '#{klass.id}' must be declared as public." unless ann[:public] %}
-                    %instance = ADI.container.get({{klass.id}})
-                  {% else %}
-                    %instance = {{klass.id}}.new
-                  {% end %}
+                # If the controller is not registered as a service, simply new one up
+                # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
+                {% if ann = klass.annotation(ADI::Register) %}
+                  {% klass.raise "Controller service '#{klass.id}' must be declared as public." unless ann[:public] %}
+                  %instance = ADI.container.get({{klass.id}})
+                {% else %}
+                  %instance = {{klass.id}}.new
+                {% end %}
 
-                  ->%instance.{{m.name.id}}{% if !m.args.empty? %}({{arg_types.splat}}){% end %}
-                },
+                ->%instance.{{m.name.id}}{% unless m.args.empty? %}({{arg_types.splat}}){% end %}
+              },
               name: {{route_name}},
               method: {{method}},
               path: {{full_path}},
               constraints: ({{constraints}} of String => Regex),
               arguments: {{arguments.empty? ? "Array(ART::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},
-              param_converters: ({{param_converters}} of ART::ParamConverterInterface::ConfigurationInterface),
+              param_converters: {{param_converters.empty? ? "Tuple.new".id : "{#{param_converters.splat}}".id}},
               annotation_configurations: ACF::AnnotationConfigurations.new({{annotation_configurations}} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)),
               params: ({{params}} of ART::Params::ParamInterface),
               _controller: {{klass.id}},
