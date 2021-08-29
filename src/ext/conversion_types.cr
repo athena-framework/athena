@@ -34,7 +34,7 @@ end
 
 # :nodoc:
 def Number.from_parameter(value : String) : Number
-  new value
+  new value, whitespace: false
 end
 
 # :nodoc:
