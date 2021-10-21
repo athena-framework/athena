@@ -4,12 +4,12 @@ struct FormatListenerTest < ASPEC::TestCase
   def test_call_no_config : Nil
     event = new_request_event
 
-    request_store = ART::RequestStore.new
+    request_store = ATH::RequestStore.new
     request_store.request = event.request
 
-    negotiator = ART::View::FormatNegotiator.new request_store, nil
+    negotiator = ATH::View::FormatNegotiator.new request_store, nil
 
-    listener = ART::Listeners::Format.new nil, negotiator
+    listener = ATH::Listeners::Format.new nil, negotiator
 
     listener.call event, AED::Spec::TracableEventDispatcher.new
 
@@ -20,16 +20,16 @@ struct FormatListenerTest < ASPEC::TestCase
   def test_call_fallback_format : Nil
     event = new_request_event
 
-    request_store = ART::RequestStore.new
+    request_store = ATH::RequestStore.new
     request_store.request = event.request
 
-    config = ART::Config::ContentNegotiation.new [
-      ART::Config::ContentNegotiation::Rule.new(fallback_format: "xml"),
+    config = ATH::Config::ContentNegotiation.new [
+      ATH::Config::ContentNegotiation::Rule.new(fallback_format: "xml"),
     ]
 
-    negotiator = ART::View::FormatNegotiator.new request_store, config
+    negotiator = ATH::View::FormatNegotiator.new request_store, config
 
-    listener = ART::Listeners::Format.new config, negotiator
+    listener = ATH::Listeners::Format.new config, negotiator
 
     listener.call event, AED::Spec::TracableEventDispatcher.new
 
@@ -41,17 +41,17 @@ struct FormatListenerTest < ASPEC::TestCase
     event = new_request_event
     event.request.request_format = "xml"
 
-    request_store = ART::RequestStore.new
+    request_store = ATH::RequestStore.new
     request_store.request = event.request
 
-    config = ART::Config::ContentNegotiation.new [
-      ART::Config::ContentNegotiation::Rule.new(stop: true),
-      ART::Config::ContentNegotiation::Rule.new(fallback_format: "json"),
+    config = ATH::Config::ContentNegotiation.new [
+      ATH::Config::ContentNegotiation::Rule.new(stop: true),
+      ATH::Config::ContentNegotiation::Rule.new(fallback_format: "json"),
     ]
 
-    negotiator = ART::View::FormatNegotiator.new request_store, config
+    negotiator = ATH::View::FormatNegotiator.new request_store, config
 
-    listener = ART::Listeners::Format.new config, negotiator
+    listener = ATH::Listeners::Format.new config, negotiator
 
     listener.call event, AED::Spec::TracableEventDispatcher.new
 
@@ -62,16 +62,16 @@ struct FormatListenerTest < ASPEC::TestCase
   def test_call_cannot_resolve_format : Nil
     event = new_request_event
 
-    request_store = ART::RequestStore.new
+    request_store = ATH::RequestStore.new
     request_store.request = event.request
 
-    config = ART::Config::ContentNegotiation.new Array(ART::Config::ContentNegotiation::Rule).new
+    config = ATH::Config::ContentNegotiation.new Array(ATH::Config::ContentNegotiation::Rule).new
 
-    negotiator = ART::View::FormatNegotiator.new request_store, config
+    negotiator = ATH::View::FormatNegotiator.new request_store, config
 
-    listener = ART::Listeners::Format.new config, negotiator
+    listener = ATH::Listeners::Format.new config, negotiator
 
-    expect_raises ART::Exceptions::NotAcceptable, "No matching accepted Response format could be determined." do
+    expect_raises ATH::Exceptions::NotAcceptable, "No matching accepted Response format could be determined." do
       listener.call event, AED::Spec::TracableEventDispatcher.new
     end
   end
@@ -85,16 +85,16 @@ struct FormatListenerTest < ASPEC::TestCase
       event.request.request_format = format
     end
 
-    request_store = ART::RequestStore.new
+    request_store = ATH::RequestStore.new
     request_store.request = event.request
 
-    config = ART::Config::ContentNegotiation.new [
-      ART::Config::ContentNegotiation::Rule.new(fallback_format: "xml"),
+    config = ATH::Config::ContentNegotiation.new [
+      ATH::Config::ContentNegotiation::Rule.new(fallback_format: "xml"),
     ]
 
-    negotiator = ART::View::FormatNegotiator.new request_store, config
+    negotiator = ATH::View::FormatNegotiator.new request_store, config
 
-    listener = ART::Listeners::Format.new config, negotiator
+    listener = ATH::Listeners::Format.new config, negotiator
 
     listener.call event, AED::Spec::TracableEventDispatcher.new
 

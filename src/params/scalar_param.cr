@@ -1,5 +1,5 @@
-# Extension of `ART::Params::Param` that allows for more granular validation of scalar parameters.
-abstract struct Athena::Routing::Params::ScalarParam < Athena::Routing::Params::Param
+# Extension of `ATH::Params::Param` that allows for more granular validation of scalar parameters.
+abstract struct Athena::Framework::Params::ScalarParam < Athena::Framework::Params::Param
   # Returns the requirements that the value is required to pass in order to be considered valid.
   #
   # See the "Requirements" section of `ARTA::QueryParam`.

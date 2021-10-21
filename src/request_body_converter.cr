@@ -29,10 +29,10 @@ require "./param_converter"
 #   getter email : String
 # end
 #
-# class UserController < ART::Controller
+# class UserController < ATH::Controller
 #   @[ARTA::Post("/user")]
 #   @[ARTA::View(status: :created)]
-#   @[ARTA::ParamConverter("user_create", converter: ART::RequestBodyConverter)]
+#   @[ARTA::ParamConverter("user_create", converter: ATH::RequestBodyConverter)]
 #   def new_user(user_create : UserCreate) : UserCreate
 #     # Use the provided UserCreate instance to create an actual User DB record.
 #     # For purposes of this example, just return the instance.
@@ -84,15 +84,15 @@ require "./param_converter"
 #   "email": "george@dietrich.app"
 # }
 # ```
-class Athena::Routing::RequestBodyConverter < Athena::Routing::ParamConverter
+class Athena::Framework::RequestBodyConverter < Athena::Framework::ParamConverter
   def initialize(
     @serializer : ASR::SerializerInterface,
     @validator : AVD::Validator::ValidatorInterface
   ); end
 
   # :inherit:
-  def apply(request : ART::Request, configuration : Configuration(ArgType)) : Nil forall ArgType
-    raise ART::Exceptions::BadRequest.new "Request has no body." unless (body = request.body)
+  def apply(request : ATH::Request, configuration : Configuration(ArgType)) : Nil forall ArgType
+    raise ATH::Exceptions::BadRequest.new "Request has no body." unless (body = request.body)
 
     {% begin %}
       begin
@@ -104,7 +104,7 @@ class Athena::Routing::RequestBodyConverter < Athena::Routing::ParamConverter
           {% ArgType.raise "'#{@type}' cannot convert '#{ArgType}', as it is not serializable. '#{ArgType}' must include `JSON::Serializable` or `ASR::Serializable`." %}
         {% end %}
       rescue ex : JSON::ParseException | ASR::Exceptions::DeserializationException
-        raise ART::Exceptions::BadRequest.new "Malformed JSON payload.", cause: ex
+        raise ATH::Exceptions::BadRequest.new "Malformed JSON payload.", cause: ex
       end
 
       if object.is_a? AVD::Validatable

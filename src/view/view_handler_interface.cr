@@ -1,12 +1,12 @@
-# Processes an `ART::View` into an `ART::Response` of the proper format.
+# Processes an `ATH::View` into an `ATH::Response` of the proper format.
 #
 # See the [negotiation](/components/negotiation) component for more information.
-module Athena::Routing::View::ViewHandlerInterface
+module Athena::Framework::View::ViewHandlerInterface
   # The possible types for a view format handler.
-  alias HandlerType = ART::View::FormatHandlerInterface | Proc(ART::View::ViewHandlerInterface, ART::ViewBase, ART::Request, String, ART::Response)
+  alias HandlerType = ATH::View::FormatHandlerInterface | Proc(ATH::View::ViewHandlerInterface, ATH::ViewBase, ATH::Request, String, ATH::Response)
 
   # Registers the provided *handler* to handle the provided *format*.
-  abstract def register_handler(format : String, handler : ART::View::ViewHandlerInterface::HandlerType) : Nil
+  abstract def register_handler(format : String, handler : ATH::View::ViewHandlerInterface::HandlerType) : Nil
 
   # Determines if `self` can handle the provided *format*.
   #
@@ -14,16 +14,16 @@ module Athena::Routing::View::ViewHandlerInterface
   # otherwise falls back on the `ASR::SerializerInterface`.
   abstract def supports?(format : String) : Bool
 
-  # Handles the conversion of the provided *view* into an `ART::Response`.
+  # Handles the conversion of the provided *view* into an `ATH::Response`.
   #
-  # If no *request* is provided, it is fetched from `ART::RequestStore`.
-  abstract def handle(view : ART::ViewBase, request : ART::Request? = nil) : ART::Response
+  # If no *request* is provided, it is fetched from `ATH::RequestStore`.
+  abstract def handle(view : ATH::ViewBase, request : ATH::Request? = nil) : ATH::Response
 
-  # Creates an `ART::Response` based on the provided *view* that'll redirect to the provided *location*.
+  # Creates an `ATH::Response` based on the provided *view* that'll redirect to the provided *location*.
   #
   # *location* may either be a `URL` or the name of a route.
-  abstract def create_redirect_response(view : ART::ViewBase, location : String, format : String) : ART::Response
+  abstract def create_redirect_response(view : ATH::ViewBase, location : String, format : String) : ATH::Response
 
-  # Creates an `ART::Response` based on the provided *view* and *request*.
-  abstract def create_response(view : ART::ViewBase, request : ART::Request, format : String) : ART::Response
+  # Creates an `ATH::Response` based on the provided *view* and *request*.
+  abstract def create_response(view : ATH::ViewBase, request : ATH::Request, format : String) : ATH::Response
 end

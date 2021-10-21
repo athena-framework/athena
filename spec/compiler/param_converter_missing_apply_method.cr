@@ -1,8 +1,8 @@
 require "../spec_helper"
 
-class CompileConverter < ART::ParamConverter; end
+class CompileConverter < ATH::ParamConverter; end
 
-class CompileController < Athena::Routing::Controller
+class CompileController < Athena::Framework::Controller
   @[ARTA::Get(path: "/")]
   @[ARTA::ParamConverter("num", converter: CompileConverter)]
   def action(num : Int32) : Int32
@@ -10,4 +10,4 @@ class CompileController < Athena::Routing::Controller
   end
 end
 
-ART.run
+ATH.run

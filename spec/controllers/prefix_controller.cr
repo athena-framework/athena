@@ -1,5 +1,5 @@
 @[ARTA::Prefix("calendar")]
-class CalendarController < ART::Controller
+class CalendarController < ATH::Controller
   @[ARTA::Get(path: "events")]
   def events : String
     "events"

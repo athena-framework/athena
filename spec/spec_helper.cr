@@ -13,7 +13,7 @@ include ASPEC::Methods
 
 ASPEC.run_all
 
-class TestController < ART::Controller
+class TestController < ATH::Controller
   get "test" do
     "TEST"
   end
@@ -52,28 +52,28 @@ class DeserializableMockSerializer(T) < MockSerializer
 end
 
 macro create_action(return_type = String, param_converters = nil, &)
-  ART::Action.new(
+  ATH::Action.new(
     ->{ ->{ {{yield}} } },
     "fake_method",
     "GET",
     "/test",
     Hash(String, Regex).new,
-    Array(ART::Arguments::ArgumentMetadata(Nil)).new,
+    Array(ATH::Arguments::ArgumentMetadata(Nil)).new,
     {{param_converters ? param_converters : "Tuple.new".id}},
     ACF::AnnotationConfigurations.new,
-    Array(ART::Params::ParamInterface).new,
+    Array(ATH::Params::ParamInterface).new,
     TestController,
     {{return_type}},
     typeof(Tuple.new),
   )
 end
 
-def new_context(*, request : ART::Request = new_request, response : HTTP::Server::Response = new_response) : HTTP::Server::Context
+def new_context(*, request : ATH::Request = new_request, response : HTTP::Server::Response = new_response) : HTTP::Server::Context
   HTTP::Server::Context.new request, response
 end
 
-def new_argument(has_default : Bool = false, is_nilable : Bool = false, default : Int32? = nil) : ART::Arguments::ArgumentMetadata
-  ART::Arguments::ArgumentMetadata(Int32).new("id", has_default, is_nilable, default)
+def new_argument(has_default : Bool = false, is_nilable : Bool = false, default : Int32? = nil) : ATH::Arguments::ArgumentMetadata
+  ATH::Arguments::ArgumentMetadata(Int32).new("id", has_default, is_nilable, default)
 end
 
 def new_action(
@@ -82,17 +82,17 @@ def new_action(
   path : String = "/test",
   method : String = "GET",
   constraints : Hash(String, Regex) = Hash(String, Regex).new,
-  arguments : Array(ART::Arguments::ArgumentMetadata)? = nil,
-  params : Array(ART::Params::ParamInterface) = Array(ART::Params::ParamInterface).new,
+  arguments : Array(ATH::Arguments::ArgumentMetadata)? = nil,
+  params : Array(ATH::Params::ParamInterface) = Array(ATH::Params::ParamInterface).new,
   annotation_configurations = nil
-) : ART::ActionBase
-  ART::Action.new(
+) : ATH::ActionBase
+  ATH::Action.new(
     ->{ test_controller = TestController.new; ->test_controller.get_test },
     name,
     method,
     path,
     constraints,
-    arguments || Array(ART::Arguments::ArgumentMetadata(Nil)).new,
+    arguments || Array(ATH::Arguments::ArgumentMetadata(Nil)).new,
     Tuple.new,
     annotation_configurations || ACF::AnnotationConfigurations.new,
     params,
@@ -102,8 +102,8 @@ def new_action(
   )
 end
 
-def new_request(*, path : String = "/test", method : String = "GET", action : ART::ActionBase = new_action, body : String | IO | Nil = nil) : ART::Request
-  request = ART::Request.new method, path, body: body
+def new_request(*, path : String = "/test", method : String = "GET", action : ATH::ActionBase = new_action, body : String | IO | Nil = nil) : ATH::Request
+  request = ATH::Request.new method, path, body: body
   request.action = action
   request
 end
@@ -112,10 +112,10 @@ def new_request_event
   new_request_event { }
 end
 
-def new_request_event(& : ART::Request -> _)
+def new_request_event(& : ATH::Request -> _)
   request = new_request
   yield request
-  ART::Events::Request.new request
+  ATH::Events::Request.new request
 end
 
 def new_response(*, io : IO = IO::Memory.new) : HTTP::Server::Response

@@ -1,7 +1,7 @@
 require "./param_interface"
 
-# Base implementation of `ART::Params::ParamInterface`.
-abstract struct Athena::Routing::Params::Param
+# Base implementation of `ATH::Params::ParamInterface`.
+abstract struct Athena::Framework::Params::Param
   # :inherit:
   getter name : String
 

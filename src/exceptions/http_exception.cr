@@ -14,7 +14,7 @@ end
 # Also optionally allows adding headers to the resulting response.
 #
 # Can be used directly/inherited from to represent non-typical HTTP errors/codes.
-class Athena::Routing::Exceptions::HTTPException < Exception
+class Athena::Framework::Exceptions::HTTPException < Exception
   # The `HTTP::Status` associated with `self`.
   getter status : HTTP::Status
 

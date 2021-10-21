@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-struct ParamTest < ART::Spec::APITestCase
+struct ParamTest < ATH::Spec::APITestCase
   def test_required_query_param_provided : Nil
     self.request("GET", "/query?search=blah").body.should eq %("blah")
   end

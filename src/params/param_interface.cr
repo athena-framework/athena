@@ -1,7 +1,7 @@
 # Represents a request parameter; e.x. query param, form data, a file, etc.
 #
 # See `ARTA::QueryParam` and `ARTA::RequestParam`.
-module Athena::Routing::Params::ParamInterface
+module Athena::Framework::Params::ParamInterface
   # Returns the name of the parameter, maps to the controller action argument name.
   abstract def name : String
 
@@ -22,5 +22,5 @@ module Athena::Routing::Params::ParamInterface
   abstract def strict? : Bool
 
   # Returns the `self`'s value from the provided *request*, or *default* if it was not present.
-  abstract def extract_value(request : ART::Request, default : _ = nil)
+  abstract def extract_value(request : ATH::Request, default : _ = nil)
 end

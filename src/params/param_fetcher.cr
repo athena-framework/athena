@@ -1,20 +1,20 @@
 require "./param_fetcher_interface"
 
 @[ADI::Register]
-# Basic implementation of `ART::Params::ParamFetcherInterface`.
+# Basic implementation of `ATH::Params::ParamFetcherInterface`.
 #
-# WARNING: May only be used _after_ the related `ART::Action` has been resolved.
-class Athena::Routing::Params::ParamFetcher
-  include Athena::Routing::Params::ParamFetcherInterface
+# WARNING: May only be used _after_ the related `ATH::Action` has been resolved.
+class Athena::Framework::Params::ParamFetcher
+  include Athena::Framework::Params::ParamFetcherInterface
 
-  private getter params : Hash(String, ART::Params::ParamInterface) do
-    self.request.action.params.each_with_object({} of String => ART::Params::ParamInterface) do |param, params|
+  private getter params : Hash(String, ATH::Params::ParamInterface) do
+    self.request.action.params.each_with_object({} of String => ATH::Params::ParamInterface) do |param, params|
       params[param.name] = param
     end
   end
 
   def initialize(
-    @request_store : ART::RequestStore,
+    @request_store : ATH::RequestStore,
     @validator : AVD::Validator::ValidatorInterface
   )
   end
@@ -43,14 +43,14 @@ class Athena::Routing::Params::ParamFetcher
     )
   end
 
-  private def validate_param(param : ART::Params::ParamInterface, value : _, strict : Bool, default : _)
+  private def validate_param(param : ATH::Params::ParamInterface, value : _, strict : Bool, default : _)
     self.check_not_incompatible_params param
 
     begin
       value = param.type.from_parameter value
     rescue ex : ArgumentError
       # Catch type cast errors and bubble it up as an BadRequest if strict
-      raise ART::Exceptions::BadRequest.new "Required parameter '#{param.name}' with value '#{value}' could not be converted into a valid '#{param.type}'.", cause: ex if strict
+      raise ATH::Exceptions::BadRequest.new "Required parameter '#{param.name}' with value '#{value}' could not be converted into a valid '#{param.type}'.", cause: ex if strict
       return default
     end
 
@@ -73,14 +73,14 @@ class Athena::Routing::Params::ParamFetcher
     end
 
     unless errors.empty?
-      raise ART::Exceptions::InvalidParameter.with_violations param, errors if strict
+      raise ATH::Exceptions::InvalidParameter.with_violations param, errors if strict
       return default
     end
 
     value
   end
 
-  private def check_not_incompatible_params(param : ART::Params::ParamInterface) : Nil
+  private def check_not_incompatible_params(param : ATH::Params::ParamInterface) : Nil
     return if param.extract_value(self.request, nil).nil?
     return unless (incompatibles = param.incompatibles)
 
@@ -88,12 +88,12 @@ class Athena::Routing::Params::ParamFetcher
       incompatible_param = self.params.fetch(incompatible_param_name) { raise KeyError.new "Unknown parameter '#{incompatible_param_name}'." }
 
       unless incompatible_param.extract_value(self.request, nil).nil?
-        raise ART::Exceptions::BadRequest.new "Parameter '#{param.name}' is incompatible with parameter '#{incompatible_param.name}'."
+        raise ATH::Exceptions::BadRequest.new "Parameter '#{param.name}' is incompatible with parameter '#{incompatible_param.name}'."
       end
     end
   end
 
-  private def request : ART::Request
+  private def request : ATH::Request
     @request_store.request
   end
 end

@@ -6,17 +6,17 @@ require "./param_converter"
 # If no *format* is specified, defaults to [Time.rfc_3339](https://crystal-lang.org/api/Time.html#parse_rfc3339%28time:String%29-class-method).
 # Defaults to `UTC` if no *location* is specified with the format.
 #
-# Raises an `ART::Exceptions::BadRequest` if the date(time) string could not be parsed.
+# Raises an `ATH::Exceptions::BadRequest` if the date(time) string could not be parsed.
 #
 # TIP: The format can be anything supported via [Time::Format](https://crystal-lang.org/api/Time/Format.html).
 #
 # ```
 # require "athena"
 #
-# class ExampleController < ART::Controller
+# class ExampleController < ATH::Controller
 #   @[ARTA::Get(path: "/event/:start_time/:end_time")]
-#   @[ARTA::ParamConverter("start_time", converter: ART::TimeConverter, format: "%F", location: Time::Location.load("Europe/Berlin"))]
-#   @[ARTA::ParamConverter("end_time", converter: ART::TimeConverter)]
+#   @[ARTA::ParamConverter("start_time", converter: ATH::TimeConverter, format: "%F", location: Time::Location.load("Europe/Berlin"))]
+#   @[ARTA::ParamConverter("end_time", converter: ATH::TimeConverter)]
 #   def event(start_time : Time, end_time : Time) : Nil
 #     start_time # => 2020-04-07 00:00:00.0 +02:00 Europe/Berlin
 #     end_time   # => 2020-04-08 12:34:56.0 UTC
@@ -28,11 +28,11 @@ require "./param_converter"
 # # GET /event/2020-04-07/2020-04-08T12:34:56Z
 # ```
 @[ADI::Register]
-class Athena::Routing::TimeConverter < Athena::Routing::ParamConverter
+class Athena::Framework::TimeConverter < Athena::Framework::ParamConverter
   configuration format : String? = nil, location : Time::Location = Time::Location::UTC
 
   # :inherit:
-  def apply(request : ART::Request, configuration : Configuration) : Nil
+  def apply(request : ATH::Request, configuration : Configuration) : Nil
     arg_name = configuration.name
 
     return unless request.attributes.has? arg_name
@@ -45,6 +45,6 @@ class Athena::Routing::TimeConverter < Athena::Routing::ParamConverter
 
     request.attributes.set arg_name, time, Time
   rescue ex : Time::Format::Error
-    raise ART::Exceptions::BadRequest.new "Invalid date(time) for argument '#{arg_name}'."
+    raise ATH::Exceptions::BadRequest.new "Invalid date(time) for argument '#{arg_name}'."
   end
 end

@@ -1,7 +1,7 @@
 # Wraps an [HTTP::Headers](https://crystal-lang.org/api/HTTP/Headers.html) instance to provide additional functionality.
 #
 # Forwards all additional methods to the wrapped `HTTP::Headers` instance.
-class Athena::Routing::Response::Headers
+class Athena::Framework::Response::Headers
   # Returns an [HTTP::Cookies](https://crystal-lang.org/api/HTTP/Cookies.html) instance that stores cookies related to `self`.
   getter cookies : HTTP::Cookies { HTTP::Cookies.new }
 
@@ -90,12 +90,12 @@ class Athena::Routing::Response::Headers
     @headers[key] = value
 
     if "cache-control" == key.downcase
-      @cache_control = ART::HeaderUtils.parse value
+      @cache_control = ATH::HeaderUtils.parse value
     end
 
     if key.downcase.in?("cache-control", "etag", "last-modified", "expires") && (computed = self.compute_cache_control_value.presence)
       @headers["cache-control"] = computed
-      @computed_cache_control = ART::HeaderUtils.parse computed
+      @computed_cache_control = ATH::HeaderUtils.parse computed
     end
   end
 
@@ -117,7 +117,7 @@ class Athena::Routing::Response::Headers
     @headers.add key, value
 
     if "cache-control" == key.downcase
-      @cache_control = ART::HeaderUtils.parse @headers["cache-control"]
+      @cache_control = ATH::HeaderUtils.parse @headers["cache-control"]
       @headers["cache-control"] = self.cache_control_header
     end
   end
@@ -134,7 +134,7 @@ class Athena::Routing::Response::Headers
   #
   # ```
   # time = HTTP.format_time Time.utc 2021, 4, 7, 12, 0, 0
-  # headers = ART::Response::Headers{"date" => time}
+  # headers = ATH::Response::Headers{"date" => time}
   #
   # headers.date                 # => 2021-04-07 12:00:00.0 UTC
   # headers.date "foo"           # => nil
@@ -214,7 +214,7 @@ class Athena::Routing::Response::Headers
   end
 
   private def cache_control_header : String
-    ART::HeaderUtils.to_string @cache_control, ", "
+    ATH::HeaderUtils.to_string @cache_control, ", "
   end
 
   private def init_date : Nil

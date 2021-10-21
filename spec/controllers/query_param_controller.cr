@@ -1,6 +1,6 @@
 @[ADI::Register]
-class QPGenericConverter < ART::ParamConverter
-  def apply(request : ART::Request, configuration : Configuration(T)) : Nil forall T
+class QPGenericConverter < ATH::ParamConverter
+  def apply(request : ATH::Request, configuration : Configuration(T)) : Nil forall T
     value = case T
             in Int32.class  then 1
             in String.class then 2
@@ -11,10 +11,10 @@ class QPGenericConverter < ART::ParamConverter
 end
 
 @[ADI::Register]
-class SingleAdditionalQPGenericConverter < ART::ParamConverter
+class SingleAdditionalQPGenericConverter < ATH::ParamConverter
   configuration type_vars: B
 
-  def apply(request : ART::Request, configuration : Configuration(A, B)) : Nil forall A, B
+  def apply(request : ATH::Request, configuration : Configuration(A, B)) : Nil forall A, B
     value = 0
 
     value += case A
@@ -32,10 +32,10 @@ class SingleAdditionalQPGenericConverter < ART::ParamConverter
 end
 
 @[ADI::Register]
-class MultipleAdditionalQPGenericConverter < ART::ParamConverter
+class MultipleAdditionalQPGenericConverter < ATH::ParamConverter
   configuration type_vars: {B, C}
 
-  def apply(request : ART::Request, configuration : Configuration(A, B, C)) : Nil forall A, B, C
+  def apply(request : ATH::Request, configuration : Configuration(A, B, C)) : Nil forall A, B, C
     value = 0
 
     value += case A
@@ -58,7 +58,7 @@ class MultipleAdditionalQPGenericConverter < ART::ParamConverter
 end
 
 @[ARTA::Prefix("query")]
-class QueryParamController < ART::Controller
+class QueryParamController < ATH::Controller
   # Simple, just name/description
   @[ARTA::QueryParam("search", description: "Only return items that include this string.")]
   @[ARTA::Get("/")]
@@ -110,7 +110,7 @@ class QueryParamController < ART::Controller
   end
 
   # Param converter type
-  @[ARTA::QueryParam("time", converter: ART::TimeConverter)]
+  @[ARTA::QueryParam("time", converter: ATH::TimeConverter)]
   @[ARTA::Get("/time")]
   def time(time : Time = Time.utc(2020, 10, 1)) : String
     "Today is: #{time}"
@@ -138,7 +138,7 @@ class QueryParamController < ART::Controller
   end
 
   # Param converter named tuple
-  @[ARTA::QueryParam("time", converter: {name: ART::TimeConverter, format: "%Y--%m//%d  %T"})]
+  @[ARTA::QueryParam("time", converter: {name: ATH::TimeConverter, format: "%Y--%m//%d  %T"})]
   @[ARTA::Get("/nt_time")]
   def nt_time(time : Time) : String
     "Today is: #{time}"

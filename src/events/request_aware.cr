@@ -1,7 +1,7 @@
 # Represents an event that has access to the current request object.
-module Athena::Routing::Events::RequestAware
+module Athena::Framework::Events::RequestAware
   # Returns the current request object.
-  getter request : ART::Request
+  getter request : ATH::Request
 
-  def initialize(@request : ART::Request); end
+  def initialize(@request : ATH::Request); end
 end

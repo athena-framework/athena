@@ -1,23 +1,23 @@
-# The entry-point into `Athena::Routing`.
+# The entry-point into `Athena::Framework`.
 #
-# Emits events that handle a given request and returns the resulting `ART::Response`.
-@[ADI::Register(public: true)]
-struct Athena::Routing::RouteHandler
+# Emits events that handle a given request and returns the resulting `ATH::Response`.
+@[ADI::Register(name: "athena_route_handler", public: true)]
+struct Athena::Framework::RouteHandler
   def initialize(
     @event_dispatcher : AED::EventDispatcherInterface,
-    @request_store : ART::RequestStore,
-    @argument_resolver : ART::Arguments::ArgumentResolverInterface
+    @request_store : ATH::RequestStore,
+    @argument_resolver : ATH::Arguments::ArgumentResolverInterface
   )
   end
 
-  def handle(request : HTTP::Request) : ART::Response
-    self.handle ART::Request.new request
+  def handle(request : HTTP::Request) : ATH::Response
+    self.handle ATH::Request.new request
   end
 
-  def handle(request : ART::Request) : ART::Response
+  def handle(request : ATH::Request) : ATH::Response
     handle_raw request
   rescue ex : ::Exception
-    event = ART::Events::Exception.new request, ex
+    event = ATH::Events::Exception.new request, ex
     @event_dispatcher.dispatch event
 
     exception = event.exception
@@ -28,7 +28,7 @@ struct Athena::Routing::RouteHandler
       raise exception
     end
 
-    if exception.is_a? ART::Exceptions::HTTPException
+    if exception.is_a? ATH::Exceptions::HTTPException
       response.status = exception.status
       response.headers.merge! exception.headers
     end
@@ -43,16 +43,16 @@ struct Athena::Routing::RouteHandler
   # Terminates a request/response lifecycle.
   #
   # Should be called after sending the response to the client.
-  def terminate(request : ART::Request, response : ART::Response) : Nil
-    @event_dispatcher.dispatch ART::Events::Terminate.new request, response
+  def terminate(request : ATH::Request, response : ATH::Response) : Nil
+    @event_dispatcher.dispatch ATH::Events::Terminate.new request, response
   end
 
-  private def handle_raw(request : ART::Request) : ART::Response
+  private def handle_raw(request : ATH::Request) : ATH::Response
     # Set the current request in the RequestStore.
     @request_store.request = request
 
     # Emit the request event.
-    request_event = ART::Events::Request.new request
+    request_event = ATH::Events::Request.new request
     @event_dispatcher.dispatch request_event
 
     # Return the event early if the request event handled the request.
@@ -61,7 +61,7 @@ struct Athena::Routing::RouteHandler
     end
 
     # Emit the action event.
-    @event_dispatcher.dispatch ART::Events::Action.new request, request.action
+    @event_dispatcher.dispatch ATH::Events::Action.new request, request.action
 
     # Resolve the arguments for this action from the request.
     arguments = @argument_resolver.get_arguments request, request.action
@@ -71,21 +71,21 @@ struct Athena::Routing::RouteHandler
     # Call the action and get the response.
     response = request.action.execute arguments
 
-    unless response.is_a? ART::Response
-      view_event = ART::Events::View.new request, response
+    unless response.is_a? ATH::Response
+      view_event = ATH::Events::View.new request, response
       @event_dispatcher.dispatch view_event
 
       unless response = view_event.response
-        raise "#{request.action.controller}##{request.action.name} must return an `ART::Response` but it returned '#{response}'."
+        raise "#{request.action.controller}##{request.action.name} must return an `ATH::Response` but it returned '#{response}'."
       end
     end
 
     finish_response response, request
   end
 
-  private def finish_response(response : ART::Response, request : ART::Request) : ART::Response
+  private def finish_response(response : ATH::Response, request : ATH::Request) : ATH::Response
     # Emit the response event.
-    event = ART::Events::Response.new request, response
+    event = ATH::Events::Response.new request, response
 
     @event_dispatcher.dispatch event
 

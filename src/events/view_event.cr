@@ -1,14 +1,14 @@
 require "./request_aware"
 require "./settable_response"
 
-# Emitted after the route's action has been executed, but only if it does _NOT_ return an `ART::Response`.
+# Emitted after the route's action has been executed, but only if it does _NOT_ return an `ATH::Response`.
 #
-# This event can be listened on to handle converting a non `ART::Response` into an `ART::Response`.
+# This event can be listened on to handle converting a non `ATH::Response` into an `ATH::Response`.
 #
-# See `ART::Listeners::View` and the [external documentation](/components/#4-view-event) for more information.
-class Athena::Routing::Events::View < AED::Event
-  include Athena::Routing::Events::SettableResponse
-  include Athena::Routing::Events::RequestAware
+# See `ATH::Listeners::View` and the [external documentation](/components/#4-view-event) for more information.
+class Athena::Framework::Events::View < AED::Event
+  include Athena::Framework::Events::SettableResponse
+  include Athena::Framework::Events::RequestAware
 
   private module ContainerBase; end
 
@@ -18,7 +18,7 @@ class Athena::Routing::Events::View < AED::Event
 
   @result : ContainerBase
 
-  def initialize(request : ART::Request, action_result : _)
+  def initialize(request : ATH::Request, action_result : _)
     super request
 
     @result = ResultContainer.new action_result

@@ -1,5 +1,5 @@
 # Represents (de)serialization options in a serializer agnostic way.
-class Athena::Routing::View::Context
+class Athena::Framework::View::Context
   # Returns the groups that can be used to create different "views" of an object.
   #
   # `ASR::ExclusionStrategies::Groups` is an example of this.

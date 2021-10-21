@@ -2,13 +2,13 @@
 # Handles [Cross-Origin Resource Sharing](https://enable-cors.org) (CORS).
 #
 # Handles CORS preflight `OPTIONS` requests as well as adding CORS headers to each response.
-# See `ART::Config::CORS` for information on configuring the listener.
-struct Athena::Routing::Listeners::CORS
+# See `ATH::Config::CORS` for information on configuring the listener.
+struct Athena::Framework::Listeners::CORS
   include AED::EventListenerInterface
 
   # Encapsulates logic to set CORS response headers
   private struct ResponseHeaders
-    def initialize(@headers : ART::Response::Headers); end
+    def initialize(@headers : ATH::Response::Headers); end
 
     {% for header in %w[allow-origin allow-methods allow-headers allow-credentials expose-headers] %}
       {% method_name = header.tr("-", "_").id %}
@@ -87,16 +87,16 @@ struct Athena::Routing::Listeners::CORS
 
   def self.subscribed_events : AED::SubscribedEvents
     AED::SubscribedEvents{
-      ART::Events::Request  => 250,
-      ART::Events::Response => 0,
+      ATH::Events::Request  => 250,
+      ATH::Events::Response => 0,
     }
   end
 
-  private getter! config : ART::Config::CORS?
+  private getter! config : ATH::Config::CORS?
 
-  def initialize(@config : ART::Config::CORS?); end
+  def initialize(@config : ATH::Config::CORS?); end
 
-  def call(event : ART::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
+  def call(event : ATH::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
     request = event.request
     request_headers = RequestHeaders.new(request.headers)
 
@@ -117,7 +117,7 @@ struct Athena::Routing::Listeners::CORS
     event.request.attributes.set ALLOW_SET_ORIGIN, true, Bool
   end
 
-  def call(event : ART::Events::Response, dispatcher : AED::EventDispatcherInterface) : Nil
+  def call(event : ATH::Events::Response, dispatcher : AED::EventDispatcherInterface) : Nil
     # Return early if the request shouldn't have CORS set.
     return unless event.request.attributes.get? ALLOW_SET_ORIGIN
 
@@ -134,8 +134,8 @@ struct Athena::Routing::Listeners::CORS
   end
 
   # Configures the given *response* for CORS preflight
-  private def set_preflight_response(request : ART::Request) : ART::Response
-    response = ART::Response.new
+  private def set_preflight_response(request : ATH::Request) : ATH::Response
+    response = ATH::Response.new
 
     response_headers = ResponseHeaders.new(response.headers)
     request_headers = RequestHeaders.new(request.headers)
@@ -166,14 +166,14 @@ struct Athena::Routing::Listeners::CORS
         next if SAFELISTED_HEADERS.includes? header
         next if self.config.allow_headers.includes? header
 
-        raise ART::Exceptions::Forbidden.new "Unauthorized header: '#{header}'"
+        raise ATH::Exceptions::Forbidden.new "Unauthorized header: '#{header}'"
       end
     end
 
     response
   end
 
-  private def check_origin(request : ART::Request) : Bool
+  private def check_origin(request : ATH::Request) : Bool
     return true if self.config.allow_origin.includes?(WILDCARD)
 
     # Use case equality in case an origin is a Regex

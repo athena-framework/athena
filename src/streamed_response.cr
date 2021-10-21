@@ -1,9 +1,9 @@
-# Represents an `ART::Response` whose content should be streamed to the client as opposed to being written all at once.
+# Represents an `ATH::Response` whose content should be streamed to the client as opposed to being written all at once.
 # This can be useful in cases where the response content is too large to fit into memory.
 #
 # The content is stored in a proc that gets called when `self` is being written to the response IO.
-# How the output gets written can be customized via an `ART::Response::Writer`.
-class Athena::Routing::StreamedResponse < Athena::Routing::Response
+# How the output gets written can be customized via an `ATH::Response::Writer`.
+class Athena::Framework::StreamedResponse < Athena::Framework::Response
   @streamed : Bool = false
 
   # Creates a new response with optional *status*, and *headers* arguments.
@@ -14,10 +14,10 @@ class Athena::Routing::StreamedResponse < Athena::Routing::Response
   # ```
   # require "athena"
   #
-  # class ExampleController < ART::Controller
+  # class ExampleController < ATH::Controller
   #   @[ARTA::Get("/users")]
-  #   def users : ART::Response
-  #     ART::StreamedResponse.new headers: HTTP::Headers{"content-type" => "application/json; charset=UTF-8"} do |io|
+  #   def users : ATH::Response
+  #     ATH::StreamedResponse.new headers: HTTP::Headers{"content-type" => "application/json; charset=UTF-8"} do |io|
   #       User.all.to_json io
   #     end
   #   end
@@ -27,14 +27,14 @@ class Athena::Routing::StreamedResponse < Athena::Routing::Response
   #
   # # GET /users # => [{"id":1,...},...]
   # ```
-  def self.new(status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers | ART::Response::Headers = ART::Response::Headers.new, &block : IO -> Nil)
+  def self.new(status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers | ATH::Response::Headers = ATH::Response::Headers.new, &block : IO -> Nil)
     new block, status, headers
   end
 
   # Creates a new response with the provided *callback* and optional *status*, and *headers* arguments.
   #
   # The proc is called when `self` is being written to the response's `IO`.
-  def initialize(@callback : Proc(IO, Nil), status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers | ART::Response::Headers = ART::Response::Headers.new)
+  def initialize(@callback : Proc(IO, Nil), status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers | ATH::Response::Headers = ATH::Response::Headers.new)
     super nil, status, headers
   end
 

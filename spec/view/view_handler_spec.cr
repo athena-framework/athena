@@ -26,19 +26,19 @@ end
 struct ViewHandlerTest < ASPEC::TestCase
   @url_generator : MockURLGenerator
   @serializer : MockSerializer
-  @request_store : ART::RequestStore
+  @request_store : ATH::RequestStore
 
   def initialize
     @url_generator = MockURLGenerator.new
     @serializer = MockSerializer.new
-    @request_store = ART::RequestStore.new
+    @request_store = ATH::RequestStore.new
   end
 
   @[DataProvider("format_provider")]
   def test_supports_format(expected : Bool, custom_format_name : String, format : String?) : Nil
     view_handler = self.create_view_handler
     view_handler.register_handler custom_format_name do
-      ART::Response.new
+      ATH::Response.new
     end
 
     view_handler.supports?(format || "html").should eq expected
@@ -55,18 +55,18 @@ struct ViewHandlerTest < ASPEC::TestCase
   @[DataProvider("status_provider")]
   def test_status(expected_status : HTTP::Status, view_status : HTTP::Status?, data : String?, empty_content_status : HTTP::Status?) : Nil
     view = if data
-             ART::View(String).new data: data, status: view_status
+             ATH::View(String).new data: data, status: view_status
            else
-             ART::View(Nil).new status: view_status
+             ATH::View(Nil).new status: view_status
            end
 
     view_handler = if empty_content_status
-                     self.create_view_handler ART::Config::ViewHandler.new empty_content_status: empty_content_status
+                     self.create_view_handler ATH::Config::ViewHandler.new empty_content_status: empty_content_status
                    else
                      self.create_view_handler
                    end
 
-    view_handler.create_response(view, ART::Request.new("GET", "/"), "json").status.should eq expected_status
+    view_handler.create_response(view, ATH::Request.new("GET", "/"), "json").status.should eq expected_status
   end
 
   def status_provider : Hash
@@ -79,12 +79,12 @@ struct ViewHandlerTest < ASPEC::TestCase
   end
 
   def test_create_response_with_location : Nil
-    view_handler = self.create_view_handler ART::Config::ViewHandler.new empty_content_status: HTTP::Status::USE_PROXY
+    view_handler = self.create_view_handler ATH::Config::ViewHandler.new empty_content_status: HTTP::Status::USE_PROXY
 
-    view = ART::View(String?).new nil
+    view = ATH::View(String?).new nil
     view.location = "location"
 
-    response = view_handler.create_response view, ART::Request.new("GET", "/"), "json"
+    response = view_handler.create_response view, ATH::Request.new("GET", "/"), "json"
 
     response.status.should eq HTTP::Status::USE_PROXY
     response.headers["location"].should eq "location"
@@ -93,10 +93,10 @@ struct ViewHandlerTest < ASPEC::TestCase
   def test_create_response_with_location_and_data : Nil
     view_handler = self.create_view_handler
 
-    view = ART::View(String).new "DATA", status: HTTP::Status::CREATED
+    view = ATH::View(String).new "DATA", status: HTTP::Status::CREATED
     view.location = "location"
 
-    response = view_handler.create_response view, ART::Request.new("GET", "/"), "json"
+    response = view_handler.create_response view, ATH::Request.new("GET", "/"), "json"
 
     response.status.should eq HTTP::Status::CREATED
     response.headers["location"].should eq "location"
@@ -109,11 +109,11 @@ struct ViewHandlerTest < ASPEC::TestCase
     @url_generator.generated_url = "/foo/{{foo}}"
     @url_generator.expected_reference_type = ART::URLGeneratorInterface::ReferenceType::Absolute_URL
 
-    view = ART::View(String).new "DATA", status: HTTP::Status::CREATED
+    view = ATH::View(String).new "DATA", status: HTTP::Status::CREATED
     view.route = "some_route"
     view.route_params = {"foo" => "bar"}
 
-    response = view_handler.create_response view, ART::Request.new("GET", "/"), "json"
+    response = view_handler.create_response view, ATH::Request.new("GET", "/"), "json"
 
     response.status.should eq HTTP::Status::CREATED
     response.headers["location"].should eq "/foo/bar"
@@ -122,9 +122,9 @@ struct ViewHandlerTest < ASPEC::TestCase
   def test_create_response_without_location : Nil
     view_handler = self.create_view_handler
 
-    view = ART::View.new "DATA"
+    view = ATH::View.new "DATA"
 
-    response = view_handler.create_response view, ART::Request.new("GET", "/"), "json"
+    response = view_handler.create_response view, ATH::Request.new("GET", "/"), "json"
 
     response.status.should eq HTTP::Status::OK
     response.content.should eq %("SERIALIZED_DATA")
@@ -132,13 +132,13 @@ struct ViewHandlerTest < ASPEC::TestCase
 
   @[DataProvider("serialize_nil_provider")]
   def test_serialize_nil_view_handler(emit_nil : Bool) : Nil
-    view_handler = self.create_view_handler ART::Config::ViewHandler.new emit_nil: emit_nil
+    view_handler = self.create_view_handler ATH::Config::ViewHandler.new emit_nil: emit_nil
 
     @serializer.context_assertion = ->(context : ASR::SerializationContext) do
       context.emit_nil?.should eq emit_nil
     end
 
-    view_handler.create_response ART::View(Nil).new, ART::Request.new("GET", "/"), "json"
+    view_handler.create_response ATH::View(Nil).new, ATH::Request.new("GET", "/"), "json"
   end
 
   def serialize_nil_provider : Tuple
@@ -149,26 +149,26 @@ struct ViewHandlerTest < ASPEC::TestCase
   end
 
   def test_handle_unsuported_format : Nil
-    request = ART::Request.new "GET", "/"
+    request = ATH::Request.new "GET", "/"
     request.request_format = "rss"
 
-    expect_raises ART::Exceptions::NotAcceptable, "The server is unable to return a response in the requested format: 'rss'." do
-      self.create_view_handler.handle ART::View(Nil).new, request
+    expect_raises ATH::Exceptions::NotAcceptable, "The server is unable to return a response in the requested format: 'rss'." do
+      self.create_view_handler.handle ATH::View(Nil).new, request
     end
   end
 
   def test_handle_custom_handler : Nil
-    response = ART::Response.new
+    response = ATH::Response.new
 
     view_handler = self.create_view_handler
     view_handler.register_handler "rss" do
       response
     end
 
-    request = ART::Request.new "GET", "/"
+    request = ATH::Request.new "GET", "/"
     request.request_format = "rss"
 
-    view_handler.handle(ART::View(Nil).new, request).should be response
+    view_handler.handle(ATH::View(Nil).new, request).should be response
   end
 
   def test_configurable_values : Nil
@@ -184,16 +184,16 @@ struct ViewHandlerTest < ASPEC::TestCase
       context.groups.should eq Set{"one", "two"}
     end
 
-    view_handler.create_response ART::View(Nil).new, ART::Request.new("GET", "/"), "json"
+    view_handler.create_response ATH::View(Nil).new, ATH::Request.new("GET", "/"), "json"
   end
 
-  private def create_view_handler(config : ART::Config::ViewHandler = ART::Config::ViewHandler.new) : ART::View::ViewHandler
-    ART::View::ViewHandler.new(
+  private def create_view_handler(config : ATH::Config::ViewHandler = ATH::Config::ViewHandler.new) : ATH::View::ViewHandler
+    ATH::View::ViewHandler.new(
       config,
       @url_generator,
       @serializer,
       @request_store,
-      ([] of Athena::Routing::View::FormatHandlerInterface),
+      ([] of Athena::Framework::View::FormatHandlerInterface),
     )
   end
 end

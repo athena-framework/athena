@@ -1,15 +1,15 @@
 require "./request_aware"
 
-# Emitted after `ART::Events::Request` and the related `ART::Action` has been resolved, but before it has been executed.
+# Emitted after `ATH::Events::Request` and the related `ATH::Action` has been resolved, but before it has been executed.
 #
 # See the [external documentation](/components/#2-action-event) for more information.
-class Athena::Routing::Events::Action < AED::Event
-  include Athena::Routing::Events::RequestAware
+class Athena::Framework::Events::Action < AED::Event
+  include Athena::Framework::Events::RequestAware
 
-  # The related `ART::Action` that will be used to handle the current request.
-  getter action : ART::ActionBase
+  # The related `ATH::Action` that will be used to handle the current request.
+  getter action : ATH::ActionBase
 
-  def initialize(request : ART::Request, @action : ART::ActionBase)
+  def initialize(request : ATH::Request, @action : ATH::ActionBase)
     super request
   end
 end

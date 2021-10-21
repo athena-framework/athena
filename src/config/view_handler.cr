@@ -1,15 +1,15 @@
 require "./config"
 
-# Configuration options for `ART::Listeners::View`.  See `.configure`.
+# Configuration options for `ATH::Listeners::View`.  See `.configure`.
 @[ACFA::Resolvable("routing.view_handler")]
-struct Athena::Routing::Config::ViewHandler
-  # This method should be overridden in order to provide configuration overrides for `ART::View::ViewHandlerInterface`.
+struct Athena::Framework::Config::ViewHandler
+  # This method should be overridden in order to provide configuration overrides for `ATH::View::ViewHandlerInterface`.
   # See the [external documentation](/components/negotiation) for more details.
   #
   # NOTE: The `#failed_validation_status` is currently not used.  Included for future work.
   #
   # ```
-  # def ART::Config::ViewHandler.configure : ART::Config::ViewHandler
+  # def ATH::Config::ViewHandler.configure : ATH::Config::ViewHandler
   #   new(
   #     empty_content_status: :ok
   #   )

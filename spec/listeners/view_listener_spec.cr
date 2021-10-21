@@ -1,29 +1,29 @@
 require "../spec_helper"
 
 private class MockViewHandler
-  include ART::View::ViewHandlerInterface
+  include ATH::View::ViewHandlerInterface
 
-  getter! view : ART::ViewBase
+  getter! view : ATH::ViewBase
 
-  def register_handler(format : String, handler : ART::View::FormatHandlerInterface | Proc(ART::View::ViewHandlerInterface, ART::ViewBase, ART::Request, String, ART::Response)) : Nil
+  def register_handler(format : String, handler : ATH::View::FormatHandlerInterface | Proc(ATH::View::ViewHandlerInterface, ATH::ViewBase, ATH::Request, String, ATH::Response)) : Nil
   end
 
   def supports?(format : String) : Bool
     true
   end
 
-  def handle(view : ART::ViewBase, request : ART::Request? = nil) : ART::Response
+  def handle(view : ATH::ViewBase, request : ATH::Request? = nil) : ATH::Response
     @view = view
 
-    ART::Response.new
+    ATH::Response.new
   end
 
-  def create_redirect_response(view : ART::ViewBase, location : String, format : String) : ART::Response
-    ART::Response.new
+  def create_redirect_response(view : ATH::ViewBase, location : String, format : String) : ATH::Response
+    ATH::Response.new
   end
 
-  def create_response(view : ART::ViewBase, request : ART::Request, format : String) : ART::Response
-    ART::Response.new
+  def create_response(view : ATH::ViewBase, request : ATH::Request, format : String) : ATH::Response
+    ATH::Response.new
   end
 end
 
@@ -31,28 +31,28 @@ private def get_ann_configs(config : ACF::AnnotationConfigurations::Configuratio
   ACF::AnnotationConfigurations.new ACF::AnnotationConfigurations::AnnotationHash{ARTA::View => [config] of ACF::AnnotationConfigurations::ConfigurationBase}
 end
 
-describe ART::Listeners::View do
+describe ATH::Listeners::View do
   describe "#call" do
-    it "non ART::View" do
+    it "non ATH::View" do
       request = new_request
-      event = ART::Events::View.new request, "FOO"
+      event = ATH::Events::View.new request, "FOO"
       view_handler = MockViewHandler.new
 
-      ART::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
+      ATH::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
 
       view_handler.view.data.should eq "FOO"
       view_handler.view.format.should eq "json"
       view_handler.view.context.groups.try &.should be_empty
     end
 
-    it ART::View do
+    it ATH::View do
       request = new_request
-      view = ART::View.new("BAR")
+      view = ATH::View.new("BAR")
       view.format = "xml"
-      event = ART::Events::View.new request, view
+      event = ATH::Events::View.new request, view
       view_handler = MockViewHandler.new
 
-      ART::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
+      ATH::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
 
       view_handler.view.data.should eq "BAR"
       view_handler.view.format.should eq "xml"
@@ -67,10 +67,10 @@ describe ART::Listeners::View do
               annotation_configurations: get_ann_configs(ARTA::ViewConfiguration.new(status: :found))
             )
           )
-          event = ART::Events::View.new request, "FOO"
+          event = ATH::Events::View.new request, "FOO"
           view_handler = MockViewHandler.new
 
-          ART::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
+          ATH::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
 
           view_handler.view.status.should eq HTTP::Status::FOUND
         end
@@ -81,11 +81,11 @@ describe ART::Listeners::View do
               annotation_configurations: get_ann_configs(ARTA::ViewConfiguration.new(status: :found))
             )
           )
-          view = ART::View.new "FOO", status: :gone
-          event = ART::Events::View.new request, view
+          view = ATH::View.new "FOO", status: :gone
+          event = ATH::Events::View.new request, view
           view_handler = MockViewHandler.new
 
-          ART::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
+          ATH::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
 
           view_handler.view.status.should eq HTTP::Status::GONE
         end
@@ -96,11 +96,11 @@ describe ART::Listeners::View do
               annotation_configurations: get_ann_configs(ARTA::ViewConfiguration.new(status: :found))
             )
           )
-          view = ART::View.new "FOO", status: :ok
-          event = ART::Events::View.new request, view
+          view = ATH::View.new "FOO", status: :ok
+          event = ATH::Events::View.new request, view
           view_handler = MockViewHandler.new
 
-          ART::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
+          ATH::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
 
           view_handler.view.status.should eq HTTP::Status::FOUND
         end
@@ -113,10 +113,10 @@ describe ART::Listeners::View do
               annotation_configurations: get_ann_configs(ARTA::ViewConfiguration.new(serialization_groups: ["one", "two"]))
             )
           )
-          event = ART::Events::View.new request, "FOO"
+          event = ATH::Events::View.new request, "FOO"
           view_handler = MockViewHandler.new
 
-          ART::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
+          ATH::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
 
           groups = view_handler.view.context.groups.should_not be_nil
           groups.should eq Set{"one", "two"}
@@ -129,13 +129,13 @@ describe ART::Listeners::View do
             )
           )
 
-          view = ART::View.new "FOO"
+          view = ATH::View.new "FOO"
           view.context.add_groups "three", "four"
 
-          event = ART::Events::View.new request, view
+          event = ATH::Events::View.new request, view
           view_handler = MockViewHandler.new
 
-          ART::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
+          ATH::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
 
           groups = view_handler.view.context.groups.should_not be_nil
           groups.should eq Set{"three", "four", "one", "two"}

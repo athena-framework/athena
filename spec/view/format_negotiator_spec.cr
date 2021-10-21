@@ -1,18 +1,18 @@
 require "../spec_helper"
 
 struct FormatNegotiatorTest < ASPEC::TestCase
-  @request_store : ART::RequestStore
-  @request : ART::Request
-  @negotiator : ART::View::FormatNegotiator
-  @config : ART::Config::ContentNegotiation
+  @request_store : ATH::RequestStore
+  @request : ATH::Request
+  @negotiator : ATH::View::FormatNegotiator
+  @config : ATH::Config::ContentNegotiation
 
   def initialize
-    @request_store = ART::RequestStore.new
-    @request = ART::Request.new "GET", "/"
+    @request_store = ATH::RequestStore.new
+    @request = ATH::Request.new "GET", "/"
     @request_store.request = @request
-    @config = ART::Config::ContentNegotiation.new [] of ART::Config::ContentNegotiation::Rule
+    @config = ATH::Config::ContentNegotiation.new [] of ATH::Config::ContentNegotiation::Rule
 
-    @negotiator = ART::View::FormatNegotiator.new(
+    @negotiator = ATH::View::FormatNegotiator.new(
       @request_store,
       @config,
       {"json" => ["application/json;version=1.0"]}
@@ -27,7 +27,7 @@ struct FormatNegotiatorTest < ASPEC::TestCase
     self.add_rule
     self.add_rule stop: true
 
-    expect_raises ART::Exceptions::StopFormatListener, "Stopping format listener." do
+    expect_raises ATH::Exceptions::StopFormatListener, "Stopping format listener." do
       @negotiator.best ""
     end
   end
@@ -99,6 +99,6 @@ struct FormatNegotiatorTest < ASPEC::TestCase
   end
 
   private def add_rule(**args)
-    @config.rules << ART::Config::ContentNegotiation::Rule.new **args
+    @config.rules << ATH::Config::ContentNegotiation::Rule.new **args
   end
 end

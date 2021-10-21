@@ -1,5 +1,5 @@
 # Includes various `HTTP` header utility methods.
-module Athena::Routing::HeaderUtils
+module Athena::Framework::HeaderUtils
   # Generates a `HTTP` [content-disposition](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition) header value with the provided *disposition* and *filename*.
   #
   # If *filename* contains non `ASCII` characters, a sanitized version will be used as part of the `filename` directive,
@@ -7,23 +7,23 @@ module Athena::Routing::HeaderUtils
   # The *fallback_filename* argument can be used to customize the `filename` directive value in this case.
   #
   # ```
-  # ART::HeaderUtils.make_disposition :attachment, "download.txt"         # => attachment; filename="download.txt"
-  # ART::HeaderUtils.make_disposition :attachment, "föö.html"             # => attachment; filename="f__.html"; filename*=UTF-8''f%C3%B6%C3%B6.html
-  # ART::HeaderUtils.make_disposition :attachment, "föö.html", "foo.html" # => attachment; filename="foo.html"; filename*=UTF-8''f%C3%B6%C3%B6.html
+  # ATH::HeaderUtils.make_disposition :attachment, "download.txt"         # => attachment; filename="download.txt"
+  # ATH::HeaderUtils.make_disposition :attachment, "föö.html"             # => attachment; filename="f__.html"; filename*=UTF-8''f%C3%B6%C3%B6.html
+  # ATH::HeaderUtils.make_disposition :attachment, "föö.html", "foo.html" # => attachment; filename="foo.html"; filename*=UTF-8''f%C3%B6%C3%B6.html
   # ```
   #
   # This method can be used to enable downloads of dynamically generated files.
   # I.e. that can't be handled via a static file event listener.
   #
   # ```
-  # ART::Response.new(
+  # ATH::Response.new(
   #   file_contents,
-  #   headers: HTTP::Headers{"content-disposition" => ART::HeaderUtils.make_disposition(:attachment, "foo.pdf")}
+  #   headers: HTTP::Headers{"content-disposition" => ATH::HeaderUtils.make_disposition(:attachment, "foo.pdf")}
   # )
   # ```
   #
   # TIP: See the [cookbook](/cookbook/listeners#static-files) for an example of how to serve static files.
-  def self.make_disposition(disposition : ART::BinaryFileResponse::ContentDisposition, filename : String, fallback_filename : String? = nil) : String
+  def self.make_disposition(disposition : ATH::BinaryFileResponse::ContentDisposition, filename : String, fallback_filename : String? = nil) : String
     if fallback_filename.nil? && (!filename.ascii_only? || filename.includes?('%'))
       fallback_filename = filename.gsub { |chr| chr.ascii? ? chr : '_' }
     end
@@ -97,8 +97,8 @@ module Athena::Routing::HeaderUtils
   # All entries are then joined by the provided *separator*.
   #
   # ```
-  # ART::HeaderUtils.to_string({"foo" => "bar", "key" => true}, ", ")          # => foo=bar, key
-  # ART::HeaderUtils.to_string({"foo" => %q("foo\ bar"), "key" => true}, ", ") # => foo=\"foo\\\ bar\", key
+  # ATH::HeaderUtils.to_string({"foo" => "bar", "key" => true}, ", ")          # => foo=bar, key
+  # ATH::HeaderUtils.to_string({"foo" => %q("foo\ bar"), "key" => true}, ", ") # => foo=\"foo\\\ bar\", key
   # ```
   def self.to_string(collection : Hash, separator : String | Char) : String
     String.build do |io|

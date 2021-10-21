@@ -13,7 +13,7 @@ private record BothSerializableModel, id : Int32, name : String do
 end
 
 @[ARTA::Prefix("view")]
-class ViewController < ART::Controller
+class ViewController < ATH::Controller
   @[ARTA::Get("/json")]
   def json_serializable : JSONSerializableModel
     JSONSerializableModel.new 10, "Bob"
@@ -61,12 +61,12 @@ class ViewController < ART::Controller
   end
 
   @[ARTA::Get("")]
-  def view : ART::View(String)
+  def view : ATH::View(String)
     self.view "DATA", :im_a_teapot
   end
 
   @[ARTA::Get("/array")]
-  def view_array : ART::View(Array(JSONSerializableModel))
+  def view_array : ATH::View(Array(JSONSerializableModel))
     self.view(
       [
         JSONSerializableModel.new(10, "Bob"),

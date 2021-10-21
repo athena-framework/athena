@@ -5,12 +5,12 @@ require "./router_interface"
 class Athena::Routing::Router
   include Athena::Routing::RouterInterface
 
-  @request_store : ART::RequestStore
+  @request_store : ATH::RequestStore
 
   protected getter generator : ART::URLGenerator { ART::URLGenerator.new self.route_collection, @request_store.request, @base_uri }
   protected class_getter route_collection : ART::RouteCollection { ART::RouteCollection.new }
-  protected class_getter matcher : Amber::Router::RouteSet(ART::ActionBase) do
-    matcher = Amber::Router::RouteSet(ART::ActionBase).new
+  protected class_getter matcher : Amber::Router::RouteSet(ATH::ActionBase) do
+    matcher = Amber::Router::RouteSet(ATH::ActionBase).new
 
     self.route_collection.each do |_name, route|
       matcher.add route.path, route, route.constraints
@@ -20,7 +20,7 @@ class Athena::Routing::Router
   end
 
   def initialize(
-    @request_store : ART::RequestStore,
+    @request_store : ATH::RequestStore,
     @base_uri : URI?
   ); end
 
@@ -31,13 +31,13 @@ class Athena::Routing::Router
 
   # :inherit:
   #
-  # TODO: Possibly raise a non `ART::Exceptions::HTTPException` here to allow caller to determine what to do.
-  def match(request : ART::Request) : Amber::Router::RoutedResult(Athena::Routing::ActionBase)
+  # TODO: Possibly raise a non `ATH::Exceptions::HTTPException` here to allow caller to determine what to do.
+  def match(request : ATH::Request) : Amber::Router::RoutedResult(Athena::Framework::ActionBase)
     # Get the routes that match the given path
     matching_routes = self.class.matcher.find_routes request.path
 
     # Raise a 404 if it's empty
-    raise ART::Exceptions::NotFound.new "No route found for '#{request.method} #{request.path}'" if matching_routes.empty?
+    raise ATH::Exceptions::NotFound.new "No route found for '#{request.method} #{request.path}'" if matching_routes.empty?
 
     supported_methods = [] of String
 
@@ -55,7 +55,7 @@ class Athena::Routing::Router
     end
 
     # Return the matched route, or raise a 405 if none of them handle the request's method
-    route || raise ART::Exceptions::MethodNotAllowed.new "No route found for '#{request.method} #{request.path}': (Allow: #{supported_methods.join(", ")})"
+    route || raise ATH::Exceptions::MethodNotAllowed.new "No route found for '#{request.method} #{request.path}': (Allow: #{supported_methods.join(", ")})"
   end
 
   # :inherit:

@@ -2,12 +2,12 @@ require "../spec_helper"
 
 record Foo, text : String
 
-class CompileController < Athena::Routing::Controller
+class CompileController < Athena::Framework::Controller
   @[ARTA::Get(path: "/")]
-  @[ARTA::ParamConverter("foo", converter: ART::RequestBodyConverter)]
+  @[ARTA::ParamConverter("foo", converter: ATH::RequestBodyConverter)]
   def action(foo : Foo) : Foo
     foo
   end
 end
 
-ART.run
+ATH.run

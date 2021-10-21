@@ -9,11 +9,11 @@ struct CustomAnnotationListener
 
   def self.subscribed_events : AED::SubscribedEvents
     AED::SubscribedEvents{
-      ART::Events::Response => 0,
+      ATH::Events::Response => 0,
     }
   end
 
-  def call(event : ART::Events::Response, dispatcher : AED::EventDispatcherInterface) : Nil
+  def call(event : ATH::Events::Response, dispatcher : AED::EventDispatcherInterface) : Nil
     return unless action = event.request.action?
 
     ann_configs = action.annotation_configurations
@@ -29,7 +29,7 @@ struct CustomAnnotationListener
 end
 
 @[CustomAnn(1)]
-class AnnotationController < ART::Controller
+class AnnotationController < ATH::Controller
   @[SpecAnnotation]
   get("/with-ann", return_type: Nil) { }
   get("/without-ann", return_type: Nil) { }

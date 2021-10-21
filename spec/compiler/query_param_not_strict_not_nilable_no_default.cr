@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-class CompileController < ART::Controller
+class CompileController < ATH::Controller
   @[ARTA::Get("/")]
   @[ARTA::QueryParam("page", strict: false)]
   def action(page : Int32) : Int32
@@ -8,4 +8,4 @@ class CompileController < ART::Controller
   end
 end
 
-ART.run
+ATH.run

@@ -1,4 +1,4 @@
 module Athena::Routing::RequestMatcherInterface
-  # Matches the provided *request* with its related `ART::Action`.
-  abstract def match(request : ART::Request) : Amber::Router::RoutedResult(Athena::Routing::ActionBase)
+  # Matches the provided *request* with its related `ATH::Action`.
+  abstract def match(request : ATH::Request) : Amber::Router::RoutedResult(Athena::Framework::ActionBase)
 end

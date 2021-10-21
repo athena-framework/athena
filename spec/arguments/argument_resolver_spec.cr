@@ -1,30 +1,30 @@
 require "../spec_helper"
 
-struct Athena::Routing::Arguments::ArgumentResolver
-  getter argument_resolvers : Array(Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface)
+struct Athena::Framework::Arguments::ArgumentResolver
+  getter argument_resolvers : Array(Athena::Framework::Arguments::Resolvers::ArgumentValueResolverInterface)
 end
 
 private struct TrueResolver
-  include Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface
+  include Athena::Framework::Arguments::Resolvers::ArgumentValueResolverInterface
 
   # :inherit:
-  def supports?(request : ART::Request, argument : ART::Arguments::ArgumentMetadata) : Bool
+  def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Bool
     true
   end
 
   # :inherit:
-  def resolve(request : ART::Request, argument : ART::Arguments::ArgumentMetadata)
+  def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
     17
   end
 end
 
-describe ART::Arguments::ArgumentResolver do
+describe ATH::Arguments::ArgumentResolver do
   describe "#get_arguments" do
     describe "when a value was able to be resolved" do
       it "should return an array of values" do
         route = new_action arguments: [new_argument]
 
-        ART::Arguments::ArgumentResolver.new([TrueResolver.new] of ART::Arguments::Resolvers::ArgumentValueResolverInterface).get_arguments(new_request, route).should eq [17]
+        ATH::Arguments::ArgumentResolver.new([TrueResolver.new] of ATH::Arguments::Resolvers::ArgumentValueResolverInterface).get_arguments(new_request, route).should eq [17]
       end
     end
 
@@ -33,7 +33,7 @@ describe ART::Arguments::ArgumentResolver do
         route = new_action arguments: [new_argument]
 
         expect_raises(RuntimeError, "Could not resolve required argument 'id' for 'TestController#test'.") do
-          ART::Arguments::ArgumentResolver.new([] of ART::Arguments::Resolvers::ArgumentValueResolverInterface).get_arguments(new_request, route)
+          ATH::Arguments::ArgumentResolver.new([] of ATH::Arguments::Resolvers::ArgumentValueResolverInterface).get_arguments(new_request, route)
         end
       end
     end

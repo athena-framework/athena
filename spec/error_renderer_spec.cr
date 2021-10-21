@@ -1,10 +1,10 @@
 require "./spec_helper"
 
-describe ART::ErrorRenderer do
-  it ART::Exceptions::HTTPException do
-    exception = ART::Exceptions::TooManyRequests.new "cool your jets", 42
+describe ATH::ErrorRenderer do
+  it ATH::Exceptions::HTTPException do
+    exception = ATH::Exceptions::TooManyRequests.new "cool your jets", 42
 
-    renderer = ART::ErrorRenderer.new
+    renderer = ATH::ErrorRenderer.new
 
     response = renderer.render exception
 
@@ -17,7 +17,7 @@ describe ART::ErrorRenderer do
   it ::Exception do
     exception = Exception.new "ERR"
 
-    renderer = ART::ErrorRenderer.new
+    renderer = ATH::ErrorRenderer.new
 
     response = renderer.render exception
 

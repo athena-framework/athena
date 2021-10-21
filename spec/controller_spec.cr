@@ -1,11 +1,11 @@
 require "./spec_helper"
 
-describe ART::Controller do
+describe ATH::Controller do
   describe ".render" do
     it "creates a proper response for the template" do
       # ameba:disable Lint/UselessAssign
       name = "TEST"
-      response = ART::Controller.render "spec/assets/greeting.ecr"
+      response = ATH::Controller.render "spec/assets/greeting.ecr"
 
       response.status.should eq HTTP::Status::OK
       response.headers["content-type"].should eq "text/html"
@@ -15,7 +15,7 @@ describe ART::Controller do
     it "creates a proper response for the template with a layout" do
       # ameba:disable Lint/UselessAssign
       name = "TEST"
-      response = ART::Controller.render "spec/assets/greeting.ecr", "spec/assets/layout.ecr"
+      response = ATH::Controller.render "spec/assets/greeting.ecr", "spec/assets/layout.ecr"
 
       response.status.should eq HTTP::Status::OK
       response.headers["content-type"].should eq "text/html"
@@ -24,7 +24,7 @@ describe ART::Controller do
   end
 
   describe "#redirect" do
-    it "creates an ART::RedirectResponse" do
+    it "creates an ATH::RedirectResponse" do
       response = TestController.new.redirect "URL"
 
       response.status.should eq HTTP::Status::FOUND

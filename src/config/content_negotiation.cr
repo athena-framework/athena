@@ -1,8 +1,8 @@
 require "./config"
 
-struct Athena::Routing::Config
+struct Athena::Framework::Config
   @[ACFA::Resolvable("routing.content_negotiation")]
-  # Configuration options for `ART::Listeners::Format`.  See `.configure`.
+  # Configuration options for `ATH::Listeners::Format`.  See `.configure`.
   struct ContentNegotiation
     # Represents a rule that should be considered when determine the request's format.
     #
@@ -23,13 +23,13 @@ struct Athena::Routing::Config
       # Returns the format that should be used if a request does not allow for any of the formats within `#priorities`.
       #
       # Can be set to `nil` to check the next rule in case of a priority mismatch.
-      # Can be set to `false` to raise an `ART::Exceptions::NotAcceptable` exception in case of a priority mismatch.
+      # Can be set to `false` to raise an `ATH::Exceptions::NotAcceptable` exception in case of a priority mismatch.
       getter fallback_format : String | Bool | Nil
 
       # Returns the methods that this rule should optionally be scoped to.
       getter methods : Array(String)?
 
-      # Determines if `ART::Listeners::Format` should be enabled for this rule and any rule following it.
+      # Determines if `ATH::Listeners::Format` should be enabled for this rule and any rule following it.
       getter? stop : Bool
 
       def initialize(
@@ -47,13 +47,13 @@ struct Athena::Routing::Config
       end
     end
 
-    # This method should be overridden in order to provide the configuration for `ART::Listeners::Format`.
+    # This method should be overridden in order to provide the configuration for `ATH::Listeners::Format`.
     # See the [external documentation](/components/negotiation) for more details.
     #
     # By default it returns `nil`, which disables the listener.
     #
     # ```
-    # def ART::Config::ContentNegotiation.configure : ART::Config::ContentNegotiation?
+    # def ATH::Config::ContentNegotiation.configure : ATH::Config::ContentNegotiation?
     #   new(
     #     # Setting fallback_format to json means that instead of considering
     #     # the next rule in case of a priority mismatch, json will be used.
@@ -74,12 +74,12 @@ struct Athena::Routing::Config
     end
 
     # Returns the content negotiation rules that should be considered when determining the request's format.
-    getter rules : Array(ART::Config::ContentNegotiation::Rule)
+    getter rules : Array(ATH::Config::ContentNegotiation::Rule)
 
-    def self.new(*rules : ART::Config::ContentNegotiation::Rule)
+    def self.new(*rules : ATH::Config::ContentNegotiation::Rule)
       new rules.to_a
     end
 
-    def initialize(@rules : Array(ART::Config::ContentNegotiation::Rule)); end
+    def initialize(@rules : Array(ATH::Config::ContentNegotiation::Rule)); end
   end
 end

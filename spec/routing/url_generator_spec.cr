@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-private def route_collection(route : ART::ActionBase) : ART::RouteCollection
+private def route_collection(route : ATH::ActionBase) : ART::RouteCollection
   routes = ART::Spec::MockRouteCollection.new
   routes.add route
   routes
@@ -30,7 +30,7 @@ describe ART::URLGenerator do
       action = new_action(
         path: "/test/:id",
         arguments: [
-          ART::Arguments::ArgumentMetadata(Int32).new("id", true, default: 1),
+          ATH::Arguments::ArgumentMetadata(Int32).new("id", true, default: 1),
         ],
         constraints: {"id" => /^\d$/}
       )
@@ -44,7 +44,7 @@ describe ART::URLGenerator do
       action = new_action(
         path: "/test/:id",
         arguments: [
-          ART::Arguments::ArgumentMetadata(Int32).new("id", false),
+          ATH::Arguments::ArgumentMetadata(Int32).new("id", false),
         ],
         constraints: {"id" => /1|2/}
       )
@@ -58,7 +58,7 @@ describe ART::URLGenerator do
       action = new_action(
         path: "/test/:slug",
         arguments: [
-          ART::Arguments::ArgumentMetadata(Int32).new("slug", false),
+          ATH::Arguments::ArgumentMetadata(Int32).new("slug", false),
         ],
         constraints: {"slug" => /.+/}
       )
@@ -72,9 +72,9 @@ describe ART::URLGenerator do
       action = new_action(
         path: "/category/:slug1/:slug2/:slug3",
         arguments: [
-          ART::Arguments::ArgumentMetadata(String).new("slug1", false),
-          ART::Arguments::ArgumentMetadata(String?).new("slug2", false, true),
-          ART::Arguments::ArgumentMetadata(String?).new("slug3", false, true),
+          ATH::Arguments::ArgumentMetadata(String).new("slug1", false),
+          ATH::Arguments::ArgumentMetadata(String?).new("slug2", false, true),
+          ATH::Arguments::ArgumentMetadata(String?).new("slug3", false, true),
         ],
       )
 
@@ -85,7 +85,7 @@ describe ART::URLGenerator do
       action = new_action(
         path: "/test/:default",
         arguments: [
-          ART::Arguments::ArgumentMetadata(Int32).new("default", true, default: 0),
+          ATH::Arguments::ArgumentMetadata(Int32).new("default", true, default: 0),
         ],
       )
 
@@ -95,11 +95,11 @@ describe ART::URLGenerator do
     it "doesn't include query params that are the same as the default" do
       action = new_action(
         arguments: [
-          ART::Arguments::ArgumentMetadata(Int32).new("page", true, default: 1),
+          ATH::Arguments::ArgumentMetadata(Int32).new("page", true, default: 1),
         ],
         params: [
-          ART::Params::QueryParam(Int32).new("page", true, default: 1),
-        ] of ART::Params::ParamInterface
+          ATH::Params::QueryParam(Int32).new("page", true, default: 1),
+        ] of ATH::Params::ParamInterface
       )
 
       generator(route_collection(action)).generate("test", {"page" => 2}).should eq "/test?page=2"
@@ -111,11 +111,11 @@ describe ART::URLGenerator do
     it "doesn't include array query params that are the same as the default" do
       action = new_action(
         arguments: [
-          ART::Arguments::ArgumentMetadata(Array(String)).new("array", true, default: ["foo", "bar"]),
+          ATH::Arguments::ArgumentMetadata(Array(String)).new("array", true, default: ["foo", "bar"]),
         ],
         params: [
-          ART::Params::QueryParam(Array(String)).new("array", true, default: ["foo", "bar"]),
-        ] of ART::Params::ParamInterface
+          ATH::Params::QueryParam(Array(String)).new("array", true, default: ["foo", "bar"]),
+        ] of ATH::Params::ParamInterface
       )
 
       generator(route_collection(action)).generate("test", {"array" => ["bar", "foo"]}).should eq "/test?array=%5B%22bar%22%2C+%22foo%22%5D"
@@ -179,7 +179,7 @@ describe ART::URLGenerator do
         action = new_action(
           path: "/test/:id",
           arguments: [
-            ART::Arguments::ArgumentMetadata(Int32).new("id", false),
+            ATH::Arguments::ArgumentMetadata(Int32).new("id", false),
           ]
         )
 
@@ -190,7 +190,7 @@ describe ART::URLGenerator do
         action = new_action(
           path: "/test/:id",
           arguments: [
-            ART::Arguments::ArgumentMetadata(Int32?).new("id", false, is_nilable: true),
+            ATH::Arguments::ArgumentMetadata(Int32?).new("id", false, is_nilable: true),
           ]
         )
 
@@ -202,7 +202,7 @@ describe ART::URLGenerator do
         action = new_action(
           path: "/test/:id",
           arguments: [
-            ART::Arguments::ArgumentMetadata(Int32).new("id", false),
+            ATH::Arguments::ArgumentMetadata(Int32).new("id", false),
           ]
         )
 
@@ -215,7 +215,7 @@ describe ART::URLGenerator do
         action = new_action(
           path: "/test/:id",
           arguments: [
-            ART::Arguments::ArgumentMetadata(Int32).new("id", false),
+            ATH::Arguments::ArgumentMetadata(Int32).new("id", false),
           ]
         )
 
@@ -228,7 +228,7 @@ describe ART::URLGenerator do
         action = new_action(
           path: "/test/:id",
           arguments: [
-            ART::Arguments::ArgumentMetadata(Int32).new("id", true, default: 0),
+            ATH::Arguments::ArgumentMetadata(Int32).new("id", true, default: 0),
           ]
         )
 
@@ -239,8 +239,8 @@ describe ART::URLGenerator do
         action = new_action(
           path: "/:slug/:page",
           arguments: [
-            ART::Arguments::ArgumentMetadata(String).new("slug", true, default: "index"),
-            ART::Arguments::ArgumentMetadata(Int32).new("page", true, default: 0),
+            ATH::Arguments::ArgumentMetadata(String).new("slug", true, default: "index"),
+            ATH::Arguments::ArgumentMetadata(Int32).new("page", true, default: 0),
           ]
         )
 
@@ -252,8 +252,8 @@ describe ART::URLGenerator do
         action = new_action(
           path: "/:slug/:page",
           arguments: [
-            ART::Arguments::ArgumentMetadata(String).new("slug", true, default: "index"),
-            ART::Arguments::ArgumentMetadata(Int32).new("page", true, default: 0),
+            ATH::Arguments::ArgumentMetadata(String).new("slug", true, default: "index"),
+            ATH::Arguments::ArgumentMetadata(Int32).new("page", true, default: 0),
           ]
         )
 
@@ -265,8 +265,8 @@ describe ART::URLGenerator do
         action = new_action(
           path: "/:slug/:page/foo",
           arguments: [
-            ART::Arguments::ArgumentMetadata(String).new("slug", true, default: "index"),
-            ART::Arguments::ArgumentMetadata(Int32).new("page", true, default: 0),
+            ATH::Arguments::ArgumentMetadata(String).new("slug", true, default: "index"),
+            ATH::Arguments::ArgumentMetadata(Int32).new("page", true, default: 0),
           ]
         )
 
@@ -299,7 +299,7 @@ describe ART::URLGenerator do
         action = new_action(
           path: "/:name",
           arguments: [
-            ART::Arguments::ArgumentMetadata(String).new("name", false),
+            ATH::Arguments::ArgumentMetadata(String).new("name", false),
           ],
         )
 
@@ -310,7 +310,7 @@ describe ART::URLGenerator do
         action = new_action(
           path: "/:name",
           arguments: [
-            ART::Arguments::ArgumentMetadata(String).new("name", false),
+            ATH::Arguments::ArgumentMetadata(String).new("name", false),
           ],
         )
 

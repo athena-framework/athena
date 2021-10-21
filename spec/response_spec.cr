@@ -1,16 +1,16 @@
 require "./spec_helper"
 
-private struct TestWriter < ART::Response::Writer
+private struct TestWriter < ATH::Response::Writer
   def write(output : IO, & : IO -> Nil) : Nil
     yield output
     output.print "EOF"
   end
 end
 
-describe ART::Response do
+describe ATH::Response do
   describe ".new" do
     it "defaults" do
-      response = ART::Response.new
+      response = ATH::Response.new
       response.headers.has_key?("date").should be_true
       response.headers.has_key?("cache-control").should be_true
       response.content.should be_empty
@@ -18,25 +18,25 @@ describe ART::Response do
     end
 
     it "accepts an Int status" do
-      ART::Response.new(status: 201).status.should eq HTTP::Status::CREATED
+      ATH::Response.new(status: 201).status.should eq HTTP::Status::CREATED
     end
 
     it "accepts an HTTP::Status status" do
-      ART::Response.new(status: HTTP::Status::CREATED).status.should eq HTTP::Status::CREATED
+      ATH::Response.new(status: HTTP::Status::CREATED).status.should eq HTTP::Status::CREATED
     end
 
     it "accepts string content" do
-      ART::Response.new("FOO").content.should eq "FOO"
+      ATH::Response.new("FOO").content.should eq "FOO"
     end
 
     it "accepts nil content" do
-      ART::Response.new(nil).content.should eq ""
+      ATH::Response.new(nil).content.should eq ""
     end
   end
 
   describe "#content=" do
     it "accepts a string" do
-      response = ART::Response.new "FOO"
+      response = ATH::Response.new "FOO"
       response.content.should eq "FOO"
       response.content = "BAR"
       response.content.should eq "BAR"
@@ -49,7 +49,7 @@ describe ART::Response do
       response = new_response io: io
       request = new_request
 
-      art_response = ART::Response.new("DATA", 418, HTTP::Headers{"FOO" => "BAR"})
+      art_response = ATH::Response.new("DATA", 418, HTTP::Headers{"FOO" => "BAR"})
       art_response.headers << HTTP::Cookie.new "key", "value"
 
       art_response.send request, response
@@ -67,13 +67,13 @@ describe ART::Response do
 
   describe "#status=" do
     it "accepts an Int" do
-      response = ART::Response.new
+      response = ATH::Response.new
       response.status = 201
       response.status.should eq HTTP::Status::CREATED
     end
 
     it "accepts an HTTP::Status" do
-      response = ART::Response.new
+      response = ATH::Response.new
       response.status = HTTP::Status::CREATED
       response.status.should eq HTTP::Status::CREATED
     end
@@ -82,14 +82,14 @@ describe ART::Response do
   describe "#write" do
     it "writes the content to the given output IO" do
       io = IO::Memory.new
-      ART::Response.new("FOO BAR").write io
+      ATH::Response.new("FOO BAR").write io
 
       io.to_s.should eq "FOO BAR"
     end
 
-    it "supports customization via an ART::Response::Writer" do
+    it "supports customization via an ATH::Response::Writer" do
       io = IO::Memory.new
-      response = ART::Response.new("FOO BAR")
+      response = ATH::Response.new("FOO BAR")
 
       response.writer = TestWriter.new
       response.write io
@@ -100,9 +100,9 @@ describe ART::Response do
 
   describe "#prepare" do
     it "sets content-type based on format" do
-      request = ART::Request.new "GET", "/"
+      request = ATH::Request.new "GET", "/"
       request.request_format = "json"
-      response = ART::Response.new "CONTENT"
+      response = ATH::Response.new "CONTENT"
 
       response.prepare request
 
@@ -110,9 +110,9 @@ describe ART::Response do
     end
 
     it "does not override content-type if already set" do
-      request = ART::Request.new "GET", "/"
+      request = ATH::Request.new "GET", "/"
       request.request_format = "json"
-      response = ART::Response.new "CONTENT", headers: HTTP::Headers{"content-type" => "application/json; charset=UTF-8"}
+      response = ATH::Response.new "CONTENT", headers: HTTP::Headers{"content-type" => "application/json; charset=UTF-8"}
 
       response.prepare request
 
@@ -120,9 +120,9 @@ describe ART::Response do
     end
 
     it "adds the charset to text based formats" do
-      request = ART::Request.new "GET", "/"
+      request = ATH::Request.new "GET", "/"
       request.request_format = "csv"
-      response = ART::Response.new "CONTENT"
+      response = ATH::Response.new "CONTENT"
 
       response.prepare request
 
@@ -130,9 +130,9 @@ describe ART::Response do
     end
 
     it "allows customizing the charset" do
-      request = ART::Request.new "GET", "/"
+      request = ATH::Request.new "GET", "/"
       request.request_format = "csv"
-      response = ART::Response.new "CONTENT"
+      response = ATH::Response.new "CONTENT"
       response.charset = "ISO-8859-1"
 
       response.prepare request
@@ -141,9 +141,9 @@ describe ART::Response do
     end
 
     it "does not override the charset if already included" do
-      request = ART::Request.new "GET", "/"
+      request = ATH::Request.new "GET", "/"
       request.request_format = "csv"
-      response = ART::Response.new "CONTENT", headers: HTTP::Headers{"content-type" => "text/csv; charset=ISO-8859-1"}
+      response = ATH::Response.new "CONTENT", headers: HTTP::Headers{"content-type" => "text/csv; charset=ISO-8859-1"}
 
       response.prepare request
 
@@ -151,8 +151,8 @@ describe ART::Response do
     end
 
     it "removes content for informational responses & empty responses" do
-      request = ART::Request.new "GET", "/"
-      response = ART::Response.new "CONTENT"
+      request = ATH::Request.new "GET", "/"
+      response = ATH::Response.new "CONTENT"
 
       response.headers["content-length"] = "5"
       response.headers["content-type"] = "text/plain"
@@ -166,8 +166,8 @@ describe ART::Response do
     end
 
     it "removes content for empty responses" do
-      request = ART::Request.new "GET", "/"
-      response = ART::Response.new "CONTENT"
+      request = ATH::Request.new "GET", "/"
+      response = ATH::Response.new "CONTENT"
 
       response.content = "CONTENT"
       response.headers["content-length"] = "5"
@@ -182,9 +182,9 @@ describe ART::Response do
     end
 
     it "removes content-length if transfer-encoding is set" do
-      request = ART::Request.new "GET", "/"
+      request = ATH::Request.new "GET", "/"
 
-      response = ART::Response.new "CONTENT"
+      response = ATH::Response.new "CONTENT"
       response.headers["content-length"] = "100"
 
       response.prepare request
@@ -199,8 +199,8 @@ describe ART::Response do
     end
 
     it "removes content and preserves content-length for head requests" do
-      response = ART::Response.new "CONTENT"
-      request = ART::Request.new "HEAD", "/"
+      response = ATH::Response.new "CONTENT"
+      request = ATH::Request.new "HEAD", "/"
       response.headers["content-length"] = "5"
 
       response.prepare request
@@ -210,9 +210,9 @@ describe ART::Response do
     end
 
     it "sets pragma & expires headers on HTTP/1.0 request" do
-      request = ART::Request.new "HEAD", "/", version: "HTTP/1.0"
+      request = ATH::Request.new "HEAD", "/", version: "HTTP/1.0"
 
-      response = ART::Response.new "CONTENT"
+      response = ATH::Response.new "CONTENT"
       response.headers.add_cache_control_directive "no-cache"
 
       response.prepare request
@@ -222,7 +222,7 @@ describe ART::Response do
       response.headers["expires"]?.should eq "-1"
 
       request.version = "HTTP/1.1"
-      response = ART::Response.new "CONTENT"
+      response = ATH::Response.new "CONTENT"
 
       response.prepare request
 
@@ -232,7 +232,7 @@ describe ART::Response do
   end
 
   it "#set_public" do
-    response = ART::Response.new
+    response = ATH::Response.new
     response.set_public
 
     response.headers["cache-control"].should contain "public"
@@ -241,19 +241,19 @@ describe ART::Response do
 
   describe "#set_etag" do
     it "sets the etag" do
-      response = ART::Response.new
+      response = ATH::Response.new
       response.set_etag "ETAG"
       response.etag.should eq %("ETAG")
     end
 
     it "removes the etag if value is `nil`" do
-      response = ART::Response.new headers: HTTP::Headers{"etag" => "ETAG"}
+      response = ATH::Response.new headers: HTTP::Headers{"etag" => "ETAG"}
       response.set_etag nil
       response.etag.should be_nil
     end
 
     it "allows setting a weak etag" do
-      response = ART::Response.new
+      response = ATH::Response.new
       response.set_etag "ETAG", true
       response.etag.should eq %(W/"ETAG")
     end
@@ -263,13 +263,13 @@ describe ART::Response do
     it "sets the last-modified header" do
       now = Time.utc
 
-      response = ART::Response.new
+      response = ATH::Response.new
       response.last_modified = now
       response.last_modified.should eq now.at_beginning_of_second
     end
 
     it "removes the header if the value is `nil`" do
-      response = ART::Response.new headers: HTTP::Headers{"last-modified" => "TIME"}
+      response = ATH::Response.new headers: HTTP::Headers{"last-modified" => "TIME"}
       response.last_modified = nil
       response.last_modified.should be_nil
     end

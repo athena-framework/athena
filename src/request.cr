@@ -1,7 +1,7 @@
 # Wraps an [HTTP::Request](https://crystal-lang.org/api/HTTP/Request.html) instance to provide additional functionality.
 #
 # Forwards all additional methods to the wrapped `HTTP::Request` instance.
-class Athena::Routing::Request
+class Athena::Framework::Request
   # Represents the supported built in formats; mapping the format name to its valid `MIME` type(s).
   #
   # Additional formats may be registered via `.register_format`.
@@ -24,7 +24,7 @@ class Athena::Routing::Request
   # Can also be used to change the *mime_types* supported for an existing *format*.
   #
   # ```
-  # ART::Request.register_format "some_format", {"some/mimetype"}
+  # ATH::Request.register_format "some_format", {"some/mimetype"}
   # ```
   def self.register_format(format : String, mime_types : Indexable(String)) : Nil
     FORMATS[format] = mime_types.to_set
@@ -33,20 +33,20 @@ class Athena::Routing::Request
   # Returns the `MIME` types for the provided *format*.
   #
   # ```
-  # ART::Request.mime_types "txt" # => Set{"text/plain"}
+  # ATH::Request.mime_types "txt" # => Set{"text/plain"}
   # ```
   def self.mime_types(format : String) : Set(String)
     FORMATS[format]? || Set(String).new
   end
 
-  # The `ART::Action` object associated with this request.
+  # The `ATH::Action` object associated with this request.
   #
   # Will only be set if a route was able to be resolved
-  # as part of `ART::Listeners::Routing`.
-  getter! action : ART::ActionBase
+  # as part of `ATH::Listeners::Routing`.
+  getter! action : ATH::ActionBase
 
-  # See `ART::ParameterBag`.
-  getter attributes : ART::ParameterBag = ART::ParameterBag.new
+  # See `ATH::ParameterBag`.
+  getter attributes : ATH::ParameterBag = ATH::ParameterBag.new
 
   @request_data : HTTP::Params?
 
@@ -66,7 +66,7 @@ class Athena::Routing::Request
   def initialize(@request : HTTP::Request); end
 
   # :nodoc:
-  def action=(@action : ART::ActionBase); end
+  def action=(@action : ATH::ActionBase); end
 
   # Returns the first `MIME` type for the provided *format* if defined, otherwise returns `nil`.
   #

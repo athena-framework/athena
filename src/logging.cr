@@ -1,5 +1,5 @@
 require "log"
 
-module Athena::Routing
+module Athena::Framework
   Log = ::Log.for "athena.routing"
 end

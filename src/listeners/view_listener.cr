@@ -1,25 +1,25 @@
 @[ADI::Register]
-# Listens on the `ART::Events::View` event to convert a non `ART::Response` into an `ART::Response`.
+# Listens on the `ATH::Events::View` event to convert a non `ATH::Response` into an `ATH::Response`.
 # Allows creating format agnostic controllers by allowing them to return format agnostic data that
 # is later used to render the content in the expected format.
 #
 # See the [negotiation](/components/negotiation) component for more information.
-struct Athena::Routing::Listeners::View
+struct Athena::Framework::Listeners::View
   include AED::EventListenerInterface
 
   def self.subscribed_events : AED::SubscribedEvents
-    AED::SubscribedEvents{ART::Events::View => 100}
+    AED::SubscribedEvents{ATH::Events::View => 100}
   end
 
-  def initialize(@view_handler : ART::View::ViewHandlerInterface); end
+  def initialize(@view_handler : ATH::View::ViewHandlerInterface); end
 
-  def call(event : ART::Events::View, dispatcher : AED::EventDispatcherInterface) : Nil
+  def call(event : ATH::Events::View, dispatcher : AED::EventDispatcherInterface) : Nil
     request = event.request
     action = request.action
 
     view = event.action_result
 
-    unless view.is_a? ART::View
+    unless view.is_a? ATH::View
       view = action.create_view view
     end
 

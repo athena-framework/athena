@@ -1,8 +1,8 @@
 require "../spec_helper"
 
 @[ADI::Register(public: true)]
-class RoutingController < ART::Controller
-  def initialize(@request_store : ART::RequestStore); end
+class RoutingController < ATH::Controller
+  def initialize(@request_store : ATH::RequestStore); end
 
   @[ARTA::Get("get/safe")]
   def safe_request_check : String
@@ -22,27 +22,27 @@ class RoutingController < ART::Controller
     "HEAD"
   end
 
-  get "/cookies", return_type: ART::Response do
-    response = ART::Response.new "FOO"
+  get "/cookies", return_type: ATH::Response do
+    response = ATH::Response.new "FOO"
     response.headers << HTTP::Cookie.new "key", "value"
     response
   end
 
   @[ARTA::Get("art/response")]
-  def response : ART::Response
-    ART::Response.new "FOO", 418, HTTP::Headers{"content-type" => "BAR"}
+  def response : ATH::Response
+    ATH::Response.new "FOO", 418, HTTP::Headers{"content-type" => "BAR"}
   end
 
   @[ARTA::Get("art/streamed-response")]
-  def streamed_response : ART::Response
-    ART::StreamedResponse.new 418, HTTP::Headers{"content-type" => "BAR"} do |io|
+  def streamed_response : ATH::Response
+    ATH::StreamedResponse.new 418, HTTP::Headers{"content-type" => "BAR"} do |io|
       "FOO".to_json io
     end
   end
 
   @[ARTA::Get("art/redirect")]
-  def redirect : ART::RedirectResponse
-    ART::RedirectResponse.new "https://crystal-lang.org"
+  def redirect : ATH::RedirectResponse
+    ATH::RedirectResponse.new "https://crystal-lang.org"
   end
 
   @[ARTA::Get("url")]
@@ -66,27 +66,27 @@ class RoutingController < ART::Controller
   end
 
   @[ARTA::Get("redirect-url")]
-  def redirect_url : ART::RedirectResponse
+  def redirect_url : ATH::RedirectResponse
     self.redirect_to_route "routing_controller_response"
   end
 
   @[ARTA::Get("redirect-url-status")]
-  def redirect_url_status : ART::RedirectResponse
+  def redirect_url_status : ATH::RedirectResponse
     self.redirect_to_route "routing_controller_response", :permanent_redirect
   end
 
   @[ARTA::Get("redirect-url-hash")]
-  def redirect_url_hash : ART::RedirectResponse
+  def redirect_url_hash : ATH::RedirectResponse
     self.redirect_to_route "routing_controller_response", {"id" => 10}
   end
 
   @[ARTA::Get("redirect-url-nt")]
-  def redirect_url_nt : ART::RedirectResponse
+  def redirect_url_nt : ATH::RedirectResponse
     self.redirect_to_route "routing_controller_response", id: 10
   end
 
   @[ARTA::Get("events")]
-  @[ARTA::ParamConverter("since", converter: ART::TimeConverter)]
+  @[ARTA::ParamConverter("since", converter: ATH::TimeConverter)]
   @[ARTA::QueryParam("since")]
   def events(since : Time? = nil) : Nil
     if s = since

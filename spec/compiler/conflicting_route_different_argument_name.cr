@@ -1,17 +1,17 @@
 require "../spec_helper"
 
-class TestController < ART::Controller
+class TestController < ATH::Controller
   @[ARTA::Get(path: "user/:id")]
   def action1(id : Int64) : Int64
     id
   end
 end
 
-class OtherController < ART::Controller
+class OtherController < ATH::Controller
   @[ARTA::Get(path: "user/:user_id")]
   def action2(user_id : Int64) : Int64
     user_id
   end
 end
 
-ART.run
+ATH.run

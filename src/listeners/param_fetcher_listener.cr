@@ -1,16 +1,16 @@
 @[ADI::Register]
-struct Athena::Routing::Listeners::ParamFetcher
+struct Athena::Framework::Listeners::ParamFetcher
   include AED::EventListenerInterface
 
   def self.subscribed_events : AED::SubscribedEvents
     AED::SubscribedEvents{
-      ART::Events::Action => 5,
+      ATH::Events::Action => 5,
     }
   end
 
-  def initialize(@param_fetcher : ART::Params::ParamFetcherInterface); end
+  def initialize(@param_fetcher : ATH::Params::ParamFetcherInterface); end
 
-  def call(event : ART::Events::Action, dispatcher : AED::EventDispatcherInterface) : Nil
+  def call(event : ATH::Events::Action, dispatcher : AED::EventDispatcherInterface) : Nil
     request = event.request
 
     # Process each registered parameter, adding them to the request's attributes.

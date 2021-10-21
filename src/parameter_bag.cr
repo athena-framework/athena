@@ -1,5 +1,5 @@
 # A container for storing key/value pairs.  Can be used to store arbitrary data within the context of a request.
-# It can be accessed via `ART::Request#attributes`.
+# It can be accessed via `ATH::Request#attributes`.
 #
 # ### Example
 #
@@ -15,20 +15,20 @@
 #
 #   def self.subscribed_events : AED::SubscribedEvents
 #     AED::SubscribedEvents{
-#       ART::Events::Request => 0,
+#       ATH::Events::Request => 0,
 #     }
 #   end
 #
-#   def call(event : ART::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
+#   def call(event : ATH::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
 #     # Store our value within the request's attributes, restricted to a `String`.
 #     event.request.attributes.set "my_arg", "foo", String
 #   end
 # end
 #
-# class ExampleController < ART::Controller
+# class ExampleController < ATH::Controller
 #   # Define an action argument with the same name of the argument stored in attributes.
 #   #
-#   # The argument is resolved via `ART::Arguments::Resolvers::RequestAttribute`.
+#   # The argument is resolved via `ATH::Arguments::Resolvers::RequestAttribute`.
 #   get "/", my_arg : String do
 #     my_arg
 #   end
@@ -38,7 +38,7 @@
 #
 # # GET / # => "foo"
 # ```
-struct Athena::Routing::ParameterBag
+struct Athena::Framework::ParameterBag
   private abstract struct Param
     abstract def value
   end
