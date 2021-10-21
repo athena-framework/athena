@@ -96,8 +96,8 @@ module Athena::Framework::Spec
   #
   # ```
   # class ExampleController < ATH::Controller
-  #   @[ARTA::QueryParam("negative")]
-  #   @[ARTA::Get("/add/:value1/:value2")]
+  #   @[ATHA::QueryParam("negative")]
+  #   @[ATHA::Get("/add/:value1/:value2")]
   #   def add(value1 : Int32, value2 : Int32, negative : Bool = false) : Int32
   #     sum = value1 + value2
   #     negative ? -sum : sum
@@ -161,7 +161,7 @@ module Athena::Framework::Spec
   # class ExampleServiceController < ATH::Controller
   #   def initialize(@api_client : APIClient); end
   #
-  #   @[ARTA::Post("/sync")]
+  #   @[ATHA::Post("/sync")]
   #   def sync_data : String
   #     # Use the injected api client to get the latest data to sync.
   #     data = @api_client.fetch_latest_data

@@ -1,14 +1,14 @@
 require "../spec_helper"
 
 class TestController < ATH::Controller
-  @[ARTA::Get(path: "user/:id")]
+  @[ATHA::Get(path: "user/:id")]
   def action1(id : Int64) : Int64
     id
   end
 end
 
 class OtherController < ATH::Controller
-  @[ARTA::Get(path: "user/:user_id")]
+  @[ATHA::Get(path: "user/:user_id")]
   def action2(user_id : Int64) : Int64
     user_id
   end

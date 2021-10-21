@@ -1,6 +1,6 @@
 require "./scalar_param"
 
-# Represents form data with a request's body.  See `ARTA::RequestParam`.
+# Represents form data with a request's body.  See `ATHA::RequestParam`.
 struct Athena::Framework::Params::RequestParam(T) < Athena::Framework::Params::ScalarParam
   # This is included here because of https://github.com/crystal-lang/crystal/issues/7584
   include Athena::Framework::Params::ParamInterface

@@ -51,7 +51,7 @@ class Athena::Framework::Response
   # end
   #
   # class ExampleController < ATH::Controller
-  #   @[ARTA::Get("/users")]
+  #   @[ATHA::Get("/users")]
   #   def users : Array(User)
   #     User.all
   #   end

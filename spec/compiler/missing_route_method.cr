@@ -1,7 +1,7 @@
 require "../spec_helper"
 
 class CompileController < ATH::Controller
-  @[ARTA::Route("/")]
+  @[ATHA::Route("/")]
   def action : Nil
   end
 end

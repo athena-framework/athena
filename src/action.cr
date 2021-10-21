@@ -22,7 +22,7 @@ struct Athena::Framework::Action(Controller, ActionType, ReturnType, ArgTypeTupl
   # Returns an `Array(ATH::Arguments::ArgumentMetadata)` that `self` requires.
   getter arguments : ArgumentsType
 
-  # Returns a `Tuple` of `ATH::ParamConverter::ConfigurationInterface` representing the `ARTA::ParamConverter`s applied to `self`.
+  # Returns a `Tuple` of `ATH::ParamConverter::ConfigurationInterface` representing the `ATHA::ParamConverter`s applied to `self`.
   getter param_converters : ParamConverterType
 
   # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to `self`.

@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-@[ARTA::Prefix]
+@[ATHA::Prefix]
 abstract class PrefixController < Athena::Framework::Controller
 end
 

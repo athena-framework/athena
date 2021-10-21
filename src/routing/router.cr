@@ -1,7 +1,7 @@
 require "./router_interface"
 
 @[ADI::Register(name: "router", public: true)]
-# Default implementation of `ARTA::RouterInterface`.
+# Default implementation of `ATHA::RouterInterface`.
 class Athena::Routing::Router
   include Athena::Routing::RouterInterface
 

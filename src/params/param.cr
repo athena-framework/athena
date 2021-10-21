@@ -44,7 +44,7 @@ abstract struct Athena::Framework::Params::Param
 
   # Returns the key that should be used to access `self` from a given request.
   #
-  # Defaults to `#name`, but may be customized.  See the "Key" section of `ARTA::QueryParam`.
+  # Defaults to `#name`, but may be customized.  See the "Key" section of `ATHA::QueryParam`.
   def key : String
     @key || @name
   end

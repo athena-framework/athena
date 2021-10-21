@@ -12,7 +12,7 @@ module Athena::Framework::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Delete(path: "/users/:id")]
+  # @[ATHA::Delete(path: "/users/:id")]
   # def delete_user(id : Int32) : Nil
   # end
   # ```
@@ -29,7 +29,7 @@ module Athena::Framework::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Get(path: "/users/:id")]
+  # @[ATHA::Get(path: "/users/:id")]
   # def get_user(id : Int32) : Nil
   # end
   # ```
@@ -46,7 +46,7 @@ module Athena::Framework::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Head(path: "/users")]
+  # @[ATHA::Head(path: "/users")]
   # def head_user : Nil
   # end
   # ```
@@ -63,7 +63,7 @@ module Athena::Framework::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Link(path: "/users/:id")]
+  # @[ATHA::Link(path: "/users/:id")]
   # def link_user(id : Int32) : Nil
   # end
   # ```
@@ -81,8 +81,8 @@ module Athena::Framework::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Get(path: "/multiply/:num")]
-  # @[ARTA::ParamConverter("num", converter: MultiplyConverter)]
+  # @[ATHA::Get(path: "/multiply/:num")]
+  # @[ATHA::ParamConverter("num", converter: MultiplyConverter)]
   # def multiply(num : Int32) : Int32
   #   num
   # end
@@ -100,7 +100,7 @@ module Athena::Framework::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Patch(path: "/users/:id")]
+  # @[ATHA::Patch(path: "/users/:id")]
   # def partial_update_user(id : Int32) : Nil
   # end
   # ```
@@ -117,7 +117,7 @@ module Athena::Framework::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Post(path: "/users")]
+  # @[ATHA::Post(path: "/users")]
   # def new_user : Nil
   # end
   # ```
@@ -132,10 +132,10 @@ module Athena::Framework::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Prefix(prefix: "calendar")]
+  # @[ATHA::Prefix(prefix: "calendar")]
   # class CalendarController < ATH::Controller
   #   # The route of this action would be `GET /calendar/events`.
-  #   @[ARTA::Get(path: "events")]
+  #   @[ATHA::Get(path: "events")]
   #   def events : String
   #     "events"
   #   end
@@ -154,7 +154,7 @@ module Athena::Framework::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Put(path: "/users/:id")]
+  # @[ATHA::Put(path: "/users/:id")]
   # def update_user(id : Int32) : Nil
   # end
   # ```
@@ -176,8 +176,8 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ARTA::Get("/")]
-  #   @[ARTA::QueryParam("page", description: "What page of results to return.")] # The name can also be supplied as a named argument like `@[ARTA::QueryParam(name: "page")]`.
+  #   @[ATHA::Get("/")]
+  #   @[ATHA::QueryParam("page", description: "What page of results to return.")] # The name can also be supplied as a named argument like `@[ATHA::QueryParam(name: "page")]`.
   #   def index(page : Int32) : Int32
   #     page
   #   end
@@ -197,8 +197,8 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ARTA::Get("/")]
-  #   @[ARTA::QueryParam("foo", key: "bar")]
+  #   @[ATHA::Get("/")]
+  #   @[ATHA::QueryParam("foo", key: "bar")]
   #   def index(foo : String) : String
   #     foo
   #   end
@@ -217,8 +217,8 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ARTA::Get("/")]
-  #   @[ARTA::QueryParam("page")] # The name can also be supplied as a named argument like `@[ARTA::QueryParam(name: "page")]`.
+  #   @[ATHA::Get("/")]
+  #   @[ATHA::QueryParam("page")] # The name can also be supplied as a named argument like `@[ATHA::QueryParam(name: "page")]`.
   #   def index(page : Int32?) : Int32?
   #     page
   #   end
@@ -247,8 +247,8 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ARTA::Get("/")]
-  #   @[ARTA::QueryParam("page", strict: false)]
+  #   @[ATHA::Get("/")]
+  #   @[ATHA::QueryParam("page", strict: false)]
   #   def index(page : Int32?) : Int32?
   #     page
   #   end
@@ -268,7 +268,7 @@ module Athena::Framework::Annotations
   # ### Requirements
   #
   # It's a common practice to validate incoming values before they reach the controller action.
-  # `ARTA::QueryParam` supports doing just that.
+  # `ATHA::QueryParam` supports doing just that.
   # It supports validating the value against a `Regex` pattern, an `AVD::Constraint`, or an array of `AVD::Constraint`s.
   #
   # The value is only considered valid if it satisfies the defined requirements.
@@ -283,8 +283,8 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ARTA::Get("/")]
-  #   @[ARTA::QueryParam("page", requirements: /\d{2}/)]
+  #   @[ATHA::Get("/")]
+  #   @[ATHA::QueryParam("page", requirements: /\d{2}/)]
   #   def index(page : Int32) : Int32
   #     page
   #   end
@@ -307,8 +307,8 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ARTA::Get("/")]
-  #   @[ARTA::QueryParam("page", requirements: @[Assert::PositiveOrZero])]
+  #   @[ATHA::Get("/")]
+  #   @[ATHA::QueryParam("page", requirements: @[Assert::PositiveOrZero])]
   #   def index(page : Int32) : Int32
   #     page
   #   end
@@ -334,8 +334,8 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ARTA::Get("/")]
-  #   @[ARTA::QueryParam("ids", map: true, requirements: [@[Assert::Positive], @[Assert::Range(-3..10)]])]
+  #   @[ATHA::Get("/")]
+  #   @[ATHA::QueryParam("ids", map: true, requirements: [@[Assert::Positive], @[Assert::Range(-3..10)]])]
   #   def index(ids : Array(Int32)) : Array(Int32)
   #     ids
   #   end
@@ -356,9 +356,9 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ARTA::Get("/")]
-  #   @[ARTA::QueryParam("bar")]
-  #   @[ARTA::QueryParam("foo", incompatibles: ["bar"])]
+  #   @[ATHA::Get("/")]
+  #   @[ATHA::QueryParam("bar")]
+  #   @[ATHA::QueryParam("foo", incompatibles: ["bar"])]
   #   def index(foo : String?, bar : String?) : String
   #     "#{foo}-#{bar}"
   #   end
@@ -383,8 +383,8 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ARTA::QueryParam("start_time", converter: ATH::TimeConverter)]
-  #   @[ARTA::Get("/time")]
+  #   @[ATHA::QueryParam("start_time", converter: ATH::TimeConverter)]
+  #   @[ATHA::Get("/time")]
   #   def time(start_time : Time = Time.utc) : String
   #     "Starting at: #{start_time}"
   #   end
@@ -407,8 +407,8 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ARTA::QueryParam("start_time", converter: {name: ATH::TimeConverter, format: "%Y--%m//%d  %T"})]
-  #   @[ARTA::Get("/time")]
+  #   @[ATHA::QueryParam("start_time", converter: {name: ATH::TimeConverter, format: "%Y--%m//%d  %T"})]
+  #   @[ATHA::Get("/time")]
   #   def time(start_time : Time) : String
   #     "Starting at: #{start_time}"
   #   end
@@ -419,12 +419,12 @@ module Athena::Framework::Annotations
   # # GET /time?start_time="2020--04//07  12:34:56" # => "Starting at: 2020-04-07 12:34:56 UTC"
   # ```
   #
-  # NOTE: The dedicated `ARTA::ParamConverter` annotation may be used as well, just be sure to give it and the query parameter the same name.
+  # NOTE: The dedicated `ATHA::ParamConverter` annotation may be used as well, just be sure to give it and the query parameter the same name.
   annotation QueryParam; end
 
   # Represents a form data request parameter.
   #
-  # See `ARTA::QueryParam` for configuration options/arguments.
+  # See `ATHA::QueryParam` for configuration options/arguments.
   #
   # WARNING: The entire request body is consumed to parse the form data.
   #
@@ -432,9 +432,9 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ARTA::Post(path: "/login")]
-  #   @[ARTA::RequestParam("username")]
-  #   @[ARTA::RequestParam("password")]
+  #   @[ATHA::Post(path: "/login")]
+  #   @[ATHA::RequestParam("username")]
+  #   @[ATHA::RequestParam("password")]
   #   def login(username : String, password : String) : Nil
   #     # ...
   #   end
@@ -458,7 +458,7 @@ module Athena::Framework::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Route("/some/path", method: "TRACE")]
+  # @[ATHA::Route("/some/path", method: "TRACE")]
   # def trace_route : Nil
   # end
   # ```
@@ -475,7 +475,7 @@ module Athena::Framework::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Unlink(path: "/users/:id")]
+  # @[ATHA::Unlink(path: "/users/:id")]
   # def unlink_user(id : Int32) : Nil
   # end
   # ```
@@ -499,8 +499,8 @@ module Athena::Framework::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Post(path: "/publish/:id")]
-  # @[ARTA::View(status: :accepted, serialization_groups: ["default", "detailed"])]
+  # @[ATHA::Post(path: "/publish/:id")]
+  # @[ATHA::View(status: :accepted, serialization_groups: ["default", "detailed"])]
   # def publish(id : Int32) : Article
   #   article = Article.find id
   #   article.published = true

@@ -4,7 +4,7 @@ require "../spec_helper"
 class RoutingController < ATH::Controller
   def initialize(@request_store : ATH::RequestStore); end
 
-  @[ARTA::Get("get/safe")]
+  @[ATHA::Get("get/safe")]
   def safe_request_check : String
     initial_query = @request_store.request.try &.query
     sleep 2 if initial_query == "foo"
@@ -17,7 +17,7 @@ class RoutingController < ATH::Controller
     ADI.container.object_id
   end
 
-  @[ARTA::Head("/head")]
+  @[ATHA::Head("/head")]
   def head : String
     "HEAD"
   end
@@ -28,66 +28,66 @@ class RoutingController < ATH::Controller
     response
   end
 
-  @[ARTA::Get("art/response")]
+  @[ATHA::Get("art/response")]
   def response : ATH::Response
     ATH::Response.new "FOO", 418, HTTP::Headers{"content-type" => "BAR"}
   end
 
-  @[ARTA::Get("art/streamed-response")]
+  @[ATHA::Get("art/streamed-response")]
   def streamed_response : ATH::Response
     ATH::StreamedResponse.new 418, HTTP::Headers{"content-type" => "BAR"} do |io|
       "FOO".to_json io
     end
   end
 
-  @[ARTA::Get("art/redirect")]
+  @[ATHA::Get("art/redirect")]
   def redirect : ATH::RedirectResponse
     ATH::RedirectResponse.new "https://crystal-lang.org"
   end
 
-  @[ARTA::Get("url")]
+  @[ATHA::Get("url")]
   def generate_url : String
     self.generate_url "routing_controller_response"
   end
 
-  @[ARTA::Get("url-hash")]
+  @[ATHA::Get("url-hash")]
   def generate_url_hash : String
     self.generate_url "routing_controller_response", {"id" => 10}
   end
 
-  @[ARTA::Get("url-nt")]
+  @[ATHA::Get("url-nt")]
   def generate_url_nt : String
     self.generate_url "routing_controller_response", id: 10
   end
 
-  @[ARTA::Get("url-nt-abso")]
+  @[ATHA::Get("url-nt-abso")]
   def generate_url_nt_absolute : String
     self.generate_url "routing_controller_response", id: 10, reference_type: :absolute_url
   end
 
-  @[ARTA::Get("redirect-url")]
+  @[ATHA::Get("redirect-url")]
   def redirect_url : ATH::RedirectResponse
     self.redirect_to_route "routing_controller_response"
   end
 
-  @[ARTA::Get("redirect-url-status")]
+  @[ATHA::Get("redirect-url-status")]
   def redirect_url_status : ATH::RedirectResponse
     self.redirect_to_route "routing_controller_response", :permanent_redirect
   end
 
-  @[ARTA::Get("redirect-url-hash")]
+  @[ATHA::Get("redirect-url-hash")]
   def redirect_url_hash : ATH::RedirectResponse
     self.redirect_to_route "routing_controller_response", {"id" => 10}
   end
 
-  @[ARTA::Get("redirect-url-nt")]
+  @[ATHA::Get("redirect-url-nt")]
   def redirect_url_nt : ATH::RedirectResponse
     self.redirect_to_route "routing_controller_response", id: 10
   end
 
-  @[ARTA::Get("events")]
-  @[ARTA::ParamConverter("since", converter: ATH::TimeConverter)]
-  @[ARTA::QueryParam("since")]
+  @[ATHA::Get("events")]
+  @[ATHA::ParamConverter("since", converter: ATH::TimeConverter)]
+  @[ATHA::QueryParam("since")]
   def events(since : Time? = nil) : Nil
     if s = since
       s.should be_a Time
@@ -96,13 +96,13 @@ class RoutingController < ATH::Controller
     end
   end
 
-  @[ARTA::Route("/custom-method", method: "FOO")]
+  @[ATHA::Route("/custom-method", method: "FOO")]
   def custom_http_method : String
     "FOO"
   end
 
-  @[ARTA::Get("custom-status")]
-  @[ARTA::View(status: :accepted)]
+  @[ATHA::Get("custom-status")]
+  @[ATHA::View(status: :accepted)]
   def custom_status : String
     "foo"
   end

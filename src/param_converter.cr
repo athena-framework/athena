@@ -8,8 +8,8 @@
 # Defining a custom param converter requires the usage of two (optionally three) things:
 #
 # 1. An implementation of `self` to define the conversion logic.
-# 1. The `ARTA::ParamConverter` annotation applied to an action to specify what argument should be converted, and what converter should be used.
-# 1. An optional `ATH::ParamConverter::ConfigurationInterface` instance to define extra configuration options that can be used within the `ARTA::ParamConverter` annotation.
+# 1. The `ATHA::ParamConverter` annotation applied to an action to specify what argument should be converted, and what converter should be used.
+# 1. An optional `ATH::ParamConverter::ConfigurationInterface` instance to define extra configuration options that can be used within the `ATHA::ParamConverter` annotation.
 #
 # Param converters are registered as services, and as such, may use any other registered services as a dependency via DI.
 #
@@ -38,9 +38,9 @@
 # end
 #
 # class ParamConverterController < ATH::Controller
-#   # Use the ARTA::ParamConverter annotation to specify we want to use a param converter for the `num` argument, and that we want to use the `MultiplyConverter` for the conversion.
-#   @[ARTA::Get(path: "/multiply/:num")]
-#   @[ARTA::ParamConverter("num", converter: MultiplyConverter)]
+#   # Use the ATHA::ParamConverter annotation to specify we want to use a param converter for the `num` argument, and that we want to use the `MultiplyConverter` for the conversion.
+#   @[ATHA::Get(path: "/multiply/:num")]
+#   @[ATHA::ParamConverter("num", converter: MultiplyConverter)]
 #   def multiply(num : Int32) : Int32
 #     num
 #   end
@@ -84,8 +84,8 @@
 #
 # class ParamConverterController < ATH::Controller
 #   # Specify the multiplier to use for the conversion; in this case `4`.
-#   @[ARTA::Get(path: "/multiply/:num")]
-#   @[ARTA::ParamConverter("num", converter: MultiplyConverter, by: 4)]
+#   @[ATHA::Get(path: "/multiply/:num")]
+#   @[ATHA::ParamConverter("num", converter: MultiplyConverter, by: 4)]
 #   def multiply(num : Int32) : Int32
 #     num
 #   end
@@ -138,7 +138,7 @@ abstract class Athena::Framework::ParamConverter
   # Apply `TAG` to all `AED::EventListenerInterface` instances automatically.
   ADI.auto_configure Athena::Framework::ParamConverter, {tags: [ATH::ParamConverter::TAG]}
 
-  # Allows defining extra configuration data that can be supplied within the `ARTA::ParamConverter` annotation.
+  # Allows defining extra configuration data that can be supplied within the `ATHA::ParamConverter` annotation.
   # By default this type includes the name of the argument that should be converted and the
   # the `ATH::ParamConverter` that should be used for the conversion.
   #

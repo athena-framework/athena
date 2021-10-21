@@ -2,7 +2,7 @@
 # Handles resolving a value for action arguments typed as `ATH::Request`.
 #
 # ```
-# @[ARTA::Get("/")]
+# @[ATHA::Get("/")]
 # def get_request_path(request : ATH::Request) : String
 #   request.path
 # end

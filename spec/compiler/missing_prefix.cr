@@ -1,8 +1,8 @@
 require "../spec_helper"
 
-@[ARTA::Prefix]
+@[ATHA::Prefix]
 class CompileController < Athena::Framework::Controller
-  @[ARTA::Get(path: "/")]
+  @[ATHA::Get(path: "/")]
   def action : Int32
     123
   end

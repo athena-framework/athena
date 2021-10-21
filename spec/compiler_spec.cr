@@ -22,11 +22,11 @@ describe Athena::Framework do
       assert_error "compiler/controller_service_not_public.cr", "Controller service 'CompileController' must be declared as public."
     end
 
-    it "when action is defined with ARTA::Route, but does not specify the method" do
+    it "when action is defined with ATHA::Route, but does not specify the method" do
       assert_error "compiler/missing_route_method.cr", "CompileController#action' is missing the HTTP method.  It was not provided via the 'method' field."
     end
 
-    describe ARTA::Prefix do
+    describe ATHA::Prefix do
       it "when a parent type has the prefix annotation but is missing a value" do
         assert_error "compiler/parent_missing_prefix.cr", "Controller 'PrefixController' has the `Prefix` annotation but is missing the prefix."
       end
@@ -36,17 +36,17 @@ describe Athena::Framework do
       end
     end
 
-    describe ARTA::ParamConverter do
+    describe ATHA::ParamConverter do
       it "missing name" do
-        assert_error "compiler/param_converter_missing_name.cr", "Route action 'CompileController#action' has an ARTA::ParamConverter annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field."
+        assert_error "compiler/param_converter_missing_name.cr", "Route action 'CompileController#action' has an ATHA::ParamConverter annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field."
       end
 
       it "missing corresponding action argument" do
-        assert_error "compiler/param_converter_missing_action_argument.cr", "Route action 'CompileController#action' has an ARTA::ParamConverter annotation but does not have a corresponding action argument for 'foo'."
+        assert_error "compiler/param_converter_missing_action_argument.cr", "Route action 'CompileController#action' has an ATHA::ParamConverter annotation but does not have a corresponding action argument for 'foo'."
       end
 
       it "missing converter argument" do
-        assert_error "compiler/param_converter_missing_converter.cr", "Route action 'CompileController#action' has an ARTA::ParamConverter annotation but is missing the converter class.  It was not provided via the 'converter' field."
+        assert_error "compiler/param_converter_missing_converter.cr", "Route action 'CompileController#action' has an ATHA::ParamConverter annotation but is missing the converter class.  It was not provided via the 'converter' field."
       end
     end
 
@@ -62,7 +62,7 @@ describe Athena::Framework do
       end
     end
 
-    describe ARTA::QueryParam do
+    describe ATHA::QueryParam do
       it "missing name" do
         assert_error "compiler/query_param_missing_name.cr", "Route action 'CompileController#action' has an Athena::Framework::Annotations::QueryParam annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field."
       end
@@ -78,7 +78,7 @@ describe Athena::Framework do
       describe "requirements" do
         describe "only allows `Assert` annotations as requirements (other than regex)" do
           it "with a single annotation" do
-            assert_error "compiler/query_param_invalid_requirements_annotation.cr", "Route action 'CompileController#action' has an Athena::Framework::Annotations::QueryParam annotation whose 'requirements' value is invalid.  Expected `Assert` annotation, got '@[ARTA::Get]'."
+            assert_error "compiler/query_param_invalid_requirements_annotation.cr", "Route action 'CompileController#action' has an Athena::Framework::Annotations::QueryParam annotation whose 'requirements' value is invalid.  Expected `Assert` annotation, got '@[ATHA::Get]'."
           end
 
           describe "in an array" do
@@ -87,7 +87,7 @@ describe Athena::Framework do
             end
 
             it "with an annotation value" do
-              assert_error "compiler/query_param_invalid_requirements_array_annotation.cr", "Route action 'CompileController#action' has an Athena::Framework::Annotations::QueryParam annotation whose 'requirements' array contains an invalid value.  Expected `Assert` annotation, got '@[ARTA::Get]' at index 1."
+              assert_error "compiler/query_param_invalid_requirements_array_annotation.cr", "Route action 'CompileController#action' has an Athena::Framework::Annotations::QueryParam annotation whose 'requirements' array contains an invalid value.  Expected `Assert` annotation, got '@[ATHA::Get]' at index 1."
             end
           end
 
@@ -112,9 +112,9 @@ describe Athena::Framework do
       end
     end
 
-    # This is essentially the same as `ARTA::QueryParam`.
-    # Just do a simple check to ensure its working as expected while doing most other assertions with `ARTA::QueryParam`.
-    describe ARTA::RequestParam do
+    # This is essentially the same as `ATHA::QueryParam`.
+    # Just do a simple check to ensure its working as expected while doing most other assertions with `ATHA::QueryParam`.
+    describe ATHA::RequestParam do
       it "missing name" do
         assert_error "compiler/request_param_missing_name.cr", "Route action 'CompileController#action' has an Athena::Framework::Annotations::RequestParam annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field."
       end

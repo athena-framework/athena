@@ -30,9 +30,9 @@ require "./param_converter"
 # end
 #
 # class UserController < ATH::Controller
-#   @[ARTA::Post("/user")]
-#   @[ARTA::View(status: :created)]
-#   @[ARTA::ParamConverter("user_create", converter: ATH::RequestBodyConverter)]
+#   @[ATHA::Post("/user")]
+#   @[ATHA::View(status: :created)]
+#   @[ATHA::ParamConverter("user_create", converter: ATH::RequestBodyConverter)]
 #   def new_user(user_create : UserCreate) : UserCreate
 #     # Use the provided UserCreate instance to create an actual User DB record.
 #     # For purposes of this example, just return the instance.

@@ -3,7 +3,7 @@
 # This includes any path/query parameters, or custom types values stored via an `AED::EventListenerInterface`.
 #
 # ```
-# @[ARTA::Get("/:id")]
+# @[ATHA::Get("/:id")]
 # def get_id(id : Int32) : Int32
 #   id
 # end

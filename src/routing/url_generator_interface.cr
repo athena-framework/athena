@@ -33,12 +33,12 @@ module Athena::Routing::URLGeneratorInterface
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ARTA::Get("/add/:value1/:value2", name: "add")]
+  #   @[ATHA::Get("/add/:value1/:value2", name: "add")]
   #   def add(value1 : Int32, value2 : Int32, negative : Bool = false) : Int32
   #     0
   #   end
   #
-  #   @[ARTA::Get("/")]
+  #   @[ATHA::Get("/")]
   #   def get_link : String
   #     ""
   #   end

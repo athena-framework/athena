@@ -28,7 +28,7 @@ private class MockViewHandler
 end
 
 private def get_ann_configs(config : ACF::AnnotationConfigurations::ConfigurationBase) : ACF::AnnotationConfigurations
-  ACF::AnnotationConfigurations.new ACF::AnnotationConfigurations::AnnotationHash{ARTA::View => [config] of ACF::AnnotationConfigurations::ConfigurationBase}
+  ACF::AnnotationConfigurations.new ACF::AnnotationConfigurations::AnnotationHash{ATHA::View => [config] of ACF::AnnotationConfigurations::ConfigurationBase}
 end
 
 describe ATH::Listeners::View do
@@ -59,12 +59,12 @@ describe ATH::Listeners::View do
       view_handler.view.context.groups.try &.should be_empty
     end
 
-    describe ARTA::View do
+    describe ATHA::View do
       describe "status" do
         it "with status" do
           request = new_request(
             action: new_action(
-              annotation_configurations: get_ann_configs(ARTA::ViewConfiguration.new(status: :found))
+              annotation_configurations: get_ann_configs(ATHA::ViewConfiguration.new(status: :found))
             )
           )
           event = ATH::Events::View.new request, "FOO"
@@ -78,7 +78,7 @@ describe ATH::Listeners::View do
         it "when the view already has a status" do
           request = new_request(
             action: new_action(
-              annotation_configurations: get_ann_configs(ARTA::ViewConfiguration.new(status: :found))
+              annotation_configurations: get_ann_configs(ATHA::ViewConfiguration.new(status: :found))
             )
           )
           view = ATH::View.new "FOO", status: :gone
@@ -93,7 +93,7 @@ describe ATH::Listeners::View do
         it "when the view already has a status, but it's OK" do
           request = new_request(
             action: new_action(
-              annotation_configurations: get_ann_configs(ARTA::ViewConfiguration.new(status: :found))
+              annotation_configurations: get_ann_configs(ATHA::ViewConfiguration.new(status: :found))
             )
           )
           view = ATH::View.new "FOO", status: :ok
@@ -110,7 +110,7 @@ describe ATH::Listeners::View do
         it "and the view doesn't have any groups already" do
           request = new_request(
             action: new_action(
-              annotation_configurations: get_ann_configs(ARTA::ViewConfiguration.new(serialization_groups: ["one", "two"]))
+              annotation_configurations: get_ann_configs(ATHA::ViewConfiguration.new(serialization_groups: ["one", "two"]))
             )
           )
           event = ATH::Events::View.new request, "FOO"
@@ -125,7 +125,7 @@ describe ATH::Listeners::View do
         it "and the view already has some groups" do
           request = new_request(
             action: new_action(
-              annotation_configurations: get_ann_configs(ARTA::ViewConfiguration.new(serialization_groups: ["one", "two"]))
+              annotation_configurations: get_ann_configs(ATHA::ViewConfiguration.new(serialization_groups: ["one", "two"]))
             )
           )
 

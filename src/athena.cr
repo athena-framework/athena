@@ -50,7 +50,7 @@ alias ART = Athena::Routing
 alias ATH = Athena::Framework
 
 # Convenience alias to make referencing `Athena::Framework::Annotations` types easier.
-alias ARTA = ATH::Annotations
+alias ATHA = ATH::Annotations
 
 # See the [external documentation](https://athenaframework.org) for an introduction to `Athena`.
 #
@@ -103,7 +103,7 @@ module Athena::Framework
 
   # Namespace for types related to request parameter processing.
   #
-  # See `ARTA::QueryParam` and `ARTA::RequestParam`.
+  # See `ATHA::QueryParam` and `ATHA::RequestParam`.
   module Athena::Framework::Params; end
 
   # Runs an `HTTP::Server` listening on the given *port* and *host*.
@@ -112,7 +112,7 @@ module Athena::Framework
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ARTA::Get("/")]
+  #   @[ATHA::Get("/")]
   #   def root : String
   #     "At the index"
   #   end
