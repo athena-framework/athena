@@ -17,7 +17,7 @@
 #
 #   # :inherit:
 #   def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
-#     # Return the resolved value.  It could either come from the request itself, an injected service, or hardcoded.
+#     # Return the resolved value. It could either come from the request itself, an injected service, or hardcoded.
 #     # `#resolve` is only executed if `#supports?` returns `true`.
 #     MyCustomType.new "foo"
 #   end

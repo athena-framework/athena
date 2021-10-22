@@ -140,7 +140,7 @@ class Athena::Framework::View::ViewHandler
                   context = self.serialization_context view
 
                   # TODO: Implement some sort of Adapter system to convert ATH::View::Context
-                  # into the serializer's required format.  Just do that here for now.
+                  # into the serializer's required format. Just do that here for now.
                   athena_serializer_context = ASR::SerializationContext.new
 
                   context.emit_nil?.try do |en|

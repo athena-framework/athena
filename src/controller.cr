@@ -1,16 +1,16 @@
-# The core of any framework is routing; how a route is tied to an action.  Athena takes an annotation based approach; an annotation, such as `ATHA::Get` is applied to an instance method of a controller class,
-# which will be executed when that endpoint receives a request.  The annotation includes the path as well as any constraints that a parameter must meet in order for the route to be invoked.
+# The core of any framework is routing; how a route is tied to an action. Athena takes an annotation based approach; an annotation, such as `ATHA::Get` is applied to an instance method of a controller class,
+# which will be executed when that endpoint receives a request. The annotation includes the path as well as any constraints that a parameter must meet in order for the route to be invoked.
 #
-# Additional annotations also exist for setting a query param or a param converter.  See `ATHA::QueryParam` and `ATHA::ParamConverter` respectively.
+# Additional annotations also exist for setting a query param or a param converter. See `ATHA::QueryParam` and `ATHA::ParamConverter` respectively.
 #
-# Child controllers must inherit from `ATH::Controller` (or an abstract child of it).  Each request gets its own instance of the controller to better allow for DI via `Athena::DependencyInjection`.
+# Child controllers must inherit from `ATH::Controller` (or an abstract child of it). Each request gets its own instance of the controller to better allow for DI via `Athena::DependencyInjection`.
 #
-# A route action can either return an `ATH::Response`, or some other type.  If an `ATH::Response` is returned, then it is used directly.  Otherwise an `ATH::Events::View` is emitted to convert
-# the action result into an `ATH::Response`.  By default, `ATH::Listeners::View` will JSON encode the value if it is not handled earlier by another listener.
+# A route action can either return an `ATH::Response`, or some other type. If an `ATH::Response` is returned, then it is used directly. Otherwise an `ATH::Events::View` is emitted to convert
+# the action result into an `ATH::Response`. By default, `ATH::Listeners::View` will JSON encode the value if it is not handled earlier by another listener.
 #
 # ### Example
-# The following controller shows examples of the various routing features of Athena.  `ATH::Controller` also defines various macro DSLs, such as `ATH::Controller.get` to make defining routes
-# seem more Sinatra/Kemal like.  See the documentation on the macros for more details.
+# The following controller shows examples of the various routing features of Athena. `ATH::Controller` also defines various macro DSLs, such as `ATH::Controller.get` to make defining routes
+# seem more Sinatra/Kemal like. See the documentation on the macros for more details.
 #
 # ```
 # require "athena"
@@ -79,7 +79,7 @@
 #
 #   # A GET endpoint with an `String` route param, and a required string query param that must match the given pattern; returning a `String`.
 #   #
-#   # A non-nilable type denotes it as required.  If the parameter is not supplied, and no default value is assigned, an `ATH::Exceptions::BadRequest` exception is raised.
+#   # A non-nilable type denotes it as required. If the parameter is not supplied, and no default value is assigned, an `ATH::Exceptions::BadRequest` exception is raised.
 #   @[ATHA::QueryParam("time", constraints: /\d:\d:\d/)]
 #   @[ATHA::Get("/event/:event_name/")]
 #   def event_time(event_name : String, time : String) : String
@@ -88,14 +88,14 @@
 #
 #   # A GET endpoint with an optional query parameter and optional path param with a default value; returning a `NamedTuple(user_id : Int32?, page : Int32)`.
 #   #
-#   # A nilable type denotes it as optional.  If the parameter is not supplied (or could not be converted), and no default value is assigned, it is `nil`.
+#   # A nilable type denotes it as optional. If the parameter is not supplied (or could not be converted), and no default value is assigned, it is `nil`.
 #   @[ATHA::QueryParam("user_id")]
 #   @[ATHA::Get("/events/(:page)")]
 #   def events(user_id : Int32?, page : Int32 = 1) : NamedTuple(user_id: Int32?, page: Int32)
 #     {user_id: user_id, page: page}
 #   end
 #
-#   # A GET endpoint with param constraints.  The param must match the supplied Regex or it will not match and return a 404 error.
+#   # A GET endpoint with param constraints. The param must match the supplied Regex or it will not match and return a 404 error.
 #   @[ATHA::Get("/time/:time/", constraints: {"time" => /\d{2}:\d{2}:\d{2}/})]
 #   def get_constraint(time : String) : String
 #     time
@@ -247,11 +247,11 @@ abstract class Athena::Framework::Controller
       # The second argument is a variable amount of arguments with a syntax similar to Crystal's `record`.
       # There are also a few optional named arguments that map to the corresponding field on the HTTP method annotation.
       #
-      # The macro simply defines a method based on the options passed to it.  Additional annotations, such as for query params
+      # The macro simply defines a method based on the options passed to it. Additional annotations, such as for query params
       # or a param converter can simply be added on top of the macro.
       #
       # ### Optional Named Arguments
-      # - `return_type` - The return type to set for the action.  Defaults to `String` if not provided.
+      # - `return_type` - The return type to set for the action. Defaults to `String` if not provided.
       # - `constraints` - Any constraints that should be applied to the route.
       #
       # ### Example

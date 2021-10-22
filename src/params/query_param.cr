@@ -1,6 +1,6 @@
 require "./scalar_param"
 
-# Represents a request's query parameter.  See `ATHA::QueryParam`.
+# Represents a request's query parameter. See `ATHA::QueryParam`.
 struct Athena::Framework::Params::QueryParam(T) < Athena::Framework::Params::ScalarParam
   # This is included here because of https://github.com/crystal-lang/crystal/issues/7584
   include Athena::Framework::Params::ParamInterface

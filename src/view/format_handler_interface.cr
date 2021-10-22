@@ -1,5 +1,5 @@
 # Represents custom logic that should be applied for a specific format in order to render an `ATH::View` into an `ATH::Response`
-# that is not handled by default by Athena.  E.g. `HTML`.
+# that is not handled by default by Athena. E.g. `HTML`.
 #
 # ```
 # # Register our handler as a service.

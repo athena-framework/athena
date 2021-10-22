@@ -1,4 +1,4 @@
-# Represents a controller action argument.  Stores metadata associated with it, such as its name, type, and default value if any.
+# Represents a controller action argument. Stores metadata associated with it, such as its name, type, and default value if any.
 struct Athena::Framework::Arguments::ArgumentMetadata(T)
   # The name of the argument.
   getter name : String

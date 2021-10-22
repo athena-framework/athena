@@ -8,7 +8,7 @@ class Athena::Framework::View::Context
   # Determines if properties with `nil` values should be emitted.
   property? emit_nil : Bool? = nil
 
-  # Represents the version of an object.  Can be used to control what properties are serialized based on the version.
+  # Represents the version of an object. Can be used to control what properties are serialized based on the version.
   #
   # `ASR::ExclusionStrategies::Version` is an example of this.
   property version : SemanticVersion? = nil

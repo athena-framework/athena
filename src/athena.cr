@@ -47,6 +47,14 @@ require "./ext/validator"
 # Convenience alias to make referencing `Athena::Routing` types easier.
 alias ART = Athena::Routing
 
+# Namespace for types related to routing.
+#
+# See `ART` for an easier way to access types in this namespace.
+#
+# NOTE: This namespace currently lives within the `Athena::Framework` codebase,
+# but will eventually be extracted into its own component.
+module Athena::Routing; end
+
 alias ATH = Athena::Framework
 
 # Convenience alias to make referencing `Athena::Framework::Annotations` types easier.
@@ -64,16 +72,16 @@ module Athena::Framework
 
   # Exception handling in Athena is similar to exception handling in any Crystal program, with the addition of a new unique exception type, `ATH::Exceptions::HTTPException`.
   #
-  # When an exception is raised, Athena emits the `ATH::Events::Exception` event to allow an opportunity for it to be handled.  If the exception goes unhandled, i.e. no listener set
-  # an `ATH::Response` on the event, then the request is finished and the exception is reraised.  Otherwise, that response is returned, setting the status and merging the headers on the exceptions
+  # When an exception is raised, Athena emits the `ATH::Events::Exception` event to allow an opportunity for it to be handled. If the exception goes unhandled, i.e. no listener set
+  # an `ATH::Response` on the event, then the request is finished and the exception is reraised. Otherwise, that response is returned, setting the status and merging the headers on the exceptions
   # if it is an `ATH::Exceptions::HTTPException`. See `ATH::Listeners::Error` and `ATH::ErrorRendererInterface` for more information on how exceptions are handled by default.
   #
   # To provide the best response to the client, non `ATH::Exceptions::HTTPException` should be rescued and converted into a corresponding `ATH::Exceptions::HTTPException`.
-  # Custom HTTP errors can also be defined by inheriting from `ATH::Exceptions::HTTPException` or a child type.  A use case for this could be allowing for additional data/context to be included
+  # Custom HTTP errors can also be defined by inheriting from `ATH::Exceptions::HTTPException` or a child type. A use case for this could be allowing for additional data/context to be included
   # within the exception that ultimately could be used in a `ATH::Events::Exception` listener.
   module Athena::Framework::Exceptions; end
 
-  # The `AED::EventListenerInterface` that act upon `ATH::Events` to handle a request.  Custom listeners can also be defined, see `AED::EventListenerInterface`.
+  # The `AED::EventListenerInterface` that act upon `ATH::Events` to handle a request. Custom listeners can also be defined, see `AED::EventListenerInterface`.
   #
   # See each listener and the [external documentation](/components/event_dispatcher/) for more information.
   module Athena::Framework::Listeners
@@ -127,7 +135,7 @@ module Athena::Framework
 
   # :nodoc:
   #
-  # Currently an implementation detail.  In the future could be exposed to allow having separate "groups" of controllers that a `Server` instance handles.
+  # Currently an implementation detail. In the future could be exposed to allow having separate "groups" of controllers that a `Server` instance handles.
   struct Server
     def initialize(@port : Int32 = 3000, @host : String = "0.0.0.0", @reuse_port : Bool = false)
       # Define the server
