@@ -35,7 +35,7 @@ end
 module Athena::Framework::Spec
   # Simulates a browser to make requests to some destination.
   #
-  # NOTE: Currently just acts as a client to make `HTTP` requests.  This type exists to allow for introduction of other functionality in the future.
+  # NOTE: Currently just acts as a client to make `HTTP` requests. This type exists to allow for introduction of other functionality in the future.
   abstract struct AbstractBrowser
     # :nodoc:
     #
@@ -79,7 +79,7 @@ module Athena::Framework::Spec
 
   # Base `ASPEC::TestCase` for web based integration tests.
   #
-  # NOTE: Currently only `API` based tests are supported.  This type exists to allow for introduction of other types in the future.
+  # NOTE: Currently only `API` based tests are supported. This type exists to allow for introduction of other types in the future.
   abstract struct WebTestCase < ASPEC::TestCase
     # Returns the `AbstractBrowser` instance to which requests should be made against.
     def create_client : AbstractBrowser
@@ -126,7 +126,7 @@ module Athena::Framework::Spec
   #
   # ### Mocking External Dependencies
   #
-  # The previous example was quite simple.  However, most likely a controller is going to have dependencies on various other services; such as an API client to make requests to a third party API.
+  # The previous example was quite simple. However, most likely a controller is going to have dependencies on various other services; such as an API client to make requests to a third party API.
   # By default each test will be executed with the same services as it would normally, i.e. those requests to the third party API would actually be made.
   # To solve this we can create a mock implementation of the API client and make it so that implementation is injected when the test runs.
   #

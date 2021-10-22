@@ -2,7 +2,7 @@ require "./config"
 
 struct Athena::Framework::Config
   @[ACFA::Resolvable("routing.content_negotiation")]
-  # Configuration options for `ATH::Listeners::Format`.  See `.configure`.
+  # Configuration options for `ATH::Listeners::Format`. See `.configure`.
   struct ContentNegotiation
     # Represents a rule that should be considered when determine the request's format.
     #

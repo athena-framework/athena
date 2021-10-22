@@ -1,12 +1,12 @@
 require "./config"
 
-# Configuration options for `ATH::Listeners::View`.  See `.configure`.
+# Configuration options for `ATH::Listeners::View`. See `.configure`.
 @[ACFA::Resolvable("routing.view_handler")]
 struct Athena::Framework::Config::ViewHandler
   # This method should be overridden in order to provide configuration overrides for `ATH::View::ViewHandlerInterface`.
   # See the [external documentation](/components/negotiation) for more details.
   #
-  # NOTE: The `#failed_validation_status` is currently not used.  Included for future work.
+  # NOTE: The `#failed_validation_status` is currently not used. Included for future work.
   #
   # ```
   # def ATH::Config::ViewHandler.configure : ATH::Config::ViewHandler
@@ -24,7 +24,7 @@ struct Athena::Framework::Config::ViewHandler
 
   # The `HTTP::Status` used when validations fail.
   #
-  # Currently not used.  Included for future work.
+  # Currently not used. Included for future work.
   getter failed_validation_status : HTTP::Status
 
   # If `nil` values should be serialized.

@@ -6,7 +6,7 @@ module Athena::Framework::Annotations
   # ## Fields
   #
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
+  # * name : `String` - The name of the route. Defaults to controller name + method name down snake-cased.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
@@ -23,7 +23,7 @@ module Athena::Framework::Annotations
   # ## Fields
   #
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
+  # * name : `String` - The name of the route. Defaults to controller name + method name down snake-cased.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
@@ -40,7 +40,7 @@ module Athena::Framework::Annotations
   # ## Fields
   #
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
+  # * name : `String` - The name of the route. Defaults to controller name + method name down snake-cased.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
@@ -57,7 +57,7 @@ module Athena::Framework::Annotations
   # ## Fields
   #
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
+  # * name : `String` - The name of the route. Defaults to controller name + method name down snake-cased.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
@@ -94,7 +94,7 @@ module Athena::Framework::Annotations
   # ## Fields
   #
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
+  # * name : `String` - The name of the route. Defaults to controller name + method name down snake-cased.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
@@ -111,7 +111,7 @@ module Athena::Framework::Annotations
   # ## Fields
   #
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
+  # * name : `String` - The name of the route. Defaults to controller name + method name down snake-cased.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
@@ -123,7 +123,7 @@ module Athena::Framework::Annotations
   # ```
   annotation Post; end
 
-  # Apply a *prefix* to all actions within `self`.  Can be a static string, but may also contain path arguments.
+  # Apply a *prefix* to all actions within `self`. Can be a static string, but may also contain path arguments.
   #
   # ## Fields
   #
@@ -148,7 +148,7 @@ module Athena::Framework::Annotations
   # ## Fields
   #
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
+  # * name : `String` - The name of the route. Defaults to controller name + method name down snake-cased.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
@@ -170,7 +170,7 @@ module Athena::Framework::Annotations
   # A `description` may also be included to describe what the query param is used for.
   # In the future this may be used for generating OpenAPI documentation for the related parameter.
   #
-  # A non-nilable type denotes it as required.  If the parameter is not supplied, and no default value is assigned, an `ATH::Exceptions::BadRequest` exception is raised.
+  # A non-nilable type denotes it as required. If the parameter is not supplied, and no default value is assigned, an `ATH::Exceptions::BadRequest` exception is raised.
   #
   # ```
   # require "athena"
@@ -211,7 +211,7 @@ module Athena::Framework::Annotations
   #
   # ### Optional
   #
-  # A nilable type denotes it as optional.  If the parameter is not supplied, and no default value is assigned, it is `nil`.
+  # A nilable type denotes it as optional. If the parameter is not supplied, and no default value is assigned, it is `nil`.
   #
   # ```
   # require "athena"
@@ -237,7 +237,7 @@ module Athena::Framework::Annotations
   # Such as if the value does not satisfy the parameter's [requirements](#requirements), it's a required parameter and was not provided,
   # or could not be converted into the desired type.
   #
-  # An example of this is in the first [usage](#usage) example.  A 400 bad request was returned when the required parameter was not provided.
+  # An example of this is in the first [usage](#usage) example. A 400 bad request was returned when the required parameter was not provided.
   #
   # When strict mode is disabled, the default value (or `nil`) will be used instead of raising an exception if the actual value is invalid.
   #
@@ -446,12 +446,12 @@ module Athena::Framework::Annotations
   # ```
   annotation RequestParam; end
 
-  # Defines an endpoint with an arbitrary `HTTP` method.  Can be used for defining non-standard `HTTP` method routes.
+  # Defines an endpoint with an arbitrary `HTTP` method. Can be used for defining non-standard `HTTP` method routes.
   #
   # ## Fields
   #
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
+  # * name : `String` - The name of the route. Defaults to controller name + method name down snake-cased.
   # * method : `String` - The `HTTP` method to use for the endpoint.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
@@ -469,7 +469,7 @@ module Athena::Framework::Annotations
   # ## Fields
   #
   # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route.  Defaults to controller name + method name down snake-cased.
+  # * name : `String` - The name of the route. Defaults to controller name + method name down snake-cased.
   # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
   #
   # ## Example
@@ -491,10 +491,10 @@ module Athena::Framework::Annotations
   #
   # ## Fields
   #
-  # * status : `HTTP::Status` - The `HTTP::Status` the endpoint should return.  Defaults to `HTTP::Status::OK` (200).
+  # * status : `HTTP::Status` - The `HTTP::Status` the endpoint should return. Defaults to `HTTP::Status::OK` (200).
   # * serialization_groups : `Array(String)?` - The serialization groups to use for this route as part of `ASR::ExclusionStrategies::Groups`.
   # * validation_groups : `Array(String)?` - Groups that should be used to validate any objects related to this route; see `AVD::Constraint@validation-groups`.
-  # * emit_nil : `Bool` - If `nil` values should be serialized.  Defaults to `false`.
+  # * emit_nil : `Bool` - If `nil` values should be serialized. Defaults to `false`.
   #
   # ## Example
   #

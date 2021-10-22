@@ -25,7 +25,7 @@ class Athena::Framework::Response::Headers
   def initialize(headers : HTTP::Headers = HTTP::Headers.new)
     # Defer setting the cache-control header until other headers are set.
     # This is due to some other header values determining what the resulting
-    # cache-control header value should be.  E.g. expires.
+    # cache-control header value should be. E.g. expires.
     cache_control_header = headers.delete "cache-control"
 
     headers.each do |k, v|

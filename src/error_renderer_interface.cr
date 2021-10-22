@@ -1,6 +1,6 @@
 # An `ATH::ErrorRendererInterface` converts an `::Exception` into an `ATH::Response`.
 #
-# By default, exceptions are JSON serialized via `ATH::ErrorRenderer`.  However, it can be overridden
+# By default, exceptions are JSON serialized via `ATH::ErrorRenderer`. However, it can be overridden
 # to allow rendering errors differently, such as via HTML.
 #
 # ```

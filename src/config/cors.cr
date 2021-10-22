@@ -2,7 +2,7 @@ require "./config"
 
 struct Athena::Framework::Config; end
 
-# Configuration options for `ATH::Listeners::CORS`.  See `.configure`.
+# Configuration options for `ATH::Listeners::CORS`. See `.configure`.
 #
 # TODO: Allow scoping `CORS` options to specific routes versus applying them to all routes.
 @[ACFA::Resolvable("routing.cors")]

@@ -11,7 +11,7 @@ class Athena::Routing::RouteCollection
       routes = Hash(String, ATH::ActionBase).new
 
       {% begin %}
-        # Define a hash to store registered routes.  Will be used to raise on duplicate routes.
+        # Define a hash to store registered routes. Will be used to raise on duplicate routes.
         {% registered_routes = {} of String => String %}
 
         {% for klass, c_idx in ATH::Controller.all_subclasses.reject &.abstract? %}
@@ -20,7 +20,7 @@ class Athena::Routing::RouteCollection
 
           # Raise compile time error if a route is defined as a class method.
           {% unless class_actions.empty? %}
-            {% class_actions.first.raise "Routes can only be defined as instance methods.  Did you mean '#{klass.name}##{class_actions.first.name}'?" %}
+            {% class_actions.first.raise "Routes can only be defined as instance methods. Did you mean '#{klass.name}##{class_actions.first.name}'?" %}
           {% end %}
 
           {% parent_prefix = "" %}
@@ -67,7 +67,7 @@ class Athena::Routing::RouteCollection
               {% method = "HEAD" %}
               {% route_def = d %}
             {% elsif d = m.annotation(ATHA::Route) %}
-              {% method = d[:method] || m.raise "Route action '#{klass.name}##{m.name}' is missing the HTTP method.  It was not provided via the 'method' field." %}
+              {% method = d[:method] || m.raise "Route action '#{klass.name}##{m.name}' is missing the HTTP method. It was not provided via the 'method' field." %}
               {% route_def = d %}
             {% end %}
 
@@ -124,9 +124,9 @@ class Athena::Routing::RouteCollection
             {% param_converters = [] of Nil %}
 
             {% for converter in m.annotations(ATHA::ParamConverter) %}
-              {% converter.raise "Route action '#{klass.name}##{m.name}' has an ATHA::ParamConverter annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (converter[0] || converter[:name]) %}
+              {% converter.raise "Route action '#{klass.name}##{m.name}' has an ATHA::ParamConverter annotation but is missing the argument's name. It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (converter[0] || converter[:name]) %}
               {% converter.raise "Route action '#{klass.name}##{m.name}' has an ATHA::ParamConverter annotation but does not have a corresponding action argument for '#{arg_name.id}'." unless (arg = m.args.find(&.name.stringify.==(arg_name.id.stringify))) %}
-              {% converter.raise "Route action '#{klass.name}##{m.name}' has an ATHA::ParamConverter annotation but is missing the converter class.  It was not provided via the 'converter' field." unless converter_class = converter[:converter] %}
+              {% converter.raise "Route action '#{klass.name}##{m.name}' has an ATHA::ParamConverter annotation but is missing the converter class. It was not provided via the 'converter' field." unless converter_class = converter[:converter] %}
               {% ann_args = converter.named_args %}
               {% configuration_type = ann_args[:type_vars] != nil ? "Configuration(#{arg.restriction}, #{ann_args[:type_vars].is_a?(Path) ? ann_args[:type_vars].id : ann_args[:type_vars].splat})" : "Configuration(#{arg.restriction})" %}
               {% configuration_args = {name: arg_name.id.stringify} %}
@@ -143,7 +143,7 @@ class Athena::Routing::RouteCollection
               {% param_class = param[1].id %}
 
               {% for ann in m.annotations(param_ann) %}
-                {% ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation but is missing the argument's name.  It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (ann[0] || ann[:name]) %}
+                {% ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation but is missing the argument's name. It was not provided as the first positional argument nor via the 'name' field." unless arg_name = (ann[0] || ann[:name]) %}
                 {% arg = m.args.find &.name.stringify.==(arg_name) %}
                 {% ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation but does not have a corresponding action argument for '#{arg_name.id}'." unless arg_names.includes? arg_name %}
 
@@ -156,7 +156,7 @@ class Athena::Routing::RouteCollection
                 {% if requirements.is_a? RegexLiteral %}
                   {% requirements = ann_args[:requirements] %}
                 {% elsif requirements.is_a? Annotation %}
-                  {% requirements.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation whose 'requirements' value is invalid.  Expected `Assert` annotation, got '#{requirements}'." if !requirements.stringify.starts_with? "@[Assert::" %}
+                  {% requirements.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation whose 'requirements' value is invalid. Expected `Assert` annotation, got '#{requirements}'." if !requirements.stringify.starts_with? "@[Assert::" %}
                   {% requirement_name = requirements.stringify.gsub(/Assert::/, "").gsub(/\(.*\)/, "").tr("@[]", "") %}
                   {% if constraint = AVD::Constraint.all_subclasses.reject(&.abstract?).find { |c| requirement_name == c.name(generic_args: false).split("::").last } %}
                     {% default_arg = requirements.args.empty? ? nil : requirements.args.first %}
@@ -165,7 +165,7 @@ class Athena::Routing::RouteCollection
                   {% end %}
                 {% elsif requirements.is_a? ArrayLiteral %}
                   {% requirements = requirements.map_with_index do |r, idx|
-                       r.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation whose 'requirements' array contains an invalid value.  Expected `Assert` annotation, got '#{r}' at index #{idx}." if !r.is_a?(Annotation) || !r.stringify.starts_with? "@[Assert::"
+                       r.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation whose 'requirements' array contains an invalid value. Expected `Assert` annotation, got '#{r}' at index #{idx}." if !r.is_a?(Annotation) || !r.stringify.starts_with? "@[Assert::"
 
                        requirement_name = r.stringify.gsub(/Assert::/, "").gsub(/\(.*\)/, "").tr("@[]", "")
 
@@ -179,7 +179,7 @@ class Athena::Routing::RouteCollection
                        end
                      end %}
                 {% else %}
-                  {% ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'requirements' type: '#{requirements.class_name.id}'.  Only Regex, NamedTuple, or Array values are supported." unless requirements.is_a? NilLiteral %}
+                  {% ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'requirements' type: '#{requirements.class_name.id}'. Only Regex, NamedTuple, or Array values are supported." unless requirements.is_a? NilLiteral %}
                 {% end %}
 
                 {% ann_args[:requirements] = requirements %}
@@ -191,10 +191,10 @@ class Athena::Routing::RouteCollection
                     {% converter_args[:converter] = converter_args[:name] || converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter'. The converter's name was not provided via the 'name' field." %}
                     {% converter_args[:name] = arg_name %}
                   {% elsif converter.is_a? Path %}
-                    {% converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter' value.  Expected 'ATH::ParamConverter.class' got '#{converter.resolve.id}'." unless converter.resolve <= ATH::ParamConverter %}
+                    {% converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter' value. Expected 'ATH::ParamConverter.class' got '#{converter.resolve.id}'." unless converter.resolve <= ATH::ParamConverter %}
                     {% converter_args = {converter: converter.resolve, name: arg_name} %}
                   {% else %}
-                    {% converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter' type: '#{converter.class_name.id}'.  Only NamedTuples, or the converter class are supported." %}
+                    {% converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter' type: '#{converter.class_name.id}'. Only NamedTuples, or the converter class are supported." %}
                   {% end %}
 
                   {% configuration_type = converter_args[:type_vars] != nil ? "Configuration(#{arg.restriction}, #{converter_args[:type_vars].is_a?(Path) ? converter_args[:type_vars].id : converter_args[:type_vars].splat})" : "Configuration(#{arg.restriction})" %}

@@ -8,7 +8,7 @@ class Athena::Framework::Response
   # Determines how the content of an `ATH::Response` will be written to the requests' response `IO`.
   #
   # By default the content is written directly to the requests' response `IO` via `ATH::Response::DirectWriter`.
-  # However, custom writers can be implemented to customize that behavior.  The most common use case would be for compression.
+  # However, custom writers can be implemented to customize that behavior. The most common use case would be for compression.
   #
   # Writers can also be defined as services and injected into a listener if they require additional external dependencies.
   #
