@@ -1,13 +1,13 @@
-# Extension of `ART::Params::Param` that allows for more granular validation of scalar parameters.
-abstract struct Athena::Routing::Params::ScalarParam < Athena::Routing::Params::Param
+# Extension of `ATH::Params::Param` that allows for more granular validation of scalar parameters.
+abstract struct Athena::Framework::Params::ScalarParam < Athena::Framework::Params::Param
   # Returns the requirements that the value is required to pass in order to be considered valid.
   #
-  # See the "Requirements" section of `ARTA::QueryParam`.
+  # See the "Requirements" section of `ATHA::QueryParam`.
   getter requirements : AVD::Constraint | Array(AVD::Constraint) | Regex | Nil
 
   # Denotes whether the `#requirements` should be applied to the whole value, or to each item a part of the value.
   #
-  # See the "Map" section of `ARTA::QueryParam`.
+  # See the "Map" section of `ATHA::QueryParam`.
   getter? map : Bool = false
 
   def initialize(

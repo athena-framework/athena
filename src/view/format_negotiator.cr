@@ -1,13 +1,13 @@
 @[ADI::Register]
-# An extension of `ANG::Negotiator` that supports resolving the format based on an applications `ART::Config::ContentNegotiation` rules.
+# An extension of `ANG::Negotiator` that supports resolving the format based on an applications `ATH::Config::ContentNegotiation` rules.
 #
 # See the [negotiation](/components/negotiation) component for more information.
-class Athena::Routing::View::FormatNegotiator < ANG::Negotiator
-  private getter! config : ART::Config::ContentNegotiation?
+class Athena::Framework::View::FormatNegotiator < ANG::Negotiator
+  private getter! config : ATH::Config::ContentNegotiation?
 
   def initialize(
-    @request_store : ART::RequestStore,
-    @config : ART::Config::ContentNegotiation?,
+    @request_store : ATH::RequestStore,
+    @config : ATH::Config::ContentNegotiation?,
     @mime_types : Hash(String, Array(String)) = Hash(String, Array(String)).new
   ); end
 
@@ -31,7 +31,7 @@ class Athena::Routing::View::FormatNegotiator < ANG::Negotiator
         next unless host_pattern.matches? hostname
       end
 
-      raise ART::Exceptions::StopFormatListener.new "Stopping format listener." if rule.stop?
+      raise ATH::Exceptions::StopFormatListener.new "Stopping format listener." if rule.stop?
 
       if priorities.nil? && rule.priorities.nil?
         if (fallback_format = rule.fallback_format)
@@ -77,7 +77,7 @@ class Athena::Routing::View::FormatNegotiator < ANG::Negotiator
         next
       end
 
-      mime_types = mime_types.concat ART::Request.mime_types priority
+      mime_types = mime_types.concat ATH::Request.mime_types priority
 
       if @mime_types.has_key? priority
         mime_types.concat @mime_types[priority]

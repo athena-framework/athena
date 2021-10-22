@@ -1,26 +1,26 @@
 require "../../spec_helper"
 
-class CustomRequest < ART::Request
+class CustomRequest < ATH::Request
 end
 
-describe ART::Arguments::Resolvers::Request do
+describe ATH::Arguments::Resolvers::Request do
   describe "#supports" do
-    it ART::Request do
-      argument = ART::Arguments::ArgumentMetadata(ART::Request).new("id", false, false)
+    it ATH::Request do
+      argument = ATH::Arguments::ArgumentMetadata(ATH::Request).new("id", false, false)
 
-      ART::Arguments::Resolvers::Request.new.supports?(new_request, argument).should be_true
+      ATH::Arguments::Resolvers::Request.new.supports?(new_request, argument).should be_true
     end
 
     it "subclass" do
-      argument = ART::Arguments::ArgumentMetadata(CustomRequest).new("id", false, false)
+      argument = ATH::Arguments::ArgumentMetadata(CustomRequest).new("id", false, false)
 
-      ART::Arguments::Resolvers::Request.new.supports?(new_request, argument).should be_true
+      ATH::Arguments::Resolvers::Request.new.supports?(new_request, argument).should be_true
     end
 
     it TestController do
-      argument = ART::Arguments::ArgumentMetadata(TestController).new("id", false, false)
+      argument = ATH::Arguments::ArgumentMetadata(TestController).new("id", false, false)
 
-      ART::Arguments::Resolvers::Request.new.supports?(new_request, argument).should be_false
+      ATH::Arguments::Resolvers::Request.new.supports?(new_request, argument).should be_false
     end
   end
 
@@ -28,7 +28,7 @@ describe ART::Arguments::Resolvers::Request do
     it "with a default value" do
       request = new_request
 
-      ART::Arguments::Resolvers::Request.new.resolve(request, new_argument).should be request
+      ATH::Arguments::Resolvers::Request.new.resolve(request, new_argument).should be request
     end
   end
 end

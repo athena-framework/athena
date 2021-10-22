@@ -1,13 +1,13 @@
 require "./configurable_view_handler_interface"
 
-ADI.bind format_handlers : Array(Athena::Routing::View::FormatHandlerInterface), "!athena.format_handler"
+ADI.bind format_handlers : Array(Athena::Framework::View::FormatHandlerInterface), "!athena.format_handler"
 
 @[ADI::Register]
-# Default implementation of `ART::View::ConfigurableViewHandlerInterface`.
-class Athena::Routing::View::ViewHandler
-  include Athena::Routing::View::ConfigurableViewHandlerInterface
+# Default implementation of `ATH::View::ConfigurableViewHandlerInterface`.
+class Athena::Framework::View::ViewHandler
+  include Athena::Framework::View::ConfigurableViewHandlerInterface
 
-  @custom_handlers = Hash(String, ART::View::ViewHandlerInterface::HandlerType).new
+  @custom_handlers = Hash(String, ATH::View::ViewHandlerInterface::HandlerType).new
 
   @serialization_groups : Set(String)? = nil
   @serialization_version : SemanticVersion? = nil
@@ -17,11 +17,11 @@ class Athena::Routing::View::ViewHandler
   @emit_nil : Bool
 
   def initialize(
-    config : ART::Config::ViewHandler,
+    config : ATH::Config::ViewHandler,
     @url_generator : ART::URLGeneratorInterface,
     @serializer : ASR::SerializerInterface,
-    @request_store : ART::RequestStore,
-    format_handlers : Array(Athena::Routing::View::FormatHandlerInterface)
+    @request_store : ATH::RequestStore,
+    format_handlers : Array(Athena::Framework::View::FormatHandlerInterface)
   )
     @empty_content_status = config.empty_content_status
     @failed_validation_status = config.failed_validation_status
@@ -53,12 +53,12 @@ class Athena::Routing::View::ViewHandler
   # :nodoc:
   #
   # This method is mainly for testing.
-  def register_handler(format : String, &block : ART::View::ViewHandlerInterface, ART::ViewBase, ART::Request, String -> ART::Response) : Nil
+  def register_handler(format : String, &block : ATH::View::ViewHandlerInterface, ATH::ViewBase, ATH::Request, String -> ATH::Response) : Nil
     self.register_handler format, block
   end
 
   # :inherit:
-  def register_handler(format : String, handler : ART::View::ViewHandlerInterface::HandlerType) : Nil
+  def register_handler(format : String, handler : ATH::View::ViewHandlerInterface::HandlerType) : Nil
     @custom_handlers[format] = handler
   end
 
@@ -69,13 +69,13 @@ class Athena::Routing::View::ViewHandler
   end
 
   # :inherit:
-  def handle(view : ART::ViewBase, request : ART::Request? = nil) : ART::Response
+  def handle(view : ATH::ViewBase, request : ATH::Request? = nil) : ATH::Response
     request = @request_store.request if request.nil?
 
     format = view.format || request.request_format
 
     unless self.supports? format
-      raise ART::Exceptions::NotAcceptable.new "The server is unable to return a response in the requested format: '#{format}'."
+      raise ATH::Exceptions::NotAcceptable.new "The server is unable to return a response in the requested format: '#{format}'."
     end
 
     if custom_handler = @custom_handlers[format]?
@@ -86,7 +86,7 @@ class Athena::Routing::View::ViewHandler
   end
 
   # :inherit:
-  def create_response(view : ART::ViewBase, request : ART::Request, format : String) : ART::Response
+  def create_response(view : ATH::ViewBase, request : ATH::Request, format : String) : ATH::Response
     route = view.route
 
     if location = (route ? @url_generator.generate(route, view.route_params, :absolute_url) : view.location)
@@ -109,7 +109,7 @@ class Athena::Routing::View::ViewHandler
   end
 
   # :inherit:
-  def create_redirect_response(view : ART::ViewBase, location : String, format : String) : ART::Response
+  def create_redirect_response(view : ATH::ViewBase, location : String, format : String) : ATH::Response
     content = nil
 
     if (vs = view.status) && (vs.created? || vs.accepted?) && !view.data.nil?
@@ -124,7 +124,7 @@ class Athena::Routing::View::ViewHandler
     response
   end
 
-  private def init_response(view : ART::ViewBase, format : String) : ART::Response
+  private def init_response(view : ATH::ViewBase, format : String) : ATH::Response
     content = nil
 
     # Skip serialization if the action's return type is explicitly `Nil`.
@@ -139,7 +139,7 @@ class Athena::Routing::View::ViewHandler
 
                   context = self.serialization_context view
 
-                  # TODO: Implement some sort of Adapter system to convert ART::View::Context
+                  # TODO: Implement some sort of Adapter system to convert ATH::View::Context
                   # into the serializer's required format.  Just do that here for now.
                   athena_serializer_context = ASR::SerializationContext.new
 
@@ -171,7 +171,7 @@ class Athena::Routing::View::ViewHandler
     response
   end
 
-  private def serialization_context(view : ART::ViewBase) : ART::View::Context
+  private def serialization_context(view : ATH::ViewBase) : ATH::View::Context
     context = view.context
 
     groups = context.groups
@@ -193,7 +193,7 @@ class Athena::Routing::View::ViewHandler
     context
   end
 
-  private def status(view : ART::ViewBase, content : _) : HTTP::Status
+  private def status(view : ATH::ViewBase, content : _) : HTTP::Status
     # TODO: Handle validating Form data.
 
     if status = view.status

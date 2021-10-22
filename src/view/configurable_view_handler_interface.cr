@@ -1,19 +1,19 @@
-# These live here so `Athena::Routing::View` is correctly created as a class versus a module.
+# These live here so `Athena::Framework::View` is correctly created as a class versus a module.
 
 # Parent type of a view just used for typing.
 #
-# See `ART::View`.
-module Athena::Routing::ViewBase; end
+# See `ATH::View`.
+module Athena::Framework::ViewBase; end
 
-class Athena::Routing::View(T)
-  include Athena::Routing::ViewBase
+class Athena::Framework::View(T)
+  include Athena::Framework::ViewBase
 end
 
 require "./view_handler_interface"
 
-# Specialized `ART::View::ViewHandlerInterface` that allows controlling various serialization `ART::View::Context` aspects dynamically.
-module Athena::Routing::View::ConfigurableViewHandlerInterface
-  include Athena::Routing::View::ViewHandlerInterface
+# Specialized `ATH::View::ViewHandlerInterface` that allows controlling various serialization `ATH::View::Context` aspects dynamically.
+module Athena::Framework::View::ConfigurableViewHandlerInterface
+  include Athena::Framework::View::ViewHandlerInterface
 
   # Sets the *groups* that should be used as part of `ASR::ExclusionStrategies::Groups`.
   abstract def serialization_groups=(groups : Enumerable(String)) : Nil

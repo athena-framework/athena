@@ -10,10 +10,10 @@ private struct IgnoreExclusionStrategy
 end
 
 struct ContextTest < ASPEC::TestCase
-  @context : ART::View::Context
+  @context : ATH::View::Context
 
   def initialize
-    @context = ART::View::Context.new
+    @context = ATH::View::Context.new
   end
 
   def test_default_values : Nil

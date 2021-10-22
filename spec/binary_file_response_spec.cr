@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-struct ART::BinaryFileResponseTest < ASPEC::TestCase
+struct ATH::BinaryFileResponseTest < ASPEC::TestCase
   def after_all : Nil
     path = "#{__DIR__}/assets/to_delete"
 
@@ -10,7 +10,7 @@ struct ART::BinaryFileResponseTest < ASPEC::TestCase
   end
 
   def test_new_without_disposition : Nil
-    response = ART::BinaryFileResponse.new "#{__DIR__}/assets/foo.txt", 418, HTTP::Headers{"FOO" => "BAR"}, true, nil, true, true
+    response = ATH::BinaryFileResponse.new "#{__DIR__}/assets/foo.txt", 418, HTTP::Headers{"FOO" => "BAR"}, true, nil, true, true
     response.status.should eq HTTP::Status::IM_A_TEAPOT
     response.headers["FOO"]?.should eq "BAR"
     response.headers.has_key?("etag").should be_true
@@ -19,7 +19,7 @@ struct ART::BinaryFileResponseTest < ASPEC::TestCase
   end
 
   def test_new_with_disposition : Nil
-    response = ART::BinaryFileResponse.new "#{__DIR__}/assets/foo.txt", 418, public: true, content_disposition: :inline
+    response = ATH::BinaryFileResponse.new "#{__DIR__}/assets/foo.txt", 418, public: true, content_disposition: :inline
     response.status.should eq HTTP::Status::IM_A_TEAPOT
     response.headers.has_key?("etag").should be_false
     response.headers.has_key?("content-disposition").should be_true
@@ -27,38 +27,38 @@ struct ART::BinaryFileResponseTest < ASPEC::TestCase
   end
 
   def test_new_with_non_ascii_filename : Nil
-    ART::BinaryFileResponse.new("#{__DIR__}/assets/fööö.html").file_path.basename.should eq "fööö.html"
+    ATH::BinaryFileResponse.new("#{__DIR__}/assets/fööö.html").file_path.basename.should eq "fööö.html"
   end
 
   def test_set_content : Nil
     expect_raises(Exception, "The content cannot be set on a BinaryFileResponse instance.") do
-      ART::BinaryFileResponse.new(__FILE__).content = "FOO"
+      ATH::BinaryFileResponse.new(__FILE__).content = "FOO"
     end
   end
 
   def test_content : Nil
-    ART::BinaryFileResponse.new(__FILE__).content.should be_empty
+    ATH::BinaryFileResponse.new(__FILE__).content.should be_empty
   end
 
   def test_set_content_disposition_custom_fallback_filename : Nil
-    response = ART::BinaryFileResponse.new __FILE__
+    response = ATH::BinaryFileResponse.new __FILE__
     response.set_content_disposition :attachment, "föö.html", "FILE"
 
     response.headers["content-disposition"]?.should eq %(attachment; filename=FILE; filename*=UTF-8''f%C3%B6%C3%B6.html)
   end
 
   def test_set_content_disposition_custom_filename : Nil
-    response = ART::BinaryFileResponse.new __FILE__
+    response = ATH::BinaryFileResponse.new __FILE__
     response.set_content_disposition :attachment, "foo.html"
 
     response.headers["content-disposition"]?.should eq %(attachment; filename=foo.html)
   end
 
   def test_range_requests_without_last_modified_header : Nil
-    response = ART::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", content_disposition: nil, auto_last_modified: false
+    response = ATH::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", content_disposition: nil, auto_last_modified: false
 
     # Request to get ETag
-    request = ART::Request.new "GET", "/", HTTP::Headers{
+    request = ATH::Request.new "GET", "/", HTTP::Headers{
       "if-range" => Time::Format::HTTP_DATE.format(Time.utc),
       "range"    => "bytes=1-4",
     }
@@ -73,9 +73,9 @@ struct ART::BinaryFileResponseTest < ASPEC::TestCase
   end
 
   def test_range_on_post_method : Nil
-    response = ART::BinaryFileResponse.new "#{__DIR__}/assets/test.gif"
+    response = ATH::BinaryFileResponse.new "#{__DIR__}/assets/test.gif"
 
-    request = ART::Request.new "POST", "/", HTTP::Headers{"range" => "bytes=10-20"}
+    request = ATH::Request.new "POST", "/", HTTP::Headers{"range" => "bytes=10-20"}
 
     expected_output = File.open "#{__DIR__}/assets/test.gif", &.read_string(35)
 
@@ -92,7 +92,7 @@ struct ART::BinaryFileResponseTest < ASPEC::TestCase
   end
 
   def test_unprepared_response_sends_full_file : Nil
-    response = ART::BinaryFileResponse.new "#{__DIR__}/assets/test.gif"
+    response = ATH::BinaryFileResponse.new "#{__DIR__}/assets/test.gif"
 
     expected_output = File.read "#{__DIR__}/assets/test.gif"
 
@@ -110,9 +110,9 @@ struct ART::BinaryFileResponseTest < ASPEC::TestCase
 
     File.file?(path).should be_true
 
-    request = ART::Request.new "GET", "/"
+    request = ATH::Request.new "GET", "/"
 
-    response = ART::BinaryFileResponse.new path
+    response = ATH::BinaryFileResponse.new path
     response.delete_file_after_send = true
 
     response.prepare request
@@ -122,8 +122,8 @@ struct ART::BinaryFileResponseTest < ASPEC::TestCase
   end
 
   def test_accept_range_unsafe_methods : Nil
-    request = ART::Request.new "POST", "/"
-    response = ART::BinaryFileResponse.new "#{__DIR__}/assets/test.gif"
+    request = ATH::Request.new "POST", "/"
+    response = ATH::BinaryFileResponse.new "#{__DIR__}/assets/test.gif"
 
     response.prepare request
 
@@ -131,8 +131,8 @@ struct ART::BinaryFileResponseTest < ASPEC::TestCase
   end
 
   def test_accept_range_not_overriden : Nil
-    request = ART::Request.new "POST", "/"
-    response = ART::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", headers: HTTP::Headers{"accept-ranges" => "foo"}
+    request = ATH::Request.new "POST", "/"
+    response = ATH::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", headers: HTTP::Headers{"accept-ranges" => "foo"}
 
     response.prepare request
 
@@ -140,8 +140,8 @@ struct ART::BinaryFileResponseTest < ASPEC::TestCase
   end
 
   def test_prepare_cache_request_etag : Nil
-    request = ART::Request.new "GET", "/", headers: HTTP::Headers{"if-none-match" => "\"ETAG\""}
-    response = ART::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", headers: HTTP::Headers{"accept-ranges" => "foo", "etag" => "\"ETAG\""}
+    request = ATH::Request.new "GET", "/", headers: HTTP::Headers{"if-none-match" => "\"ETAG\""}
+    response = ATH::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", headers: HTTP::Headers{"accept-ranges" => "foo", "etag" => "\"ETAG\""}
 
     response.prepare request
 
@@ -152,8 +152,8 @@ struct ART::BinaryFileResponseTest < ASPEC::TestCase
   end
 
   def test_prepare_cache_request_etag_star : Nil
-    request = ART::Request.new "GET", "/", headers: HTTP::Headers{"if-none-match" => "*"}
-    response = ART::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", headers: HTTP::Headers{"accept-ranges" => "foo", "etag" => "\"ETAG\""}
+    request = ATH::Request.new "GET", "/", headers: HTTP::Headers{"if-none-match" => "*"}
+    response = ATH::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", headers: HTTP::Headers{"accept-ranges" => "foo", "etag" => "\"ETAG\""}
 
     response.prepare request
 
@@ -166,8 +166,8 @@ struct ART::BinaryFileResponseTest < ASPEC::TestCase
   def test_prepare_cache_request_last_modified : Nil
     now = Time.utc
 
-    request = ART::Request.new "GET", "/", headers: HTTP::Headers{"if-modified-since" => HTTP.format_time(now)}
-    response = ART::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", headers: HTTP::Headers{"accept-ranges" => "foo", "last-modified" => HTTP.format_time(now)}
+    request = ATH::Request.new "GET", "/", headers: HTTP::Headers{"if-modified-since" => HTTP.format_time(now)}
+    response = ATH::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", headers: HTTP::Headers{"accept-ranges" => "foo", "last-modified" => HTTP.format_time(now)}
 
     response.prepare request
 
@@ -179,15 +179,15 @@ struct ART::BinaryFileResponseTest < ASPEC::TestCase
 
   @[DataProvider("ranges")]
   def test_requests(request_range : String, offset : Int32, length : Int32, response_range : String) : Nil
-    response = ART::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", auto_etag: true
+    response = ATH::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", auto_etag: true
 
     # Request to get ETag
-    request = ART::Request.new "GET", "/"
+    request = ATH::Request.new "GET", "/"
     response.prepare request
     etag = response.headers["etag"]
 
     # Request for a range of test file
-    request = ART::Request.new "GET", "/", HTTP::Headers{"if-range" => etag, "range" => request_range}
+    request = ATH::Request.new "GET", "/", HTTP::Headers{"if-range" => etag, "range" => request_range}
 
     expected_output = File.open("#{__DIR__}/assets/test.gif", &.read_at(offset, length, &.gets_to_end))
 
@@ -204,15 +204,15 @@ struct ART::BinaryFileResponseTest < ASPEC::TestCase
 
   @[DataProvider("ranges")]
   def test_requests_without_etag(request_range : String, offset : Int32, length : Int32, response_range : String) : Nil
-    response = ART::BinaryFileResponse.new "#{__DIR__}/assets/test.gif"
+    response = ATH::BinaryFileResponse.new "#{__DIR__}/assets/test.gif"
 
     # Request to get LastModified
-    request = ART::Request.new "GET", "/"
+    request = ATH::Request.new "GET", "/"
     response.prepare request
     last_modified = response.headers["last-modified"]
 
     # Request for a range of test file
-    request = ART::Request.new "GET", "/", HTTP::Headers{"if-range" => last_modified, "range" => request_range}
+    request = ATH::Request.new "GET", "/", HTTP::Headers{"if-range" => last_modified, "range" => request_range}
 
     expected_output = File.open("#{__DIR__}/assets/test.gif", &.read_at(offset, length, &.gets_to_end))
 
@@ -239,8 +239,8 @@ struct ART::BinaryFileResponseTest < ASPEC::TestCase
 
   @[DataProvider("full_file_ranges")]
   def test_full_file_requests(request_range : String) : Nil
-    response = ART::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", auto_etag: true
-    request = ART::Request.new "GET", "/", HTTP::Headers{"range" => request_range}
+    response = ATH::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", auto_etag: true
+    request = ATH::Request.new "GET", "/", HTTP::Headers{"range" => request_range}
 
     expected_output = File.open "#{__DIR__}/assets/test.gif", &.read_string(35)
 
@@ -269,8 +269,8 @@ struct ART::BinaryFileResponseTest < ASPEC::TestCase
 
   @[DataProvider("invalid_ranges")]
   def test_invalid_requests(request_range : String) : Nil
-    response = ART::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", auto_etag: true
-    request = ART::Request.new "GET", "/", HTTP::Headers{"range" => request_range}
+    response = ATH::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", auto_etag: true
+    request = ATH::Request.new "GET", "/", HTTP::Headers{"range" => request_range}
 
     response.prepare request
     response.write IO::Memory.new

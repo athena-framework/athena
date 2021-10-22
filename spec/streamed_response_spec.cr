@@ -1,18 +1,18 @@
 require "./spec_helper"
 
-private struct TestWriter < ART::Response::Writer
+private struct TestWriter < ATH::Response::Writer
   def write(output : IO, & : IO -> Nil) : Nil
     yield output
     output.print "EOF"
   end
 end
 
-describe ART::StreamedResponse do
+describe ATH::StreamedResponse do
   describe ".new" do
     it "accepts a block" do
       io = IO::Memory.new
 
-      response = (ART::StreamedResponse.new &.<<("BAZ"))
+      response = (ATH::StreamedResponse.new &.<<("BAZ"))
 
       response.write io
 
@@ -23,7 +23,7 @@ describe ART::StreamedResponse do
       io = IO::Memory.new
       proc = ->(i : IO) { i << "FOO" }
 
-      response = ART::StreamedResponse.new proc
+      response = ATH::StreamedResponse.new proc
 
       response.write io
 
@@ -31,17 +31,17 @@ describe ART::StreamedResponse do
     end
 
     it "accepts an Int status" do
-      (ART::StreamedResponse.new(status: 201, &.<<("BAZ"))).status.should eq HTTP::Status::CREATED
+      (ATH::StreamedResponse.new(status: 201, &.<<("BAZ"))).status.should eq HTTP::Status::CREATED
     end
 
     it "accepts an HTTP::Status status" do
-      (ART::StreamedResponse.new(status: :created, &.<<("BAZ"))).status.should eq HTTP::Status::CREATED
+      (ATH::StreamedResponse.new(status: :created, &.<<("BAZ"))).status.should eq HTTP::Status::CREATED
     end
   end
 
   describe "#content=" do
     it "raises on not nil content" do
-      response = (ART::StreamedResponse.new &.<<("BAZ"))
+      response = (ATH::StreamedResponse.new &.<<("BAZ"))
 
       expect_raises Exception, "The content cannot be set on a StreamedResponse instance." do
         response.content = "FOO"
@@ -51,7 +51,7 @@ describe ART::StreamedResponse do
     it "allows nil" do
       io = IO::Memory.new
 
-      response = (ART::StreamedResponse.new &.<<("BAZ"))
+      response = (ATH::StreamedResponse.new &.<<("BAZ"))
 
       response.content = nil
 
@@ -62,9 +62,9 @@ describe ART::StreamedResponse do
   end
 
   describe "#write" do
-    it "supports customization via an ART::Response::Writer" do
+    it "supports customization via an ATH::Response::Writer" do
       io = IO::Memory.new
-      response = (ART::StreamedResponse.new &.<<("FOO BAR"))
+      response = (ATH::StreamedResponse.new &.<<("FOO BAR"))
 
       response.writer = TestWriter.new
       response.write io
@@ -74,7 +74,7 @@ describe ART::StreamedResponse do
 
     it "does not allow writing more than once" do
       io = IO::Memory.new
-      response = (ART::StreamedResponse.new &.<<("FOO BAR"))
+      response = (ATH::StreamedResponse.new &.<<("FOO BAR"))
 
       response.write io
       response.write io

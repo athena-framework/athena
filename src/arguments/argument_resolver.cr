@@ -15,17 +15,17 @@ class Array
   end
 end
 
-ADI.bind argument_resolvers : Array(Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface), "!athena.argument_value_resolver"
+ADI.bind argument_resolvers : Array(Athena::Framework::Arguments::Resolvers::ArgumentValueResolverInterface), "!athena.argument_value_resolver"
 
 @[ADI::Register]
-# The default implementation of `ART::Arguments::ArgumentResolverInterface`.
-struct Athena::Routing::Arguments::ArgumentResolver
-  include Athena::Routing::Arguments::ArgumentResolverInterface
+# The default implementation of `ATH::Arguments::ArgumentResolverInterface`.
+struct Athena::Framework::Arguments::ArgumentResolver
+  include Athena::Framework::Arguments::ArgumentResolverInterface
 
-  def initialize(@argument_resolvers : Array(Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface)); end
+  def initialize(@argument_resolvers : Array(Athena::Framework::Arguments::Resolvers::ArgumentValueResolverInterface)); end
 
   # :inherit:
-  def get_arguments(request : ART::Request, route : ART::ActionBase) : Array
+  def get_arguments(request : ATH::Request, route : ATH::ActionBase) : Array
     route.arguments.map_first_type do |param|
       if resolver = @argument_resolvers.find &.supports? request, param
         resolver.resolve request, param

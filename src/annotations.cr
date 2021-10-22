@@ -1,6 +1,6 @@
-# Contains all the `Athena::Routing` based annotations.
+# Contains all the `Athena::Framework` based annotations.
 # See each annotation for more information.
-module Athena::Routing::Annotations
+module Athena::Framework::Annotations
   # Defines a `DELETE` endpoint.
   #
   # ## Fields
@@ -12,7 +12,7 @@ module Athena::Routing::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Delete(path: "/users/:id")]
+  # @[ATHA::Delete(path: "/users/:id")]
   # def delete_user(id : Int32) : Nil
   # end
   # ```
@@ -29,7 +29,7 @@ module Athena::Routing::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Get(path: "/users/:id")]
+  # @[ATHA::Get(path: "/users/:id")]
   # def get_user(id : Int32) : Nil
   # end
   # ```
@@ -46,7 +46,7 @@ module Athena::Routing::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Head(path: "/users")]
+  # @[ATHA::Head(path: "/users")]
   # def head_user : Nil
   # end
   # ```
@@ -63,26 +63,26 @@ module Athena::Routing::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Link(path: "/users/:id")]
+  # @[ATHA::Link(path: "/users/:id")]
   # def link_user(id : Int32) : Nil
   # end
   # ```
   annotation Link; end
 
-  # Applies an `ART::ParamConverter` to a given argument.
+  # Applies an `ATH::ParamConverter` to a given argument.
   #
-  # See `ART::ParamConverter` for more information on defining a param converter.
+  # See `ATH::ParamConverter` for more information on defining a param converter.
   #
   # ## Fields
   #
   # * name : `String` - The name of the argument that should be converted, may also be provided as the first positional argument.
-  # * converter : `ART::ParamConverter.class` - The `ART::ParamConverter` that should be used to convert this argument.
+  # * converter : `ATH::ParamConverter.class` - The `ATH::ParamConverter` that should be used to convert this argument.
   #
   # ## Example
   #
   # ```
-  # @[ARTA::Get(path: "/multiply/:num")]
-  # @[ARTA::ParamConverter("num", converter: MultiplyConverter)]
+  # @[ATHA::Get(path: "/multiply/:num")]
+  # @[ATHA::ParamConverter("num", converter: MultiplyConverter)]
   # def multiply(num : Int32) : Int32
   #   num
   # end
@@ -100,7 +100,7 @@ module Athena::Routing::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Patch(path: "/users/:id")]
+  # @[ATHA::Patch(path: "/users/:id")]
   # def partial_update_user(id : Int32) : Nil
   # end
   # ```
@@ -117,7 +117,7 @@ module Athena::Routing::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Post(path: "/users")]
+  # @[ATHA::Post(path: "/users")]
   # def new_user : Nil
   # end
   # ```
@@ -132,10 +132,10 @@ module Athena::Routing::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Prefix(prefix: "calendar")]
-  # class CalendarController < ART::Controller
+  # @[ATHA::Prefix(prefix: "calendar")]
+  # class CalendarController < ATH::Controller
   #   # The route of this action would be `GET /calendar/events`.
-  #   @[ARTA::Get(path: "events")]
+  #   @[ATHA::Get(path: "events")]
   #   def events : String
   #     "events"
   #   end
@@ -154,7 +154,7 @@ module Athena::Routing::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Put(path: "/users/:id")]
+  # @[ATHA::Put(path: "/users/:id")]
   # def update_user(id : Int32) : Nil
   # end
   # ```
@@ -170,14 +170,14 @@ module Athena::Routing::Annotations
   # A `description` may also be included to describe what the query param is used for.
   # In the future this may be used for generating OpenAPI documentation for the related parameter.
   #
-  # A non-nilable type denotes it as required.  If the parameter is not supplied, and no default value is assigned, an `ART::Exceptions::BadRequest` exception is raised.
+  # A non-nilable type denotes it as required.  If the parameter is not supplied, and no default value is assigned, an `ATH::Exceptions::BadRequest` exception is raised.
   #
   # ```
   # require "athena"
   #
-  # class ExampleController < ART::Controller
-  #   @[ARTA::Get("/")]
-  #   @[ARTA::QueryParam("page", description: "What page of results to return.")] # The name can also be supplied as a named argument like `@[ARTA::QueryParam(name: "page")]`.
+  # class ExampleController < ATH::Controller
+  #   @[ATHA::Get("/")]
+  #   @[ATHA::QueryParam("page", description: "What page of results to return.")] # The name can also be supplied as a named argument like `@[ATHA::QueryParam(name: "page")]`.
   #   def index(page : Int32) : Int32
   #     page
   #   end
@@ -196,9 +196,9 @@ module Athena::Routing::Annotations
   # ```
   # require "athena"
   #
-  # class ExampleController < ART::Controller
-  #   @[ARTA::Get("/")]
-  #   @[ARTA::QueryParam("foo", key: "bar")]
+  # class ExampleController < ATH::Controller
+  #   @[ATHA::Get("/")]
+  #   @[ATHA::QueryParam("foo", key: "bar")]
   #   def index(foo : String) : String
   #     foo
   #   end
@@ -216,9 +216,9 @@ module Athena::Routing::Annotations
   # ```
   # require "athena"
   #
-  # class ExampleController < ART::Controller
-  #   @[ARTA::Get("/")]
-  #   @[ARTA::QueryParam("page")] # The name can also be supplied as a named argument like `@[ARTA::QueryParam(name: "page")]`.
+  # class ExampleController < ATH::Controller
+  #   @[ATHA::Get("/")]
+  #   @[ATHA::QueryParam("page")] # The name can also be supplied as a named argument like `@[ATHA::QueryParam(name: "page")]`.
   #   def index(page : Int32?) : Int32?
   #     page
   #   end
@@ -233,7 +233,7 @@ module Athena::Routing::Annotations
   #
   # ### Strict
   #
-  # By default, parameters are validated strictly; this means an `ART::Exceptions::BadRequest` exception is raised when the value is considered invalid.
+  # By default, parameters are validated strictly; this means an `ATH::Exceptions::BadRequest` exception is raised when the value is considered invalid.
   # Such as if the value does not satisfy the parameter's [requirements](#requirements), it's a required parameter and was not provided,
   # or could not be converted into the desired type.
   #
@@ -246,9 +246,9 @@ module Athena::Routing::Annotations
   # ```
   # require "athena"
   #
-  # class ExampleController < ART::Controller
-  #   @[ARTA::Get("/")]
-  #   @[ARTA::QueryParam("page", strict: false)]
+  # class ExampleController < ATH::Controller
+  #   @[ATHA::Get("/")]
+  #   @[ATHA::QueryParam("page", strict: false)]
   #   def index(page : Int32?) : Int32?
   #     page
   #   end
@@ -268,7 +268,7 @@ module Athena::Routing::Annotations
   # ### Requirements
   #
   # It's a common practice to validate incoming values before they reach the controller action.
-  # `ARTA::QueryParam` supports doing just that.
+  # `ATHA::QueryParam` supports doing just that.
   # It supports validating the value against a `Regex` pattern, an `AVD::Constraint`, or an array of `AVD::Constraint`s.
   #
   # The value is only considered valid if it satisfies the defined requirements.
@@ -282,9 +282,9 @@ module Athena::Routing::Annotations
   # ```
   # require "athena"
   #
-  # class ExampleController < ART::Controller
-  #   @[ARTA::Get("/")]
-  #   @[ARTA::QueryParam("page", requirements: /\d{2}/)]
+  # class ExampleController < ATH::Controller
+  #   @[ATHA::Get("/")]
+  #   @[ATHA::QueryParam("page", requirements: /\d{2}/)]
   #   def index(page : Int32) : Int32
   #     page
   #   end
@@ -306,9 +306,9 @@ module Athena::Routing::Annotations
   # ```
   # require "athena"
   #
-  # class ExampleController < ART::Controller
-  #   @[ARTA::Get("/")]
-  #   @[ARTA::QueryParam("page", requirements: @[Assert::PositiveOrZero])]
+  # class ExampleController < ATH::Controller
+  #   @[ATHA::Get("/")]
+  #   @[ATHA::QueryParam("page", requirements: @[Assert::PositiveOrZero])]
   #   def index(page : Int32) : Int32
   #     page
   #   end
@@ -333,9 +333,9 @@ module Athena::Routing::Annotations
   # ```
   # require "athena"
   #
-  # class ExampleController < ART::Controller
-  #   @[ARTA::Get("/")]
-  #   @[ARTA::QueryParam("ids", map: true, requirements: [@[Assert::Positive], @[Assert::Range(-3..10)]])]
+  # class ExampleController < ATH::Controller
+  #   @[ATHA::Get("/")]
+  #   @[ATHA::QueryParam("ids", map: true, requirements: [@[Assert::Positive], @[Assert::Range(-3..10)]])]
   #   def index(ids : Array(Int32)) : Array(Int32)
   #     ids
   #   end
@@ -355,10 +355,10 @@ module Athena::Routing::Annotations
   # ```
   # require "athena"
   #
-  # class ExampleController < ART::Controller
-  #   @[ARTA::Get("/")]
-  #   @[ARTA::QueryParam("bar")]
-  #   @[ARTA::QueryParam("foo", incompatibles: ["bar"])]
+  # class ExampleController < ATH::Controller
+  #   @[ATHA::Get("/")]
+  #   @[ATHA::QueryParam("bar")]
+  #   @[ATHA::QueryParam("foo", incompatibles: ["bar"])]
   #   def index(foo : String?, bar : String?) : String
   #     "#{foo}-#{bar}"
   #   end
@@ -374,17 +374,17 @@ module Athena::Routing::Annotations
   # ### Param Converters
   #
   # While Athena is able to auto convert query parameters from their `String` representation to `Bool`, or `Number` types, it is unable to do that for more complex types, such as `Time`.
-  # In such cases an `ART::ParamConverter` is required.
+  # In such cases an `ATH::ParamConverter` is required.
   #
-  # For simple converters that do not require any additional configuration, you can just specify the `ART::ParamConverter.class` you wish to use for this query parameter.
+  # For simple converters that do not require any additional configuration, you can just specify the `ATH::ParamConverter.class` you wish to use for this query parameter.
   # Default and nilable values work as they do when not using a converter.
   #
   # ```
   # require "athena"
   #
-  # class ExampleController < ART::Controller
-  #   @[ARTA::QueryParam("start_time", converter: ART::TimeConverter)]
-  #   @[ARTA::Get("/time")]
+  # class ExampleController < ATH::Controller
+  #   @[ATHA::QueryParam("start_time", converter: ATH::TimeConverter)]
+  #   @[ATHA::Get("/time")]
   #   def time(start_time : Time = Time.utc) : String
   #     "Starting at: #{start_time}"
   #   end
@@ -398,17 +398,17 @@ module Athena::Routing::Annotations
   #
   # #### Extra Configuration
   #
-  # In some cases a param converter may require [additional configuration][Athena::Routing::ParamConverter].
+  # In some cases a param converter may require [additional configuration][Athena::Framework::ParamConverter].
   # In this case a `NamedTuple` may be provided as the value of `converter`.
-  # The named tuple must contain a `name` key that represents the `ART::ParamConverter.class` you wish to use for this query parameter.
+  # The named tuple must contain a `name` key that represents the `ATH::ParamConverter.class` you wish to use for this query parameter.
   # Any additional key/value pairs will be passed to the param converter.
   #
   # ```
   # require "athena"
   #
-  # class ExampleController < ART::Controller
-  #   @[ARTA::QueryParam("start_time", converter: {name: ART::TimeConverter, format: "%Y--%m//%d  %T"})]
-  #   @[ARTA::Get("/time")]
+  # class ExampleController < ATH::Controller
+  #   @[ATHA::QueryParam("start_time", converter: {name: ATH::TimeConverter, format: "%Y--%m//%d  %T"})]
+  #   @[ATHA::Get("/time")]
   #   def time(start_time : Time) : String
   #     "Starting at: #{start_time}"
   #   end
@@ -419,22 +419,22 @@ module Athena::Routing::Annotations
   # # GET /time?start_time="2020--04//07  12:34:56" # => "Starting at: 2020-04-07 12:34:56 UTC"
   # ```
   #
-  # NOTE: The dedicated `ARTA::ParamConverter` annotation may be used as well, just be sure to give it and the query parameter the same name.
+  # NOTE: The dedicated `ATHA::ParamConverter` annotation may be used as well, just be sure to give it and the query parameter the same name.
   annotation QueryParam; end
 
   # Represents a form data request parameter.
   #
-  # See `ARTA::QueryParam` for configuration options/arguments.
+  # See `ATHA::QueryParam` for configuration options/arguments.
   #
   # WARNING: The entire request body is consumed to parse the form data.
   #
   # ```
   # require "athena"
   #
-  # class ExampleController < ART::Controller
-  #   @[ARTA::Post(path: "/login")]
-  #   @[ARTA::RequestParam("username")]
-  #   @[ARTA::RequestParam("password")]
+  # class ExampleController < ATH::Controller
+  #   @[ATHA::Post(path: "/login")]
+  #   @[ATHA::RequestParam("username")]
+  #   @[ATHA::RequestParam("password")]
   #   def login(username : String, password : String) : Nil
   #     # ...
   #   end
@@ -458,7 +458,7 @@ module Athena::Routing::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Route("/some/path", method: "TRACE")]
+  # @[ATHA::Route("/some/path", method: "TRACE")]
   # def trace_route : Nil
   # end
   # ```
@@ -475,19 +475,19 @@ module Athena::Routing::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Unlink(path: "/users/:id")]
+  # @[ATHA::Unlink(path: "/users/:id")]
   # def unlink_user(id : Int32) : Nil
   # end
   # ```
   annotation Unlink; end
 
-  ACF.configuration_annotation Athena::Routing::Annotations::View,
+  ACF.configuration_annotation Athena::Framework::Annotations::View,
     status : HTTP::Status? = nil,
     serialization_groups : Array(String)? = nil,
     validation_groups : Array(String)? = nil,
     emit_nil : Bool? = nil
 
-  # Configures how the `ART::View::ViewHandlerInterface` should render the related controller action.
+  # Configures how the `ATH::View::ViewHandlerInterface` should render the related controller action.
   #
   # ## Fields
   #
@@ -499,8 +499,8 @@ module Athena::Routing::Annotations
   # ## Example
   #
   # ```
-  # @[ARTA::Post(path: "/publish/:id")]
-  # @[ARTA::View(status: :accepted, serialization_groups: ["default", "detailed"])]
+  # @[ATHA::Post(path: "/publish/:id")]
+  # @[ATHA::View(status: :accepted, serialization_groups: ["default", "detailed"])]
   # def publish(id : Int32) : Article
   #   article = Article.find id
   #   article.published = true

@@ -1,10 +1,10 @@
 require "./unprocessable_entity"
 
-class Athena::Routing::Exceptions::InvalidParameter < Athena::Routing::Exceptions::UnprocessableEntity
-  getter parameter : ART::Params::ParamInterface
+class Athena::Framework::Exceptions::InvalidParameter < Athena::Framework::Exceptions::UnprocessableEntity
+  getter parameter : ATH::Params::ParamInterface
   getter violations : AVD::Violation::ConstraintViolationListInterface
 
-  def self.with_violations(parameter : ART::Params::ParamInterface, violations : AVD::Violation::ConstraintViolationListInterface) : self
+  def self.with_violations(parameter : ATH::Params::ParamInterface, violations : AVD::Violation::ConstraintViolationListInterface) : self
     message = String.build do |str|
       violations.each do |violation|
         invalid_value = violation.invalid_value
@@ -16,7 +16,7 @@ class Athena::Routing::Exceptions::InvalidParameter < Athena::Routing::Exception
     new parameter, violations, message
   end
 
-  def initialize(@parameter : ART::Params::ParamInterface, @violations : AVD::Violation::ConstraintViolationListInterface, message : String, cause : Exception? = nil, headers : HTTP::Headers = HTTP::Headers.new)
+  def initialize(@parameter : ATH::Params::ParamInterface, @violations : AVD::Violation::ConstraintViolationListInterface, message : String, cause : Exception? = nil, headers : HTTP::Headers = HTTP::Headers.new)
     super message, cause, headers
   end
 end

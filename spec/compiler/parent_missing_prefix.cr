@@ -1,10 +1,10 @@
 require "../spec_helper"
 
-@[ARTA::Prefix]
-abstract class PrefixController < Athena::Routing::Controller
+@[ATHA::Prefix]
+abstract class PrefixController < Athena::Framework::Controller
 end
 
 class CompileController < PrefixController
 end
 
-ART.run
+ATH.run

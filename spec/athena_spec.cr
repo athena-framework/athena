@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-describe Athena::Routing do
+describe Athena::Framework do
   describe ".from_parameter" do
     describe Number do
       it Int64 do
@@ -69,10 +69,10 @@ describe Athena::Routing do
     end
   end
 
-  describe ART::Server do
+  describe ATH::Server do
     describe "#initialize" do
       it "creates a server with the provided args" do
-        ART::Server.new 1234, "google.com", false
+        ATH::Server.new 1234, "google.com", false
       end
     end
   end

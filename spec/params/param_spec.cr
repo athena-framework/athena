@@ -1,17 +1,17 @@
 require "../spec_helper"
 
-private struct MockParam(T) < ART::Params::Param
+private struct MockParam(T) < ATH::Params::Param
   def default : Nil; end
 
   def type
     Nil
   end
 
-  def extract_value(request : ART::Request, default = nil) : Nil
+  def extract_value(request : ATH::Request, default = nil) : Nil
   end
 end
 
-describe ART::Params::Param do
+describe ATH::Params::Param do
   describe "#constraints" do
     it "nilable" do
       MockParam(Int32?).new("id", nilable: true).constraints.should be_empty

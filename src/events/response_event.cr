@@ -6,13 +6,13 @@ require "./request_aware"
 # such as adding headers/cookies, compressing the response, etc.
 #
 # See the [external documentation](/components/#5-response-event) for more information.
-class Athena::Routing::Events::Response < AED::Event
-  include Athena::Routing::Events::RequestAware
+class Athena::Framework::Events::Response < AED::Event
+  include Athena::Framework::Events::RequestAware
 
   # The response object.
-  property response : ART::Response
+  property response : ATH::Response
 
-  def initialize(request : ART::Request, @response : ART::Response)
+  def initialize(request : ATH::Request, @response : ATH::Response)
     super request
   end
 end

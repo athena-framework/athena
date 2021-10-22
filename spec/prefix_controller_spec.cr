@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-struct PrefixControllerTest < ART::Spec::APITestCase
+struct PrefixControllerTest < ATH::Spec::APITestCase
   def test_it_routes_correctly : Nil
     self.request("GET", "/calendar/events").body.should eq %("events")
     self.request("GET", "/calendar/external").body.should eq %("calendars")

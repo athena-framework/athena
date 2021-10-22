@@ -1,11 +1,11 @@
 # Represents a controller action argument.  Stores metadata associated with it, such as its name, type, and default value if any.
-struct Athena::Routing::Arguments::ArgumentMetadata(T)
+struct Athena::Framework::Arguments::ArgumentMetadata(T)
   # The name of the argument.
   getter name : String
 
   # The default value of the argument, if any.
   #
-  # See `ART::Arguments::Resolvers::DefaultValue`.
+  # See `ATH::Arguments::Resolvers::DefaultValue`.
   getter default : T?
 
   # The type of the parameter, i.e. what its type restriction is.

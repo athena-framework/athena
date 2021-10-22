@@ -1,16 +1,16 @@
 require "../spec_helper"
 
 struct ParamFetcherTest < ASPEC::TestCase
-  @request_store : ART::RequestStore
-  @param_fetcher : ART::Params::ParamFetcher
+  @request_store : ATH::RequestStore
+  @param_fetcher : ATH::Params::ParamFetcher
   @valiator : AVD::Spec::MockValidator
 
   def initialize
-    @request_store = ART::RequestStore.new
+    @request_store = ATH::RequestStore.new
     @request_store.request = new_request
     @valiator = AVD::Spec::MockValidator.new
 
-    @param_fetcher = ART::Params::ParamFetcher.new @request_store, @valiator
+    @param_fetcher = ATH::Params::ParamFetcher.new @request_store, @valiator
   end
 
   def test_missing_param : Nil
@@ -20,7 +20,7 @@ struct ParamFetcherTest < ASPEC::TestCase
   end
 
   def test_get_no_constraints : Nil
-    self.set_params [new_param("name", default: "bar")] of ART::Params::ParamInterface
+    self.set_params [new_param("name", default: "bar")] of ATH::Params::ParamInterface
 
     @request_store.request.query = "name=foo"
 
@@ -28,18 +28,18 @@ struct ParamFetcherTest < ASPEC::TestCase
   end
 
   def test_get_missing_with_constraints_uses_default : Nil
-    self.set_params [new_param("foo", default: "bar", requirements: AVD::Constraints::NotBlank.new)] of ART::Params::ParamInterface
+    self.set_params [new_param("foo", default: "bar", requirements: AVD::Constraints::NotBlank.new)] of ATH::Params::ParamInterface
     @param_fetcher.get("foo").should eq "bar"
   end
 
   def test_get_no_constraints : Nil
-    self.set_params [new_param("foo")] of ART::Params::ParamInterface
+    self.set_params [new_param("foo")] of ATH::Params::ParamInterface
     @request_store.request.query = "foo=value"
     @param_fetcher.get("foo").should eq "value"
   end
 
   def test_get_constraints_no_violations : Nil
-    self.set_params [new_param("foo", requirements: AVD::Constraints::NotBlank.new)] of ART::Params::ParamInterface
+    self.set_params [new_param("foo", requirements: AVD::Constraints::NotBlank.new)] of ATH::Params::ParamInterface
 
     @request_store.request.query = "foo=value"
 
@@ -47,7 +47,7 @@ struct ParamFetcherTest < ASPEC::TestCase
   end
 
   def test_get_constraints_violations_unstrict : Nil
-    self.set_params [new_param("foo", default: "default", requirements: AVD::Constraints::NotBlank.new)] of ART::Params::ParamInterface
+    self.set_params [new_param("foo", default: "default", requirements: AVD::Constraints::NotBlank.new)] of ATH::Params::ParamInterface
 
     @request_store.request.query = "foo=value"
     @valiator.violations = AVD::Violation::ConstraintViolationList.new [
@@ -66,7 +66,7 @@ struct ParamFetcherTest < ASPEC::TestCase
 
   def test_get_constraints_violations_strict : Nil
     param = new_param("foo", default: "default", requirements: AVD::Constraints::NotBlank.new)
-    self.set_params [param] of ART::Params::ParamInterface
+    self.set_params [param] of ATH::Params::ParamInterface
 
     @request_store.request.query = "foo=value"
     violations = @valiator.violations = AVD::Violation::ConstraintViolationList.new [
@@ -80,7 +80,7 @@ struct ParamFetcherTest < ASPEC::TestCase
       ),
     ]
 
-    ex = expect_raises ART::Exceptions::InvalidParameter do
+    ex = expect_raises ATH::Exceptions::InvalidParameter do
       @param_fetcher.get("foo").should eq "default"
     end
 
@@ -89,25 +89,25 @@ struct ParamFetcherTest < ASPEC::TestCase
   end
 
   def test_get_conversion_error_strict : Nil
-    self.set_params [new_param("foo", default: 10, nilable: false, type: Int32)] of ART::Params::ParamInterface
+    self.set_params [new_param("foo", default: 10, nilable: false, type: Int32)] of ATH::Params::ParamInterface
 
     @request_store.request.query = "foo=value"
 
-    expect_raises ART::Exceptions::BadRequest, "Required parameter 'foo' with value 'value' could not be converted into a valid 'Int32'" do
+    expect_raises ATH::Exceptions::BadRequest, "Required parameter 'foo' with value 'value' could not be converted into a valid 'Int32'" do
       @param_fetcher.get "foo"
     end
   end
 
   def test_get_conversion_error_strict_union : Nil
-    self.set_params [new_param("foo", default: 10, type: Int32?)] of ART::Params::ParamInterface
+    self.set_params [new_param("foo", default: 10, type: Int32?)] of ATH::Params::ParamInterface
     @request_store.request.query = "foo=value"
-    expect_raises ART::Exceptions::BadRequest, "Required parameter 'foo' with value 'value' could not be converted into a valid '(Int32 | Nil)'" do
+    expect_raises ATH::Exceptions::BadRequest, "Required parameter 'foo' with value 'value' could not be converted into a valid '(Int32 | Nil)'" do
       @param_fetcher.get "foo"
     end
   end
 
   def test_get_conversion_error_unstrict_union : Nil
-    self.set_params [new_param("foo", default: 10, type: Int32?)] of ART::Params::ParamInterface
+    self.set_params [new_param("foo", default: 10, type: Int32?)] of ATH::Params::ParamInterface
     @request_store.request.query = "foo=value"
     @param_fetcher.get("foo", false).should eq 10
   end
@@ -116,7 +116,7 @@ struct ParamFetcherTest < ASPEC::TestCase
     self.set_params([
       self.new_param("fos"),
       self.new_param("bar", incompatibles: ["baz", "fos"]),
-    ] of ART::Params::ParamInterface)
+    ] of ATH::Params::ParamInterface)
 
     @request_store.request.query = "bar=value"
 
@@ -130,11 +130,11 @@ struct ParamFetcherTest < ASPEC::TestCase
       self.new_param("fos"),
       self.new_param("baz"),
       self.new_param("bar", incompatibles: ["baz", "fos"]),
-    ] of ART::Params::ParamInterface)
+    ] of ATH::Params::ParamInterface)
 
     @request_store.request.query = "bar=value&fos=value"
 
-    expect_raises ART::Exceptions::BadRequest, "Parameter 'bar' is incompatible with parameter 'fos'." do
+    expect_raises ATH::Exceptions::BadRequest, "Parameter 'bar' is incompatible with parameter 'fos'." do
       @param_fetcher.get "bar"
     end
   end
@@ -143,7 +143,7 @@ struct ParamFetcherTest < ASPEC::TestCase
     self.set_params([
       self.new_param("foo"),
       self.new_param("bar"),
-    ] of ART::Params::ParamInterface)
+    ] of ATH::Params::ParamInterface)
 
     @request_store.request.query = "foo=bar&bar=foo"
 
@@ -156,7 +156,7 @@ struct ParamFetcherTest < ASPEC::TestCase
     values.should eq ["foo", "bar"]
   end
 
-  private def set_params(params : Array(ART::Params::ParamInterface)) : Nil
+  private def set_params(params : Array(ATH::Params::ParamInterface)) : Nil
     @request_store.request = new_request(action: new_action(params: params))
   end
 
@@ -168,8 +168,8 @@ struct ParamFetcherTest < ASPEC::TestCase
     requirements : AVD::Constraint? = nil,
     incompatibles : Array(String)? = nil,
     type : T.class = String?
-  ) : ART::Params::ParamInterface forall T
-    ART::Params::QueryParam(T).new(
+  ) : ATH::Params::ParamInterface forall T
+    ATH::Params::QueryParam(T).new(
       name,
       has_default: !default.nil?,
       is_nilable: nilable,

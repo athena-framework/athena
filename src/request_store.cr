@@ -1,5 +1,5 @@
 @[ADI::Register(name: "request_store", public: true)]
-# Stores the current `ART::Request` object.
+# Stores the current `ATH::Request` object.
 #
 # Can be injected to access the request from a non controller context.
 #
@@ -7,8 +7,8 @@
 # require "athena"
 #
 # @[ADI::Register(public: true)]
-# class ExampleController < ART::Controller
-#   def initialize(@request_store : ART::RequestStore); end
+# class ExampleController < ATH::Controller
+#   def initialize(@request_store : ATH::RequestStore); end
 #
 #   get "/" do
 #     @request_store.method
@@ -19,8 +19,8 @@
 #
 # # GET / # => GET
 # ```
-class Athena::Routing::RequestStore
-  property! request : ART::Request
+class Athena::Framework::RequestStore
+  property! request : ATH::Request
 
   # Resets the store, removing the reference to the request.
   #

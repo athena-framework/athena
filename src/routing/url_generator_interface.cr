@@ -7,7 +7,7 @@ module Athena::Routing::URLGeneratorInterface
     # Includes an absolute URL including protocol, hostname, and path: `https://api.example.com/add/10/5`.
     #
     # By default the `Host` header of the request is used as the hostname, with the scheme being `https`.
-    # This can be customized via the `ART::Parameters#base_uri` parameter.
+    # This can be customized via the `ATH::Parameters#base_uri` parameter.
     #
     # NOTE: If the `base_uri` parameter is not set, and there is no `Host` header, the generated URL will fallback on `Absolute_Path`.
     Absolute_URL
@@ -32,13 +32,13 @@ module Athena::Routing::URLGeneratorInterface
   # ```
   # require "athena"
   #
-  # class ExampleController < ART::Controller
-  #   @[ARTA::Get("/add/:value1/:value2", name: "add")]
+  # class ExampleController < ATH::Controller
+  #   @[ATHA::Get("/add/:value1/:value2", name: "add")]
   #   def add(value1 : Int32, value2 : Int32, negative : Bool = false) : Int32
   #     0
   #   end
   #
-  #   @[ARTA::Get("/")]
+  #   @[ATHA::Get("/")]
   #   def get_link : String
   #     ""
   #   end

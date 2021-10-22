@@ -47,70 +47,72 @@ require "./ext/validator"
 # Convenience alias to make referencing `Athena::Routing` types easier.
 alias ART = Athena::Routing
 
-# Convenience alias to make referencing `Athena::Routing::Annotations` types easier.
-alias ARTA = ART::Annotations
+alias ATH = Athena::Framework
+
+# Convenience alias to make referencing `Athena::Framework::Annotations` types easier.
+alias ATHA = ATH::Annotations
 
 # See the [external documentation](https://athenaframework.org) for an introduction to `Athena`.
 #
 # Also checkout the [Components](/components) for an overview of how `Athena` is designed.
-module Athena::Routing
+module Athena::Framework
   # The `AED::Event` that are emitted via `Athena::EventDispatcher` to handle a request during its life-cycle.
   # Custom events can also be defined and dispatched within a controller, listener, or some other service.
   #
   # See each specific event and the [external documentation](/components/event_dispatcher/) for more information.
-  module Athena::Routing::Events; end
+  module Athena::Framework::Events; end
 
-  # Exception handling in Athena is similar to exception handling in any Crystal program, with the addition of a new unique exception type, `ART::Exceptions::HTTPException`.
+  # Exception handling in Athena is similar to exception handling in any Crystal program, with the addition of a new unique exception type, `ATH::Exceptions::HTTPException`.
   #
-  # When an exception is raised, Athena emits the `ART::Events::Exception` event to allow an opportunity for it to be handled.  If the exception goes unhandled, i.e. no listener set
-  # an `ART::Response` on the event, then the request is finished and the exception is reraised.  Otherwise, that response is returned, setting the status and merging the headers on the exceptions
-  # if it is an `ART::Exceptions::HTTPException`. See `ART::Listeners::Error` and `ART::ErrorRendererInterface` for more information on how exceptions are handled by default.
+  # When an exception is raised, Athena emits the `ATH::Events::Exception` event to allow an opportunity for it to be handled.  If the exception goes unhandled, i.e. no listener set
+  # an `ATH::Response` on the event, then the request is finished and the exception is reraised.  Otherwise, that response is returned, setting the status and merging the headers on the exceptions
+  # if it is an `ATH::Exceptions::HTTPException`. See `ATH::Listeners::Error` and `ATH::ErrorRendererInterface` for more information on how exceptions are handled by default.
   #
-  # To provide the best response to the client, non `ART::Exceptions::HTTPException` should be rescued and converted into a corresponding `ART::Exceptions::HTTPException`.
-  # Custom HTTP errors can also be defined by inheriting from `ART::Exceptions::HTTPException` or a child type.  A use case for this could be allowing for additional data/context to be included
-  # within the exception that ultimately could be used in a `ART::Events::Exception` listener.
-  module Athena::Routing::Exceptions; end
+  # To provide the best response to the client, non `ATH::Exceptions::HTTPException` should be rescued and converted into a corresponding `ATH::Exceptions::HTTPException`.
+  # Custom HTTP errors can also be defined by inheriting from `ATH::Exceptions::HTTPException` or a child type.  A use case for this could be allowing for additional data/context to be included
+  # within the exception that ultimately could be used in a `ATH::Events::Exception` listener.
+  module Athena::Framework::Exceptions; end
 
-  # The `AED::EventListenerInterface` that act upon `ART::Events` to handle a request.  Custom listeners can also be defined, see `AED::EventListenerInterface`.
+  # The `AED::EventListenerInterface` that act upon `ATH::Events` to handle a request.  Custom listeners can also be defined, see `AED::EventListenerInterface`.
   #
   # See each listener and the [external documentation](/components/event_dispatcher/) for more information.
-  module Athena::Routing::Listeners
+  module Athena::Framework::Listeners
     # The tag name for Athena event listeners.
     TAG = "athena.event_dispatcher.listener"
 
     # Apply `TAG` to all `AED::EventListenerInterface` instances automatically.
-    ADI.auto_configure AED::EventListenerInterface, {tags: [ART::Listeners::TAG]}
+    ADI.auto_configure AED::EventListenerInterface, {tags: [ATH::Listeners::TAG]}
   end
 
   # Namespace for types related to controller action arguments.
   #
-  # See `ART::Arguments::ArgumentMetadata`.
-  module Athena::Routing::Arguments; end
+  # See `ATH::Arguments::ArgumentMetadata`.
+  module Athena::Framework::Arguments; end
 
-  # The default `ART::Arguments::Resolvers::ArgumentValueResolverInterface`s that will handle resolving controller action arguments from a request (or other source).
-  # Custom argument value resolvers can also be defined, see `ART::Arguments::Resolvers::ArgumentValueResolverInterface`.
+  # The default `ATH::Arguments::Resolvers::ArgumentValueResolverInterface`s that will handle resolving controller action arguments from a request (or other source).
+  # Custom argument value resolvers can also be defined, see `ATH::Arguments::Resolvers::ArgumentValueResolverInterface`.
   #
-  # NOTE: In order for `Athena::Routing` to pick up your custom value resolvers, be sure to `ADI::Register` it as a service, and tag it as `ART::Arguments::Resolvers::TAG`.
+  # NOTE: In order for `Athena::Framework` to pick up your custom value resolvers, be sure to `ADI::Register` it as a service, and tag it as `ATH::Arguments::Resolvers::TAG`.
   # A `priority` field can also be optionally included in the annotation, the higher the value the sooner in the array it'll be when injected.
   #
   # See each resolver for more detailed information.
-  module Athena::Routing::Arguments::Resolvers
-    # The tag name for `ART::Arguments::Resolvers::ArgumentValueResolverInterface`s.
+  module Athena::Framework::Arguments::Resolvers
+    # The tag name for `ATH::Arguments::Resolvers::ArgumentValueResolverInterface`s.
     TAG = "athena.argument_value_resolver"
   end
 
   # Namespace for types related to request parameter processing.
   #
-  # See `ARTA::QueryParam` and `ARTA::RequestParam`.
-  module Athena::Routing::Params; end
+  # See `ATHA::QueryParam` and `ATHA::RequestParam`.
+  module Athena::Framework::Params; end
 
   # Runs an `HTTP::Server` listening on the given *port* and *host*.
   #
   # ```
   # require "athena"
   #
-  # class ExampleController < ART::Controller
-  #   @[ARTA::Get("/")]
+  # class ExampleController < ATH::Controller
+  #   @[ATHA::Get("/")]
   #   def root : String
   #     "At the index"
   #   end
@@ -118,9 +120,9 @@ module Athena::Routing
   #
   # ART.run
   # ```
-  # See `ART::Controller` for more information on defining controllers/route actions.
+  # See `ATH::Controller` for more information on defining controllers/route actions.
   def self.run(port : Int32 = 3000, host : String = "0.0.0.0", reuse_port : Bool = false) : Nil
-    ART::Server.new(port, host, reuse_port).start
+    ATH::Server.new(port, host, reuse_port).start
   end
 
   # :nodoc:
@@ -133,10 +135,10 @@ module Athena::Routing
         # Reinitialize the container since keep-alive requests reuse the same fiber.
         Fiber.current.container = ADI::ServiceContainer.new
 
-        handler = ADI.container.athena_routing_route_handler
+        handler = ADI.container.athena_route_handler
 
-        # Convert the raw `HTTP::Request` into an `ART::Request` instance.
-        request = ART::Request.new context.request
+        # Convert the raw `HTTP::Request` into an `ATH::Request` instance.
+        request = ATH::Request.new context.request
 
         # Handle the request.
         athena_response = handler.handle request

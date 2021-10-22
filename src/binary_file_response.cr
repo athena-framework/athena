@@ -10,8 +10,8 @@ require "mime"
 # [If-Modified-Since](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-Modified-Since),
 # and [If-Range](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-Range) headers.
 #
-# See `ART::HeaderUtils.make_disposition` for an example of handling dynamic files.
-class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
+# See `ATH::HeaderUtils.make_disposition` for an example of handling dynamic files.
+class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
   # Returns a `Path` instance representing the file that will be sent to the client.
   getter file_path : Path
 
@@ -40,7 +40,7 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
 
   # Instantiates `self` wrapping the file at the provided *file_path*, optionally with the provided *status*, and *headers*.
   #
-  # By default the response is `ART::Response#set_public` and includes a `last-modified` header,
+  # By default the response is `ATH::Response#set_public` and includes a `last-modified` header,
   # but these can be controlled via the *public* and *auto_last_modified* arguments respectively.
   #
   # The *content_disposition* argument can be used to set the `content-disposition` header on `self` if it should be downloadable.
@@ -49,9 +49,9 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
   def initialize(
     file_path : String | Path,
     status : HTTP::Status | Int32 = HTTP::Status::OK,
-    headers : HTTP::Headers | ART::Response::Headers = ART::Response::Headers.new,
+    headers : HTTP::Headers | ATH::Response::Headers = ATH::Response::Headers.new,
     public : Bool = true,
-    content_disposition : ART::BinaryFileResponse::ContentDisposition? = nil,
+    content_disposition : ATH::BinaryFileResponse::ContentDisposition? = nil,
     auto_etag : Bool = false,
     auto_last_modified : Bool = true
   )
@@ -80,13 +80,13 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
   # Sets the `content-disposition` header on `self` to the provided *disposition*.
   # *filename* defaults to the basename of `#file_path`.
   #
-  # See `ART::HeaderUtils.make_disposition`.
-  def set_content_disposition(disposition : ART::BinaryFileResponse::ContentDisposition, filename : String? = nil, fallback_filename : String? = nil)
+  # See `ATH::HeaderUtils.make_disposition`.
+  def set_content_disposition(disposition : ATH::BinaryFileResponse::ContentDisposition, filename : String? = nil, fallback_filename : String? = nil)
     if filename.nil?
       filename = @file_path.basename
     end
 
-    @headers["content-disposition"] = ART::HeaderUtils.make_disposition disposition, filename, fallback_filename
+    @headers["content-disposition"] = ATH::HeaderUtils.make_disposition disposition, filename, fallback_filename
   end
 
   # Sets the `etag` header on `self` based on a `SHA256` hash of the file.
@@ -105,7 +105,7 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
   # OPTIMIZE: Make this less complex.
   #
   # ameba:disable Metrics/CyclomaticComplexity
-  protected def prepare(request : ART::Request) : Nil
+  protected def prepare(request : ATH::Request) : Nil
     if self.cache_request?(request)
       self.status = :not_modified
       return super
@@ -183,7 +183,7 @@ class Athena::Routing::BinaryFileResponse < Athena::Routing::Response
     end
   end
 
-  private def cache_request?(request : ART::Request) : Bool
+  private def cache_request?(request : ATH::Request) : Bool
     # According to RFC 7232:
     # A recipient must ignore If-Modified-Since if the request contains an If-None-Match header field
     if (if_none_match = request.if_none_match) && (etag = self.etag)

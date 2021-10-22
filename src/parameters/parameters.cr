@@ -1,13 +1,13 @@
-# Encompasses parameters related to the `Athena::Routing` component.
+# Encompasses parameters related to the `Athena::Framework` component.
 #
 # For a higher level introduction to using parameters, see the [external documentation](/components/config).
-struct Athena::Routing::Parameters
-  # This method should be overridden in order to customize the parameters for the `Athena::Routing` component.
+struct Athena::Framework::Parameters
+  # This method should be overridden in order to customize the parameters for the `Athena::Framework` component.
   # See the [external documentation](/components/config#parameters) for more details.
   #
   # ```
-  # # Returns an `ART::Parameters` instance with customized parameter values.
-  # def ART::Parameters.configure
+  # # Returns an `ATH::Parameters` instance with customized parameter values.
+  # def ATH::Parameters.configure
   #   new(
   #     base_uri: "https://myapp.com",
   #   )
@@ -32,7 +32,7 @@ struct Athena::Routing::Parameters
 end
 
 class Athena::Config::Parameters
-  getter routing : ART::Parameters = ART::Parameters.configure
+  getter routing : ATH::Parameters = ATH::Parameters.configure
 end
 
 # Setup bindings for built in parameters.

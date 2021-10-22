@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-struct ParamConverterControllerTest < ART::Spec::APITestCase
+struct ParamConverterControllerTest < ATH::Spec::APITestCase
   def test_happy_path : Nil
     self.request("POST", "/param-converter").body.should eq "1"
   end

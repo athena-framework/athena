@@ -1,43 +1,43 @@
 require "../../spec_helper"
 
-describe ART::Arguments::Resolvers::DefaultValue do
+describe ATH::Arguments::Resolvers::DefaultValue do
   describe "#supports" do
     it "with a default value" do
-      argument = ART::Arguments::ArgumentMetadata(Int32).new("id", true, false)
+      argument = ATH::Arguments::ArgumentMetadata(Int32).new("id", true, false)
 
-      ART::Arguments::Resolvers::DefaultValue.new.supports?(new_request, argument).should be_true
+      ATH::Arguments::Resolvers::DefaultValue.new.supports?(new_request, argument).should be_true
     end
 
     it "nilable not Nil type" do
-      argument = ART::Arguments::ArgumentMetadata(Int32?).new("id", false, true)
+      argument = ATH::Arguments::ArgumentMetadata(Int32?).new("id", false, true)
 
-      ART::Arguments::Resolvers::DefaultValue.new.supports?(new_request, argument).should be_true
+      ATH::Arguments::Resolvers::DefaultValue.new.supports?(new_request, argument).should be_true
     end
 
     it "Nil type" do
-      argument = ART::Arguments::ArgumentMetadata(Nil).new("id", false, true)
+      argument = ATH::Arguments::ArgumentMetadata(Nil).new("id", false, true)
 
-      ART::Arguments::Resolvers::DefaultValue.new.supports?(new_request, argument).should be_false
+      ATH::Arguments::Resolvers::DefaultValue.new.supports?(new_request, argument).should be_false
     end
 
     it "not nilable not Nil type" do
-      argument = ART::Arguments::ArgumentMetadata(Int32).new("id", false, false)
+      argument = ATH::Arguments::ArgumentMetadata(Int32).new("id", false, false)
 
-      ART::Arguments::Resolvers::DefaultValue.new.supports?(new_request, argument).should be_false
+      ATH::Arguments::Resolvers::DefaultValue.new.supports?(new_request, argument).should be_false
     end
   end
 
   describe "#resolve" do
     it "with a default value" do
-      argument = ART::Arguments::ArgumentMetadata(Int32).new("id", true, false, 100)
+      argument = ATH::Arguments::ArgumentMetadata(Int32).new("id", true, false, 100)
 
-      ART::Arguments::Resolvers::DefaultValue.new.resolve(new_request, argument).should eq 100
+      ATH::Arguments::Resolvers::DefaultValue.new.resolve(new_request, argument).should eq 100
     end
 
     it "without a default value" do
-      argument = ART::Arguments::ArgumentMetadata(Int32?).new("id", false, true)
+      argument = ATH::Arguments::ArgumentMetadata(Int32?).new("id", false, true)
 
-      ART::Arguments::Resolvers::DefaultValue.new.resolve(new_request, argument).should be_nil
+      ATH::Arguments::Resolvers::DefaultValue.new.resolve(new_request, argument).should be_nil
     end
   end
 end

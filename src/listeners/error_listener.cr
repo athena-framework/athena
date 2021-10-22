@@ -1,14 +1,14 @@
 @[ADI::Register]
-# Handles an exception by converting it into an `ART::Response` via an `ART::ErrorRendererInterface`.
+# Handles an exception by converting it into an `ATH::Response` via an `ATH::ErrorRendererInterface`.
 #
 # This listener defines a `log_exception` protected method that determines how the exception gets logged.
-# Non `ART::Exceptions::HTTPException`s and server errors are logged as errors.
-# Validation errors (`ART::Exceptions::UnprocessableEntity`) are logged as notice.
+# Non `ATH::Exceptions::HTTPException`s and server errors are logged as errors.
+# Validation errors (`ATH::Exceptions::UnprocessableEntity`) are logged as notice.
 # Everything else is logged as a warning.
 # The method can be redefined if different logic is desired.
 #
 # ```
-# struct ART::Listeners::Error
+# struct ATH::Listeners::Error
 #   # :inherit:
 #   protected def log_exception(exception : Exception, & : -> String) : Nil
 #     # Don't log anything if an exception is some specific type.
@@ -25,18 +25,18 @@
 #   end
 # end
 # ```
-struct Athena::Routing::Listeners::Error
+struct Athena::Framework::Listeners::Error
   include AED::EventListenerInterface
 
   def self.subscribed_events : AED::SubscribedEvents
     AED::SubscribedEvents{
-      ART::Events::Exception => -50,
+      ATH::Events::Exception => -50,
     }
   end
 
-  def initialize(@error_renderer : ART::ErrorRendererInterface); end
+  def initialize(@error_renderer : ATH::ErrorRendererInterface); end
 
-  def call(event : ART::Events::Exception, dispatcher : AED::EventDispatcherInterface) : Nil
+  def call(event : ATH::Events::Exception, dispatcher : AED::EventDispatcherInterface) : Nil
     exception = event.exception
 
     log_exception(exception) { "Uncaught exception #{exception.inspect} at #{exception.backtrace?.try &.first}" }
@@ -53,10 +53,10 @@ struct Athena::Routing::Listeners::Error
   #
   # Applications can redefine this method to customize how exceptions are logged.
   protected def log_exception(exception : Exception, & : -> String) : Nil
-    if !exception.is_a?(ART::Exceptions::HTTPException) || exception.status.server_error?
+    if !exception.is_a?(ATH::Exceptions::HTTPException) || exception.status.server_error?
       # Log non HTTPExceptions and server errors as errors
       Log.error(exception: exception) { yield }
-    elsif exception.is_a? ART::Exceptions::UnprocessableEntity
+    elsif exception.is_a? ATH::Exceptions::UnprocessableEntity
       # Log failed validations as notice
       Log.notice(exception: exception) { yield }
     else

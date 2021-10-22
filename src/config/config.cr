@@ -2,27 +2,27 @@ require "./cors"
 require "./content_negotiation"
 require "./view_handler"
 
-# Encompasses all configuration related to the `Athena::Routing` component.
+# Encompasses all configuration related to the `Athena::Framework` component.
 #
 # For a higher level introduction to configuring Athena components, see the [external documentation](/components/config).
-struct Athena::Routing::Config
-  # Configuration related to `ART::Listeners::CORS`.
+struct Athena::Framework::Config
+  # Configuration related to `ATH::Listeners::CORS`.
   #
-  # See `ART::Config::CORS.configure`.
-  getter cors : ART::Config::CORS? = ART::Config::CORS.configure
+  # See `ATH::Config::CORS.configure`.
+  getter cors : ATH::Config::CORS? = ATH::Config::CORS.configure
 
-  # Configuration related to `ART::Listeners::Format`.
+  # Configuration related to `ATH::Listeners::Format`.
   #
-  # See `ART::Config::ContentNegotiation.configure`.
-  getter content_negotiation : ART::Config::ContentNegotiation? = ART::Config::ContentNegotiation.configure
+  # See `ATH::Config::ContentNegotiation.configure`.
+  getter content_negotiation : ATH::Config::ContentNegotiation? = ATH::Config::ContentNegotiation.configure
 
-  # Configuration related to `ART::Listeners::View`.
+  # Configuration related to `ATH::Listeners::View`.
   #
-  # See `ART::Config::ViewHandler.configure`.
-  getter view_handler : ART::Config::ViewHandler = ART::Config::ViewHandler.configure
+  # See `ATH::Config::ViewHandler.configure`.
+  getter view_handler : ATH::Config::ViewHandler = ATH::Config::ViewHandler.configure
 end
 
 class Athena::Config::Base
   # All configuration related to the `ART` component.
-  getter routing : Athena::Routing::Config = Athena::Routing::Config.new
+  getter routing : Athena::Framework::Config = Athena::Framework::Config.new
 end

@@ -19,7 +19,7 @@ class HTTP::Server::Response
   end
 end
 
-# A set of testing utilities/types to aid in testing `Athena::Routing` related types.
+# A set of testing utilities/types to aid in testing `Athena::Framework` related types.
 #
 # ### Getting Started
 #
@@ -32,7 +32,7 @@ end
 #
 # Add `Athena::Spec` as a development dependency, then run a `shards install`.
 # See the individual types for more information.
-module Athena::Routing::Spec
+module Athena::Framework::Spec
   # Simulates a browser to make requests to some destination.
   #
   # NOTE: Currently just acts as a client to make `HTTP` requests.  This type exists to allow for introduction of other functionality in the future.
@@ -40,7 +40,7 @@ module Athena::Routing::Spec
     # :nodoc:
     #
     # Makes a *request* and returns the response.
-    abstract def do_request(request : ART::Request) : HTTP::Server::Response
+    abstract def do_request(request : ATH::Request) : HTTP::Server::Response
 
     # Makes an HTTP request with the provided *method*, at the provided *path*, with the provided *body* and/or *headers* and returns the resulting response.
     def request(
@@ -52,21 +52,21 @@ module Athena::Routing::Spec
       # At the moment this just calls into `do_request`.
       # Kept this as way allow for future expansion.
 
-      self.do_request ART::Request.new method, path, headers, body
+      self.do_request ATH::Request.new method, path, headers, body
     end
   end
 
-  # Simulates a browser and makes a requests to `ART::RouteHandler`.
+  # Simulates a browser and makes a requests to `ATH::RouteHandler`.
   struct HTTPBrowser < AbstractBrowser
     # Returns a reference to an `ADI::Spec::MockableServiceContainer` to allow configuring the container before a test.
     def container : ADI::Spec::MockableServiceContainer
       ADI.container.as(ADI::Spec::MockableServiceContainer)
     end
 
-    protected def do_request(request : ART::Request) : HTTP::Server::Response
+    protected def do_request(request : ATH::Request) : HTTP::Server::Response
       response = HTTP::Server::Response.new IO::Memory.new
 
-      handler = ADI.container.athena_routing_route_handler
+      handler = ADI.container.athena_route_handler
       athena_response = handler.handle request
 
       athena_response.send request, response
@@ -95,9 +95,9 @@ module Athena::Routing::Spec
   # Say we want to test the following controller:
   #
   # ```
-  # class ExampleController < ART::Controller
-  #   @[ARTA::QueryParam("negative")]
-  #   @[ARTA::Get("/add/:value1/:value2")]
+  # class ExampleController < ATH::Controller
+  #   @[ATHA::QueryParam("negative")]
+  #   @[ATHA::Get("/add/:value1/:value2")]
   #   def add(value1 : Int32, value2 : Int32, negative : Bool = false) : Int32
   #     sum = value1 + value2
   #     negative ? -sum : sum
@@ -108,7 +108,7 @@ module Athena::Routing::Spec
   # We can define a struct inheriting from `self` to implement our test logic:
   #
   # ```
-  # struct ExampleControllerTest < ART::Spec::APITestCase
+  # struct ExampleControllerTest < ATH::Spec::APITestCase
   #   def test_add_positive : Nil
   #     self.request("GET", "/add/5/3").body.should eq "8"
   #   end
@@ -158,10 +158,10 @@ module Athena::Routing::Spec
   # end
   #
   # @[ADI::Register(public: true)]
-  # class ExampleServiceController < ART::Controller
+  # class ExampleServiceController < ATH::Controller
   #   def initialize(@api_client : APIClient); end
   #
-  #   @[ARTA::Post("/sync")]
+  #   @[ATHA::Post("/sync")]
   #   def sync_data : String
   #     # Use the injected api client to get the latest data to sync.
   #     data = @api_client.fetch_latest_data
@@ -172,7 +172,7 @@ module Athena::Routing::Spec
   #   end
   # end
   #
-  # struct ExampleServiceControllerTest < ART::Spec::APITestCase
+  # struct ExampleServiceControllerTest < ATH::Spec::APITestCase
   #   def initialize
   #     super
   #
@@ -219,20 +219,22 @@ module Athena::Routing::Spec
       Fiber.current.container = ADI::Spec::MockableServiceContainer.new
     end
   end
+end
 
+module Athena::Routing::Spec
   # Test implementation of `ART::RouteCollection` that allows routes to be scoped to a specific instance and added manually.
   class MockRouteCollection < Athena::Routing::RouteCollection
-    @routes : Hash(String, ART::ActionBase) = Hash(String, ART::ActionBase).new
+    @routes : Hash(String, ATH::ActionBase) = Hash(String, ATH::ActionBase).new
 
-    def add(name : String, route : ART::ActionBase) : Nil
+    def add(name : String, route : ATH::ActionBase) : Nil
       @routes[name] = route
     end
 
-    def add(route : ART::ActionBase) : Nil
+    def add(route : ATH::ActionBase) : Nil
       self.add route.name, route
     end
 
-    def routes : Hash(String, ART::ActionBase)
+    def routes : Hash(String, ATH::ActionBase)
       @routes
     end
   end

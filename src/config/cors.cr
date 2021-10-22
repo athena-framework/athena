@@ -1,20 +1,20 @@
 require "./config"
 
-struct Athena::Routing::Config; end
+struct Athena::Framework::Config; end
 
-# Configuration options for `ART::Listeners::CORS`.  See `.configure`.
+# Configuration options for `ATH::Listeners::CORS`.  See `.configure`.
 #
 # TODO: Allow scoping `CORS` options to specific routes versus applying them to all routes.
 @[ACFA::Resolvable("routing.cors")]
-struct Athena::Routing::Config::CORS
-  # This method should be overridden in order to provide the configuration for `ART::Listeners::CORS`.
+struct Athena::Framework::Config::CORS
+  # This method should be overridden in order to provide the configuration for `ATH::Listeners::CORS`.
   # See the [external documentation](/components/config#configuration) for more details.
   #
   # By default it returns `nil`, which disables the listener.
   #
   # ```
-  # # Returns an `ART::Config::CORS` instance that will determine how the listener functions.
-  # def ART::Config::CORS.configure : ART::Config::CORS?
+  # # Returns an `ATH::Config::CORS` instance that will determine how the listener functions.
+  # def ATH::Config::CORS.configure : ATH::Config::CORS?
   #   new(
   #     allow_credentials: true,
   #     allow_origin: %(https://app.example.com),
@@ -65,7 +65,7 @@ struct Athena::Routing::Config::CORS
     @allow_credentials : Bool = false,
     allow_origin : Array(String | Regex) = Array(String | Regex).new,
     @allow_headers : Array(String) = [] of String,
-    @allow_methods : Array(String) = Athena::Routing::Listeners::CORS::SAFELISTED_METHODS,
+    @allow_methods : Array(String) = Athena::Framework::Listeners::CORS::SAFELISTED_METHODS,
     @expose_headers : Array(String) = [] of String,
     @max_age : Int32 = 0
   )

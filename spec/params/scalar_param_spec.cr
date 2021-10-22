@@ -1,13 +1,13 @@
 require "../spec_helper"
 
-private struct MockScalarParam(T) < ART::Params::ScalarParam
+private struct MockScalarParam(T) < ATH::Params::ScalarParam
   define_initializer
 
-  def extract_value(request : ART::Request, default = nil) : Nil
+  def extract_value(request : ATH::Request, default = nil) : Nil
   end
 end
 
-describe ART::Params::ScalarParam do
+describe ATH::Params::ScalarParam do
   describe "#constraints" do
     describe "not nilable, no requirements, no map" do
       it "inherits the NotNil constraint from its parent" do

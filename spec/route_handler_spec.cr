@@ -1,11 +1,11 @@
 require "./spec_helper"
 
 private struct MockArgumentResolver
-  include Athena::Routing::Arguments::ArgumentResolverInterface
+  include Athena::Framework::Arguments::ArgumentResolverInterface
 
   def initialize(@exception : ::Exception? = nil); end
 
-  def get_arguments(request : ART::Request, action : ART::ActionBase) : Array
+  def get_arguments(request : ATH::Request, action : ATH::ActionBase) : Array
     if ex = @exception
       raise ex
     end
@@ -14,15 +14,15 @@ private struct MockArgumentResolver
   end
 end
 
-describe Athena::Routing::RouteHandler do
+describe Athena::Framework::RouteHandler do
   describe "#handle" do
     describe "request" do
-      describe ART::Response do
+      describe ATH::Response do
         it "should use the returned response" do
           dispatcher = AED::Spec::TracableEventDispatcher.new
-          handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new
-          action = create_action(ART::Response) do
-            ART::Response.new "TEST"
+          handler = ATH::RouteHandler.new dispatcher, ATH::RequestStore.new, MockArgumentResolver.new
+          action = create_action(ATH::Response) do
+            ATH::Response.new "TEST"
           end
 
           response = handler.handle new_request(action: action)
@@ -30,20 +30,20 @@ describe Athena::Routing::RouteHandler do
           response.status.should eq HTTP::Status::OK
           response.content.should eq "TEST"
 
-          dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Action, ART::Events::Response]
+          dispatcher.emitted_events.should eq [ATH::Events::Request, ATH::Events::Action, ATH::Events::Response]
         end
       end
 
       describe "view layer" do
         it "should use the resolve the returned value into a response" do
-          listener = AED.create_listener(ART::Events::View) do
-            event.response = ART::Response.new "TEST".to_json, 201, HTTP::Headers{"content-type" => "application/json"}
+          listener = AED.create_listener(ATH::Events::View) do
+            event.response = ATH::Response.new "TEST".to_json, 201, HTTP::Headers{"content-type" => "application/json"}
           end
 
           dispatcher = AED::Spec::TracableEventDispatcher.new
-          dispatcher.add_listener ART::Events::View, listener
+          dispatcher.add_listener ATH::Events::View, listener
 
-          handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new
+          handler = ATH::RouteHandler.new dispatcher, ATH::RequestStore.new, MockArgumentResolver.new
 
           response = handler.handle new_request
 
@@ -51,32 +51,32 @@ describe Athena::Routing::RouteHandler do
           response.content.should eq %("TEST")
           response.headers["content-type"].should eq "application/json"
 
-          dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Action, ART::Events::View, ART::Events::Response]
+          dispatcher.emitted_events.should eq [ATH::Events::Request, ATH::Events::Action, ATH::Events::View, ATH::Events::Response]
         end
 
         it "should raise an exception if the value was not handled" do
           dispatcher = AED::Spec::TracableEventDispatcher.new
 
-          handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new
+          handler = ATH::RouteHandler.new dispatcher, ATH::RequestStore.new, MockArgumentResolver.new
 
-          expect_raises Exception, "TestController#test must return an `ART::Response` but it returned ''." do
+          expect_raises Exception, "TestController#test must return an `ATH::Response` but it returned ''." do
             handler.handle new_request
           end
 
-          dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Action, ART::Events::View, ART::Events::Exception]
+          dispatcher.emitted_events.should eq [ATH::Events::Request, ATH::Events::Action, ATH::Events::View, ATH::Events::Exception]
         end
       end
 
       describe "that was handled via a request listener" do
         it "should emit the proper events and set the proper response" do
-          listener = AED.create_listener(ART::Events::Request) do
-            event.response = ART::Response.new "", HTTP::Status::IM_A_TEAPOT, HTTP::Headers{"FOO" => "BAR"}
+          listener = AED.create_listener(ATH::Events::Request) do
+            event.response = ATH::Response.new "", HTTP::Status::IM_A_TEAPOT, HTTP::Headers{"FOO" => "BAR"}
           end
 
           dispatcher = AED::Spec::TracableEventDispatcher.new
-          dispatcher.add_listener ART::Events::Request, listener
+          dispatcher.add_listener ATH::Events::Request, listener
 
-          handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new
+          handler = ATH::RouteHandler.new dispatcher, ATH::RequestStore.new, MockArgumentResolver.new
 
           response = handler.handle new_request
 
@@ -84,7 +84,7 @@ describe Athena::Routing::RouteHandler do
           response.content.should be_empty
           response.headers["FOO"].should eq "BAR"
 
-          dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Response]
+          dispatcher.emitted_events.should eq [ATH::Events::Request, ATH::Events::Response]
         end
       end
     end
@@ -92,21 +92,21 @@ describe Athena::Routing::RouteHandler do
     describe "exception" do
       describe "that is handled" do
         it "should emit the proper events and set correct response" do
-          listener = AED.create_listener(ART::Events::Exception) do
-            event.response = ART::Response.new "HANDLED", HTTP::Status::BAD_REQUEST
+          listener = AED.create_listener(ATH::Events::Exception) do
+            event.response = ATH::Response.new "HANDLED", HTTP::Status::BAD_REQUEST
           end
 
           dispatcher = AED::Spec::TracableEventDispatcher.new
-          dispatcher.add_listener ART::Events::Exception, listener
+          dispatcher.add_listener ATH::Events::Exception, listener
 
-          handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new ART::Exceptions::BadRequest.new "TEST_EX"
+          handler = ATH::RouteHandler.new dispatcher, ATH::RequestStore.new, MockArgumentResolver.new ATH::Exceptions::BadRequest.new "TEST_EX"
 
           response = handler.handle new_request
 
           response.status.should eq HTTP::Status::BAD_REQUEST
           response.content.should eq "HANDLED"
 
-          dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Action, ART::Events::Exception, ART::Events::Response]
+          dispatcher.emitted_events.should eq [ATH::Events::Request, ATH::Events::Action, ATH::Events::Exception, ATH::Events::Response]
         end
       end
 
@@ -114,34 +114,34 @@ describe Athena::Routing::RouteHandler do
         it "should emit the proper events and set correct response" do
           dispatcher = AED::Spec::TracableEventDispatcher.new
 
-          handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new ART::Exceptions::BadRequest.new "TEST_EX"
+          handler = ATH::RouteHandler.new dispatcher, ATH::RequestStore.new, MockArgumentResolver.new ATH::Exceptions::BadRequest.new "TEST_EX"
 
-          expect_raises ART::Exceptions::BadRequest, "TEST_EX" do
+          expect_raises ATH::Exceptions::BadRequest, "TEST_EX" do
             handler.handle new_request
           end
 
-          dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Action, ART::Events::Exception]
+          dispatcher.emitted_events.should eq [ATH::Events::Request, ATH::Events::Action, ATH::Events::Exception]
         end
       end
 
       describe "when another exception is raised in the response listener" do
         it "should return the previous response" do
-          listener = AED.create_listener(ART::Events::Response) do
-            raise ART::Exceptions::NotFound.new "NOT_FOUND"
+          listener = AED.create_listener(ATH::Events::Response) do
+            raise ATH::Exceptions::NotFound.new "NOT_FOUND"
           end
 
-          ex_listener = AED.create_listener(ART::Events::Exception) do
-            event.response = ART::Response.new "HANDLED", HTTP::Status::NOT_FOUND
+          ex_listener = AED.create_listener(ATH::Events::Exception) do
+            event.response = ATH::Response.new "HANDLED", HTTP::Status::NOT_FOUND
           end
 
           dispatcher = AED::Spec::TracableEventDispatcher.new
-          dispatcher.add_listener ART::Events::Response, listener
-          dispatcher.add_listener ART::Events::Exception, ex_listener
+          dispatcher.add_listener ATH::Events::Response, listener
+          dispatcher.add_listener ATH::Events::Exception, ex_listener
 
-          handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new
+          handler = ATH::RouteHandler.new dispatcher, ATH::RequestStore.new, MockArgumentResolver.new
 
-          action = create_action(ART::Response) do
-            ART::Response.new "TEST"
+          action = create_action(ATH::Response) do
+            ATH::Response.new "TEST"
           end
 
           response = handler.handle new_request action: action
@@ -149,7 +149,7 @@ describe Athena::Routing::RouteHandler do
           response.status.should eq HTTP::Status::NOT_FOUND
           response.content.should eq %(HANDLED)
 
-          dispatcher.emitted_events.should eq [ART::Events::Request, ART::Events::Action, ART::Events::Response, ART::Events::Exception, ART::Events::Response]
+          dispatcher.emitted_events.should eq [ATH::Events::Request, ATH::Events::Action, ATH::Events::Response, ATH::Events::Exception, ATH::Events::Response]
         end
       end
     end
@@ -158,11 +158,11 @@ describe Athena::Routing::RouteHandler do
   describe "#terminate" do
     it "emits the terminate event" do
       dispatcher = AED::Spec::TracableEventDispatcher.new
-      handler = ART::RouteHandler.new dispatcher, ART::RequestStore.new, MockArgumentResolver.new
+      handler = ATH::RouteHandler.new dispatcher, ATH::RequestStore.new, MockArgumentResolver.new
 
-      handler.terminate new_request, ART::Response.new
+      handler.terminate new_request, ATH::Response.new
 
-      dispatcher.emitted_events.should eq [ART::Events::Terminate]
+      dispatcher.emitted_events.should eq [ATH::Events::Terminate]
     end
   end
 end

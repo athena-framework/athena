@@ -1,11 +1,11 @@
 require "../spec_helper"
 
-class CompileController < ART::Controller
-  @[ARTA::Get(path: "/")]
-  @[ARTA::QueryParam("all", requirements: [@[Assert::NotBlank], @[ARTA::Get]])]
+class CompileController < ATH::Controller
+  @[ATHA::Get(path: "/")]
+  @[ATHA::QueryParam("all", requirements: [@[Assert::NotBlank], @[ATHA::Get]])]
   def action(all : Bool) : Int32
     123
   end
 end
 
-ART.run
+ATH.run

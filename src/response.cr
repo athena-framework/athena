@@ -1,13 +1,13 @@
 # Represents an `HTTP` response that should be returned to the client.
 #
 # Contains the content, status, and headers that should be applied to the actual `HTTP::Server::Response`.
-# This type is used to allow the content, status, and headers to be mutated by `ART::Listeners` before being returned to the client.
+# This type is used to allow the content, status, and headers to be mutated by `ATH::Listeners` before being returned to the client.
 #
 # The `#content` is written all at once to the server response's `IO`.
-class Athena::Routing::Response
-  # Determines how the content of an `ART::Response` will be written to the requests' response `IO`.
+class Athena::Framework::Response
+  # Determines how the content of an `ATH::Response` will be written to the requests' response `IO`.
   #
-  # By default the content is written directly to the requests' response `IO` via `ART::Response::DirectWriter`.
+  # By default the content is written directly to the requests' response `IO` via `ATH::Response::DirectWriter`.
   # However, custom writers can be implemented to customize that behavior.  The most common use case would be for compression.
   #
   # Writers can also be defined as services and injected into a listener if they require additional external dependencies.
@@ -19,7 +19,7 @@ class Athena::Routing::Response
   # require "compress/gzip"
   #
   # # Define a custom writer to gzip the response
-  # struct GzipWriter < ART::Response::Writer
+  # struct GzipWriter < ATH::Response::Writer
   #   def write(output : IO, & : IO -> Nil) : Nil
   #     Compress::Gzip::Writer.open(output) do |gzip_io|
   #       yield gzip_io
@@ -34,14 +34,14 @@ class Athena::Routing::Response
   #
   #   def self.subscribed_events : AED::SubscribedEvents
   #     AED::SubscribedEvents{
-  #       ART::Events::Response => -256, # Listen on the Response event with a very low priority
+  #       ATH::Events::Response => -256, # Listen on the Response event with a very low priority
   #     }
   #   end
   #
-  #   def call(event : ART::Events::Response, dispatcher : AED::EventDispatcherInterface) : Nil
+  #   def call(event : ATH::Events::Response, dispatcher : AED::EventDispatcherInterface) : Nil
   #     # If the request supports gzip encoding
   #     if event.request.headers.includes_word?("accept-encoding", "gzip")
-  #       # Change the `ART::Response` object's writer to be our `GzipWriter`
+  #       # Change the `ATH::Response` object's writer to be our `GzipWriter`
   #       event.response.writer = GzipWriter.new
   #
   #       # Set the encoding of the response to gzip
@@ -50,8 +50,8 @@ class Athena::Routing::Response
   #   end
   # end
   #
-  # class ExampleController < ART::Controller
-  #   @[ARTA::Get("/users")]
+  # class ExampleController < ATH::Controller
+  #   @[ATHA::Get("/users")]
   #   def users : Array(User)
   #     User.all
   #   end
@@ -66,7 +66,7 @@ class Athena::Routing::Response
     abstract def write(output : IO, & : IO -> Nil) : Nil
   end
 
-  # The default `ART::Response::Writer` for an `ART::Response`.
+  # The default `ATH::Response::Writer` for an `ATH::Response`.
   #
   # Writes directly to the *output* `IO`.
   struct DirectWriter < Writer
@@ -78,8 +78,8 @@ class Athena::Routing::Response
     end
   end
 
-  # See `ART::Response::Writer`.
-  setter writer : ART::Response::Writer = ART::Response::DirectWriter.new
+  # See `ATH::Response::Writer`.
+  setter writer : ATH::Response::Writer = ATH::Response::DirectWriter.new
 
   # Returns the `HTTP::Status` of this response.
   getter status : HTTP::Status
@@ -88,16 +88,16 @@ class Athena::Routing::Response
   property charset : String = "UTF-8"
 
   # Returns the response headers of this response.
-  getter headers : ART::Response::Headers
+  getter headers : ATH::Response::Headers
 
   # Returns the contents of this response.
   getter content : String
 
   # Creates a new response with optional *content*, *status*, and *headers* arguments.
-  def initialize(content : String? = nil, status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers | ART::Response::Headers = ART::Response::Headers.new)
+  def initialize(content : String? = nil, status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers | ATH::Response::Headers = ATH::Response::Headers.new)
     @content = content || ""
     @status = HTTP::Status.new status
-    @headers = ART::Response::Headers.new headers
+    @headers = ATH::Response::Headers.new headers
   end
 
   # Sets the response content.
@@ -107,12 +107,12 @@ class Athena::Routing::Response
 
   # Sends `self` to the client based on the provided *context*.
   #
-  # How the content gets written can be customized via an `ART::Response::Writer`.
-  def send(request : ART::Request, response : HTTP::Server::Response) : Nil
+  # How the content gets written can be customized via an `ATH::Response::Writer`.
+  def send(request : ATH::Request, response : HTTP::Server::Response) : Nil
     # Ensure the response is valid.
     self.prepare request
 
-    # Apply the `ART::Response` to the actual `HTTP::Server::Response` object.
+    # Apply the `ATH::Response` to the actual `HTTP::Server::Response` object.
     response.headers.merge! @headers
     response.status = @status
 
@@ -138,7 +138,7 @@ class Athena::Routing::Response
   # Do any preparation to ensure the response is RFC compliant.
   #
   # ameba:disable Metrics/CyclomaticComplexity
-  def prepare(request : ART::Request) : Nil
+  def prepare(request : ATH::Request) : Nil
     if @status.informational? || @status.no_content? || @status.not_modified?
       self.content = nil
       @headers.delete "content-type"

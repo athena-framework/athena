@@ -1,11 +1,11 @@
-@[ADI::Register(alias: Athena::Routing::ErrorRendererInterface)]
-# The default `ART::ErrorRendererInterface`, JSON serializes the exception.
-struct Athena::Routing::ErrorRenderer
-  include Athena::Routing::ErrorRendererInterface
+@[ADI::Register(alias: Athena::Framework::ErrorRendererInterface)]
+# The default `ATH::ErrorRendererInterface`, JSON serializes the exception.
+struct Athena::Framework::ErrorRenderer
+  include Athena::Framework::ErrorRendererInterface
 
   # :inherit:
-  def render(exception : ::Exception) : ART::Response
-    if exception.is_a? ART::Exceptions::HTTPException
+  def render(exception : ::Exception) : ATH::Response
+    if exception.is_a? ATH::Exceptions::HTTPException
       status = exception.status
       headers = exception.headers
     else
@@ -15,6 +15,6 @@ struct Athena::Routing::ErrorRenderer
 
     headers["content-type"] = "application/json; charset=UTF-8"
 
-    ART::Response.new exception.to_json, status, headers
+    ATH::Response.new exception.to_json, status, headers
   end
 end

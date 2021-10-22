@@ -1,24 +1,24 @@
-@[ADI::Register(name: "argument_resolver_default", tags: [{name: ART::Arguments::Resolvers::TAG, priority: -100}])]
+@[ADI::Register(name: "argument_resolver_default", tags: [{name: ATH::Arguments::Resolvers::TAG, priority: -100}])]
 # Handles resolving an argument's default value if no other value was able to be resolved.
 #
 # ```
-# @[ARTA::Get("/")]
-# @[ARTA::QueryParam("query_param")]
+# @[ATHA::Get("/")]
+# @[ATHA::QueryParam("query_param")]
 # def get_query_param(query_param : Int32 = 123) : Int32
 #   # `query_param` would be `123` if the request does not include a query parameter named `query_param`.
 #   query_param
 # end
 # ```
-struct Athena::Routing::Arguments::Resolvers::DefaultValue
-  include Athena::Routing::Arguments::Resolvers::ArgumentValueResolverInterface
+struct Athena::Framework::Arguments::Resolvers::DefaultValue
+  include Athena::Framework::Arguments::Resolvers::ArgumentValueResolverInterface
 
   # :inherit:
-  def supports?(request : ART::Request, argument : ART::Arguments::ArgumentMetadata) : Bool
+  def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Bool
     argument.has_default? || (argument.type != Nil && argument.nilable?)
   end
 
   # :inherit:
-  def resolve(request : ART::Request, argument : ART::Arguments::ArgumentMetadata)
+  def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
     argument.has_default? ? argument.default : nil
   end
 end

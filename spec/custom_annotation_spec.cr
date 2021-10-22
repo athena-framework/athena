@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-struct CustomAnnotationControllerTest < ART::Spec::APITestCase
+struct CustomAnnotationControllerTest < ATH::Spec::APITestCase
   def test_with_annotation : Nil
     headers = self.request("GET", "/with-ann").headers
     headers["ANNOTATION"]?.should eq "true"

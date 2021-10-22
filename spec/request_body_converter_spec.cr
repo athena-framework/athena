@@ -14,7 +14,7 @@ private record MockValidatableASRSerializableEntity, id : Int32, name : String d
 end
 
 struct RequestBodyConverterTest < ASPEC::TestCase
-  @target : ART::RequestBodyConverter
+  @target : ATH::RequestBodyConverter
 
   @serializer : ASR::SerializerInterface
   @validator : AVD::Validator::ValidatorInterface
@@ -23,23 +23,23 @@ struct RequestBodyConverterTest < ASPEC::TestCase
     @validator = AVD::Spec::MockValidator.new
     @serializer = DeserializableMockSerializer(Nil).new
 
-    @target = ART::RequestBodyConverter.new @serializer, @validator
+    @target = ATH::RequestBodyConverter.new @serializer, @validator
   end
 
   def test_it_raises_on_no_body : Nil
-    expect_raises ART::Exceptions::BadRequest, "Request has no body." do
+    expect_raises ATH::Exceptions::BadRequest, "Request has no body." do
       @target.apply new_request, self.get_config MockJSONSerializableEntity
     end
   end
 
   def test_it_raises_on_empty_body : Nil
-    expect_raises ART::Exceptions::BadRequest, "Malformed JSON payload." do
+    expect_raises ATH::Exceptions::BadRequest, "Malformed JSON payload." do
       @target.apply new_request(body: ""), self.get_config(MockJSONSerializableEntity)
     end
   end
 
   def test_it_raises_on_invalid_json : Nil
-    expect_raises ART::Exceptions::BadRequest, "Malformed JSON payload." do
+    expect_raises ATH::Exceptions::BadRequest, "Malformed JSON payload." do
       @target.apply new_request(body: "<abc123>"), self.get_config(MockJSONSerializableEntity)
     end
   end
@@ -55,7 +55,7 @@ struct RequestBodyConverterTest < ASPEC::TestCase
     )
 
     expect_raises AVD::Exceptions::ValidationFailed, "Validation failed" do
-      ART::RequestBodyConverter.new(serializer, validator).apply new_request(body: %({"id":10,"name":""})), self.get_config(MockValidatableASRSerializableEntity)
+      ATH::RequestBodyConverter.new(serializer, validator).apply new_request(body: %({"id":10,"name":""})), self.get_config(MockValidatableASRSerializableEntity)
     end
   end
 
@@ -76,7 +76,7 @@ struct RequestBodyConverterTest < ASPEC::TestCase
 
     request = new_request body: %({"id":10,"name":"Fred"})
 
-    ART::RequestBodyConverter.new(serializer, @validator).apply request, self.get_config(MockASRSerializableEntity)
+    ATH::RequestBodyConverter.new(serializer, @validator).apply request, self.get_config(MockASRSerializableEntity)
 
     request.attributes.has?("object").should be_true
     object = request.attributes.get "object", MockASRSerializableEntity
@@ -90,7 +90,7 @@ struct RequestBodyConverterTest < ASPEC::TestCase
 
     request = new_request body: %({"id":10,"name":"Fred"})
 
-    ART::RequestBodyConverter.new(serializer, @validator).apply request, self.get_config(MockValidatableASRSerializableEntity)
+    ATH::RequestBodyConverter.new(serializer, @validator).apply request, self.get_config(MockValidatableASRSerializableEntity)
 
     request.attributes.has?("object").should be_true
     object = request.attributes.get "object", MockValidatableASRSerializableEntity
@@ -99,6 +99,6 @@ struct RequestBodyConverterTest < ASPEC::TestCase
   end
 
   private def get_config(type : T.class) forall T
-    ART::RequestBodyConverter::Configuration(T).new "object", ART::RequestBodyConverter
+    ATH::RequestBodyConverter::Configuration(T).new "object", ATH::RequestBodyConverter
   end
 end

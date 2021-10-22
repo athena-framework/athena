@@ -1,7 +1,7 @@
 require "../spec_helper"
 
 private class MockParamFetcher
-  include ART::Params::ParamFetcherInterface
+  include ATH::Params::ParamFetcherInterface
 
   def each(strict : Bool? = nil, &) : Nil
     yield "foo", "bar"
@@ -13,13 +13,13 @@ private class MockParamFetcher
   end
 end
 
-describe ART::Listeners::ParamFetcher do
+describe ATH::Listeners::ParamFetcher do
   it "adds params into the requests attributes" do
     request = new_request
 
-    event = ART::Events::Action.new request, new_action
+    event = ATH::Events::Action.new request, new_action
 
-    ART::Listeners::ParamFetcher.new(MockParamFetcher.new).call(event, AED::Spec::TracableEventDispatcher.new)
+    ATH::Listeners::ParamFetcher.new(MockParamFetcher.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
     request.attributes.get("foo").should eq "bar"
     request.attributes.get("baz").should eq "biz"
@@ -29,9 +29,9 @@ describe ART::Listeners::ParamFetcher do
     request = new_request
     request.attributes.set "foo", nil
 
-    event = ART::Events::Action.new request, new_action
+    event = ATH::Events::Action.new request, new_action
 
-    ART::Listeners::ParamFetcher.new(MockParamFetcher.new).call(event, AED::Spec::TracableEventDispatcher.new)
+    ATH::Listeners::ParamFetcher.new(MockParamFetcher.new).call(event, AED::Spec::TracableEventDispatcher.new)
 
     request.attributes.get("foo").should eq "bar"
     request.attributes.get("baz").should eq "biz"
@@ -41,10 +41,10 @@ describe ART::Listeners::ParamFetcher do
     request = new_request
     request.attributes.set "foo", "default"
 
-    event = ART::Events::Action.new request, new_action
+    event = ATH::Events::Action.new request, new_action
 
     expect_raises ArgumentError, "Parameter 'foo' conflicts with a path parameter for route 'test'." do
-      ART::Listeners::ParamFetcher.new(MockParamFetcher.new).call(event, AED::Spec::TracableEventDispatcher.new)
+      ATH::Listeners::ParamFetcher.new(MockParamFetcher.new).call(event, AED::Spec::TracableEventDispatcher.new)
     end
   end
 end

@@ -1,1 +1,1 @@
-class Athena::Routing::Exceptions::StopFormatListener < Exception; end
+class Athena::Framework::Exceptions::StopFormatListener < Exception; end
