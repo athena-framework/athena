@@ -18,7 +18,7 @@
 #   end
 # end
 #
-# ART.run
+# ATH.run
 #
 # # GET /Fred      # => 200 {"greeting":"Hello Fred"}
 # # GET /view/Fred # => 418 {"greeting":"Hello Fred"}

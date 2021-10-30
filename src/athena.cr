@@ -64,6 +64,8 @@ alias ATHA = ATH::Annotations
 #
 # Also checkout the [Components](/components) for an overview of how `Athena` is designed.
 module Athena::Framework
+  VERSION = "0.15.0"
+
   # The `AED::Event` that are emitted via `Athena::EventDispatcher` to handle a request during its life-cycle.
   # Custom events can also be defined and dispatched within a controller, listener, or some other service.
   #
@@ -126,7 +128,7 @@ module Athena::Framework
   #   end
   # end
   #
-  # ART.run
+  # ATH.run
   # ```
   # See `ATH::Controller` for more information on defining controllers/route actions.
   def self.run(port : Int32 = 3000, host : String = "0.0.0.0", reuse_port : Bool = false) : Nil

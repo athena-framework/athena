@@ -46,7 +46,7 @@
 #   end
 # end
 #
-# ART.run
+# ATH.run
 #
 # # GET /multiply/3 # => 6
 # ```
@@ -91,7 +91,7 @@
 #   end
 # end
 #
-# ART.run
+# ATH.run
 #
 # # GET /multiply/3 # => 12
 # ```

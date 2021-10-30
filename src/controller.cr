@@ -111,7 +111,7 @@
 #   end
 # end
 #
-# ART.run
+# ATH.run
 #
 # # GET /athena/index"                   # => <h1>Welcome to my website!</h1>
 # # GET /athena/users"                   # => [{"id":1,...},...]
@@ -162,7 +162,7 @@ abstract class Athena::Framework::Controller
   #   end
   # end
   #
-  # ART.run
+  # ATH.run
   #
   # # GET / # => 10
   # ```
@@ -191,7 +191,7 @@ abstract class Athena::Framework::Controller
   #   end
   # end
   #
-  # ART.run
+  # ATH.run
   #
   # # GET / # => 10
   # ```
@@ -292,7 +292,7 @@ abstract class Athena::Framework::Controller
   #   end
   # end
   #
-  # ART.run
+  # ATH.run
   #
   # # GET /Fred # => Greetings, Fred!
   # ```
@@ -316,7 +316,7 @@ abstract class Athena::Framework::Controller
   #   end
   # end
   #
-  # ART.run
+  # ATH.run
   #
   # # GET /Fred # => <h1>Content:</h1> Greetings, Fred!
   # ```
