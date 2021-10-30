@@ -49,11 +49,7 @@ module Athena::Framework::HeaderUtils
     }
 
     if filename != fallback_filename
-      {% if compare_versions(Crystal::VERSION, "1.2.0-dev") >= 0 %}
-        params["filename*"] = "UTF-8''#{URI.encode_path_segment filename}"
-      {% else %}
-        params["filename*"] = "UTF-8''#{URI.encode filename}"
-      {% end %}
+      params["filename*"] = "UTF-8''#{URI.encode_path_segment filename}"
     end
 
     String.build do |io|
