@@ -23,7 +23,7 @@ class Athena::Framework::StreamedResponse < Athena::Framework::Response
   #   end
   # end
   #
-  # ART.run
+  # ATH.run
   #
   # # GET /users # => [{"id":1,...},...]
   # ```

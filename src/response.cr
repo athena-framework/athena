@@ -57,7 +57,7 @@ class Athena::Framework::Response
   #   end
   # end
   #
-  # ART.run
+  # ATH.run
   #
   # # GET /users # => [{"id":1,...},...] (gzipped)
   # ```

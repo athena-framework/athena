@@ -14,7 +14,7 @@ require "./response"
 #   end
 # end
 #
-# ART.run
+# ATH.run
 #
 # # GET /go_to_crystal # => (redirected to https://crystal-lang.org)
 # ```

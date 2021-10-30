@@ -15,7 +15,7 @@
 #   end
 # end
 #
-# ART.run
+# ATH.run
 #
 # # GET / # => GET
 # ```

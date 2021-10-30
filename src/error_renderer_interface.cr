@@ -44,7 +44,7 @@
 #   end
 # end
 #
-# ART.run
+# ATH.run
 #
 # # GET / # =>   <html><head><title>Uh oh</title></head><body><h1>Uh oh, something went wrong</h1></body></html>
 # ```

@@ -41,7 +41,7 @@ require "./param_converter"
 #   end
 # end
 #
-# ART.run
+# ATH.run
 # ```
 #
 # Making a request to the `/user` endpoint with the following payload:

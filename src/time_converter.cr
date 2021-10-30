@@ -23,7 +23,7 @@ require "./param_converter"
 #   end
 # end
 #
-# ART.run
+# ATH.run
 #
 # # GET /event/2020-04-07/2020-04-08T12:34:56Z
 # ```

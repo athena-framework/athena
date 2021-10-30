@@ -183,7 +183,7 @@ module Athena::Framework::Annotations
   #   end
   # end
   #
-  # ART.run
+  # ATH.run
   #
   # # GET /?page=2 # => 2
   # # GET /        # => {"code":422,"message":"Parameter 'page' of value '' violated a constraint: 'This value should not be null.'\n"}
@@ -204,7 +204,7 @@ module Athena::Framework::Annotations
   #   end
   # end
   #
-  # ART.run
+  # ATH.run
   #
   # # GET /?bar=value # => "value"
   # ```
@@ -224,7 +224,7 @@ module Athena::Framework::Annotations
   #   end
   # end
   #
-  # ART.run
+  # ATH.run
   #
   # # GET /          # => null
   # # GET /?page=2   # => 2
@@ -254,7 +254,7 @@ module Athena::Framework::Annotations
   #   end
   # end
   #
-  # ART.run
+  # ATH.run
   #
   # # GET /          # => null
   # # GET /?page=2   # => 2
@@ -290,7 +290,7 @@ module Athena::Framework::Annotations
   #   end
   # end
   #
-  # ART.run
+  # ATH.run
   #
   # # GET /          # => {"code":422,"message":"Parameter 'page' of value '' violated a constraint: 'This value should not be null.'\n"}
   # # GET /?page=10  # => 10
@@ -314,7 +314,7 @@ module Athena::Framework::Annotations
   #   end
   # end
   #
-  # ART.run
+  # ATH.run
   #
   # # GET /?page=2  # => 2
   # # GET /?page=-5 # => {"code":422,"message":"Parameter 'page' of value '-9' violated a constraint: 'This value should be positive or zero.'\n"}
@@ -341,7 +341,7 @@ module Athena::Framework::Annotations
   #   end
   # end
   #
-  # ART.run
+  # ATH.run
   #
   # # GET /               # => {"code":422,"message":"Parameter 'ids' of value '' violated a constraint: 'This value should not be null.'\n"}
   # # GET /?ids=10&ids=2  # => [10,2]
@@ -364,7 +364,7 @@ module Athena::Framework::Annotations
   #   end
   # end
   #
-  # ART.run
+  # ATH.run
   #
   # # GET /?bar=bar         # => "-bar"
   # # GET /?foo=foo         # => "foo-"
@@ -390,7 +390,7 @@ module Athena::Framework::Annotations
   #   end
   # end
   #
-  # ART.run
+  # ATH.run
   #
   # # GET /time                                 # => "Starting at: 2020-11-25 20:29:55 UTC"
   # # GET /time?start_time=2020-04-07T12:34:56Z # => "Starting at: 2020-04-07 12:34:56 UTC"
@@ -414,7 +414,7 @@ module Athena::Framework::Annotations
   #   end
   # end
   #
-  # ART.run
+  # ATH.run
   #
   # # GET /time?start_time="2020--04//07  12:34:56" # => "Starting at: 2020-04-07 12:34:56 UTC"
   # ```
@@ -440,7 +440,7 @@ module Athena::Framework::Annotations
   #   end
   # end
   #
-  # ART.run
+  # ATH.run
   #
   # # POST /login, body: "username=George&password=abc123"
   # ```

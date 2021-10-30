@@ -1,6 +1,6 @@
 name: athena
 
-version: 0.14.0
+version: 0.15.0
 
 crystal: '>= 0.36.0'
 
@@ -8,7 +8,7 @@ license: MIT
 
 repository: https://github.com/athena-framework/athena
 
-documentation: https://athenaframework.org/Routing
+documentation: https://athenaframework.org/Framework
 
 description: |
   A web framework comprised of reusable, independent components.
