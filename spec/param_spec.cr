@@ -6,7 +6,7 @@ struct ParamTest < ATH::Spec::APITestCase
   end
 
   def test_required_query_param_missing : Nil
-    self.request("GET", "/query").body.should eq %({"code":422,"message":"Parameter 'search' of value '' violated a constraint: 'This value should not be null.'\\n"})
+    self.request("GET", "/query").body.should eq %({"code":422,"message":"Parameter 'search' is invalid.","errors":[{"property":"search","message":"This value should not be null.","code":"c7e77b14-744e-44c0-aa7e-391c69cc335c"}]})
   end
 
   def test_regex_query_param_provided_with_default : Nil
@@ -48,7 +48,7 @@ struct ParamTest < ATH::Spec::APITestCase
   def test_nilable_strict_regex_query_param_invalid_value : Nil
     response = self.request("GET", "/query/page-nilable-strict?page=20")
     response.status.should eq HTTP::Status::UNPROCESSABLE_ENTITY
-    response.body.should eq %({"code":422,"message":"Parameter 'page' of value '20' violated a constraint: 'Parameter 'page' value does not match requirements: (?-imsx:^(?-imsx:1\\\\d)$)'\\n"})
+    response.body.should eq %({"code":422,"message":"Parameter 'page' is invalid.","errors":[{"property":"page","message":"Parameter 'page' value does not match requirements: (?-imsx:^(?-imsx:1\\\\d)$)","code":"108987a0-2d81-44a0-b8d4-1c7ab8815343"}]})
   end
 
   def test_nilable_strict_regex_query_param_missing : Nil
@@ -62,7 +62,7 @@ struct ParamTest < ATH::Spec::APITestCase
   def test_annotation_query_param_invalid : Nil
     response = self.request("GET", "/query/annotation?search=")
     response.status.should eq HTTP::Status::UNPROCESSABLE_ENTITY
-    response.body.should eq %({"code":422,"message":"Parameter 'search' of value '' violated a constraint: 'This value should not be blank.'\\n"})
+    response.body.should eq %({"code":422,"message":"Parameter 'search' is invalid.","errors":[{"property":"search","message":"This value should not be blank.","code":"0d0c3254-3642-4cb0-9882-46ee5918e6e3"}]})
   end
 
   def test_annotation_array_valid : Nil
@@ -72,7 +72,7 @@ struct ParamTest < ATH::Spec::APITestCase
   def test_annotation_array_invalid : Nil
     response = self.request("GET", "/query/ids?ids=3.14&ids=-2.5")
     response.status.should eq HTTP::Status::UNPROCESSABLE_ENTITY
-    response.body.should eq %({"code":422,"message":"Parameter 'ids[1]' of value '-2.5' violated a constraint: 'This value should be positive or zero.'\\nParameter 'ids[1]' of value '-2.5' violated a constraint: 'This value should be between -1.0 and 10.'\\n"})
+    response.body.should eq %({"code":422,"message":"Parameter 'ids' is invalid.","errors":[{"property":"ids[1]","message":"This value should be positive or zero.","code":"e09e52d0-b549-4ba1-8b4e-420aad76f0de"},{"property":"ids[1]","message":"This value should be between -1.0 and 10.","code":"7e62386d-30ae-4e7c-918f-1b7e571c6d69"}]})
   end
 
   def test_param_converter_class : Nil

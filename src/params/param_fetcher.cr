@@ -58,7 +58,8 @@ class Athena::Framework::Params::ParamFetcher
     return value if (constraints = param.constraints).empty?
 
     begin
-      errors = @validator.validate value, constraints
+      # Manually start the context so we can set the base path to the param's name.
+      errors = @validator.start_context(value).at_path(param.name).validate(value, constraints).violations
     rescue ex : AVD::Exceptions::ValidatorError
       violation = AVD::Violation::ConstraintViolation.new(
         ex.message || "Unhandled exception while validating '#{param.name}' param.",
