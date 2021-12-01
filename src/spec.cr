@@ -6,7 +6,7 @@ require "athena-dependency_injection/spec"
 # Monkey patch HTTP::Server::Response to allow accessing the response body directly.
 class HTTP::Server::Response
   @body_io : IO = IO::Memory.new
-  getter body : String? = nil
+  @body : String? = nil
 
   def write(slice : Bytes) : Nil
     @body_io.write slice
