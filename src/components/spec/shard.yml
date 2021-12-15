@@ -1,0 +1,22 @@
+name: athena-spec
+
+version: 0.2.6
+
+crystal: '>= 0.35.0'
+
+license: MIT
+
+repository: https://github.com/athena-framework/spec
+
+documentation: https://athenaframework.org/Spec
+
+description: |
+  Common/helpful Spec compliant testing utilities.
+
+authors:
+  - George Dietrich <george@dietrich.app>
+
+development_dependencies:
+  ameba:
+    github: crystal-ameba/ameba
+    version: ~> 0.14.0
