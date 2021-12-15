@@ -1,0 +1,19 @@
+/* https://mkdocstrings.github.io/crystal/styling.html#recommended-styles */
+
+/* Indentation of sub-items */
+div.doc-contents:not(.first) {
+  padding-left: 15px;
+  border-left: 4px solid rgba(230, 230, 230);
+}
+
+/* Additional Customizations */
+
+/* Increased spacing between macro & instance methods. */
+.doc-macro + .doc-macro,
+.doc-instance_method + .doc-instance_method {
+  margin-top: 3em;
+}
+
+.md-typeset pre>code::-webkit-scrollbar {
+  height: 0.4em;
+}
