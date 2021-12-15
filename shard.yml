@@ -1,0 +1,25 @@
+name: athena-config
+
+version: 0.3.0
+
+crystal: '>= 0.35.0'
+
+license: MIT
+
+repository: https://github.com/athena-framework/config
+
+documentation: https://athenaframework.org/Config
+
+description: |
+  Common library for configuring Athena components.
+
+authors:
+  - George Dietrich <george@dietrich.app>
+
+development_dependencies:
+  ameba:
+    github: crystal-ameba/ameba
+    version: ~> 0.14.0
+  athena-spec:
+    github: athena-framework/spec
+    version: ~> 0.2.3
