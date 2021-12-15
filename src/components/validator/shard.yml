@@ -1,0 +1,25 @@
+name: athena-validator
+
+version: 0.1.6
+
+crystal: '>= 0.35.0'
+
+license: MIT
+
+repository: https://github.com/athena-framework/validator
+
+documentation: https://athenaframework.org/Validator
+
+description: |
+  Object/value validation library.
+
+authors:
+  - George Dietrich <george@dietrich.app>
+
+development_dependencies:
+  ameba:
+    github: crystal-ameba/ameba
+    version: ~> 0.14.0
+  athena-spec:
+    github: athena-framework/spec
+    version: ~> 0.2.3
