@@ -1,0 +1,8 @@
+
+At spec/application_spec.cr:\d+:\d+ in '->'
+                    
+  エラーメッセージ    
+                    
+
+foo
+

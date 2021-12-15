@@ -1,0 +1,18 @@
+
+\e\[33mIn foo3\.cr line \d+:\e\[0m
+\e\[97;41m                                              \e\[0m
+\e\[97;41m  Third exception <fg=blue;bg=red>comment</>  \e\[0m
+\e\[97;41m                                              \e\[0m
+
+\e\[33mIn foo3\.cr line \d+:\e\[0m
+\e\[97;41m                                               \e\[0m
+\e\[97;41m  Second exception <comment>comment</comment>  \e\[0m
+\e\[97;41m                                               \e\[0m
+
+\e\[33mIn foo3\.cr line \d+:\e\[0m
+\e\[97;41m                                       \e\[0m
+\e\[97;41m  First exception <p>this is html</p>  \e\[0m
+\e\[97;41m                                       \e\[0m
+
+\e\[32mfoo3:bar\e\[0m
+
