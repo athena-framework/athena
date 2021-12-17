@@ -1,5 +1,7 @@
 # $ SHARDS_OVERRIDE=shard.dev.yml shards update
 dependencies:
+  athena:
+    path: ./src/components/framework
   athena-config:
     path: ./src/components/config
   athena-console:
@@ -8,8 +10,6 @@ dependencies:
     path: ./src/components/dependency_injection
   athena-event_dispatcher:
     path: ./src/components/event_dispatcher
-  athena:
-    path: ./src/components/framework
   athena-negotiation:
     path: ./src/components/negotiation
   athena-serializer:

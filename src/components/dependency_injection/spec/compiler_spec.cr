@@ -81,7 +81,7 @@ describe Athena::DependencyInjection do
     describe "compiler errors" do
       TEST_CASES.each do |(file_path, message)|
         it file_path do
-          assert_error "compiler/#{file_path}.cr", message
+          assert_error "compiler/#{file_path}.cr", message, prefix: "#{__DIR__}/"
         end
       end
     end

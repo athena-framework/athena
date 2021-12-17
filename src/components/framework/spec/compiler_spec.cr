@@ -1,5 +1,9 @@
 require "./spec_helper"
 
+private def assert_error(path : String, error : String) : Nil
+  assert_error path, error, prefix: "#{__DIR__}/"
+end
+
 describe Athena::Framework do
   describe "compiler errors", tags: "compiler" do
     it "action argument missing type restriction" do

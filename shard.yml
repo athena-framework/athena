@@ -1,0 +1,39 @@
+name: athena-ecosystem
+version: 0.0.0
+
+license: MIT
+
+repository: https://github.com/athena-framework/athena
+
+documentation: https://athenaframework.org
+
+description: |
+  An ecosystem of reusable, independent components.
+
+authors:
+  - George Dietrich <george@dietrich.app>
+
+dependencies:
+  athena:
+    github: athena-framework/athena
+  athena-config:
+    github: athena-framework/config
+  athena-console:
+    github: athena-framework/console
+  athena-dependency_injection:
+    github: athena-framework/dependency-injection
+  athena-event_dispatcher:
+    github: athena-framework/event-dispatcher
+  athena-negotiation:
+    github: athena-framework/negotiation
+  athena-serializer:
+    github: athena-framework/serializer
+  athena-spec:
+    github: athena-framework/spec
+  athena-validator:
+    github: athena-framework/validator
+
+development_dependencies:
+  ameba:
+    github: crystal-ameba/ameba
+    version: ~> 0.14.0
