@@ -1,0 +1,25 @@
+name: athena-negotiation
+
+version: 0.1.1
+
+crystal: '>= 0.35.0'
+
+license: MIT
+
+repository: https://github.com/athena-framework/negotiation
+
+documentation: https://athenaframework.org/Negotiation
+
+description: |
+  Framework agnostic content negotiation library.
+
+authors:
+  - George Dietrich <george@dietrich.app>
+
+development_dependencies:
+  ameba:
+    github: crystal-ameba/ameba
+    version: ~> 0.13.0
+  athena-spec:
+    github: athena-framework/spec
+    version: ~> 0.2.3

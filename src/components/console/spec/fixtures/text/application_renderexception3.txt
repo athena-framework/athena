@@ -1,0 +1,18 @@
+
+In foo3.cr line \d+:
+                                              
+  Third exception <fg=blue;bg=red>comment</>  
+                                              
+
+In foo3.cr line \d+:
+                                               
+  Second exception <comment>comment</comment>  
+                                               
+
+In foo3.cr line \d+:
+                                       
+  First exception <p>this is html</p>  
+                                       
+
+foo3:bar
+

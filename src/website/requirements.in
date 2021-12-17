@@ -1,0 +1,7 @@
+mkdocs>=1.2
+mkdocs-material>=7.1.8
+mkdocstrings-crystal>=0.3.1
+mkdocs-gen-files>=0.3.2
+mkdocs-literate-nav>=0.3.1
+mkdocs-section-index>=0.2.3
+markdown-callouts>=0.1.0

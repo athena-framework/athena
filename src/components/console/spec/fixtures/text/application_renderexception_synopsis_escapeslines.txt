@@ -1,0 +1,8 @@
+
+In application_spec\.cr line \d+:
+                  
+  some exception  
+                  
+
+foo \[<info>\]
+

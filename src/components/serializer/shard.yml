@@ -1,0 +1,27 @@
+name: athena-serializer
+
+version: 0.2.10
+
+crystal: '>= 0.35.0'
+
+license: MIT
+
+repository: https://github.com/athena-framework/serializer
+
+documentation: https://athenaframework.org/Serializer
+
+description: |
+  Object (de)serialization library.
+
+authors:
+  - George Dietrich <george@dietrich.app>
+
+dependencies:
+  athena-config:
+    github: athena-framework/config
+    version: '>= 0.2.0'
+
+development_dependencies:
+  ameba:
+    github: crystal-ameba/ameba
+    version: ~> 0.14.0
