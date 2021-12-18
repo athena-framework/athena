@@ -3,8 +3,7 @@
 [![CI](https://github.com/athena-framework/athena/workflows/CI/badge.svg)](https://github.com/athena-framework/athena/actions/workflows/ci.yml)
 [![Latest release](https://img.shields.io/github/release/athena-framework/serializer.svg)](https://github.com/athena-framework/serializer/releases)
 
-Flexible object (de)serialization library
-
+Flexible object (de)serialization library.
 
 ## Installation
 
