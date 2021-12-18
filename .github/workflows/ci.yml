@@ -40,6 +40,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
+        if: github.event_name != 'pull_request'
+      - uses: actions/checkout@v2
+        if: github.event_name == 'pull_request'
+        with:
+          fetch-depth: 0
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
         with:
@@ -47,11 +52,6 @@ jobs:
       - name: Install Dependencies
         run: SHARDS_OVERRIDE=shard.dev.yml shards install
       - name: Specs
-        run: |
-          for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | sort); do
-            if ! git diff --quiet --exit-code $component; then
-              echo "::group::$component"
-              crystal spec $component/spec --order random --error-on-warnings --exclude-warnings $component/spec
-              echo "::endgroup::"
-            fi
-          done
+        run: ./scripts/test.sh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
