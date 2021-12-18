@@ -40,6 +40,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
+        if: ${{ $GITHUB_EVENT_NAME != 'pull_request' }}
+      - uses: actions/checkout@v2
+        if: ${{ $GITHUB_EVENT_NAME == 'pull_request' }}
+        with:
+          fetch-depth: 0
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
         with:
@@ -51,7 +56,7 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | sort); do
-            if [[ $(git diff --quiet --exit-code $BASE_SHA $GITHUB_SHA -- $component) == 1 || $GITHUB_EVENT_NAME != 'pull_request' ]]; then
+            if [[ $GITHUB_EVENT_NAME != 'pull_request' || $(git diff --quiet --exit-code $BASE_SHA $GITHUB_SHA -- $component) == 1 ]]; then
               echo "::group::$component"
               crystal spec $component/spec --order random --error-on-warnings --exclude-warnings $component/spec
               echo "::endgroup::"
