@@ -40,9 +40,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-        if: ${{ env.GITHUB_EVENT_NAME != 'pull_request' }}
+        if: github.event_name != 'pull_request'
       - uses: actions/checkout@v2
-        if: ${{ env.GITHUB_EVENT_NAME == 'pull_request' }}
+        if: github.event_name == 'pull_request'
         with:
           fetch-depth: 0
       - name: Install Crystal
