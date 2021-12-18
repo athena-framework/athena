@@ -47,9 +47,11 @@ jobs:
       - name: Install Dependencies
         run: SHARDS_OVERRIDE=shard.dev.yml shards install
       - name: Specs
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | sort); do
-            if ! git diff --quiet --exit-code $component; then
+            if [[ $(git diff --quiet --exit-code $BASE_SHA $GITHUB_SHA -- $component) == 1 || $GITHUB_EVENT_NAME != 'pull_request' ]]; then
               echo "::group::$component"
               crystal spec $component/spec --order random --error-on-warnings --exclude-warnings $component/spec
               echo "::endgroup::"
