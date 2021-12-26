@@ -117,44 +117,7 @@
 # See the related types for more information.
 #
 # Proc/block based callbacks operate similarly to [Class Methods](#static-methods) in that they receive the value as an argument.
-class Athena::Validator::Constraints::Callback < Athena::Validator::Constraint
-  # :nodoc:
-  abstract struct ValueContainer; end
-
-  # Wrapper type to allow passing arbitrarily typed values as arguments in the `AVD::Constraints::Callback::CallbackProc`.
-  record Value(T) < ValueContainer, value : T do
-    forward_missing_to @value
-
-    # Returns the value as `T`.
-    #
-    # If used inside a `AVD::Constraints::Callback@class-method`.
-    #
-    # ```
-    # # Get the wrapped value as the type of the current class.
-    # object = value.get self
-    # ```
-    #
-    # If used inside a `AVD::Constraints::Callback@procsblocks`.
-    # ```
-    # # Get the wrapped value as the expected type.
-    # value = value.get Int32
-    #
-    # # Alternatively, can use normal Crystal semantics for narrowing the type.
-    # value = value.value
-    #
-    # case value
-    # when Int32 then "value is Int32"
-    # when String then "value is String"
-    # end
-    def get(as _t : T.class) : T forall T
-      @value.as?(T).not_nil!
-    end
-
-    def ==(other) : Bool
-      @value == other
-    end
-  end
-
+class Athena::Validator::Constraints::Callback(T) < Athena::Validator::Constraint
   # Convenience method for creating a `AVD::Constraints::Callback` with
   # the given *&block* as the callback.
   #
@@ -166,33 +129,18 @@ class Athena::Validator::Constraints::Callback < Athena::Validator::Constraint
   #   context.add_violation "This value should be even."
   # end
   # ```
-  def self.with_callback(**args, &block : AVD::Constraints::Callback::ValueContainer, AVD::ExecutionContextInterface, Hash(String, String)? ->) : AVD::Constraints::Callback
+  def self.with_callback(**args, &block : T, AVD::ExecutionContextInterface, Hash(String, String)? ->) : AVD::Constraints::Callback
     new **args, callback: block
   end
-
-  # Convenience alias to make creating `AVD::Constraints::Callback` procs easier.
-  #
-  # ```
-  # # Create a proc to handle the validation
-  # callback = AVD::Constraints::Callback::CallbackProc.new do |value, context, payload|
-  #   return if (value = value.get(Int32)).even?
-  #
-  #   context.add_violation "This value should be even."
-  # end
-  #
-  # # Instantiate a callback constraint with this proc
-  # constraint = AVD::Constraints::Callback.new callback: callback
-  # ```
-  alias CallbackProc = Proc(AVD::Constraints::Callback::ValueContainer, AVD::ExecutionContextInterface, Hash(String, String)?, Nil)
 
   # Returns the name of the callback method this constraint should invoke.
   getter callback_name : String?
 
   # Returns the proc that this constraint should invoke.
-  getter callback : AVD::Constraints::Callback::CallbackProc?
+  getter callback : Proc(T, AVD::ExecutionContextInterface, Hash(String, String)?, Nil)?
 
   def initialize(
-    @callback : AVD::Constraints::Callback::CallbackProc? = nil,
+    @callback : Proc(T, AVD::ExecutionContextInterface, Hash(String, String)?, Nil)? = nil,
     @callback_name : String? = nil,
     groups : Array(String) | String | Nil = nil,
     payload : Hash(String, String)? = nil
@@ -202,13 +150,23 @@ class Athena::Validator::Constraints::Callback < Athena::Validator::Constraint
     super "", groups, payload
   end
 
+  # Ideally this would be in the validator itself, but this is needed to ensure
+  # the value resoled to `T` correctly versus a union.
+  protected def call(value : T, context : AVD::ExecutionContextInterface) : Nil
+    @callback.not_nil!.call value, context, @payload
+  end
+
+  protected def call(value : _, context : AVD::ExecutionContextInterface) : Nil
+    raise "BUG: #{value} #{T}."
+  end
+
   struct Validator < Athena::Validator::ConstraintValidator
     # :inherit:
     def validate(value : _, constraint : AVD::Constraints::Callback) : Nil
       if value.is_a?(AVD::Validatable) && (name = constraint.callback_name) && (metadata = self.context.metadata) && (metadata.is_a?(AVD::Metadata::ClassMetadata))
         metadata.invoke_callback name, value, self.context, constraint.payload
-      elsif callback = constraint.callback
-        callback.call Value.new(value), self.context, constraint.payload
+      elsif !constraint.callback.nil?
+        constraint.call value, self.context
       end
     end
   end

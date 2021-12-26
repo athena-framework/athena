@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-private alias CONSTRAINT = AVD::Constraints::Callback
+private alias CONSTRAINT = AVD::Constraints::Callback(Int32)
 
 struct CallbackValidatorTest < AVD::Spec::ConstraintValidatorTestCase
   def test_callback : Nil

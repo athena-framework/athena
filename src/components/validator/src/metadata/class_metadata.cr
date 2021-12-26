@@ -76,7 +76,7 @@ class Athena::Validator::Metadata::ClassMetadata(T)
         {% for constraint in AVD::Constraint.all_subclasses.reject &.abstract? %}
           {% ann_name = constraint.name(generic_args: false).split("::").last.id %}
 
-          {% if ann = m.annotation Assert.constant(ann_name).resolve %}
+          {% if ann_name != "Callback" && (ann = m.annotation Assert.constant(ann_name).resolve) %}
             {% default_arg = ann.args.empty? ? nil : ann.args.first %}
 
             class_metadata.add_getter_constraint(
@@ -92,11 +92,11 @@ class Athena::Validator::Metadata::ClassMetadata(T)
 
       # Add callback constraints
       {% for callback in T.methods.select &.annotation(Assert::Callback) %}
-        class_metadata.add_constraint AVD::Constraints::Callback.new(callback_name: {{callback.name.stringify}}, {{callback.annotation(Assert::Callback).named_args.double_splat}})
+        class_metadata.add_constraint AVD::Constraints::Callback(T).new(callback_name: {{callback.name.stringify}}, {{callback.annotation(Assert::Callback).named_args.double_splat}})
       {% end %}
 
       {% for callback in T.class.methods.select &.annotation(Assert::Callback) %}
-        class_metadata.add_constraint AVD::Constraints::Callback.new(callback: ->T.{{callback.name.id}}(AVD::Constraints::Callback::ValueContainer, AVD::ExecutionContextInterface, Hash(String, String)?), {{callback.annotation(Assert::Callback).named_args.double_splat}})
+        class_metadata.add_constraint AVD::Constraints::Callback({{callback.args.first.restriction.resolve}}).new(callback: ->T.{{callback.name.id}}({{callback.args.first.restriction.resolve}}, AVD::ExecutionContextInterface, Hash(String, String)?), {{callback.annotation(Assert::Callback).named_args.double_splat}})
       {% end %}
     {% end %}
 

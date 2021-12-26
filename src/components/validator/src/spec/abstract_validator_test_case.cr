@@ -46,7 +46,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
   abstract def validate_property_value(object, property_name, value, groups) : AVD::Violation::ConstraintViolationListInterface
 
   def test_validate : Nil
-    callback = AVD::Constraints::Callback::CallbackProc.new do |value, context, _payload|
+    callback = Proc(String, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |value, context, _payload|
       context.class_name.should be_nil
       context.property_name.should be_nil
       context.property_path.should be_empty
@@ -58,7 +58,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
       context.add_violation "message {{ value }}", {"{{ value }}" => "value"}
     end
 
-    constraint = AVD::Constraints::Callback.new callback: callback, groups: ["group"]
+    constraint = AVD::Constraints::Callback(String).new callback: callback, groups: ["group"]
 
     violations = self.validate "Fred", constraint, "group"
 
@@ -79,7 +79,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
   def test_validate_class_constraint : Nil
     object = Entity.new
 
-    callback = AVD::Constraints::Callback::CallbackProc.new do |value, context, _payload|
+    callback = Proc(Entity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |value, context, _payload|
       context.class_name.should eq Entity
       context.property_name.should be_nil
       context.property_path.should be_empty
@@ -91,7 +91,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
       context.add_violation "message {{ value }}", {"{{ value }}" => "value"}
     end
 
-    @metadata.add_constraint AVD::Constraints::Callback.new callback: callback, groups: ["group"]
+    @metadata.add_constraint AVD::Constraints::Callback(Entity).new callback: callback, groups: ["group"]
 
     violations = self.validate object, groups: "group"
 
@@ -113,7 +113,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
     object = Entity.new
     object.first_name = "Fred"
 
-    callback = AVD::Constraints::Callback::CallbackProc.new do |value, context, _payload|
+    callback = Proc(String, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |value, context, _payload|
       property_metadatas = @metadata.property_metadata "first_name"
 
       context.class_name.should eq Entity
@@ -128,7 +128,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
       context.add_violation "message {{ value }}", {"{{ value }}" => "value"}
     end
 
-    @metadata.add_property_constraint "first_name", AVD::Constraints::Callback.new callback: callback, groups: ["group"]
+    @metadata.add_property_constraint "first_name", AVD::Constraints::Callback(String).new callback: callback, groups: ["group"]
 
     violations = self.validate object, groups: "group"
 
@@ -150,7 +150,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
     object = Entity.new
     object.first_name = "Fred"
 
-    callback = AVD::Constraints::Callback::CallbackProc.new do |value, context, _payload|
+    callback = Proc(String, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |value, context, _payload|
       property_metadatas = @metadata.property_metadata "first_name"
 
       context.class_name.should eq Entity
@@ -165,7 +165,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
       context.add_violation "message {{ value }}", {"{{ value }}" => "value"}
     end
 
-    @metadata.add_getter_constraint "first_name", AVD::Constraints::Callback.new callback: callback, groups: ["group"]
+    @metadata.add_getter_constraint "first_name", AVD::Constraints::Callback(String).new callback: callback, groups: ["group"]
 
     violations = self.validate object, groups: "group"
 
@@ -187,7 +187,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
     object = Entity.new
     hash = {"key" => object}
 
-    callback = AVD::Constraints::Callback::CallbackProc.new do |value, context, _payload|
+    callback = Proc(Entity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |value, context, _payload|
       context.class_name.should eq Entity
       context.property_name.should be_nil
       context.property_path.should eq "[key]"
@@ -200,7 +200,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
       context.add_violation "message {{ value }}", {"{{ value }}" => "value"}
     end
 
-    @metadata.add_constraint AVD::Constraints::Callback.new callback: callback, groups: ["group"]
+    @metadata.add_constraint AVD::Constraints::Callback(Entity).new callback: callback, groups: ["group"]
 
     violations = self.validate hash, groups: "group"
 
@@ -222,7 +222,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
     object = Entity.new
     hash = {2 => {"key" => object}}
 
-    callback = AVD::Constraints::Callback::CallbackProc.new do |value, context, _payload|
+    callback = Proc(Entity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |value, context, _payload|
       context.class_name.should eq Entity
       context.property_name.should be_nil
       context.property_path.should eq "[2][key]"
@@ -235,7 +235,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
       context.add_violation "message {{ value }}", {"{{ value }}" => "value"}
     end
 
-    @metadata.add_constraint AVD::Constraints::Callback.new callback: callback, groups: ["group"]
+    @metadata.add_constraint AVD::Constraints::Callback(Entity).new callback: callback, groups: ["group"]
 
     violations = self.validate hash, groups: "group"
 
@@ -265,12 +265,12 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
     object = Entity.new
     object.hash_sub_object = {"key" => SubEntity.new}
 
-    callback = AVD::Constraints::Callback::CallbackProc.new do |_value, context, _payload|
+    callback = Proc(SubEntity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context, _payload|
       context.add_violation "message {{ value }}", {"{{ value }}" => "value"}
     end
 
-    @metadata.add_property_constraint "hash_sub_object", AVD::Constraints::Callback.new callback: AVD::Constraints::Callback::CallbackProc.new { }, groups: ["group"]
-    @sub_object_metadata.add_constraint AVD::Constraints::Callback.new callback: callback, groups: ["group"]
+    @metadata.add_property_constraint "hash_sub_object", AVD::Constraints::Callback(Hash(String, SubEntity)).new callback: Proc(Hash(String, SubEntity), AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new { }, groups: ["group"]
+    @sub_object_metadata.add_constraint AVD::Constraints::Callback(SubEntity).new callback: callback, groups: ["group"]
 
     self.validate(object, groups: "group").should be_empty
   end
@@ -282,7 +282,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
       object = Entity.new
       object.hash_sub_object = {"key" => SubEntity.new}
 
-      callback = AVD::Constraints::Callback::CallbackProc.new do |value, context, _payload|
+      callback = Proc(SubEntity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |value, context, _payload|
         context.class_name.should eq SubEntity
         context.property_name.should be_nil
         context.property_path.should eq "hash_sub_object[key]"
@@ -296,7 +296,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
       end
 
       @metadata.{{method.id}} "hash_sub_object", AVD::Constraints::Valid.new
-      @sub_object_metadata.add_constraint AVD::Constraints::Callback.new callback: callback, groups: ["group"]
+      @sub_object_metadata.add_constraint AVD::Constraints::Callback(SubEntity).new callback: callback, groups: ["group"]
 
       violations = self.validate object, groups: "group"
 
@@ -318,7 +318,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
       object = Entity.new
       object.nested_hash_sub_object = {2 => {"key" => SubEntity.new}}
 
-      callback = AVD::Constraints::Callback::CallbackProc.new do |value, context, _payload|
+      callback = Proc(SubEntity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |value, context, _payload|
         context.class_name.should eq SubEntity
         context.property_name.should be_nil
         context.property_path.should eq "nested_hash_sub_object[2][key]"
@@ -332,7 +332,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
       end
 
       @metadata.{{method.id}} "nested_hash_sub_object", AVD::Constraints::Valid.new
-      @sub_object_metadata.add_constraint AVD::Constraints::Callback.new callback: callback, groups: ["group"]
+      @sub_object_metadata.add_constraint AVD::Constraints::Callback(SubEntity).new callback: callback, groups: ["group"]
 
       violations = self.validate object, groups: "group"
 
@@ -354,12 +354,12 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
       object = Entity.new
       object.hash_sub_object = {"key" => SubEntity.new}
 
-      callback = AVD::Constraints::Callback::CallbackProc.new do |_value, context, _payload|
+      callback = Proc(SubEntity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context, _payload|
         context.add_violation "message \{{ value }}", {"\{{ value }}" => "value"}
       end
 
       @metadata.{{method.id}} "hash_sub_object", AVD::Constraints::Valid.new traverse: false
-      @sub_object_metadata.add_constraint AVD::Constraints::Callback.new callback: callback, groups: ["group"]
+      @sub_object_metadata.add_constraint AVD::Constraints::Callback(SubEntity).new callback: callback, groups: ["group"]
 
       self.validate(object, groups: "group").size.should eq 1
     end
@@ -368,12 +368,12 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
       object = Entity.new
       object.nested_hash_sub_object = {2 => {"key" => SubEntity.new}}
 
-      callback = AVD::Constraints::Callback::CallbackProc.new do |_value, context, _payload|
+      callback = Proc(SubEntity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context, _payload|
         context.add_violation "message \{{ value }}", {"\{{ value }}" => "value"}
       end
 
       @metadata.{{method.id}} "nested_hash_sub_object", AVD::Constraints::Valid.new traverse: false
-      @sub_object_metadata.add_constraint AVD::Constraints::Callback.new callback: callback, groups: ["group"]
+      @sub_object_metadata.add_constraint AVD::Constraints::Callback(SubEntity).new callback: callback, groups: ["group"]
 
       self.validate(object, groups: "group").size.should eq 1
     end
@@ -402,7 +402,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
     object.first_name = "Jon"
     object.last_name = "Snow"
 
-    callback = AVD::Constraints::Callback::CallbackProc.new do |value, context, _payload|
+    callback = Proc(String, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |value, context, _payload|
       property_metadatas = @metadata.property_metadata "first_name"
 
       context.class_name.should eq Entity
@@ -417,12 +417,12 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
       context.add_violation "message {{ value }}", {"{{ value }}" => "value"}
     end
 
-    callback2 = AVD::Constraints::Callback::CallbackProc.new do |_value, context, _payload|
+    callback2 = Proc(String, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context, _payload|
       context.add_violation "other violation"
     end
 
-    @metadata.add_property_constraint "first_name", AVD::Constraints::Callback.new callback: callback, groups: ["group"]
-    @metadata.add_property_constraint "last_name", AVD::Constraints::Callback.new callback: callback2, groups: ["group"]
+    @metadata.add_property_constraint "first_name", AVD::Constraints::Callback(String).new callback: callback, groups: ["group"]
+    @metadata.add_property_constraint "last_name", AVD::Constraints::Callback(String).new callback: callback2, groups: ["group"]
 
     violations = self.validate_property object, "first_name", "group"
 
@@ -447,7 +447,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
     object = Entity.new
     object.last_name = "Snow"
 
-    callback = AVD::Constraints::Callback::CallbackProc.new do |value, context, _payload|
+    callback = Proc(String, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |value, context, _payload|
       property_metadatas = @metadata.property_metadata "first_name"
 
       context.class_name.should eq Entity
@@ -462,12 +462,12 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
       context.add_violation "message {{ value }}", {"{{ value }}" => "value"}
     end
 
-    callback2 = AVD::Constraints::Callback::CallbackProc.new do |_value, context, _payload|
+    callback2 = Proc(String, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context, _payload|
       context.add_violation "other violation"
     end
 
-    @metadata.add_property_constraint "first_name", AVD::Constraints::Callback.new callback: callback, groups: ["group"]
-    @metadata.add_property_constraint "last_name", AVD::Constraints::Callback.new callback: callback2, groups: ["group"]
+    @metadata.add_property_constraint "first_name", AVD::Constraints::Callback(String).new callback: callback, groups: ["group"]
+    @metadata.add_property_constraint "last_name", AVD::Constraints::Callback(String).new callback: callback2, groups: ["group"]
 
     violations = self.validate_property_value object, "first_name", "Jon", "group"
 
@@ -492,7 +492,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
     object = Entity.new
     object.sub_object = object.sub_object2 = SubEntity.new
 
-    callback = AVD::Constraints::Callback::CallbackProc.new do |_value, context|
+    callback = Proc(Entity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context|
       context.add_violation "message"
     end
 
@@ -508,13 +508,13 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
     object.sub_object = SubEntity.new
     object.sub_object2 = SubEntity.new
 
-    callback = AVD::Constraints::Callback::CallbackProc.new do |_value, context|
+    callback = Proc(SubEntity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context|
       context.add_violation "message"
     end
 
     @metadata.add_property_constraint "sub_object", AVD::Constraints::Valid.new
     @metadata.add_property_constraint "sub_object2", AVD::Constraints::Valid.new
-    @sub_object_metadata.add_constraint AVD::Constraints::Callback.new callback: callback
+    @sub_object_metadata.add_constraint AVD::Constraints::Callback(SubEntity).new callback: callback
 
     self.validate(object).size.should eq 2
   end
@@ -522,7 +522,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
   def test_validate_single_group : Nil
     object = Entity.new
 
-    callback = AVD::Constraints::Callback::CallbackProc.new do |_value, context|
+    callback = Proc(Entity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context|
       context.add_violation "message"
     end
 
@@ -535,7 +535,7 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
   def test_validate_multiple_groups : Nil
     object = Entity.new
 
-    callback = AVD::Constraints::Callback::CallbackProc.new do |_value, context|
+    callback = Proc(Entity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context|
       context.add_violation "message"
     end
 
@@ -548,15 +548,15 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
   def test_validate_replace_default_group_by_sequence_object : Nil
     object = Entity.new
 
-    callback1 = AVD::Constraints::Callback::CallbackProc.new do |_value, context|
+    callback1 = Proc(Entity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context|
       context.add_violation "group2 message"
     end
 
-    callback2 = AVD::Constraints::Callback::CallbackProc.new do |_value, context|
+    callback2 = Proc(Entity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context|
       context.add_violation "group3 message"
     end
 
-    @metadata.add_constraint AVD::Constraints::Callback.new callback: AVD::Constraints::Callback::CallbackProc.new { }, groups: ["group1"]
+    @metadata.add_constraint AVD::Constraints::Callback.new callback: Proc(Entity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new { }, groups: ["group1"]
     @metadata.add_constraint AVD::Constraints::Callback.new callback: callback1, groups: ["group2"]
     @metadata.add_constraint AVD::Constraints::Callback.new callback: callback2, groups: ["group3"]
 
@@ -571,15 +571,15 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
   def test_validate_replace_default_group_by_array : Nil
     object = Entity.new
 
-    callback1 = AVD::Constraints::Callback::CallbackProc.new do |_value, context|
+    callback1 = Proc(Entity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context|
       context.add_violation "group2 message"
     end
 
-    callback2 = AVD::Constraints::Callback::CallbackProc.new do |_value, context|
+    callback2 = Proc(Entity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context|
       context.add_violation "group3 message"
     end
 
-    @metadata.add_constraint AVD::Constraints::Callback.new callback: AVD::Constraints::Callback::CallbackProc.new { }, groups: ["group1"]
+    @metadata.add_constraint AVD::Constraints::Callback.new callback: Proc(Entity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new { }, groups: ["group1"]
     @metadata.add_constraint AVD::Constraints::Callback.new callback: callback1, groups: ["group2"]
     @metadata.add_constraint AVD::Constraints::Callback.new callback: callback2, groups: ["group3"]
 
@@ -595,17 +595,17 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
     object = Entity.new
     object.sub_object = SubEntity.new
 
-    callback1 = AVD::Constraints::Callback::CallbackProc.new do |_value, context|
+    callback1 = Proc(SubEntity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context|
       context.add_violation "default group message"
     end
 
-    callback2 = AVD::Constraints::Callback::CallbackProc.new do |_value, context|
+    callback2 = Proc(SubEntity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context|
       context.add_violation "group sequence message"
     end
 
     @metadata.add_property_constraint "sub_object", AVD::Constraints::Valid.new
-    @sub_object_metadata.add_constraint AVD::Constraints::Callback.new callback: callback1, groups: ["default"]
-    @sub_object_metadata.add_constraint AVD::Constraints::Callback.new callback: callback2, groups: ["group1"]
+    @sub_object_metadata.add_constraint AVD::Constraints::Callback(SubEntity).new callback: callback1, groups: ["default"]
+    @sub_object_metadata.add_constraint AVD::Constraints::Callback(SubEntity).new callback: callback2, groups: ["group1"]
 
     @metadata.group_sequence = AVD::Constraints::GroupSequence.new ["group1", "Athena::Validator::Spec::AbstractValidatorTestCase::Entity"]
 
@@ -619,16 +619,16 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
     object = Entity.new
     object.sub_object = SubEntity.new
 
-    callback1 = AVD::Constraints::Callback::CallbackProc.new do |_value, context|
+    callback1 = Proc(Entity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context|
       context.add_violation "other group message"
     end
 
-    callback2 = AVD::Constraints::Callback::CallbackProc.new do |_value, context|
+    callback2 = Proc(Entity, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context|
       context.add_violation "group sequence message"
     end
 
-    @metadata.add_constraint AVD::Constraints::Callback.new callback: callback1, groups: ["other group"]
-    @metadata.add_constraint AVD::Constraints::Callback.new callback: callback2, groups: ["group1"]
+    @metadata.add_constraint AVD::Constraints::Callback(Entity).new callback: callback1, groups: ["other group"]
+    @metadata.add_constraint AVD::Constraints::Callback(Entity).new callback: callback2, groups: ["group1"]
 
     @metadata.group_sequence = AVD::Constraints::GroupSequence.new ["group1", "Athena::Validator::Spec::AbstractValidatorTestCase::Entity"]
 
@@ -638,28 +638,26 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
     violations.first.message.should eq "other group message"
   end
 
-  @[DataProvider("get_replace_default_group")]
-  def test_replace_default_group(sequence : Array(String | Array(String)) | AVD::Constraints::GroupSequence, expected_violations : Array) : Nil
+  @[DataProvider("get_replace_default_group_sequence")]
+  def test_replace_default_group(sequence : AVD::Constraints::GroupSequence, expected_violations : Array) : Nil
     object, metadata = case sequence
-                       in Array
-                         m = AVD::Metadata::ClassMetadata(EntitySequenceProvider).new
-                         @metadata_factory.add_metadata EntitySequenceProvider, m
-                         {EntitySequenceProvider.new(sequence), m}
                        in AVD::Constraints::GroupSequence
                          m = AVD::Metadata::ClassMetadata(EntityGroupSequenceProvider).new
                          @metadata_factory.add_metadata EntityGroupSequenceProvider, m
                          {EntityGroupSequenceProvider.new(sequence), m}
                        end
 
-    callback1 = AVD::Constraints::Callback::CallbackProc.new do |_value, context|
+    callback1 = Proc(EntityGroupSequenceProvider, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context|
       context.add_violation "violation in group2"
+      nil
     end
 
-    callback2 = AVD::Constraints::Callback::CallbackProc.new do |_value, context|
+    callback2 = Proc(EntityGroupSequenceProvider, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context|
       context.add_violation "violation in group3"
+      nil
     end
 
-    metadata.add_constraint AVD::Constraints::Callback.new callback: AVD::Constraints::Callback::CallbackProc.new { }, groups: ["group1"]
+    metadata.add_constraint AVD::Constraints::Callback.new callback: Proc(EntityGroupSequenceProvider, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new { }, groups: ["group1"]
     metadata.add_constraint AVD::Constraints::Callback.new callback: callback1, groups: ["group2"]
     metadata.add_constraint AVD::Constraints::Callback.new callback: callback2, groups: ["group3"]
     metadata.group_sequence_provider = true
@@ -673,20 +671,62 @@ abstract struct Athena::Validator::Spec::AbstractValidatorTestCase < ASPEC::Test
     end
   end
 
-  def get_replace_default_group : Tuple
+  @[DataProvider("get_replace_default_group_array")]
+  def test_replace_default_group(sequence : Array(String | Array(String)), expected_violations : Array) : Nil
+    object, metadata = case sequence
+                       in Array
+                         m = AVD::Metadata::ClassMetadata(EntitySequenceProvider).new
+                         @metadata_factory.add_metadata EntitySequenceProvider, m
+                         {EntitySequenceProvider.new(sequence), m}
+                       end
+
+    callback1 = Proc(EntitySequenceProvider, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context|
+      context.add_violation "violation in group2"
+      nil
+    end
+
+    callback2 = Proc(EntitySequenceProvider, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new do |_value, context|
+      context.add_violation "violation in group3"
+      nil
+    end
+
+    metadata.add_constraint AVD::Constraints::Callback.new callback: Proc(EntitySequenceProvider, AVD::ExecutionContextInterface, Hash(String, String)?, Nil).new { }, groups: ["group1"]
+    metadata.add_constraint AVD::Constraints::Callback.new callback: callback1, groups: ["group2"]
+    metadata.add_constraint AVD::Constraints::Callback.new callback: callback2, groups: ["group3"]
+    metadata.group_sequence_provider = true
+
+    violations = self.validate object, groups: "default"
+
+    violations.size.should eq expected_violations.size
+
+    expected_violations.each_with_index do |message, idx|
+      violations[idx].message.should eq message
+    end
+  end
+
+  def get_replace_default_group_sequence : Tuple
     {
       {
         AVD::Constraints::GroupSequence.new(["group1", "group2", "group3", "Athena::Validator::Spec::AbstractValidatorTestCase::Entity"]),
         ["violation in group2"],
       },
-      {
-        ["group1", "group2", "group3", "Athena::Validator::Spec::AbstractValidatorTestCase::Entity"] of String | Array(String),
-        ["violation in group2"],
-      },
+
       {
         AVD::Constraints::GroupSequence.new(["group1", ["group2", "group3"], "Athena::Validator::Spec::AbstractValidatorTestCase::Entity"]),
         ["violation in group2", "violation in group3"],
       },
+
+    }
+  end
+
+  def get_replace_default_group_array : Tuple
+    {
+
+      {
+        ["group1", "group2", "group3", "Athena::Validator::Spec::AbstractValidatorTestCase::Entity"] of String | Array(String),
+        ["violation in group2"],
+      },
+
       {
         ["group1", ["group2", "group3"], "Athena::Validator::Spec::AbstractValidatorTestCase::Entity"],
         ["violation in group2", "violation in group3"],
