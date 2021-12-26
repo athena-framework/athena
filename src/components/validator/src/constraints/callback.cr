@@ -80,7 +80,7 @@
 # The callback method can also be defined as a class method.
 # Since class methods do not have access to the related object instance, it is passed in as an argument.
 #
-# That argument is typed as `AVD::Constraints::Callback::Value` which exposes a `AVD::Constraints::Callback::Value#get`
+# That argument is typed as `AVD::Constraints::Callback::Value` instance which exposes a `AVD::Constraints::Callback::Value#get`
 # method that can be used as an easier syntax than `.as`.
 #
 # ```
@@ -90,7 +90,7 @@
 #   SPAM_DOMAINS = ["fake.com", "spam.net"]
 #
 #   @[Assert::Callback]
-#   def self.validate(value : AVD::Constraints::Callback::Value, context : AVD::ExecutionContextInterface, payload : Hash(String, String)?) : Nil
+#   def self.validate(value : AVD::Constraints::Callback::ValueContainer, context : AVD::ExecutionContextInterface, payload : Hash(String, String)?) : Nil
 #     # Get the object from the value, typed as our `Example` class.
 #     object = value.get self
 #
