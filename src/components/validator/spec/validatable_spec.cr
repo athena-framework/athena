@@ -39,7 +39,6 @@ private class ClassCallbackClass
 
   @[Assert::Callback]
   def self.validate(value : AVD::Constraints::Callback::ValueContainer, context : AVD::ExecutionContextInterface, payload : Hash(String, String)?) : Nil
-    value = value.get Int32
   end
 end
 
