@@ -63,6 +63,10 @@ class Athena::Framework::Request
     new HTTP::Request.new method, path, headers, body, version
   end
 
+  def self.new(request : self) : self
+    request
+  end
+
   def initialize(@request : HTTP::Request); end
 
   # :nodoc:
