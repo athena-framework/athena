@@ -107,6 +107,16 @@ class RoutingController < ATH::Controller
     "foo"
   end
 
+  @[ATHA::Post("/echo")]
+  def post_echo(request : ATH::Request) : String
+    (request.body.should_not be_nil).gets_to_end
+  end
+
+  @[ATHA::Put("/echo")]
+  def put_echo(request : ATH::Request) : String
+    (request.body.should_not be_nil).gets_to_end
+  end
+
   get "/macro/get-nil", return_type: Nil do
   end
 

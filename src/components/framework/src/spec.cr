@@ -52,7 +52,12 @@ module Athena::Framework::Spec
       # At the moment this just calls into `do_request`.
       # Kept this as way allow for future expansion.
 
-      self.do_request ATH::Request.new method, path, headers, body
+      self.request ATH::Request.new method, path, headers, body
+    end
+
+    # Makes an HTTP request with the provided *request*, returning the resulting response.
+    def request(request : ATH::Request | HTTP::Request) : HTTP::Server::Response
+      self.do_request ATH::Request.new request
     end
   end
 
@@ -208,9 +213,34 @@ module Athena::Framework::Spec
       @client.not_nil!
     end
 
+    # Makes a `GET` request to the provided *path*, optionally with the provided *headers*.
+    def get(path : String, headers : HTTP::Headers = HTTP::Headers.new) : HTTP::Server::Response
+      self.request "GET", path, headers: headers
+    end
+
+    # Makes a `POST` request to the provided *path*, optionally with the provided *body* and *headers*.
+    def post(path : String, body : String | Bytes | IO | Nil = nil, headers : HTTP::Headers = HTTP::Headers.new) : HTTP::Server::Response
+      self.request "POST", path, body, headers
+    end
+
+    # Makes a `PUT` request to the provided *path*, optionally with the provided *body* and *headers*.
+    def put(path : String, body : String | Bytes | IO | Nil = nil, headers : HTTP::Headers = HTTP::Headers.new) : HTTP::Server::Response
+      self.request "PUT", path, body, headers
+    end
+
+    # Makes a `DELETE` request to the provided *path*, optionally with the provided *headers*.
+    def delete(path : String, headers : HTTP::Headers = HTTP::Headers.new) : HTTP::Server::Response
+      self.request "DELETE", path, headers: headers
+    end
+
     # See `AbstractBrowser#request`.
     def request(method : String, path : String, body : String | Bytes | IO | Nil = nil, headers : HTTP::Headers = HTTP::Headers.new) : HTTP::Server::Response
-      self.client.request method, path, headers, body
+      self.request ATH::Request.new method, path, headers, body
+    end
+
+    # :ditto:
+    def request(request : HTTP::Request | ATH::Request) : HTTP::Server::Response
+      self.client.request ATH::Request.new request
     end
 
     # Helper method to init the container.

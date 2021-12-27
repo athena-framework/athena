@@ -109,6 +109,32 @@ struct RoutingTest < ATH::Spec::APITestCase
     end
   {% end %}
 
+  def test_get_helper_method : Nil
+    self.get("/macro").body.should eq %("GET")
+  end
+
+  def test_post_helper_method : Nil
+    self.post("/macro").body.should eq %("POST")
+    self.post("/echo", "BODY").body.should eq %("BODY")
+  end
+
+  def test_put_helper_method : Nil
+    self.put("/macro").body.should eq %("PUT")
+    self.put("/echo", "BODY").body.should eq %("BODY")
+  end
+
+  def test_delete_helper_method : Nil
+    self.delete("/macro").body.should eq %("DELETE")
+  end
+
+  def test_athena_request : Nil
+    self.request(ATH::Request.new("GET", "/macro")).body.should eq %("GET")
+  end
+
+  def test_http_request : Nil
+    self.request(HTTP::Request.new("GET", "/macro")).body.should eq %("GET")
+  end
+
   def test_constraints_404_if_no_match : Nil
     response = self.request "GET", "/macro/bar"
     response.status.should eq HTTP::Status::NOT_FOUND
