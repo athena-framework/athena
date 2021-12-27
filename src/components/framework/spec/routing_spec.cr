@@ -115,10 +115,12 @@ struct RoutingTest < ATH::Spec::APITestCase
 
   def test_post_helper_method : Nil
     self.post("/macro").body.should eq %("POST")
+    self.post("/echo", "BODY").body.should eq %("BODY")
   end
 
   def test_put_helper_method : Nil
     self.put("/macro").body.should eq %("PUT")
+    self.put("/echo", "BODY").body.should eq %("BODY")
   end
 
   def test_delete_helper_method : Nil

@@ -220,12 +220,12 @@ module Athena::Framework::Spec
 
     # Makes a `POST` request to the provided *path*, optionally with the provided *body* and *headers*.
     def post(path : String, body : String | Bytes | IO | Nil = nil, headers : HTTP::Headers = HTTP::Headers.new) : HTTP::Server::Response
-      self.request "POST", path, headers: headers
+      self.request "POST", path, body, headers
     end
 
     # Makes a `PUT` request to the provided *path*, optionally with the provided *body* and *headers*.
     def put(path : String, body : String | Bytes | IO | Nil = nil, headers : HTTP::Headers = HTTP::Headers.new) : HTTP::Server::Response
-      self.request "PUT", path, headers: headers
+      self.request "PUT", path, body, headers
     end
 
     # Makes a `DELETE` request to the provided *path*, optionally with the provided *headers*.
