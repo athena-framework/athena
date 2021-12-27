@@ -140,10 +140,11 @@ module Athena::Framework
     port : Int32 = 3000,
     host : String = "0.0.0.0",
     reuse_port : Bool = false,
+    ssl_context : OpenSSL::SSL::Context::Server? = nil,
     *,
     prepend_handlers : Array(HTTP::Handler) = [] of HTTP::Handler
   ) : Nil
-    ATH::Server.new(port, host, reuse_port, prepend_handlers).start
+    ATH::Server.new(port, host, reuse_port, ssl_context, prepend_handlers).start
   end
 
   # :nodoc:
@@ -154,6 +155,7 @@ module Athena::Framework
       @port : Int32 = 3000,
       @host : String = "0.0.0.0",
       @reuse_port : Bool = false,
+      @ssl_context : OpenSSL::SSL::Context::Server? = nil,
       prepend_handlers handlers : Array(HTTP::Handler) = [] of HTTP::Handler
     )
       handler_proc = HTTP::Handler::HandlerProc.new do |context|
@@ -187,7 +189,15 @@ module Athena::Framework
     end
 
     def start : Nil
-      @server.bind_tcp(@host, @port, reuse_port: @reuse_port)
+      {% if flag?(:without_openssl) %}
+        @server.bind_tcp @host, @port, reuse_port: @reuse_port
+      {% else %}
+        if ssl = @ssl_context
+          @server.bind_tls @host, @port, ssl, @reuse_port
+        else
+          @server.bind_tcp @host, @port, reuse_port: @reuse_port
+        end
+      {% end %}
 
       # Handle exiting correctly on stop/kill signals
       Signal::INT.trap { self.stop }

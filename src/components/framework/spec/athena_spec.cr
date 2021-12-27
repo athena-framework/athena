@@ -85,6 +85,14 @@ describe Athena::Framework do
       it "creates a server with a prepended HTTP::Handler" do
         ATH::Server.new prepend_handlers: [MockHandler.new]
       end
+
+      it "creates a server with SSL context" do
+        context = OpenSSL::SSL::Context::Server.new
+        context.certificate_chain = "#{__DIR__}/assets/openssl/openssl.crt"
+        context.private_key = "#{__DIR__}/assets/openssl/openssl.key"
+
+        ATH::Server.new ssl_context: context
+      end
     end
   end
 end
