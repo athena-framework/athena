@@ -130,18 +130,33 @@ module Athena::Framework
   #
   # ATH.run
   # ```
+  #
+  # *prepend_handlers* can be used to execute an array of `HTTP::Handler` _before_ Athena takes over.
+  # This can be useful to provide backwards compatibility with existing handlers until they can ported to Athena concepts,
+  # or for supporting things Athena does not support, such as WebSockets.
+  #
   # See `ATH::Controller` for more information on defining controllers/route actions.
-  def self.run(port : Int32 = 3000, host : String = "0.0.0.0", reuse_port : Bool = false) : Nil
-    ATH::Server.new(port, host, reuse_port).start
+  def self.run(
+    port : Int32 = 3000,
+    host : String = "0.0.0.0",
+    reuse_port : Bool = false,
+    *,
+    prepend_handlers : Array(HTTP::Handler) = [] of HTTP::Handler
+  ) : Nil
+    ATH::Server.new(port, host, reuse_port, prepend_handlers).start
   end
 
   # :nodoc:
   #
   # Currently an implementation detail. In the future could be exposed to allow having separate "groups" of controllers that a `Server` instance handles.
   struct Server
-    def initialize(@port : Int32 = 3000, @host : String = "0.0.0.0", @reuse_port : Bool = false)
-      # Define the server
-      @server = HTTP::Server.new do |context|
+    def initialize(
+      @port : Int32 = 3000,
+      @host : String = "0.0.0.0",
+      @reuse_port : Bool = false,
+      prepend_handlers handlers : Array(HTTP::Handler) = [] of HTTP::Handler
+    )
+      handler_proc = HTTP::Handler::HandlerProc.new do |context|
         # Reinitialize the container since keep-alive requests reuse the same fiber.
         Fiber.current.container = ADI::ServiceContainer.new
 
@@ -159,6 +174,12 @@ module Athena::Framework
         # Emit the terminate event now that the response has been sent.
         handler.terminate request, athena_response
       end
+
+      @server = if handlers.empty?
+                  HTTP::Server.new &handler_proc
+                else
+                  HTTP::Server.new handlers, &handler_proc
+                end
     end
 
     def stop : Nil
