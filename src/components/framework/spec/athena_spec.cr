@@ -1,5 +1,12 @@
 require "./spec_helper"
 
+private class MockHandler
+  include HTTP::Handler
+
+  def call(context)
+  end
+end
+
 describe Athena::Framework do
   describe ".from_parameter" do
     describe Number do
@@ -70,9 +77,13 @@ describe Athena::Framework do
   end
 
   describe ATH::Server do
-    describe "#initialize" do
+    describe ".new" do
       it "creates a server with the provided args" do
         ATH::Server.new 1234, "google.com", false
+      end
+
+      it "creates a server with a prepended HTTP::Handler" do
+        ATH::Server.new prepend_handlers: [MockHandler.new]
       end
     end
   end
