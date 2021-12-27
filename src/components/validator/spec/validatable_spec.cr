@@ -26,6 +26,22 @@ private class Obj
   property name : String = ""
 end
 
+private class InstanceCallbackClass
+  include AVD::Validatable
+
+  @[Assert::Callback]
+  def validate(context : AVD::ExecutionContextInterface, payload : Hash(String, String)?) : Nil
+  end
+end
+
+private class ClassCallbackClass
+  include AVD::Validatable
+
+  @[Assert::Callback]
+  def self.validate(value : AVD::Constraints::Callback::ValueContainer, context : AVD::ExecutionContextInterface, payload : Hash(String, String)?) : Nil
+  end
+end
+
 describe AVD::Validatable do
   describe ".load_metadata" do
     it "should manually add constraints to the metadata object" do
@@ -34,7 +50,7 @@ describe AVD::Validatable do
   end
 
   describe ".validation_class_metadata" do
-    it "is inheritted when included in parent type" do
+    it "is inherited when included in parent type" do
       Child.validation_class_metadata.constrained_properties.should eq ["name"]
     end
 
@@ -44,6 +60,18 @@ describe AVD::Validatable do
 
     it "is defined when included directly into non-abstract types" do
       Obj.validation_class_metadata.constrained_properties.should eq ["name"]
+    end
+
+    it "properly registers instance method callback constraints" do
+      constraints = InstanceCallbackClass.validation_class_metadata.constraints
+      constraints.size.should eq 1
+      constraints.first.should be_a AVD::Constraints::Callback
+    end
+
+    it "properly registers class method callback constraints" do
+      constraints = ClassCallbackClass.validation_class_metadata.constraints
+      constraints.size.should eq 1
+      constraints.first.should be_a AVD::Constraints::Callback
     end
   end
 end

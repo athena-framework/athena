@@ -76,7 +76,7 @@ class Athena::Validator::Metadata::ClassMetadata(T)
         {% for constraint in AVD::Constraint.all_subclasses.reject &.abstract? %}
           {% ann_name = constraint.name(generic_args: false).split("::").last.id %}
 
-          {% if ann = m.annotation Assert.constant(ann_name).resolve %}
+          {% if ann_name != "Callback" && (ann = m.annotation Assert.constant(ann_name).resolve) %}
             {% default_arg = ann.args.empty? ? nil : ann.args.first %}
 
             class_metadata.add_getter_constraint(
