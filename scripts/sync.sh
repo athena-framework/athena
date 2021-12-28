@@ -30,4 +30,4 @@ maybeSync "src/components/negotiation" negotiation https://github.com/athena-fra
 maybeSync "src/components/serializer" serializer https://github.com/athena-framework/serializer.git
 maybeSync "src/components/spec" spec https://github.com/athena-framework/spec.git
 maybeSync "src/components/validator" validator https://github.com/athena-framework/validator.git
-maybeSync "src/website" website https://github.com/athena-framework/website.git
+# maybeSync "src/website" website https://github.com/athena-framework/website.git
