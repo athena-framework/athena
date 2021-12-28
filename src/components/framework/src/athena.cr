@@ -203,7 +203,7 @@ module Athena::Framework
       Signal::INT.trap { self.stop }
       Signal::TERM.trap { self.stop }
 
-      Log.info { "Server has started and is listening at http://#{@server.addresses.first}" }
+      Log.info { %(Server has started and is listening at #{@ssl_context ? "https" : "http"}://#{@server.addresses.first}) }
 
       @server.listen
     end
