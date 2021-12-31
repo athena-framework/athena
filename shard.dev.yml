@@ -12,6 +12,8 @@ dependencies:
     path: ./src/components/event_dispatcher
   athena-negotiation:
     path: ./src/components/negotiation
+  athena-routing:
+    path: ./src/components/routing
   athena-serializer:
     path: ./src/components/serializer
   athena-spec:
