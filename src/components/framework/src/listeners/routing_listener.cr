@@ -9,7 +9,7 @@ struct Athena::Framework::Listeners::Routing
     }
   end
 
-  def initialize(@matcher : ART::RequestMatcherInterface); end
+  def initialize(@matcher : ART::Matcher::RequestMatcherInterface); end
 
   # Assigns the resolved `ATH::Action` and path parameters to the request.
   #
@@ -19,12 +19,13 @@ struct Athena::Framework::Listeners::Routing
 
     route = @matcher.match request
 
-    Log.info &.emit "Matched route #{request.path}", uri: request.path, method: request.method, path_params: route.params, query_params: request.query_params.to_h
+    pp route
 
-    request.action = route.payload.not_nil!.dup
+    # Log.info &.emit "Matched route #{request.path}", uri: request.path, method: request.method, path_params: route.params, query_params: request.query_params.to_h
+    # request.action = route.payload.not_nil!.dup
 
-    route.params.not_nil!.each do |key, value|
-      event.request.attributes.set key, value
-    end
+    # route.params.not_nil!.each do |key, value|
+    #   event.request.attributes.set key, value
+    # end
   end
 end

@@ -178,7 +178,7 @@ class Athena::Routing::Matcher::URLMatcher
       }
     )
 
-    {% if @top_level.has_constant? "Athena::Framework::Request" %}
+    {% if @top_level.has_constant?("Athena") && Athena.has_constant?("Framework") && Athena::Framework.has_constant?("Request") %}
       request = Athena::Framework::Request.new request
     {% end %}
 

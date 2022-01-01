@@ -3,22 +3,10 @@
 # See `ATH::Action`.
 abstract struct Athena::Framework::ActionBase; end
 
-# Represents an endpoint within the application.
-
+# Represents a controller action that will handle a request.
+#
 # Includes metadata about the endpoint, such as its controller, arguments, return type, and the action that should be executed.
 struct Athena::Framework::Action(Controller, ActionType, ReturnType, ArgTypeTuple, ArgumentsType, ParamConverterType) < Athena::Framework::ActionBase
-  # Returns the HTTP method associated with `self`.
-  getter method : String
-
-  # Returns the name of the the controller action related to `self`.
-  getter name : String
-
-  # Returns the URL path related to `self`.
-  getter path : String
-
-  # Returns any routing constraints related to `self`.
-  getter constraints : Hash(String, Regex)
-
   # Returns an `Array(ATH::Arguments::ArgumentMetadata)` that `self` requires.
   getter arguments : ArgumentsType
 
@@ -35,10 +23,6 @@ struct Athena::Framework::Action(Controller, ActionType, ReturnType, ArgTypeTupl
 
   def initialize(
     @action : ActionType,
-    @name : String,
-    @method : String,
-    @path : String,
-    @constraints : Hash(String, Regex),
     @arguments : ArgumentsType,
     @param_converters : ParamConverterType,
     @annotation_configurations : ACF::AnnotationConfigurations,
@@ -86,22 +70,5 @@ struct Athena::Framework::Action(Controller, ActionType, ReturnType, ArgTypeTupl
 
   protected def create_view(data : _) : NoReturn
     raise "BUG:  Invoked wrong `create_view` overload."
-  end
-
-  protected def copy_with(name _name = @name, method _method = @method)
-    self.class.new(
-      action: @action,
-      name: _name,
-      method: _method,
-      path: @path,
-      constraints: @constraints,
-      arguments: @arguments,
-      param_converters: @param_converters,
-      annotation_configurations: @annotation_configurations,
-      params: @params,
-      _controller: Controller,
-      _return_type: ReturnType,
-      _arg_types: ArgTypeTuple,
-    )
   end
 end

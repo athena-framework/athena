@@ -2,7 +2,6 @@ require "ecr"
 require "http/server"
 require "json"
 
-require "amber_router"
 require "athena-config"
 require "athena-dependency_injection"
 require "athena-event_dispatcher"
@@ -35,24 +34,20 @@ require "./exceptions/*"
 require "./listeners/*"
 require "./parameters/*"
 require "./params/*"
-require "./routing/*"
 require "./view/*"
 
 require "./ext/conversion_types"
 require "./ext/event_dispatcher"
 require "./ext/negotiation"
+require "./ext/routing"
 require "./ext/serializer"
 require "./ext/validator"
-
-# Convenience alias to make referencing `Athena::Routing` types easier.
-alias ART = Athena::Routing
 
 # Namespace for types related to routing.
 #
 # See `ART` for an easier way to access types in this namespace.
 #
-# NOTE: This namespace currently lives within the `Athena::Framework` codebase,
-# but will eventually be extracted into its own component.
+# NOTE: This namespace currently lives within the `Athena::Framework` codebase, but will eventually be extracted into its own component.
 module Athena::Routing; end
 
 alias ATH = Athena::Framework
@@ -209,3 +204,12 @@ module Athena::Framework
     end
   end
 end
+
+class ExampleController < ATH::Controller
+  @[ARTA::Get("/")]
+  def root : String
+    "At the index"
+  end
+end
+
+ATH.run

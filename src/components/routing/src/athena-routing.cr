@@ -10,6 +10,7 @@ require "./route"
 require "./route_collection"
 require "./route_compiler"
 require "./route_provider"
+require "./router"
 
 require "./exception/*"
 require "./generator/*"
@@ -66,7 +67,7 @@ alias ARTA = ART::Annotations
 module Athena::Routing
   VERSION = "0.1.0"
 
-  {% if @top_level.has_constant? "Athena::Framework::Request" %}
+  {% if @top_level.has_constant?("Athena") && Athena.has_constant?("Framework") && Athena::Framework.has_constant?("Request") %}
     # Represents the type of the *request* parameter within an `ART::Route::Condition`.
     #
     # Will be an `ATH::Request` instance if used within the Athena Framework, otherwise [HTTP::Request](https://crystal-lang.org/api/HTTP/Request.html).
