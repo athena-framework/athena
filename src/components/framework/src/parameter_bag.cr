@@ -89,6 +89,12 @@ struct Athena::Framework::ParameterBag
     end
   {% end %}
 
+  def set(hash : Hash) : Nil
+    hash.each do |key, value|
+      self.set key, value
+    end
+  end
+
   # Sets a parameter with the provided *name* to *value*.
   def set(name : String, value : T) : Nil forall T
     self.set name, value, T
