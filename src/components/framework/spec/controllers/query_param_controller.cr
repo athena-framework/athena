@@ -57,11 +57,11 @@ class MultipleAdditionalQPGenericConverter < ATH::ParamConverter
   end
 end
 
-@[ARTA::Route(path: "query")]
+@[ARTA::Route(path: "/query")]
 class QueryParamController < ATH::Controller
   # Simple, just name/description
   @[ATHA::QueryParam("search", description: "Only return items that include this string.")]
-  @[ARTA::Get("/")]
+  @[ARTA::Get("")]
   def search(search : String) : String
     search
   end

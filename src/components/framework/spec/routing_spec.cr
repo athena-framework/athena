@@ -28,13 +28,13 @@ struct RoutingTest < ATH::Spec::APITestCase
   def test_route_doesnt_exist : Nil
     response = self.request "GET", "/fake/route"
     response.status.should eq HTTP::Status::NOT_FOUND
-    response.body.should eq %({"code":404,"message":"No route found for 'GET /fake/route'"})
+    response.body.should eq %({"code":404,"message":"No route found for 'GET /fake/route'."})
   end
 
   def test_invalid_method : Nil
     response = self.request "POST", "/art/response"
     response.status.should eq HTTP::Status::METHOD_NOT_ALLOWED
-    response.body.should eq %({"code":405,"message":"No route found for 'POST /art/response': (Allow: GET, HEAD)"})
+    response.body.should eq %({"code":405,"message":"No route found for 'POST /art/response': Method Not Allowed (Allow: GET)."})
   end
 
   def test_allows_returning_an_athena_response : Nil
@@ -138,7 +138,7 @@ struct RoutingTest < ATH::Spec::APITestCase
   def test_constraints_404_if_no_match : Nil
     response = self.request "GET", "/macro/bar"
     response.status.should eq HTTP::Status::NOT_FOUND
-    response.body.should eq %({"code":404,"message":"No route found for 'GET /macro/bar'"})
+    response.body.should eq %({"code":404,"message":"No route found for 'GET /macro/bar'."})
   end
 
   def test_constraints_routes_if_match : Nil
@@ -158,7 +158,7 @@ struct RoutingTest < ATH::Spec::APITestCase
   end
 
   def test_generate_url_named_tuple_abso : Nil
-    self.request("GET", "/url-nt-abso", headers: HTTP::Headers{"host" => "crystal-lang.org"}).body.should eq %("https://crystal-lang.org/art/response?id=10")
+    self.request("GET", "/url-nt-abso", headers: HTTP::Headers{"host" => "crystal-lang.org"}).body.should eq %("http://crystal-lang.org/art/response?id=10")
   end
 
   def test_redirect_to_route : Nil

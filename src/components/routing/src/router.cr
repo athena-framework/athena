@@ -30,8 +30,6 @@ class Athena::Routing::Router
     context : ART::RequestContext? = nil
   )
     @context = context || ART::RequestContext.new
-
-    ART.compile @route_collection
   end
 
   def generate(route : String, params : Hash(String, String?) = Hash(String, String?).new, reference_type : ART::Generator::ReferenceType = :absolute_path) : String

@@ -107,7 +107,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                                      {a, ["GET"]}
                                    elsif a = m.annotation ARTA::Post
                                      {a, ["POST"]}
-                                   elsif a = m.annotation ARTA::PUT
+                                   elsif a = m.annotation ARTA::Put
                                      {a, ["PUT"]}
                                    elsif a = m.annotation ARTA::Patch
                                      {a, ["Patch"]}
@@ -165,7 +165,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
               end
 
               # Process query and request params
-              [{ATHA::QueryParam, "ATH::Params::QueryParam"}, {ATHA::RequestParam, "ATH::Params::RequestParam"}].each do |(param_ann, param_class)|
+              [{ATHA::QueryParam, "ATH::Params::QueryParam".id}, {ATHA::RequestParam, "ATH::Params::RequestParam".id}].each do |(param_ann, param_class)|
                 m.annotations(param_ann).each do |ann|
                   unless arg_name = (ann[0] || ann[:name])
                     ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation but is missing the argument's name. It was not provided as the first positional argument nor via the 'name' field."
@@ -299,7 +299,9 @@ module Athena::Framework::Routing::AnnotationRouteLoader
               globals[:defaults].each { |k, v| defaults[k] = v }
               globals[:requirements].each { |k, v| requirements[k] = v }
 
-              m.args.reject(&.default_value.is_a?(Nop)).each { |a| defaults[a.name.stringify] = a.default_value }
+              m.args
+                .select { |a| !a.default_value.is_a?(Nop) && a.name =~ /\{%s(?:<.*?>)?\}/ }
+                .each { |a| defaults[a.name.stringify] = a.default_value }
 
               if ann_defaults = route_def[:defaults]
                 ann_defaults.each { |k, v| defaults[k] = v }
@@ -375,8 +377,9 @@ module Athena::Framework::Routing::AnnotationRouteLoader
 
           collection.add %collection{c_idx}
         {% end %}
-        {{debug}}
       {% end %}
+
+    ART.compile collection
 
     collection
   end

@@ -120,13 +120,13 @@ class RoutingController < ATH::Controller
   get "/macro/get-nil", return_type: Nil do
   end
 
-  get "/macro/add/:num1/:num2", num1 : Int32, num2 : Int32, return_type: Int32 do
+  get "/macro/add/{num1}/{num2}", num1 : Int32, num2 : Int32, return_type: Int32 do
     num1 + num2
   end
 
   get "/macro" { "GET" }
 
-  get "/macro/:foo", foo : String, constraints: {"foo" => /foo/} do
+  get "/macro/{foo<foo>}", foo : String do
     foo
   end
 

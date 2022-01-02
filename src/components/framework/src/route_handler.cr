@@ -6,7 +6,8 @@ struct Athena::Framework::RouteHandler
   def initialize(
     @event_dispatcher : AED::EventDispatcherInterface,
     @request_store : ATH::RequestStore,
-    @argument_resolver : ATH::Arguments::ArgumentResolverInterface
+    @argument_resolver : ATH::Arguments::ArgumentResolverInterface,
+    @controller_resolver : ATH::ControllerResolverInterface
   )
   end
 
@@ -60,8 +61,8 @@ struct Athena::Framework::RouteHandler
       return finish_response response, request
     end
 
-    # TODO: Make this less hacky, maybe a new event/dependency?
-    request.action = ATH::Routing::AnnotationRouteLoader.actions[request.attributes.get "_controller"]
+    # TODO: Possibly add another event here to allow modification of the resolved "controller"?
+    request.action = @controller_resolver.resolve request
 
     # Emit the action event.
     @event_dispatcher.dispatch ATH::Events::Action.new request, request.action
@@ -69,7 +70,7 @@ struct Athena::Framework::RouteHandler
     # Resolve the arguments for this action from the request.
     arguments = @argument_resolver.get_arguments request, request.action
 
-    # Possibly add another event here to allow modification of the resolved arguments?
+    # TODO: Possibly add another event here to allow modification of the resolved arguments?
 
     # Call the action and get the response.
     response = request.action.execute arguments
@@ -79,7 +80,7 @@ struct Athena::Framework::RouteHandler
       @event_dispatcher.dispatch view_event
 
       unless response = view_event.response
-        raise %('#{request.attributes.get "_route"}' must return an `ATH::Response` but it returned '#{response}'.)
+        raise %('#{request.attributes.get "_controller"}' must return an `ATH::Response` but it returned '#{response}'.)
       end
     end
 
