@@ -61,7 +61,7 @@ struct Athena::Framework::RouteHandler
     end
 
     # TODO: Make this less hacky, maybe a new event/dependency?
-    request.action = ATH::Routing::AnnotationRouteLoader.routes[request.attributes.get "_controller"]
+    request.action = ATH::Routing::AnnotationRouteLoader.actions[request.attributes.get "_controller"]
 
     # Emit the action event.
     @event_dispatcher.dispatch ATH::Events::Action.new request, request.action

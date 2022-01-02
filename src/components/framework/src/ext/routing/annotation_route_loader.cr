@@ -2,7 +2,7 @@
 #
 # Loads and caches a `ART::RouteCollection` from `ART::Controllers` as well as a mapping of route names to `ATH::Action`s.
 module Athena::Framework::Routing::AnnotationRouteLoader
-  protected class_getter routes = Hash(String, ATH::ActionBase).new
+  protected class_getter actions = Hash(String, ATH::ActionBase).new
 
   class_getter route_collection : ART::RouteCollection do
     collection = ART::RouteCollection.new
@@ -266,7 +266,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
 
             # Setup the `ATH::Action` and set the `_controller` default so future logic knows which method it should handle it by default.
             {% globals[:defaults]["_controller"] = action_name = "#{klass.name}##{m.name}" %}
-            @@routes[{{action_name}}] = ATH::Action.new(
+            @@actions[{{action_name}}] = ATH::Action.new(
               action: ->{
                 # If the controller is not registered as a service, simply new one up
                 # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
@@ -320,29 +320,54 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             {% priority = route_def[:priority] || globals[:priority] %}
 
             # Grab the path off the annotation, raising a compile time error if is not provided.
-            {% m.raise "Route action '#{klass.name}##{m.name}' is annotated as a '#{methods.id}' route but is missing the path." unless (path = route_def[0] || route_def[:localized_paths] || route_def[:path]) %}
+            {% m.raise "Route action '#{klass.name}##{m.name}' is annotated as a '#{methods.id}' route but is missing the path." unless (path = route_def[:localized_paths] || route_def[0] || route_def[:path]) %}
             {% prefix = globals[:localized_paths] || globals[:path] %}
 
-            # TODO: Handle array based `path`/`prefix` for localization
-            {% paths["_default"] = "#{prefix.id}#{path.id}" %}
+            {% if path.is_a? HashLiteral %}
+              {% if !prefix.is_a? HashLiteral %}
+                {% for locale, locale_path in path %}
+                  {% paths[locale] = "#{prefix.id}#{locale_path.id}" %}
+                {% end %}
+              {% elsif !(missing = prefix.keys.reject { |k| path[k] }).empty? %}
+                {% raise "Route action '#{klass.name}##{m.name}' is missing paths for locale(s) '#{missing.join(",").id}'." %}
+              {% else %}
+                {% for locale, locale_path in path %}
+                  {% if prefix[locale] == nil %}
+                    {% m.raise "Route action '#{klass.name}##{m.name}' with locale '#{locale.id}' is missing a corresponding prefix in class '#{klass.name}'." %}
+                  {% end %}
+
+                  {% paths[locale] = "#{prefix[locale].id}#{locale_path.id}" %}
+                {% end %}
+              {% end %}
+            {% elsif prefix.is_a? HashLiteral %}
+              {% for locale, locale_prefix in prefix %}
+                {% paths[locale] = "#{locale_prefix.id}#{path.id}" %}
+              {% end %}
+            {% else %}
+              {% paths["_default"] = "#{prefix.id}#{path.id}" %}
+            {% end %}
 
             {% for locale, path in paths %}
+              {% r_name = route_name %}
+
               {% if locale != "_default" %}
-              {% else %}
-                %collection{c_idx}.add(
-                  {{route_name}},
-                  ART::Route.new(
-                    path: {{path}},
-                    defaults: {{defaults.empty? ? "Hash(String, String?).new".id : defaults}},
-                    requirements: {{requirements}} of String => Regex | String,
-                    host: {{host}},
-                    schemes: {{schemes.empty? ? nil : schemes}},
-                    methods: {{methods.empty? ? nil : methods}},
-                    condition: {{condition}}
-                  ),
-                  {{priority}}
-                )
+                {% defaults["_locale"] = locale %}
+                {% requirements["_locale"] = "Regex.escape(#{locale})".id %}
+                {% defaults["_canonical_route"] = r_name %}
+                {% r_name = "#{route_name.id}.#{locale.id}" %}
               {% end %}
+
+              %route{path} = ART::Route.new(
+                path: {{path}},
+                defaults: {{defaults.empty? ? "Hash(String, String?).new".id : defaults}},
+                requirements: {{requirements}} of String => Regex | String,
+                host: {{host}},
+                schemes: {{schemes.empty? ? nil : schemes}},
+                methods: {{methods.empty? ? nil : methods}},
+                condition: {{condition}}
+              )
+
+              %collection{c_idx}.add({{r_name}}, %route{path}, {{priority}})
             {% end %}
           {% end %}
 
