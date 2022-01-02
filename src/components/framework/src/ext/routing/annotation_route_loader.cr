@@ -97,35 +97,29 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             {% m.raise "Route action return type must be set for '#{klass.name}##{m.name}'." if m.return_type.is_a? Nop %}
 
             # Set the route_def and method(s) based on annotation.
-            {% if d = m.annotation(ARTA::Get) %}
-              {% methods = ["GET"] %}
-              {% route_def = d %}
-            {% elsif d = m.annotation(ARTA::Post) %}
-              {% methods = ["POST"] %}
-              {% route_def = d %}
-            {% elsif d = m.annotation(ARTA::Put) %}
-              {% methods = ["PUT"] %}
-              {% route_def = d %}
-            {% elsif d = m.annotation(ARTA::Patch) %}
-              {% methods = ["PATCH"] %}
-              {% route_def = d %}
-            {% elsif d = m.annotation(ARTA::Delete) %}
-              {% methods = ["DELETE"] %}
-              {% route_def = d %}
-            {% elsif d = m.annotation(ARTA::Link) %}
-              {% methods = ["LINK"] %}
-              {% route_def = d %}
-            {% elsif d = m.annotation(ARTA::Unlink) %}
-              {% methods = ["UNLINK"] %}
-              {% route_def = d %}
-            {% elsif d = m.annotation(ARTA::Head) %}
-              {% methods = ["HEAD"] %}
-              {% route_def = d %}
-            {% elsif d = m.annotation(ARTA::Route) %}
-              {% methods = d[:methods] || m.raise "Route action '#{klass.name}##{m.name}' is missing the HTTP method(s). It was not provided via the 'methods' field." %}
-              {% methods = methods.is_a?(StringLiteral) ? [methods] : methods %}
-              {% route_def = d %}
-            {% end %}
+            {%
+              route_def, methods = if a = m.annotation ARTA::Get
+                                     {a, ["GET"]}
+                                   elsif a = m.annotation ARTA::Post
+                                     {a, ["POST"]}
+                                   elsif a = m.annotation ARTA::PUT
+                                     {a, ["PUT"]}
+                                   elsif a = m.annotation ARTA::Patch
+                                     {a, ["Patch"]}
+                                   elsif a = m.annotation ARTA::Delete
+                                     {a, ["Delete"]}
+                                   elsif a = m.annotation ARTA::Link
+                                     {a, ["Link"]}
+                                   elsif a = m.annotation ARTA::Unlink
+                                     {a, ["Unlink"]}
+                                   elsif a = m.annotation ARTA::Head
+                                     {a, ["Head"]}
+                                   elsif a = m.annotation ARTA::Route
+                                     methods = a[:methods] || [] of Nil
+                                     methods = methods.is_a?(StringLiteral) ? [methods] : methods
+                                     {a, methods}
+                                   end
+            %}
 
             # Logic for creating the `ATH::Action` instances:
 
@@ -260,7 +254,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             {% if name = route_def[:name] %}
               {% route_name = name %}
             {% else %}
-              # MyApp::UserController # => my_app_user_controller_new_user
+              # MyApp::UserController#new_user # => my_app_user_controller_new_user
               {% route_name = "#{klass.name.stringify.split("::").join("_").underscore.downcase.id}_#{m.name.id}" %}
             {% end %}
 
@@ -288,79 +282,80 @@ module Athena::Framework::Routing::AnnotationRouteLoader
               _arg_types: {{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}
             )
 
-            # Logic for creating the `ART::Route`s:
-            {% paths = {} of Nil => Nil %}
+            {%
+              paths = {} of Nil => Nil
+              defaults = {} of Nil => Nil
+              requirements = {} of Nil => Nil
 
-            {% defaults = globals[:defaults] %}
+              # Resolve `ART::Route` data from the route annotation and globals.
 
-            # Apply controller action parameter default values as defaults.
-            {% for a in m.args.reject &.default_value.is_a? Nop %}
-              {% defaults[a.name.stringify] = a.default_value %}
-            {% end %}
+              globals[:defaults].each { |k, v| defaults[k] = v }
+              globals[:requirements].each { |k, v| requirements[k] = v }
 
-            {% if (value = route_def[:defaults]) != nil %}
-              {% for k, v in value %}
-                {% defaults[k] = v %}
-              {% end %}
-            {% end %}
+              m.args.reject(&.default_value.is_a?(Nop)).each { |a| defaults[a.name.stringify] = a.default_value }
 
-            {% requirements = globals[:requirements] %}
-            {% if (value = route_def[:requirements]) != nil %}
-              {% for k, v in value %}
-                {% requirements[k] = v %}
-              {% end %}
-            {% end %}
+              if ann_defaults = route_def[:defaults]
+                ann_defaults.each { |k, v| defaults[k] = v }
+              end
 
-            {% schemes = (globals[:schemes] + (route_def[:schemes] || [] of Nil)).uniq %}
-            {% methods = (globals[:methods] + methods).uniq %}
-            {% priority = route_def[:priority] || globals[:priority] %}
-            {% host = route_def[:host] || globals[:host] %}
+              if ann_requirements = route_def[:requirements]
+                ann_requirements.each { |k, v| requirements[k] = v }
+              end
 
-            {% condition = route_def[:condition] || globals[:condition] %}
-            {% priority = route_def[:priority] || globals[:priority] %}
+              schemes = (globals[:schemes] + (route_def[:schemes] || [] of Nil)).uniq
+              methods = (globals[:methods] + methods).uniq
+              priority = route_def[:priority] || globals[:priority]
+              host = route_def[:host] || globals[:host]
 
-            # Grab the path off the annotation, raising a compile time error if is not provided.
-            {% m.raise "Route action '#{klass.name}##{m.name}' is annotated as a '#{methods.id}' route but is missing the path." unless (path = route_def[:localized_paths] || route_def[0] || route_def[:path]) %}
-            {% prefix = globals[:localized_paths] || globals[:path] %}
+              condition = route_def[:condition] || globals[:condition]
+              priority = route_def[:priority] || globals[:priority]
 
-            {% if path.is_a? HashLiteral %}
-              {% if !prefix.is_a? HashLiteral %}
-                {% for locale, locale_path in path %}
-                  {% paths[locale] = "#{prefix.id}#{locale_path.id}" %}
-                {% end %}
-              {% elsif !(missing = prefix.keys.reject { |k| path[k] }).empty? %}
-                {% raise "Route action '#{klass.name}##{m.name}' is missing paths for locale(s) '#{missing.join(",").id}'." %}
-              {% else %}
-                {% for locale, locale_path in path %}
-                  {% if prefix[locale] == nil %}
-                    {% m.raise "Route action '#{klass.name}##{m.name}' with locale '#{locale.id}' is missing a corresponding prefix in class '#{klass.name}'." %}
-                  {% end %}
+              unless (path = route_def[:localized_paths] || route_def[0] || route_def[:path])
+                m.raise "Route action '#{klass.name}##{m.name}' is annotated as a '#{methods.id}' route but is missing the path."
+              end
 
-                  {% paths[locale] = "#{prefix[locale].id}#{locale_path.id}" %}
-                {% end %}
-              {% end %}
-            {% elsif prefix.is_a? HashLiteral %}
-              {% for locale, locale_prefix in prefix %}
-                {% paths[locale] = "#{locale_prefix.id}#{path.id}" %}
-              {% end %}
-            {% else %}
-              {% paths["_default"] = "#{prefix.id}#{path.id}" %}
-            {% end %}
+              prefix = globals[:localized_paths] || globals[:path]
+
+              # Process path/prefix values to a hash of paths that should be created.
+              if path.is_a? HashLiteral
+                if !prefix.is_a? HashLiteral
+                  path.each { |locale, locale_path| paths[locale] = "#{prefix.id}#{locale_path.id}" }
+                elsif !(missing = prefix.keys.reject { |k| path[k] }).empty?
+                  m.raise "Route action '#{klass.name}##{m.name}' is missing paths for locale(s) '#{missing.join(",").id}'."
+                else
+                  path.each do |locale, locale_path|
+                    if prefix[locale] == nil
+                      m.raise "Route action '#{klass.name}##{m.name}' with locale '#{locale.id}' is missing a corresponding prefix in class '#{klass.name}'."
+                    end
+
+                    paths[locale] = "#{prefix[locale].id}#{locale_path.id}"
+                  end
+                end
+              elsif prefix.is_a? HashLiteral
+                prefix.each { |locale, locale_prefix| paths[locale] = "#{locale_prefix.id}#{path.id}" }
+              else
+                paths["_default"] = "#{prefix.id}#{path.id}"
+              end
+            %}
 
             {% for locale, path in paths %}
-              {% r_name = route_name %}
+              {%
+                r_name = route_name
+                r_defaults = defaults
+                r_requirements = requirements
 
-              {% if locale != "_default" %}
-                {% defaults["_locale"] = locale %}
-                {% requirements["_locale"] = "Regex.escape(#{locale})".id %}
-                {% defaults["_canonical_route"] = r_name %}
-                {% r_name = "#{route_name.id}.#{locale.id}" %}
-              {% end %}
+                if locale != "_default"
+                  r_defaults["_locale"] = locale
+                  r_requirements["_locale"] = "Regex.escape(#{locale})".id
+                  r_defaults["_canonical_route"] = r_name
+                  r_name = "#{route_name.id}.#{locale.id}"
+                end
+              %}
 
               %route{path} = ART::Route.new(
                 path: {{path}},
-                defaults: {{defaults.empty? ? "Hash(String, String?).new".id : defaults}},
-                requirements: {{requirements}} of String => Regex | String,
+                defaults: {{r_defaults.empty? ? "Hash(String, String?).new".id : r_defaults}},
+                requirements: {{r_requirements}} of String => Regex | String,
                 host: {{host}},
                 schemes: {{schemes.empty? ? nil : schemes}},
                 methods: {{methods.empty? ? nil : methods}},
@@ -373,6 +368,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
 
           collection.add %collection{c_idx}
         {% end %}
+        {{debug}}
       {% end %}
 
     collection
