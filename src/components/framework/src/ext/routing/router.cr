@@ -1,5 +1,5 @@
 # :nodoc:
-@[ADI::Register(alias: ART::Generator::Interface)]
+@[ADI::Register(name: "router", public: true, alias: ART::Generator::Interface)]
 class Athena::Framework::Routing::Router < Athena::Routing::Router
   def initialize(
     default_locale : String? = nil,

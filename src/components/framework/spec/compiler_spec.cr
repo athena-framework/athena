@@ -30,15 +30,15 @@ describe Athena::Framework do
       assert_error "compiler/missing_route_method.cr", "CompileController#action' is missing the HTTP method. It was not provided via the 'method' field."
     end
 
-    describe ATHA::Prefix do
-      it "when a parent type has the prefix annotation but is missing a value" do
-        assert_error "compiler/parent_missing_prefix.cr", "Controller 'PrefixController' has the `Prefix` annotation but is missing the prefix."
-      end
+    # describe ATHA::Prefix do
+    #   it "when a parent type has the prefix annotation but is missing a value" do
+    #     assert_error "compiler/parent_missing_prefix.cr", "Controller 'PrefixController' has the `Prefix` annotation but is missing the prefix."
+    #   end
 
-      it "when a type has the prefix annotation but is missing a value" do
-        assert_error "compiler/missing_prefix.cr", "Controller 'CompileController' has the `Prefix` annotation but is missing the prefix."
-      end
-    end
+    #   it "when a type has the prefix annotation but is missing a value" do
+    #     assert_error "compiler/missing_prefix.cr", "Controller 'CompileController' has the `Prefix` annotation but is missing the prefix."
+    #   end
+    # end
 
     describe ATHA::ParamConverter do
       it "missing name" do

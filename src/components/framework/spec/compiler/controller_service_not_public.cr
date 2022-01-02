@@ -2,7 +2,7 @@ require "../spec_helper"
 
 @[ADI::Register]
 class CompileController < ATH::Controller
-  @[ATHA::Get(path: "/")]
+  @[ARTA::Get(path: "/")]
   def action : String
     "foo"
   end

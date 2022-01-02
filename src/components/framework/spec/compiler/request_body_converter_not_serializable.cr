@@ -3,7 +3,7 @@ require "../spec_helper"
 record Foo, text : String
 
 class CompileController < Athena::Framework::Controller
-  @[ATHA::Get(path: "/")]
+  @[ARTA::Get(path: "/")]
   @[ATHA::ParamConverter("foo", converter: ATH::RequestBodyConverter)]
   def action(foo : Foo) : Foo
     foo

@@ -1,7 +1,7 @@
 require "../spec_helper"
 
 class CompileController < ATH::Controller
-  @[ATHA::Get(path: "/")]
+  @[ARTA::Get(path: "/")]
   @[ATHA::QueryParam("all", converter: {format: "%Y--%m//%d %T"})]
   def action(all : Bool) : Int32
     123

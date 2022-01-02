@@ -129,15 +129,16 @@
 abstract class Athena::Framework::Controller
   # Generates a URL to the provided *route* with the provided *params*.
   #
-  # See `ART::URLGeneratorInterface#generate`.
-  def generate_url(route : String, params : Hash(String, _)? = nil, reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path) : String
-    ADI.container.router.generate route, params, reference_type
+  # See `ART::Generator::Interface#generate`.
+  def generate_url(route : String, params : Hash(String, _) = Hash(String, String?).new, reference_type : ART::Generator::ReferenceType = :absolute_path) : String
+    # TODO: Make this type leverage a service locator for these common types.
+    ADI.container.router.generate route, params.transform_values(&.to_s.as(String?)), reference_type
   end
 
   # Generates a URL to the provided *route* with the provided *params*.
   #
-  # See `ART::URLGeneratorInterface#generate`.
-  def generate_url(route : String, reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path, **params)
+  # See `ART::Generator::Interface#generate`.
+  def generate_url(route : String, reference_type : ART::Generator::ReferenceType = :absolute_path, **params)
     self.generate_url route, params.to_h.transform_keys(&.to_s), reference_type
   end
 
@@ -166,7 +167,7 @@ abstract class Athena::Framework::Controller
   #
   # # GET / # => 10
   # ```
-  def redirect_to_route(route : String, params : Hash(String, _)? = nil, status : HTTP::Status = :found) : ATH::RedirectResponse
+  def redirect_to_route(route : String, params : Hash(String, _) = Hash(String, String?).new, status : HTTP::Status = :found) : ATH::RedirectResponse
     self.redirect self.generate_url(route, params), status
   end
 
@@ -223,7 +224,7 @@ abstract class Athena::Framework::Controller
   # Returns an `ATH::View` that'll redirect to the provided *route*, optionally with the provided *params*, *status*, and *headers*.
   #
   # Is essentially the same as `#redirect_to_route`, but invokes the [view](/components#4-view-event) layer.
-  def route_redirect_view(route : Status, params : Hash(String, _)? = nil, status : HTTP::Status = HTTP::Status::CREATED, headers : HTTP::Headers = HTTP::Headers.new) : ATH::View
+  def route_redirect_view(route : Status, params : Hash(String, _) = Hash(String, String?).new, status : HTTP::Status = HTTP::Status::CREATED, headers : HTTP::Headers = HTTP::Headers.new) : ATH::View
     ATH::View.create_route_redirect route, params
   end
 
@@ -264,7 +265,7 @@ abstract class Athena::Framework::Controller
       # end
       # ```
       macro {{method.downcase.id}}(path, *args, **named_args, &)
-        @[ATHA::{{method.capitalize.id}}(path: \{{path}}, constraints: \{{named_args[:constraints]}})]
+        @[ARTA::{{method.capitalize.id}}(path: \{{path}}, constraints: \{{named_args[:constraints]}})]
         def {{method.downcase.id}}_\{{path.gsub(/\W/, "_").id}}(\{{*args}}) : \{{named_args[:return_type] || String}}
           \{{yield}}
         end

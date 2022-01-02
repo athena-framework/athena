@@ -206,11 +206,9 @@ module Athena::Framework
 end
 
 class MyApp::ExampleController < ATH::Controller
-  @[ARTA::Get("/add/{value1}/{value2}", defaults: {"foo" => "bar"})]
-  def root(value1 : Int32, value2 : Int32, foo : String) : String
-    pp foo
-    pp value1 + value2
-    ""
+  @[ARTA::Get("/add/{value1}/{value2}", defaults: {"foo" => "bar", "value2" => 10})]
+  def add(value1 : Int32, value2 : Int32 = 5) : Int32
+    value1 + value2
   end
 end
 

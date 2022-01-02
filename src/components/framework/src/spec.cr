@@ -250,22 +250,3 @@ module Athena::Framework::Spec
     end
   end
 end
-
-module Athena::Routing::Spec
-  # Test implementation of `ART::RouteCollection` that allows routes to be scoped to a specific instance and added manually.
-  class MockRouteCollection < Athena::Routing::RouteCollection
-    @routes : Hash(String, ATH::ActionBase) = Hash(String, ATH::ActionBase).new
-
-    def add(name : String, route : ATH::ActionBase) : Nil
-      @routes[name] = route
-    end
-
-    def add(route : ATH::ActionBase) : Nil
-      self.add route.name, route
-    end
-
-    def routes : Hash(String, ATH::ActionBase)
-      @routes
-    end
-  end
-end

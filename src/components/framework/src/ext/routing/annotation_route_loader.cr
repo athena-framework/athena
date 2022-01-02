@@ -139,7 +139,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             {% for arg in m.args %}
               # Raise compile time error if an action argument doesn't have a type restriction.
               {% arg.raise "Route action argument '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction." if arg.restriction.is_a? Nop %}
-              {% arguments << %(ATH::Arguments::ArgumentMetadata(#{arg.restriction}).new(#{arg.name.stringify}, #{!arg.default_value.is_a?(Nop)}, #{arg.restriction.resolve.nilable?}, #{arg.default_value.is_a?(Nop) ? nil : arg.default_value})).id %}
+              {% arguments << %(ATH::Arguments::ArgumentMetadata(#{arg.restriction}).new(#{arg.name.stringify}, #{arg.restriction.resolve.nilable?})).id %}
             {% end %}
 
             # Build out param converters array.
@@ -292,6 +292,12 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             {% paths = {} of Nil => Nil %}
 
             {% defaults = globals[:defaults] %}
+
+            # Apply controller action parameter default values as defaults.
+            {% for a in m.args.reject &.default_value.is_a? Nop %}
+              {% defaults[a.name.stringify] = a.default_value %}
+            {% end %}
+
             {% if (value = route_def[:defaults]) != nil %}
               {% for k, v in value %}
                 {% defaults[k] = v %}
@@ -327,7 +333,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                   {{route_name}},
                   ART::Route.new(
                     path: {{path}},
-                    defaults: {{defaults}} of String => String?,
+                    defaults: {{defaults.empty? ? "Hash(String, String?).new".id : defaults}},
                     requirements: {{requirements}} of String => Regex | String,
                     host: {{host}},
                     schemes: {{schemes.empty? ? nil : schemes}},
@@ -342,7 +348,6 @@ module Athena::Framework::Routing::AnnotationRouteLoader
 
           collection.add %collection{c_idx}
         {% end %}
-        {{debug}}
       {% end %}
 
     collection

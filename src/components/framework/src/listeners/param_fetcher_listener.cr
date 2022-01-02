@@ -16,7 +16,7 @@ struct Athena::Framework::Listeners::ParamFetcher
     # Process each registered parameter, adding them to the request's attributes.
     @param_fetcher.each do |name, value|
       if request.attributes.has?(name) && !request.attributes.get(name).nil?
-        raise ArgumentError.new "Parameter '#{name}' conflicts with a path parameter for route '#{request.action.name}'."
+        raise ArgumentError.new %(Parameter '#{name}' conflicts with a path parameter for route '#{request.attributes.get "_route"}'.)
       end
 
       request.attributes.set name, value

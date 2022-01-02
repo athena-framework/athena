@@ -12,14 +12,14 @@ private record BothSerializableModel, id : Int32, name : String do
   @name : String
 end
 
-@[ATHA::Prefix("view")]
+@[ARTA::Route(path: "view")]
 class ViewController < ATH::Controller
-  @[ATHA::Get("/json")]
+  @[ARTA::Get("/json")]
   def json_serializable : JSONSerializableModel
     JSONSerializableModel.new 10, "Bob"
   end
 
-  @[ATHA::Get("/json-array")]
+  @[ARTA::Get("/json-array")]
   def json_array_serializable : Array(JSONSerializableModel)
     [
       JSONSerializableModel.new(10, "Bob"),
@@ -27,25 +27,25 @@ class ViewController < ATH::Controller
     ] of JSONSerializableModel
   end
 
-  @[ATHA::Get("/json-array-nested")]
+  @[ARTA::Get("/json-array-nested")]
   def json_nested_array_serializable : Array(Array(JSONSerializableModel))
     [[
       JSONSerializableModel.new(10, "Bob"),
     ]]
   end
 
-  @[ATHA::Get("/json-array-empty")]
+  @[ARTA::Get("/json-array-empty")]
   def json_empty_array_serializable : Array(JSONSerializableModel)
     [] of JSONSerializableModel
   end
 
-  @[ATHA::Get("/asr")]
+  @[ARTA::Get("/asr")]
   @[ATHA::View(serialization_groups: ["default"])]
   def both_serializable : BothSerializableModel
     BothSerializableModel.new 20, "Jim"
   end
 
-  @[ATHA::Get("/asr-array")]
+  @[ARTA::Get("/asr-array")]
   @[ATHA::View(serialization_groups: ["default"])]
   def both_serializable_array : Array(BothSerializableModel)
     [
@@ -54,18 +54,18 @@ class ViewController < ATH::Controller
     ]
   end
 
-  @[ATHA::Post("/status")]
+  @[ARTA::Post("/status")]
   @[ATHA::View(status: :accepted)]
   def custom_status_code : String
     "foo"
   end
 
-  @[ATHA::Get("")]
+  @[ARTA::Get("")]
   def view : ATH::View(String)
     self.view "DATA", :im_a_teapot
   end
 
-  @[ATHA::Get("/array")]
+  @[ARTA::Get("/array")]
   def view_array : ATH::View(Array(JSONSerializableModel))
     self.view(
       [

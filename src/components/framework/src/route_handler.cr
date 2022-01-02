@@ -60,6 +60,9 @@ struct Athena::Framework::RouteHandler
       return finish_response response, request
     end
 
+    # TODO: Make this less hacky, maybe a new event/dependency?
+    request.action = ATH::Routing::AnnotationRouteLoader.routes[request.attributes.get "_controller"]
+
     # Emit the action event.
     @event_dispatcher.dispatch ATH::Events::Action.new request, request.action
 
@@ -76,7 +79,7 @@ struct Athena::Framework::RouteHandler
       @event_dispatcher.dispatch view_event
 
       unless response = view_event.response
-        raise "#{request.action.controller}##{request.action.name} must return an `ATH::Response` but it returned '#{response}'."
+        raise %('#{request.attributes.get "_route"}' must return an `ATH::Response` but it returned '#{response}'.)
       end
     end
 

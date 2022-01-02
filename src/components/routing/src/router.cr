@@ -35,7 +35,7 @@ class Athena::Routing::Router
   end
 
   def generate(route : String, params : Hash(String, String?) = Hash(String, String?).new, reference_type : ART::Generator::ReferenceType = :absolute_path) : String
-    self.generate.generate route, params, reference_type
+    self.generator.generate route, params, reference_type
   end
 
   def match(path : String) : Hash(String, String?)

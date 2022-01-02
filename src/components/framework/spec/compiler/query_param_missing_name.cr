@@ -1,7 +1,7 @@
 require "../spec_helper"
 
 class CompileController < Athena::Framework::Controller
-  @[ATHA::Get(path: "/")]
+  @[ARTA::Get(path: "/")]
   @[ATHA::QueryParam]
   def action(all : Bool) : Int32
     123

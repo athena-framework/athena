@@ -1,8 +1,8 @@
 require "../spec_helper"
 
 class CompileController < ATH::Controller
-  @[ATHA::Get(path: "/")]
-  @[ATHA::QueryParam("all", requirements: [@[Assert::NotBlank], @[ATHA::Get]])]
+  @[ARTA::Get(path: "/")]
+  @[ATHA::QueryParam("all", requirements: [@[Assert::NotBlank], @[ARTA::Get]])]
   def action(all : Bool) : Int32
     123
   end
