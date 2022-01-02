@@ -7,7 +7,7 @@ class Athena::Framework::Exceptions::MethodNotAllowed < Athena::Framework::Excep
     cause : Exception? = nil,
     headers : HTTP::Headers = HTTP::Headers.new
   )
-    headers["allow"] = allow.join(", ") { |m| m.upcase }
+    headers["allow"] = allow.join ", ", &.upcase
 
     super :method_not_allowed, message, cause, headers
   end

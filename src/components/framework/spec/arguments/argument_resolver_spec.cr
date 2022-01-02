@@ -32,7 +32,7 @@ describe ATH::Arguments::ArgumentResolver do
       it "should raise a runtime error" do
         route = new_action arguments: [new_argument]
 
-        expect_raises(RuntimeError, "Could not resolve required argument 'id' for 'TestController#test'.") do
+        expect_raises(RuntimeError, "Could not resolve required argument 'id' for 'test_controller_test'.") do
           ATH::Arguments::ArgumentResolver.new([] of ATH::Arguments::Resolvers::ArgumentValueResolverInterface).get_arguments(new_request, route)
         end
       end

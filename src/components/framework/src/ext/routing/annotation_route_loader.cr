@@ -300,8 +300,8 @@ module Athena::Framework::Routing::AnnotationRouteLoader
               globals[:requirements].each { |k, v| requirements[k] = v }
 
               m.args
-                .select { |a| !a.default_value.is_a?(Nop) && a.name =~ /\{%s(?:<.*?>)?\}/ }
-                .each { |a| defaults[a.name.stringify] = a.default_value }
+                .select { |arg| !arg.default_value.is_a?(Nop) && arg.name =~ /\{%s(?:<.*?>)?\}/ }
+                .each { |arg| defaults[arg.name.stringify] = arg.default_value }
 
               if ann_defaults = route_def[:defaults]
                 ann_defaults.each { |k, v| defaults[k] = v }
