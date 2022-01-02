@@ -72,6 +72,22 @@ describe Athena::Framework do
       CODE
     end
 
+    it "when a controller action is mistakenly overridden" do
+      assert_error "A controller action named '#action' already exists within 'CompileController'.", <<-CODE
+        class CompileController < ATH::Controller
+          @[ARTA::Get(path: "/foo")]
+          def action : String
+            "foo"
+          end
+
+          @[ARTA::Get(path: "/bar")]
+          def action : String
+            "bar"
+          end
+        end
+      CODE
+    end
+
     describe ARTA::Route do
       it "when there is a prefix for a controller action with a locale that does not have a route" do
         assert_error "Route action 'CompileController#action' is missing paths for locale(s) 'de'.", <<-CODE

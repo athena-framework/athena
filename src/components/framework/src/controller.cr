@@ -127,6 +127,19 @@
 # # POST /athena/test/foo", body: "foo"  # => true
 # ```
 abstract class Athena::Framework::Controller
+  macro inherited
+    private CONTROLLER_ACTION_METHODS = [] of String
+
+    macro method_added(m)
+      \{%
+        if (m.annotation(ARTA::Get) || m.annotation(ARTA::Post) || m.annotation(ARTA::Put) || m.annotation(ARTA::Delete) || m.annotation(ARTA::Patch) || m.annotation(ARTA::Link) || m.annotation(ARTA::Unlink) || m.annotation(ARTA::Head) || m.annotation(ARTA::Route))
+          m.raise "A controller action named '##{m.name}' already exists within '#{@type.name}'." if CONTROLLER_ACTION_METHODS.includes? m.name
+         CONTROLLER_ACTION_METHODS << m.name
+        end
+       %}
+    end
+  end
+
   # Generates a URL to the provided *route* with the provided *params*.
   #
   # See `ART::Generator::Interface#generate`.
