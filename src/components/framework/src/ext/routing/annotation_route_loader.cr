@@ -89,7 +89,9 @@ module Athena::Framework::Routing::AnnotationRouteLoader
           # Build out the routes
           {% for m in methods %}
             # Raise compile time error if the action doesn't have a return type.
-            {% m.raise "Route action return type must be set for '#{klass.name}##{m.name}'." if m.return_type.is_a? Nop %}
+            {% if m.return_type.is_a? Nop %}
+              {% m.raise "Route action return type must be set for '#{klass.name}##{m.name}'." %}
+            {% end %}
 
             {%
               arguments = [] of Nil
@@ -272,7 +274,10 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                 # If the controller is not registered as a service, simply new one up
                 # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
                 {% if ann = klass.annotation(ADI::Register) %}
-                  {% klass.raise "Controller service '#{klass.id}' must be declared as public." unless ann[:public] %}
+                  {% unless ann[:public] %}
+                    {% klass.raise "Controller service '#{klass.id}' must be declared as public." %}
+                  {% end %}
+
                   %instance = ADI.container.get({{klass.id}})
                 {% else %}
                   %instance = {{klass.id}}.new
@@ -320,7 +325,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
               priority = route_def[:priority] || globals[:priority]
 
               unless (path = route_def[:localized_paths] || route_def[0] || route_def[:path])
-                m.raise "Route action '#{klass.name}##{m.name}' is annotated as a '#{methods.id}' route but is missing the path."
+                m.raise "Route action '#{klass.name}##{m.name}' is missing its path."
               end
 
               prefix = globals[:localized_paths] || globals[:path]
@@ -334,7 +339,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                 else
                   path.each do |locale, locale_path|
                     if prefix[locale] == nil
-                      m.raise "Route action '#{klass.name}##{m.name}' with locale '#{locale.id}' is missing a corresponding prefix in class '#{klass.name}'."
+                      m.raise "Route action '#{klass.name}##{m.name}' is missing a corresponding route prefix for the '#{locale.id}' locale."
                     end
 
                     paths[locale] = "#{prefix[locale].id}#{locale_path.id}"
