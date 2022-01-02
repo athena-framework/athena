@@ -205,10 +205,12 @@ module Athena::Framework
   end
 end
 
-class ExampleController < ATH::Controller
-  @[ARTA::Get("/")]
-  def root : String
-    "At the index"
+class MyApp::ExampleController < ATH::Controller
+  @[ARTA::Get("/add/{value1}/{value2}", defaults: {"foo" => "bar"})]
+  def root(value1 : Int32, value2 : Int32, foo : String) : String
+    pp foo
+    pp value1 + value2
+    ""
   end
 end
 

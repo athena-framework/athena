@@ -212,7 +212,8 @@ class Athena::Routing::Route
     requirements : Hash(String, Regex | String) = Hash(String, Regex | String).new,
     host : String | Regex | Nil = nil,
     methods : String | Enumerable(String) | Nil = nil,
-    schemes : String | Enumerable(String) | Nil = nil
+    schemes : String | Enumerable(String) | Nil = nil,
+    @condition : ART::Route::Condition? = nil
   )
     self.path = @path
     self.add_defaults defaults
