@@ -110,6 +110,26 @@ describe Athena::Framework do
           end
         CODE
       end
+
+      it "has an unexpected type as the #methods" do
+        assert_error "Route action 'CompileController#action' expects a expects 'StringLiteral | ArrayLiteral | TupleLiteral' for its 'ARTA::Route#methods' field, but got a 'NumberLiteral'.", <<-CODE
+          class CompileController < ATH::Controller
+            @[ARTA::Route("/", methods: 123)]
+            def action : Nil
+            end
+          end
+        CODE
+      end
+
+      it "requires ARTA::Route to use 'methods'" do
+        assert_error "Route action 'CompileController#action' cannot change the required methods when _NOT_ using the 'ARTA::Route' annotation.", <<-CODE
+          class CompileController < ATH::Controller
+            @[ARTA::Get("/", methods: "SEARCH")]
+            def action : Nil
+            end
+          end
+        CODE
+      end
     end
 
     describe ATHA::ParamConverter do

@@ -39,29 +39,28 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                 globals[:path] = ann_path
               end
 
+              if (value = controller_ann[:defaults]) != nil
+                globals[:defaults] = value
+              end
+
               if (value = controller_ann[:locale]) != nil
-                globals[:defaults]["_locale"] = value.stringify
+                globals[:defaults]["_locale"] = value
               end
 
               if (value = controller_ann[:format]) != nil
-                globals[:defaults]["_format"] = value.stringify
+                globals[:defaults]["_format"] = value
               end
 
               if (value = controller_ann[:stateless]) != nil
-                globals[:defaults]["_stateless"] = value.stringify
+                globals[:defaults]["_stateless"] = value
               end
 
-              # Apply remaining values from controller annotation.
               if (value = controller_ann[:name]) != nil
                 globals[:name] = value
               end
 
               if (value = controller_ann[:requirements]) != nil
                 globals[:requirements] = value
-              end
-
-              if (value = controller_ann[:defaults]) != nil
-                globals[:defaults] = value
               end
 
               if (value = controller_ann[:schemes]) != nil
@@ -112,20 +111,30 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                                    elsif a = m.annotation ARTA::Put
                                      {a, ["PUT"]}
                                    elsif a = m.annotation ARTA::Patch
-                                     {a, ["Patch"]}
+                                     {a, ["PATCH"]}
                                    elsif a = m.annotation ARTA::Delete
-                                     {a, ["Delete"]}
+                                     {a, ["DELETE"]}
                                    elsif a = m.annotation ARTA::Link
-                                     {a, ["Link"]}
+                                     {a, ["LINK"]}
                                    elsif a = m.annotation ARTA::Unlink
-                                     {a, ["Unlink"]}
+                                     {a, ["UNLINK"]}
                                    elsif a = m.annotation ARTA::Head
-                                     {a, ["Head"]}
+                                     {a, ["HEAD"]}
                                    elsif a = m.annotation ARTA::Route
                                      methods = a[:methods] || [] of Nil
+
+                                     if !methods.is_a?(StringLiteral) && !methods.is_a?(ArrayLiteral) && !methods.is_a?(TupleLiteral)
+                                       a.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral | ArrayLiteral | TupleLiteral' for its 'ARTA::Route#methods' field, but got a '#{methods.class_name.id}'."
+                                     end
+
                                      methods = methods.is_a?(StringLiteral) ? [methods] : methods
                                      {a, methods}
                                    end
+
+              # Disallow `methods` field when _NOT_ using `ARTA::Route`.
+              if !m.annotation(ARTA::Route) && route_def[:methods] != nil
+                route_def.raise "Route action '#{klass.name}##{m.name}' cannot change the required methods when _NOT_ using the 'ARTA::Route' annotation."
+              end
 
               # Process controller action arguments.
               m.args.each do |arg|
@@ -382,6 +391,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
 
           collection.add %collection{c_idx}
         {% end %}
+        {{debug}}
       {% end %}
 
     ART.compile collection
