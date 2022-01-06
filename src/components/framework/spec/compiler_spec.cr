@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-private def assert_error(message : String, code : String) : Nil
+private def assert_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
   input = IO::Memory.new <<-CR
     require "./spec_helper.cr"
     #{code}
@@ -10,7 +10,7 @@ private def assert_error(message : String, code : String) : Nil
   buffer = IO::Memory.new
   result = Process.run("crystal", ["run", "--no-color", "--no-codegen", "--stdin-filename", "#{__DIR__}/test.cr"], input: input.rewind, output: buffer, error: buffer)
   fail buffer.to_s if result.success?
-  buffer.to_s.should contain message
+  buffer.to_s.should contain(message), line: line
   buffer.close
 end
 
@@ -112,7 +112,7 @@ describe Athena::Framework do
       end
 
       it "has an unexpected type as the #methods" do
-        assert_error "Route action 'CompileController#action' expects a expects 'StringLiteral | ArrayLiteral | TupleLiteral' for its 'ARTA::Route#methods' field, but got a 'NumberLiteral'.", <<-CODE
+        assert_error "Route action 'CompileController#action' expects a 'StringLiteral | ArrayLiteral | TupleLiteral' for its 'ARTA::Route#methods' field, but got a 'NumberLiteral'.", <<-CODE
           class CompileController < ATH::Controller
             @[ARTA::Route("/", methods: 123)]
             def action : Nil
