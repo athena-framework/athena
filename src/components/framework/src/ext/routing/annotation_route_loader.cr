@@ -40,53 +40,86 @@ module Athena::Framework::Routing::AnnotationRouteLoader
           }
 
           if controller_ann = klass.annotation ARTA::Route
-            if (ann_path = controller_ann[:path]) && ann_path.is_a? ArrayLiteral
+            if (ann_path = controller_ann[:path]) && ann_path.is_a? HashLiteral
               globals[:localized_paths] = ann_path
             elsif ann_path != nil
+              if !ann_path.is_a?(StringLiteral) && !ann_path.is_a?(HashLiteral)
+                ann_path.raise "Route action '#{klass.name}' expects a 'StringLiteral | HashLiteral(StringLiteral, StringLiteral)' for its 'ARTA::Route#path' field, but got a '#{ann_path.class_name.id}'."
+              end
               globals[:path] = ann_path
             end
 
             if (value = controller_ann[:defaults]) != nil
+              value.raise "Route action '#{klass.name}' expects a 'HashLiteral(StringLiteral, _)' for its 'ARTA::Route#defaults' field, but got a '#{value.class_name.id}'." unless value.is_a? HashLiteral
               globals[:defaults] = value
             end
 
             if (value = controller_ann[:locale]) != nil
+              value.raise "Route action '#{klass.name}' expects a 'StringLiteral' for its 'ARTA::Route#locale' field, but got a '#{value.class_name.id}'." unless value.is_a? StringLiteral
               globals[:defaults]["_locale"] = value
             end
 
             if (value = controller_ann[:format]) != nil
+              value.raise "Route action '#{klass.name}' expects a 'StringLiteral' for its 'ARTA::Route#format' field, but got a '#{value.class_name.id}'." unless value.is_a? StringLiteral
               globals[:defaults]["_format"] = value
             end
 
-            if (value = controller_ann[:stateless]) != nil
+            if controller_ann[:stateless] != nil
+              value = controller_ann[:stateless]
+
+              value.raise "Route action '#{klass.name}' expects a 'BoolLiteral' for its 'ARTA::Route#stateless' field, but got a '#{value.class_name.id}'." unless value.is_a? BoolLiteral
               globals[:defaults]["_stateless"] = value
             end
 
             if (value = controller_ann[:name]) != nil
+              value.raise "Route action '#{klass.name}' expects a 'StringLiteral' for its 'ARTA::Route#name' field, but got a '#{value.class_name.id}'." unless value.is_a? StringLiteral
               globals[:name] = value
             end
 
             if (value = controller_ann[:requirements]) != nil
+              value.raise "Route action '#{klass.name}' expects a 'HashLiteral(StringLiteral, StringLiteral | RegexLiteral)' for its 'ARTA::Route#requirements' field, but got a '#{value.class_name.id}'." unless value.is_a? HashLiteral
               globals[:requirements] = value
             end
 
             if (value = controller_ann[:schemes]) != nil
+              if !value.is_a?(StringLiteral) && !value.is_a?(ArrayLiteral) && !value.is_a?(TupleLiteral)
+                value.raise "Route action '#{klass.name}' expects a 'StringLiteral | Enumerable(StringLiteral)' for its 'ARTA::Route#schemes' field, but got a '#{value.class_name.id}'."
+              end
+
               globals[:schemes] = value
             end
 
             if (value = controller_ann[:methods]) != nil
+              if !value.is_a?(StringLiteral) && !value.is_a?(ArrayLiteral) && !value.is_a?(TupleLiteral)
+                value.raise "Route action '#{klass.name}' expects a 'StringLiteral | Enumerable(StringLiteral)' for its 'ARTA::Route#methods' field, but got a '#{value.class_name.id}'."
+              end
+
               globals[:methods] = value
             end
 
             if (value = controller_ann[:host]) != nil
+              if !value.is_a?(StringLiteral) && !value.is_a?(RegexLiteral)
+                value.raise "Route action '#{klass.name}' expects a 'StringLiteral | RegexLiteral' for its 'ARTA::Route#host' field, but got a '#{value.class_name.id}'."
+              end
+
               globals[:host] = value
             end
 
             if (value = controller_ann[:condition]) != nil
+              if !value.is_a?(Call) || value.receiver.resolve != ART::Route::Condition
+                value.raise "Route action '#{klass.name}' expects an 'ART::Route::Condition' for its 'ARTA::Route#condition' field, but got a '#{value.class_name.id}'."
+              end
+
               globals[:condition] = value
             end
 
-            globals[:priority] = controller_ann[:priority] || 0
+            if (value = controller_ann[:priority]) != nil
+              if !value.is_a?(NumberLiteral)
+                value.raise "Route action '#{klass.name}' expects a 'NumberLiteral' for its 'ARTA::Route#priority' field, but got a '#{value.class_name.id}'."
+              end
+
+              globals[:priority] = value
+            end
           end
         %}
 
@@ -275,8 +308,12 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             end
 
             # Setup the `ATH::Action` and set the `_controller` default so future logic knows which method it should handle it by default.
-            route_name = if name = route_def[:name]
-                           name
+            route_name = if (value = route_def[:name]) != nil
+                           if !value.is_a?(StringLiteral)
+                             value.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral' for its '#{route_def.name}#name' field, but got a '#{value.class_name.id}'."
+                           end
+
+                           value
                          else
                            # MyApp::UserController#new_user # => my_app_user_controller_new_user
                            "#{klass.name.stringify.split("::").join("_").underscore.downcase.id}_#{m.name.id}"
@@ -326,12 +363,54 @@ module Athena::Framework::Routing::AnnotationRouteLoader
               globals[:defaults].each { |k, v| defaults[k] = v }
               globals[:requirements].each { |k, v| requirements[k] = v }
 
+              if (value = route_def[:locale]) != nil
+                value.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral' for its '#{route_def.name}#locale' field, but got a '#{value.class_name.id}'." unless value.is_a? StringLiteral
+                defaults["_locale"] = value
+              end
+
+              if (value = route_def[:format]) != nil
+                value.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral' for its '#{route_def.name}#format' field, but got a '#{value.class_name.id}'." unless value.is_a? StringLiteral
+                defaults["_format"] = value
+              end
+
+              if route_def[:stateless] != nil
+                value = route_def[:stateless]
+
+                value.raise "Route action '#{klass.name}##{m.name}' expects a 'BoolLiteral' for its '#{route_def.name}#stateless' field, but got a '#{value.class_name.id}'." unless value.is_a? BoolLiteral
+                defaults["_stateless"] = value
+              end
               if ann_defaults = route_def[:defaults]
+                unless ann_defaults.is_a? HashLiteral
+                  ann_defaults.raise "Route action '#{klass.name}##{m.name}' expects a 'HashLiteral(StringLiteral, _)' for its '#{route_def.name}#defaults' field, but got a '#{ann_defaults.class_name.id}'."
+                end
+
                 ann_defaults.each { |k, v| defaults[k] = v }
               end
 
               if ann_requirements = route_def[:requirements]
+                unless ann_requirements.is_a? HashLiteral
+                  ann_requirements.raise "Route action '#{klass.name}##{m.name}' expects a 'HashLiteral(StringLiteral, StringLiteral | RegexLiteral)' for its '#{route_def.name}#requirements' field, but got a '#{ann_requirements.class_name.id}'."
+                end
+
                 ann_requirements.each { |k, v| requirements[k] = v }
+              end
+
+              if (value = route_def[:host]) != nil
+                if !value.is_a?(StringLiteral) && !value.is_a?(RegexLiteral)
+                  value.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral | RegexLiteral' for its '#{route_def.name}#host' field, but got a '#{value.class_name.id}'."
+                end
+              end
+
+              if (value = route_def[:priority]) != nil
+                if !value.is_a?(NumberLiteral)
+                  value.raise "Route action '#{klass.name}##{m.name}' expects a 'NumberLiteral' for its '#{route_def.name}#priority' field, but got a '#{value.class_name.id}'."
+                end
+              end
+
+              if (value = route_def[:condition]) != nil
+                if !value.is_a?(Call) || value.receiver.resolve != ART::Route::Condition
+                  value.raise "Route action '#{klass.name}##{m.name}' expects an 'ART::Route::Condition' for its '#{route_def.name}#condition' field, but got a '#{value.class_name.id}'."
+                end
               end
 
               schemes = (globals[:schemes] + (route_def[:schemes] || [] of Nil)).uniq
@@ -344,6 +423,10 @@ module Athena::Framework::Routing::AnnotationRouteLoader
 
               unless (path = route_def[:localized_paths] || route_def[0] || route_def[:path])
                 m.raise "Route action '#{klass.name}##{m.name}' is missing its path."
+              end
+
+              if !path.is_a?(StringLiteral) && !path.is_a?(HashLiteral)
+                path.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral | HashLiteral(StringLiteral, StringLiteral)' for its '#{route_def.name}#path' field, but got a '#{path.class_name.id}'."
               end
 
               prefix = globals[:localized_paths] || globals[:path]

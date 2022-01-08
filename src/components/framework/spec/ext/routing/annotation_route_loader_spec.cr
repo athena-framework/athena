@@ -76,6 +76,7 @@ end
   methods: ["foo", "baz", "bar"],
   requirements: {"foo" => "bar"},
   defaults: {"foo" => "bar"},
+  stateless: false
 )]
 class GlobalsMerges < ATH::Controller
   @[ARTA::Route(
@@ -120,6 +121,11 @@ class DefaultArgs < ATH::Controller
   def action(id : Int32, slug : String = "foo", blah : Bool = false) : Nil; end
 end
 
+class RouteDefaultHelpers < ATH::Controller
+  @[ARTA::Get("/", stateless: false, locale: "de", format: "json")]
+  def action : Nil; end
+end
+
 describe ATH::Routing::AnnotationRouteLoader do
   describe ".route_collection" do
     it "simple route" do
@@ -143,6 +149,13 @@ describe ATH::Routing::AnnotationRouteLoader do
         ATH::Routing::AnnotationRouteLoader.populate_collection(DefaultArgs),
         path: "/{slug}",
         defaults: {"slug" => "foo"}
+      )
+    end
+
+    it "with helper default values" do
+      assert_route(
+        ATH::Routing::AnnotationRouteLoader.populate_collection(RouteDefaultHelpers),
+        defaults: {"_stateless" => "false", "_locale" => "de", "_format" => "json"}
       )
     end
 
@@ -263,7 +276,7 @@ describe ATH::Routing::AnnotationRouteLoader do
           schemes: Set{"bar", "foo", "baz", "biz"},
           methods: Set{"FOO", "BAZ", "BAR", "BIZ"},
           requirements: {"foo" => /bar/, "biz" => /baz/},
-          defaults: {"foo" => "bar", "biz" => "baz"}
+          defaults: {"foo" => "bar", "biz" => "baz", "_stateless" => "false"}
         )
       end
     end
