@@ -13,7 +13,7 @@ module Athena::Framework::Annotations
   # ## Example
   #
   # ```
-  # @[ATHA::Get(path: "/multiply/:num")]
+  # @[ARTA::Get(path: "/multiply/{num}")]
   # @[ATHA::ParamConverter("num", converter: MultiplyConverter)]
   # def multiply(num : Int32) : Int32
   #   num
@@ -37,7 +37,7 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("/")]
+  #   @[ARTA::Get("/")]
   #   @[ATHA::QueryParam("page", description: "What page of results to return.")] # The name can also be supplied as a named argument like `@[ATHA::QueryParam(name: "page")]`.
   #   def index(page : Int32) : Int32
   #     page
@@ -58,7 +58,7 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("/")]
+  #   @[ARTA::Get("/")]
   #   @[ATHA::QueryParam("foo", key: "bar")]
   #   def index(foo : String) : String
   #     foo
@@ -78,7 +78,7 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("/")]
+  #   @[ARTA::Get("/")]
   #   @[ATHA::QueryParam("page")] # The name can also be supplied as a named argument like `@[ATHA::QueryParam(name: "page")]`.
   #   def index(page : Int32?) : Int32?
   #     page
@@ -108,7 +108,7 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("/")]
+  #   @[ARTA::Get("/")]
   #   @[ATHA::QueryParam("page", strict: false)]
   #   def index(page : Int32?) : Int32?
   #     page
@@ -144,7 +144,7 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("/")]
+  #   @[ARTA::Get("/")]
   #   @[ATHA::QueryParam("page", requirements: /\d{2}/)]
   #   def index(page : Int32) : Int32
   #     page
@@ -168,7 +168,7 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("/")]
+  #   @[ARTA::Get("/")]
   #   @[ATHA::QueryParam("page", requirements: @[Assert::PositiveOrZero])]
   #   def index(page : Int32) : Int32
   #     page
@@ -195,7 +195,7 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("/")]
+  #   @[ARTA::Get("/")]
   #   @[ATHA::QueryParam("ids", map: true, requirements: [@[Assert::Positive], @[Assert::Range(-3..10)]])]
   #   def index(ids : Array(Int32)) : Array(Int32)
   #     ids
@@ -217,7 +217,7 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("/")]
+  #   @[ARTA::Get("/")]
   #   @[ATHA::QueryParam("bar")]
   #   @[ATHA::QueryParam("foo", incompatibles: ["bar"])]
   #   def index(foo : String?, bar : String?) : String
@@ -245,7 +245,7 @@ module Athena::Framework::Annotations
   #
   # class ExampleController < ATH::Controller
   #   @[ATHA::QueryParam("start_time", converter: ATH::TimeConverter)]
-  #   @[ATHA::Get("/time")]
+  #   @[ARTA::Get("/time")]
   #   def time(start_time : Time = Time.utc) : String
   #     "Starting at: #{start_time}"
   #   end
@@ -269,7 +269,7 @@ module Athena::Framework::Annotations
   #
   # class ExampleController < ATH::Controller
   #   @[ATHA::QueryParam("start_time", converter: {name: ATH::TimeConverter, format: "%Y--%m//%d  %T"})]
-  #   @[ATHA::Get("/time")]
+  #   @[ARTA::Get("/time")]
   #   def time(start_time : Time) : String
   #     "Starting at: #{start_time}"
   #   end
@@ -293,7 +293,7 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Post(path: "/login")]
+  #   @[ARTA::Post(path: "/login")]
   #   @[ATHA::RequestParam("username")]
   #   @[ATHA::RequestParam("password")]
   #   def login(username : String, password : String) : Nil
@@ -325,7 +325,7 @@ module Athena::Framework::Annotations
   # ## Example
   #
   # ```
-  # @[ATHA::Post(path: "/publish/:id")]
+  # @[ARTA::Post(path: "/publish/{id}")]
   # @[ATHA::View(status: :accepted, serialization_groups: ["default", "detailed"])]
   # def publish(id : Int32) : Article
   #   article = Article.find id

@@ -7,12 +7,12 @@
 # require "athena"
 #
 # class HelloController < ATH::Controller
-#   @[ATHA::Get("/:name")]
+#   @[ARTA::Get("/{name}")]
 #   def say_hello(name : String) : NamedTuple(greeting: String)
 #     {greeting: "Hello #{name}"}
 #   end
 #
-#   @[ATHA::Get("/view/:name")]
+#   @[ARTA::Get("/view/{name}")]
 #   def say_hello_view(name : String) : ATH::View(NamedTuple(greeting: String))
 #     self.view({greeting: "Hello #{name}"}, :im_a_teapot)
 #   end

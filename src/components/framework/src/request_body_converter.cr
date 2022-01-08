@@ -30,7 +30,7 @@ require "./param_converter"
 # end
 #
 # class UserController < ATH::Controller
-#   @[ATHA::Post("/user")]
+#   @[ARTA::Post("/user")]
 #   @[ATHA::View(status: :created)]
 #   @[ATHA::ParamConverter("user_create", converter: ATH::RequestBodyConverter)]
 #   def new_user(user_create : UserCreate) : UserCreate

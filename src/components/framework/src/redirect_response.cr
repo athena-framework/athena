@@ -8,7 +8,7 @@ require "./response"
 # require "athena"
 #
 # class RedirectController < ATH::Controller
-#   @[ATHA::Get(path: "/go_to_crystal")]
+#   @[ARTA::Get(path: "/go_to_crystal")]
 #   def redirect_to_crystal : ATH::RedirectResponse
 #     ATH::RedirectResponse.new "https://crystal-lang.org"
 #   end

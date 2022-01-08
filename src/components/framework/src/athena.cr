@@ -118,7 +118,7 @@ module Athena::Framework
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("/")]
+  #   @[ARTA::Get("/")]
   #   def root : String
   #     "At the index"
   #   end
