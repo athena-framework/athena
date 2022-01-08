@@ -47,7 +47,7 @@ struct NegotiatorTest < NegotiatorTestCase
     expected = expected.should_not be_nil
 
     accept_header.media_range.should eq expected[0]
-    accept_header.parameters.should eq (expected[1] || Hash(String, String).new)
+    accept_header.parameters.should eq(expected[1] || Hash(String, String).new)
   end
 
   def best_data_provider : Tuple

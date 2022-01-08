@@ -37,7 +37,7 @@ record Athena::Console::Descriptor::Application, application : ACON::Application
     namespaces = Hash(String, NamedTuple(id: String, commands: Array(String))).new
     aliases = Hash(String, ACON::Command).new
 
-    all_commands = @application.commands ((namespace = @namespace) ? @application.find_namespace(namespace) : nil)
+    all_commands = @application.commands((namespace = @namespace) ? @application.find_namespace(namespace) : nil)
 
     self.sort_commands(all_commands).each do |namespace, command_hash|
       names = Array(String).new
