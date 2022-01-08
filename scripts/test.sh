@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | sort); do
   git diff --quiet --exit-code $BASE_SHA $GITHUB_SHA -- $component
