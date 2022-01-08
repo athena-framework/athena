@@ -44,13 +44,7 @@ require "./ext/routing"
 require "./ext/serializer"
 require "./ext/validator"
 
-# Namespace for types related to routing.
-#
-# See `ART` for an easier way to access types in this namespace.
-#
-# NOTE: This namespace currently lives within the `Athena::Framework` codebase, but will eventually be extracted into its own component.
-module Athena::Routing; end
-
+# Convenience alias to make referencing `Athena::Framework` types easier.
 alias ATH = Athena::Framework
 
 # Convenience alias to make referencing `Athena::Framework::Annotations` types easier.
