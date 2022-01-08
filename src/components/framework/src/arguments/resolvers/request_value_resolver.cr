@@ -12,7 +12,7 @@ struct Athena::Framework::Arguments::Resolvers::Request
 
   # :inherit:
   def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Bool
-    argument.type <= ATH::Request
+    argument.type == ATH::Request
   end
 
   # :inherit:

@@ -1,18 +1,9 @@
 require "../../spec_helper"
 
-class CustomRequest < ATH::Request
-end
-
 describe ATH::Arguments::Resolvers::Request do
   describe "#supports" do
     it ATH::Request do
       argument = ATH::Arguments::ArgumentMetadata(ATH::Request).new("id", false)
-
-      ATH::Arguments::Resolvers::Request.new.supports?(new_request, argument).should be_true
-    end
-
-    it "subclass" do
-      argument = ATH::Arguments::ArgumentMetadata(CustomRequest).new("id", false)
 
       ATH::Arguments::Resolvers::Request.new.supports?(new_request, argument).should be_true
     end
