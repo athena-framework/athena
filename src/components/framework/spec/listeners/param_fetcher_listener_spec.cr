@@ -43,7 +43,7 @@ describe ATH::Listeners::ParamFetcher do
 
     event = ATH::Events::Action.new request, new_action
 
-    expect_raises ArgumentError, "Parameter 'foo' conflicts with a path parameter for route 'test'." do
+    expect_raises ArgumentError, "Parameter 'foo' conflicts with a path parameter for route 'test_controller_test'." do
       ATH::Listeners::ParamFetcher.new(MockParamFetcher.new).call(event, AED::Spec::TracableEventDispatcher.new)
     end
   end

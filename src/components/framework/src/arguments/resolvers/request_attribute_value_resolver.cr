@@ -1,9 +1,9 @@
 @[ADI::Register(name: "argument_resolver_request_attribute", tags: [{name: ATH::Arguments::Resolvers::TAG, priority: 100}])]
 # Handles resolving a value that is stored in the request's `ATH::Request#attributes`.
-# This includes any path/query parameters, or custom types values stored via an `AED::EventListenerInterface`.
+# This includes any path/query parameters, custom types values stored via an `AED::EventListenerInterface`, or extra `defaults` stored within the routing annotation.
 #
 # ```
-# @[ATHA::Get("/:id")]
+# @[ARTA::Get("/{id}")]
 # def get_id(id : Int32) : Int32
 #   id
 # end

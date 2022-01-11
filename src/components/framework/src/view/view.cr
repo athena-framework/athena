@@ -7,12 +7,12 @@
 # require "athena"
 #
 # class HelloController < ATH::Controller
-#   @[ATHA::Get("/:name")]
+#   @[ARTA::Get("/{name}")]
 #   def say_hello(name : String) : NamedTuple(greeting: String)
 #     {greeting: "Hello #{name}"}
 #   end
 #
-#   @[ATHA::Get("/view/:name")]
+#   @[ARTA::Get("/view/{name}")]
 #   def say_hello_view(name : String) : ATH::View(NamedTuple(greeting: String))
 #     self.view({greeting: "Hello #{name}"}, :im_a_teapot)
 #   end
@@ -39,7 +39,7 @@ class Athena::Framework::View(T)
   property format : String? = nil
 
   # The parameters that should be used when constructing the redirect `#route` URL.
-  property route_params : Hash(String, String)? = nil
+  property route_params : Hash(String, String?) = Hash(String, String?).new
 
   property context : ATH::View::Context { ATH::View::Context.new }
 
@@ -83,13 +83,13 @@ class Athena::Framework::View(T)
   # Optionally allows setting the underlying route *params*, *status*, and/or *headers*.
   def self.create_route_redirect(
     route : String,
-    params : Hash(String, _)? = nil,
+    params : Hash(String, _) = Hash(String, String?).new,
     status : HTTP::Status = HTTP::Status::FOUND,
     headers : HTTP::Headers = HTTP::Headers.new
   ) : self
     view = ATH::View(Nil).new status: status, headers: headers
     view.route = route
-    view.route_params = params.try &.transform_values &.to_s
+    view.route_params = params.transform_values &.to_s.as(String?)
 
     view
   end

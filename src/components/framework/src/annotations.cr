@@ -1,74 +1,6 @@
 # Contains all the `Athena::Framework` based annotations.
 # See each annotation for more information.
 module Athena::Framework::Annotations
-  # Defines a `DELETE` endpoint.
-  #
-  # ## Fields
-  #
-  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route. Defaults to controller name + method name down snake-cased.
-  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
-  #
-  # ## Example
-  #
-  # ```
-  # @[ATHA::Delete(path: "/users/:id")]
-  # def delete_user(id : Int32) : Nil
-  # end
-  # ```
-  annotation Delete; end
-
-  # Defines a `GET` endpoint.
-  #
-  # ## Fields
-  #
-  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route. Defaults to controller name + method name down snake-cased.
-  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
-  #
-  # ## Example
-  #
-  # ```
-  # @[ATHA::Get(path: "/users/:id")]
-  # def get_user(id : Int32) : Nil
-  # end
-  # ```
-  annotation Get; end
-
-  # Defines a `HEAD` endpoint.
-  #
-  # ## Fields
-  #
-  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route. Defaults to controller name + method name down snake-cased.
-  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
-  #
-  # ## Example
-  #
-  # ```
-  # @[ATHA::Head(path: "/users")]
-  # def head_user : Nil
-  # end
-  # ```
-  annotation Head; end
-
-  # Defines a `LINK` endpoint.
-  #
-  # ## Fields
-  #
-  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route. Defaults to controller name + method name down snake-cased.
-  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
-  #
-  # ## Example
-  #
-  # ```
-  # @[ATHA::Link(path: "/users/:id")]
-  # def link_user(id : Int32) : Nil
-  # end
-  # ```
-  annotation Link; end
-
   # Applies an `ATH::ParamConverter` to a given argument.
   #
   # See `ATH::ParamConverter` for more information on defining a param converter.
@@ -81,84 +13,13 @@ module Athena::Framework::Annotations
   # ## Example
   #
   # ```
-  # @[ATHA::Get(path: "/multiply/:num")]
+  # @[ARTA::Get(path: "/multiply/{num}")]
   # @[ATHA::ParamConverter("num", converter: MultiplyConverter)]
   # def multiply(num : Int32) : Int32
   #   num
   # end
   # ```
   annotation ParamConverter; end
-
-  # Defines a `PATCH` endpoint.
-  #
-  # ## Fields
-  #
-  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route. Defaults to controller name + method name down snake-cased.
-  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
-  #
-  # ## Example
-  #
-  # ```
-  # @[ATHA::Patch(path: "/users/:id")]
-  # def partial_update_user(id : Int32) : Nil
-  # end
-  # ```
-  annotation Patch; end
-
-  # Defines a `POST` endpoint.
-  #
-  # ## Fields
-  #
-  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route. Defaults to controller name + method name down snake-cased.
-  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
-  #
-  # ## Example
-  #
-  # ```
-  # @[ATHA::Post(path: "/users")]
-  # def new_user : Nil
-  # end
-  # ```
-  annotation Post; end
-
-  # Apply a *prefix* to all actions within `self`. Can be a static string, but may also contain path arguments.
-  #
-  # ## Fields
-  #
-  # * prefix : `String` - The path prefix to use, may also be provided as the first positional argument.
-  #
-  # ## Example
-  #
-  # ```
-  # @[ATHA::Prefix(prefix: "calendar")]
-  # class CalendarController < ATH::Controller
-  #   # The route of this action would be `GET /calendar/events`.
-  #   @[ATHA::Get(path: "events")]
-  #   def events : String
-  #     "events"
-  #   end
-  # end
-  # ```
-  annotation Prefix; end
-
-  # Defines a `PUT` endpoint.
-  #
-  # ## Fields
-  #
-  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route. Defaults to controller name + method name down snake-cased.
-  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
-  #
-  # ## Example
-  #
-  # ```
-  # @[ATHA::Put(path: "/users/:id")]
-  # def update_user(id : Int32) : Nil
-  # end
-  # ```
-  annotation Put; end
 
   # Used to define (and configure) a query parameter tied to a given argument.
   #
@@ -176,7 +37,7 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("/")]
+  #   @[ARTA::Get("/")]
   #   @[ATHA::QueryParam("page", description: "What page of results to return.")] # The name can also be supplied as a named argument like `@[ATHA::QueryParam(name: "page")]`.
   #   def index(page : Int32) : Int32
   #     page
@@ -197,7 +58,7 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("/")]
+  #   @[ARTA::Get("/")]
   #   @[ATHA::QueryParam("foo", key: "bar")]
   #   def index(foo : String) : String
   #     foo
@@ -217,7 +78,7 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("/")]
+  #   @[ARTA::Get("/")]
   #   @[ATHA::QueryParam("page")] # The name can also be supplied as a named argument like `@[ATHA::QueryParam(name: "page")]`.
   #   def index(page : Int32?) : Int32?
   #     page
@@ -247,7 +108,7 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("/")]
+  #   @[ARTA::Get("/")]
   #   @[ATHA::QueryParam("page", strict: false)]
   #   def index(page : Int32?) : Int32?
   #     page
@@ -283,7 +144,7 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("/")]
+  #   @[ARTA::Get("/")]
   #   @[ATHA::QueryParam("page", requirements: /\d{2}/)]
   #   def index(page : Int32) : Int32
   #     page
@@ -307,7 +168,7 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("/")]
+  #   @[ARTA::Get("/")]
   #   @[ATHA::QueryParam("page", requirements: @[Assert::PositiveOrZero])]
   #   def index(page : Int32) : Int32
   #     page
@@ -334,7 +195,7 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("/")]
+  #   @[ARTA::Get("/")]
   #   @[ATHA::QueryParam("ids", map: true, requirements: [@[Assert::Positive], @[Assert::Range(-3..10)]])]
   #   def index(ids : Array(Int32)) : Array(Int32)
   #     ids
@@ -356,7 +217,7 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("/")]
+  #   @[ARTA::Get("/")]
   #   @[ATHA::QueryParam("bar")]
   #   @[ATHA::QueryParam("foo", incompatibles: ["bar"])]
   #   def index(foo : String?, bar : String?) : String
@@ -384,7 +245,7 @@ module Athena::Framework::Annotations
   #
   # class ExampleController < ATH::Controller
   #   @[ATHA::QueryParam("start_time", converter: ATH::TimeConverter)]
-  #   @[ATHA::Get("/time")]
+  #   @[ARTA::Get("/time")]
   #   def time(start_time : Time = Time.utc) : String
   #     "Starting at: #{start_time}"
   #   end
@@ -408,7 +269,7 @@ module Athena::Framework::Annotations
   #
   # class ExampleController < ATH::Controller
   #   @[ATHA::QueryParam("start_time", converter: {name: ATH::TimeConverter, format: "%Y--%m//%d  %T"})]
-  #   @[ATHA::Get("/time")]
+  #   @[ARTA::Get("/time")]
   #   def time(start_time : Time) : String
   #     "Starting at: #{start_time}"
   #   end
@@ -432,7 +293,7 @@ module Athena::Framework::Annotations
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Post(path: "/login")]
+  #   @[ARTA::Post(path: "/login")]
   #   @[ATHA::RequestParam("username")]
   #   @[ATHA::RequestParam("password")]
   #   def login(username : String, password : String) : Nil
@@ -445,41 +306,6 @@ module Athena::Framework::Annotations
   # # POST /login, body: "username=George&password=abc123"
   # ```
   annotation RequestParam; end
-
-  # Defines an endpoint with an arbitrary `HTTP` method. Can be used for defining non-standard `HTTP` method routes.
-  #
-  # ## Fields
-  #
-  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route. Defaults to controller name + method name down snake-cased.
-  # * method : `String` - The `HTTP` method to use for the endpoint.
-  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
-  #
-  # ## Example
-  #
-  # ```
-  # @[ATHA::Route("/some/path", method: "TRACE")]
-  # def trace_route : Nil
-  # end
-  # ```
-  annotation Route; end
-
-  # Defines an `UNLINK` endpoint.
-  #
-  # ## Fields
-  #
-  # * path : `String` - The path for the endpoint, may also be provided as the first positional argument.
-  # * name : `String` - The name of the route. Defaults to controller name + method name down snake-cased.
-  # * constraints : `Hash(String, Regex)` - A mapping between a route's path parameters and its constraints.
-  #
-  # ## Example
-  #
-  # ```
-  # @[ATHA::Unlink(path: "/users/:id")]
-  # def unlink_user(id : Int32) : Nil
-  # end
-  # ```
-  annotation Unlink; end
 
   ACF.configuration_annotation Athena::Framework::Annotations::View,
     status : HTTP::Status? = nil,
@@ -499,7 +325,7 @@ module Athena::Framework::Annotations
   # ## Example
   #
   # ```
-  # @[ATHA::Post(path: "/publish/:id")]
+  # @[ARTA::Post(path: "/publish/{id}")]
   # @[ATHA::View(status: :accepted, serialization_groups: ["default", "detailed"])]
   # def publish(id : Int32) : Article
   #   article = Article.find id

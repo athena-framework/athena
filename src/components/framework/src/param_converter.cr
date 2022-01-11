@@ -39,7 +39,7 @@
 #
 # class ParamConverterController < ATH::Controller
 #   # Use the ATHA::ParamConverter annotation to specify we want to use a param converter for the `num` argument, and that we want to use the `MultiplyConverter` for the conversion.
-#   @[ATHA::Get(path: "/multiply/:num")]
+#   @[ARTA::Get(path: "/multiply/{num}")]
 #   @[ATHA::ParamConverter("num", converter: MultiplyConverter)]
 #   def multiply(num : Int32) : Int32
 #     num
@@ -84,7 +84,7 @@
 #
 # class ParamConverterController < ATH::Controller
 #   # Specify the multiplier to use for the conversion; in this case `4`.
-#   @[ATHA::Get(path: "/multiply/:num")]
+#   @[ARTA::Get(path: "/multiply/{num}")]
 #   @[ATHA::ParamConverter("num", converter: MultiplyConverter, by: 4)]
 #   def multiply(num : Int32) : Int32
 #     num

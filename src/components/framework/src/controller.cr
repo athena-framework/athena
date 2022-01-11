@@ -1,5 +1,6 @@
-# The core of any framework is routing; how a route is tied to an action. Athena takes an annotation based approach; an annotation, such as `ATHA::Get` is applied to an instance method of a controller class,
-# which will be executed when that endpoint receives a request. The annotation includes the path as well as any constraints that a parameter must meet in order for the route to be invoked.
+# The core of any framework is routing; how a route is tied to an action.
+# Athena takes an annotation based approach; an annotation, such as `ARTA::Get` is applied to an instance method of a controller class,
+# which will be executed when that endpoint receives a request.
 #
 # Additional annotations also exist for setting a query param or a param converter. See `ATHA::QueryParam` and `ATHA::ParamConverter` respectively.
 #
@@ -16,19 +17,22 @@
 # require "athena"
 # require "mime"
 #
-# # The `ATHA::Prefix` annotation can be applied to a controller to define a prefix to use for all routes within `self`.
-# @[ATHA::Prefix("athena")]
+# # The `ARTA::Route` annotation can also be applied to a controller class.
+# # This can be useful for applying a common path prefix, defaults, requirements,
+# # etc. to all actions in the controller.
+# @[ARTA::Route(path: "/athena")]
 # class TestController < ATH::Controller
 #   # A GET endpoint returning an `ATH::Response`.
 #   # Can be used to return raw data, such as HTML or CSS etc, in a one-off manor.
-#   @[ATHA::Get(path: "/index")]
+#   @[ARTA::Get(path: "/index")]
 #   def index : ATH::Response
 #     ATH::Response.new "<h1>Welcome to my website!</h1>", headers: HTTP::Headers{"content-type" => MIME.from_extension(".html")}
 #   end
 #
 #   # A GET endpoint returning an `ATH::StreamedResponse`.
-#   # Can be used to stream the response content to the client; useful if the content is too large to fit into memory.
-#   @[ATHA::Get(path: "/users")]
+#   # Can be used to stream the response content to the client;
+#   # useful if the content is too large to fit into memory.
+#   @[ARTA::Get(path: "/users")]
 #   def users : ATH::Response
 #     ATH::StreamedResponse.new headers: HTTP::Headers{"content-type" => "application/json; charset=UTF-8"} do |io|
 #       User.all.to_json io
@@ -37,25 +41,31 @@
 #
 #   # A GET endpoint using a param converter to render a template.
 #   #
-#   # Assumes there is a `User` object that exposes their name, and an `ATH::ParamConverter` to provide the user with the provided *id*.
+#   # Assumes there is a `User` object that exposes their name,
+#   # and an `ATH::ParamConverter` to provide the user with the provided *id*.
+#   #
+#   # Route parameters are enclosed within `{}`.
+#   #
 #   # ```
 #   # # user.ecr
 #   # Morning, <%= user.name %> it is currently <%= time %>.
 #   # ```
+#   @[ARTA::Get("/wakeup/{id}")]
 #   @[ATHA::ParamConverter("user", converter: SomeConverter)]
-#   @[ATHA::Get("/wakeup/:id")]
 #   def wakeup(user : User) : ATH::Response
-#     # Template variables not supplied in the action's arguments must be defined manually
+#     # Template variables not supplied in the action's parameters
+#     #  must be defined manually
 #     time = Time.utc
 #
-#     # Creates an `ATH::Response` with the content of rendering the template, also sets the content type to `text/html`.
+#     # Creates an `ATH::Response` with the content of rendering the template,
+#     # also sets the content type to `text/html`.
 #     render "user.ecr"
 #   end
 #
 #   # A GET endpoint with no params returning a `String`.
 #   #
 #   # Action return type restrictions are required.
-#   @[ATHA::Get("/me")]
+#   @[ARTA::Get("/me")]
 #   def get_me : String
 #     "Jim"
 #   end
@@ -63,40 +73,52 @@
 #   # A GET endpoint with no params returning `Nil`.
 #   # `Nil` return types are returned with a status
 #   # of 204 no content
-#   @[ATHA::Get("/no_content")]
+#   @[ARTA::Get("/no_content")]
 #   def get_no_content : Nil
 #     # Do stuff
 #   end
 #
 #   # A GET endpoint with two `Int32` params returning an `Int32`.
 #   #
-#   # The parameters of a route _MUST_ match the arguments of the action.
-#   # Type restrictions on action arguments are required.
-#   @[ATHA::Get("/add/:val1/:val2")]
+#   # The parameters of a route _MUST_ match the parameters of the action.
+#   # Type restrictions on action parameters are required.
+#   @[ARTA::Get("/add/{val1}/{val2}")]
 #   def add(val1 : Int32, val2 : Int32) : Int32
 #     val1 + val2
 #   end
 #
-#   # A GET endpoint with an `String` route param, and a required string query param that must match the given pattern; returning a `String`.
+#   # A GET endpoint with a required trailing slash, a `String` route param,
+#   # and a required string query param that must match the given pattern; returning a `String`.
 #   #
-#   # A non-nilable type denotes it as required. If the parameter is not supplied, and no default value is assigned, an `ATH::Exceptions::BadRequest` exception is raised.
-#   @[ATHA::QueryParam("time", constraints: /\d:\d:\d/)]
-#   @[ATHA::Get("/event/:event_name/")]
+#   # Athena treats `/foo/bar/` as a unique route as compared to `/foo/bar`.
+#   # Be sure to keep you routes consistent.
+#   #
+#   # A non-nilable type denotes it as required. If the parameter is not supplied,
+#   # and no default value is assigned, an `ATH::Exceptions::BadRequest` exception is raised.
+#   @[ARTA::Get("/event/{event_name}/")]
+#   @[ATHA::QueryParam("time", requirements: /\d:\d:\d/)]
 #   def event_time(event_name : String, time : String) : String
 #     "#{event_name} occurred at #{time}"
 #   end
 #
-#   # A GET endpoint with an optional query parameter and optional path param with a default value; returning a `NamedTuple(user_id : Int32?, page : Int32)`.
+#   # A GET endpoint with an optional query parameter and optional path param
+#   # with a default value; returning a `NamedTuple(user_id : Int32?, page : Int32)`.
 #   #
-#   # A nilable type denotes it as optional. If the parameter is not supplied (or could not be converted), and no default value is assigned, it is `nil`.
+#   # A nilable type denotes it as optional.
+#   # If the parameter is not supplied (or could not be converted),
+#   # and no default value is assigned, it is `nil`.
 #   @[ATHA::QueryParam("user_id")]
-#   @[ATHA::Get("/events/(:page)")]
+#   @[ARTA::Get("/events/{page}")]
 #   def events(user_id : Int32?, page : Int32 = 1) : NamedTuple(user_id: Int32?, page: Int32)
 #     {user_id: user_id, page: page}
 #   end
 #
-#   # A GET endpoint with param constraints. The param must match the supplied Regex or it will not match and return a 404 error.
-#   @[ATHA::Get("/time/:time/", constraints: {"time" => /\d{2}:\d{2}:\d{2}/})]
+#   # A GET endpoint with route parameter requirements.
+#   # The parameter must match the supplied Regex or this route will not be matched.
+#   #
+#   # This feature can allow multiple routes to exist with parameters in the same location,
+#   # but with different requirements.
+#   @[ARTA::Get("/time/{time}/", requirements: {"time" => /\d{2}:\d{2}:\d{2}/})]
 #   def get_constraint(time : String) : String
 #     time
 #   end
@@ -105,7 +127,7 @@
 #   #
 #   # It is recommended to use param converters to pass an actual object representing the data (assuming the body is JSON)
 #   # to the route's action; however the raw request body can be accessed by typing an action argument as `ATH::Request`.
-#   @[ATHA::Post("/test/:expected")]
+#   @[ARTA::Post("/test/{expected}")]
 #   def post_body(expected : String, request : ATH::Request) : Bool
 #     expected == request.body.try &.gets_to_end
 #   end
@@ -113,31 +135,46 @@
 #
 # ATH.run
 #
-# # GET /athena/index"                   # => <h1>Welcome to my website!</h1>
-# # GET /athena/users"                   # => [{"id":1,...},...]
-# # GET /athena/wakeup/17"               # => Morning, Allison it is currently 2020-02-01 18:38:12 UTC.
-# # GET /athena/me"                      # => "Jim"
-# # GET /athena/add/50/25"               # => 75
-# # GET /athena/event/foobar?time=1:1:1" # => "foobar occurred at 1:1:1"
-# # GET /athena/events"                  # => {"user_id":null,"page":1}
-# # GET /athena/events/17?user_id=19"    # => {"user_id":19,"page":17}
-# # GET /athena/time/12:45:30"           # => "12:45:30"
-# # GET /athena/time/12:aa:30"           # => 404 not found
-# # GET /athena/no_content"              # => 204 no content
-# # POST /athena/test/foo", body: "foo"  # => true
+# # GET /athena/index"                    # => <h1>Welcome to my website!</h1>
+# # GET /athena/users"                    # => [{"id":1,...},...]
+# # GET /athena/wakeup/17"                # => Morning, Allison it is currently 2020-02-01 18:38:12 UTC.
+# # GET /athena/me"                       # => "Jim"
+# # GET /athena/add/50/25"                # => 75
+# # GET /athena/event/foobar?time=1:1:1"  # => 404 not found
+# # GET /athena/event/foobar/?time=1:1:1" # => "foobar occurred at 1:1:1"
+# # GET /athena/events"                   # => {"user_id":null,"page":1}
+# # GET /athena/events/17?user_id=19"     # => {"user_id":19,"page":17}
+# # GET /athena/time/12:45:30"            # => "12:45:30"
+# # GET /athena/time/12:aa:30"            # => 404 not found
+# # GET /athena/no_content"               # => 204 no content
+# # POST /athena/test/foo", body: "foo"   # => true
 # ```
 abstract class Athena::Framework::Controller
-  # Generates a URL to the provided *route* with the provided *params*.
-  #
-  # See `ART::URLGeneratorInterface#generate`.
-  def generate_url(route : String, params : Hash(String, _)? = nil, reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path) : String
-    ADI.container.router.generate route, params, reference_type
+  macro inherited
+    private CONTROLLER_ACTION_METHODS = [] of String
+
+    macro method_added(m)
+      \{%
+        if (m.annotation(ARTA::Get) || m.annotation(ARTA::Post) || m.annotation(ARTA::Put) || m.annotation(ARTA::Delete) || m.annotation(ARTA::Patch) || m.annotation(ARTA::Link) || m.annotation(ARTA::Unlink) || m.annotation(ARTA::Head) || m.annotation(ARTA::Route))
+          m.raise "A controller action named '##{m.name}' already exists within '#{@type.name}'." if CONTROLLER_ACTION_METHODS.includes? m.name
+         CONTROLLER_ACTION_METHODS << m.name
+        end
+       %}
+    end
   end
 
   # Generates a URL to the provided *route* with the provided *params*.
   #
-  # See `ART::URLGeneratorInterface#generate`.
-  def generate_url(route : String, reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path, **params)
+  # See `ART::Generator::Interface#generate`.
+  def generate_url(route : String, params : Hash(String, _) = Hash(String, String?).new, reference_type : ART::Generator::ReferenceType = :absolute_path) : String
+    # TODO: Make this type leverage a service locator for these common types.
+    ADI.container.router.generate route, params.transform_values(&.to_s.as(String?)), reference_type
+  end
+
+  # Generates a URL to the provided *route* with the provided *params*.
+  #
+  # See `ART::Generator::Interface#generate`.
+  def generate_url(route : String, reference_type : ART::Generator::ReferenceType = :absolute_path, **params)
     self.generate_url route, params.to_h.transform_keys(&.to_s), reference_type
   end
 
@@ -149,14 +186,14 @@ abstract class Athena::Framework::Controller
   # class ExampleController < ATH::Controller
   #   # Define a route to redirect to, explicitly naming this route `add`.
   #   # The default route name is controller + method down snake-cased; e.x. `example_controller_add`.
-  #   @[ATHA::Get("/add/:value1/:value2", name: "add")]
+  #   @[ARTA::Get("/add/{value1}/{value2}", name: "add")]
   #   def add(value1 : Int32, value2 : Int32, negative : Bool = false) : Int32
   #     sum = value1 + value2
   #     negative ? -sum : sum
   #   end
   #
   #   # Define a route that redirects to the `add` route with fixed parameters.
-  #   @[ATHA::Get("/")]
+  #   @[ARTA::Get("/")]
   #   def redirect : ATH::RedirectResponse
   #     self.redirect_to_route "add", {"value1" => 8, "value2" => 2}
   #   end
@@ -166,7 +203,7 @@ abstract class Athena::Framework::Controller
   #
   # # GET / # => 10
   # ```
-  def redirect_to_route(route : String, params : Hash(String, _)? = nil, status : HTTP::Status = :found) : ATH::RedirectResponse
+  def redirect_to_route(route : String, params : Hash(String, _) = Hash(String, String?).new, status : HTTP::Status = :found) : ATH::RedirectResponse
     self.redirect self.generate_url(route, params), status
   end
 
@@ -178,14 +215,14 @@ abstract class Athena::Framework::Controller
   # class ExampleController < ATH::Controller
   #   # Define a route to redirect to, explicitly naming this route `add`.
   #   # The default route name is controller + method down snake-cased; e.x. `example_controller_add`.
-  #   @[ATHA::Get("/add/:value1/:value2", name: "add")]
+  #   @[ARTA::Get("/add/{value1}/{value2}", name: "add")]
   #   def add(value1 : Int32, value2 : Int32, negative : Bool = false) : Int32
   #     sum = value1 + value2
   #     negative ? -sum : sum
   #   end
   #
   #   # Define a route that redirects to the `add` route with fixed parameters.
-  #   @[ATHA::Get("/")]
+  #   @[ARTA::Get("/")]
   #   def redirect : ATH::RedirectResponse
   #     self.redirect_to_route "add", value1: 8, value2: 2
   #   end
@@ -203,7 +240,7 @@ abstract class Athena::Framework::Controller
   #
   # ```
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("redirect/google")]
+  #   @[ARTA::Get("redirect/google")]
   #   def redirect_to_google : ATH::RedirectResponse
   #     self.redirect "https://google.com"
   #   end
@@ -223,14 +260,14 @@ abstract class Athena::Framework::Controller
   # Returns an `ATH::View` that'll redirect to the provided *route*, optionally with the provided *params*, *status*, and *headers*.
   #
   # Is essentially the same as `#redirect_to_route`, but invokes the [view](/components#4-view-event) layer.
-  def route_redirect_view(route : Status, params : Hash(String, _)? = nil, status : HTTP::Status = HTTP::Status::CREATED, headers : HTTP::Headers = HTTP::Headers.new) : ATH::View
+  def route_redirect_view(route : Status, params : Hash(String, _) = Hash(String, String?).new, status : HTTP::Status = HTTP::Status::CREATED, headers : HTTP::Headers = HTTP::Headers.new) : ATH::View
     ATH::View.create_route_redirect route, params
   end
 
   # Returns an `ATH::View` with the provided *data*, and optionally *status* and *headers*.
   #
   # ```
-  # @[ATHA::Get("/:name")]
+  # @[ARTA::Get("/{name}")]
   # def say_hello(name : String) : ATH::View(NamedTuple(greeting: String))
   #   self.view({greeting: "Hello #{name}"}, :im_a_teapot)
   # end
@@ -258,13 +295,13 @@ abstract class Athena::Framework::Controller
       #
       # ```
       # class ExampleController < ATH::Controller
-      #   {{method.downcase.id}} "values/:value1/:value2", value1 : Int32, value2 : Float64, constraints: {"value1" => /\d+/, "value2" => /\d+\.\d+/} do
+      #   {{method.downcase.id}} "values/{value1<\\d+>}/{value2<\\d+\\.\\d+>}", value1 : Int32, value2 : Float64 do
       #     "Value1: #{value1} - Value2: #{value2}"
       #   end
       # end
       # ```
       macro {{method.downcase.id}}(path, *args, **named_args, &)
-        @[ATHA::{{method.capitalize.id}}(path: \{{path}}, constraints: \{{named_args[:constraints]}})]
+        @[ARTA::{{method.capitalize.id}}(path: \{{path}})]
         def {{method.downcase.id}}_\{{path.gsub(/\W/, "_").id}}(\{{*args}}) : \{{named_args[:return_type] || String}}
           \{{yield}}
         end
@@ -286,7 +323,7 @@ abstract class Athena::Framework::Controller
   #
   # # example_controller.cr
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("/:name")]
+  #   @[ARTA::Get("/{name}")]
   #   def greet(name : String) : ATH::Response
   #     render "greeting.ecr"
   #   end
@@ -310,7 +347,7 @@ abstract class Athena::Framework::Controller
   #
   # # example_controller.cr
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("/:name")]
+  #   @[ARTA::Get("/{name}")]
   #   def greet(name : String) : ATH::Response
   #     render "greeting.ecr", "layout.ecr"
   #   end

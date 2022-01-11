@@ -18,7 +18,7 @@ class Athena::Framework::View::ViewHandler
 
   def initialize(
     config : ATH::Config::ViewHandler,
-    @url_generator : ART::URLGeneratorInterface,
+    @url_generator : ART::Generator::Interface,
     @serializer : ASR::SerializerInterface,
     @request_store : ATH::RequestStore,
     format_handlers : Array(Athena::Framework::View::FormatHandlerInterface)

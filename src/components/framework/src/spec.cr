@@ -102,7 +102,7 @@ module Athena::Framework::Spec
   # ```
   # class ExampleController < ATH::Controller
   #   @[ATHA::QueryParam("negative")]
-  #   @[ATHA::Get("/add/:value1/:value2")]
+  #   @[ARTA::Get("/add/{value1}/{value2}")]
   #   def add(value1 : Int32, value2 : Int32, negative : Bool = false) : Int32
   #     sum = value1 + value2
   #     negative ? -sum : sum
@@ -166,7 +166,7 @@ module Athena::Framework::Spec
   # class ExampleServiceController < ATH::Controller
   #   def initialize(@api_client : APIClient); end
   #
-  #   @[ATHA::Post("/sync")]
+  #   @[ARTA::Post("/sync")]
   #   def sync_data : String
   #     # Use the injected api client to get the latest data to sync.
   #     data = @api_client.fetch_latest_data
@@ -247,25 +247,6 @@ module Athena::Framework::Spec
     # Creates a new container instance and assigns it to the current fiber.
     protected def init_container : Nil
       Fiber.current.container = ADI::Spec::MockableServiceContainer.new
-    end
-  end
-end
-
-module Athena::Routing::Spec
-  # Test implementation of `ART::RouteCollection` that allows routes to be scoped to a specific instance and added manually.
-  class MockRouteCollection < Athena::Routing::RouteCollection
-    @routes : Hash(String, ATH::ActionBase) = Hash(String, ATH::ActionBase).new
-
-    def add(name : String, route : ATH::ActionBase) : Nil
-      @routes[name] = route
-    end
-
-    def add(route : ATH::ActionBase) : Nil
-      self.add route.name, route
-    end
-
-    def routes : Hash(String, ATH::ActionBase)
-      @routes
     end
   end
 end

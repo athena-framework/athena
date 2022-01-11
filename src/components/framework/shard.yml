@@ -1,6 +1,6 @@
 name: athena
 
-version: 0.15.1
+version: 0.16.0
 
 crystal: '>= 1.2.0'
 
@@ -29,12 +29,12 @@ dependencies:
   athena-negotiation:
     github: athena-framework/negotiation
     version: ~> 0.1.0
+  athena-routing:
+    github: athena-framework/routing
+    version: ~> 0.1.0
   athena-serializer:
     github: athena-framework/serializer
     version: ~> 0.2.6
-  amber_router:
-    github: amberframework/amber-router
-    version: ~> 0.4.3
   athena-validator:
     github: athena-framework/validator
     version: ~> 0.1.3

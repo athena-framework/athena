@@ -24,7 +24,7 @@ describe ATH::Arguments::Resolvers::RequestAttribute do
 
     describe "that needs to be converted" do
       it String do
-        argument = ATH::Arguments::ArgumentMetadata(Int32).new("id", false, false)
+        argument = ATH::Arguments::ArgumentMetadata(Int32).new("id", false)
 
         request = new_request
         request.attributes.set "id", "1"
@@ -33,7 +33,7 @@ describe ATH::Arguments::Resolvers::RequestAttribute do
       end
 
       it Bool do
-        argument = ATH::Arguments::ArgumentMetadata(Bool).new("id", false, false)
+        argument = ATH::Arguments::ArgumentMetadata(Bool).new("id", false)
 
         request = new_request
         request.attributes.set "id", "false"
@@ -42,7 +42,7 @@ describe ATH::Arguments::Resolvers::RequestAttribute do
       end
 
       it "that fails conversion" do
-        argument = ATH::Arguments::ArgumentMetadata(Int32).new("id", false, false)
+        argument = ATH::Arguments::ArgumentMetadata(Int32).new("id", false)
 
         request = new_request
         request.attributes.set "id", "foo"

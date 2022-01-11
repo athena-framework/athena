@@ -14,7 +14,7 @@ require "./param_converter"
 # require "athena"
 #
 # class ExampleController < ATH::Controller
-#   @[ATHA::Get(path: "/event/:start_time/:end_time")]
+#   @[ARTA::Get(path: "/event/{start_time}/{end_time}")]
 #   @[ATHA::ParamConverter("start_time", converter: ATH::TimeConverter, format: "%F", location: Time::Location.load("Europe/Berlin"))]
 #   @[ATHA::ParamConverter("end_time", converter: ATH::TimeConverter)]
 #   def event(start_time : Time, end_time : Time) : Nil

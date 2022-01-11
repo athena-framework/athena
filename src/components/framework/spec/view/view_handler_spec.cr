@@ -1,17 +1,19 @@
 require "../spec_helper"
 
 private class MockURLGenerator
-  include Athena::Routing::URLGeneratorInterface
+  include Athena::Routing::Generator::Interface
+
+  property context : ART::RequestContext = ART::RequestContext.new
 
   setter expected_route, expected_reference_type, generated_url
 
   def initialize(
     @expected_route : String = "some_route",
-    @expected_reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path,
+    @expected_reference_type : ART::Generator::ReferenceType = :absolute_path,
     @generated_url : String = "URL"
   ); end
 
-  def generate(route : String, params : Hash(String, _)? = nil, reference_type : ART::URLGeneratorInterface::ReferenceType = :absolute_path) : String
+  def generate(route : String, params : Hash(String, String | ::Nil) = Hash(String, String | ::Nil).new, reference_type : ART::Generator::ReferenceType = :absolute_path) : String
     route.should eq @expected_route
     reference_type.should eq @expected_reference_type
 
@@ -107,11 +109,11 @@ struct ViewHandlerTest < ASPEC::TestCase
     view_handler = self.create_view_handler
 
     @url_generator.generated_url = "/foo/{{foo}}"
-    @url_generator.expected_reference_type = ART::URLGeneratorInterface::ReferenceType::Absolute_URL
+    @url_generator.expected_reference_type = ART::Generator::ReferenceType::ABSOLUTE_URL
 
     view = ATH::View(String).new "DATA", status: HTTP::Status::CREATED
     view.route = "some_route"
-    view.route_params = {"foo" => "bar"}
+    view.route_params = {"foo" => "bar"} of String => String?
 
     response = view_handler.create_response view, ATH::Request.new("GET", "/"), "json"
 

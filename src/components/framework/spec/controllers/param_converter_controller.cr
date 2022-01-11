@@ -57,24 +57,24 @@ class MultipleAdditionalGenericConverter < ATH::ParamConverter
   end
 end
 
-@[ATHA::Prefix("param-converter")]
+@[ARTA::Route(path: "/param-converter")]
 class ParamConverterController < ATH::Controller
   # Param converter type - single generic - arg type
-  @[ATHA::Post("/")]
+  @[ARTA::Post("")]
   @[ATHA::ParamConverter("value", converter: GenericConverter)]
   def happy_path(value : Int32 = 0) : Int32
     value
   end
 
   # Param converter type - single additional generic
-  @[ATHA::Post("/single-additional")]
+  @[ARTA::Post("/single-additional")]
   @[ATHA::ParamConverter("value", converter: SingleAdditionalGenericConverter, type_vars: Int32)]
   def single_additional_generic_arg(value : Int32 = 0) : Int32
     value
   end
 
   # Param converter type - multiple additional generic
-  @[ATHA::Post("/multiple-additional")]
+  @[ARTA::Post("/multiple-additional")]
   @[ATHA::ParamConverter("value", converter: MultipleAdditionalGenericConverter, type_vars: {Int32, String})]
   def multiple_additional_generic_args(value : Int32 = 0) : Int32
     value

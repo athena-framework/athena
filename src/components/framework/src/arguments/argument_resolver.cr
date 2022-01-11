@@ -30,7 +30,7 @@ struct Athena::Framework::Arguments::ArgumentResolver
       if resolver = @argument_resolvers.find &.supports? request, param
         resolver.resolve request, param
       else
-        raise RuntimeError.new "Could not resolve required argument '#{param.name}' for '#{route.controller}##{route.name}'."
+        raise RuntimeError.new %(Could not resolve required argument '#{param.name}' for '#{request.attributes.get "_route"}'.)
       end
     end
   end

@@ -63,7 +63,15 @@ class Athena::Routing::RequestContext
   # Updates the properties within `self` based on the provided *request*.
   def apply(request : ART::Request) : self
     self.method = request.method
-    self.host = request.hostname || "localhost"
+
+    self.host = if (h = request.hostname) && (h != "localhost")
+                  h
+                elsif h = @host
+                  h
+                else
+                  "localhost"
+                end
+
     self.query_string = request.query || ""
 
     # TODO: Support this once it's exposed.

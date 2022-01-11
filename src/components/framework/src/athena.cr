@@ -2,7 +2,6 @@ require "ecr"
 require "http/server"
 require "json"
 
-require "amber_router"
 require "athena-config"
 require "athena-dependency_injection"
 require "athena-event_dispatcher"
@@ -12,6 +11,7 @@ require "./action"
 require "./annotations"
 require "./binary_file_response"
 require "./controller"
+require "./controller_resolver"
 require "./error_renderer_interface"
 require "./error_renderer"
 require "./header_utils"
@@ -35,26 +35,16 @@ require "./exceptions/*"
 require "./listeners/*"
 require "./parameters/*"
 require "./params/*"
-require "./routing/*"
 require "./view/*"
 
 require "./ext/conversion_types"
 require "./ext/event_dispatcher"
 require "./ext/negotiation"
+require "./ext/routing"
 require "./ext/serializer"
 require "./ext/validator"
 
-# Convenience alias to make referencing `Athena::Routing` types easier.
-alias ART = Athena::Routing
-
-# Namespace for types related to routing.
-#
-# See `ART` for an easier way to access types in this namespace.
-#
-# NOTE: This namespace currently lives within the `Athena::Framework` codebase,
-# but will eventually be extracted into its own component.
-module Athena::Routing; end
-
+# Convenience alias to make referencing `Athena::Framework` types easier.
 alias ATH = Athena::Framework
 
 # Convenience alias to make referencing `Athena::Framework::Annotations` types easier.
@@ -64,7 +54,7 @@ alias ATHA = ATH::Annotations
 #
 # Also checkout the [Components](/components) for an overview of how `Athena` is designed.
 module Athena::Framework
-  VERSION = "0.15.1"
+  VERSION = "0.16.0"
 
   # The `AED::Event` that are emitted via `Athena::EventDispatcher` to handle a request during its life-cycle.
   # Custom events can also be defined and dispatched within a controller, listener, or some other service.
@@ -122,7 +112,7 @@ module Athena::Framework
   # require "athena"
   #
   # class ExampleController < ATH::Controller
-  #   @[ATHA::Get("/")]
+  #   @[ARTA::Get("/")]
   #   def root : String
   #     "At the index"
   #   end

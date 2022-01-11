@@ -2,7 +2,7 @@ name: athena-routing
 
 version: 0.1.0
 
-crystal: '>= 0.36.0'
+crystal: '>= 1.2.0'
 
 license: MIT
 

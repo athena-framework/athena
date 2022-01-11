@@ -178,6 +178,7 @@ class Athena::Routing::RouteProvider
     end
 
     @@compiled = true
+    @@routes = nil
   end
 
   # ameba:disable Metrics/CyclomaticComplexity
@@ -455,6 +456,6 @@ class Athena::Routing::RouteProvider
   end
 
   private def self.routes : ART::RouteCollection
-    @@routes || raise "RouteProvider has not been intialized!"
+    @@routes || raise "Routes have not been compiled. Did you forget to call `ART.compile`?"
   end
 end
