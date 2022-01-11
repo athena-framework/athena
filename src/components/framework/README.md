@@ -13,7 +13,7 @@ A web framework comprised of reusable, independent components.
 dependencies:
   athena:
     github: athena-framework/framework
-    version: ~> 0.15.0
+    version: ~> 0.16.0
 ```
 
 2. Run `shards install`
