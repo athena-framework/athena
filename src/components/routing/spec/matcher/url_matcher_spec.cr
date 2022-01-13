@@ -118,6 +118,36 @@ struct URLMatcherTest < ASPEC::TestCase
     self.get_matcher(routes).match("/foo/baz").should eq({"_route" => "foo", "bar" => "baz", "def" => "test"})
   end
 
+  def test_match_returned_results_do_not_mutate_the_original_static_route : Nil
+    routes = self.build_collection do
+      add "foo", ART::Route.new "/foo", {"def" => "test"}
+    end
+
+    matcher = self.get_matcher routes
+
+    parameters = matcher.match("/foo")
+    parameters.should eq({"_route" => "foo", "def" => "test"})
+
+    parameters.delete "_route"
+
+    matcher.match("/foo").should eq({"_route" => "foo", "def" => "test"})
+  end
+
+  def test_match_returned_results_do_not_mutate_the_original_dynamic_route : Nil
+    routes = self.build_collection do
+      add "foo", ART::Route.new "/foo/{id}"
+    end
+
+    matcher = self.get_matcher routes
+
+    parameters = matcher.match("/foo/10")
+    parameters.should eq({"_route" => "foo", "id" => "10"})
+
+    parameters.delete "_route"
+
+    matcher.match("/foo/10").should eq({"_route" => "foo", "id" => "10"})
+  end
+
   def test_match_method_is_ignored_if_none_are_provided : Nil
     routes = self.build_collection do
       add "foo", ART::Route.new "/foo", methods: {"GET", "HEAD"}
