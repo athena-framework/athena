@@ -68,6 +68,9 @@ class Athena::Routing::Matcher::URLMatcher
         next
       end
 
+      # Dup the data hash so we don't mutate the original.
+      data = data.dup
+
       required_host.try do |h|
         case h
         in String then next if h != host
