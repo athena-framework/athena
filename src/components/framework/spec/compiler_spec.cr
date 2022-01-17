@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-private def assert_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+private def assert_error(message : String | Bool, code : String, *, line : Int32 = __LINE__) : Nil
   input = IO::Memory.new <<-CR
     require "./spec_helper.cr"
     #{code}
@@ -9,9 +9,17 @@ private def assert_error(message : String, code : String, *, line : Int32 = __LI
 
   buffer = IO::Memory.new
   result = Process.run("crystal", ["run", "--no-color", "--no-codegen", "--stdin-filename", "#{__DIR__}/test.cr"], input: input.rewind, output: buffer, error: buffer)
-  fail buffer.to_s if result.success?
-  buffer.to_s.should contain(message), line: line
-  buffer.close
+
+  case message
+  in false
+    fail buffer.to_s unless result.success?
+  in true
+    raise ArgumentError.new "'message' cannot be 'true'."
+  in String
+    fail buffer.to_s if result.success?
+    buffer.to_s.should contain(message), line: line
+    buffer.close
+  end
 end
 
 describe Athena::Framework do
@@ -72,20 +80,40 @@ describe Athena::Framework do
       CODE
     end
 
-    it "when a controller action is mistakenly overridden" do
-      assert_error "A controller action named '#action' already exists within 'CompileController'.", <<-CODE
-        class CompileController < ATH::Controller
-          @[ARTA::Get(path: "/foo")]
-          def action : String
-            "foo"
+    describe "when a controller action is mistakenly overridden" do
+      it "within the same controller" do
+        assert_error "A controller action named '#action' already exists within 'CompileController'.", <<-CODE
+          class CompileController < ATH::Controller
+            @[ARTA::Get(path: "/foo")]
+            def action : String
+              "foo"
+            end
+
+            @[ARTA::Get(path: "/bar")]
+            def action : String
+              "bar"
+            end
+          end
+        CODE
+      end
+
+      it "within a different controller" do
+        assert_error false, <<-CODE
+          class ExampleController < ATH::Controller
+            @[ARTA::Get(path: "/foo")]
+            def action : String
+              "foo"
+            end
           end
 
-          @[ARTA::Get(path: "/bar")]
-          def action : String
-            "bar"
+          class CompileController < ATH::Controller
+            @[ARTA::Get(path: "/bar")]
+            def action : String
+              "bar"
+            end
           end
-        end
-      CODE
+        CODE
+      end
     end
 
     describe ARTA::Route do
