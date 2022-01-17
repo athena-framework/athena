@@ -159,6 +159,7 @@ abstract class Athena::Framework::Controller
           if CONTROLLER_ACTION_METHODS.includes?({@type.name.id, m.name.id})
             m.raise "A controller action named '##{m.name}' already exists within '#{@type.name}'."
           end
+
          CONTROLLER_ACTION_METHODS << {@type.name.id, m.name.id}
         end
        %}
