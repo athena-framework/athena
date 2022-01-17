@@ -151,13 +151,16 @@
 # ```
 abstract class Athena::Framework::Controller
   macro inherited
-    private CONTROLLER_ACTION_METHODS = [] of String
+    private CONTROLLER_ACTION_METHODS = [] of {String, String}
 
     macro method_added(m)
       \{%
         if (m.annotation(ARTA::Get) || m.annotation(ARTA::Post) || m.annotation(ARTA::Put) || m.annotation(ARTA::Delete) || m.annotation(ARTA::Patch) || m.annotation(ARTA::Link) || m.annotation(ARTA::Unlink) || m.annotation(ARTA::Head) || m.annotation(ARTA::Route))
-          m.raise "A controller action named '##{m.name}' already exists within '#{@type.name}'." if CONTROLLER_ACTION_METHODS.includes? m.name
-         CONTROLLER_ACTION_METHODS << m.name
+          if CONTROLLER_ACTION_METHODS.includes?({@type.name.id, m.name.id})
+            m.raise "A controller action named '##{m.name}' already exists within '#{@type.name}'."
+          end
+
+         CONTROLLER_ACTION_METHODS << {@type.name.id, m.name.id}
         end
        %}
     end
