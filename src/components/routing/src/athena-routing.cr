@@ -65,7 +65,7 @@ alias ARTA = ART::Annotations
 #
 # See the related types for more detailed information.
 module Athena::Routing
-  VERSION = "0.1.0"
+  VERSION = "0.1.1"
 
   {% if @top_level.has_constant?("Athena") && Athena.has_constant?("Framework") && Athena::Framework.has_constant?("Request") %}
     # Represents the type of the *request* parameter within an `ART::Route::Condition`.
