@@ -138,8 +138,7 @@ module Athena::DependencyInjection
       {% type = Crystal::Macros::Nop %}
     {% end %}
 
-    # TODO: Refactor this to ||= once https://github.com/crystal-lang/crystal/pull/9409 is released
-    {% BINDINGS[name] = {typed: [] of Nil, untyped: [] of Nil} if BINDINGS[name] == nil %}
+    {% BINDINGS[name] ||= {typed: [] of Nil, untyped: [] of Nil} %}
 
     {% if type == Crystal::Macros::Nop %}
       {% BINDINGS[name][:untyped].unshift({value: value, type: type}) %}
