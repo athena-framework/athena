@@ -25,6 +25,7 @@ maybeSync "src/components/config" config https://github.com/athena-framework/con
 maybeSync "src/components/console" console https://github.com/athena-framework/console.git
 maybeSync "src/components/dependency_injection" dependency-injection https://github.com/athena-framework/dependency-injection.git
 maybeSync "src/components/event_dispatcher" event-dispatcher https://github.com/athena-framework/event-dispatcher.git
+maybeSync "src/components/image_size" image-size https://github.com/athena-framework/image-size.git
 maybeSync "src/components/framework" framework https://github.com/athena-framework/framework.git
 maybeSync "src/components/negotiation" negotiation https://github.com/athena-framework/negotiation.git
 maybeSync "src/components/routing" routing https://github.com/athena-framework/routing.git

@@ -24,6 +24,8 @@ dependencies:
     github: athena-framework/dependency-injection
   athena-event_dispatcher:
     github: athena-framework/event-dispatcher
+  athena-image_size:
+    github: athena-framework/image-size
   athena-negotiation:
     github: athena-framework/negotiation
   athena-routing:
