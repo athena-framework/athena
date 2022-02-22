@@ -120,7 +120,7 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
       violations.size.should eq 1
 
       expected_violations.each_with_index do |violation, idx|
-        violation.should eq(violations[idx]), file: file, line: line
+        violations[idx].should eq(violation), file: file, line: line
       end
     end
 
