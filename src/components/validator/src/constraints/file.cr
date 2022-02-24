@@ -96,6 +96,7 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
 
   struct Validator < Athena::Validator::ConstraintValidator
     # :inherit:
+    # ameba:disable Metrics/CyclomaticComplexity
     def validate(value : _, constraint : AVD::Constraints::File) : Nil
       return if value.nil? || value == ""
 
@@ -162,10 +163,10 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
         mime_types.each do |mime_type|
           return if mime == mime_type
 
-          t, matched, st = mime_type.partition "/*"
+          t, matched, _ = mime_type.partition "/*"
 
           unless matched.blank?
-            t2, _, st2 = mime.partition "/"
+            t2, _, _ = mime.partition "/"
 
             return if t2 == t
           end
