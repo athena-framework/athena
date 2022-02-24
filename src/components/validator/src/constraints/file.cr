@@ -1,5 +1,128 @@
 require "mime"
 
+# Validates that a value is a valid file.
+# If the underlying value is a [::File](https://crystal-lang.org/api/File.html), then its path is used as the value.
+# Otherwise the value is converted to a string via `#to_s` before being validated, which is assumed to be a path to a file.
+#
+# NOTE: As with most other constraints, `nil` and empty strings are considered valid values, in order to allow the value to be optional.
+# If the value is required, consider combining this constraint with `AVD::Constraints::NotBlank`.
+#
+# ## Configuration
+#
+# ### Optional Arguments
+#
+# #### max_size
+#
+# **Type:** `Int | String | Nil` **Default:** `nil`
+#
+# Defines that maximum size the file must be in order to be considered valid.
+# The value may be an integer representing the size in bytes, or a format string in one of the following formats:
+#
+# | Suffix | Unit Name | Value           | Example |
+# | :----- | :-------- | :-------------- | :------ |
+# | (none) | byte      | 1 byte          | `4096`  |
+# | `k`    | kilobyte  | 1,000 bytes     | `"200k"`  |
+# | `M`    | megabyte  | 1,000,000 bytes | `"2M"`    |
+# | `Ki`   | kibibyte  | 1,024 bytes     | `"32Ki"`  |
+# | `Mi`   | mebibyte  | 1,048,576 bytes | `"8Mi"`   |
+#
+# #### mime_types
+#
+# **Type:** `Enumerable(String)?` **Default:** `nil`
+#
+# If set, allows checking that the MIME type of the file is one of an allowed set of types.
+# This value is ignored if the MIME type of the file could not be determined.
+#
+# #### binary_format
+#
+# **Type:** `Bool?` **Default:** `nil`
+#
+# When `true`, the sizes will be displayed in messages with binary-prefixed units (KiB, MiB).
+# When `false`, the sizes will be displayed with SI-prefixed units (kB, MB).
+# When `nil`, then the binaryFormat will be guessed from the value defined in the [max_size](#max_size) option.
+#
+# #### max_size_message
+#
+# **Type:** `String` **Default:** `The file is too large ({{ size }} {{ suffix }}). Allowed maximum size is {{ limit }} {{ suffix }}.`
+#
+# The message that will be shown if the file is greater than the [max_size](#max_size).
+#
+# ##### Placeholders
+#
+# The following placeholders can be used in this message:
+#
+# * `{{ file }}` - Absoluate path to the invalid file.
+# * `{{ limit }}` - Maximum file size allowed.
+# * `{{ name }}` - Basename of the invalid file.
+# * `{{ size }}` - The size of the invalid file.
+# * `{{ suffix }}` - Suffix for the used file size unit.
+#
+# #### not_found_message
+#
+# **Type:** `String` **Default:** `The file could not be found.`
+#
+# The message that will be shown if no file could be found at the given path.
+#
+# ##### Placeholders
+#
+# The following placeholders can be used in this message:
+#
+# * `{{ file }}` - Absoluate path to the invalid file.
+#
+# #### empty_message
+#
+# **Type:** `String` **Default:** `An empty file is not allowed.`
+#
+# The message that will be shown if the file is empty.
+#
+# ##### Placeholders
+#
+# The following placeholders can be used in this message:
+#
+# * `{{ file }}` - Absoluate path to the invalid file.
+# * `{{ name }}` - Basename of the invalid file.
+#
+# #### not_readable_message
+#
+# **Type:** `String` **Default:** `The file is not readable.`
+#
+# The message that will be shown if the file is not readable.
+#
+# ##### Placeholders
+#
+# The following placeholders can be used in this message:
+#
+# * `{{ file }}` - Absoluate path to the invalid file.
+# * `{{ name }}` - Basename of the invalid file.
+#
+# #### mime_type_message
+#
+# **Type:** `String` **Default:** `The mime type of the file is invalid ({{ type }}). Allowed mime types are {{ types }}.`
+#
+# The message that will be shown if the MIME type of the file is not one of the valid [mime_types](#mime_types).
+#
+# ##### Placeholders
+#
+# The following placeholders can be used in this message:
+#
+# * `{{ file }}` - Absoluate path to the invalid file.
+# * `{{ name }}` - Basename of the invalid file.
+# * `{{ type }}` - The MIME type of the invalid file.
+# * `{{ types }}` - The list of allowed MIME types.
+#
+# #### groups
+#
+# **Type:** `Array(String) | String | Nil` **Default:** `nil`
+#
+# The [validation groups][Athena::Validator::Constraint--validation-groups] this constraint belongs to.
+# `AVD::Constraint::DEFAULT_GROUP` is assumed if `nil`.
+#
+# #### payload
+#
+# **Type:** `Hash(String, String)?` **Default:** `nil`
+#
+# Any arbitrary domain-specific data that should be stored with this constraint.
+# The [payload][Athena::Validator::Constraint--payload] is not used by `Athena::Validator`, but its processing is completely up to you.
 class Athena::Validator::Constraints::File < Athena::Validator::Constraint
   NOT_FOUND_ERROR         = "b6ae563c-4aec-4dfa-b268-2bb282912ed8"
   NOT_READABLE_ERROR      = "e9f18a3d-f968-469f-868e-2331c8c982c2"
