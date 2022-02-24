@@ -95,6 +95,120 @@ abstract struct FileValidatorTestCase < AVD::Spec::ConstraintValidatorTestCase
     }
   end
 
+  @[DataProvider("max_size_not_exceeded")]
+  def test_max_size_exceeded(bytes_written : Int, limit : Int | String) : Nil
+    self.write_bytes bytes_written
+    self.validator.validate self.get_file(@file.path), self.new_constraint max_size: limit, max_size_message: "my_message"
+    self.assert_no_violation
+  end
+
+  def max_size_not_exceeded : Tuple
+    {
+      # Limit in bytes
+      {1_000, 1_000},
+      {1_000_000, 1_000_000},
+
+      # Limit in kB
+      {1_000, "1k"},
+      {1_000_000, "1000k"},
+
+      # Limit in MB
+      {1_000_000, "1M"},
+
+      # Limit in KiB
+      {1_024, "1Ki"},
+      {1_048_576, "1024Ki"},
+
+      # Limit in MiB
+      {1_048_576, "1Mi"},
+    }
+  end
+
+  @[DataProvider("max_size_exceeded_binary_format")]
+  def test_max_size_exceeded(bytes_written : Int, limit : Int | String, binary_format : Bool?, size_as_string : String, limit_as_string : String, suffix : String) : Nil
+    self.write_bytes bytes_written
+    self.validator.validate self.get_file(@file.path), self.new_constraint max_size: limit, binary_format: binary_format, max_size_message: "my_message"
+
+    self
+      .build_violation("my_message", CONSTRAINT::TOO_LARGE_ERROR)
+      .add_parameter("{{ limit }}", limit_as_string)
+      .add_parameter("{{ size }}", size_as_string)
+      .add_parameter("{{ suffix }}", suffix)
+      .add_parameter("{{ file }}", @file.path)
+      .add_parameter("{{ name }}", File.basename @file.path)
+      .assert_violation
+  end
+
+  def max_size_exceeded_binary_format : Tuple
+    {
+      {11, 10, nil, "11.0", "10.0", "bytes"},
+      {11, 10, true, "11.0", "10.0", "bytes"},
+      {11, 10, false, "11.0", "10.0", "bytes"},
+
+      {1_010, 1000, nil, "1.01", "1.0", "kB"},
+      {1_010, "1k", nil, "1.01", "1.0", "kB"},
+      {1_035, "1Ki", nil, "1.01", "1.0", "KiB"},
+
+      {1_035, 1024, true, "1.01", "1.0", "KiB"},
+      {1_034_240, "1024k", true, "1010.0", "1000.0", "KiB"},
+      {1_035, "1Ki", true, "1.01", "1.0", "KiB"},
+
+      {1_010, 1000, false, "1.01", "1.0", "kB"},
+      {1_010, "1k", false, "1.01", "1.0", "kB"},
+      {10_343, "10Ki", false, "10.34", "10.24", "kB"},
+    }
+  end
+
+  def test_valid_mime_type : Nil
+    self.validator.validate Path[__DIR__, "fixtures/foo.png"], self.new_constraint mime_types: {"image/png", "image/jpeg"}
+    self.assert_no_violation
+  end
+
+  def test_valid_wildcard_mime_type : Nil
+    self.validator.validate Path[__DIR__, "fixtures/foo.png"], self.new_constraint mime_types: {"image/*"}
+    self.assert_no_violation
+  end
+
+  def test_invalid_mime_type : Nil
+    File.copy Path[__DIR__, "fixtures/foo.png"], dest_path = Path[Dir.tempdir, "/file_validator_test.png"]
+
+    self.validator.validate self.get_file(dest_path.to_s), self.new_constraint mime_types: {"application/pdf"}, mime_type_message: "my_message"
+
+    self
+      .build_violation("my_message", CONSTRAINT::INVALID_MIME_TYPE_ERROR)
+      .add_parameter("{{ type }}", "image/png")
+      .add_parameter("{{ types }}", %(Set{"application/pdf"}))
+      .add_parameter("{{ file }}", dest_path)
+      .add_parameter("{{ name }}", "file_validator_test.png")
+      .assert_violation
+  end
+
+  def test_invalid_wildcard_mime_type : Nil
+    File.copy Path[__DIR__, "fixtures/foo.png"], dest_path = Path[Dir.tempdir, "/file_validator_test.png"]
+
+    self.validator.validate self.get_file(dest_path.to_s), self.new_constraint mime_types: {"application/*"}, mime_type_message: "my_message"
+
+    self
+      .build_violation("my_message", CONSTRAINT::INVALID_MIME_TYPE_ERROR)
+      .add_parameter("{{ type }}", "image/png")
+      .add_parameter("{{ types }}", %(Set{"application/*"}))
+      .add_parameter("{{ file }}", dest_path)
+      .add_parameter("{{ name }}", "file_validator_test.png")
+      .assert_violation
+  end
+
+  def test_empty_file : Nil
+    @file.truncate
+
+    self.validator.validate self.get_file(@file.path), self.new_constraint empty_message: "my_message"
+
+    self
+      .build_violation("my_message", CONSTRAINT::EMPTY_ERROR)
+      .add_parameter("{{ file }}", @file.path)
+      .add_parameter("{{ name }}", File.basename @file.path)
+      .assert_violation
+  end
+
   protected abstract def get_file(file_path : String)
 
   private def write_bytes(bytes : Int) : Nil

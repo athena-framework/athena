@@ -158,16 +158,24 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
         return
       end
 
-      if (mime_types = constraint.mime_types) && (mime_type = MIME.from_filename? path)
-        mime_types.each do |type|
-          return if type == mime_type
+      if (mime_types = constraint.mime_types) && (mime = MIME.from_filename? path)
+        mime_types.each do |mime_type|
+          return if mime == mime_type
+
+          t, matched, st = mime_type.partition "/*"
+
+          unless matched.blank?
+            t2, _, st2 = mime.partition "/"
+
+            return if t2 == t
+          end
         end
 
         self
           .context
           .build_violation(constraint.mime_type_message, INVALID_MIME_TYPE_ERROR)
           .add_parameter("{{ file }}", path)
-          .add_parameter("{{ type }}", mime_type)
+          .add_parameter("{{ type }}", mime)
           .add_parameter("{{ types }}", mime_types)
           .add_parameter("{{ name }}", base_name)
           .add
