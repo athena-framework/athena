@@ -164,13 +164,13 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
 
   def initialize(
     max_size : Int | String | Nil = nil,
+    @binary_format : Bool? = nil,
+    mime_types : Enumerable(String)? = nil,
     @not_found_message : String = "The file could not be found.",
     @not_readable_message : String = "The file is not readable.",
     @empty_message : String = "An empty file is not allowed.",
     @max_size_message : String = "The file is too large ({{ size }} {{ suffix }}). Allowed maximum size is {{ limit }} {{ suffix }}.",
     @mime_type_message : String = "The mime type of the file is invalid ({{ type }}). Allowed mime types are {{ types }}.",
-    mime_types : Enumerable(String)? = nil,
-    @binary_format : Bool? = nil,
     groups : Array(String) | String | Nil = nil,
     payload : Hash(String, String)? = nil
   )
