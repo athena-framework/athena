@@ -51,7 +51,7 @@ class Athena::Validator::Constraints::EqualTo(ValueType) < Athena::Validator::Co
     "This value should be equal to {{ compared_value }}."
   end
 
-  struct Validator < Athena::Validator::Constraints::ComparisonValidator
+  class Validator < Athena::Validator::Constraints::ComparisonValidator
     # :inherit:
     def compare_values(actual : _, expected : _) : Bool
       actual == expected

@@ -217,7 +217,7 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
     raise ArgumentError.new "'#{max_size}' is not a valid maximum size."
   end
 
-  struct Validator < Athena::Validator::ConstraintValidator
+  class Validator < Athena::Validator::ConstraintValidator
     # :inherit:
     # ameba:disable Metrics/CyclomaticComplexity
     def validate(value : _, constraint : AVD::Constraints::File) : Nil

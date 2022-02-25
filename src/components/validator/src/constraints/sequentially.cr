@@ -72,7 +72,7 @@ class Athena::Validator::Constraints::Sequentially < Athena::Validator::Constrai
     super constraints, "", groups, payload
   end
 
-  struct Validator < Athena::Validator::ConstraintValidator
+  class Validator < Athena::Validator::ConstraintValidator
     # :inherit:
     def validate(value : _, constraint : AVD::Constraints::Sequentially) : Nil
       validator = self.context.validator.in_context self.context

@@ -1,7 +1,7 @@
 require "./constraint_validator_interface"
 
 # Basic implementation of `AVD::ConstraintValidatorInterface`.
-abstract struct Athena::Validator::ConstraintValidator
+abstract class Athena::Validator::ConstraintValidator
   include Athena::Validator::ConstraintValidatorInterface
 
   # :inherit:
@@ -37,7 +37,7 @@ end
 
 # Extension of `AVD::ConstraintValidator` used to denote a service validator
 # that can be used with [Athena Dependency Injection](https://github.com/athena-framework/dependency-injection).
-abstract struct Athena::Validator::ServiceConstraintValidator < Athena::Validator::ConstraintValidator
+abstract class Athena::Validator::ServiceConstraintValidator < Athena::Validator::ConstraintValidator
   macro inherited
     def self.new : NoReturn
       # Validators of this type will be injected via DI and not directly instantiated within the factory.
@@ -47,4 +47,4 @@ abstract struct Athena::Validator::ServiceConstraintValidator < Athena::Validato
 end
 
 # Compiler doesn't like there not being any instances of this
-private struct FakeConstraintValidator < Athena::Validator::ServiceConstraintValidator; end
+private class FakeConstraintValidator < Athena::Validator::ServiceConstraintValidator; end

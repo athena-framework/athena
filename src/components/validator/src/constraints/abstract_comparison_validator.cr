@@ -1,5 +1,5 @@
 # Defines common logic for comparison based constraint validators.
-abstract struct Athena::Validator::Constraints::ComparisonValidator < Athena::Validator::ConstraintValidator
+abstract class Athena::Validator::Constraints::ComparisonValidator < Athena::Validator::ConstraintValidator
   # Returns `true` if the provided *actual* and *expected* values are compatible, otherwise `false`.
   abstract def compare_values(actual : _, expected : _) : Bool
 

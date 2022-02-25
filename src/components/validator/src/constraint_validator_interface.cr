@@ -13,7 +13,7 @@
 # class AVD::Constraints::MyConstraint < AVD::Constraint
 #   # Initializer/etc for the constraint
 #
-#   struct Validator < AVD::ConstraintValidator
+#   class Validator < AVD::ConstraintValidator
 #     # Define a validate method that handles values of any type, and our `MyConstraint` constraint.
 #     def validate(value : _, constraint : AVD::Constraints::MyConstraint) : Nil
 #       # Implement logic to determine if the value is valid.
@@ -32,7 +32,7 @@
 # in a catchall overload can be used to add an invalid type `AVD::Violation::ConstraintViolationInterface`.
 #
 # ```
-# struct Validator < AVD::ConstraintValidator
+# class Validator < AVD::ConstraintValidator
 #   def validate(value : Number, constraint : AVD::Constraints::MyConstraint) : Nil
 #     # Handle validating `Number` values
 #   end

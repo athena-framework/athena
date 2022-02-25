@@ -52,7 +52,7 @@ class Athena::Validator::Constraints::GreaterThan(ValueType) < Athena::Validator
     "This value should be greater than {{ compared_value }}."
   end
 
-  struct Validator < Athena::Validator::Constraints::ComparisonValidator
+  class Validator < Athena::Validator::Constraints::ComparisonValidator
     def compare_values(actual : Number, expected : Number) : Bool
       actual > expected
     end

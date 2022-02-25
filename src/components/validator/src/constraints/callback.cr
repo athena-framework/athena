@@ -202,7 +202,7 @@ class Athena::Validator::Constraints::Callback < Athena::Validator::Constraint
     super "", groups, payload
   end
 
-  struct Validator < Athena::Validator::ConstraintValidator
+  class Validator < Athena::Validator::ConstraintValidator
     # :inherit:
     def validate(value : _, constraint : AVD::Constraints::Callback) : Nil
       if value.is_a?(AVD::Validatable) && (name = constraint.callback_name) && (metadata = self.context.metadata) && (metadata.is_a?(AVD::Metadata::ClassMetadata))

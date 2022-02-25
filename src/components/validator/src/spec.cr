@@ -207,7 +207,7 @@ module Athena::Validator::Spec
       super message, groups, payload
     end
 
-    struct Validator < AVD::ConstraintValidator
+    class Validator < AVD::ConstraintValidator
       def validate(value : _, constraint : FailingConstraint) : Nil
         self.context.add_violation constraint.message
       end

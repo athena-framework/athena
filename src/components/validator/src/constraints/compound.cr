@@ -70,7 +70,7 @@ abstract class Athena::Validator::Constraints::Compound < Athena::Validator::Con
 
   abstract def constraints : Array(AVD::Constraint)
 
-  struct Validator < Athena::Validator::ConstraintValidator
+  class Validator < Athena::Validator::ConstraintValidator
     # :inherit:
     def validate(value : _, constraint : AVD::Constraints::Compound) : Nil
       context = self.context

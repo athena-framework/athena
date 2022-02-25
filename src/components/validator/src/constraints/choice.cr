@@ -147,7 +147,7 @@ class Athena::Validator::Constraints::Choice < Athena::Validator::Constraint
     super message, groups, payload
   end
 
-  struct Validator < Athena::Validator::ConstraintValidator
+  class Validator < Athena::Validator::ConstraintValidator
     # :inherit:
     def validate(value : Enumerable?, constraint : AVD::Constraints::Choice) : Nil
       return if value.nil?

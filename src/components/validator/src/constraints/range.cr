@@ -108,7 +108,7 @@ class Athena::Validator::Constraints::Range < Athena::Validator::Constraint
     super "", groups, payload
   end
 
-  struct Validator < Athena::Validator::ConstraintValidator
+  class Validator < Athena::Validator::ConstraintValidator
     # :inherit:
     #
     # ameba:disable Metrics/CyclomaticComplexity
