@@ -117,10 +117,10 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
 
       violations = @context.violations
 
-      violations.size.should eq 1
+      violations.size.should eq(1), failure_message: "Expected 1 violation, got #{violations.size}."
 
       expected_violations.each_with_index do |violation, idx|
-        violation.should eq(violations[idx]), file: file, line: line
+        violations[idx].should eq(violation), file: file, line: line
       end
     end
 

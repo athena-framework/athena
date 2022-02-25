@@ -83,7 +83,7 @@ struct Athena::Validator::Violation::ConstraintViolation(Root)
   end
 
   # Returns `true` if *other* is the same as `self`, otherwise `false`.
-  def ==(other : self) : Bool
+  def ==(other : AVD::Violation::ConstraintViolationInterface) : Bool
     @message == other.message &&
       @message_template == other.message_template &&
       @parameters == other.parameters &&
