@@ -1,10 +1,11 @@
 require "./constraint_violation_interface"
 
 # Basic implementation of `AVD::Violation::ConstraintViolationInterface`.
-struct Athena::Validator::Violation::ConstraintViolation(Root)
+struct Athena::Validator::Violation::ConstraintViolation
   include Athena::Validator::Violation::ConstraintViolationInterface
 
   protected getter invalid_value_container : AVD::Container
+  protected getter root_container : AVD::Container
 
   # :inherit:
   getter cause : String?
@@ -30,14 +31,11 @@ struct Athena::Validator::Violation::ConstraintViolation(Root)
   # :inherit:
   getter property_path : String
 
-  # :inherit:
-  getter root : Root
-
   def initialize(
     @message : String,
     @message_template : String?,
     @parameters : Hash(String, String),
-    @root : Root,
+    root : _,
     @property_path : String,
     @invalid_value_container : AVD::Container,
     @plural : Int32? = nil,
@@ -45,11 +43,17 @@ struct Athena::Validator::Violation::ConstraintViolation(Root)
     @constraint : AVD::Constraint? = nil,
     @cause : String? = nil
   )
+    @root_container = root.is_a?(AVD::Container) ? root : AVD::ValueContainer.new(root)
   end
 
   # :inherit:
   def invalid_value
     @invalid_value_container.value
+  end
+
+  # :inherit:
+  def root
+    @root_container.value
   end
 
   # :inherit:
@@ -66,11 +70,11 @@ struct Athena::Validator::Violation::ConstraintViolation(Root)
 
   # :inherit:
   def to_s(io : IO) : Nil
-    klass = case @root
+    klass = case self.root
             when Hash             then "Hash"
-            when AVD::Validatable then "Object(#{@root.class})"
+            when AVD::Validatable then "Object(#{self.root.class})"
             else
-              @root.to_s
+              self.root.to_s
             end
 
     klass += '.' if !@property_path.blank? && !@property_path.starts_with?('[') && !klass.blank?
@@ -87,7 +91,7 @@ struct Athena::Validator::Violation::ConstraintViolation(Root)
     @message == other.message &&
       @message_template == other.message_template &&
       @parameters == other.parameters &&
-      @root == other.root &&
+      @root_container == other.root_container &&
       @property_path == other.property_path &&
       @invalid_value_container == other.invalid_value_container &&
       @plural == other.plural &&

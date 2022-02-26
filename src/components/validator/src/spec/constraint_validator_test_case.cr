@@ -129,7 +129,7 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
         @message,
         @message,
         @parameters,
-        @context.root,
+        @context.root_container,
         @property_path,
         @invalid_value,
         @plural,
@@ -147,7 +147,7 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
   @root : String
   @property_path : String
   @constraint : AVD::Constraint
-  @context : AVD::ExecutionContext(String)?
+  @context : AVD::ExecutionContext?
   @validator : AVD::ConstraintValidatorInterface?
 
   def initialize
@@ -221,7 +221,7 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
   end
 
   # Returns a reference to the context used for the current test.
-  def context : AVD::ExecutionContext(String)
+  def context : AVD::ExecutionContext
     @context.not_nil!
   end
 
