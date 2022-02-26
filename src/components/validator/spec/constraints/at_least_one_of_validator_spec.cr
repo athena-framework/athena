@@ -35,8 +35,8 @@ struct AtLeastOneOfValidatorTest < AVD::Spec::ConstraintValidatorTestCase
 
     message = [constraint.message]
 
-    constraints.each_with_index do |constraint, idx|
-      message << " [#{idx + 1}] #{self.expect_violation_at(idx, value, constraint).first.message}"
+    constraints.each_with_index do |c, idx|
+      message << " [#{idx + 1}] #{self.expect_violation_at(idx, value, c).first.message}"
     end
 
     self.validator.validate value, constraint
