@@ -75,7 +75,7 @@ class Athena::Validator::Constraints::Image < Athena::Validator::Constraints::Fi
     @allow_portrait : Bool = true,
     @size_not_detected_message : String = "The size of the image could not be detected.",
     @min_width_message : String = "The image width is too small ({{ width }}px). Minimum width expected is {{ min_width }}px.",
-    @max_width_message : String = "The image height is too big ({{ height }}px). Allowed maximum height is {{ max_height }}px.",
+    @max_width_message : String = "The image width is too big ({{ width }}px). Allowed maximum width is {{ max_width }}px.",
     @min_height_message : String = "The image height is too small ({{ height }}px). Minimum height expected is {{ min_height }}px.",
     @max_height_message : String = "The image height is too big ({{ height }}px). Allowed maximum height is {{ max_height }}px.",
     @min_pixels_message : String = "The image has too few pixels ({{ pixels }} pixels). Minimum amount expected is {{ min_pixels }} pixels.",
@@ -97,14 +97,6 @@ class Athena::Validator::Constraints::Image < Athena::Validator::Constraints::Fi
     payload : Hash(String, String)? = nil
   )
     super max_size, binary_format, mime_types, not_found_message, not_readable_message, empty_message, max_size_message, mime_type_message, groups, payload
-
-    mime_types.try do |types|
-      @mime_types = types.to_set
-    end
-
-    max_size.try do |bytes|
-      @max_size = self.normalize_binary_format bytes
-    end
   end
 
   class Validator < Athena::Validator::Constraints::File::Validator
