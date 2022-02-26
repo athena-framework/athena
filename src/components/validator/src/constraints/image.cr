@@ -109,7 +109,6 @@ class Athena::Validator::Constraints::Image < Athena::Validator::Constraints::Fi
 
   class Validator < Athena::Validator::Constraints::File::Validator
     # :inherit:
-    # ameba:disable Metrics/CyclomaticComplexity
     def validate(value : _, constraint : AVD::Constraints::Image) : Nil
       violations = self.context.violations.size
 
@@ -120,11 +119,11 @@ class Athena::Validator::Constraints::Image < Athena::Validator::Constraints::Fi
       return if failed || value.nil? || value == ""
 
       # Return early is no extra validation is being applied.
-      return unless {
-                      constraint.min_width, constraint.max_width, constraint.min_height, constraint.max_height,
-                      constraint.min_pixels, constraint.max_pixels, constraint.min_ratio, constraint.max_ratio,
-                      constraint.allow_square?, constraint.allow_landscape?, constraint.allow_portrait?,
-                    }.any?
+      return if {
+                  constraint.min_width, constraint.max_width, constraint.min_height, constraint.max_height,
+                  constraint.min_pixels, constraint.max_pixels, constraint.min_ratio, constraint.max_ratio,
+                  !constraint.allow_square?, !constraint.allow_landscape?, !constraint.allow_portrait?,
+                }.none?
 
       path = case value
              when Path   then value
@@ -173,7 +172,7 @@ class Athena::Validator::Constraints::Image < Athena::Validator::Constraints::Fi
       if (min_height = constraint.min_height) && (image_size.height < min_height)
         self
           .context
-          .build_violation(constraint.min_width_message, TOO_LOW_ERROR)
+          .build_violation(constraint.min_height_message, TOO_LOW_ERROR)
           .add_parameter("{{ height }}", image_size.height)
           .add_parameter("{{ min_height }}", constraint.min_height)
           .add
