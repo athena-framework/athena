@@ -31,7 +31,7 @@ class Athena::Validator::ExecutionContext
   # The object that is currently being validated.
   getter object_container : AVD::Container = AVD::ValueContainer.new(nil)
 
-  def initialize(@validator : AVD::Validator::ValidatorInterface, root : _)
+  protected def initialize(@validator : AVD::Validator::ValidatorInterface, root : _)
     @root_container = AVD::ValueContainer.new root
   end
 

@@ -7,7 +7,7 @@ class Athena::Validator::Violation::ConstraintViolationBuilder
   @plural : Int32?
   @cause : String?
 
-  def initialize(
+  protected def initialize(
     @violations : AVD::Violation::ConstraintViolationListInterface,
     @constraint : AVD::Constraint?,
     @message : String,
