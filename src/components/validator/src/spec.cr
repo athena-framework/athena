@@ -140,23 +140,29 @@ module Athena::Validator::Spec
   class MockValidator
     include Athena::Validator::Validator::ValidatorInterface
 
-    setter violations : AVD::Violation::ConstraintViolationListInterface
+    setter violations_callback : Proc(AVD::Violation::ConstraintViolationListInterface)
+    @violations : AVD::Violation::ConstraintViolationListInterface = AVD::Violation::ConstraintViolationList.new
 
-    def initialize(@violations : AVD::Violation::ConstraintViolationListInterface = AVD::Violation::ConstraintViolationList.new); end
+    def self.new(violations : AVD::Violation::ConstraintViolationListInterface = AVD::Violation::ConstraintViolationList.new)
+      new ->{ violations }
+    end
+
+    def initialize(&@violations_callback : -> AVD::Violation::ConstraintViolationListInterface)
+    end
 
     # :inherit:
     def validate(value : _, constraints : Array(AVD::Constraint) | AVD::Constraint | Nil = nil, groups : Array(String) | String | AVD::Constraints::GroupSequence | Nil = nil) : AVD::Violation::ConstraintViolationListInterface
-      @violations
+      @violations = @violations_callback.call
     end
 
     # :inherit:
     def validate_property(object : AVD::Validatable, property_name : String, groups : Array(String) | String | AVD::Constraints::GroupSequence | Nil = nil) : AVD::Violation::ConstraintViolationListInterface
-      @violations
+      @violations = @violations_callback.call
     end
 
     # :inherit:
     def validate_property_value(object : AVD::Validatable, property_name : String, value : _, groups : Array(String) | String | AVD::Constraints::GroupSequence | Nil = nil) : AVD::Violation::ConstraintViolationListInterface
-      @violations
+      @violations = @violations_callback.call
     end
 
     # :inherit:
