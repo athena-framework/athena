@@ -6,7 +6,7 @@ struct ImageValidatorTestCase < AVD::Spec::ConstraintValidatorTestCase
   def initialize
     super
 
-    @image = "#{__DIR__}/fixtures/test.gif"
+    @image = "#{__DIR__}/fixtures/2x2.gif"
     @image_landscape = "#{__DIR__}/fixtures/landscape.gif"
     @image_portrait = "#{__DIR__}/fixtures/portrait.gif"
     @image_4x3 = "#{__DIR__}/fixtures/4x3.gif"
