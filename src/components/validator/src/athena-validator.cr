@@ -422,7 +422,7 @@ module Athena::Validator
       T
     end
 
-    def ==(other : self) : Bool
+    def ==(other : AVD::Container) : Bool
       @value == other.value
     end
   end
