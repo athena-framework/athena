@@ -218,6 +218,12 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
     self.build_violation(message).code(code).add_parameter("{{ value }}", value)
   end
 
+  # Can be used to have a nested validator return the correct violations when used within another validator.
+  #
+  # Creates a separate validation context, validating the provided *value* against the provided *constraint*,
+  # causing the resulting violations to be returned from the inner validator as they would be in a non-test context.
+  #
+  # See `AVD::Constraints::ISIN::Validator`, and its related specs, for an example.
   def expect_violation_at(idx : Int, value : _, constraint : AVD::Constraint) : AVD::Violation::ConstraintViolationListInterface
     ctx = self.create_context
 

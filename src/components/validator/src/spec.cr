@@ -98,8 +98,7 @@ module Athena::Validator::Spec
 
   # A spec implementation of `AVD::Validator::ContextualValidatorInterface`.
   #
-  # Allows settings the violations that should be returned.
-  # Defaults to no violations.
+  # Allows settings the violations that should be returned, defaulting to no violations.
   class MockContextualValidator
     include Athena::Validator::Validator::ContextualValidatorInterface
 
@@ -135,19 +134,19 @@ module Athena::Validator::Spec
 
   # A spec implementation of `AVD::Validator::ValidatorInterface`.
   #
-  # Allows settings the violations that should be returned.
-  # Defaults to no violations.
+  # Allows settings the violations that should be returned, defaulting to no violations.
+  # Also allows providing a block that is called for each validated value.
+  # E.g. to allow dynamically configuring the returned violations after it is instantiated.
   class MockValidator
     include Athena::Validator::Validator::ValidatorInterface
 
     setter violations_callback : Proc(AVD::Violation::ConstraintViolationListInterface)
 
-    def self.new(violations : AVD::Violation::ConstraintViolationListInterface = AVD::Violation::ConstraintViolationList.new)
+    def self.new(violations : AVD::Violation::ConstraintViolationListInterface = AVD::Violation::ConstraintViolationList.new) : self
       new ->{ violations }
     end
 
-    def initialize(&@violations_callback : -> AVD::Violation::ConstraintViolationListInterface)
-    end
+    def initialize(&@violations_callback : -> AVD::Violation::ConstraintViolationListInterface); end
 
     # :inherit:
     def validate(value : _, constraints : Array(AVD::Constraint) | AVD::Constraint | Nil = nil, groups : Array(String) | String | AVD::Constraints::GroupSequence | Nil = nil) : AVD::Violation::ConstraintViolationListInterface
