@@ -439,6 +439,3 @@ module Athena::Validator
     AVD::Validator::RecursiveValidator.new
   end
 end
-
-violations = AVD.validator.validate "", AVD::Constraints::NotBlank.new
-pp violations
