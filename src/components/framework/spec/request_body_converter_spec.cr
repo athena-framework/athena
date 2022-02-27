@@ -50,7 +50,7 @@ struct RequestBodyConverterTest < ASPEC::TestCase
 
     validator = AVD::Spec::MockValidator.new(
       AVD::Violation::ConstraintViolationList.new([
-        AVD::Violation::ConstraintViolation(String).new("error", "error", Hash(String, String).new, "", ".name", AVD::ValueContainer.new("")),
+        AVD::Violation::ConstraintViolation.new("error", "error", Hash(String, String).new, "", ".name", AVD::ValueContainer.new("")),
       ])
     )
 

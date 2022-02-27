@@ -69,24 +69,25 @@ alias Assert = AVD::Annotations
 #
 # violations.inspect # =>
 # # Athena::Validator::Violation::ConstraintViolationList(
-# #   @violations=
-# #     [Athena::Validator::Violation::ConstraintViolation(String)(
-# #     @cause=nil,
-# #     @code="0d0c3254-3642-4cb0-9882-46ee5918e6e3",
-# #     @constraint=
-# #       #<Athena::Validator::Constraints::NotBlank:0x7f97da08ced0
-# #       @allow_nil=false,
-# #       @groups=["default"],
+# #   @violations=[
+# #     Athena::Validator::Violation::ConstraintViolation(
+# #       @cause=nil,
+# #       @code="0d0c3254-3642-4cb0-9882-46ee5918e6e3",
+# #       @constraint=#<Athena::Validator::Constraints::NotBlank:0x7f8a7291fed0
+# #         @allow_nil=false,
+# #         @groups=["default"],
+# #         @message="This value should not be blank.",
+# #         @payload=nil>,
+# #       @invalid_value_container=Athena::Validator::ValueContainer(String)(@value=""),
 # #       @message="This value should not be blank.",
-# #       @payload=nil>,
-# #     @invalid_value_container=
-# #       Athena::Validator::ValueContainer(String)(@value=""),
-# #     @message="This value should not be blank.",
-# #     @message_template="This value should not be blank.",
-# #     @parameters={"{{ value }}" => ""},
-# #     @plural=nil,
-# #     @property_path="",
-# #     @root="")])
+# #       @message_template="This value should not be blank.",
+# #       @parameters={"{{ value }}" => ""},
+# #       @plural=nil,
+# #       @property_path="",
+# #       @root_container=Athena::Validator::ValueContainer(String)(@value="")
+# #     )
+# #   ]
+# )
 #
 # # Both the ConstraintViolationList and ConstraintViolation implement a `#to_s` method.
 # puts violations # =>
@@ -422,7 +423,7 @@ module Athena::Validator
       T
     end
 
-    def ==(other : self) : Bool
+    def ==(other : AVD::Container) : Bool
       @value == other.value
     end
   end

@@ -1,18 +1,18 @@
 require "./constraint_violation_builder_interface"
 
 # Basic implementation of `AVD::Violation::ConstraintViolationBuilderInterface`.
-class Athena::Validator::Violation::ConstraintViolationBuilder(Root)
+class Athena::Validator::Violation::ConstraintViolationBuilder
   include Athena::Validator::Violation::ConstraintViolationBuilderInterface
 
   @plural : Int32?
   @cause : String?
 
-  def initialize(
+  protected def initialize(
     @violations : AVD::Violation::ConstraintViolationListInterface,
     @constraint : AVD::Constraint?,
     @message : String,
     @parameters : Hash(String, String),
-    @root : Root,
+    @root_container : AVD::Container,
     @property_path : String,
     @invalid_value : AVD::Container
   )
@@ -31,11 +31,11 @@ class Athena::Validator::Violation::ConstraintViolationBuilder(Root)
 
     rendered_message = translated_message.gsub(/(?:{{ \w+ }})+/, @parameters)
 
-    @violations.add AVD::Violation::ConstraintViolation(Root).new(
+    @violations.add AVD::Violation::ConstraintViolation.new(
       rendered_message,
       @message,
       @parameters,
-      @root,
+      @root_container,
       @property_path,
       @invalid_value,
       @plural,

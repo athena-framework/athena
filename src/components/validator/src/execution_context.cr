@@ -2,7 +2,7 @@ require "./validator/validator_interface"
 require "./execution_context_interface"
 
 # Basic implementation of `AVD::ExecutionContextInterface`.
-class Athena::Validator::ExecutionContext(Root)
+class Athena::Validator::ExecutionContext
   include Athena::Validator::ExecutionContextInterface
 
   # :inherit:
@@ -26,13 +26,14 @@ class Athena::Validator::ExecutionContext(Root)
   # The value that is currently being validated.
   @value_container : AVD::Container = AVD::ValueContainer.new(nil)
 
-  # :inherit:
-  getter root : Root
+  protected getter root_container : AVD::Container
 
   # The object that is currently being validated.
   getter object_container : AVD::Container = AVD::ValueContainer.new(nil)
 
-  def initialize(@validator : AVD::Validator::ValidatorInterface, @root : Root); end
+  protected def initialize(@validator : AVD::Validator::ValidatorInterface, root : _)
+    @root_container = AVD::ValueContainer.new root
+  end
 
   # :nodoc:
   def constraint=(@constraint : AVD::Constraint?); end
@@ -48,6 +49,11 @@ class Athena::Validator::ExecutionContext(Root)
   # :inherit:
   def object
     @object_container.value
+  end
+
+  # :inherit:
+  def root
+    @root_container.value
   end
 
   # :inherit:
@@ -105,7 +111,7 @@ class Athena::Validator::ExecutionContext(Root)
       @constraint,
       message,
       parameters,
-      @root,
+      @root_container,
       @property_path,
       @value_container,
     )

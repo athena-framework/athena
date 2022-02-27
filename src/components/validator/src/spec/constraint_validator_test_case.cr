@@ -129,7 +129,7 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
         @message,
         @message,
         @parameters,
-        @context.root,
+        @context.root_container,
         @property_path,
         @invalid_value,
         @plural,
@@ -147,10 +147,10 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
   @root : String
   @property_path : String
   @constraint : AVD::Constraint
-  @context : AVD::ExecutionContext(String)?
+  @context : AVD::ExecutionContext?
   @validator : AVD::ConstraintValidatorInterface?
 
-  def initialize
+  protected def initialize
     @group = "my_group"
     @value = "invalid_value"
     @root = "root"
@@ -158,11 +158,11 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
 
     @constraint = AVD::Constraints::NotBlank.new
 
-    context = self.create_context
+    ctx = self.create_context
     validator = self.create_validator
-    validator.context = context
+    validator.context = ctx
 
-    @context = context
+    @context = ctx
     @validator = validator
   end
 
@@ -221,7 +221,7 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
   end
 
   # Returns a reference to the context used for the current test.
-  def context : AVD::ExecutionContext(String)
+  def context : AVD::ExecutionContext
     @context.not_nil!
   end
 
@@ -233,11 +233,11 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
   private def create_context : AVD::ExecutionContext
     validator = MockValidator.new
 
-    context = AVD::ExecutionContext.new validator, @root
-    context.group = @group
-    context.set_node @value, @object, @metadata, @property_path
-    context.constraint = @constraint
+    ctx = AVD::ExecutionContext.new validator, @root
+    ctx.group = @group
+    ctx.set_node @value, @object, @metadata, @property_path
+    ctx.constraint = @constraint
 
-    context
+    ctx
   end
 end
