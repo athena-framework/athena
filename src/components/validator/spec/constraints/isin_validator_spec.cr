@@ -13,8 +13,9 @@ struct ISINValidatorTest < AVD::Spec::ConstraintValidatorTestCase
   end
 
   @[DataProvider("valid_isins")]
-  def test_valid_isbn10s(value : String) : Nil
+  def test_valid_isins(value : String) : Nil
     self.validator.validate value, self.new_constraint
+    self.expect_violation_at 0, value, AVD::Constraints::Luhn.new
     self.assert_no_violation
   end
 
@@ -70,6 +71,7 @@ struct ISINValidatorTest < AVD::Spec::ConstraintValidatorTestCase
 
   @[DataProvider("invalid_checksum_isins")]
   def test_invalid_checksum_isins(value : String) : Nil
+    self.expect_violation_at 0, value, AVD::Constraints::Luhn.new
     self.assert_violation value, CONSTRAINT::INVALID_CHECKSUM_ERROR
   end
 

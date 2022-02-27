@@ -149,6 +149,8 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
   @constraint : AVD::Constraint
   @context : AVD::ExecutionContext?
   @validator : AVD::ConstraintValidatorInterface?
+  @expected_violations : Array(AVD::Violation::ConstraintViolationListInterface)
+  @call : Int32
 
   protected def initialize
     @group = "my_group"
@@ -157,6 +159,8 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
     @property_path = "property.path"
 
     @constraint = AVD::Constraints::NotBlank.new
+    @expected_violations = Array(AVD::Violation::ConstraintViolationListInterface).new
+    @call = 0
 
     ctx = self.create_context
     validator = self.create_validator
@@ -214,6 +218,24 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
     self.build_violation(message).code(code).add_parameter("{{ value }}", value)
   end
 
+  # Can be used to have a nested validator return the correct violations when used within another validator.
+  #
+  # Creates a separate validation context, validating the provided *value* against the provided *constraint*,
+  # causing the resulting violations to be returned from the inner validator as they would be in a non-test context.
+  #
+  # See `AVD::Constraints::ISIN::Validator`, and its related specs, for an example.
+  def expect_violation_at(idx : Int, value : _, constraint : AVD::Constraint) : AVD::Violation::ConstraintViolationListInterface
+    ctx = self.create_context
+
+    validator = constraint.validated_by.new
+    validator.context = ctx
+    validator.validate value, constraint
+
+    @expected_violations << ctx.violations
+
+    ctx.violations
+  end
+
   # Overrides the value/node currently being validated.
   def value=(value) : Nil
     @value = value
@@ -231,7 +253,9 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
   end
 
   private def create_context : AVD::ExecutionContext
-    validator = MockValidator.new
+    validator = MockValidator.new do
+      (@expected_violations[@call]? || AVD::Violation::ConstraintViolationList.new).tap { @call += 1 }
+    end
 
     ctx = AVD::ExecutionContext.new validator, @root
     ctx.group = @group

@@ -56,8 +56,6 @@ class Athena::Validator::Constraints::ISIN < Athena::Validator::Constraint
   end
 
   struct Validator < Athena::Validator::ConstraintValidator
-    @validator : AVD::Validator::ValidatorInterface = AVD.validator
-
     # :inherit:
     def validate(value : _, constraint : AVD::Constraints::ISIN) : Nil
       value = value.to_s
@@ -81,7 +79,7 @@ class Athena::Validator::Constraints::ISIN < Athena::Validator::Constraint
 
     private def is_correct_checksum(isin : String) : Bool
       number = isin.chars.join &.to_i 36
-      @validator.validate(number, AVD::Constraints::Luhn.new).empty?
+      self.context.validator.validate(number, AVD::Constraints::Luhn.new).empty?
     end
   end
 end

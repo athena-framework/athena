@@ -13,7 +13,11 @@ struct AtLeastOneOfValidatorTest < AVD::Spec::ConstraintValidatorTestCase
 
   @[DataProvider("valid_combinations")]
   def test_valid_combinations(value : _, constraints : Array(AVD::Constraint)) : Nil
-    self.validator.validate value, self.new_constraint(constraints: constraints)
+    constraints.each_with_index do |constraint, idx|
+      self.expect_violation_at idx, value, constraint
+    end
+
+    self.validator.validate value, self.new_constraint constraints: constraints
     self.assert_no_violation
   end
 
@@ -26,11 +30,33 @@ struct AtLeastOneOfValidatorTest < AVD::Spec::ConstraintValidatorTestCase
   end
 
   @[DataProvider("invalid_combinations")]
-  def ptest_invalid_combinations(value : _, constraints : Array(AVD::Constraint)) : Nil
-    constraint = self.new_constraint(constraints: constraints)
+  def test_invalid_combinations_default_message(value : _, constraints : Array(AVD::Constraint)) : Nil
+    constraint = self.new_constraint constraints: constraints
+
+    message = [constraint.message]
+
+    constraints.each_with_index do |c, idx|
+      message << " [#{idx + 1}] #{self.expect_violation_at(idx, value, c).first.message}"
+    end
+
     self.validator.validate value, constraint
 
-    # TODO: Determine how to test this given it depends on an actual validator instance
+    self
+      .build_violation(message.join, CONSTRAINT::AT_LEAST_ONE_OF_ERROR)
+      .assert_violation
+  end
+
+  @[DataProvider("invalid_combinations")]
+  def test_invalid_combinations_custom_message(value : _, constraints : Array(AVD::Constraint)) : Nil
+    constraints.each_with_index do |constraint, idx|
+      self.expect_violation_at idx, value, constraint
+    end
+
+    self.validator.validate value, self.new_constraint constraints: constraints, message: "my_message", include_internal_messages: false
+
+    self
+      .build_violation("my_message", CONSTRAINT::AT_LEAST_ONE_OF_ERROR)
+      .assert_violation
   end
 
   def create_validator : AVD::ConstraintValidatorInterface
