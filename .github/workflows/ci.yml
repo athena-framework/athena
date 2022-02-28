@@ -23,7 +23,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install Dependencies
-        run: SHARDS_OVERRIDE=shard.dev.yml shards install
+        run: shards install
+        env:
+          SHARDS_OVERRIDE: shard.dev.yml
       - name: Ameba
         run: ./bin/ameba
   test:
@@ -50,8 +52,8 @@ jobs:
         with:
           crystal: ${{ matrix.crystal }}
       - name: Install Dependencies
-        run: SHARDS_OVERRIDE=shard.dev.yml shards install
+        run: shards install
+        env:
+          SHARDS_OVERRIDE: shard.dev.yml
       - name: Specs
         run: ./scripts/test.sh
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
