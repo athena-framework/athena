@@ -6,9 +6,11 @@ struct ParamFetcherTest < ASPEC::TestCase
   @valiator : AVD::Spec::MockValidator
 
   def initialize
+    @expected_violations = AVD::Violation::ConstraintViolationList.new
+
     @request_store = ATH::RequestStore.new
     @request_store.request = new_request
-    @valiator = AVD::Spec::MockValidator.new
+    @valiator = AVD::Spec::MockValidator.new @expected_violations
 
     @param_fetcher = ATH::Params::ParamFetcher.new @request_store, @valiator
   end
@@ -50,16 +52,14 @@ struct ParamFetcherTest < ASPEC::TestCase
     self.set_params [new_param("foo", default: "default", requirements: AVD::Constraints::NotBlank.new)] of ATH::Params::ParamInterface
 
     @request_store.request.query = "foo=value"
-    @valiator.violations = AVD::Violation::ConstraintViolationList.new [
-      AVD::Violation::ConstraintViolation.new(
-        "ERROR",
-        "ERROR",
-        Hash(String, String).new,
-        "",
-        "",
-        AVD::ValueContainer.new(""),
-      ),
-    ]
+    @expected_violations.add AVD::Violation::ConstraintViolation.new(
+      "ERROR",
+      "ERROR",
+      Hash(String, String).new,
+      "",
+      "",
+      AVD::ValueContainer.new(""),
+    )
 
     @param_fetcher.get("foo", false).should eq "default"
   end
@@ -69,22 +69,20 @@ struct ParamFetcherTest < ASPEC::TestCase
     self.set_params [param] of ATH::Params::ParamInterface
 
     @request_store.request.query = "foo=value"
-    violations = @valiator.violations = AVD::Violation::ConstraintViolationList.new [
-      AVD::Violation::ConstraintViolation.new(
-        "ERROR",
-        "ERROR",
-        Hash(String, String).new,
-        "",
-        "",
-        AVD::ValueContainer.new(""),
-      ),
-    ]
+    @expected_violations.add AVD::Violation::ConstraintViolation.new(
+      "ERROR",
+      "ERROR",
+      Hash(String, String).new,
+      "",
+      "",
+      AVD::ValueContainer.new(""),
+    )
 
     ex = expect_raises ATH::Exceptions::InvalidParameter do
       @param_fetcher.get("foo").should eq "default"
     end
 
-    ex.violations.should eq violations
+    ex.violations.should eq @expected_violations
     ex.parameter.should eq param
   end
 

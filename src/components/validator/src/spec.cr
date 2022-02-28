@@ -143,7 +143,7 @@ module Athena::Validator::Spec
     setter violations_callback : Proc(AVD::Violation::ConstraintViolationListInterface)
 
     def self.new(violations : AVD::Violation::ConstraintViolationListInterface = AVD::Violation::ConstraintViolationList.new) : self
-      new ->{ violations }
+      new &->{ violations.as AVD::Violation::ConstraintViolationListInterface }
     end
 
     def initialize(&@violations_callback : -> AVD::Violation::ConstraintViolationListInterface); end
