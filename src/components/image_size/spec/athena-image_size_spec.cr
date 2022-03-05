@@ -11,7 +11,7 @@ struct ImageTest < ASPEC::TestCase
       # width, height, bits, channels, format
       /(\d+)x(\d+)_(\d+)_(\d+)\.(\w+)$/.match(filename)
 
-      _, expected_width, expected_height, expected_bits, expected_channels, expected_format = $~
+      expected_width, expected_height, expected_bits, expected_channels, expected_format = $~[1..5]
 
       expected_bits = "0" == expected_bits ? nil : expected_bits.to_i
       expected_channels = "0" == expected_channels ? nil : expected_channels.to_i
@@ -93,7 +93,7 @@ struct ImageTest < ASPEC::TestCase
     # width, height, bits, channels, format
     /(\d+)x(\d+)_(\d+)_(\d+)\.(\w+)$/.match(filename)
 
-    _, expected_width, expected_height, expected_bits, expected_channels, expected_format = $~
+    expected_width, expected_height, expected_bits, expected_channels, expected_format = $~[1..5]
 
     expected_bits = "0" == expected_bits ? nil : expected_bits.to_i
     expected_channels = "0" == expected_channels ? nil : expected_channels.to_i
