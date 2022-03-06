@@ -16,6 +16,9 @@ description: |
 authors:
   - George Dietrich <george@dietrich.app>
 
+libraries:
+  libpcre2: '*'
+
 dependencies:
   athena-event_dispatcher:
     github: athena-framework/event-dispatcher
