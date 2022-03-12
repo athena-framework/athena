@@ -15,7 +15,7 @@ describe Athena::Framework do
       end
 
       it "Int with whitespace" do
-        expect_raises ArgumentError, "Invalid Int32:    123" do
+        expect_raises ArgumentError, "Invalid Int32" do
           Int32.from_parameter("   123")
         end
       end
@@ -25,7 +25,7 @@ describe Athena::Framework do
       end
 
       it "Float with whitespace" do
-        expect_raises ArgumentError, "Invalid Float64:    123.5" do
+        expect_raises ArgumentError, "Invalid Float64" do
           Float64.from_parameter("   123.5")
         end
       end
@@ -41,7 +41,7 @@ describe Athena::Framework do
       end
 
       it "invalid" do
-        expect_raises ArgumentError, "Invalid Bool: foo" do
+        expect_raises ArgumentError, "Invalid Bool" do
           Bool.from_parameter("foo")
         end
       end
@@ -69,7 +69,7 @@ describe Athena::Framework do
       end
 
       it "invalid" do
-        expect_raises ArgumentError, "Invalid Nil: foo" do
+        expect_raises ArgumentError, "Invalid Nil" do
           Nil.from_parameter("foo")
         end
       end
