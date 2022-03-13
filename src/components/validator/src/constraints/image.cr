@@ -1,5 +1,261 @@
 require "athena-image_size"
 
+# An extension of `AVD::Constraints::File` whose `AVD::Constraints::File#mime_types` and `AVD::Constraints::File#mime_type_message` are setup to specifically handle image files.
+# This constraint also provides the ability to validate against various image specific parameters.
+#
+# See `AVD::Constraints::File` for common documentation.
+#
+# ## Configuration
+#
+# ### Optional Arguments
+#
+# #### mime_types
+#
+# **Type:** `Enumerable(String)?` **Default:** `{"image/*"}`
+#
+# Requires the file to have a valid image MIME type.
+# See [IANA website](https://www.iana.org/assignments/media-types/media-types.xhtml) for the full listing.
+#
+# #### mime_type_message
+#
+# **Type:** `String` **Default:** `This file is not a valid image.`
+#
+# The message that will be shown if the file is not an image.
+#
+# #### min_height
+#
+# **Type:** `Int32` **Default:** `nil`
+#
+# If set, the image's height in pixels must be greater than or equal to this value.
+#
+# #### min_height_message
+#
+# **Type:** `String` **Default:** `The image height is too small ({{ height }}px). Minimum height expected is {{ min_height }}px.`
+#
+# The message that will be shown if the height of the image is less than `#min_height`.
+#
+# ##### Placeholders
+#
+# The following placeholders can be used in this message:
+#
+# * `{{ height }}` - The current (invalid) height.
+# * `{{ min_height }}` - The minimum required height.
+#
+# #### max_height
+#
+# **Type:** `Int32` **Default:** `nil`
+#
+# If set, the image's height in pixels must be less than or equal to this value.
+#
+# #### max_height_message
+#
+# **Type:** `String` **Default:** `The image height is too big ({{ height }}px). Allowed maximum height is {{ max_height }}px.`
+#
+# The message that will be shown if the height of the image exceeds `#max_height`.
+#
+# ##### Placeholders
+#
+# The following placeholders can be used in this message:
+#
+# * `{{ height }}` - The current (invalid) height.
+# * `{{ max_height }}` - The maximum allowed height.
+#
+# #### min_width
+#
+# **Type:** `Int32` **Default:** `nil`
+#
+# If set, the image's width in pixels must be greater than or equal to this value.
+#
+# #### min_width_message
+#
+# **Type:** `String` **Default:** `The image width is too small ({{ width }}px). Minimum width expected is {{ min_width }}px.`
+#
+# The message that will be shown if the width of the image is less than `#min_width`.
+#
+# ##### Placeholders
+#
+# The following placeholders can be used in this message:
+#
+# * `{{ width }}` - The current (invalid) width.
+# * `{{ min_width }}` - The minimum required width.
+#
+# #### max_width
+#
+# **Type:** `Int32` **Default:** `nil`
+#
+# If set, the image's width in pixels must be less than or equal to this value.
+#
+# #### max_width_message
+#
+# **Type:** `String` **Default:** `The image width is too big ({{ width }}px). Allowed maximum width is {{ max_width }}px.`
+#
+# The message that will be shown if the width of the image exceeds `#max_width`.
+#
+# ##### Placeholders
+#
+# The following placeholders can be used in this message:
+#
+# * `{{ width }}` - The current (invalid) width.
+# * `{{ max_width }}` - The maximum allowed width.
+#
+# #### size_not_detected_message
+#
+# **Type:** `String` **Default:** `The size of the image could not be detected.`
+#
+# The message that will be shown if the size of the image is unable to be determined.
+# Will only occur if at least one of the size related options has been set.
+#
+# #### min_ratio
+#
+# **Type:** `Float64` **Default:** `nil`
+#
+# If set, the image's aspect ratio (`width / height`) must be greater than or equal to this value.
+#
+# #### min_ratio_message
+#
+# **Type:** `String` **Default:** `The image ratio is too small ({{ ratio }}). Minimum ratio expected is {{ min_ratio }}.`
+#
+# The message that will be shown if the aspect ratio of the image is less than `#min_ratio`.
+#
+# ##### Placeholders
+#
+# The following placeholders can be used in this message:
+#
+# * `{{ ratio }}` - The current (invalid) ratio.
+# * `{{ min_ratio }}` - The minimum required ratio.
+#
+# #### max_ratio
+#
+# **Type:** `Float64` **Default:** `nil`
+#
+# If set, the image's aspect ratio (`width / height`) must be less than or equal to this value.
+#
+# #### max_ratio_message
+#
+# **Type:** `String` **Default:** `The image ratio is too big ({{ ratio }}). Allowed maximum ratio is {{ max_ratio }}.`
+#
+# The message that will be shown if the aspect ratio of the image exceeds `#max_ratio`.
+#
+# ##### Placeholders
+#
+# The following placeholders can be used in this message:
+#
+# * `{{ ratio }}` - The current (invalid) ratio.
+# * `{{ max_ratio }}` - The maximum allowed ratio.
+#
+# #### min_pixels
+#
+# **Type:** `Float64` **Default:** `nil`
+#
+# If set, the amount of pixels of the image file must be greater than or equal to this value.
+#
+# #### min_pixels_message
+#
+# **Type:** `String` **Default:** `The image has too few pixels ({{ pixels }} pixels). Minimum amount expected is {{ min_pixels }} pixels.`
+#
+# The message that will be shown if the amount of pixels of the image is less than `#min_pixels`.
+#
+# ##### Placeholders
+#
+# The following placeholders can be used in this message:
+#
+# * `{{ height }}` - The image's height.
+# * `{{ width }}` - The image's width.
+# * `{{ pixels }}` - The image's pixels.
+# * `{{ min_pixels }}` - The minimum required pixels.
+#
+# #### max_pixels
+#
+# **Type:** `Float64` **Default:** `nil`
+#
+# If set, the amount of pixels of the image file must be less than or equal to this value.
+#
+# #### max_pixels_message
+#
+# **Type:** `String` **Default:** `The image has too many pixels ({{ pixels }} pixels). Maximum amount expected is {{ max_pixels }} pixels.`
+#
+# The message that will be shown if the amount of pixels of the image is greater than `#max_pixels`.
+#
+# ##### Placeholders
+#
+# The following placeholders can be used in this message:
+#
+# * `{{ height }}` - The image's height.
+# * `{{ width }}` - The image's width.
+# * `{{ pixels }}` - The image's pixels.
+# * `{{ max_pixels }}` - The maximum allowed pixels.
+#
+# #### allow_landscape
+#
+# **Type:** `Bool` **Default:** `true`
+#
+# If `false`, the image cannot be landscape oriented.
+#
+# #### allow_landscape_message
+#
+# **Type:** `String` **Default:** `The image is landscape oriented ({{ width }}x{{ height }}px). Landscape oriented images are not allowed.`
+#
+# The message that will be shown if the `#allow_landscape` is `false` and the image is landscape oriented.
+#
+# ##### Placeholders
+#
+# The following placeholders can be used in this message:
+#
+# * `{{ height }}` - The image's height.
+# * `{{ width }}` - The image's width.
+#
+# #### allow_portrait
+#
+# **Type:** `Bool` **Default:** `true`
+#
+# If `false`, the image cannot be portrait oriented.
+#
+# #### allow_portrait_message
+#
+# **Type:** `String` **Default:** `The image is portrait oriented ({{ width }}x{{ height }}px). Portrait oriented images are not allowed.`
+#
+# The message that will be shown if the `#allow_portrait` is `false` and the image is portrait oriented.
+#
+# ##### Placeholders
+#
+# The following placeholders can be used in this message:
+#
+# * `{{ height }}` - The image's height.
+# * `{{ width }}` - The image's width.
+#
+# #### allow_square
+#
+# **Type:** `Bool` **Default:** `true`
+#
+# If `false`, the image cannot be a square.
+# If you want to force the image to be a square, keep this as is and set `#allow_landscape` and `#allow_portrait` to `false`.
+#
+# #### allow_square_message
+#
+# **Type:** `String` **Default:** `The image is square ({{ width }}x{{ height }}px). Square images are not allowed.`
+#
+# The message that will be shown if the `#allow_square` is `false` and the image is square.
+#
+# ##### Placeholders
+#
+# The following placeholders can be used in this message:
+#
+# * `{{ height }}` - The image's height.
+# * `{{ width }}` - The image's width.
+#
+# #### groups
+#
+# **Type:** `Array(String) | String | Nil` **Default:** `nil`
+#
+# The [validation groups][Athena::Validator::Constraint--validation-groups] this constraint belongs to.
+# `AVD::Constraint::DEFAULT_GROUP` is assumed if `nil`.
+#
+# #### payload
+#
+# **Type:** `Hash(String, String)?` **Default:** `nil`
+#
+# Any arbitrary domain-specific data that should be stored with this constraint.
+# The [payload][Athena::Validator::Constraint--payload] is not used by `Athena::Validator`, but its processing is completely up to you.
 class Athena::Validator::Constraints::Image < Athena::Validator::Constraints::File
   SIZE_NOT_DETECTED_ERROR     = "6d55c3f4-e58e-4fe3-91ee-74b492199956"
   TOO_WIDE_ERROR              = "7f87163d-878f-47f5-99ba-a8eb723a1ab2"

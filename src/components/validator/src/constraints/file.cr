@@ -51,7 +51,7 @@ require "mime"
 #
 # The following placeholders can be used in this message:
 #
-# * `{{ file }}` - Absoluate path to the invalid file.
+# * `{{ file }}` - Absolute path to the invalid file.
 # * `{{ limit }}` - Maximum file size allowed.
 # * `{{ name }}` - Basename of the invalid file.
 # * `{{ size }}` - The size of the invalid file.
@@ -67,7 +67,7 @@ require "mime"
 #
 # The following placeholders can be used in this message:
 #
-# * `{{ file }}` - Absoluate path to the invalid file.
+# * `{{ file }}` - Absolute path to the invalid file.
 #
 # #### empty_message
 #
@@ -79,7 +79,7 @@ require "mime"
 #
 # The following placeholders can be used in this message:
 #
-# * `{{ file }}` - Absoluate path to the invalid file.
+# * `{{ file }}` - Absolute path to the invalid file.
 # * `{{ name }}` - Basename of the invalid file.
 #
 # #### not_readable_message
@@ -92,7 +92,7 @@ require "mime"
 #
 # The following placeholders can be used in this message:
 #
-# * `{{ file }}` - Absoluate path to the invalid file.
+# * `{{ file }}` - Absolute path to the invalid file.
 # * `{{ name }}` - Basename of the invalid file.
 #
 # #### mime_type_message
@@ -105,7 +105,7 @@ require "mime"
 #
 # The following placeholders can be used in this message:
 #
-# * `{{ file }}` - Absoluate path to the invalid file.
+# * `{{ file }}` - Absolute path to the invalid file.
 # * `{{ name }}` - Basename of the invalid file.
 # * `{{ type }}` - The MIME type of the invalid file.
 # * `{{ types }}` - The list of allowed MIME types.
