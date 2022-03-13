@@ -4,11 +4,11 @@
 # NOTE: The callback method itself does _fail_ or return any value.
 # Instead it should directly add violations to the `AVD::ExecutionContextInterface` argument.
 #
-# ## Configuration
+# # Configuration
 #
-# ### Required Arguments
+# ## Required Arguments
 #
-# #### callback
+# ### callback
 #
 # **Type:** `AVD::Constraints::Callback::CallbackProc?` **Default:** `nil`
 #
@@ -16,7 +16,7 @@
 #
 # NOTE: If this argument is not supplied, the [callback_name](#callback_name) argument must be.
 #
-# #### callback_name
+# ### callback_name
 #
 # **Type:** `String?` **Default:** `nil`
 #
@@ -24,29 +24,29 @@
 #
 # NOTE: If this argument is not supplied, the [callback](#callback) argument must be.
 #
-# ### Optional Arguments
+# ## Optional Arguments
 #
 # NOTE: This constraint does not support a `message` argument.
 #
-# #### groups
+# ### groups
 #
 # **Type:** `Array(String) | String | Nil` **Default:** `nil`
 #
 # The [validation groups][Athena::Validator::Constraint--validation-groups] this constraint belongs to.
 # `AVD::Constraint::DEFAULT_GROUP` is assumed if `nil`.
 #
-# #### payload
+# ### payload
 #
 # **Type:** `Hash(String, String)?` **Default:** `nil`
 #
 # Any arbitrary domain-specific data that should be stored with this constraint.
 # The [payload][Athena::Validator::Constraint--payload] is not used by `Athena::Validator`, but its processing is completely up to you.
 #
-# ## Usage
+# # Usage
 #
 # The callback constraint supports two callback methods when validating objects, and one callback method when using the constraint directly.
 #
-# ### Instance Methods
+# ## Instance Methods
 #
 # To define an instance callback method, apply the `@[Assert::Callback]` method to a public instance method defined within an object.
 # This method should accept two arguments: the `AVD::ExecutionContextInterface` to which violations should be added,
@@ -75,7 +75,7 @@
 # end
 # ```
 #
-# ### Class Methods
+# ## Class Methods
 #
 # The callback method can also be defined as a class method.
 # Since class methods do not have access to the related object instance, it is passed in as an argument.
@@ -109,7 +109,7 @@
 # end
 # ```
 #
-# ### Procs/Blocks
+# ## Procs/Blocks
 #
 # When working with constraints in a non object context, a callback passed in as a proc/block.
 # `AVD::Constraints::Callback::CallbackProc` alias can be used to more easily create a callback proc.

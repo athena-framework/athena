@@ -4,42 +4,42 @@
 # NOTE: As with most other constraints, `nil` and empty strings are considered valid values, in order to allow the value to be optional.
 # If the value is required, consider combining this constraint with `AVD::Constraints::NotBlank`.
 #
-# ## Configuration
+# # Configuration
 #
-# ### Optional Arguments
+# ## Optional Arguments
 #
-# #### protocols
+# ### protocols
 #
 # **Type:** `Array(String)` **Default:** `["http", "https"]`
 #
 # The protocols considered to be valid for the URL.
 #
-# #### relative_protocol
+# ### relative_protocol
 #
 # **Type:** `Bool` **Default:** `false`
 #
 # If `true` the protocol is considered optional.
 #
-# #### message
+# ### message
 #
 # **Type:** `String` **Default:** `This value is not a valid URL.`
 #
 # The message that will be shown if the URL is not valid.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ value }}` - The current (invalid) value.
 #
-# #### groups
+# ### groups
 #
 # **Type:** `Array(String) | String | Nil` **Default:** `nil`
 #
 # The [validation groups][Athena::Validator::Constraint--validation-groups] this constraint belongs to.
 # `AVD::Constraint::DEFAULT_GROUP` is assumed if `nil`.
 #
-# #### payload
+# ### payload
 #
 # **Type:** `Hash(String, String)?` **Default:** `nil`
 #

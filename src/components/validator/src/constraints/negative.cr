@@ -1,17 +1,17 @@
 # Validates that a value is a negative number.
 # Use `AVD::Constraints::NegativeOrZero` if you wish to also allow `0`.
 #
-# ## Configuration
+# # Configuration
 #
-# ### Optional Arguments
+# ## Optional Arguments
 #
-# #### message
+# ### message
 #
 # **Type:** `String` **Default:** `This value should be negative.`
 #
 # The message that will be shown if the value is not less than `0`.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
@@ -19,14 +19,14 @@
 # * `{{ compared_value }}` - The expected value.
 # * `{{ compared_value_type }}` - The type of the expected value.
 #
-# #### groups
+# ### groups
 #
 # **Type:** `Array(String) | String | Nil` **Default:** `nil`
 #
 # The [validation groups][Athena::Validator::Constraint--validation-groups] this constraint belongs to.
 # `AVD::Constraint::DEFAULT_GROUP` is assumed if `nil`.
 #
-# #### payload
+# ### payload
 #
 # **Type:** `Hash(String, String)?` **Default:** `nil`
 #

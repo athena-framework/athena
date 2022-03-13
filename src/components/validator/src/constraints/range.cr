@@ -1,27 +1,27 @@
 # Validates that a `Number` or `Time` value is between some minimum and maximum.
 #
-# ## Configuration
+# # Configuration
 #
-# ### Required Arguments
+# ## Required Arguments
 #
-# #### range
+# ### range
 #
 # **Type:** `::Range`
 #
 # The `::Range` that defines the minimum and maximum values, if any.
 # An endless range can be used to only have a minimum or maximum.
 #
-# ### Optional Arguments
+# ## Optional Arguments
 #
 # NOTE: This constraint does not support a `message` argument.
 #
-# #### not_in_range_message
+# ### not_in_range_message
 #
 # **Type:** `String` **Default:** `This value should be between {{ min }} and {{ max }}.`
 #
 # The message that will be shown if the value is less than the min or greater than the max.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
@@ -29,40 +29,40 @@
 # * `{{ min }}` - The lower limit.
 # * `{{ max }}` - The upper limit.
 #
-# #### min_message
+# ### min_message
 #
 # **Type:** `String` **Default:** `This value should be {{ limit }} or more.`
 #
 # The message that will be shown if the value is less than the min, and no max has been provided.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ value }}` - The current (invalid) value.
 # * `{{ limit }}` - The lower limit.
 #
-# #### max_message
+# ### max_message
 #
 # **Type:** `String` **Default:** `This value should be {{ limit }} or less.`
 #
 # The message that will be shown if the value is more than the max, and no min has been provided.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ value }}` - The current (invalid) value.
 # * `{{ limit }}` - The upper limit.
 #
-# #### groups
+# ### groups
 #
 # **Type:** `Array(String) | String | Nil` **Default:** `nil`
 #
 # The [validation groups][Athena::Validator::Constraint--validation-groups] this constraint belongs to.
 # `AVD::Constraint::DEFAULT_GROUP` is assumed if `nil`.
 #
-# #### payload
+# ### payload
 #
 # **Type:** `Hash(String, String)?` **Default:** `nil`
 #

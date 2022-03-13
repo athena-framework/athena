@@ -4,30 +4,30 @@
 # NOTE: As with most other constraints, `nil` and empty strings are considered valid values, in order to allow the value to be optional.
 # If the value is required, consider combining this constraint with `AVD::Constraints::NotBlank`.
 #
-# ## Configuration
+# # Configuration
 #
-# ### Optional Arguments
+# ## Optional Arguments
 #
-# #### message
+# ### message
 #
 # **Type:** `String` **Default:** `This value is not a valid credit card number.`
 #
 # The message that will be shown if the value is not pass the Luhn check.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ value }}` - The current (invalid) value.
 #
-# #### groups
+# ### groups
 #
 # **Type:** `Array(String) | String | Nil` **Default:** `nil`
 #
 # The [validation groups][Athena::Validator::Constraint--validation-groups] this constraint belongs to.
 # `AVD::Constraint::DEFAULT_GROUP` is assumed if `nil`.
 #
-# #### payload
+# ### payload
 #
 # **Type:** `Hash(String, String)?` **Default:** `nil`
 #

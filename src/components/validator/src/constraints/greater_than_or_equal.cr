@@ -1,24 +1,24 @@
 # Validates that a value is greater than or equal to another.
 #
-# ## Configuration
+# # Configuration
 #
-# ### Required Arguments
+# ## Required Arguments
 #
-# #### value
+# ### value
 #
 # **Type:** `Number | String | Time`
 #
 # Defines the value that the value being validated should be compared to.
 #
-# ### Optional Arguments
+# ## Optional Arguments
 #
-# #### message
+# ### message
 #
 # **Type:** `String` **Default:** `This value should be greater than or equal to {{ compared_value }}.`
 #
 # The message that will be shown if the value is not greater than or equal to the comparison value.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
@@ -26,14 +26,14 @@
 # * `{{ compared_value }}` - The expected value.
 # * `{{ compared_value_type }}` - The type of the expected value.
 #
-# #### groups
+# ### groups
 #
 # **Type:** `Array(String) | String | Nil` **Default:** `nil`
 #
 # The [validation groups][Athena::Validator::Constraint--validation-groups] this constraint belongs to.
 # `AVD::Constraint::DEFAULT_GROUP` is assumed if `nil`.
 #
-# #### payload
+# ### payload
 #
 # **Type:** `Hash(String, String)?` **Default:** `nil`
 #

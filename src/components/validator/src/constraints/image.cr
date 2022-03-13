@@ -5,157 +5,157 @@ require "athena-image_size"
 #
 # See `AVD::Constraints::File` for common documentation.
 #
-# ## Configuration
+# # Configuration
 #
-# ### Optional Arguments
+# ## Optional Arguments
 #
-# #### mime_types
+# ### mime_types
 #
 # **Type:** `Enumerable(String)?` **Default:** `{"image/*"}`
 #
 # Requires the file to have a valid image MIME type.
 # See [IANA website](https://www.iana.org/assignments/media-types/media-types.xhtml) for the full listing.
 #
-# #### mime_type_message
+# ### mime_type_message
 #
 # **Type:** `String` **Default:** `This file is not a valid image.`
 #
 # The message that will be shown if the file is not an image.
 #
-# #### min_height
+# ### min_height
 #
 # **Type:** `Int32` **Default:** `nil`
 #
 # If set, the image's height in pixels must be greater than or equal to this value.
 #
-# #### min_height_message
+# ### min_height_message
 #
 # **Type:** `String` **Default:** `The image height is too small ({{ height }}px). Minimum height expected is {{ min_height }}px.`
 #
 # The message that will be shown if the height of the image is less than `#min_height`.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ height }}` - The current (invalid) height.
 # * `{{ min_height }}` - The minimum required height.
 #
-# #### max_height
+# ### max_height
 #
 # **Type:** `Int32` **Default:** `nil`
 #
 # If set, the image's height in pixels must be less than or equal to this value.
 #
-# #### max_height_message
+# ### max_height_message
 #
 # **Type:** `String` **Default:** `The image height is too big ({{ height }}px). Allowed maximum height is {{ max_height }}px.`
 #
 # The message that will be shown if the height of the image exceeds `#max_height`.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ height }}` - The current (invalid) height.
 # * `{{ max_height }}` - The maximum allowed height.
 #
-# #### min_width
+# ### min_width
 #
 # **Type:** `Int32` **Default:** `nil`
 #
 # If set, the image's width in pixels must be greater than or equal to this value.
 #
-# #### min_width_message
+# ### min_width_message
 #
 # **Type:** `String` **Default:** `The image width is too small ({{ width }}px). Minimum width expected is {{ min_width }}px.`
 #
 # The message that will be shown if the width of the image is less than `#min_width`.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ width }}` - The current (invalid) width.
 # * `{{ min_width }}` - The minimum required width.
 #
-# #### max_width
+# ### max_width
 #
 # **Type:** `Int32` **Default:** `nil`
 #
 # If set, the image's width in pixels must be less than or equal to this value.
 #
-# #### max_width_message
+# ### max_width_message
 #
 # **Type:** `String` **Default:** `The image width is too big ({{ width }}px). Allowed maximum width is {{ max_width }}px.`
 #
 # The message that will be shown if the width of the image exceeds `#max_width`.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ width }}` - The current (invalid) width.
 # * `{{ max_width }}` - The maximum allowed width.
 #
-# #### size_not_detected_message
+# ### size_not_detected_message
 #
 # **Type:** `String` **Default:** `The size of the image could not be detected.`
 #
 # The message that will be shown if the size of the image is unable to be determined.
 # Will only occur if at least one of the size related options has been set.
 #
-# #### min_ratio
+# ### min_ratio
 #
 # **Type:** `Float64` **Default:** `nil`
 #
 # If set, the image's aspect ratio (`width / height`) must be greater than or equal to this value.
 #
-# #### min_ratio_message
+# ### min_ratio_message
 #
 # **Type:** `String` **Default:** `The image ratio is too small ({{ ratio }}). Minimum ratio expected is {{ min_ratio }}.`
 #
 # The message that will be shown if the aspect ratio of the image is less than `#min_ratio`.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ ratio }}` - The current (invalid) ratio.
 # * `{{ min_ratio }}` - The minimum required ratio.
 #
-# #### max_ratio
+# ### max_ratio
 #
 # **Type:** `Float64` **Default:** `nil`
 #
 # If set, the image's aspect ratio (`width / height`) must be less than or equal to this value.
 #
-# #### max_ratio_message
+# ### max_ratio_message
 #
 # **Type:** `String` **Default:** `The image ratio is too big ({{ ratio }}). Allowed maximum ratio is {{ max_ratio }}.`
 #
 # The message that will be shown if the aspect ratio of the image exceeds `#max_ratio`.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ ratio }}` - The current (invalid) ratio.
 # * `{{ max_ratio }}` - The maximum allowed ratio.
 #
-# #### min_pixels
+# ### min_pixels
 #
 # **Type:** `Float64` **Default:** `nil`
 #
 # If set, the amount of pixels of the image file must be greater than or equal to this value.
 #
-# #### min_pixels_message
+# ### min_pixels_message
 #
 # **Type:** `String` **Default:** `The image has too few pixels ({{ pixels }} pixels). Minimum amount expected is {{ min_pixels }} pixels.`
 #
 # The message that will be shown if the amount of pixels of the image is less than `#min_pixels`.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
@@ -164,19 +164,19 @@ require "athena-image_size"
 # * `{{ pixels }}` - The image's pixels.
 # * `{{ min_pixels }}` - The minimum required pixels.
 #
-# #### max_pixels
+# ### max_pixels
 #
 # **Type:** `Float64` **Default:** `nil`
 #
 # If set, the amount of pixels of the image file must be less than or equal to this value.
 #
-# #### max_pixels_message
+# ### max_pixels_message
 #
 # **Type:** `String` **Default:** `The image has too many pixels ({{ pixels }} pixels). Maximum amount expected is {{ max_pixels }} pixels.`
 #
 # The message that will be shown if the amount of pixels of the image is greater than `#max_pixels`.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
@@ -185,72 +185,72 @@ require "athena-image_size"
 # * `{{ pixels }}` - The image's pixels.
 # * `{{ max_pixels }}` - The maximum allowed pixels.
 #
-# #### allow_landscape
+# ### allow_landscape
 #
 # **Type:** `Bool` **Default:** `true`
 #
 # If `false`, the image cannot be landscape oriented.
 #
-# #### allow_landscape_message
+# ### allow_landscape_message
 #
 # **Type:** `String` **Default:** `The image is landscape oriented ({{ width }}x{{ height }}px). Landscape oriented images are not allowed.`
 #
 # The message that will be shown if the `#allow_landscape` is `false` and the image is landscape oriented.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ height }}` - The image's height.
 # * `{{ width }}` - The image's width.
 #
-# #### allow_portrait
+# ### allow_portrait
 #
 # **Type:** `Bool` **Default:** `true`
 #
 # If `false`, the image cannot be portrait oriented.
 #
-# #### allow_portrait_message
+# ### allow_portrait_message
 #
 # **Type:** `String` **Default:** `The image is portrait oriented ({{ width }}x{{ height }}px). Portrait oriented images are not allowed.`
 #
 # The message that will be shown if the `#allow_portrait` is `false` and the image is portrait oriented.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ height }}` - The image's height.
 # * `{{ width }}` - The image's width.
 #
-# #### allow_square
+# ### allow_square
 #
 # **Type:** `Bool` **Default:** `true`
 #
 # If `false`, the image cannot be a square.
 # If you want to force the image to be a square, keep this as is and set `#allow_landscape` and `#allow_portrait` to `false`.
 #
-# #### allow_square_message
+# ### allow_square_message
 #
 # **Type:** `String` **Default:** `The image is square ({{ width }}x{{ height }}px). Square images are not allowed.`
 #
 # The message that will be shown if the `#allow_square` is `false` and the image is square.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ height }}` - The image's height.
 # * `{{ width }}` - The image's width.
 #
-# #### groups
+# ### groups
 #
 # **Type:** `Array(String) | String | Nil` **Default:** `nil`
 #
 # The [validation groups][Athena::Validator::Constraint--validation-groups] this constraint belongs to.
 # `AVD::Constraint::DEFAULT_GROUP` is assumed if `nil`.
 #
-# #### payload
+# ### payload
 #
 # **Type:** `Hash(String, String)?` **Default:** `nil`
 #

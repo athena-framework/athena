@@ -4,73 +4,73 @@
 # NOTE: As with most other constraints, `nil` and empty strings are considered valid values, in order to allow the value to be optional.
 # If the value is required, consider combining this constraint with `AVD::Constraints::NotBlank`.
 #
-# ## Configuration
+# # Configuration
 #
-# ### Optional Arguments
+# ## Optional Arguments
 #
-# #### type
+# ### type
 #
 # **Type:** `AVD::Constraints::ISBN::Type` **Default:** `AVD::Constraints::ISBN::Type::Both`
 #
 # Type of ISBN to validate against.
 #
-# #### message
+# ### message
 #
 # **Type:** `String` **Default:** `""`
 #
 # The message that will be shown if the value is invalid.
 # This message has priority over the other messages if not empty.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ value }}` - The current (invalid) value.
 #
-# #### isbn10_message
+# ### isbn10_message
 #
 # **Type:** `String` **Default:** `This value is not a valid ISBN-10.`
 #
 # The message that will be shown if [type](#type) is `AVD::Constraints::ISBN::Type::ISBN10` and the value is invalid.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ value }}` - The current (invalid) value.
 #
-# #### isbn13_message
+# ### isbn13_message
 #
 # **Type:** `String` **Default:** `This value is not a valid ISBN-13.`
 #
 # The message that will be shown if [type](#type) is `AVD::Constraints::ISBN::Type::ISBN13` and the value is invalid.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ value }}` - The current (invalid) value.
 #
-# #### both_message
+# ### both_message
 #
 # **Type:** `String` **Default:** `This value is neither a valid ISBN-10 nor a valid ISBN-13.`
 #
 # The message that will be shown if [type](#type) is `AVD::Constraints::ISBN::Type::Both` and the value is invalid.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ value }}` - The current (invalid) value.
 #
-# #### groups
+# ### groups
 #
 # **Type:** `Array(String) | String | Nil` **Default:** `nil`
 #
 # The [validation groups][Athena::Validator::Constraint--validation-groups] this constraint belongs to.
 # `AVD::Constraint::DEFAULT_GROUP` is assumed if `nil`.
 #
-# #### payload
+# ### payload
 #
 # **Type:** `Hash(String, String)?` **Default:** `nil`
 #

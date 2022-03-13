@@ -1,51 +1,51 @@
 # Validates that a value is one of a given set of valid choices;
 # can also be used to validate that each item in a collection is one of those valid values.
 #
-# ## Configuration
+# # Configuration
 #
-# ### Required Arguments
+# ## Required Arguments
 #
-# #### choices
+# ### choices
 #
 # **Type:** `Array(String | Number::Primitive | Symbol)`
 #
 # The choices that are considered valid.
 #
-# ### Optional Arguments
+# ## Optional Arguments
 #
-# #### message
+# ### message
 #
 # **Type:** `String` **Default:** `This value is not a valid choice.`
 #
 # The message that will be shown if the value is not a valid choice and [multiple](#multiple) is `false`.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ value }}` - The current (invalid) value.
 # * `{{ choices }}` - The available choices.
 #
-# #### multiple_message
+# ### multiple_message
 #
 # **Type:** `String` **Default:** `One or more of the given values is invalid.`
 #
 # The message that will be shown if one of the values is not a valid choice and [multiple](#multiple) is `true`.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ value }}` - The current (invalid) value.
 # * `{{ choices }}` - The available choices.
 #
-# #### min_message
+# ### min_message
 #
 # **Type:** `String` **Default:** `You must select at least {{ limit }} choice.|You must select at least {{ limit }} choices.`
 #
 # The message that will be shown if too few choices are chosen as per the [range](#range) option.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
@@ -53,13 +53,13 @@
 # * `{{ choices }}` - The available choices.
 # * `{{ limit }}` - If [multiple](#multiple) is true, enforces that at most this many values may be selected in order to be valid.
 #
-# #### max_message
+# ### max_message
 #
 # **Type:** `String` **Default:** `You must select at most {{ limit }} choice.|You must select at most {{ limit }} choices.`
 #
 # The message that will be shown if too many choices are chosen as per the [range](#range) option.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
@@ -67,7 +67,7 @@
 # * `{{ choices }}` - The available choices.
 # * `{{ limit }}` - If [multiple](#multiple) is true, enforces that no more than this many values may be selected in order to be valid.
 #
-# #### range
+# ### range
 #
 # **Type:** `::Range?` **Default:** `nil`
 #
@@ -76,21 +76,21 @@
 #
 # Beginless/endless ranges can be used to define only a lower/upper bound.
 #
-# #### multiple
+# ### multiple
 #
 # **Type:** `Bool` **Default:** `false`
 #
 # If `true`, the input value is expected to be an `Enumerable` instead of a single scalar value.
 # The constraint will check each item in the enumerable is valid choice.
 #
-# #### groups
+# ### groups
 #
 # **Type:** `Array(String) | String | Nil` **Default:** `nil`
 #
 # The [validation groups][Athena::Validator::Constraint--validation-groups] this constraint belongs to.
 # `AVD::Constraint::DEFAULT_GROUP` is assumed if `nil`.
 #
-# #### payload
+# ### payload
 #
 # **Type:** `Hash(String, String)?` **Default:** `nil`
 #

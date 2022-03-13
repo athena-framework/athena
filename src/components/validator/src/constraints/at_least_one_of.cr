@@ -3,33 +3,33 @@ require "./composite"
 # Validates that a value satisfies at least one of the provided constraints.
 # Validation stops as soon as one constraint is satisfied.
 #
-# ## Configuration
+# # Configuration
 #
-# ### Required Arguments
+# ## Required Arguments
 #
-# #### constraints
+# ### constraints
 #
 # **Type:** `Array(AVD::Constraint) | AVD::Constraint`
 #
 # The `AVD::Constraint`(s) from which at least one of has to be satisfied in order for the validation to succeed.
 #
-# ### Optional Arguments
+# ## Optional Arguments
 #
-# #### include_internal_messages
+# ### include_internal_messages
 #
 # **Type:** `Bool` **Default:** `true`
 #
 # If the validation failed message should include the list of messages for the internal constraints.
 # See the [message](#message) argument for an example.
 #
-# #### message_collection
+# ### message_collection
 #
 # **Type:** `String` **Default:** `Each element of this collection should satisfy its own set of constraints.`
 #
 # The message that will be shown if validation fails and the internal constraint is an `AVD::Constraints::All`.
 # See the [message](#message) argument for an example.
 #
-# #### message
+# ### message
 #
 # **Type:** `String` **Default:** `This value should satisfy at least one of the following constraints:`
 #
@@ -41,21 +41,21 @@ require "./composite"
 #
 # > This value should satisfy at least one of the following constraints: [1] This value is too short. It should have 3 items or more. [2] Each element of this collection should satisfy its own set of constraints.
 #
-# #### groups
+# ### groups
 #
 # **Type:** `Array(String) | String | Nil` **Default:** `nil`
 #
 # The [validation groups][Athena::Validator::Constraint--validation-groups] this constraint belongs to.
 # `AVD::Constraint::DEFAULT_GROUP` is assumed if `nil`.
 #
-# #### payload
+# ### payload
 #
 # **Type:** `Hash(String, String)?` **Default:** `nil`
 #
 # Any arbitrary domain-specific data that should be stored with this constraint.
 # The [payload][Athena::Validator::Constraint--payload] is not used by `Athena::Validator`, but its processing is completely up to you.
 #
-# ## Usage
+# # Usage
 #
 # ```
 # class Example
