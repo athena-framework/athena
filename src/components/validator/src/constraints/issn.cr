@@ -4,44 +4,44 @@
 # NOTE: As with most other constraints, `nil` and empty strings are considered valid values, in order to allow the value to be optional.
 # If the value is required, consider combining this constraint with `AVD::Constraints::NotBlank`.
 #
-# ## Configuration
+# # Configuration
 #
-# ### Optional Arguments
+# ## Optional Arguments
 #
-# #### case_sensitive
+# ### case_sensitive
 #
 # **Type:** `Bool` **Default:** `false`
 #
 # The validator will allow ISSN values to end with a lowercase `x` by default.
 # When set to `true`, this requires an uppcase case `X`.
 #
-# #### require_hypen
+# ### require_hypen
 #
 # **Type:** `Bool` **Default:** `false`
 #
 # The validator will allow non hyphenated values by default.
 # When set to `true`, this requires a hyphenated ISSN value.
 #
-# #### message
+# ### message
 #
 # **Type:** `String` **Default:** `This value is not a valid International Standard Serial Number (ISSN).`
 #
 # The message that will be shown if the value is not a valid ISSN.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ value }}` - The current (invalid) value.
 #
-# #### groups
+# ### groups
 #
 # **Type:** `Array(String) | String | Nil` **Default:** `nil`
 #
 # The [validation groups][Athena::Validator::Constraint--validation-groups] this constraint belongs to.
 # `AVD::Constraint::DEFAULT_GROUP` is assumed if `nil`.
 #
-# #### payload
+# ### payload
 #
 # **Type:** `Hash(String, String)?` **Default:** `nil`
 #

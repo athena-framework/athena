@@ -7,11 +7,11 @@ require "mime"
 # NOTE: As with most other constraints, `nil` and empty strings are considered valid values, in order to allow the value to be optional.
 # If the value is required, consider combining this constraint with `AVD::Constraints::NotBlank`.
 #
-# ## Configuration
+# # Configuration
 #
-# ### Optional Arguments
+# ## Optional Arguments
 #
-# #### max_size
+# ### max_size
 #
 # **Type:** `Int | String | Nil` **Default:** `nil`
 #
@@ -26,14 +26,14 @@ require "mime"
 # | `Ki`   | kibibyte  | 1,024 bytes     | `"32Ki"`  |
 # | `Mi`   | mebibyte  | 1,048,576 bytes | `"8Mi"`   |
 #
-# #### mime_types
+# ### mime_types
 #
 # **Type:** `Enumerable(String)?` **Default:** `nil`
 #
 # If set, allows checking that the MIME type of the file is one of an allowed set of types.
 # This value is ignored if the MIME type of the file could not be determined.
 #
-# #### binary_format
+# ### binary_format
 #
 # **Type:** `Bool?` **Default:** `nil`
 #
@@ -41,13 +41,13 @@ require "mime"
 # When `false`, the sizes will be displayed with SI-prefixed units (kB, MB).
 # When `nil`, then the binaryFormat will be guessed from the value defined in the [max_size](#max_size) option.
 #
-# #### max_size_message
+# ### max_size_message
 #
 # **Type:** `String` **Default:** `The file is too large ({{ size }} {{ suffix }}). Allowed maximum size is {{ limit }} {{ suffix }}.`
 #
 # The message that will be shown if the file is greater than the [max_size](#max_size).
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
@@ -57,51 +57,51 @@ require "mime"
 # * `{{ size }}` - The size of the invalid file.
 # * `{{ suffix }}` - Suffix for the used file size unit.
 #
-# #### not_found_message
+# ### not_found_message
 #
 # **Type:** `String` **Default:** `The file could not be found.`
 #
 # The message that will be shown if no file could be found at the given path.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ file }}` - Absolute path to the invalid file.
 #
-# #### empty_message
+# ### empty_message
 #
 # **Type:** `String` **Default:** `An empty file is not allowed.`
 #
 # The message that will be shown if the file is empty.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ file }}` - Absolute path to the invalid file.
 # * `{{ name }}` - Basename of the invalid file.
 #
-# #### not_readable_message
+# ### not_readable_message
 #
 # **Type:** `String` **Default:** `The file is not readable.`
 #
 # The message that will be shown if the file is not readable.
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ file }}` - Absolute path to the invalid file.
 # * `{{ name }}` - Basename of the invalid file.
 #
-# #### mime_type_message
+# ### mime_type_message
 #
 # **Type:** `String` **Default:** `The mime type of the file is invalid ({{ type }}). Allowed mime types are {{ types }}.`
 #
 # The message that will be shown if the MIME type of the file is not one of the valid [mime_types](#mime_types).
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
@@ -110,14 +110,14 @@ require "mime"
 # * `{{ type }}` - The MIME type of the invalid file.
 # * `{{ types }}` - The list of allowed MIME types.
 #
-# #### groups
+# ### groups
 #
 # **Type:** `Array(String) | String | Nil` **Default:** `nil`
 #
 # The [validation groups][Athena::Validator::Constraint--validation-groups] this constraint belongs to.
 # `AVD::Constraint::DEFAULT_GROUP` is assumed if `nil`.
 #
-# #### payload
+# ### payload
 #
 # **Type:** `Hash(String, String)?` **Default:** `nil`
 #

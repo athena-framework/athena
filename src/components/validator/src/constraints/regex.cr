@@ -4,45 +4,45 @@
 # NOTE: As with most other constraints, `nil` and empty strings are considered valid values, in order to allow the value to be optional.
 # If the value is required, consider combining this constraint with `AVD::Constraints::NotBlank`.
 #
-# ## Configuration
+# # Configuration
 #
-# ### Required Arguments
+# ## Required Arguments
 #
-# #### pattern
+# ### pattern
 #
 # **Type:** `::Regex`
 #
 # The `::Regex` pattern that the value should match.
 #
-# ### Optional Arguments
+# ## Optional Arguments
 #
-# #### match
+# ### match
 #
 # **Type:** `Bool` **Default:** `true`
 #
 # If set to `false`, validation will require the value does _NOT_ match the [pattern](#pattern).
 #
-# #### message
+# ### message
 #
 # **Type:** `String` **Default:** `This value should match '{{ pattern }}'.`
 #
 # The message that will be shown if the value does not match the [pattern](#pattern).
 #
-# ##### Placeholders
+# #### Placeholders
 #
 # The following placeholders can be used in this message:
 #
 # * `{{ value }}` - The current (invalid) value.
 # * `{{ pattern }}` - The regular expression pattern that the value should match.
 #
-# #### groups
+# ### groups
 #
 # **Type:** `Array(String) | String | Nil` **Default:** `nil`
 #
 # The [validation groups][Athena::Validator::Constraint--validation-groups] this constraint belongs to.
 # `AVD::Constraint::DEFAULT_GROUP` is assumed if `nil`.
 #
-# #### payload
+# ### payload
 #
 # **Type:** `Hash(String, String)?` **Default:** `nil`
 #
