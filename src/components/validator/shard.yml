@@ -16,6 +16,11 @@ description: |
 authors:
   - George Dietrich <george@dietrich.app>
 
+dependencies:
+  athena-image_size:
+    github: athena-framework/image-size
+    version: ~> 0.1.0
+
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba

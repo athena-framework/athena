@@ -50,7 +50,7 @@ class Athena::Validator::Constraints::Luhn < Athena::Validator::Constraint
     super message, groups, payload
   end
 
-  struct Validator < Athena::Validator::ConstraintValidator
+  class Validator < Athena::Validator::ConstraintValidator
     # :inherit:
     def validate(value : _, constraint : AVD::Constraints::Luhn) : Nil
       value = value.to_s

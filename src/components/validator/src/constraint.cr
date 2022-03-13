@@ -215,7 +215,7 @@
 #   end
 #
 #   # Define the validator within our constraint that'll contain our validation logic.
-#   struct Validator < AVD::ConstraintValidator
+#   class Validator < AVD::ConstraintValidator
 #     # Define our validate method that accepts the value to be validated, and the constraint.
 #     #
 #     # Overloads can be used to filter values of specific types.

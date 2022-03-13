@@ -53,7 +53,7 @@ class Athena::Validator::Constraints::NotBlank < Athena::Validator::Constraint
     super message, groups, payload
   end
 
-  struct Validator < Athena::Validator::ConstraintValidator
+  class Validator < Athena::Validator::ConstraintValidator
     # :inherit:
     def validate(value : String?, constraint : AVD::Constraints::NotBlank) : Nil
       validate_value(value, constraint) do |v|

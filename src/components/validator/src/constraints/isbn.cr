@@ -128,7 +128,7 @@ class Athena::Validator::Constraints::ISBN < Athena::Validator::Constraint
     @type.message self
   end
 
-  struct Validator < Athena::Validator::ConstraintValidator
+  class Validator < Athena::Validator::ConstraintValidator
     # :inherit:
     def validate(value : _, constraint : AVD::Constraints::ISBN) : Nil
       value = value.to_s

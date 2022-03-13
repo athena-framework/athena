@@ -51,7 +51,7 @@ require "mime"
 #
 # The following placeholders can be used in this message:
 #
-# * `{{ file }}` - Absoluate path to the invalid file.
+# * `{{ file }}` - Absolute path to the invalid file.
 # * `{{ limit }}` - Maximum file size allowed.
 # * `{{ name }}` - Basename of the invalid file.
 # * `{{ size }}` - The size of the invalid file.
@@ -67,7 +67,7 @@ require "mime"
 #
 # The following placeholders can be used in this message:
 #
-# * `{{ file }}` - Absoluate path to the invalid file.
+# * `{{ file }}` - Absolute path to the invalid file.
 #
 # #### empty_message
 #
@@ -79,7 +79,7 @@ require "mime"
 #
 # The following placeholders can be used in this message:
 #
-# * `{{ file }}` - Absoluate path to the invalid file.
+# * `{{ file }}` - Absolute path to the invalid file.
 # * `{{ name }}` - Basename of the invalid file.
 #
 # #### not_readable_message
@@ -92,7 +92,7 @@ require "mime"
 #
 # The following placeholders can be used in this message:
 #
-# * `{{ file }}` - Absoluate path to the invalid file.
+# * `{{ file }}` - Absolute path to the invalid file.
 # * `{{ name }}` - Basename of the invalid file.
 #
 # #### mime_type_message
@@ -105,7 +105,7 @@ require "mime"
 #
 # The following placeholders can be used in this message:
 #
-# * `{{ file }}` - Absoluate path to the invalid file.
+# * `{{ file }}` - Absolute path to the invalid file.
 # * `{{ name }}` - Basename of the invalid file.
 # * `{{ type }}` - The MIME type of the invalid file.
 # * `{{ types }}` - The list of allowed MIME types.
@@ -164,13 +164,13 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
 
   def initialize(
     max_size : Int | String | Nil = nil,
+    @binary_format : Bool? = nil,
+    mime_types : Enumerable(String)? = nil,
     @not_found_message : String = "The file could not be found.",
     @not_readable_message : String = "The file is not readable.",
     @empty_message : String = "An empty file is not allowed.",
     @max_size_message : String = "The file is too large ({{ size }} {{ suffix }}). Allowed maximum size is {{ limit }} {{ suffix }}.",
     @mime_type_message : String = "The mime type of the file is invalid ({{ type }}). Allowed mime types are {{ types }}.",
-    mime_types : Enumerable(String)? = nil,
-    @binary_format : Bool? = nil,
     groups : Array(String) | String | Nil = nil,
     payload : Hash(String, String)? = nil
   )
@@ -217,7 +217,7 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
     raise ArgumentError.new "'#{max_size}' is not a valid maximum size."
   end
 
-  struct Validator < Athena::Validator::ConstraintValidator
+  class Validator < Athena::Validator::ConstraintValidator
     # :inherit:
     # ameba:disable Metrics/CyclomaticComplexity
     def validate(value : _, constraint : AVD::Constraints::File) : Nil

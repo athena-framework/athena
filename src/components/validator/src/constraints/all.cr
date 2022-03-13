@@ -58,7 +58,7 @@ class Athena::Validator::Constraints::All < Athena::Validator::Constraints::Comp
     super constraints, "", groups, payload
   end
 
-  struct Validator < Athena::Validator::ConstraintValidator
+  class Validator < Athena::Validator::ConstraintValidator
     # :inherit:
     def validate(value : Hash?, constraint : AVD::Constraints::All) : Nil
       return if value.nil?

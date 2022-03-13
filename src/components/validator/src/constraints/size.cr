@@ -111,7 +111,7 @@ class Athena::Validator::Constraints::Size < Athena::Validator::Constraint
     super "", groups, payload
   end
 
-  struct Validator < Athena::Validator::ConstraintValidator
+  class Validator < Athena::Validator::ConstraintValidator
     # :inherit:
     def validate(value : String | Indexable, constraint : AVD::Constraints::Size) : Nil
       return if value.nil?

@@ -44,7 +44,7 @@ class Athena::Validator::Constraints::IsFalse < Athena::Validator::Constraint
     super message, groups, payload
   end
 
-  struct Validator < Athena::Validator::ConstraintValidator
+  class Validator < Athena::Validator::ConstraintValidator
     # :inherit:
     def validate(value : _, constraint : AVD::Constraints::IsFalse) : Nil
       return if value.nil? || value == false

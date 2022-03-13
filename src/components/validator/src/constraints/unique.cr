@@ -44,7 +44,7 @@ class Athena::Validator::Constraints::Unique < Athena::Validator::Constraint
     super message, groups, payload
   end
 
-  struct Validator < Athena::Validator::ConstraintValidator
+  class Validator < Athena::Validator::ConstraintValidator
     # :inherit:
     def validate(value : Indexable?, constraint : AVD::Constraints::Unique) : Nil
       return if value.nil?

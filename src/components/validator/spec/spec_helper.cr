@@ -10,16 +10,16 @@ class MockConstraint < AVD::Constraint
   end
 end
 
-struct MockConstraintValidator < AVD::ConstraintValidator; end
+class MockConstraintValidator < AVD::ConstraintValidator; end
 
-struct MockServiceConstraintValidator < AVD::ServiceConstraintValidator; end
+class MockServiceConstraintValidator < AVD::ServiceConstraintValidator; end
 
 class CustomConstraint < AVD::Constraint
   @@error_names = {
     "abc123" => "FAKE_ERROR",
   }
 
-  struct Validator < Athena::Validator::ConstraintValidator
+  class Validator < Athena::Validator::ConstraintValidator
     def validate(value : _, constraint : CustomConstraint) : Nil
     end
   end

@@ -55,7 +55,7 @@ class Athena::Validator::Constraints::ISIN < Athena::Validator::Constraint
     super message, groups, payload
   end
 
-  struct Validator < Athena::Validator::ConstraintValidator
+  class Validator < Athena::Validator::ConstraintValidator
     # :inherit:
     def validate(value : _, constraint : AVD::Constraints::ISIN) : Nil
       value = value.to_s
