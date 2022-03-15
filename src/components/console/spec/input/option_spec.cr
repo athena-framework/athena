@@ -29,6 +29,22 @@ describe ACON::Input::Option do
         ACON::Input::Option.new("foo", "a|  -b").shortcut.should eq "a|b"
       end
 
+      it "string with different characters" do
+        expect_raises ACON::Exceptions::InvalidArgument, "An option shortcut must consist of the same character, got 'ab'." do
+          ACON::Input::Option.new "foo", "ab"
+        end
+
+        expect_raises ACON::Exceptions::InvalidArgument, "An option shortcut must consist of the same character, got 'aab'." do
+          ACON::Input::Option.new "foo", "a|aa|aab"
+        end
+      end
+
+      it "array with different characters" do
+        expect_raises ACON::Exceptions::InvalidArgument, "An option shortcut must consist of the same character, got 'ba'." do
+          ACON::Input::Option.new "foo", ["a", "ba"]
+        end
+      end
+
       it "blank" do
         expect_raises ACON::Exceptions::InvalidArgument, "An option shortcut cannot be blank." do
           ACON::Input::Option.new "foo", [] of String

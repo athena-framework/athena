@@ -80,7 +80,16 @@ class Athena::Console::Input::Option
         shortcut = shortcut.join '|'
       end
 
-      shortcut = shortcut.lchop('-').split(/(?:\|)-?/, remove_empty: true).map(&.strip.lchop('-')).join '|'
+      shortcut = shortcut.lchop('-').split(/(?:\|)-?/, remove_empty: true).map(&.strip.lchop('-'))
+
+      # Ensure each grouping contains only the same character
+      shortcut.each do |s|
+        unless s.split("").uniq!.size == 1
+          raise ACON::Exceptions::InvalidArgument.new "An option shortcut must consist of the same character, got '#{s}'."
+        end
+      end
+
+      shortcut = shortcut.join '|'
 
       raise ACON::Exceptions::InvalidArgument.new "An option shortcut cannot be blank." if shortcut.blank?
     end

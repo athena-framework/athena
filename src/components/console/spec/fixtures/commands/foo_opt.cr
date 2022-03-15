@@ -4,7 +4,7 @@ class FooOptCommand < IOCommand
       .name("foo:bar")
       .description("The foo:bar command")
       .aliases("afoobar")
-      .option("fooopt", "fo", :optional, "fooopt description")
+      .option("fooopt", "f", :optional, "fooopt description")
   end
 
   protected def execute(input : ACON::Input::Interface, output : ACON::Output::Interface) : ACON::Command::Status
