@@ -25,6 +25,8 @@ module Athena
   #
   # See the [external documentation](https://athenaframework.org/components/config/) for more information.
   module Config
+    VERSION = "0.3.0"
+
     # :nodoc:
     CUSTOM_ANNOTATIONS = [] of Nil
 
