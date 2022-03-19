@@ -31,7 +31,7 @@ module Athena::Framework::Annotations
   # A `description` may also be included to describe what the query param is used for.
   # In the future this may be used for generating OpenAPI documentation for the related parameter.
   #
-  # A non-nilable type denotes it as required. If the parameter is not supplied, and no default value is assigned, an `ATH::Exceptions::BadRequest` exception is raised.
+  # A non-nilable type denotes it as required. If the parameter is not supplied, and no default value is assigned, an `ATH::Exceptions::UnprocessableEntity` exception is raised.
   #
   # ```
   # require "athena"
@@ -47,7 +47,18 @@ module Athena::Framework::Annotations
   # ATH.run
   #
   # # GET /?page=2 # => 2
-  # # GET /        # => {"code":422,"message":"Parameter 'page' of value '' violated a constraint: 'This value should not be null.'\n"}
+  # # GET / # =>
+  # # {
+  # #   "code":    422,
+  # #   "message": "Parameter 'page' is invalid.",
+  # #   "errors":  [
+  # #     {
+  # #       "property": "page",
+  # #       "message":  "This value should not be null.",
+  # #       "code":     "c7e77b14-744e-44c0-aa7e-391c69cc335c"
+  # #     }
+  # #   ]
+  # # }
   # ```
   #
   # ### Key
@@ -89,7 +100,11 @@ module Athena::Framework::Annotations
   #
   # # GET /          # => null
   # # GET /?page=2   # => 2
-  # # GET /?page=bar # => {"code":400,"message":"Required parameter 'page' with value 'bar' could not be converted into a valid '(Int32 | Nil)'."}
+  # # GET /?page=bar # =>
+  # # {
+  # #   "code":    400,
+  # #   "message":"Required parameter 'page' with value 'bar' could not be converted into a valid '(Int32 | Nil)'."
+  # # }
   # ```
   #
   # ### Strict
@@ -153,10 +168,40 @@ module Athena::Framework::Annotations
   #
   # ATH.run
   #
-  # # GET /          # => {"code":422,"message":"Parameter 'page' of value '' violated a constraint: 'This value should not be null.'\n"}
   # # GET /?page=10  # => 10
-  # # GET /?page=bar # => {"code":400,"message":"Required parameter 'page' with value 'bar' could not be converted into a valid 'Int32'."}
-  # # GET /?page=5   # => {"code":422,"message":"Parameter 'page' of value '5' violated a constraint: 'Parameter 'page' value does not match requirements: (?-imsx:^(?-imsx:\\d{2})$)'\n"}
+  # # GET /?page=bar # => {"code":400,}
+  #
+  # # GET /?page=bar # =>
+  # # {
+  # #   "code":    400,
+  # #   "message":"Required parameter 'page' with value 'bar' could not be converted into a valid 'Int32'."
+  # # }
+  #
+  # # GET / # =>
+  # # {
+  # #   "code":    422,
+  # #   "message": "Parameter 'page' is invalid.",
+  # #   "errors":  [
+  # #     {
+  # #       "property": "page",
+  # #       "message":  "This value should not be null.",
+  # #       "code":     "c7e77b14-744e-44c0-aa7e-391c69cc335c"
+  # #     }
+  # #   ]
+  # # }
+  #
+  # # GET /?page=5 # =>
+  # # {
+  # #   "code":    422,
+  # #   "message": "Parameter 'page' is invalid.",
+  # #   "errors":  [
+  # #     {
+  # #       "property": "page",
+  # #       "message":  "Parameter 'page' value does not match requirements: (?-imsx:^(?-imsx:\\d{2})$)",
+  # #       "code":     "108987a0-2d81-44a0-b8d4-1c7ab8815343"
+  # #     }
+  # #   ]
+  # # }
   # ```
   #
   # #### Constraint(s)
@@ -178,7 +223,18 @@ module Athena::Framework::Annotations
   # ATH.run
   #
   # # GET /?page=2  # => 2
-  # # GET /?page=-5 # => {"code":422,"message":"Parameter 'page' of value '-9' violated a constraint: 'This value should be positive or zero.'\n"}
+  # # GET /?page=-5 # =>
+  # # {
+  # #   "code":    422,
+  # #   "message": "Parameter 'page' is invalid.",
+  # #   "errors":  [
+  # #     {
+  # #       "property": "page",
+  # #       "message": "This value should be positive or zero.",
+  # #       "code": "e09e52d0-b549-4ba1-8b4e-420aad76f0de"
+  # #     }
+  # #   ]
+  # # }
   # ```
   #
   # See the [external documentation](/components/validator/) for more information.
@@ -204,9 +260,32 @@ module Athena::Framework::Annotations
   #
   # ATH.run
   #
-  # # GET /               # => {"code":422,"message":"Parameter 'ids' of value '' violated a constraint: 'This value should not be null.'\n"}
   # # GET /?ids=10&ids=2  # => [10,2]
-  # # GET /?ids=10&ids=-2 # => {"code":422,"message":"Parameter 'ids[1]' of value '-2' violated a constraint: 'This value should be positive.'\n"}
+  # # GET / # =>
+  # # {
+  # #   "code":    422,
+  # #   "message": "Parameter 'ids' is invalid.",
+  # #   "errors":  [
+  # #     {
+  # #       "property": "ids",
+  # #       "message":  "This value should not be null.",
+  # #       "code":     "c7e77b14-744e-44c0-aa7e-391c69cc335c"
+  # #     }
+  # #   ]
+  # # }
+  #
+  # # GET /?ids=10&ids=-2 # =>
+  # # {
+  # #   "code":    422,
+  # #   "message": "Parameter 'ids' is invalid.",
+  # #   "errors":  [
+  # #     {
+  # #       "property": "ids[1]",
+  # #       "message":  "message": "This value should be positive.",
+  # #       "code":     "code": "a221096d-d125-44e8-a865-4270379ac11a"
+  # #     }
+  # #   ]
+  # # }
   # ```
   #
   # ### Incompatibles
@@ -229,7 +308,11 @@ module Athena::Framework::Annotations
   #
   # # GET /?bar=bar         # => "-bar"
   # # GET /?foo=foo         # => "foo-"
-  # # GET /?foo=foo&bar=bar # => {"code":400,"message":"Parameter 'foo' is incompatible with parameter 'bar'."}
+  # # GET /?foo=foo&bar=bar # =>
+  # # {
+  # #   "code":    400,
+  # #   "message":"Parameter 'foo' is incompatible with parameter 'bar'."
+  # # }
   # ```
   #
   # ### Param Converters
