@@ -81,7 +81,7 @@ alias AED = Athena::EventDispatcher
 # dispatcher.has_listeners? ExceptionEvent # => true
 # ```
 module Athena::EventDispatcher
-  VERSION = "0.1.0"
+  VERSION = "0.1.3"
 
   # The possible types an event listener can be.  `AED::EventListenerInterface` instances use `#call`
   # in order to keep a common interface with the `Proc` based listeners.

@@ -13,7 +13,7 @@ Common library for configuring Athena components.
 dependencies:
   athena-config:
     github: athena-framework/config
-    version: ~> 0.2.0
+    version: ~> 0.3.0
 ```
 
 2. Run `shards install`
