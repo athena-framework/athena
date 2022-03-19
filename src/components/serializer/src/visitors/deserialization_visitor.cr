@@ -13,8 +13,8 @@ abstract class Athena::Serializer::Visitors::DeserializationVisitor
     type.deserialize self, data
   end
 
-  def visit(type : _, data : _)
-    data
+  def visit(type : T.class, data : _) forall T
+    data.as T
   end
 end
 
