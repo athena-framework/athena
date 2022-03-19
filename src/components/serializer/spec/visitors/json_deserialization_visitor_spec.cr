@@ -74,6 +74,13 @@ describe ASR::Visitors::JSONDeserializationVisitor do
         assert_deserialized_output ASR::Visitors::JSONDeserializationVisitor, Time, %("2020-04-07T12:34:56Z"), Time.utc 2020, 4, 7, 12, 34, 56
         assert_deserialized_output ASR::Visitors::JSONDeserializationVisitor, Time?, %("2020-04-07T12:34:56Z"), Time.utc 2020, 4, 7, 12, 34, 56
       end
+
+      it Hash do
+        assert_deserialized_output ASR::Visitors::JSONDeserializationVisitor, Hash(String, String), %({"foo": "bar"}), {"foo" => "bar"}
+        assert_deserialized_output ASR::Visitors::JSONDeserializationVisitor, Hash(String, String)?, %({"foo": "bar"}), {"foo" => "bar"}
+        assert_deserialized_output ASR::Visitors::JSONDeserializationVisitor, Hash(String, String?)?, %({"foo": "bar"}), {"foo" => "bar"}
+        assert_deserialized_output ASR::Visitors::JSONDeserializationVisitor, Hash(String, String?), %({"foo": "bar"}), {"foo" => "bar"}
+      end
     end
   end
 end
