@@ -17,6 +17,12 @@ struct UniqueValidatorTest < AVD::Spec::ConstraintValidatorTestCase
     self.assert_violation "my_message", CONSTRAINT::IS_NOT_UNIQUE_ERROR, value
   end
 
+  def test_invalid_type : Nil
+    expect_raises AVD::Exceptions::UnexpectedValueError, "Expected argument of type 'Indexable', 'Int32' given." do
+      self.validator.validate 123, new_constraint message: "my_message"
+    end
+  end
+
   def valid_values : NamedTuple
     {
       nil:             {nil},
