@@ -16,6 +16,10 @@ class Athena::DependencyInjection::ServiceContainer
       # Define an array to store the IDs of all used services.
       # I.e. that another service depends on, or is public.
       {% used_service_ids = [] of Nil %}
+      
+      # Define a hash to store the iterator types that should be created.
+      # Maps the method name to the type of the enumerable.
+      {% iterators = {} of Nil => Nil %}
 
       # Register each service in the hash along with some related metadata.
       {% for service in Object.all_subclasses.select &.annotation(ADI::Register) %}
@@ -142,22 +146,62 @@ class Athena::DependencyInjection::ServiceContainer
               named_arg = service_ann.named_args["_#{initializer_arg.name}"]
 
               if named_arg.is_a?(ArrayLiteral)
-                inner_args = named_arg.map do |arr_arg|
-                  if arr_arg.is_a?(ArrayLiteral)
-                    arr_arg.raise "Failed to register service '#{service_id.id}'.  Arrays more than two levels deep are not currently supported."
-                  elsif arr_arg.is_a?(StringLiteral) && arr_arg.starts_with?('@')
-                    service_name = arr_arg[1..-1]
-                    raise "Failed to register service '#{service_id.id}'.  Could not resolve argument '#{initializer_arg}' from named argument value '#{named_arg}'." unless service_hash[service_name]
-                    used_service_ids << service_name.id
-                    service_name.id
-                  elsif arr_arg.is_a?(StringLiteral) && arr_arg.starts_with?('%') && arr_arg.ends_with?('%')
-                    "ACF.parameters.#{arr_arg[1..-2].id}".id
-                  else
-                    arr_arg
-                  end
-                end
+                # Create a lazy enumerable type for Enumerable arguments
+                # that will lazily resolve each service.
+                if initializer_arg.restriction.resolve <= Enumerable
+                  inner_args = named_arg.map do |arr_arg|
+                    if arr_arg.is_a?(StringLiteral) && arr_arg.starts_with?('@')
+                      service_name = arr_arg[1..-1]
+                      raise "Failed to register service '#{service_id.id}'.  Could not resolve argument '#{arr_arg}' from named argument value '#{named_arg}'." unless service_hash[service_name]
+                      used_service_ids << service_name.id
+                      service_name.id
+                    else
+                      resolved_services = [] of Nil
 
-                %((#{inner_args} of Union(#{initializer_arg.restriction.resolve.type_vars.splat}))).id
+                      # Otherwise resolve possible services based on type
+                      service_hash.each do |id, s_metadata|
+                        if !(r = arr_arg).is_a?(Nop) && (type = r.resolve?) &&
+                           (
+                             s_metadata[:service] <= type ||
+                             (type < ADI::Proxy && s_metadata[:service] <= type.type_vars.first.resolve)
+                           )
+                          resolved_services << id
+                        end
+                      end
+
+                      if resolved_services.size == 1
+                        used_service_ids << resolved_services[0].id
+                        resolved_services[0].id
+                      else
+                        raise "Failed to resolve Enumerable service."
+                      end
+                    end
+                  end
+
+                  iterators[service_id] = {
+                    iterator_type_name: iterator_type_name = "#{service_id.camelcase.id}Iterator".id,
+                    services:           inner_args,
+                  }
+
+                  "#{iterator_type_name.id}(#{initializer_arg.restriction.resolve.type_vars.splat}).new(self)".id
+                else
+                  inner_args = named_arg.map do |arr_arg|
+                    if arr_arg.is_a?(ArrayLiteral)
+                      arr_arg.raise "Failed to register service '#{service_id.id}'.  Arrays more than two levels deep are not currently supported."
+                    elsif arr_arg.is_a?(StringLiteral) && arr_arg.starts_with?('@')
+                      service_name = arr_arg[1..-1]
+                      raise "Failed to register service '#{service_id.id}'.  Could not resolve argument '#{initializer_arg}' from named argument value '#{named_arg}'." unless service_hash[service_name]
+                      used_service_ids << service_name.id
+                      service_name.id
+                    elsif arr_arg.is_a?(StringLiteral) && arr_arg.starts_with?('%') && arr_arg.ends_with?('%')
+                      "ACF.parameters.#{arr_arg[1..-2].id}".id
+                    else
+                      arr_arg
+                    end
+                  end
+
+                  %((#{inner_args} of Union(#{initializer_arg.restriction.resolve.type_vars.splat}))).id
+                end
               elsif named_arg.is_a?(StringLiteral) && named_arg.starts_with?('!')
                 tagged_services = [] of Nil
 
@@ -322,6 +366,21 @@ class Athena::DependencyInjection::ServiceContainer
          end %}
       {% service_hash = final_services %}
 
+      # Define private Enumerable instances that lazily yield each service while still being Enumerable compatible.
+      {% for service_id, metadata in iterators %}
+        private struct {{metadata[:iterator_type_name]}}(T)
+          include Enumerable(T)
+
+          def initialize(@container : ADI::ServiceContainer);end
+
+          def each(& : T -> Nil) : Nil
+            {% for service in metadata[:services] %}
+              yield @container.{{service.id}}
+            {% end %}
+          end
+        end
+      {% end %}
+
       # Define getters for each service, if the service is public, make the getter public and also define a type based getter
       {% for service_id, metadata in service_hash %}
         {% generics_type = "#{metadata[:service].name(generic_args: false)}(#{metadata[:generics].splat})".id %}
@@ -337,7 +396,7 @@ class Athena::DependencyInjection::ServiceContainer
           {% constructor_method = factory[1] %}
         {% end %}
 
-        {% if metadata[:public] != true %}private{% end %} getter {{service_id.id}} : {{ivar_type}} { {{constructor_service}}.{{constructor_method.id}}({{metadata[:arguments].splat}}) }
+        {% if metadata[:public] != true %}protected{% end %} getter {{service_id.id}} : {{ivar_type}} { {{constructor_service}}.{{constructor_method.id}}({{metadata[:arguments].splat}}) }
 
         {% if metadata[:public] %}
           def get(service : {{service}}.class) : {{service}}
@@ -352,7 +411,7 @@ class Athena::DependencyInjection::ServiceContainer
 
         {% type = metadata[:generics].empty? ? metadata[:service] : "#{metadata[:service].name(generic_args: false)}(#{metadata[:generics].splat})".id %}
 
-        {% if metadata[:public_alias] != true %}private{% end %} def {{service_type.name.gsub(/::/, "_").underscore.id}} : {{type}}; {{service_id.id}}; end
+        {% if metadata[:public_alias] != true %}protected{% end %} def {{service_type.name.gsub(/::/, "_").underscore.id}} : {{type}}; {{service_id.id}}; end
 
         {% if metadata[:public_alias] %}
           def get(service : {{service_type}}.class) : {{service_type}}
@@ -360,6 +419,7 @@ class Athena::DependencyInjection::ServiceContainer
           end
         {% end %}
       {% end %}
+      {{debug}}
     {% end %}
   end
 end
