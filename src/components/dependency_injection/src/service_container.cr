@@ -16,9 +16,9 @@ class Athena::DependencyInjection::ServiceContainer
       # Define an array to store the IDs of all used services.
       # I.e. that another service depends on, or is public.
       {% used_service_ids = [] of Nil %}
-      
+
       # Define a hash to store the iterator types that should be created.
-      # Maps the method name to the type of the enumerable.
+      # Maps the type name to the type of the enumerable and what services it should yield.
       {% iterators = {} of Nil => Nil %}
 
       # Register each service in the hash along with some related metadata.
@@ -155,16 +155,12 @@ class Athena::DependencyInjection::ServiceContainer
                       raise "Failed to register service '#{service_id.id}'.  Could not resolve argument '#{arr_arg}' from named argument value '#{named_arg}'." unless service_hash[service_name]
                       used_service_ids << service_name.id
                       service_name.id
-                    else
+                    elsif !(r = arr_arg).is_a?(Nop) && (type = r.resolve?)
                       resolved_services = [] of Nil
 
                       # Otherwise resolve possible services based on type
                       service_hash.each do |id, s_metadata|
-                        if !(r = arr_arg).is_a?(Nop) && (type = r.resolve?) &&
-                           (
-                             s_metadata[:service] <= type ||
-                             (type < ADI::Proxy && s_metadata[:service] <= type.type_vars.first.resolve)
-                           )
+                        if (s_metadata[:service] <= type || (type < ADI::Proxy && s_metadata[:service] <= type.type_vars.first.resolve))
                           resolved_services << id
                         end
                       end
@@ -175,15 +171,14 @@ class Athena::DependencyInjection::ServiceContainer
                       else
                         raise "Failed to resolve Enumerable service."
                       end
+                    else
+                      arr_arg.raise "Failed to register service '#{service_id.id}'.  Arrays more than two levels deep are not currently supported."
                     end
                   end
 
-                  iterators[service_id] = {
-                    iterator_type_name: iterator_type_name = "#{service_id.camelcase.id}Iterator".id,
-                    services:           inner_args,
-                  }
+                  iterators[iterator_type_name = "#{service_id.camelcase.id}Iterator"] = inner_args
 
-                  "#{iterator_type_name.id}(#{initializer_arg.restriction.resolve.type_vars.splat}).new(self)".id
+                  "#{iterator_type_name.id}(#{initializer_arg.restriction.resolve.type_vars.splat}, #{inner_args.size}).new(self)".id
                 else
                   inner_args = named_arg.map do |arr_arg|
                     if arr_arg.is_a?(ArrayLiteral)
@@ -367,16 +362,40 @@ class Athena::DependencyInjection::ServiceContainer
       {% service_hash = final_services %}
 
       # Define private Enumerable instances that lazily yield each service while still being Enumerable compatible.
-      {% for service_id, metadata in iterators %}
-        private struct {{metadata[:iterator_type_name]}}(T)
-          include Enumerable(T)
+      {% for iterator_type_name, services in iterators %}
+        private struct {{iterator_type_name.id}}(T,S)
+          include Iterator(T)
 
-          def initialize(@container : ADI::ServiceContainer);end
+          @offset = 0
+
+          def initialize(@container : ADI::ServiceContainer); end
 
           def each(& : T -> Nil) : Nil
-            {% for service in metadata[:services] %}
-              yield @container.{{service.id}}
+            {% for service in services %}
+              yield @container.{{service.id}}\
             {% end %}
+          end
+
+          def next : T | Iterator::Stop
+            return stop if @offset == S
+
+            {% begin %}
+            case @offset
+              {% for service, idx in services %}
+                when {{idx}} then @container.{{service.id}}\
+              {% end %}
+            {% end %}
+            else
+              raise ""
+            end.tap { @offset += 1 }
+          end
+
+          def size : Int32
+            S
+          end
+
+          def rewind : Nil
+            @offset = 0
           end
         end
       {% end %}
@@ -419,7 +438,6 @@ class Athena::DependencyInjection::ServiceContainer
           end
         {% end %}
       {% end %}
-      {{debug}}
     {% end %}
   end
 end
