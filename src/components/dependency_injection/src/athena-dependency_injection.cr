@@ -746,98 +746,50 @@ module Athena::DependencyInjection
   def self.container : ADI::ServiceContainer
     Fiber.current.container
   end
-end
 
-module Middleware
-end
+  # :nodoc:
+  macro service_iterator(for name, services)
+    {% begin %}
+      private struct Athena::DependencyInjection::ServiceContainer::{{"#{name.camelcase.id}Iterator".id}}(T, S)
+        include Iterator(T)
+        # include Iterable(T)
 
-@[ADI::Register]
-class ServiceMiddleware
-  include Middleware
+        @offset = 0
 
-  def initialize
-    pp {{@type}}
+        def initialize(@container : ADI::ServiceContainer); end
+
+        def each(& : T -> Nil) : Nil
+          {% for service_id in services %}
+            yield @container.{{service_id.id}}\
+          {% end %}
+        end
+
+        # def each
+        #   self
+        # end
+
+        def next : T | Iterator::Stop
+          return stop if @offset == S
+
+          {% begin %}
+          case @offset
+            {% for service_id, idx in services %}
+              when {{idx}} then @container.{{service_id.id}}\
+            {% end %}
+          {% end %}
+          else
+            raise ""
+          end.tap { @offset += 1 }
+        end
+
+        def size : Int32
+          S
+        end
+
+        def rewind : Nil
+          @offset = 0
+        end
+      end
+    {% end %}
   end
 end
-
-@[ADI::Register(name: "one", _id: 1)]
-@[ADI::Register(name: "two", _id: 2)]
-class Blah::SecretMiddleware
-  include Middleware
-
-  def initialize(@id : Int32)
-    pp {{@type}}, @id
-  end
-end
-
-@[ADI::Register(public: true, _middleware: [ServiceMiddleware, "@one", "@two"])]
-class SomeService
-  def initialize(@middleware : Enumerable(Middleware)); end
-
-  def execute
-    @middleware.each do |m|
-      pp "Executing #{m.class}"
-    end
-  end
-end
-
-some_service = ADI::ServiceContainer.new.some_service
-
-some_service.execute
-some_service.execute
-
-# pp some_service
-# macro create_bus(name, middleware = [] of Nil, default = false)
-#   {% iterator_service_name = "#{name.underscore.id}_middleware_iterator" %}
-
-#   # :nodoc:
-# struct ADI::{{iterator_service_name.camelcase.id}}(T)
-#   include Enumerable(T)
-
-#   def initialize(@container : ADI::ServiceContainer);end
-
-#   def each(& : T -> Nil) : Nil
-#     {% for m in middleware %}
-#       {% s_name = m.is_a?(StringLiteral) && m.starts_with?("@") ? m[1..-1] : m.resolve.name.underscore.gsub(/::/, "_") %}
-#       yield @container.{{s_name.id}}
-#     {% end %}
-#   end
-# end
-
-# #   @[ADI::Register(name: {{name}}, _middleware: {{"ADI::#{iterator_service_name.camelcase.id}(Middleware).new(self)".id}}, public: true)]
-# #   class MessageBus; end
-# # end
-
-# macro create_bus(name, middleware = [] of Nil, default = false)
-#   @[ADI::Register(name: {{name}}, _middleware: {{middleware}}, public: true)]
-#   class MessageBus; end
-# end
-
-# AMG.create_bus "command_bus", middleware: [ServiceMiddleware, "@one", "@two"]
-
-# bus = ADI::ServiceContainer.new.command_bus
-
-# bus.dispatch
-
-# class ServiceContainer
-# private struct SomeServiceIterator(T)
-#   include Enumerable(T)
-
-#   def initialize(@container : ADI::ServiceContainer); end
-
-#   def each(& : T -> Nil) : Nil
-#     yield @container.service_middleware
-#     yield @container.one
-#     yield @container.two
-#   end
-# end
-
-#   protected getter service_middleware : ServiceMiddleware { ServiceMiddleware.new }
-#   protected getter one : Blah::SecretMiddleware { Blah::SecretMiddleware.new(1) }
-#   protected getter two : Blah::SecretMiddleware { Blah::SecretMiddleware.new(2) }
-#   getter some_service : SomeService { SomeService.new(SomeServiceIterator(Middleware).new(self)) }
-
-#   def get(service : SomeService.class) : SomeService
-#     some_service
-#   end
-# end
