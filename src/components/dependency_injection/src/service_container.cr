@@ -148,7 +148,7 @@ class Athena::DependencyInjection::ServiceContainer
               if named_arg.is_a?(ArrayLiteral)
                 # Create a lazy enumerable type for Enumerable arguments that consist of all service references or type nodes
                 # that will lazily resolve each service.
-                if ["Enumerable", "Iterator"].includes?(initializer_arg.restriction.resolve.name(generic_args: false).stringify) && named_arg.all? { |a| v = a.is_a?(Path) ? a.resolve : a; (v.is_a?(StringLiteral) && v.starts_with?('@')) || v.is_a?(Generic) || v.is_a?(TypeNode) }
+                if ["Enumerable", "Iterator", "Indexable", "Iterable"].includes?(initializer_arg.restriction.resolve.name(generic_args: false).stringify) && named_arg.all? { |a| v = a.is_a?(Path) ? a.resolve : a; (v.is_a?(StringLiteral) && v.starts_with?('@')) || v.is_a?(Generic) || v.is_a?(TypeNode) }
                   inner_args = named_arg.map do |arr_arg|
                     arr_arg = arr_arg.is_a?(Path) ? arr_arg.resolve : arr_arg
 

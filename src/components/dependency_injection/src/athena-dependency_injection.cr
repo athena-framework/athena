@@ -752,34 +752,18 @@ module Athena::DependencyInjection
     {% begin %}
       private struct Athena::DependencyInjection::ServiceContainer::{{"#{name.camelcase.id}Iterator".id}}(T, S)
         include Iterator(T)
-        # include Iterable(T)
+        include Indexable(T)
 
         @offset = 0
 
         def initialize(@container : ADI::ServiceContainer); end
 
-        def each(& : T -> Nil) : Nil
-          {% for service_id in services %}
-            yield @container.{{service_id.id}}\
-          {% end %}
-        end
-
-        # def each
-        #   self
-        # end
-
         def next : T | Iterator::Stop
           return stop if @offset == S
 
-          {% begin %}
-          case @offset
-            {% for service_id, idx in services %}
-              when {{idx}} then @container.{{service_id.id}}\
-            {% end %}
-          {% end %}
-          else
-            raise ""
-          end.tap { @offset += 1 }
+          self
+            .unsafe_fetch(@offset)
+            .tap { @offset += 1 }
         end
 
         def size : Int32
@@ -788,6 +772,17 @@ module Athena::DependencyInjection
 
         def rewind : Nil
           @offset = 0
+        end
+
+        # :nodoc:
+        def unsafe_fetch(index : Int) : T
+          case index
+            {% for service_id, idx in services %}
+              when {{idx}} then @container.{{service_id.id}}\
+            {% end %}
+          else
+            raise ""
+          end
         end
       end
     {% end %}
