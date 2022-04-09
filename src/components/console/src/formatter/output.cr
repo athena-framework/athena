@@ -32,7 +32,7 @@ class Athena::Console::Formatter::Output
   @styles = Hash(String, ACON::Formatter::OutputStyleInterface).new
   @current_line_length = 0
 
-  def initialize(@decorated : Bool = false, styles : ACON::Formatter::Mode? = nil)
+  def initialize(@decorated : Bool = false, styles : Colorize::Mode? = nil)
     self.set_style "error", ACON::Formatter::OutputStyle.new(:white, :red)
     self.set_style "info", ACON::Formatter::OutputStyle.new(:green)
     self.set_style "comment", ACON::Formatter::OutputStyle.new(:yellow)

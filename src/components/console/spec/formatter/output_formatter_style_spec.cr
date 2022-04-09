@@ -2,16 +2,16 @@ require "../spec_helper"
 
 describe ACON::Formatter::OutputStyle do
   it ".new" do
-    ACON::Formatter::OutputStyle.new(:green, :black, ACON::Formatter::Mode.flags Bold, Underline)
+    ACON::Formatter::OutputStyle.new(:green, :black, Colorize::Mode.flags Bold, Underline)
       .apply("foo").should eq "\e[32;40;1;4mfoo\e[0m"
 
-    ACON::Formatter::OutputStyle.new(:red, options: ACON::Formatter::Mode::Blink)
+    ACON::Formatter::OutputStyle.new(:red, options: Colorize::Mode::Blink)
       .apply("foo").should eq "\e[31;5mfoo\e[0m"
 
     ACON::Formatter::OutputStyle.new(background: :white)
       .apply("foo").should eq "\e[107mfoo\e[0m"
 
-    ACON::Formatter::OutputStyle.new("red", "#000000", ACON::Formatter::Mode.flags Bold, Underline)
+    ACON::Formatter::OutputStyle.new("red", "#000000", Colorize::Mode.flags Bold, Underline)
       .apply("foo").should eq "\e[31;48;2;0;0;0;1;4mfoo\e[0m"
   end
 
@@ -87,7 +87,7 @@ describe ACON::Formatter::OutputStyle do
     style.add_option "bold"
     style.apply("foo").should eq "\e[1;8mfoo\e[0m"
 
-    style.options = ACON::Formatter::Mode::Bold
+    style.options = Colorize::Mode::Bold
     style.apply("foo").should eq "\e[1mfoo\e[0m"
   end
 
