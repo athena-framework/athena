@@ -12,7 +12,7 @@ struct Athena::Console::Formatter::OutputStyle
   setter background : Colorize::Color = :default
 
   # :inherit:
-  setter options : ACON::Formatter::Mode = :none
+  setter options : Colorize::Mode = :none
 
   # Sets the `href` that `self` should link to.
   setter href : String? = nil
@@ -22,19 +22,19 @@ struct Athena::Console::Formatter::OutputStyle
     "JetBrains-JediTerm" != ENV["TERMINAL_EMULATOR"]? && (!ENV.has_key?("KONSOLE_VERSION") || ENV["KONSOLE_VERSION"].to_i > 201100)
   end
 
-  def initialize(foreground : Colorize::Color | String = :default, background : Colorize::Color | String = :default, @options : ACON::Formatter::Mode = :none)
+  def initialize(foreground : Colorize::Color | String = :default, background : Colorize::Color | String = :default, @options : Colorize::Mode = :none)
     self.foreground = foreground
     self.background = background
   end
 
   # :inherit:
-  def add_option(option : ACON::Formatter::Mode) : Nil
+  def add_option(option : Colorize::Mode) : Nil
     @options |= option
   end
 
   # :ditto:
   def add_option(option : String) : Nil
-    self.add_option ACON::Formatter::Mode.parse option
+    self.add_option Colorize::Mode.parse option
   end
 
   # :inherit:
@@ -58,13 +58,13 @@ struct Athena::Console::Formatter::OutputStyle
   end
 
   # :inherit:
-  def remove_option(option : ACON::Formatter::Mode) : Nil
+  def remove_option(option : Colorize::Mode) : Nil
     @options ^= option
   end
 
   # :ditto:
   def remove_option(option : String) : Nil
-    self.remove_option ACON::Formatter::Mode.parse option
+    self.remove_option Colorize::Mode.parse option
   end
 
   # :inherit:
@@ -80,7 +80,7 @@ struct Athena::Console::Formatter::OutputStyle
 
     if options = @options
       options.each do |mode|
-        color.mode mode.to_sym
+        color.mode mode
       end
     end
 
