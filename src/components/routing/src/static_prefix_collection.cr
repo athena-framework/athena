@@ -71,7 +71,6 @@ class Athena::Routing::RouteProvider::StaticPrefixCollection
       return
     end
 
-    # ameba:disable Lint/UnreachableCode
     @static_prefixes << static_prefix
     @prefixes << prefix
     @items << route
