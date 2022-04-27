@@ -20,11 +20,3 @@ dependencies:
   athena-config:
     github: athena-framework/config
     version: ~> 0.3.0
-
-development_dependencies:
-  ameba:
-    github: crystal-ameba/ameba
-    version: ~> 1.0
-  athena-spec:
-    github: athena-framework/spec
-    version: ~> 0.2.3

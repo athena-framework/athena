@@ -10,16 +10,8 @@ repository: https://github.com/athena-framework/console
 
 documentation: https://athenaframework.org/Console
 
-Allows the creation of CLI based commands.: |
+description: |
   Allows the creation of CLI based commands.
 
 authors:
   - George Dietrich <george@dietrich.app>
-
-development_dependencies:
-  ameba:
-    github: crystal-ameba/ameba
-    version: ~> 1.0
-  athena-spec:
-    github: athena-framework/spec
-    version: ~> 0.2.3
