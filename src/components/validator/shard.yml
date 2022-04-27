@@ -20,11 +20,3 @@ dependencies:
   athena-image_size:
     github: athena-framework/image-size
     version: ~> 0.1.0
-
-development_dependencies:
-  ameba:
-    github: crystal-ameba/ameba
-    version: ~> 1.0
-  athena-spec:
-    github: athena-framework/spec
-    version: ~> 0.2.3

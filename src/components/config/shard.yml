@@ -15,11 +15,3 @@ description: |
 
 authors:
   - George Dietrich <george@dietrich.app>
-
-development_dependencies:
-  ameba:
-    github: crystal-ameba/ameba
-    version: ~> 1.0
-  athena-spec:
-    github: athena-framework/spec
-    version: ~> 0.2.3

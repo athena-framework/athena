@@ -10,16 +10,8 @@ repository: https://github.com/athena-framework/image-size
 
 documentation: https://athenaframework.org/ImageSize
 
-Measures the size of various image formats: |
+description: |
   Measures the size of various image formats.
 
 authors:
   - George Dietrich <george@dietrich.app>
-
-development_dependencies:
-  ameba:
-    github: crystal-ameba/ameba
-    version: ~> 1.0
-  athena-spec:
-    github: athena-framework/spec
-    version: ~> 0.2.3
