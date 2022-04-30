@@ -26,6 +26,30 @@ alias ADI = Athena::DependencyInjection
 #
 # Using interfaces allows changing the functionality of a type by just changing what service gets injected into it, such as via an alias.
 # See this [blog post](https://dev.to/blacksmoke16/dependency-injection-in-crystal-2d66#plug-and-play) for an example of this.
+#
+# ## Getting Started
+#
+# If using this component within the [Athena Framework][Athena::Framework], it is already installed and required for you.
+# Checkout the [manual](/components/dependency_injection) for some additional information on how to use it within the framework.
+#
+# If using it outside of the framework, you will first need to add it as a dependency:
+#
+# ```yaml
+# dependencies:
+#   athena-dependency_injection:
+#     github: athena-framework/dependency-injection
+#     version: ~> 0.3.0
+# ```
+#
+# Then run `shards install`, being sure to require it via `require "athena-dependency_injection"`.
+#
+# From here integration of the component depends on the execution flow of your application, and how it uses [Fibers](https://crystal-lang.org/api/Fiber.html).
+# Since each fiber has its own container instance, if your application only uses Crystal's main fiber and is short lived, then you most likely only need to set up your services
+# and expose one of them as [public][Athena::DependencyInjection::Register--optional-arguments] to serve as the entry point.
+#
+# If your application is meant to be long lived, such as using a [HTTP::Server](https://crystal-lang.org/api/HTTP/Server.html), then you will want to ensure that each
+# fiber is truly independent from one another, with them not being reused or sharing state external to the container. An example of this is how `HTTP::Server` reuses fibers
+# for `connection: keep-alive` requests. Because of this, or in cases similar to, you may want to manually reset the container via `Fiber.current.container = ADI::ServiceContainer.new`.
 module Athena::DependencyInjection
   VERSION = "0.3.2"
 
