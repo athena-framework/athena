@@ -3,13 +3,15 @@ struct Athena::Framework::Arguments::ArgumentMetadata(T)
   # The name of the argument.
   getter name : String
 
-  # The type of the parameter, i.e. what its type restriction is.
-  getter type : T.class
+  def initialize(@name : String); end
 
   # If `nil` is a valid argument for the argument.
-  getter? nilable : Bool
+  def nilable? : Bool
+    {{T.nilable?}}
+  end
 
-  def initialize(@name : String, is_nilable : Bool = false, @type : T.class = T)
-    @nilable = is_nilable || @type == Nil
+  # The type of the parameter, i.e. what its type restriction is.
+  def type : T.class
+    T
   end
 end
