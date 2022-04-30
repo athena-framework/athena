@@ -38,11 +38,10 @@ module YAML; end
 #
 # ## Getting Started
 #
-# The serializer component utilizes a module to specify that a type is serializable, as well as annotations to control how it gets (de)serialized.
+# If using this component within the [Athena Framework][Athena::Framework], it is already installed and required for you.
+# Checkout the [manual](/components/serializer) for some additional information on how to use it within the framework.
 #
-# ### Installation
-#
-# Add the dependency to your `shard.yml`:
+# If using it outside of the framework, you will first need to add it as a dependency:
 #
 # ```yaml
 # dependencies:
@@ -51,9 +50,9 @@ module YAML; end
 #     version: ~> 0.2.0
 # ```
 #
-# Run `shards install`.
+# Then run `shards install`, being sure to require it via `require "athena-serializer"`.
 #
-# ### Usage
+# ## Usage
 #
 # See the `ASR::Annotations` namespace a complete list of annotations, as well as each annotation for more detailed information.
 #

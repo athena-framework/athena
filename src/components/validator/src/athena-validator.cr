@@ -41,6 +41,22 @@ alias Assert = AVD::Annotations
 #
 # ## Getting Started
 #
+# If using this component within the [Athena Framework][Athena::Framework], it is already installed and required for you.
+# Checkout the [manual](/components/validator) for some additional information on how to use it within the framework.
+#
+# If using it outside of the framework, you will first need to add it as a dependency:
+#
+# ```yaml
+# dependencies:
+#   athena-validator:
+#     github: athena-framework/validator
+#     version: ~> 0.1.0
+# ```
+#
+# Then run `shards install`, being sure to require it via `require "athena-validator"`.
+#
+# ## Usage
+#
 # `Athena::Validator` comes with a set of common `AVD::Constraints` built in that any project could find useful.
 # When used on its own, the `Athena::Validator.validator` method can be used to obtain an `AVD::Validator::ValidatorInterface` instance
 # to validate a given value/object.

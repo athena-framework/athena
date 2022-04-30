@@ -80,6 +80,33 @@ alias AED = Athena::EventDispatcher
 # # * Checking if there is a listener(s) listening on a given `AED::Event`
 # dispatcher.has_listeners? ExceptionEvent # => true
 # ```
+#
+# ## Getting Started
+#
+# If using this component within the [Athena Framework][Athena::Framework], it is already installed and required for you.
+# Checkout the [manual](/components/event_dispatcher) for some additional information on how to use it within the framework.
+#
+# If using it outside of the framework, you will first need to add it as a dependency:
+#
+# ```yaml
+# dependencies:
+#   athena-event_dispatcher:
+#     github: athena-framework/event-dispatcher
+#     version: ~> 0.1.0
+# ```
+#
+# Then run `shards install`, being sure to require it via `require "athena-event_dispatcher"`.
+#
+# From here you will want to define any `AED::EventListenerInterface` and/or custom `AED::Event`s as required by your application.
+# You will then need a way to create/register the listeners with an `AED::EventDispatcherInterface`.
+# If none of your listeners have any constructor arguments, you can most likely just call `.new` on the default implementation,
+# otherwise you will need to pass it an array of the instantiated listener types.
+#
+# The dispatcher should be created in a way that allows it to be used throughout the application such that any mutations that happen to the listeners are reflected on subsequent dispatches.
+#
+# WARNING: If using this component within the context of something that handles independent execution flows, such as a web framework, you will want there to be a dedicated dispatcher instance for each path.
+# This ensures that one flow will not leak state to any other flow, while still allowing flow specific mutations to be used.
+# Consider pairing this component with the [Athena::DependencyInjection][Athena::DependencyInjection--getting-started] component as a way to handle this.
 module Athena::EventDispatcher
   VERSION = "0.1.3"
 
