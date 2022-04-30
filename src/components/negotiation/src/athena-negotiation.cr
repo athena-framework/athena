@@ -16,6 +16,22 @@ alias ANG = Athena::Negotiation
 # The `Athena::Negotiation` component allows an application to support [content negotiation](https://tools.ietf.org/html/rfc7231#section-5.3).
 # The component has no dependencies and is framework agnostic; supporting various negotiators.
 #
+# ## Getting Started
+#
+# If using this component within the [Athena Framework][Athena::Framework], it is already installed and required for you.
+# Checkout the [manual](/components/negotiation) for some additional information on how to use it within the framework.
+#
+# If using it outside of the framework, you will first need to add it as a dependency:
+#
+# ```yaml
+# dependencies:
+#   athena-negotiation:
+#     github: athena-framework/negotiation
+#     version: ~> 0.1.0
+# ```
+#
+# Then run `shards install`, being sure to require it via `require "athena-negotiation"`.
+#
 # ## Usage
 #
 # The main type of `Athena::Negotiation` is `ANG::AbstractNegotiator` which is used to implement negotiators for each `Accept*` header.

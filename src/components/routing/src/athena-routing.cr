@@ -64,6 +64,27 @@ alias ARTA = ART::Annotations
 # ```
 #
 # See the related types for more detailed information.
+#
+# ## Getting Started
+#
+# If using this component within the [Athena Framework][Athena::Framework], it is already installed and required for you.
+# Checkout the [manual](/components/routing) for some additional information on how to use it within the framework.
+#
+# If using it outside of the framework, you will first need to add it as a dependency:
+#
+# ```yaml
+# dependencies:
+#   athena-routing:
+#     github: athena-framework/routing
+#     version: ~> 0.1.0
+# ```
+#
+# Then run `shards install`, being sure to require it via `require "athena-routing"`.
+#
+# From here you would want to create an `ART::RouteCollection`, register routes with it, [compile][Athena::Routing.compile(routes)] it.
+# Then an `ART::Matcher::URLMatcherInterface` or `ART::Matcher::RequestMatcherInterface` could then be used to determine which route matches a given path or `ART::Request`.
+#
+# TIP: Consider using the annotations provided by the component within `ART::Annotations` to handle route registration.
 module Athena::Routing
   VERSION = "0.1.1"
 

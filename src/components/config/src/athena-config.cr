@@ -30,7 +30,7 @@ module Athena
   #
   # ```yaml
   # dependencies:
-  #   athena-config
+  #   athena-config:
   #     github: athena-framework/config
   #     version: ~> 0.3.0
   # ```

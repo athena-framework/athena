@@ -90,7 +90,7 @@ alias AED = Athena::EventDispatcher
 #
 # ```yaml
 # dependencies:
-#   athena-event_dispatcher
+#   athena-event_dispatcher:
 #     github: athena-framework/event-dispatcher
 #     version: ~> 0.1.0
 # ```
