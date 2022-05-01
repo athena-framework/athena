@@ -13,28 +13,34 @@ struct Athena::Framework::Arguments::Resolvers::Enum
   end
 
   # :inherit:
-  def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata(EnumType)) forall EnumType
-    {% if EnumType <= ::Enum %}
-      return unless (value = request.attributes.get(argument.name, String?))
+  def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata(::Enum?))
+    return unless (value = request.attributes.get(argument.name, String?))
 
-      enum_type = {{ EnumType.nilable? ? EnumType.union_types.reject(&.nilable?).first : EnumType }}
-
-      member = if (num = value.to_i64?(whitespace: false)) && (m = enum_type.from_value? num)
-                 m
-               elsif (m = enum_type.parse? value)
-                 m
-               end
-
-      unless member
-        raise ATH::Exceptions::BadRequest.new "Parameter '#{argument.name}' of enum type '#{EnumType}' has no valid member for '#{value}'."
-      end
-
-      member
-    {% end %}
+    self.resolve value, argument.name, argument.type
   end
 
   # :inherit:
   def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
     # Noop overload for non Enum types.
+  end
+
+  private def resolve(value, name : String, _enum_type : EnumType.class) forall EnumType
+    {% begin %}
+      {% enum_type = EnumType.nilable? ? EnumType.union_types.reject(&.nilable?).first : EnumType %}
+
+      {% if enum_type && enum_type <= ::Enum %}
+        member = if (num = value.to_i128?(whitespace: false)) && (m = {{enum_type}}.from_value? num)
+          m
+        elsif (m = {{enum_type}}.parse? value)
+          m
+        end
+
+        unless member
+          raise ATH::Exceptions::BadRequest.new "Parameter '#{name}' of enum type '#{{{enum_type}}}' has no valid member for '#{value}'."
+        end
+
+        member
+      {% end %}
+    {% end %}
   end
 end

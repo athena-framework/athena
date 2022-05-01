@@ -1,7 +1,7 @@
 require "../../spec_helper"
 
 describe ATH::Arguments::Resolvers::Request do
-  describe "#supports" do
+  describe "#supports?" do
     it ATH::Request do
       argument = ATH::Arguments::ArgumentMetadata(ATH::Request).new "id"
 

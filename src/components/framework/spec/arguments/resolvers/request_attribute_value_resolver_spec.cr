@@ -1,7 +1,7 @@
 require "../../spec_helper"
 
 describe ATH::Arguments::Resolvers::RequestAttribute do
-  describe "#supports" do
+  describe "#supports?" do
     it "that exists in the request attributes" do
       request = new_request
       request.attributes.set "id", 1
