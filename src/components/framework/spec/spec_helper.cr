@@ -9,8 +9,6 @@ require "athena-event_dispatcher/spec"
 require "athena-validator/spec"
 require "../src/spec"
 
-include ASPEC::Methods
-
 ASPEC.run_all
 
 class TestController < ATH::Controller
