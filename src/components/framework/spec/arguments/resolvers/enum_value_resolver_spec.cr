@@ -6,7 +6,7 @@ enum TestEnum
   C
 end
 
-describe ATH::Arguments::Resolvers::Enum, focus: true do
+describe ATH::Arguments::Resolvers::Enum do
   describe "#supports?" do
     describe ::Enum do
       it "that does exist in request attributes" do

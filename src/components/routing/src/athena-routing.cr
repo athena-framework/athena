@@ -15,6 +15,7 @@ require "./router"
 require "./exception/*"
 require "./generator/*"
 require "./matcher/*"
+require "./requirement/*"
 
 # Convenience alias to make referencing `Athena::Routing` types easier.
 alias ART = Athena::Routing
