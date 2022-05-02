@@ -10,8 +10,8 @@ struct Athena::Routing::Requirement::Enum(EnumType)
   end
 
   def to_s(io : IO) : Nil
-    (@members || EnumType.values).join io, '|' do |member, io|
-      io << Regex.escape member.to_s.underscore
+    (@members || EnumType.values).join io, '|' do |member, join_io|
+      join_io << Regex.escape member.to_s.underscore
     end
   end
 end
