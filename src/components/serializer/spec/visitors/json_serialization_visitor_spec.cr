@@ -96,7 +96,7 @@ describe ASR::Visitors::JSONSerializationVisitor do
       end
 
       it Enum do
-        assert_serialized_output(ASR::Visitors::JSONSerializationVisitor, "two") do |visitor|
+        assert_serialized_output(ASR::Visitors::JSONSerializationVisitor, %("two")) do |visitor|
           visitor.visit TestEnum::Two
         end
       end
