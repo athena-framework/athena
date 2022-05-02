@@ -22,11 +22,17 @@ describe ATH::Arguments::Resolvers::Enum do
         request = new_request
         request.attributes.set "enum", "1"
 
-        ATH::Arguments::Resolvers::Enum.new.supports?(request, argument).should be_false
+        ATH::Arguments::Resolvers::Enum.new.supports?(request, argument).should be_true
       end
 
       it "that does not exist in request attributes" do
         argument = ATH::Arguments::ArgumentMetadata(TestEnum).new "enum"
+
+        ATH::Arguments::Resolvers::Enum.new.supports?(new_request, argument).should be_false
+      end
+
+      it "that is nilable and not exist in request attributes" do
+        argument = ATH::Arguments::ArgumentMetadata(TestEnum?).new "enum"
 
         ATH::Arguments::Resolvers::Enum.new.supports?(new_request, argument).should be_false
       end
@@ -75,6 +81,15 @@ describe ATH::Arguments::Resolvers::Enum do
 
     it "with a string based value" do
       argument = ATH::Arguments::ArgumentMetadata(TestEnum).new "enum"
+
+      request = new_request
+      request.attributes.set "enum", "B"
+
+      ATH::Arguments::Resolvers::Enum.new.resolve(request, argument).should eq TestEnum::B
+    end
+
+    it "with a string based nilable value" do
+      argument = ATH::Arguments::ArgumentMetadata(TestEnum?).new "enum"
 
       request = new_request
       request.attributes.set "enum", "B"

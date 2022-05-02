@@ -12,12 +12,22 @@
 # end
 #
 # class ExampleController < ATH::Controller
-#   @[ARTA::Get("/color/{color}", requirements: {"color" => ART::Requirement::Enum(Color).new})]
+#   @[ARTA::Get(
+#     "/color/{color}",
+#     requirements: {
+#       "color" => ART::Requirement::Enum(Color).new,
+#     }
+#   )]
 #   def get_color(color : Color) : Color
 #     color
 #   end
 #
-#   @[ARTA::Get("/rgb-color/{color}", requirements: {"color" => ART::Requirement::Enum(Color).new(:red, :green, :blue)})]
+#   @[ARTA::Get(
+#     "/rgb-color/{color}",
+#     requirements: {
+#       "color" => ART::Requirement::Enum(Color).new(:red, :green, :blue),
+#     }
+#   )]
 #   def get_rgb_color(color : Color) : Color
 #     color
 #   end
@@ -36,6 +46,7 @@
 #
 # NOTE: This type _ONLY_ supports the string representation of enum members.
 struct Athena::Routing::Requirement::Enum(EnumType)
+  # Returns the set of allowed enum members, or `nil` if all members are allowed.
   getter members : Set(EnumType)? = nil
 
   def self.new(*cases : EnumType)
@@ -46,6 +57,7 @@ struct Athena::Routing::Requirement::Enum(EnumType)
     {% raise "'#{EnumType}' is not an Enum type." unless EnumType <= ::Enum %}
   end
 
+  # :nodoc:
   def to_s(io : IO) : Nil
     (@members || EnumType.names).join io, '|' do |member, join_io|
       join_io << Regex.escape member.to_s.underscore

@@ -176,7 +176,7 @@ describe ATH::Routing::AnnotationRouteLoader do
       assert_route(
         ATH::Routing::AnnotationRouteLoader.populate_collection(StringificationController),
         path: "/color/{color}",
-        requirements: {"color" => "red|green|blue", "foo" => /foo/}
+        requirements: {"color" => /red|green|blue/, "foo" => /foo/}
       )
     end
 

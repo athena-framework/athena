@@ -14,4 +14,20 @@ struct Athena::Framework::Arguments::ArgumentMetadata(T)
   def type : T.class
     T
   end
+
+  def type_of?(klass : Type.class) : Bool forall Type
+    {{ T.union? ? T.union_types.any? { |t| t <= Type } : T <= Type }}
+  end
+
+  def first_type_of(klass : Type.class) forall Type
+    {% if T.union? %}
+      {% for t in T.union_types %}
+        {% if t <= Type %}
+          return {{t}}
+        {% end %}
+      {% end %}
+    {% elsif T <= Type %}
+      {{T}}
+    {% end %}
+  end
 end

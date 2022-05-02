@@ -30,39 +30,29 @@
 # ```
 #
 # TIP: Checkout `ART::Requirement::Enum` for an easy way to restrict routing to an enum's members, or a subset of them.
-# WARNING: Only non-nilable Enum types are supported.
 struct Athena::Framework::Arguments::Resolvers::Enum
   include Athena::Framework::Arguments::Resolvers::ArgumentValueResolverInterface
 
   # :inherit:
-  def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata(::Enum)) : Bool
-    request.attributes.has? argument.name
-  end
-
-  # :inherit:
   def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Bool
-    false
-  end
-
-  # :inherit:
-  def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata(::Enum))
-    return unless (value = request.attributes.get(argument.name, String?))
-
-    member = if (num = value.to_i128?(whitespace: false)) && (m = argument.type.from_value? num)
-               m
-             elsif (m = argument.type.parse? value)
-               m
-             end
-
-    unless member
-      raise ATH::Exceptions::BadRequest.new "Parameter '#{argument.name}' of enum type '#{argument.type}' has no valid member for '#{value}'."
-    end
-
-    member
+    argument.type_of?(::Enum) && request.attributes.has? argument.name
   end
 
   # :inherit:
   def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
-    # Noop overload for non Enum types.
+    return unless (value = request.attributes.get(argument.name, String?))
+    return unless (enum_type = argument.first_type_of ::Enum)
+
+    member = if (num = value.to_i128?(whitespace: false)) && (m = enum_type.from_value? num)
+               m
+             elsif (m = enum_type.parse? value)
+               m
+             end
+
+    unless member
+      raise ATH::Exceptions::BadRequest.new "Parameter '#{argument.name}' of enum type '#{enum_type}' has no valid member for '#{value}'."
+    end
+
+    member
   end
 end
