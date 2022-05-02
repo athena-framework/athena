@@ -392,7 +392,13 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                   ann_requirements.raise "Route action '#{klass.name}##{m.name}' expects a 'HashLiteral(StringLiteral, StringLiteral | RegexLiteral)' for its '#{route_def.name}#requirements' field, but got a '#{ann_requirements.class_name.id}'."
                 end
 
-                ann_requirements.each { |k, v| requirements[k] = v }
+                ann_requirements.each do |k, v|
+                  requirements[k] = if v.is_a?(StringLiteral) || v.is_a?(RegexLiteral)
+                                      v
+                                    else
+                                      "#{v}.to_s".id
+                                    end
+                end
               end
 
               if (value = route_def[:host]) != nil

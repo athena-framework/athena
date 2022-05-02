@@ -17,12 +17,12 @@ describe ATH::Arguments::Resolvers::Enum do
         ATH::Arguments::Resolvers::Enum.new.supports?(request, argument).should be_true
       end
 
-      it "that does exist in request attributes" do
+      it "that does exist in request attributes, but the enum member is nilable" do
         argument = ATH::Arguments::ArgumentMetadata(TestEnum?).new "enum"
         request = new_request
         request.attributes.set "enum", "1"
 
-        ATH::Arguments::Resolvers::Enum.new.supports?(request, argument).should be_true
+        ATH::Arguments::Resolvers::Enum.new.supports?(request, argument).should be_false
       end
 
       it "that does not exist in request attributes" do
@@ -80,15 +80,6 @@ describe ATH::Arguments::Resolvers::Enum do
       request.attributes.set "enum", "B"
 
       ATH::Arguments::Resolvers::Enum.new.resolve(request, argument).should eq TestEnum::B
-    end
-
-    it "with a nilable enum type" do
-      argument = ATH::Arguments::ArgumentMetadata(TestEnum?).new "enum"
-
-      request = new_request
-      request.attributes.set "enum", "C"
-
-      ATH::Arguments::Resolvers::Enum.new.resolve(request, argument).should eq TestEnum::C
     end
 
     it "with an unknown member value" do
