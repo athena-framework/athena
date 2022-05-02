@@ -59,7 +59,7 @@ class Athena::Serializer::Visitors::YAMLSerializationVisitor
   end
 
   def visit(data : Enum) : Nil
-    visit data.value
+    visit data.to_s.underscore
   end
 
   def visit(data : UUID) : Nil
