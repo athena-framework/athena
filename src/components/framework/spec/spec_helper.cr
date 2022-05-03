@@ -9,8 +9,6 @@ require "athena-event_dispatcher/spec"
 require "athena-validator/spec"
 require "../src/spec"
 
-include ASPEC::Methods
-
 ASPEC.run_all
 
 class TestController < ATH::Controller
@@ -68,8 +66,8 @@ def new_context(*, request : ATH::Request = new_request, response : HTTP::Server
   HTTP::Server::Context.new request, response
 end
 
-def new_argument(is_nilable : Bool = false) : ATH::Arguments::ArgumentMetadata
-  ATH::Arguments::ArgumentMetadata(Int32).new("id", is_nilable)
+def new_argument : ATH::Arguments::ArgumentMetadata
+  ATH::Arguments::ArgumentMetadata(Int32).new "id"
 end
 
 def new_action(

@@ -1,7 +1,7 @@
 require "../../spec_helper"
 
 describe ATH::Arguments::Resolvers::RequestAttribute do
-  describe "#supports" do
+  describe "#supports?" do
     it "that exists in the request attributes" do
       request = new_request
       request.attributes.set "id", 1
@@ -24,7 +24,7 @@ describe ATH::Arguments::Resolvers::RequestAttribute do
 
     describe "that needs to be converted" do
       it String do
-        argument = ATH::Arguments::ArgumentMetadata(Int32).new("id", false)
+        argument = ATH::Arguments::ArgumentMetadata(Int32).new "id"
 
         request = new_request
         request.attributes.set "id", "1"
@@ -33,7 +33,7 @@ describe ATH::Arguments::Resolvers::RequestAttribute do
       end
 
       it Bool do
-        argument = ATH::Arguments::ArgumentMetadata(Bool).new("id", false)
+        argument = ATH::Arguments::ArgumentMetadata(Bool).new "id"
 
         request = new_request
         request.attributes.set "id", "false"
@@ -42,12 +42,12 @@ describe ATH::Arguments::Resolvers::RequestAttribute do
       end
 
       it "that fails conversion" do
-        argument = ATH::Arguments::ArgumentMetadata(Int32).new("id", false)
+        argument = ATH::Arguments::ArgumentMetadata(Int32).new "id"
 
         request = new_request
         request.attributes.set "id", "foo"
 
-        expect_raises ATH::Exceptions::BadRequest, "Required parameter 'id' with value 'foo' could not be converted into a valid 'Int32'" do
+        expect_raises ATH::Exceptions::BadRequest, "Parameter 'id' with value 'foo' could not be converted into a valid 'Int32'." do
           ATH::Arguments::Resolvers::RequestAttribute.new.resolve request, argument
         end
       end

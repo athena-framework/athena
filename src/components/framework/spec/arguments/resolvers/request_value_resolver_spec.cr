@@ -1,15 +1,15 @@
 require "../../spec_helper"
 
 describe ATH::Arguments::Resolvers::Request do
-  describe "#supports" do
+  describe "#supports?" do
     it ATH::Request do
-      argument = ATH::Arguments::ArgumentMetadata(ATH::Request).new("id", false)
+      argument = ATH::Arguments::ArgumentMetadata(ATH::Request).new "id"
 
       ATH::Arguments::Resolvers::Request.new.supports?(new_request, argument).should be_true
     end
 
     it TestController do
-      argument = ATH::Arguments::ArgumentMetadata(TestController).new("id", false)
+      argument = ATH::Arguments::ArgumentMetadata(TestController).new "id"
 
       ATH::Arguments::Resolvers::Request.new.supports?(new_request, argument).should be_false
     end

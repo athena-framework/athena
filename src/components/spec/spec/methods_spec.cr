@@ -3,7 +3,10 @@ require "./spec_helper"
 describe ASPEC::Methods do
   describe "#assert_error" do
     it do
-      assert_error "abstract_class.cr", "can't instantiate abstract class Foo", prefix: "#{__DIR__}/"
+      assert_error "can't instantiate abstract class Foo", <<-CR
+        abstract class Foo; end
+        Foo.new
+      CR
     end
   end
 

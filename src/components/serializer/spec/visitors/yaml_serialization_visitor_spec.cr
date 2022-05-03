@@ -100,7 +100,7 @@ describe ASR::Visitors::YAMLSerializationVisitor do
       end
 
       it Enum do
-        assert_serialized_output(ASR::Visitors::YAMLSerializationVisitor, build_expected_yaml_string "--- 2\n") do |visitor|
+        assert_serialized_output(ASR::Visitors::YAMLSerializationVisitor, build_expected_yaml_string "--- two\n") do |visitor|
           visitor.visit TestEnum::Two
         end
       end

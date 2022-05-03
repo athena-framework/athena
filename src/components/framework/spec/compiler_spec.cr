@@ -1,25 +1,19 @@
 require "./spec_helper"
 
-private def assert_error(message : String | Bool, code : String, *, line : Int32 = __LINE__) : Nil
-  input = IO::Memory.new <<-CR
+private def assert_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_error message, <<-CR, line: line
     require "./spec_helper.cr"
     #{code}
     ATH.run
   CR
+end
 
-  buffer = IO::Memory.new
-  result = Process.run("crystal", ["run", "--no-color", "--no-codegen", "--stdin-filename", "#{__DIR__}/test.cr"], input: input.rewind, output: buffer, error: buffer)
-
-  case message
-  in false
-    fail buffer.to_s unless result.success?
-  in true
-    raise ArgumentError.new "'message' cannot be 'true'."
-  in String
-    fail buffer.to_s if result.success?
-    buffer.to_s.should contain(message), line: line
-    buffer.close
-  end
+private def assert_success(code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_success <<-CR, line: line
+    require "./spec_helper.cr"
+    #{code}
+    ATH.run
+  CR
 end
 
 describe Athena::Framework do
@@ -98,7 +92,7 @@ describe Athena::Framework do
       end
 
       it "within a different controller" do
-        assert_error false, <<-CODE
+        assert_success <<-CODE
           class ExampleController < ATH::Controller
             @[ARTA::Get(path: "/foo")]
             def action : String

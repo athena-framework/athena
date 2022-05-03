@@ -7,6 +7,9 @@ private struct TestWriter < ATH::Response::Writer
   end
 end
 
+# FIXME: Refactor these specs to not depend on calling a protected method.
+include ATHA
+
 describe ATH::StreamedResponse do
   describe ".new" do
     it "accepts a block" do

@@ -11,8 +11,12 @@ struct Athena::Framework::Arguments::Resolvers::Request
   include Athena::Framework::Arguments::Resolvers::ArgumentValueResolverInterface
 
   # :inherit:
+  def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata(ATH::Request)) : Bool
+    true
+  end
+
   def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Bool
-    argument.type == ATH::Request
+    false
   end
 
   # :inherit:

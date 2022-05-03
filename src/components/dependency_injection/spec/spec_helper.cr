@@ -5,8 +5,6 @@ require "./service_mocks"
 require "athena-spec"
 require "../src/spec"
 
-include ASPEC::Methods
-
 record DBConfig, username : String, password : String, host : String
 
 class ACF::Parameters

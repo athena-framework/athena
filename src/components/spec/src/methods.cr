@@ -9,32 +9,49 @@
 module Athena::Spec::Methods
   extend self
 
-  # Runs the Crystal program at the provided *file_path* and asserts it errors with the provided *message*.
+  # Executes the provided Crystal *code* asserts it errors with the provided *message*.
   # The main purpose of this method is to test compile time errors.
   #
-  # By default, *file_path* is assumed to be within `spec/`, but can be customized via the *prefix* named argument.
-  #
-  # NOTE:
-  #
   # ```
-  # # ./spec/abstract_class.cr
-  # abstract class Foo; end
-  #
-  # Foo.new
+  # ASPEC::Methods.assert_error "can't instantiate abstract class Foo", <<-CR
+  #   abstract class Foo; end
+  #   Foo.new
+  # CR
   # ```
   #
-  # ```
-  # # ./spec/abstract_class_spec.cr
-  # require "athena-spec"
-  #
-  # ASPEC::Methods.assert_error "abstract_class.cr", "can't instantiate abstract class Foo"
-  # ```
-  def assert_error(file_path : String, message : String, *, prefix : String = "spec/") : Nil
+  # NOTE: When files are required within the *code*, they are relative to the file calling this method.
+  def assert_error(message : String, code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
     buffer = IO::Memory.new
-    result = Process.run("crystal", ["run", "--no-color", "--no-codegen", "#{prefix}#{file_path}"], error: buffer)
-    fail buffer.to_s if result.success?
-    buffer.to_s.should contain message
+    result = execute code, buffer, file
+
+    fail buffer.to_s, line: line if result.success?
+    buffer.to_s.should contain(message), line: line
     buffer.close
+  end
+
+  # Similar to `.assert_error`, but asserts the provided Crystal *code* successfully compiles.
+  #
+  # ```
+  # ASPEC::Methods.assert_success <<-CR
+  #   puts 2 + 2
+  # CR
+  # ```
+  #
+  # NOTE: When files are required within the *code*, they are relative to the file calling this method.
+  def assert_success(code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
+    buffer = IO::Memory.new
+    result = execute code, buffer, file
+
+    fail buffer.to_s, line: line unless result.success?
+    buffer.close
+  end
+
+  private def execute(code : String, buffer : IO, file : String) : Process::Status
+    input = IO::Memory.new <<-CR
+      #{code}
+    CR
+
+    Process.run("crystal", ["run", "--no-color", "--no-codegen", "--stdin-filename", "#{file}"], input: input.rewind, output: buffer, error: buffer)
   end
 
   # Runs the executable at the given *path*, optionally with the provided *args*.
