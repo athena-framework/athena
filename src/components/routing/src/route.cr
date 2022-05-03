@@ -65,6 +65,8 @@
 # matcher.match "/blog/10"  # => {"_route" => "blog_list", "page" => "10"}
 # ```
 #
+# TIP: Checkout `ART::Requirement` for a set of common, helpful requirement regexes.
+#
 # ### Optional Parameters
 #
 # By default, all parameters are required, meaning given the path `/blog/{page}`, `/blog/10` would match but `/blog` would _NOT_ match.

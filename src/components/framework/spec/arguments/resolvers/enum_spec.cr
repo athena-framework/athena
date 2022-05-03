@@ -9,20 +9,30 @@ end
 describe ATH::Arguments::Resolvers::Enum do
   describe "#supports?" do
     describe ::Enum do
-      it "that does exist in request attributes, but is not a string" do
-        argument = ATH::Arguments::ArgumentMetadata(TestEnum).new "enum"
-        request = new_request
-        request.attributes.set "enum", 1
+      describe "exists in request attributes" do
+        it "is not a string" do
+          argument = ATH::Arguments::ArgumentMetadata(TestEnum).new "enum"
+          request = new_request
+          request.attributes.set "enum", 1
 
-        ATH::Arguments::Resolvers::Enum.new.supports?(request, argument).should be_false
-      end
+          ATH::Arguments::Resolvers::Enum.new.supports?(request, argument).should be_false
+        end
 
-      it "that does exist in request attributes, but the enum member is nilable" do
-        argument = ATH::Arguments::ArgumentMetadata(TestEnum?).new "enum"
-        request = new_request
-        request.attributes.set "enum", "1"
+        it "the enum member is nilable" do
+          argument = ATH::Arguments::ArgumentMetadata(TestEnum?).new "enum"
+          request = new_request
+          request.attributes.set "enum", "1"
 
-        ATH::Arguments::Resolvers::Enum.new.supports?(request, argument).should be_true
+          ATH::Arguments::Resolvers::Enum.new.supports?(request, argument).should be_true
+        end
+
+        it "that is a union of another type" do
+          argument = ATH::Arguments::ArgumentMetadata(TestEnum | String).new "enum"
+          request = new_request
+          request.attributes.set "enum", "1"
+
+          ATH::Arguments::Resolvers::Enum.new.supports?(request, argument).should be_true
+        end
       end
 
       it "that does not exist in request attributes" do
@@ -33,12 +43,6 @@ describe ATH::Arguments::Resolvers::Enum do
 
       it "that is nilable and not exist in request attributes" do
         argument = ATH::Arguments::ArgumentMetadata(TestEnum?).new "enum"
-
-        ATH::Arguments::Resolvers::Enum.new.supports?(new_request, argument).should be_false
-      end
-
-      it "that is a union of another type" do
-        argument = ATH::Arguments::ArgumentMetadata(TestEnum | String).new "enum"
 
         ATH::Arguments::Resolvers::Enum.new.supports?(new_request, argument).should be_false
       end

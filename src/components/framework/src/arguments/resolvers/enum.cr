@@ -1,5 +1,5 @@
 @[ADI::Register(tags: [{name: ATH::Arguments::Resolvers::TAG, priority: 105}])]
-# Handles resolving an [Enum](https://crystal-lang.org/api/Enum.html) member from a value that is stored in the request's `ATH::Request#attributes`.
+# Handles resolving an [Enum](https://crystal-lang.org/api/Enum.html) member from a string value that is stored in the request's `ATH::Request#attributes`.
 # This resolver supports both numeric and string based parsing, returning a proper error response if the provided value does not map to any valid member.
 #
 # ```
