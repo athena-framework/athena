@@ -133,7 +133,7 @@ enum StringificationColor
 end
 
 class StringificationController < ATH::Controller
-  @[ARTA::Get("/color/{color}", requirements: {"color" => ART::Requirement::Enum(StringificationColor).new, "foo" => /foo/})]
+  @[ARTA::Get("/color/{color}", requirements: {"color" => ART::Requirement::Enum(StringificationColor).new, "foo" => /foo/, "bar" => "bar"})]
   def get_color(color : StringificationColor) : StringificationColor
     color
   end
@@ -176,7 +176,7 @@ describe ATH::Routing::AnnotationRouteLoader do
       assert_route(
         ATH::Routing::AnnotationRouteLoader.populate_collection(StringificationController),
         path: "/color/{color}",
-        requirements: {"color" => /red|green|blue/, "foo" => /foo/}
+        requirements: {"color" => /red|green|blue/, "foo" => /foo/, "bar" => /bar/}
       )
     end
 

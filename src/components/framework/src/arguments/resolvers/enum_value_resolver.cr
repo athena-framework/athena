@@ -35,7 +35,7 @@ struct Athena::Framework::Arguments::Resolvers::Enum
 
   # :inherit:
   def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Bool
-    argument.type_of?(::Enum) && request.attributes.has? argument.name
+    argument.instance_of?(::Enum) && request.attributes.has? argument.name
   end
 
   # :inherit:
