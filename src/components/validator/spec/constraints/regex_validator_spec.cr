@@ -31,7 +31,7 @@ struct RegexValidatorTest < AVD::Spec::ConstraintValidatorTestCase
     {
       {0},
       {"0"},
-      {909090},
+      {909_090},
       {"0909090"},
       {Stringifiable.new("909090")},
     }

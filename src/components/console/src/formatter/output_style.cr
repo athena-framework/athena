@@ -19,7 +19,7 @@ struct Athena::Console::Formatter::OutputStyle
 
   # :nodoc:
   getter? handles_href_gracefully : Bool do
-    "JetBrains-JediTerm" != ENV["TERMINAL_EMULATOR"]? && (!ENV.has_key?("KONSOLE_VERSION") || ENV["KONSOLE_VERSION"].to_i > 201100)
+    "JetBrains-JediTerm" != ENV["TERMINAL_EMULATOR"]? && (!ENV.has_key?("KONSOLE_VERSION") || ENV["KONSOLE_VERSION"].to_i > 201_100)
   end
 
   def initialize(foreground : Colorize::Color | String = :default, background : Colorize::Color | String = :default, @options : Colorize::Mode = :none)

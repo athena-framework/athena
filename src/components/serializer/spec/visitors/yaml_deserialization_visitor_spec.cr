@@ -16,7 +16,7 @@ describe ASR::Visitors::YAMLDeserializationVisitor do
       it Int64 do
         assert_deserialized_output ASR::Visitors::YAMLDeserializationVisitor, Int64, "17", 17_i64
         assert_deserialized_output ASR::Visitors::YAMLDeserializationVisitor, Int64?, "17", 17_i64
-        assert_deserialized_output ASR::Visitors::YAMLDeserializationVisitor, Int64?, "1033488268764", 1033488268764
+        assert_deserialized_output ASR::Visitors::YAMLDeserializationVisitor, Int64?, "1033488268764", 1_033_488_268_764
       end
 
       it Float32 do

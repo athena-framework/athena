@@ -161,8 +161,8 @@ struct RangeValidatorTest < AVD::Spec::ConstraintValidatorTestCase
 
   def ten_to_twenty : Tuple
     {
-      {10.00001},
-      {19.99999},
+      {10.000_01},
+      {19.999_99},
       {10},
       {20},
       {20_i64},
@@ -175,7 +175,7 @@ struct RangeValidatorTest < AVD::Spec::ConstraintValidatorTestCase
 
   def less_than_ten : Tuple
     {
-      {9.99999},
+      {9.999_99},
       {5},
       {1.0},
     }
@@ -183,7 +183,7 @@ struct RangeValidatorTest < AVD::Spec::ConstraintValidatorTestCase
 
   def more_than_twenty : Tuple
     {
-      {20.000001},
+      {20.000_001},
       {21},
       {30.0},
     }
