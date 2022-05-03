@@ -8,7 +8,7 @@
 # end
 # ```
 struct Athena::Framework::Arguments::Resolvers::Request
-  include Athena::Framework::Arguments::Resolvers::ArgumentValueResolverInterface
+  include Athena::Framework::Arguments::Resolvers::Interface
 
   # :inherit:
   def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata(ATH::Request)) : Bool

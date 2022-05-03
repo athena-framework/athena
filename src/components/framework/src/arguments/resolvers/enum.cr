@@ -31,17 +31,17 @@
 #
 # TIP: Checkout `ART::Requirement::Enum` for an easy way to restrict routing to an enum's members, or a subset of them.
 struct Athena::Framework::Arguments::Resolvers::Enum
-  include Athena::Framework::Arguments::Resolvers::ArgumentValueResolverInterface
+  include Athena::Framework::Arguments::Resolvers::Interface
 
   # :inherit:
   def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Bool
-    argument.instance_of?(::Enum) && request.attributes.has? argument.name
+    argument.instance_of?(::Enum) && request.attributes.has?(argument.name, String)
   end
 
   # :inherit:
   def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
-    return unless (value = request.attributes.get(argument.name, String?))
     return unless (enum_type = argument.first_type_of ::Enum)
+    value = request.attributes.get argument.name, String
 
     member = if (num = value.to_i128?(whitespace: false)) && (m = enum_type.from_value? num)
                m

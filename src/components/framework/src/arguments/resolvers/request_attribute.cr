@@ -9,7 +9,7 @@
 # end
 # ```
 struct Athena::Framework::Arguments::Resolvers::RequestAttribute
-  include Athena::Framework::Arguments::Resolvers::ArgumentValueResolverInterface
+  include Athena::Framework::Arguments::Resolvers::Interface
 
   # :inherit:
   def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Bool
@@ -22,7 +22,7 @@ struct Athena::Framework::Arguments::Resolvers::RequestAttribute
 
     argument.type.from_parameter value
   rescue ex : ArgumentError
-    # Catch type cast errors and bubble it up as an BadRequest
+    # Catch type cast errors and bubble it up as a BadRequest
     raise ATH::Exceptions::BadRequest.new "Parameter '#{argument.name}' with value '#{value}' could not be converted into a valid '#{argument.type}'.", cause: ex
   end
 end

@@ -14,6 +14,24 @@ describe ATH::ParameterBag do
       bag.set "value", "foo"
       bag.has?("value").should be_true
     end
+
+    describe "with type" do
+      it "returns true with a valid type" do
+        bag = ATH::ParameterBag.new
+        bag.set "value", "foo"
+        bag.set "num", 1
+        bag.has?("value", String).should be_true
+        bag.has?("num", Int32).should be_true
+      end
+
+      it "returns false with a invalid type" do
+        bag = ATH::ParameterBag.new
+        bag.set "value", "foo"
+        bag.set "num", 1
+        bag.has?("value", Int32).should be_false
+        bag.has?("num", String).should be_false
+      end
+    end
   end
 
   describe "#get?" do
