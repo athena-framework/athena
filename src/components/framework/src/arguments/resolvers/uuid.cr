@@ -31,9 +31,7 @@ struct Athena::Framework::Arguments::Resolvers::UUID
 
   # :inherit:
   def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
-    return unless (value = request.attributes.get(argument.name, String?))
-
-    ::UUID.new value
+    ::UUID.new value = request.attributes.get argument.name, String
   rescue ex : ArgumentError
     # Catch invalid UUID errors and bubble it up as a BadRequest
     raise ATH::Exceptions::BadRequest.new "Parameter '#{argument.name}' with value '#{value}' is not a valid 'UUID'.", cause: ex
