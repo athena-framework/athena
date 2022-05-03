@@ -1,3 +1,30 @@
+# Includes types related to [route requirements][Athena::Routing::Route--parameter-validation].
+#
+# The namespace also exposes various regex constants representing common universal requirements to make using them in routes easier.
+#
+# ```
+# class ExampleController < ATH::Controller
+#   @[ARTA::Get(
+#     "/user/{id}",
+#     requirements: {
+#       "id" => ART::Requirement::DIGITS,
+#     }
+#   )]
+#   def get_user(id : Int64) : Int64
+#     id
+#   end
+#
+#   @[ARTA::Get(
+#     "/article/{slug}",
+#     requirements: {
+#       "slug" => ART::Requirement::ASCII_SLUG,
+#     }
+#   )]
+#   def get_article(slug : String) : String
+#     slug
+#   end
+# end
+# ```
 module Athena::Routing::Requirement
   # Sourced from https://github.com/symfony/symfony/blob/c70be0957a11fd8b7aa687d6173e76724068daa4/src/Symfony/Component/Routing/Requirement/Requirement.php
 
