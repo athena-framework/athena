@@ -52,6 +52,11 @@ struct Athena::Framework::ParameterBag
     @parameters.has_key? name
   end
 
+  # Returns `true` if a parameter with the provided *name* exists and is of the provided *type*, otherwise `false`.
+  def has?(name : String, type : T.class) : Bool forall T
+    self.has?(name) && @parameters[name].value.class == T
+  end
+
   # Returns the value of the parameter with the provided *name* if it exists, otherwise `nil`.
   def get?(name : String)
     @parameters[name]?.try &.value

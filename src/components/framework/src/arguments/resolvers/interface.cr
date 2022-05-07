@@ -6,7 +6,7 @@
 # ```
 # @[ADI::Register(tags: [{name: ATH::Arguments::Resolvers::TAG, priority: 10}])]
 # struct CustomResolver
-#   include Athena::Framework::Arguments::Resolvers::ArgumentValueResolverInterface
+#   include Athena::Framework::Arguments::Resolvers::Interface
 #
 #   # :inherit:
 #   def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Bool
@@ -23,7 +23,7 @@
 #   end
 # end
 # ```
-module Athena::Framework::Arguments::Resolvers::ArgumentValueResolverInterface
+module Athena::Framework::Arguments::Resolvers::Interface
   # Returns `true` if `self` is able to resolve a value from the provided *request* and *argument*.
   abstract def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Bool
 

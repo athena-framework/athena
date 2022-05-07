@@ -1,4 +1,4 @@
-require "./resolvers/argument_value_resolver_interface"
+require "./resolvers/interface"
 require "./argument_resolver_interface"
 
 # :nodoc:
@@ -15,14 +15,14 @@ class Array
   end
 end
 
-ADI.bind argument_resolvers : Array(Athena::Framework::Arguments::Resolvers::ArgumentValueResolverInterface), "!athena.argument_value_resolver"
+ADI.bind argument_resolvers : Array(Athena::Framework::Arguments::Resolvers::Interface), "!athena.argument_value_resolver"
 
 @[ADI::Register]
 # The default implementation of `ATH::Arguments::ArgumentResolverInterface`.
 struct Athena::Framework::Arguments::ArgumentResolver
   include Athena::Framework::Arguments::ArgumentResolverInterface
 
-  def initialize(@argument_resolvers : Array(Athena::Framework::Arguments::Resolvers::ArgumentValueResolverInterface)); end
+  def initialize(@argument_resolvers : Array(Athena::Framework::Arguments::Resolvers::Interface)); end
 
   # :inherit:
   def get_arguments(request : ATH::Request, route : ATH::ActionBase) : Array
