@@ -1,13 +1,28 @@
 # Represents a controller action argument. Stores metadata associated with it, such as its name, type, and default value if any.
 struct Athena::Framework::Arguments::ArgumentMetadata(T)
-  # The name of the argument.
+  # Returns the name of the argument.
   getter name : String
 
-  def initialize(@name : String); end
+  # Returns `true` if this argument has a default value set, otherwise `false`.
+  getter? has_default : Bool
+
+  protected def initialize(@name : String, @has_default : Bool = false, @default_value : T? = nil); end
 
   # If `nil` is a valid argument for the argument.
   def nilable? : Bool
     {{T.nilable?}}
+  end
+
+  # Returns the default value for this argument, raising an exception if it does not have one.
+  def default_value : T
+    raise "Argument '#{@name}' does not have a default value." unless self.has_default?
+
+    @default_value.not_nil!
+  end
+
+  # Returns the default value for this argument, or `nil` if it does not have one.
+  def default_value? : T?
+    @default_value
   end
 
   # The type of the parameter, i.e. what its type restriction is.
