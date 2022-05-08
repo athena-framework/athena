@@ -14,6 +14,38 @@ describe ATH::Arguments::ArgumentMetadata do
     end
   end
 
+  describe "#has_default?" do
+    it true do
+      ATH::Arguments::ArgumentMetadata(String).new("foo", true, "bar").has_default?.should be_true
+    end
+
+    it false do
+      ATH::Arguments::ArgumentMetadata(Int32).new("foo", false, nil).has_default?.should be_false
+    end
+  end
+
+  describe "#default_value" do
+    it "with a default" do
+      ATH::Arguments::ArgumentMetadata(String).new("foo", true, "bar").default_value.should eq "bar"
+    end
+
+    it "without a default" do
+      expect_raises Exception, "Argument 'foo' does not have a default value." do
+        ATH::Arguments::ArgumentMetadata(String).new("foo", false, nil).default_value
+      end
+    end
+  end
+
+  describe "#default_value?" do
+    it "with a default" do
+      ATH::Arguments::ArgumentMetadata(String).new("foo", true, "bar").default_value?.should eq "bar"
+    end
+
+    it "without a default" do
+      ATH::Arguments::ArgumentMetadata(String).new("foo", false, nil).default_value?.should be_nil
+    end
+  end
+
   describe "#instance_of?" do
     it "with a scalar type" do
       ATH::Arguments::ArgumentMetadata(Int32).new("foo").instance_of?(Int32).should be_true
