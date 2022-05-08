@@ -85,6 +85,16 @@ class RoutingController < ATH::Controller
     self.redirect_to_route "routing_controller_response", id: 10
   end
 
+  @[ARTA::Get("default")]
+  def default(id : Int32 = 10) : Int32
+    id
+  end
+
+  @[ARTA::Get("nilable")]
+  def nilable(id : Int32?) : Int32?
+    id
+  end
+
   @[ATHA::ParamConverter("since", converter: ATH::TimeConverter)]
   @[ATHA::QueryParam("since")]
   @[ARTA::Get("events")]
