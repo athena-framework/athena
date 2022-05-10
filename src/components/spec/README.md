@@ -13,7 +13,7 @@ Common/helpful Spec compliant testing utilities
 development_dependencies:
   athena-spec:
     github: athena-framework/spec
-    version: ~> 0.2.0
+    version: ~> 0.3.0
 ```
 
 2. Run `shards install`

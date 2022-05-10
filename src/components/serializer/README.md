@@ -14,7 +14,7 @@ Flexible object (de)serialization library
 dependencies:
   athena-serializer:
     github: athena-framework/serializer
-    version: ~> 0.2.0
+    version: ~> 0.3.0
 ```
 
 2. Run `shards install`

@@ -13,7 +13,7 @@ Allows for the creation of CLI based commands.
 dependencies:
   athena-console:
     github: athena-framework/console
-    version: ~> 0.1.0
+    version: ~> 0.2.0
 ```
 
 2. Run `shards install`

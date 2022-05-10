@@ -108,7 +108,7 @@ alias AED = Athena::EventDispatcher
 # This ensures that one flow will not leak state to any other flow, while still allowing flow specific mutations to be used.
 # Consider pairing this component with the [Athena::DependencyInjection][Athena::DependencyInjection--getting-started] component as a way to handle this.
 module Athena::EventDispatcher
-  VERSION = "0.1.3"
+  VERSION = "0.1.4"
 
   # The possible types an event listener can be.  `AED::EventListenerInterface` instances use `#call`
   # in order to keep a common interface with the `Proc` based listeners.

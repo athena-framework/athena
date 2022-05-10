@@ -17,14 +17,14 @@ require "./test_case"
 # development_dependencies:
 #   athena-spec:
 #     github: athena-framework/spec
-#     version: ~> 0.2.0
+#     version: ~> 0.3.0
 # ```
 #
 # Then run `shards install`, being sure to require it via `require "athena-spec"` within your `spec/spec_helper.cr` file.
 #
 # From here you can create some `ASPEC::TestCase`s, or make use of the provided `ASPEC::Methods`.
 module Athena::Spec
-  VERSION = "0.2.6"
+  VERSION = "0.3.0"
 
   # Runs all `ASPEC::TestCase`s.
   #
