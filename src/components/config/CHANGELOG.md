@@ -1,8 +1,8 @@
 # Changelog
 
-## [0.3.1] - 2021-03-??
+## [0.3.1] - 2021-05-??
 
-_First commit a part of the monorepo._
+_First release a part of the monorepo._
 
 ### Added
 
