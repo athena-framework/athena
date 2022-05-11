@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.1] - 2021-03-??
+
+_First commit a part of the monorepo._
+
+### Added
+
+- Add `VERSION` constant to `Athena::Config` namespace ([#166](https://github.com/athena-framework/athena/pull/166)) (George Dietrich)
+- Add getting started documentation to API docs ([#172](https://github.com/athena-framework/athena/pull/172)) (George Dietrich)
+
+### Changed
+
+- Update minimum `crystal` version to `~> 1.4.0` ([#169](https://github.com/athena-framework/athena/pull/169)) (George Dietrich)
+
 ## [0.3.0] - 2021-03-20
 
 ### Changed
@@ -40,6 +53,7 @@
 
 _Initial release._
 
+[0.3.1]: https://github.com/athena-framework/config/releases/tag/v0.3.1
 [0.3.0]: https://github.com/athena-framework/config/releases/tag/v0.3.0
 [0.2.1]: https://github.com/athena-framework/config/releases/tag/v0.2.1
 [0.2.0]: https://github.com/athena-framework/config/releases/tag/v0.2.0
