@@ -13,8 +13,8 @@
 ### Changed
 
 - **Breaking:** rename `ATH::Arguments::Resolvers::ArgumentValueResolverInterface` to `ATH::Arguments::Resolvers::Interface` ([#176](https://github.com/athena-framework/athena/pull/176)) (George Dietrich)
-- **Breaking:** bump `athena-framework/serializer` to `~> 0.3.0` ([#180](https://github.com/athena-framework/athena/pull/180)) (George Dietrich)
-- **Breaking:** bump `athena-framework/validator` to `~> 0.2.0` ([#180](https://github.com/athena-framework/athena/pull/180)) (George Dietrich)
+- **Breaking:** bump `athena-framework/serializer` to `~> 0.3.0` ([#181](https://github.com/athena-framework/athena/pull/181)) (George Dietrich)
+- **Breaking:** bump `athena-framework/validator` to `~> 0.2.0` ([#181](https://github.com/athena-framework/athena/pull/181)) (George Dietrich)
 - Expose the default value of an [ATH::Arguments::ArgumentMetadata](https://athenaframework.org/Framework/Arguments/ArgumentMetadata/) ([#176](https://github.com/athena-framework/athena/pull/176)) (George Dietrich)
 - Update minimum `crystal` version to `~> 1.4.0` ([#169](https://github.com/athena-framework/athena/pull/169)) (George Dietrich)
 
