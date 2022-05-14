@@ -8,6 +8,7 @@ _First release a part of the monorepo._
 
 - Add `VERSION` constant to `Athena::Spec` namespace ([#166](https://github.com/athena-framework/athena/pull/166)) (George Dietrich)
 - Add getting started documentation to API docs ([#172](https://github.com/athena-framework/athena/pull/172)) (George Dietrich)
+- Add [ASPEC::Methods.assert_success](https://athenaframework.org/Spec/Methods/#Athena::Spec::Methods#assert_success(code,*,line,file)) ([#173](https://github.com/athena-framework/athena/pull/173)) (George Dietrich)
 
 ### Changed
 
