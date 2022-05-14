@@ -12,7 +12,7 @@ _First release a part of the monorepo._
 ### Changed
 
 - Update minimum `crystal` version to `~> 1.4.0` ([#169](https://github.com/athena-framework/athena/pull/169)) (George Dietrich)
-- **Breaking:** remove `ACON::Formatter::Mode` in favor of `Colorize::Mode` ([#170](https://github.com/athena-framework/athena/pull/170)) (George Dietrich). Breaking only if not using symbol autocasting.
+- **Breaking:** remove `ACON::Formatter::Mode` in favor of `Colorize::Mode`. Breaking only if not using symbol autocasting. ([#170](https://github.com/athena-framework/athena/pull/170)) (George Dietrich)
 
 ### Fixed
 

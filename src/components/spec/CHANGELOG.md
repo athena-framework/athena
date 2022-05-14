@@ -61,7 +61,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
-[0.2.7]: https://github.com/athena-framework/spec/releases/tag/v0.2.7
+[0.3.0]: https://github.com/athena-framework/spec/releases/tag/v0.3.0
 [0.2.6]: https://github.com/athena-framework/spec/releases/tag/v0.2.6
 [0.2.5]: https://github.com/athena-framework/spec/releases/tag/v0.2.5
 [0.2.4]: https://github.com/athena-framework/spec/releases/tag/v0.2.4
