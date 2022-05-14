@@ -47,7 +47,7 @@ module YAML; end
 # dependencies:
 #   athena-serializer:
 #     github: athena-framework/serializer
-#     version: ~> 0.2.0
+#     version: ~> 0.3.0
 # ```
 #
 # Then run `shards install`, being sure to require it via `require "athena-serializer"`.
@@ -120,7 +120,7 @@ module YAML; end
 # ASR.serializer.serialize obj, :json, ASR::SerializationContext.new.groups = ["details"] # => {"name":"FIRST LAST","title":"title"}
 # ```
 module Athena::Serializer
-  VERSION = "0.2.10"
+  VERSION = "0.3.0"
 
   # Returns an `ASR::SerializerInterface` instance for ad-hoc (de)serialization.
   #

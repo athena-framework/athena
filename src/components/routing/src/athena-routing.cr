@@ -87,7 +87,7 @@ alias ARTA = ART::Annotations
 #
 # TIP: Consider using the annotations provided by the component within `ART::Annotations` to handle route registration.
 module Athena::Routing
-  VERSION = "0.1.1"
+  VERSION = "0.1.2"
 
   {% if @top_level.has_constant?("Athena") && Athena.has_constant?("Framework") && Athena::Framework.has_constant?("Request") %}
     # Represents the type of the *request* parameter within an `ART::Route::Condition`.

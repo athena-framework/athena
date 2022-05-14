@@ -41,7 +41,7 @@ module Athena
   #
   # INFO: DI parameter injection requires the [Athena::DependencyInjection][] component as well.
   module Config
-    VERSION = "0.3.0"
+    VERSION = "0.3.1"
 
     # :nodoc:
     CUSTOM_ANNOTATIONS = [] of Nil

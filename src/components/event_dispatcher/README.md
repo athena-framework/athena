@@ -1,5 +1,6 @@
 # Event Dispatcher
 
+[![Common Changelog](https://common-changelog.org/badge.svg)](https://common-changelog.org)
 [![CI](https://github.com/athena-framework/athena/workflows/CI/badge.svg)](https://github.com/athena-framework/athena/actions/workflows/ci.yml)
 [![Latest release](https://img.shields.io/github/release/athena-framework/event-dispatcher.svg?style=flat-square)](https://github.com/athena-framework/event-dispatcher/releases)
 

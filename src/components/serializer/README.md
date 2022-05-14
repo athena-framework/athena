@@ -1,5 +1,6 @@
 # Serializer
 
+[![Common Changelog](https://common-changelog.org/badge.svg)](https://common-changelog.org)
 [![CI](https://github.com/athena-framework/athena/workflows/CI/badge.svg)](https://github.com/athena-framework/athena/actions/workflows/ci.yml)
 [![Latest release](https://img.shields.io/github/release/athena-framework/serializer.svg)](https://github.com/athena-framework/serializer/releases)
 
@@ -14,7 +15,7 @@ Flexible object (de)serialization library
 dependencies:
   athena-serializer:
     github: athena-framework/serializer
-    version: ~> 0.2.0
+    version: ~> 0.3.0
 ```
 
 2. Run `shards install`

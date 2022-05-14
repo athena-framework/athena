@@ -51,7 +51,7 @@ alias ADI = Athena::DependencyInjection
 # fiber is truly independent from one another, with them not being reused or sharing state external to the container. An example of this is how `HTTP::Server` reuses fibers
 # for `connection: keep-alive` requests. Because of this, or in cases similar to, you may want to manually reset the container via `Fiber.current.container = ADI::ServiceContainer.new`.
 module Athena::DependencyInjection
-  VERSION = "0.3.2"
+  VERSION = "0.3.3"
 
   private BINDINGS            = {} of Nil => Nil
   private AUTO_CONFIGURATIONS = {} of Nil => Nil
