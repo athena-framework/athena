@@ -340,6 +340,13 @@ struct URLGeneratorTest < ASPEC::TestCase
       .generate("test", path: "foo/bar%2Fbaz").should eq "/base/dir/foo/bar%2Fbaz/dir2"
   end
 
+  def test_generate_encoding_of_slash_in_query_params : Nil
+    generator = self.generator(self.routes(ART::Route.new("/foo")))
+
+    generator.generate("test", query: "foo/bar").should eq "/base/foo?query=foo/bar"
+    generator.generate("test", query: "foo%2Fbar").should eq "/base/foo?query=foo%2Fbar"
+  end
+
   def test_generate_adjacent_variables : Nil
     generator = self.generator(self.routes(ART::Route.new("{x}{y}{z}.{_format}", {"z" => "default-z", "_format" => "html"}, {"y" => /\d+/})))
 
