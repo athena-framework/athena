@@ -1,6 +1,8 @@
 # Changelog
 
-## [0.17.0] - 2022-05-??
+## [0.17.0] - 2022-05-14
+
+_Checkout [this](https://forum.crystal-lang.org/t/athena-0-17-0/4624) forum thread for an overview of changes within the ecosystem._
 
 ### Added
 
