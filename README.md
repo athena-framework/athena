@@ -1,7 +1,7 @@
 # Athena
 
 [![CI](https://github.com/athena-framework/athena/workflows/CI/badge.svg)](https://github.com/athena-framework/athena/actions/workflows/ci.yml)
-[![Latest release](https://img.shields.io/github/release/athena-framework/athena.svg)](https://github.com/athena-framework/athena/releases)
+[![Latest release](https://img.shields.io/github/release/athena-framework/framework.svg)](https://github.com/athena-framework/framework/releases)
 
 A monorepo representing the ecosystem of reusable, independent components provided by Athena.
 See [Athena Framework](https://github.com/athena-framework/framework) for the web framework created using these components.

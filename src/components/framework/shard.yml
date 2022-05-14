@@ -1,6 +1,6 @@
 name: athena
 
-version: 0.16.0
+version: 0.17.0
 
 crystal: ~> 1.4
 
@@ -37,7 +37,7 @@ dependencies:
     version: ~> 0.1.0
   athena-serializer:
     github: athena-framework/serializer
-    version: ~> 0.2.6
+    version: ~> 0.3.0
   athena-validator:
     github: athena-framework/validator
-    version: ~> 0.1.3
+    version: ~> 0.2.0

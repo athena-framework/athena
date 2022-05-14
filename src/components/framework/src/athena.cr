@@ -54,7 +54,7 @@ alias ATHA = ATH::Annotations
 #
 # Also checkout the [Components](/components) for an overview of how `Athena` is designed.
 module Athena::Framework
-  VERSION = "0.16.0"
+  VERSION = "0.17.0"
 
   # The `AED::Event` that are emitted via `Athena::EventDispatcher` to handle a request during its life-cycle.
   # Custom events can also be defined and dispatched within a controller, listener, or some other service.
