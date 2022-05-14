@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.3.1] - 2021-05-??
+## [0.3.1] - 2022-05-??
 
 _First release a part of the monorepo._
 
