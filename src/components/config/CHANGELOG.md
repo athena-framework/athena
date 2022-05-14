@@ -23,7 +23,7 @@ _First release a part of the monorepo._
 
 ### Changed
 
-- Finish migration to MKDocs ([#11](https://github.com/athena-framework/config/pull/11)) (George Dietrich)
+- Finish migration to [MkDocs](https://mkdocstrings.github.io/crystal/) ([#11](https://github.com/athena-framework/config/pull/11)) (George Dietrich)
 
 ## [0.2.0] - 2021-01-29
 

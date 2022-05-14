@@ -10,7 +10,7 @@ _First release a part of the monorepo._
 
 ### Changed
 
-- **Breaking:** change serialization of [Enum](https://crystal-lang.org/api/Enum.html) to underscored strings by default ([#173](https://github.com/athena-framework/athena/pull/173)) (George Dietrich)
+- **Breaking:** change serialization of [Enums](https://crystal-lang.org/api/Enum.html) to underscored strings by default ([#173](https://github.com/athena-framework/athena/pull/173)) (George Dietrich)
 - Update minimum `crystal` version to `~> 1.4.0` ([#169](https://github.com/athena-framework/athena/pull/169)) (George Dietrich)
 
 ### Fixed
