@@ -29,8 +29,10 @@ class Athena::Routing::Generator::URLGenerator
 
   private DECODED_QUERY_FRAGMENT_CHARS = {
     # RFC 3986 explicitly allows those in the query/fragment to reference other URIs unencoded
-    "%2F" => "/",
-    "%3F" => "?",
+    "%2F"   => "/",
+    "%252F" => "%2F",
+    "%3F"   => "?",
+
     # reserved chars that have no special meaning for HTTP URIs in a query or fragment
     # this excludes esp. "&", "=" and also "+" because PHP would treat it as a space (form-encoded)
     "%40" => "@",
