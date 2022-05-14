@@ -92,6 +92,11 @@ abstract struct FileValidatorTestCase < AVD::Spec::ConstraintValidatorTestCase
       {1_048_577, "1Mi", "1048577.0", "1048576.0", "bytes"},
       {1_053_818, "1Mi", "1029.12", "1024.0", "KiB"},
       {1_053_819, "1Mi", "1.01", "1.0", "MiB"},
+
+      # limit < coef
+      {169_632, "100k", "169.63", "100.0", "kB"},
+      {1_000_001, "990K", "1000.0", "990.0", "kB"},
+      {123, "80", "123.0", "80.0", "bytes"},
     }
   end
 
