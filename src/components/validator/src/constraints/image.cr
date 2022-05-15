@@ -353,6 +353,12 @@ class Athena::Validator::Constraints::Image < Athena::Validator::Constraints::Fi
     payload : Hash(String, String)? = nil
   )
     super max_size, binary_format, mime_types, not_found_message, not_readable_message, empty_message, max_size_message, mime_type_message, groups, payload
+
+    # Use the default message `File` uses when only specific mime types are shown such that it renders the valid types.
+    # OPTIMIZE: Figure out a better way to know if the message has been customized.
+    if !mime_types.includes?("image/*") && mime_type_message == "This file is not a valid image."
+      @mime_type_message = "The mime type of the file is invalid ({{ type }}). Allowed mime types are {{ types }}."
+    end
   end
 
   class Validator < Athena::Validator::Constraints::File::Validator
