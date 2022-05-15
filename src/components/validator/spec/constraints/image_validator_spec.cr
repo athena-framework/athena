@@ -171,6 +171,20 @@ struct ImageValidatorTestCase < AVD::Spec::ConstraintValidatorTestCase
       .assert_violation
   end
 
+  def ptest_invalid_mime_narrowed_set : Nil
+    self.validator.validate @image, self.new_constraint mime_types: ["image/jpeg", "image/png"]
+
+    # TODO: Figure out a good way to make it so it doesn't actually translate the message of the actual violation.
+    # Possibly some internal `TranslatorInterface` implementation to support a future `Athena::Translator` component.
+    self
+      .build_violation("The mime type of the file is invalid ({{ type }}). Allowed mime types are {{ types }}.", CONSTRAINT::INVALID_MIME_TYPE_ERROR)
+      .add_parameter("{{ file }}", @image)
+      .add_parameter("{{ type }}", "image/gif")
+      .add_parameter("{{ types }}", %(Set{"image/jpeg", "image/png"}))
+      .add_parameter("{{ name }}", "2x2.gif")
+      .assert_violation
+  end
+
   private def create_validator : AVD::ConstraintValidatorInterface
     CONSTRAINT::Validator.new
   end
