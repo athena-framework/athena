@@ -314,6 +314,13 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
     def factorize_sizes(size : Int, limit : Int, binary_format : Bool) : Tuple(String, String, String)
       coef, coef_factor = binary_format ? {MIB_BYTES, KIB_BYTES} : {MB_BYTES, KB_BYTES}
 
+      # If limit < coef, limit_as_string could be < 1 with less than 3 decimals.
+      # In this case, we would end up displaying an allowed size < 1 (eg: 0.1 MB).
+      # It looks better to keep on factorizing (to display 100 kB for example).
+      while limit < coef
+        coef /= coef_factor
+      end
+
       limit_as_string = (limit / coef).to_s
 
       while self.more_decimals_than limit_as_string, 2
