@@ -93,7 +93,13 @@ class Athena::Validator::Constraints::Range < Athena::Validator::Constraint
     groups : Array(String) | String | Nil = nil,
     payload : Hash(String, String)? = nil
   )
-    new range.begin, range.end, not_in_range_message, min_message, max_message, groups, payload
+    range_end = range.end
+
+    if range_end && range_end.is_a? Number::Primitive && range.excludes_end?
+      range_end -= 1
+    end
+
+    new range.begin, range_end, not_in_range_message, min_message, max_message, groups, payload
   end
 
   private def initialize(

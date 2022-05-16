@@ -73,7 +73,7 @@ struct RangeValidatorTest < AVD::Spec::ConstraintValidatorTestCase
     self.assert_no_violation
   end
 
-  def ptest_exclusive_range_excluded : Nil
+  def test_exclusive_range_excluded : Nil
     self.validator.validate 20, self.new_constraint range: (10...20), not_in_range_message: "my_message"
 
     self
