@@ -6,7 +6,18 @@ struct Athena::Framework::Arguments::ArgumentMetadata(T)
   # Returns `true` if this argument has a default value set, otherwise `false`.
   getter? has_default : Bool
 
-  protected def initialize(@name : String, @has_default : Bool = false, @default_value : T? = nil); end
+  # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to `self`.
+  #
+  # These configurations could then be accessed within `ATH::ParamConverter`s and/or `ATH::Listeners`s.
+  # See `ATH::Events::RequestAware` for an example.
+  getter annotation_configurations : ACF::AnnotationConfigurations
+
+  protected def initialize(
+    @name : String,
+    @annotation_configurations : ACF::AnnotationConfigurations,
+    @has_default : Bool = false,
+    @default_value : T? = nil
+  ); end
 
   # If `nil` is a valid argument for the argument.
   def nilable? : Bool

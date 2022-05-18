@@ -134,7 +134,6 @@ module Athena::Framework::Routing::AnnotationRouteLoader
 
           {%
             arguments = [] of Nil
-            param_converters = [] of Nil
             params = [] of Nil
             annotation_configurations = {} of Nil => Nil
 
@@ -178,29 +177,22 @@ module Athena::Framework::Routing::AnnotationRouteLoader
 
             # Process controller action arguments.
             m.args.each do |arg|
+              parameter_annotation_configurations = {} of Nil => Nil
+
+              # Process custom annotation types
+              ACF::CUSTOM_ANNOTATIONS.each do |ann_class|
+                ann_class = ann_class.resolve
+                annotations = [] of Nil
+
+                (arg.annotations ann_class).each do |ann|
+                  annotations << "#{ann_class}Configuration.new(#{ann.args.empty? ? "".id : "#{ann.args.splat},".id}#{ann.named_args.double_splat})".id
+                end
+
+                parameter_annotation_configurations[ann_class] = "(#{annotations} of ACF::AnnotationConfigurations::ConfigurationBase)".id unless annotations.empty?
+              end
+
               arg.raise "Route action argument '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction." if arg.restriction.is_a? Nop
-              arguments << %(ATH::Arguments::ArgumentMetadata(#{arg.restriction}).new(#{arg.name.stringify}, #{!arg.default_value.is_a? Nop}, #{arg.default_value.is_a?(Nop) ? nil : arg.default_value})).id
-            end
-
-            # Process param converters
-            m.annotations(ATHA::ParamConverter).each do |converter|
-              unless arg_name = (converter[0] || converter[:name])
-                converter.raise "Route action '#{klass.name}##{m.name}' has an ATHA::ParamConverter annotation but is missing the argument's name. It was not provided as the first positional argument nor via the 'name' field."
-              end
-
-              unless (arg = m.args.find(&.name.stringify.==(arg_name.id.stringify)))
-                converter.raise "Route action '#{klass.name}##{m.name}' has an ATHA::ParamConverter annotation but does not have a corresponding action argument for '#{arg_name.id}'."
-              end
-
-              unless converter_class = converter[:converter]
-                converter.raise "Route action '#{klass.name}##{m.name}' has an ATHA::ParamConverter annotation but is missing the converter class. It was not provided via the 'converter' field."
-              end
-
-              ann_args = converter.named_args
-              configuration_type = ann_args[:type_vars] != nil ? "Configuration(#{arg.restriction}, #{ann_args[:type_vars].is_a?(Path) ? ann_args[:type_vars].id : ann_args[:type_vars].splat})" : "Configuration(#{arg.restriction})"
-              configuration_args = {name: arg_name.id.stringify}
-              converter.named_args.to_a.select { |(k, _)| k != :type_vars }.each { |(k, v)| configuration_args[k] = v }
-              param_converters << %(#{converter_class.resolve}::#{configuration_type.id}.new(#{configuration_args.double_splat})).id
+              arguments << %(ATH::Arguments::ArgumentMetadata(#{arg.restriction}).new(#{arg.name.stringify}, annotation_configurations: ACF::AnnotationConfigurations.new(#{parameter_annotation_configurations} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)), #{!arg.default_value.is_a? Nop}, #{arg.default_value.is_a?(Nop) ? nil : arg.default_value})).id
             end
 
             # Process custom annotation types
