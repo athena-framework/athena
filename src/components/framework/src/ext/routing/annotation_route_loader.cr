@@ -185,6 +185,15 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                 annotations = [] of Nil
 
                 (arg.annotations ann_class).each do |ann|
+                  # See if this annotation relates to a typed resolver interface.
+                  if interface = parse_type(ann.name.names[0..-2].join "::").resolve.ancestors.find &.<=(ATHR::Interface::Typed)
+                    supported_types = interface.type_vars.first.type_vars
+
+                    unless supported_types.any? { |t| arg.restriction.resolve <= t.resolve }
+                      arg.raise %(The annotation '#{ann}' cannot be applied to '#{klass.name}##{m.name}:#{arg.name} : #{arg.restriction}' since it only supports parameters of type #{supported_types.join ", "}.)
+                    end
+                  end
+
                   annotations << "#{ann_class}Configuration.new(#{ann.args.empty? ? "".id : "#{ann.args.splat},".id}#{ann.named_args.double_splat})".id
                 end
 
@@ -192,7 +201,14 @@ module Athena::Framework::Routing::AnnotationRouteLoader
               end
 
               arg.raise "Route action argument '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction." if arg.restriction.is_a? Nop
-              arguments << %(ATH::Arguments::ArgumentMetadata(#{arg.restriction}).new(#{arg.name.stringify}, annotation_configurations: ACF::AnnotationConfigurations.new(#{parameter_annotation_configurations} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)), #{!arg.default_value.is_a? Nop}, #{arg.default_value.is_a?(Nop) ? nil : arg.default_value})).id
+              arguments << %(ATH::Arguments::ArgumentMetadata(#{arg.restriction}).new(
+                #{arg.name.stringify},
+                ACF::AnnotationConfigurations.new(
+                  #{parameter_annotation_configurations} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)
+                ),
+                #{!arg.default_value.is_a? Nop},
+                #{arg.default_value.is_a?(Nop) ? nil : arg.default_value}
+              )).id
             end
 
             # Process custom annotation types

@@ -22,11 +22,11 @@ require "./redirect_response"
 require "./response"
 require "./response_headers"
 require "./request"
-require "./request_body_converter"
 require "./request_store"
 require "./route_handler"
 require "./streamed_response"
-require "./time_converter"
+
+require "./ext/serializer"
 
 require "./arguments/**"
 require "./commands/*"
@@ -44,7 +44,6 @@ require "./ext/conversion_types"
 require "./ext/event_dispatcher"
 require "./ext/negotiation"
 require "./ext/routing"
-require "./ext/serializer"
 require "./ext/validator"
 
 # Convenience alias to make referencing `Athena::Framework` types easier.
@@ -52,6 +51,9 @@ alias ATH = Athena::Framework
 
 # Convenience alias to make referencing `Athena::Framework::Annotations` types easier.
 alias ATHA = ATH::Annotations
+
+# Convenience alias to make referencing `Athena::Framework::Arguments::Resolvers` types easier.
+alias ATHR = ATH::Arguments::Resolvers
 
 # See the [external documentation](https://athenaframework.org) for an introduction to `Athena`.
 #

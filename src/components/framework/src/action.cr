@@ -43,6 +43,28 @@ struct Athena::Framework::Action(Controller, ReturnType, ArgTypeTuple, Arguments
     @action.call {{ArgTypeTuple.type_vars.empty? ? "Tuple.new".id : ArgTypeTuple}}.from arguments
   end
 
+  # Resolves the arguments for this action for the given *request*.
+  #
+  # This is defined in here as opposed to `ATH::Arguments::ArgumentResolver` so that the free vars are resolved correctly.
+  # See https://forum.crystal-lang.org/t/incorrect-overload-selected-with-freevar-and-generic-inheritance/3625.
+  protected def resolve_arguments(resolvers : Array(ATHR::Interface), request : ATH::Request) : Array
+    {% begin %}
+      {
+        {% for idx in (0...ArgumentsType.size) %}
+          begin
+            %argument = @arguments[{{idx}}]
+            
+            if resolver = resolvers.find &.supports? request, %argument
+              resolver.resolve request, %argument
+            else
+              raise RuntimeError.new %(Could not resolve required argument '#{%argument.name}' for '#{request.attributes.get "_route"}'.)
+            end
+          end,
+        {% end %}
+      }.to_a
+    {% end %}
+  end
+
   # Creates an `ATH::View` populated with the provided *data*.
   # Uses the action's return type to type the view.
   protected def create_view(data : ReturnType) : ATH::View
