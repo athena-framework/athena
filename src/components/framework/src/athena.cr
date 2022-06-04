@@ -199,3 +199,50 @@ module Athena::Framework
     end
   end
 end
+
+module MakeControllerServicesPublicPass
+  include Athena::DependencyInjection::PreArgumentsCompilerPass
+
+  macro included
+    macro finished
+      {% verbatim do %}
+        {% for service_id, metadata in SERVICE_HASH %}
+          {% if metadata[:service] <= ATH::Controller %}
+            {% metadata[:public] = true %}
+          {% end %}
+        {% end %}
+      {% end %}
+    end
+  end
+end
+
+# Register an example service that provides a name string.
+@[ADI::Register]
+class NameProvider
+  def name : String
+    "World"
+  end
+end
+
+# Register another service that depends on the previous service and provides a value.
+@[ADI::Register]
+class ValueProvider
+  def initialize(@name_provider : NameProvider); end
+
+  def value : String
+    "Hello " + @name_provider.name
+  end
+end
+
+# Register a service controller that depends upon the ValueProvider.
+@[ADI::Register]
+class ExampleController < ATH::Controller
+  def initialize(@value_provider : ValueProvider); end
+
+  @[ARTA::Get("/")]
+  def get_value : String
+    @value_provider.value
+  end
+end
+
+ATH.run
