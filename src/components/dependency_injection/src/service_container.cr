@@ -21,6 +21,8 @@ class Athena::DependencyInjection::ServiceContainer
   # I.e. that another service depends on, or is public.
   private USED_SERVICE_IDS = [] of Nil
 
+  private LOCATORS = [] of Nil
+
   private module RegisterServices
     macro included
       macro finished
@@ -385,6 +387,38 @@ class Athena::DependencyInjection::ServiceContainer
     end
   end
 
+  private module DefineLocators
+    macro included
+      macro finished
+        {% verbatim do %}
+          {% for locator in LOCATORS %}
+            struct ::{{locator[:name].id}}
+              def initialize(@container : ADI::ServiceContainer); end
+
+              {% for service_type, service_id in locator[:map] %}
+                def get(service : {{service_type}}.class) : {{service_type}}
+                  @container.{{service_id.id}}
+                end
+              {% end %}
+              
+              def get(service)
+                {% begin %}
+                  case service
+                  {% for service_type, service_id in locator[:map] %}
+                    when {{service_type}} then @container.{{service_id.id}}
+                  {% end %}
+                  else
+                    raise "BUG: Couldn't find correct ACON::Command"
+                  end
+                {% end %}
+              end
+            end
+          {% end %}
+        {% end %}
+      end
+    end
+  end
+
   private module DefineGetters
     macro included
       macro finished
@@ -392,7 +426,8 @@ class Athena::DependencyInjection::ServiceContainer
           # Define getters for each service, if the service is public, make the getter public and also define a type based getter
           {% for service_id, metadata in SERVICE_HASH %}
             {% if metadata != nil %}
-              {% generics_type = "#{metadata[:service].name(generic_args: false)}(#{metadata[:generics].splat})".id %}
+              {% service_name = metadata[:service].is_a?(StringLiteral) ? metadata[:service] : metadata[:service].name(generic_args: false) %}
+              {% generics_type = "#{service_name}(#{metadata[:generics].splat})".id %}
 
               {% service = metadata[:generics].empty? ? metadata[:service] : generics_type %}
               {% ivar_type = metadata[:generics].empty? ? metadata[:ivar_type] : generics_type %}
@@ -405,13 +440,16 @@ class Athena::DependencyInjection::ServiceContainer
                 {% constructor_method = factory[1] %}
               {% end %}
 
-              {% if metadata[:public] != true %}protected{% end %} getter {{service_id.id}} : {{ivar_type}} { {{constructor_service}}.{{constructor_method.id}}({{metadata[:arguments].splat}}) }
+              {% if metadata[:public] != true %}protected{% end %} getter {{service_id.id}} : {{ivar_type.id}} { {{constructor_service.id}}.{{constructor_method.id}}({{metadata[:arguments].splat}}) }
 
               {% if metadata[:public] %}
-                def get(service : {{service}}.class) : {{service}}
+                def get(service : {{service}}.class) : {{service.id}}
                   {{service_id.id}}
                 end
               {% end %}
+              
+              
+              
             {% end %}
           {% end %}
 
@@ -420,7 +458,8 @@ class Athena::DependencyInjection::ServiceContainer
             {% metadata = SERVICE_HASH[service_id] %}
             
             {% if metadata != nil %}
-              {% type = metadata[:generics].empty? ? metadata[:service] : "#{metadata[:service].name(generic_args: false)}(#{metadata[:generics].splat})".id %}
+              {% service_name = metadata[:service].is_a?(StringLiteral) ? metadata[:service] : metadata[:service].name(generic_args: false) %}
+              {% type = metadata[:generics].empty? ? service_name : "#{service_name}(#{metadata[:generics].splat})".id %}
 
               {% if metadata[:public_alias] != true %}protected{% end %} def {{service_type.name.gsub(/::/, "_").underscore.id}} : {{type}}; {{service_id.id}}; end
 
@@ -457,5 +496,6 @@ class Athena::DependencyInjection::ServiceContainer
 
     include RemoveUnusedServices
     include DefineGetters
+    include DefineLocators
   end
 end

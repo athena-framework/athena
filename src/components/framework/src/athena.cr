@@ -38,6 +38,7 @@ require "./params/*"
 require "./view/*"
 
 require "./ext/conversion_types"
+require "./ext/console"
 require "./ext/event_dispatcher"
 require "./ext/negotiation"
 require "./ext/routing"
@@ -206,43 +207,215 @@ module MakeControllerServicesPublicPass
   macro included
     macro finished
       {% verbatim do %}
-        {% for service_id, metadata in SERVICE_HASH %}
-          {% if metadata[:service] <= ATH::Controller %}
-            {% metadata[:public] = true %}
-          {% end %}
-        {% end %}
+        {%
+          SERVICE_HASH.each do |service_id, metadata|
+            if metadata[:service] <= ATH::Controller
+              metadata[:public] = true
+            end
+          end
+        %}
       {% end %}
     end
   end
 end
 
-# Register an example service that provides a name string.
-@[ADI::Register]
-class NameProvider
-  def name : String
-    "World"
+module RegisterCommandsPass
+  include Athena::DependencyInjection::PostArgumentsCompilerPass
+
+  macro included
+    macro finished
+      {% verbatim do %}
+        {%
+          command_map = {} of Nil => Nil
+          command_refs = {} of Nil => Nil
+
+          SERVICE_HASH.each do |service_id, metadata|
+            # TODO: Make these not public
+            metadata[:public] = true
+
+            tags = metadata[:tags].select &.[:name].==("athena.console.command")
+
+            if !tags.empty? && (ann = metadata[:service].annotation ACONA::AsCommand)
+              aliases = if tag_command = tags[0][:command]
+                          tag_command
+                        else
+                          ann[0] || ann[:name]
+                        end
+
+              aliases = (aliases || "").split "|"
+              command_name = aliases[0]
+              aliases = aliases[1..]
+
+              if is_hidden = "" == command_name
+                command_name = aliases[0]
+
+                unless aliases.empty?
+                  aliases = aliases[1..]
+                end
+              end
+
+              if command_name == nil
+                # TODO: Do something here?
+              end
+
+              description = tags[0][:description]
+
+              tags = tags[1..]
+
+              command_map[command_name] = metadata[:service]
+              command_refs[metadata[:service]] = service_id
+
+              aliases.each do |a|
+                command_map[a] = metadata[:service]
+              end
+
+              # TODO: Add method calls to handle additional aliases, hidden commands, and description
+
+              if !description
+                description = ann[:description]
+              end
+            end
+          end
+
+          LOCATORS << {
+            name: "ContainerCommandLoaderContainer",
+            map:  command_refs,
+          }
+
+          SERVICE_HASH["athena_console_command_loader_container"] = {
+            public:    false,
+            service:   "ContainerCommandLoaderContainer",
+            ivar_type: "ContainerCommandLoaderContainer",
+            tags:      [] of Nil,
+            generics:  [] of Nil,
+            synthetic: true,
+            arguments: [
+              "self".id,
+            ],
+          }
+
+          SERVICE_HASH["athena_console_command_loader"] = {
+            public:    true,
+            service:   ContainerCommandLoader,
+            ivar_type: ContainerCommandLoader,
+            tags:      [] of Nil,
+            generics:  [] of Nil,
+            synthetic: true,
+            arguments: [
+              command_map,
+              "athena_console_command_loader_container".id,
+            ],
+          }
+
+          USED_SERVICE_IDS << "athena_console_command_loader_container".id
+          USED_SERVICE_IDS << "athena_console_command_loader".id
+        %}
+      {% end %}
+    end
   end
 end
 
-# Register another service that depends on the previous service and provides a value.
-@[ADI::Register]
-class ValueProvider
-  def initialize(@name_provider : NameProvider); end
+macro finished
+  struct ContainerCommandLoader
+    include Athena::Console::Loader::Interface
 
-  def value : String
-    "Hello " + @name_provider.name
+    @command_map : Hash(String, ACON::Command.class)
+
+    def initialize(
+      @command_map : Hash(String, ACON::Command.class),
+      @loader : ContainerCommandLoaderContainer
+    ); end
+
+    # :inherit:
+    def get(name : String) : ACON::Command
+      if !self.has? name
+        raise ACON::Exceptions::CommandNotFound.new "Command '#{name}' does not exist."
+      end
+
+      @loader.get @command_map[name]
+    end
+
+    # :inherit:
+    def has?(name : String) : Bool
+      @command_map.has_key? name
+    end
+
+    # :inherit:
+    def names : Array(String)
+      @command_map.keys
+    end
   end
 end
 
-# Register a service controller that depends upon the ValueProvider.
-@[ADI::Register]
-class ExampleController < ATH::Controller
-  def initialize(@value_provider : ValueProvider); end
+# # Register an example service that provides a name string.
+# @[ADI::Register]
+# class NameProvider
+#   def name : String
+#     "World"
+#   end
+# end
 
-  @[ARTA::Get("/")]
-  def get_value : String
-    @value_provider.value
+# # Register another service that depends on the previous service and provides a value.
+# @[ADI::Register]
+# class ValueProvider
+#   def initialize(@name_provider : NameProvider); end
+
+#   def value : String
+#     "Hello " + @name_provider.name
+#   end
+# end
+
+# # Register a service controller that depends upon the ValueProvider.
+# @[ADI::Register]
+# class ExampleController < ATH::Controller
+#   def initialize(@value_provider : ValueProvider); end
+
+#   @[ARTA::Get("/")]
+#   def get_value : String
+#     @value_provider.value
+#   end
+# end
+
+@[ADI::Register]
+@[ACONA::AsCommand("test")]
+class TestCommand < ACON::Command
+  def initialize
+    pp "New #{{{@type}}}"
+    super
+  end
+
+  protected def execute(input : ACON::Input::Interface, output : ACON::Output::Interface) : ACON::Command::Status
+    # Implement all the business logic here.
+
+    output.puts "foo"
+
+    # Indicates the command executed successfully.
+    ACON::Command::Status::SUCCESS
   end
 end
 
-ATH.run
+@[ADI::Register]
+@[ACONA::AsCommand("blah")]
+class BlahCommand < ACON::Command
+  def initialize
+    pp "New #{{{@type}}}"
+    super
+  end
+
+  protected def execute(input : ACON::Input::Interface, output : ACON::Output::Interface) : ACON::Command::Status
+    # Implement all the business logic here.
+
+    output.puts "bar"
+
+    # Indicates the command executed successfully.
+    ACON::Command::Status::SUCCESS
+  end
+end
+
+application = ACON::Application.new "Athena", ATH::VERSION
+
+application.command_loader = ADI.container.athena_console_command_loader
+
+application.run
+
+# ATH.run
