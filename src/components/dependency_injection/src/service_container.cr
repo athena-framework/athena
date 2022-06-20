@@ -392,6 +392,7 @@ class Athena::DependencyInjection::ServiceContainer
       macro finished
         {% verbatim do %}
           {% for locator in LOCATORS %}
+            # :nodoc:
             struct ::{{locator[:name].id}}
               def initialize(@container : ADI::ServiceContainer); end
 
@@ -408,7 +409,7 @@ class Athena::DependencyInjection::ServiceContainer
                     when {{service_type}} then @container.{{service_id.id}}
                   {% end %}
                   else
-                    raise "BUG: Couldn't find correct ACON::Command"
+                    raise "BUG: Couldn't find correct service."
                   end
                 {% end %}
               end
