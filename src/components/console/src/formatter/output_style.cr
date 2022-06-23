@@ -48,13 +48,13 @@ struct Athena::Console::Formatter::OutputStyle
   end
 
   # :inherit:
-  def foreground=(color : String)
-    if hex_value = color.lchop? '#'
+  def foreground=(foreground : String)
+    if hex_value = foreground.lchop? '#'
       r, g, b = hex_value.hexbytes
       return @foreground = Colorize::ColorRGB.new r, g, b
     end
 
-    @foreground = Colorize::ColorANSI.parse color
+    @foreground = Colorize::ColorANSI.parse foreground
   end
 
   # :inherit:

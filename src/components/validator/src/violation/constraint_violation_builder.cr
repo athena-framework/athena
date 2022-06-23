@@ -82,7 +82,8 @@ class Athena::Validator::Violation::ConstraintViolationBuilder
   end
 
   # :inherit:
-  def plural(@plural : Int32) : AVD::Violation::ConstraintViolationBuilderInterface
+  def plural(number : Int32) : AVD::Violation::ConstraintViolationBuilderInterface
+    @plural = number
     self
   end
 

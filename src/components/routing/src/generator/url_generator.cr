@@ -47,12 +47,16 @@ class Athena::Routing::Generator::URLGenerator
   property context : ART::RequestContext
 
   # :inherit:
-  property? strict_requirements : Bool? = true
+  getter? strict_requirements : Bool? = true
 
   def initialize(
     @context : ART::RequestContext,
     @default_locale : String? = nil
   )
+  end
+
+  def strict_requirements=(enabled : Bool?)
+    @strict_requirements = enabled
   end
 
   # :inherit:

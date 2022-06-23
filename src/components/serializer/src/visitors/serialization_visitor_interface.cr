@@ -2,7 +2,7 @@ module Athena::Serializer::Visitors::SerializationVisitorInterface
   abstract def prepare : Nil
   abstract def finish : Nil
 
-  abstract def visit(data : Array(ASR::PropertyMetadataBase)) : Nil
+  abstract def visit(properties : Array(ASR::PropertyMetadataBase)) : Nil
   abstract def visit(data : Bool) : Nil
   abstract def visit(data : Enum) : Nil
   abstract def visit(data : Enumerable) : Nil
