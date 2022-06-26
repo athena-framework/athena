@@ -73,19 +73,19 @@ class Athena::Console::Input::ARGV < Athena::Console::Input
 
   # :inherit:
   def to_s(io : IO) : Nil
-    @tokens.join io, " " do |token, io|
+    @tokens.join io, " " do |token, join_io|
       if match = token.match /^(-[^=]+=)(.+)/
-        io << match[1]
-        io << self.escape_token match[2]
+        join_io << match[1]
+        join_io << self.escape_token match[2]
         next
       end
 
       if !token.empty? && '-' != token[0]
-        io << self.escape_token token
+        join_io << self.escape_token token
         next
       end
 
-      io << token
+      join_io << token
     end
   end
 
