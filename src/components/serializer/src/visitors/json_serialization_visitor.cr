@@ -21,9 +21,9 @@ class Athena::Serializer::Visitors::JSONSerializationVisitor
   end
 
   # :inherit:
-  def visit(properties : Array(PropertyMetadataBase)) : Nil
+  def visit(data : Array(PropertyMetadataBase)) : Nil
     @builder.object do
-      properties.each do |prop|
+      data.each do |prop|
         @builder.field(prop.external_name) do
           visit prop.value
         end

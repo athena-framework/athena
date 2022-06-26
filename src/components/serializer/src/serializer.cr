@@ -28,7 +28,7 @@ struct Athena::Serializer::Serializer
   def initialize(@navigator_factory : ASR::Navigators::NavigatorFactoryInterface = ASR::Navigators::NavigatorFactory.new); end
 
   # :inherit:
-  def deserialize(type : _, input_data : String | IO, format : ASR::Format | String, context : ASR::DeserializationContext = ASR::DeserializationContext.new)
+  def deserialize(type : _, data : String | IO, format : ASR::Format | String, context : ASR::DeserializationContext = ASR::DeserializationContext.new)
     # Initialize the context.  Currently just used to apply default exclusion strategies
     context.init
 
@@ -37,7 +37,7 @@ struct Athena::Serializer::Serializer
 
     visitor.navigator = navigator
 
-    navigator.accept type, visitor.prepare input_data
+    navigator.accept type, visitor.prepare data
   end
 
   # :inherit:

@@ -1,5 +1,5 @@
 class Athena::Serializer::Visitors::YAMLDeserializationVisitor < Athena::Serializer::Visitors::DeserializationVisitor
-  def prepare(input : IO | String) : ASR::Any
-    YAML.parse input
+  def prepare(data : IO | String) : ASR::Any
+    YAML.parse data
   end
 end
