@@ -172,4 +172,7 @@ module Athena::Console::Input::Interface
 
   # Sets if `self` is `#interactive?`.
   abstract def interactive=(interactive : Bool)
+
+  # Returns a string representation of the args passed to the command.
+  abstract def to_s(io : IO) : Nil
 end

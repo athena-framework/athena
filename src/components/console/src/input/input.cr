@@ -177,6 +177,33 @@ abstract class Athena::Console::Input
     raise ACON::Exceptions::ValidationFailed.new %(Not enough arguments (missing: '#{missing_args.join(", ")}').) unless missing_args.empty?
   end
 
+  # Escapes a token via [Process.quote](https://crystal-lang.org/api/Process.html#quote%28arg%3AString%29%3AString-class-method) if it contains unsafe characters.
+  def escape_token(token : String) : String
+    Process.quote token
+  end
+
+  # :nodoc:
+  def escape_token(token : ACON::Input::Value::String) : String
+    self.escape_token token.value
+  end
+
+  # :nodoc:
+  def escape_token(token : ACON::Input::Value::Array) : String
+    token.value.join " " do |t|
+      self.escape_token t
+    end
+  end
+
+  # :nodoc:
+  def escape_token(token : ACON::Input::Value::Nil) : String
+    ""
+  end
+
+  # :nodoc:
+  def escape_token(token : _) : String
+    self.escape_token token.to_s
+  end
+
   private def resolve(hash : ::Hash(String, ACON::Input::Value)) : ::Hash
     hash.transform_values do |value|
       case value

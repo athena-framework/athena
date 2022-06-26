@@ -3,6 +3,10 @@ class Athena::Console::Input::ARGV < Athena::Console::Input
   @tokens : Array(String)
   @parsed : Array(String) = [] of String
 
+  def self.new(*tokens : String)
+    new tokens.to_a
+  end
+
   def initialize(@tokens : Array(String) = ::ARGV, definition : ACON::Input::Definition? = nil)
     super definition
   end
@@ -65,6 +69,24 @@ class Athena::Console::Input::ARGV < Athena::Console::Input
     end
 
     default
+  end
+
+  # :inherit:
+  def to_s(io : IO) : Nil
+    @tokens.join io, " " do |token, io|
+      if match = token.match /^(-[^=]+=)(.+)/
+        io << match[1]
+        io << self.escape_token match[2]
+        next
+      end
+
+      if !token.empty? && '-' != token[0]
+        io << self.escape_token token
+        next
+      end
+
+      io << token
+    end
   end
 
   # ameba:disable Metrics/CyclomaticComplexity
