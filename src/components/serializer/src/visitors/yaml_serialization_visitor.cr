@@ -18,9 +18,9 @@ class Athena::Serializer::Visitors::YAMLSerializationVisitor
   end
 
   # :inherit:
-  def visit(properties : Array(PropertyMetadataBase)) : Nil
+  def visit(data : Array(PropertyMetadataBase)) : Nil
     @builder.mapping do
-      properties.each do |prop|
+      data.each do |prop|
         @builder.scalar prop.external_name
         visit prop.value
       end

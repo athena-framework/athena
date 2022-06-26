@@ -5,7 +5,7 @@ private struct MockArgumentResolver
 
   def initialize(@exception : ::Exception? = nil); end
 
-  def get_arguments(request : ATH::Request, action : ATH::ActionBase) : Array
+  def get_arguments(request : ATH::Request, route : ATH::ActionBase) : Array
     if ex = @exception
       raise ex
     end

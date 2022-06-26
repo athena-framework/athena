@@ -3,5 +3,5 @@
 # `AVD::ServiceConstraintValidator`s are instantiated externally and injected into the factory.
 module Athena::Validator::ConstraintValidatorFactoryInterface
   # Returns an `AVD::ConstraintValidatorInterface` instance based on the provided *validator_class*.
-  abstract def validator(validator : AVD::ConstraintValidator.class) : AVD::ConstraintValidatorInterface
+  abstract def validator(for validator_class : AVD::ConstraintValidator.class) : AVD::ConstraintValidatorInterface
 end

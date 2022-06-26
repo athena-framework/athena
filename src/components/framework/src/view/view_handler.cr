@@ -43,7 +43,8 @@ class Athena::Framework::View::ViewHandler
   end
 
   # :inherit:
-  def serialization_version=(@serialization_version : SemanticVersion) : Nil
+  def serialization_version=(version : SemanticVersion) : Nil
+    @serialization_version = version
   end
 
   # :inherit:

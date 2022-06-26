@@ -1,5 +1,5 @@
 class Athena::Serializer::Visitors::JSONDeserializationVisitor < Athena::Serializer::Visitors::DeserializationVisitor
-  def prepare(input : IO | String) : ASR::Any
-    JSON.parse input
+  def prepare(data : IO | String) : ASR::Any
+    JSON.parse data
   end
 end

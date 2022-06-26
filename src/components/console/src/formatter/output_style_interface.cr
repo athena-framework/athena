@@ -83,7 +83,7 @@ require "colorize"
 # the text and have it open in your default browser. Otherwise, you will see it as regular text.
 module Athena::Console::Formatter::OutputStyleInterface
   # Sets the foreground color of `self`.
-  abstract def foreground=(forground : Colorize::Color)
+  abstract def foreground=(foreground : Colorize::Color)
 
   # Sets the background color of `self`.
   abstract def background=(background : Colorize::Color)

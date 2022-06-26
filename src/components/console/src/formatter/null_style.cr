@@ -3,7 +3,7 @@ class Athena::Console::Formatter::NullStyle
   include Athena::Console::Formatter::OutputStyleInterface
 
   # :inherit:
-  def foreground=(forground : Colorize::Color)
+  def foreground=(foreground : Colorize::Color)
   end
 
   # :inherit:
