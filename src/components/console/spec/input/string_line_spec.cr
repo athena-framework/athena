@@ -33,6 +33,18 @@ struct StringLineTest < ASPEC::TestCase
       "long option with multiple single quoted values"  => { %(--long-option='foo bar''another'), ["--long-option=foo baranother"] },
       "several arguments and options"                   => {"foo -a -ffoo --long bar", ["foo", "-a", "-ffoo", "--long", "bar"]},
       "quoted quotes"                                   => {"--arg=\\\"'Jenny'\\''s'\\\"", ["--arg=\"Jenny's\""]},
+      "quoted single quote with escaped quote"          => {"'A\nB\\'C'", ["A\nB'C"]},
     }
+  end
+
+  def test_to_s : Nil
+    input = ACON::Input::StringLine.new "-f foo"
+    input.to_s.should eq "-f foo"
+
+    input = ACON::Input::StringLine.new %(-f --bar=foo "a b c d")
+    input.to_s.should eq "-f --bar=foo 'a b c d'"
+
+    input = ACON::Input::StringLine.new %(-f --bar=foo 'a b c d' 'A\nB\\'C')
+    input.to_s.should eq "-f --bar=foo 'a b c d' 'A\nB'\"'\"'C'"
   end
 end

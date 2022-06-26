@@ -126,4 +126,19 @@ struct HashTest < ASPEC::TestCase
       },
     }
   end
+
+  def test_to_s_complex_mix : Nil
+    input = ACON::Input::Hash.new "-f": nil, "-b": "bar", "--foo": "b a z", "--lala": nil, "test": "Foo", "test2": "A\nB'C"
+    input.to_s.should eq "-f -b bar --foo='b a z' --lala Foo 'A\nB'\"'\"'C'"
+  end
+
+  def test_to_s_array_options : Nil
+    input = ACON::Input::Hash.new "-b": ["bval_1", "bval_2"], "--f": ["fval_1", "fval_2"]
+    input.to_s.should eq "-b bval_1 -b bval_2 --f=fval_1 --f=fval_2"
+  end
+
+  def test_to_s_array_argument : Nil
+    input = ACON::Input::Hash.new "array_arg": ["val_1", "val_2"]
+    input.to_s.should eq "val_1 val_2"
+  end
 end

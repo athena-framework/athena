@@ -225,4 +225,14 @@ struct ARGVTest < ASPEC::TestCase
       },
     }
   end
+
+  def test_to_s : Nil
+    input = ACON::Input::ARGV.new "-b", "bar"
+    input.to_s.should eq "-b bar"
+  end
+
+  def test_to_s_complex : Nil
+    input = ACON::Input::ARGV.new "-f", "--bar=foo", "a b c d", "A\nB'C"
+    input.to_s.should eq "-f --bar=foo 'a b c d' 'A\nB'\"'\"'C'"
+  end
 end

@@ -1,7 +1,7 @@
 # An `ACON::Input::Interface` based on a command line string.
 class Athena::Console::Input::StringLine < Athena::Console::Input::ARGV
-  private REGEX_UNQUOTED_STRING = /([^\s\\\\]+?)/
-  private REGEX_QUOTED_STRING   = /(?:"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"|\'([^\'\\\\]*(?:\\\\.[^\'\\\\]*)*)\')/
+  private REGEX_UNQUOTED_STRING = /([^\s\\]+?)/
+  private REGEX_QUOTED_STRING   = /(?:"([^"\\]*(?:\\.[^"\\]*)*)"|\'([^\'\\]*(?:\\.[^\'\\]*)*)\')/
 
   def initialize(input : String)
     super [] of String
@@ -31,10 +31,10 @@ class Athena::Console::Input::StringLine < Athena::Console::Input::ARGV
 
                 m
               elsif m = input.match /\G([^="\'\s]+?)(=?)(#{REGEX_QUOTED_STRING}+)/, idx
-                token += %(#{m[1]}#{m[2]}#{m[3][1...-1].gsub(/("\'|\'"|\'\'|\"\")/, "")})
+                token += %(#{m[1]}#{m[2]}#{m[3][1...-1].gsub(/("\'|\'"|\'\'|\"\")/, "").gsub(/\\'/, {"\\'" => "'"})})
                 m
               elsif m = input.match /\G#{REGEX_QUOTED_STRING}/, idx
-                token += m[0][1...-1]
+                token += m[0][1...-1].gsub(/\\'/, {"\\'" => "'"})
                 m
               elsif m = input.match /\G#{REGEX_UNQUOTED_STRING}/, idx
                 token += m[1]

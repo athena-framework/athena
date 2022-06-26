@@ -76,6 +76,29 @@ class Athena::Console::Input::Hash < Athena::Console::Input
     default
   end
 
+  # :inherit:
+  def to_s(io : IO) : Nil
+    params = [] of String
+
+    @parameters.each do |param, val|
+      if param[0] == '-'
+        separator = param[1] == '-' ? '=' : ' '
+
+        if val.is_a? ACON::Input::Value::Array
+          val.value.each do |v|
+            params << %(#{param}#{v.value != "" && !val.value.nil? ? %<#{separator}#{self.escape_token v}> : ""})
+          end
+        else
+          params << %(#{param}#{val.value != "" && !val.value.nil? ? %<#{separator}#{self.escape_token val}> : ""})
+        end
+      else
+        params << self.escape_token val
+      end
+    end
+
+    params.join io, " "
+  end
+
   protected def parse : Nil
     @parameters.each do |name, value|
       return if "--" == name
