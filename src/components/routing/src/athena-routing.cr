@@ -67,6 +67,11 @@ alias ARTA = ART::Annotations
 #
 # See the related types for more detailed information.
 #
+# ### Simple Webapp
+#
+# The Routing component also provides `ART::RoutingHandler` which can be used to add basic routing functionality to a [HTTP::Server](https://crystal-lang.org/api/HTTP/Server.html).
+# This can be a good choice for super simple web applications that do not need any additional frameworky features.
+#
 # ## Getting Started
 #
 # If using this component within the [Athena Framework][Athena::Framework], it is already installed and required for you.
