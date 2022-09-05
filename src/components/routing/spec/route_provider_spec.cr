@@ -18,10 +18,6 @@ struct RouteProviderTest < ASPEC::TestCase
     self.host_collection,
   ]
 
-  def tear_down : Nil
-    ART::RouteProvider.reset
-  end
-
   {% begin %}
     {% for test_case in 0..12 %}
       def test_compile_{{test_case}} : Nil

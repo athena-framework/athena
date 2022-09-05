@@ -1,10 +1,6 @@
 require "../spec_helper"
 
 struct URLGeneratorTest < ASPEC::TestCase
-  def tear_down : Nil
-    ART::RouteProvider.reset
-  end
-
   def test_generate_default_port : Nil
     self
       .generator(self.routes(ART::Route.new("/test")))

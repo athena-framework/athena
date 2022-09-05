@@ -1,10 +1,6 @@
 require "../spec_helper"
 
 struct URLMatcherTest < ASPEC::TestCase
-  def tear_down : Nil
-    ART::RouteProvider.reset
-  end
-
   def test_match_no_method : Nil
     routes = self.build_collection do
       add "foo", ART::Route.new "/foo"
