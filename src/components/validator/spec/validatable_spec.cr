@@ -42,6 +42,13 @@ private class ClassCallbackClass
   end
 end
 
+private class ComparisonConstrained
+  include AVD::Validatable
+
+  @[Assert::LessThan(10)]
+  getter age : Int32 = 0
+end
+
 describe AVD::Validatable do
   describe ".load_metadata" do
     it "should manually add constraints to the metadata object" do
@@ -72,6 +79,10 @@ describe AVD::Validatable do
       constraints = ClassCallbackClass.validation_class_metadata.constraints
       constraints.size.should eq 1
       constraints.first.should be_a AVD::Constraints::Callback
+    end
+
+    it "does not duplicate property metadata for generic module constraints" do
+      ComparisonConstrained.validation_class_metadata.property_metadata("age").first.constraints.size.should eq 1
     end
   end
 end

@@ -16,7 +16,7 @@ class Athena::Validator::Metadata::ClassMetadata(T)
     {% begin %}
       # Add property constraints
       {% for ivar, idx in T.instance_vars %}
-        {% for constraint in AVD::Constraint.all_subclasses.reject &.abstract? %}
+        {% for constraint in AVD::Constraint.all_subclasses.reject { |c| c.abstract? || (c.type_vars.size > 0 && c.type_vars.first.stringify != "ValueType") } %}
           {% ann_name = constraint.name(generic_args: false).split("::").last.id %}
 
           {% if ann = ivar.annotation Assert.constant(ann_name).resolve %}
