@@ -46,13 +46,21 @@ class Athena::Routing::RoutingHandler
 
   # :inherit:
   def call(context)
-    @matcher.context.apply context.request
+    request : ART::Request
+
+    {% if @top_level.has_constant?("Athena") && Athena.has_constant?("Framework") && Athena::Framework.has_constant?("Request") %}
+      request = ATH::Request.new context.request
+    {% else %}
+      request = context.request
+    {% end %}
+
+    @matcher.context.apply request
 
     begin
       parameters = if @matcher.is_a? ART::Matcher::RequestMatcherInterface
-                     @matcher.match context.request
+                     @matcher.match request
                    else
-                     @matcher.match context.request.path
+                     @matcher.match request.path
                    end
     rescue ex : ART::Exception::ResourceNotFound
       return context.response.respond_with_status(:not_found)
