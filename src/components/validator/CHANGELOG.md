@@ -99,6 +99,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.2.1]: https://github.com/athena-framework/validator/releases/tag/v0.2.1
 [0.2.0]: https://github.com/athena-framework/validator/releases/tag/v0.2.0
 [0.1.7]: https://github.com/athena-framework/validator/releases/tag/v0.1.7
 [0.1.6]: https://github.com/athena-framework/validator/releases/tag/v0.1.6

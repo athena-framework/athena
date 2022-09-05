@@ -12,6 +12,7 @@ function diff()
         cd "../$1"
     else
         cd "../$1"
+        git fetch --quiet --tags
         git pull --quiet origin master
     fi
 
