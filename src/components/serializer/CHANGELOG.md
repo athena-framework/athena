@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.1] - 2022-09-05
+
+### Changed
+
+- **Breaking:** ensure parameter names defined on interfaces match the implementation ([#188](https://github.com/athena-framework/athena/pull/188)) (George Dietrich)
+
 ## [0.3.0] - 2022-05-14
 
 _First release a part of the monorepo._
@@ -115,6 +121,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.3.1]: https://github.com/athena-framework/serializer/releases/tag/v0.3.1
 [0.3.0]: https://github.com/athena-framework/serializer/releases/tag/v0.3.0
 [0.2.10]: https://github.com/athena-framework/serializer/releases/tag/v0.2.10
 [0.2.9]: https://github.com/athena-framework/serializer/releases/tag/v0.2.9

@@ -87,7 +87,7 @@ alias ACON = Athena::Console
 # From here you can then setup your entry point file talked about earlier, being sure to require the component via `require "athena-console"`.
 # Finally, create/require your `ACON::Command`s, and customize the `ACON::Application` as needed.
 module Athena::Console
-  VERSION = "0.2.0"
+  VERSION = "0.2.1"
 
   # Includes the commands that come bundled with `Athena::Console`.
   module Commands; end
