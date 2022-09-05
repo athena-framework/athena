@@ -2,6 +2,10 @@
 
 ## [0.1.3] - 2022-09-05
 
+### Added
+
+- Add an `HTTP::Handler` to add basic routing support to a `HTTP::Server` ([#189](https://github.com/athena-framework/athena/pull/189)) (George Dietrich)
+
 ### Changed
 
 - **Breaking:** ensure parameter names defined on interfaces match the implementation ([#188](https://github.com/athena-framework/athena/pull/188)) (George Dietrich)
