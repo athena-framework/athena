@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.2.1] - 2022-09-05
+
+### Added
+
+- Add support for exclusive end support to `AVD::Constraints::Range` ([#184](https://github.com/athena-framework/athena/pull/184)) (George Dietrich)
+
+### Changed
+
+- Include allowed MIME types within `AVD::Constraints::Image` if they were customized ([#183](https://github.com/athena-framework/athena/pull/183)) (George Dietrich)
+- **Breaking:** ensure parameter names defined on interfaces match the implementation ([#188](https://github.com/athena-framework/athena/pull/188)) (George Dietrich)
+
+### Fixed
+
+- Fix some file size factorization edge cases in `AVD::Constraints::File` ([#182](https://github.com/athena-framework/athena/pull/182)) (George Dietrich)
+- Fix duplicating constraints due to Crystal generics bug ([#192](https://github.com/athena-framework/athena/pull/192)) (George Dietrich)
+
 ## [0.2.0] - 2022-05-14
 
 ### Added

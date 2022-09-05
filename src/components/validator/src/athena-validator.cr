@@ -400,7 +400,7 @@ alias Assert = AVD::Annotations
 #
 # NOTE: See the related types for more detailed information.
 module Athena::Validator
-  VERSION = "0.2.0"
+  VERSION = "0.2.1"
 
   # :nodoc:
   #

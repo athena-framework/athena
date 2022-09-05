@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.1] - 2022-09-05
+
+### Added
+
+- Add an `ACON::Input::Interface` based on a command line string ([#186](https://github.com/athena-framework/athena/pull/186), [#187](https://github.com/athena-framework/athena/pull/187)) (George Dietrich)
+
+### Changed
+
+- **Breaking:** ensure parameter names defined on interfaces match the implementation ([#188](https://github.com/athena-framework/athena/pull/188)) (George Dietrich)
+
 ## [0.2.0] - 2022-05-14
 
 _First release a part of the monorepo._
@@ -29,6 +39,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.2.1]: https://github.com/athena-framework/console/releases/tag/v0.2.1
 [0.2.0]: https://github.com/athena-framework/console/releases/tag/v0.2.0
 [0.1.1]: https://github.com/athena-framework/console/releases/tag/v0.1.1
 [0.1.0]: https://github.com/athena-framework/console/releases/tag/v0.1.0

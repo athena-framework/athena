@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.17.1] - 2022-09-05
+
+## Changed
+
+- **Breaking:** ensure parameter names defined on interfaces match the implementation ([#188](https://github.com/athena-framework/athena/pull/188)) (George Dietrich)
+
 ## [0.17.0] - 2022-05-14
 
 _Checkout [this](https://forum.crystal-lang.org/t/athena-0-17-0/4624) forum thread for an overview of changes within the ecosystem._
@@ -76,6 +82,7 @@ _Last release in the [athena-framework/athena](https://github.com/athena-framewo
 - Fix incorrect ivar type on `AVD::Exceptions::Exceptions::ValidationFailed#violations` ([#116](https://github.com/athena-framework/athena/pull/116)) (George Dietrich)
 - Correctly reject requests with whitespace when converting numeric inputs ([#117](https://github.com/athena-framework/athena/pull/117)) (George Dietrich)
 
+[0.17.1]: https://github.com/athena-framework/athena/releases/tag/v0.17.1
 [0.17.0]: https://github.com/athena-framework/athena/releases/tag/v0.17.0
 [0.16.0]: https://github.com/athena-framework/athena/releases/tag/v0.16.0
 [0.15.1]: https://github.com/athena-framework/athena/releases/tag/v0.15.1

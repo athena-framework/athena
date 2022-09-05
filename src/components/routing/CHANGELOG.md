@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.3] - 2022-09-05
+
+### Added
+
+- Add an `HTTP::Handler` to add basic routing support to a `HTTP::Server` ([#189](https://github.com/athena-framework/athena/pull/189)) (George Dietrich)
+
+### Changed
+
+- **Breaking:** ensure parameter names defined on interfaces match the implementation ([#188](https://github.com/athena-framework/athena/pull/188)) (George Dietrich)
+
+### Fixed
+
+- Fixed slash characters being double escaped in generated URL query params ([#180](https://github.com/athena-framework/athena/pull/180)) (George Dietrich)
+
 ## [0.1.2] - 2022-05-14
 
 ### Added
@@ -24,6 +38,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.1.3]: https://github.com/athena-framework/routing/releases/tag/v0.1.3
 [0.1.2]: https://github.com/athena-framework/routing/releases/tag/v0.1.2
 [0.1.1]: https://github.com/athena-framework/routing/releases/tag/v0.1.1
 [0.1.0]: https://github.com/athena-framework/routing/releases/tag/v0.1.0
