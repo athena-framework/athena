@@ -155,14 +155,14 @@ abstract class Athena::Framework::Controller
 
     macro method_added(m)
       \{%
-        if (m.annotation(ARTA::Get) || m.annotation(ARTA::Post) || m.annotation(ARTA::Put) || m.annotation(ARTA::Delete) || m.annotation(ARTA::Patch) || m.annotation(ARTA::Link) || m.annotation(ARTA::Unlink) || m.annotation(ARTA::Head) || m.annotation(ARTA::Route))
-          if CONTROLLER_ACTION_METHODS.includes?({@type.name.id, m.name.id})
-            m.raise "A controller action named '##{m.name}' already exists within '#{@type.name}'."
-          end
+         if (m.annotation(ARTA::Get) || m.annotation(ARTA::Post) || m.annotation(ARTA::Put) || m.annotation(ARTA::Delete) || m.annotation(ARTA::Patch) || m.annotation(ARTA::Link) || m.annotation(ARTA::Unlink) || m.annotation(ARTA::Head) || m.annotation(ARTA::Route))
+           if CONTROLLER_ACTION_METHODS.includes?({@type.name.id, m.name.id})
+             m.raise "A controller action named '##{m.name}' already exists within '#{@type.name}'."
+           end
 
-         CONTROLLER_ACTION_METHODS << {@type.name.id, m.name.id}
-        end
-       %}
+           CONTROLLER_ACTION_METHODS << {@type.name.id, m.name.id}
+         end
+      %}
     end
   end
 
