@@ -1,3 +1,5 @@
+require "socket"
+
 # Validates that a value is a valid IP address.
 # By default validates the value as an `IPv4` address, but can be customized to validate `IPv6`s, or both.
 # The underlying value is converted to a string via `#to_s` before being validated.
@@ -51,23 +53,6 @@ class Athena::Validator::Constraints::IP < Athena::Validator::Constraint
 
     # Validates for `IPv4` or `IPv6` addresses.
     V4_V6
-
-    # Returns the `::Regex` pattern for `self`.
-    def pattern : ::Regex
-      case self
-      in .v4?    then self.v4_regex
-      in .v6?    then self.v6_regex
-      in .v4_v6? then ::Regex.union self.v4_regex, self.v6_regex
-      end
-    end
-
-    private def v4_regex : ::Regex
-      /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
-    end
-
-    private def v6_regex : ::Regex
-      /^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$/
-    end
   end
 
   INVALID_IP_ERROR = "326b0aa4-3871-404d-986d-fe3e6c82005c"
@@ -93,7 +78,12 @@ class Athena::Validator::Constraints::IP < Athena::Validator::Constraint
       value = value.to_s
 
       return if value.nil? || value.empty?
-      return if value.matches? constraint.version.pattern
+
+      case constraint.version
+      in .v4?    then return if Socket::IPAddress.valid_v4? value
+      in .v6?    then return if Socket::IPAddress.valid_v6? value
+      in .v4_v6? then return if Socket::IPAddress.valid? value
+      end
 
       self.context.add_violation constraint.message, INVALID_IP_ERROR, value
     end
