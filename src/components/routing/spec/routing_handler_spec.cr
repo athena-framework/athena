@@ -55,39 +55,108 @@ describe ART::RoutingHandler do
   end
 
   describe "#call" do
-    it "happy path" do
-      value = 0
+    describe "when not bubbling exceptions" do
+      it "happy path" do
+        value = 0
 
-      handler = ART::RoutingHandler.new MockURLMatcher.new "foo"
+        handler = ART::RoutingHandler.new MockURLMatcher.new "foo"
 
-      handler.add "foo", ART::Route.new "/foo" do |ctx, params|
-        ctx.request.method.should eq "GET"
-        ctx.request.path.should eq "/foo"
-        value += 10
-        params.should eq({"_route" => "foo"})
+        handler.add "foo", ART::Route.new "/foo" do |ctx, params|
+          ctx.request.method.should eq "GET"
+          ctx.request.path.should eq "/foo"
+          value += 10
+          params.should eq({"_route" => "foo"})
+        end
+
+        handler.call HTTP::Server::Context.new HTTP::Request.new("GET", "/foo"), HTTP::Server::Response.new(IO::Memory.new)
+
+        value.should eq 10
       end
 
-      handler.call HTTP::Server::Context.new HTTP::Request.new("GET", "/foo"), HTTP::Server::Response.new(IO::Memory.new)
+      it "missing route" do
+        handler = ART::RoutingHandler.new MockURLMatcher.new "foo", ART::Exception::ResourceNotFound.new "Missing"
+        handler.add("foo", ART::Route.new("/foo")) { }
 
-      value.should eq 10
+        handler.call HTTP::Server::Context.new HTTP::Request.new("GET", "/foo"), resp = HTTP::Server::Response.new(IO::Memory.new)
+
+        resp.status.should eq HTTP::Status::NOT_FOUND
+      end
+
+      it "unsupported method" do
+        handler = ART::RoutingHandler.new MockURLMatcher.new "foo", ART::Exception::MethodNotAllowed.new ["PUT", "SEARCH"], "Not Allowed"
+        handler.add("foo", ART::Route.new("/foo")) { }
+
+        handler.call HTTP::Server::Context.new HTTP::Request.new("GET", "/foo"), resp = HTTP::Server::Response.new(IO::Memory.new)
+
+        resp.status.should eq HTTP::Status::METHOD_NOT_ALLOWED
+      end
+
+      it "domain exception" do
+        handler = ART::RoutingHandler.new MockURLMatcher.new "foo"
+
+        handler.add "foo", ART::Route.new "/foo" do |ctx|
+          ctx.request.method.should eq "GET"
+          ctx.request.path.should eq "/foo"
+          raise "Oh no!"
+        end
+
+        handler.call HTTP::Server::Context.new HTTP::Request.new("GET", "/foo"), resp = HTTP::Server::Response.new(IO::Memory.new)
+
+        resp.status.should eq HTTP::Status::INTERNAL_SERVER_ERROR
+      end
     end
 
-    it "missing route" do
-      handler = ART::RoutingHandler.new MockURLMatcher.new "foo", ART::Exception::ResourceNotFound.new "Missing"
-      handler.add("foo", ART::Route.new("/foo")) { }
+    describe "when bubbling exceptions" do
+      it "happy path" do
+        value = 0
 
-      handler.call HTTP::Server::Context.new HTTP::Request.new("GET", "/foo"), resp = HTTP::Server::Response.new(IO::Memory.new)
+        handler = ART::RoutingHandler.new MockURLMatcher.new("foo"), bubble_exceptions: true
 
-      resp.status.should eq HTTP::Status::NOT_FOUND
-    end
+        handler.add "foo", ART::Route.new "/foo" do |ctx, params|
+          ctx.request.method.should eq "GET"
+          ctx.request.path.should eq "/foo"
+          value += 10
+          params.should eq({"_route" => "foo"})
+        end
 
-    it "unsupported method" do
-      handler = ART::RoutingHandler.new MockURLMatcher.new "foo", ART::Exception::MethodNotAllowed.new ["PUT", "SEARCH"], "Not Allowed"
-      handler.add("foo", ART::Route.new("/foo")) { }
+        handler.call HTTP::Server::Context.new HTTP::Request.new("GET", "/foo"), HTTP::Server::Response.new(IO::Memory.new)
 
-      handler.call HTTP::Server::Context.new HTTP::Request.new("GET", "/foo"), resp = HTTP::Server::Response.new(IO::Memory.new)
+        value.should eq 10
+      end
 
-      resp.status.should eq HTTP::Status::METHOD_NOT_ALLOWED
+      it "missing route" do
+        handler = ART::RoutingHandler.new MockURLMatcher.new("foo", ART::Exception::ResourceNotFound.new("Missing")), bubble_exceptions: true
+        handler.add("foo", ART::Route.new("/foo")) { }
+
+        expect_raises ART::Exception::ResourceNotFound do
+          handler.call HTTP::Server::Context.new HTTP::Request.new("GET", "/foo"), HTTP::Server::Response.new(IO::Memory.new)
+        end
+      end
+
+      it "unsupported method" do
+        handler = ART::RoutingHandler.new MockURLMatcher.new("foo", ART::Exception::MethodNotAllowed.new(["PUT", "SEARCH"], "Not Allowed")), bubble_exceptions: true
+        handler.add("foo", ART::Route.new("/foo")) { }
+
+        ex = expect_raises ART::Exception::MethodNotAllowed do
+          handler.call HTTP::Server::Context.new HTTP::Request.new("GET", "/foo"), HTTP::Server::Response.new(IO::Memory.new)
+        end
+
+        ex.allowed_methods.should eq ["PUT", "SEARCH"]
+      end
+
+      it "domain exception" do
+        handler = ART::RoutingHandler.new MockURLMatcher.new("foo"), bubble_exceptions: true
+
+        handler.add "foo", ART::Route.new "/foo" do |ctx|
+          ctx.request.method.should eq "GET"
+          ctx.request.path.should eq "/foo"
+          raise "Oh no!"
+        end
+
+        expect_raises ::Exception, "Oh no!" do
+          handler.call HTTP::Server::Context.new HTTP::Request.new("GET", "/foo"), HTTP::Server::Response.new(IO::Memory.new)
+        end
+      end
     end
   end
 

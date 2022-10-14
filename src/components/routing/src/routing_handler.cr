@@ -27,6 +27,40 @@
 # ```
 #
 # NOTE: This handler should be the last one, as it is terminal.
+#
+# ## Bubbling Exceptions
+#
+# By default, requests that result in an exception, either from `Athena::Routing` or the callback block itself,
+# are gracefully handled by returning a proper error response to the client via [HTTP::Server::Response#respond_with_status](https://crystal-lang.org/api/HTTP/Server/Response.html#respond_with_status%28status%3AHTTP%3A%3AStatus%2Cmessage%3AString%3F%3Dnil%29%3ANil-instance-method).
+#
+# You can set `bubble_exceptions: true` when instantaintg the routing handler to have full control over the returned response.
+# This would allow you to define your own [HTTP::Handler](https://crystal-lang.org/api/HTTP/Handler.html) that can rescue the exceptions and apply your custom logic for how to handle the error.
+#
+# ```
+# class ErrorHandler
+#   include HTTP::Handler
+#
+#   def call(context)
+#     call_next context
+#   rescue ex
+#     # Do something based on the ex, such as rendering the appropiate template, etc.
+#   end
+# end
+#
+# handler = ART::RoutingHandler.new bubble_exceptions: true
+#
+# # Add the routes...
+#
+# # Have the `ErrorHandler` run _before_ the routing handler.
+# server = HTTP::Server.new([
+#   ErrorHander.new,
+#   handler.compile,
+# ])
+#
+# address = server.bind_tcp 8080
+# puts "Listening on http://#{address}"
+# server.listen
+# ```
 class Athena::Routing::RoutingHandler
   include HTTP::Handler
 
@@ -39,7 +73,8 @@ class Athena::Routing::RoutingHandler
 
   def initialize(
     matcher : ART::Matcher::URLMatcherInterface? = nil,
-    @collection : ART::RouteCollection = ART::RouteCollection.new
+    @collection : ART::RouteCollection = ART::RouteCollection.new,
+    @bubble_exceptions : Bool = false
   )
     @matcher = matcher || ART::Matcher::URLMatcher.new ART::RequestContext.new
   end
@@ -63,12 +98,19 @@ class Athena::Routing::RoutingHandler
                      @matcher.match request.path
                    end
     rescue ex : ART::Exception::ResourceNotFound
+      raise ex if @bubble_exceptions
       return context.response.respond_with_status(:not_found)
     rescue ex : ART::Exception::MethodNotAllowed
+      raise ex if @bubble_exceptions
       return context.response.respond_with_status(:method_not_allowed)
     end
 
-    @handlers[parameters["_route"]].call context, parameters
+    begin
+      @handlers[parameters["_route"]].call context, parameters
+    rescue ex : ::Exception
+      raise ex if @bubble_exceptions
+      context.response.respond_with_status(:internal_server_error)
+    end
   end
 
   # :nodoc:
