@@ -44,12 +44,12 @@ class Athena::Routing::RouteProvider
     end
   end
 
-  @@match_host : Bool = false
-  @@static_routes : Hash(String, Array(StaticRouteData)) = Hash(String, Array(StaticRouteData)).new
-  @@route_regexes : Hash(Int32, ART::FastRegex) = Hash(Int32, ART::FastRegex).new
-  @@dynamic_routes : Hash(String, Array(DynamicRouteData)) = Hash(String, Array(DynamicRouteData)).new
-  @@conditions : Hash(Int32, Condition) = Hash(Int32, Condition).new
-  @@route_generation_data : Hash(String, RouteGenerationData) = Hash(String, RouteGenerationData).new
+  class_getter match_host : Bool = false
+  class_getter static_routes : Hash(String, Array(StaticRouteData)) = Hash(String, Array(StaticRouteData)).new
+  class_getter route_regexes : Hash(Int32, ART::FastRegex) = Hash(Int32, ART::FastRegex).new
+  class_getter dynamic_routes : Hash(String, Array(DynamicRouteData)) = Hash(String, Array(DynamicRouteData)).new
+  class_getter conditions : Hash(Int32, Condition) = Hash(Int32, Condition).new
+  class_getter route_generation_data : Hash(String, RouteGenerationData) = Hash(String, RouteGenerationData).new
 
   protected class_getter? compiled : Bool = false
 
@@ -57,42 +57,8 @@ class Athena::Routing::RouteProvider
     return if @@compiled
 
     @@routes = routes
-  end
 
-  def self.match_host : Bool
-    self.compile unless @@compiled
-
-    @@match_host
-  end
-
-  def self.static_routes : Hash(String, Array(StaticRouteData))
-    self.compile unless @@compiled
-
-    @@static_routes
-  end
-
-  def self.dynamic_routes : Hash(String, Array(DynamicRouteData))
-    self.compile unless @@compiled
-
-    @@dynamic_routes
-  end
-
-  def self.route_regexes : Hash(Int32, ART::FastRegex)
-    self.compile unless @@compiled
-
-    @@route_regexes
-  end
-
-  def self.conditions : Hash(Int32, Condition)
-    self.compile unless @@compiled
-
-    @@conditions
-  end
-
-  def self.route_generation_data : Hash(String, RouteGenerationData)
-    self.compile unless @@compiled
-
-    @@route_generation_data
+    self.compile
   end
 
   def self.inspect(io : IO) : Nil
