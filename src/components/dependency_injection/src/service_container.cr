@@ -133,182 +133,199 @@ class Athena::DependencyInjection::ServiceContainer
         %}
 
         # If no initializer was resolved, assume it's the default argless constructor.
-        {% initializer_args = (i = initializer) ? i.args : [] of Nil %}
-
         {%
-          arguments = initializer_args.map_with_index do |initializer_arg, idx|
-            # Check if an explicit value was passed for this initializer_arg
-            if service_ann && service_ann.named_args.keys.includes? "_#{initializer_arg.name}".id
-              named_arg = service_ann.named_args["_#{initializer_arg.name}"]
+          initializer_args = (i = initializer) ? i.args : [] of Nil
 
-              if named_arg.is_a?(ArrayLiteral)
-                inner_args = named_arg.map do |arr_arg|
-                  if arr_arg.is_a?(ArrayLiteral)
-                    arr_arg.raise "Failed to register service '#{service_id.id}'.  Arrays more than two levels deep are not currently supported."
-                  elsif arr_arg.is_a?(StringLiteral) && arr_arg.starts_with?('@')
-                    service_name = arr_arg[1..-1]
-                    raise "Failed to register service '#{service_id.id}'.  Could not resolve argument '#{initializer_arg}' from named argument value '#{named_arg}'." unless service_hash[service_name]
-                    used_service_ids << service_name.id
-                    service_name.id
-                  elsif arr_arg.is_a?(StringLiteral) && arr_arg.starts_with?('%') && arr_arg.ends_with?('%')
-                    "ACF.parameters.#{arr_arg[1..-2].id}".id
-                  else
-                    arr_arg
-                  end
-                end
-
-                %((#{inner_args} of Union(#{initializer_arg.restriction.resolve.type_vars.splat}))).id
-              elsif named_arg.is_a?(StringLiteral) && named_arg.starts_with?('!')
-                tagged_services = [] of Nil
-
-                # Build an array of services with the given tag, along with the tag metadata
-                service_hash.each do |id, s_metadata|
-                  if t = s_metadata[:tags].find &.[:name].==(named_arg[1..-1])
-                    used_service_ids << id.id
-                    tagged_services << {id.id, t}
-                  end
-                end
-
-                # Sort based on tag priority.  Services without a priority will be last in order of definition
-                tagged_services = tagged_services.sort_by { |item| -(item[1][:priority] || 0) }
-
-                if initializer_arg.restriction.type_vars.first.resolve < ADI::Proxy
-                  tagged_services = tagged_services.map do |ts|
-                    {"ADI::Proxy.new(#{ts[1][:name]}, ->#{ts[0]})".id}
-                  end
-                end
-
-                %((#{tagged_services.map(&.first)} of Union(#{initializer_args[idx].restriction.resolve.type_vars.splat}))).id
-              elsif named_arg.is_a?(StringLiteral) && named_arg.starts_with?('%') && named_arg.ends_with?('%')
-                "ACF.parameters.#{named_arg[1..-2].id}".id
-              else
-                named_arg
-              end
-            elsif (bindings = BINDINGS[initializer_arg.name.stringify]) && # Check if there are any bindings defined for this argument
-                  (
-                    (binding = bindings[:typed].find &.[:type].<=(initializer_arg.restriction.resolve)) || # First try resolving it via a typed bindings since they are more specific
-                    (binding = bindings[:untyped].first)                                                   # Otherwise fallback on last defined untyped binding (they're pushed in reverse order)
-                  )
-              binding_value = binding[:value]
-
-              if binding_value.is_a?(ArrayLiteral)
-                inner_binding_args = binding_value.map do |arr_arg|
-                  if arr_arg.is_a?(ArrayLiteral)
-                    arr_arg.raise "Failed to register service '#{service_id.id}'.  Arrays more than two levels deep are not currently supported."
-                  elsif arr_arg.is_a?(StringLiteral) && arr_arg.starts_with?('@')
-                    service_name = arr_arg[1..-1]
-                    raise "Failed to register service '#{service_id.id}'.  Could not resolve argument '#{initializer_arg}' from binding value '#{binding_value}'." unless service_hash[service_name]
-                    used_service_ids << service_name.id
-                    service_name.id
-                  else
-                    arr_arg
-                  end
-                end
-
-                %((#{inner_binding_args} of Union(#{initializer_arg.restriction.resolve.type_vars.splat}))).id
-              elsif binding_value.is_a?(StringLiteral) && binding_value.starts_with?('!')
-                tagged_services = [] of Nil
-
-                # Build an array of services with the given tag, along with the tag metadata
-                service_hash.each do |id, s_metadata|
-                  if t = s_metadata[:tags].find &.[:name].==(binding_value[1..-1])
-                    used_service_ids << id.id
-                    tagged_services << {id.id, t}
-                  end
-                end
-
-                # Sort based on tag priority.  Services without a priority will be last in order of definition
-                tagged_services = tagged_services.sort_by { |item| -(item[1][:priority] || 0) }
-
-                if initializer_arg.restriction.type_vars.first.resolve < ADI::Proxy
-                  tagged_services = tagged_services.map do |ts|
-                    {"ADI::Proxy.new(#{ts[1][:name]}, ->#{ts[0]})".id}
-                  end
-                end
-
-                %((#{tagged_services.map(&.first)} of Union(#{initializer_args[idx].restriction.resolve.type_vars.splat}))).id
-              elsif binding_value.is_a?(StringLiteral) && binding_value.starts_with?('%') && binding_value.ends_with?('%')
-                "ACF.parameters.#{binding_value[1..-2].id}".id
-              else
-                binding_value
-              end
-            else
-              resolved_services = [] of Nil
-
-              # Otherwise resolve possible services based on type
-              service_hash.each do |id, s_metadata|
-                if !(r = initializer_arg.restriction).is_a?(Nop) && (type = r.resolve?) &&
-                   (
-                     s_metadata[:service] <= type ||
-                     (type < ADI::Proxy && s_metadata[:service] <= type.type_vars.first.resolve)
-                   )
-                  resolved_services << id
-                end
-              end
-
-              # If no services could be resolved
-              if resolved_services.size == 0
-                # Return a default value if any
-
-                # First check to see if it's a resolvable configuration type.
-                if !(r = initializer_arg.restriction).is_a?(Nop) && (configuration_type = initializer_arg.restriction.types.find(&.resolve.annotation ACFA::Resolvable)) && (configuration_ann = configuration_type.resolve.annotation ACFA::Resolvable)
-                  path = configuration_ann[0] || configuration_ann["path"] || configuration_type.raise "Configuration type '#{configuration_type}' has an ACFA::Resolvable annotation but is missing the type's configuration path. It was not provided as the first positional argument nor via the 'path' field."
-
-                  "ACF.config.#{path.id}".id
-                elsif !initializer_arg.default_value.is_a? Nop
-                  # Otherwise fallback on a default value, if any
-                  initializer_arg.default_value
-                elsif initializer_arg.restriction.resolve.nilable?
-                  # including `nil` if thats a possibility
-                  nil
-                else
-                  # otherwise raise an exception
-                  initializer_arg.raise "Failed to auto register service '#{service_id.id}'.  Could not resolve argument '#{initializer_arg}'."
-                end
-              elsif resolved_services.size == 1
-                used_service_ids << resolved_services[0].id
-
-                # If only one was matched, return it,
-                # using an ADI::Proxy object if thats what the initializer expects.
-                if initializer_arg.restriction.resolve < ADI::Proxy
-                  "ADI::Proxy.new(#{resolved_services[0]}, ->#{resolved_services[0].id})".id
-                else
-                  resolved_services[0].id
-                end
-              else
-                # Otherwise fallback on the argument's name as well
-                if resolved_service = resolved_services.find(&.==(initializer_arg.name))
-                  used_service_ids << resolved_service.id
-
-                  # use an ADI::Proxy object if thats what the initializer expects.
-                  if initializer_arg.restriction.resolve < ADI::Proxy
-                    "ADI::Proxy.new(#{resolved_service}, ->#{resolved_service.id})".id
-                  else
-                    used_service_ids << resolved_service.id
-                    resolved_service.id
-                  end
-
-                  # If no service with that name could be resolved, check the alias map for the restriction
-                elsif aliased_service = alias_hash[(initializer_arg.restriction.resolve < ADI::Proxy ? initializer_arg.restriction.type_vars.first.resolve : initializer_arg.restriction.resolve)]
-                  used_service_ids << aliased_service.id
-
-                  # If one is found returned the aliased service
-                  # use an ADI::Proxy object if thats what the initializer expects.
-                  if initializer_arg.restriction.resolve < ADI::Proxy
-                    "ADI::Proxy.new(#{aliased_service}, ->#{aliased_service.id})".id
-                  else
-                    aliased_service.id
-                  end
-                else
-                  # Otherwise raise an exception
-                  initializer_arg.raise "Failed to auto register service '#{service_id.id}'.  Could not resolve argument '#{initializer_arg}'."
-                end
-              end
-            end
+          service_hash[service_id][:arguments] = initializer_args.map do |initializer_arg|
+            {
+              arg:                  initializer_arg,
+              name:                 initializer_arg.name.stringify,
+              internal_name:        initializer_arg.internal_name.stringify,
+              restriction:          initializer_arg.restriction,
+              resolved_restriction: ((r = initializer_arg.restriction).is_a?(Nop) ? nil : r.resolve),
+              default_value:        initializer_arg.default_value,
+              value:                nil,
+            }
           end
         %}
 
-        {% service_hash[service_id][:arguments] = arguments %}
+        {%
+          service_hash[service_id][:arguments].each_with_index do |service_arg, idx|
+            arg_name = service_arg[:name]
+            arg_resolved_restriction = service_arg[:resolved_restriction]
+            arg_restriction = service_arg[:restriction]
+            initializer_arg = service_arg[:arg]
+
+            # Check if an explicit value was passed for this initializer_arg
+            service_arg[:value] = if service_ann && service_ann.named_args.keys.includes? "_#{arg_name.id}".id
+                                    named_arg = service_ann.named_args["_#{arg_name.id}"]
+
+                                    if named_arg.is_a?(ArrayLiteral)
+                                      inner_args = named_arg.map do |arr_arg|
+                                        if arr_arg.is_a?(ArrayLiteral)
+                                          arr_arg.raise "Failed to register service '#{service_id.id}'.  Arrays more than two levels deep are not currently supported."
+                                        elsif arr_arg.is_a?(StringLiteral) && arr_arg.starts_with?('@')
+                                          service_name = arr_arg[1..-1]
+                                          raise "Failed to register service '#{service_id.id}'.  Could not resolve argument '#{initializer_arg}' from named argument value '#{named_arg}'." unless service_hash[service_name]
+                                          used_service_ids << service_name.id
+                                          service_name.id
+                                        elsif arr_arg.is_a?(StringLiteral) && arr_arg.starts_with?('%') && arr_arg.ends_with?('%')
+                                          "ACF.parameters.#{arr_arg[1..-2].id}".id
+                                        else
+                                          arr_arg
+                                        end
+                                      end
+
+                                      %((#{inner_args} of Union(#{arg_resolved_restriction.type_vars.splat}))).id
+                                    elsif named_arg.is_a?(StringLiteral) && named_arg.starts_with?('!')
+                                      tagged_services = [] of Nil
+
+                                      # Build an array of services with the given tag, along with the tag metadata
+                                      service_hash.each do |id, s_metadata|
+                                        if t = s_metadata[:tags].find &.[:name].==(named_arg[1..-1])
+                                          used_service_ids << id.id
+                                          tagged_services << {id.id, t}
+                                        end
+                                      end
+
+                                      # Sort based on tag priority.  Services without a priority will be last in order of definition
+                                      tagged_services = tagged_services.sort_by { |item| -(item[1][:priority] || 0) }
+
+                                      if arg_restriction.type_vars.first.resolve < ADI::Proxy
+                                        tagged_services = tagged_services.map do |ts|
+                                          {"ADI::Proxy.new(#{ts[1][:name]}, ->#{ts[0]})".id}
+                                        end
+                                      end
+
+                                      %((#{tagged_services.map(&.first)} of Union(#{initializer_args[idx].restriction.resolve.type_vars.splat}))).id
+                                    elsif named_arg.is_a?(StringLiteral) && named_arg.starts_with?('%') && named_arg.ends_with?('%')
+                                      "ACF.parameters.#{named_arg[1..-2].id}".id
+                                    else
+                                      named_arg
+                                    end
+                                  elsif (bindings = BINDINGS[arg_name]) && # Check if there are any bindings defined for this argument
+                                        (
+                                          (binding = bindings[:typed].find &.[:type].<=(arg_resolved_restriction)) || # First try resolving it via a typed bindings since they are more specific
+                                          (binding = bindings[:untyped].first)                                        # Otherwise fallback on last defined untyped binding (they're pushed in reverse order)
+                                        )
+                                    binding_value = binding[:value]
+
+                                    if binding_value.is_a?(ArrayLiteral)
+                                      inner_binding_args = binding_value.map do |arr_arg|
+                                        if arr_arg.is_a?(ArrayLiteral)
+                                          arr_arg.raise "Failed to register service '#{service_id.id}'.  Arrays more than two levels deep are not currently supported."
+                                        elsif arr_arg.is_a?(StringLiteral) && arr_arg.starts_with?('@')
+                                          service_name = arr_arg[1..-1]
+                                          raise "Failed to register service '#{service_id.id}'.  Could not resolve argument '#{initializer_arg}' from binding value '#{binding_value}'." unless service_hash[service_name]
+                                          used_service_ids << service_name.id
+                                          service_name.id
+                                        else
+                                          arr_arg
+                                        end
+                                      end
+
+                                      %((#{inner_binding_args} of Union(#{arg_resolved_restriction.type_vars.splat}))).id
+                                    elsif binding_value.is_a?(StringLiteral) && binding_value.starts_with?('!')
+                                      tagged_services = [] of Nil
+
+                                      # Build an array of services with the given tag, along with the tag metadata
+                                      service_hash.each do |id, s_metadata|
+                                        if t = s_metadata[:tags].find &.[:name].==(binding_value[1..-1])
+                                          used_service_ids << id.id
+                                          tagged_services << {id.id, t}
+                                        end
+                                      end
+
+                                      # Sort based on tag priority.  Services without a priority will be last in order of definition
+                                      tagged_services = tagged_services.sort_by { |item| -(item[1][:priority] || 0) }
+
+                                      if arg_restriction.type_vars.first.resolve < ADI::Proxy
+                                        tagged_services = tagged_services.map do |ts|
+                                          {"ADI::Proxy.new(#{ts[1][:name]}, ->#{ts[0]})".id}
+                                        end
+                                      end
+
+                                      %((#{tagged_services.map(&.first)} of Union(#{initializer_args[idx].restriction.resolve.type_vars.splat}))).id
+                                    elsif binding_value.is_a?(StringLiteral) && binding_value.starts_with?('%') && binding_value.ends_with?('%')
+                                      "ACF.parameters.#{binding_value[1..-2].id}".id
+                                    else
+                                      binding_value
+                                    end
+                                  else
+                                    resolved_services = [] of Nil
+
+                                    # Otherwise resolve possible services based on type
+                                    service_hash.each do |id, s_metadata|
+                                      if (type = arg_resolved_restriction) &&
+                                         (
+                                           s_metadata[:service] <= type ||
+                                           (type < ADI::Proxy && s_metadata[:service] <= type.type_vars.first.resolve)
+                                         )
+                                        resolved_services << id
+                                      end
+                                    end
+
+                                    # If no services could be resolved
+                                    if resolved_services.size == 0
+                                      # Return a default value if any
+
+                                      # First check to see if it's a resolvable configuration type.
+                                      if !(r = arg_restriction).is_a?(Nop) && (configuration_type = arg_restriction.types.find(&.resolve.annotation ACFA::Resolvable)) && (configuration_ann = configuration_type.resolve.annotation ACFA::Resolvable)
+                                        path = configuration_ann[0] || configuration_ann["path"] || configuration_type.raise "Configuration type '#{configuration_type}' has an ACFA::Resolvable annotation but is missing the type's configuration path. It was not provided as the first positional argument nor via the 'path' field."
+
+                                        "ACF.config.#{path.id}".id
+                                      elsif !initializer_arg.default_value.is_a? Nop
+                                        # Otherwise fallback on a default value, if any
+                                        initializer_arg.default_value
+                                      elsif arg_resolved_restriction.nilable?
+                                        # including `nil` if thats a possibility
+                                        nil
+                                      else
+                                        # otherwise raise an exception
+                                        initializer_arg.raise "Failed to auto register service '#{service_id.id}'.  Could not resolve argument '#{initializer_arg}'."
+                                      end
+                                    elsif resolved_services.size == 1
+                                      used_service_ids << resolved_services[0].id
+
+                                      # If only one was matched, return it,
+                                      # using an ADI::Proxy object if thats what the initializer expects.
+                                      if arg_resolved_restriction < ADI::Proxy
+                                        "ADI::Proxy.new(#{resolved_services[0]}, ->#{resolved_services[0].id})".id
+                                      else
+                                        resolved_services[0].id
+                                      end
+                                    else
+                                      # Otherwise fallback on the argument's name as well
+                                      if resolved_service = resolved_services.find(&.==(arg_name.id))
+                                        used_service_ids << resolved_service.id
+
+                                        # use an ADI::Proxy object if thats what the initializer expects.
+                                        if arg_resolved_restriction < ADI::Proxy
+                                          "ADI::Proxy.new(#{resolved_service}, ->#{resolved_service.id})".id
+                                        else
+                                          used_service_ids << resolved_service.id
+                                          resolved_service.id
+                                        end
+
+                                        # If no service with that name could be resolved, check the alias map for the restriction
+                                      elsif aliased_service = alias_hash[(arg_resolved_restriction < ADI::Proxy ? arg_restriction.type_vars.first.resolve : arg_resolved_restriction)]
+                                        used_service_ids << aliased_service.id
+
+                                        # If one is found returned the aliased service
+                                        # use an ADI::Proxy object if thats what the initializer expects.
+                                        if arg_resolved_restriction < ADI::Proxy
+                                          "ADI::Proxy.new(#{aliased_service}, ->#{aliased_service.id})".id
+                                        else
+                                          aliased_service.id
+                                        end
+                                      else
+                                        # Otherwise raise an exception
+                                        initializer_arg.raise "Failed to auto register service '#{service_id.id}'.  Could not resolve argument '#{initializer_arg}'."
+                                      end
+                                    end
+                                  end
+          end
+        %}
       {% end %}
 
       {% final_services = {} of Nil => Nil %}
@@ -337,7 +354,7 @@ class Athena::DependencyInjection::ServiceContainer
           {% constructor_method = factory[1] %}
         {% end %}
 
-        {% if metadata[:public] != true %}private{% end %} getter {{service_id.id}} : {{ivar_type}} { {{constructor_service}}.{{constructor_method.id}}({{metadata[:arguments].splat}}) }
+        {% if metadata[:public] != true %}private{% end %} getter {{service_id.id}} : {{ivar_type}} { {{constructor_service}}.{{constructor_method.id}}({{metadata[:arguments].map(&.[:value]).splat}}) }
 
         {% if metadata[:public] %}
           def get(service : {{service}}.class) : {{service}}
