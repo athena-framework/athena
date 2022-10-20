@@ -229,11 +229,16 @@ module RegisterCommandsPass
           command_map = {} of Nil => Nil
           command_refs = {} of Nil => Nil
 
-          SERVICE_HASH.each do |service_id, metadata|
-            # TODO: Make these not public
+          TAG_HASH["athena.console.command"].each do |service_id|
+            metadata = SERVICE_HASH[service_id]
+
+            # TODO: Figure out way to make this not public
             metadata[:public] = true
 
             tags = metadata[:tags].select &.[:name].==("athena.console.command")
+
+            # If `command` is set on the first tag, use that as aliases
+            # otherwise resolve from the `AsCommand` annotation
 
             if !tags.empty? && (ann = metadata[:service].annotation ACONA::AsCommand)
               aliases = if tag_command = tags[0][:command]
@@ -256,6 +261,7 @@ module RegisterCommandsPass
 
               if command_name == nil
                 # TODO: Do something here?
+                # Make public alias for the command?
               end
 
               description = tags[0][:description]
@@ -277,7 +283,7 @@ module RegisterCommandsPass
             end
           end
 
-          LOCATORS << {
+          DefineLocators::LOCATORS << {
             name: "ContainerCommandLoaderContainer",
             map:  command_refs,
           }
@@ -288,9 +294,8 @@ module RegisterCommandsPass
             ivar_type: "ContainerCommandLoaderContainer",
             tags:      [] of Nil,
             generics:  [] of Nil,
-            synthetic: true,
             arguments: [
-              "self".id,
+              {value: "self".id},
             ],
           }
 
@@ -300,10 +305,9 @@ module RegisterCommandsPass
             ivar_type: ContainerCommandLoader,
             tags:      [] of Nil,
             generics:  [] of Nil,
-            synthetic: true,
             arguments: [
-              command_map,
-              "athena_console_command_loader_container".id,
+              {value: command_map},
+              {value: "athena_console_command_loader_container".id},
             ],
           }
 
@@ -315,35 +319,70 @@ module RegisterCommandsPass
   end
 end
 
-macro finished
-  struct ContainerCommandLoader
-    include Athena::Console::Loader::Interface
+module DefineLocators
+  include ADI::PostArgumentsCompilerPass
 
-    @command_map : Hash(String, ACON::Command.class)
+  LOCATORS = [] of Nil
 
-    def initialize(
-      @command_map : Hash(String, ACON::Command.class),
-      @loader : ContainerCommandLoaderContainer
-    ); end
+  macro included
+    macro finished
+      {% verbatim do %}
+        {% for locator in LOCATORS %}
+          # :nodoc:
+          struct ::{{locator[:name].id}}
+            def initialize(@container : ADI::ServiceContainer); end
 
-    # :inherit:
-    def get(name : String) : ACON::Command
-      if !self.has? name
-        raise ACON::Exceptions::CommandNotFound.new "Command '#{name}' does not exist."
-      end
+            {% for service_type, service_id in locator[:map] %}
+              def get(service : {{service_type}}.class) : {{service_type}}
+                @container.{{service_id.id}}
+              end
+            {% end %}
+            
+            def get(service)
+              {% begin %}
+                case service
+                {% for service_type, service_id in locator[:map] %}
+                  when {{service_type}} then @container.{{service_id.id}}
+                {% end %}
+                else
+                  raise "BUG: Couldn't find correct service."
+                end
+              {% end %}
+            end
+          end
+        {% end %}
+      {% end %}
+    end
+  end
+end
 
-      @loader.get @command_map[name]
+struct ContainerCommandLoader
+  include Athena::Console::Loader::Interface
+
+  @command_map : Hash(String, ACON::Command.class)
+
+  def initialize(
+    @command_map : Hash(String, ACON::Command.class),
+    @loader : ContainerCommandLoaderContainer
+  ); end
+
+  # :inherit:
+  def get(name : String) : ACON::Command
+    if !self.has? name
+      raise ACON::Exceptions::CommandNotFound.new "Command '#{name}' does not exist."
     end
 
-    # :inherit:
-    def has?(name : String) : Bool
-      @command_map.has_key? name
-    end
+    @loader.get @command_map[name]
+  end
 
-    # :inherit:
-    def names : Array(String)
-      @command_map.keys
-    end
+  # :inherit:
+  def has?(name : String) : Bool
+    @command_map.has_key? name
+  end
+
+  # :inherit:
+  def names : Array(String)
+    @command_map.keys
   end
 end
 
@@ -412,8 +451,11 @@ class BlahCommand < ACON::Command
   end
 end
 
-application = ACON::Application.new "Athena", ATH::VERSION
+loader = ADI.container.athena_console_command_loader
 
+# pp loader.get("blah")
+
+application = ACON::Application.new "Athena", ATH::VERSION
 application.command_loader = ADI.container.athena_console_command_loader
 
 application.run

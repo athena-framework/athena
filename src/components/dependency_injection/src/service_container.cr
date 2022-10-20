@@ -14,6 +14,9 @@ class Athena::DependencyInjection::ServiceContainer
   # Key is the ID of the service and the value is another hash containing its arguments, type, etc.
   private SERVICE_HASH = {} of Nil => Nil
 
+  # Define a hash to store the service ids for each tag.
+  private TAG_HASH = {} of Nil => Nil
+
   # Define a hash to map alias types to a service ID.
   private ALIAS_HASH = {} of Nil => Nil
 
@@ -103,6 +106,11 @@ class Athena::DependencyInjection::ServiceContainer
                 {% end %}
 
                 {%
+                  tags.each do |t|
+                    TAG_HASH[t[:name]] = [] of Nil if TAG_HASH[t[:name]] == nil
+                    TAG_HASH[t[:name]] << service_id
+                  end
+
                   SERVICE_HASH[service_id] = {
                     generics:           generics,
                     public:             ann[:public] != nil ? ann[:public] : (auto_configuration[:public] != nil ? auto_configuration[:public] : false),
@@ -153,7 +161,7 @@ class Athena::DependencyInjection::ServiceContainer
             {%
               initializer_args = (i = initializer) ? i.args : [] of Nil
 
-              SERVICE_HASH[service_id][:arguments] = initializer_args.map do |initializer_arg|
+              metadata[:arguments] = initializer_args.map do |initializer_arg|
                 {
                   arg:                  initializer_arg,
                   name:                 initializer_arg.name.stringify,
@@ -167,7 +175,7 @@ class Athena::DependencyInjection::ServiceContainer
             %}
 
             {%
-              SERVICE_HASH[service_id][:arguments].each_with_index do |service_arg, idx|
+              metadata[:arguments].each_with_index do |service_arg, idx|
                 arg_name = service_arg[:name]
                 arg_resolved_restriction = service_arg[:resolved_restriction]
                 arg_restriction = service_arg[:restriction]
@@ -365,41 +373,6 @@ class Athena::DependencyInjection::ServiceContainer
     end
   end
 
-  private module DefineLocators
-    LOCATORS = [] of Nil
-
-    macro included
-      macro finished
-        {% verbatim do %}
-          {% for locator in LOCATORS %}
-            # :nodoc:
-            struct ::{{locator[:name].id}}
-              def initialize(@container : ADI::ServiceContainer); end
-
-              {% for service_type, service_id in locator[:map] %}
-                def get(service : {{service_type}}.class) : {{service_type}}
-                  @container.{{service_id.id}}
-                end
-              {% end %}
-              
-              def get(service)
-                {% begin %}
-                  case service
-                  {% for service_type, service_id in locator[:map] %}
-                    when {{service_type}} then @container.{{service_id.id}}
-                  {% end %}
-                  else
-                    raise "BUG: Couldn't find correct service."
-                  end
-                {% end %}
-              end
-            end
-          {% end %}
-        {% end %}
-      end
-    end
-  end
-
   private module DefineGetters
     macro included
       macro finished
@@ -410,8 +383,8 @@ class Athena::DependencyInjection::ServiceContainer
               {% service_name = metadata[:service].is_a?(StringLiteral) ? metadata[:service] : metadata[:service].name(generic_args: false) %}
               {% generics_type = "#{service_name}(#{metadata[:generics].splat})".id %}
 
-              {% service = metadata[:generics].empty? ? metadata[:service] : generics_type %}
-              {% ivar_type = metadata[:generics].empty? ? metadata[:ivar_type] : generics_type %}
+              {% service = metadata[:generics].empty? ? metadata[:service].id : generics_type.id %}
+              {% ivar_type = metadata[:generics].empty? ? metadata[:ivar_type].id : generics_type.id %}
 
               {% constructor_service = service %}
               {% constructor_method = "new" %}
@@ -428,9 +401,7 @@ class Athena::DependencyInjection::ServiceContainer
                   {{service_id.id}}
                 end
               {% end %}
-              
-              
-              
+
             {% end %}
           {% end %}
 
@@ -477,6 +448,5 @@ class Athena::DependencyInjection::ServiceContainer
 
     include RemoveUnusedServices
     include DefineGetters
-    include DefineLocators
   end
 end
