@@ -1,9 +1,3 @@
-module Athena::DependencyInjection::PreArgumentsCompilerPass
-end
-
-module Athena::DependencyInjection::PostArgumentsCompilerPass
-end
-
 # Where the instantiated services live.
 #
 # If a service is public, a getter based on the service's name as well as its type is defined.  Otherwise, services are only available via constructor DI.
