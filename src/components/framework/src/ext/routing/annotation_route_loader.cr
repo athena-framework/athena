@@ -335,7 +335,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                   {% unless ann[:public] %}
                     {% klass.raise "Controller service '#{klass.id}' must be declared as public." %}
                   {% end %}
-                  
+
                   %instance = ADI.container.get({{klass.id}})
                 {% else %}
                   %instance = {{klass.id}}.new

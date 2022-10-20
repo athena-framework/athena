@@ -408,7 +408,7 @@ class Athena::DependencyInjection::ServiceContainer
           # Define getters for aliased service, if the alias is public, make the getter public and also define a type based getter
           {% for service_type, service_id in ALIAS_HASH %}
             {% metadata = SERVICE_HASH[service_id] %}
-            
+
             {% if metadata != nil %}
               {% service_name = metadata[:service].is_a?(StringLiteral) ? metadata[:service] : metadata[:service].name(generic_args: false) %}
               {% type = metadata[:generics].empty? ? service_name : "#{service_name}(#{metadata[:generics].splat})".id %}
