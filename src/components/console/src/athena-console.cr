@@ -1,4 +1,3 @@
-require "./annotations"
 require "./application"
 require "./command"
 require "./cursor"
@@ -17,9 +16,6 @@ require "./style/*"
 
 # Convenience alias to make referencing `Athena::Console` types easier.
 alias ACON = Athena::Console
-
-# Convenience alias to make referencing `Athena::Console` types easier.
-alias ACONA = ACON::Annotations
 
 # Athena's Console component, `ACON` for short, allows for the creation of command-line based `ACON::Command`s.
 # These commands could be used for any reoccurring task such as cron jobs, imports, etc.
@@ -92,9 +88,6 @@ alias ACONA = ACON::Annotations
 # Finally, create/require your `ACON::Command`s, and customize the `ACON::Application` as needed.
 module Athena::Console
   VERSION = "0.2.1"
-
-  # Includes the commands that come bundled with `Athena::Console`.
-  module Annotations; end
 
   # Includes the commands that come bundled with `Athena::Console`.
   module Commands; end

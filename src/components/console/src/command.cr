@@ -8,8 +8,9 @@
 # For example:
 #
 # ```
-# @[ACONA::AsCommand("app:create-user")]
 # class CreateUserCommand < ACON::Command
+#   @@default_name = "app:create-user"
+#
 #   protected def configure : Nil
 #     # ...
 #   end
@@ -33,8 +34,9 @@
 # 1. `execute` (required) - Contains the business logic for the command, returning the status of the invocation via `ACON::Command::Status`.
 #
 # ```
-# @[ACONA::AsCommand("app:create-user")]
 # class CreateUserCommand < ACON::Command
+#   @@default_name = "app:create-user"
+#
 #   protected def configure : Nil
 #     # ...
 #   end
@@ -164,17 +166,11 @@ abstract class Athena::Console::Command
     LONG
   end
 
-  def self.default_name : String?
-    {% if ann = @type.annotation ACONA::AsCommand %}
-      return {{ann[0] || ann[:name]}}
-    {% end %}
-  end
+  # Returns the default name of `self`, or `nil` if it was not set.
+  class_getter default_name : String? = nil
 
-  def self.default_description : String?
-    {% if ann = @type.annotation ACONA::AsCommand %}
-      return {{ann[:description]}}
-    {% end %}
-  end
+  # Returns the default description of `self`, or `nil` if it was not set.
+  class_getter default_description : String? = nil
 
   # Returns the name of `self`.
   getter! name : String
