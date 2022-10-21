@@ -543,3 +543,40 @@ class SomeUnTypedService
 
   def initialize(@service = NotAService.new); end
 end
+
+#############
+# SYNTHETIC #
+#############
+
+record SyntheticService, value : Int32 = 123
+
+module ManualService
+  include ADI::PreArgumentsCompilerPass
+
+  macro included
+    macro finished
+      {% verbatim do %}
+        {%
+          SERVICE_HASH["synthetic_service"] = {
+            public:    false,
+            synthetic: true,
+            service:   SyntheticService,
+            ivar_type: SyntheticService,
+            tags:      [] of Nil,
+            generics:  [] of Nil,
+            arguments: [] of Nil,
+          }
+        %}
+      {% end %}
+    end
+  end
+end
+
+@[ADI::Register(public: true)]
+class SyntheticClient
+  def initialize(@service : SyntheticService); end
+
+  def value : Int32
+    @service.value
+  end
+end

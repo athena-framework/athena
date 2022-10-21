@@ -108,6 +108,7 @@ class Athena::DependencyInjection::ServiceContainer
                   SERVICE_HASH[service_id] = {
                     generics:           generics,
                     public:             ann[:public] != nil ? ann[:public] : (auto_configuration[:public] != nil ? auto_configuration[:public] : false),
+                    synthetic:          false,
                     public_alias:       ann[:public_alias] != nil ? ann[:public_alias] : false,
                     service_annotation: ann,
                     tags:               tags,
@@ -357,7 +358,7 @@ class Athena::DependencyInjection::ServiceContainer
         {% verbatim do %}
       {% SERVICE_HASH.each do |service_id, metadata|
            # Services that are private and not used in other dependencies can safely be removed.
-           if metadata[:public] == true || metadata[:public_alias] == true || USED_SERVICE_IDS.includes?(service_id.id)
+           if metadata[:synthetic] == true || metadata[:public] == true || metadata[:public_alias] == true || USED_SERVICE_IDS.includes?(service_id.id)
            else
              SERVICE_HASH[service_id] = nil
            end
