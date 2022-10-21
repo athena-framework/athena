@@ -1,3 +1,41 @@
+###################
+# COMPILER PASSES #
+###################
+module BeforeArgsPassClient
+  include ADI::PreArgumentsCompilerPass
+
+  class_property! factory_string_value : Int32
+  class_property factory_service_argument_count : Int32? = nil
+
+  macro included
+    macro finished
+      {% verbatim do %}
+        {{ "BeforeArgsPassClient.factory_string_value = #{SERVICE_HASH["factory_string"][:service_annotation]["_value"]}".id }}
+        {{ "BeforeArgsPassClient.factory_service_argument_count = #{(a = SERVICE_HASH["factory_string"][:arguments]) ? a.size : nil}".id }}
+      {% end %}
+    end
+  end
+end
+
+module AfterArgsPassClient
+  include ADI::PostArgumentsCompilerPass
+
+  class_property! scalar_client_default_value : Int32
+  class_property! scalar_client_arg_count : Int32
+  class_property! partner_client_service_ids : Array(String)
+
+  macro included
+    macro finished
+      {% verbatim do %}
+        {% args = SERVICE_HASH["scalar_client"][:arguments] %}
+        {{ "AfterArgsPassClient.scalar_client_default_value = #{args[0][:value]}".id }}
+        {{ "AfterArgsPassClient.scalar_client_arg_count = #{args.size}".id }}
+        {{ "AfterArgsPassClient.partner_client_service_ids = #{TAG_HASH["partner"]}".id }}
+      {% end %}
+    end
+  end
+end
+
 ##################
 # FIBER SPECIFIC #
 ##################
