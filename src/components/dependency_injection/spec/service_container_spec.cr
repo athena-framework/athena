@@ -246,6 +246,7 @@ describe Athena::DependencyInjection::ServiceContainer do
       it "has access to service arguments" do
         AfterArgsPassClient.scalar_client_default_value.should eq 22
         AfterArgsPassClient.scalar_client_arg_count.should eq 3
+        AfterArgsPassClient.partner_client_service_ids.should eq ["google", "facebook", "yahoo", "microsoft"]
       end
     end
   end

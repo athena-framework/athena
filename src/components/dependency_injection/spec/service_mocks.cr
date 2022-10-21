@@ -22,6 +22,7 @@ module AfterArgsPassClient
 
   class_property! scalar_client_default_value : Int32
   class_property! scalar_client_arg_count : Int32
+  class_property! partner_client_service_ids : Array(String)
 
   macro included
     macro finished
@@ -29,6 +30,7 @@ module AfterArgsPassClient
         {% args = SERVICE_HASH["scalar_client"][:arguments] %}
         {{ "AfterArgsPassClient.scalar_client_default_value = #{args[0][:value]}".id }}
         {{ "AfterArgsPassClient.scalar_client_arg_count = #{args.size}".id }}
+        {{ "AfterArgsPassClient.partner_client_service_ids = #{TAG_HASH["partner"]}".id }}
       {% end %}
     end
   end
