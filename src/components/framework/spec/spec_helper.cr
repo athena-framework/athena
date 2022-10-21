@@ -9,6 +9,17 @@ require "athena-event_dispatcher/spec"
 require "athena-validator/spec"
 require "../src/spec"
 
+Spec.before_each do
+  ART.compile ATH::Routing::AnnotationRouteLoader.route_collection
+end
+
+# FIXME: Refactor these specs to not depend on calling a protected method.
+include Athena::Routing
+
+Spec.after_each do
+  ART::RouteProvider.reset
+end
+
 ASPEC.run_all
 
 class TestController < ATH::Controller
