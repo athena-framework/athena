@@ -250,4 +250,10 @@ describe Athena::DependencyInjection::ServiceContainer do
       end
     end
   end
+
+  describe "synthetic services" do
+    it "is internally exposed" do
+      ADI::ServiceContainer.new.synthetic_client.value.should eq 123
+    end
+  end
 end

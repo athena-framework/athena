@@ -155,6 +155,36 @@ describe Athena::DependencyInjection do
         CR
       end
 
+      it "assert synthetic services are not public" do
+        assert_error " protected method 'synthetic_service' called for Athena::DependencyInjection::ServiceContainer", <<-CR
+          record SyntheticService, id : Int32 = 123
+
+          module ManualService
+            include ADI::PreArgumentsCompilerPass
+
+            macro included
+              macro finished
+                {% verbatim do %}
+                  {%
+                    SERVICE_HASH["synthetic_service"] = {
+                      public:    false,
+                      synthetic: true,
+                      service:   SyntheticService,
+                      ivar_type: SyntheticService,
+                      tags:      [] of Nil,
+                      generics:  [] of Nil,
+                      arguments: [] of Nil,
+                    }
+                  %}
+                {% end %}
+              end
+            end
+          end
+
+          ADI::ServiceContainer.new.synthetic_service
+        CR
+      end
+
       it "a name must be supplied if using a NamedTupleLiteral tag" do
         assert_error "Failed to register service `tagged_service`.  Tags must be an ArrayLiteral or TupleLiteral, not NumberLiteral.", <<-CR
           @[ADI::Register(tags: 42)]
