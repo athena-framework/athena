@@ -233,4 +233,20 @@ describe Athena::DependencyInjection::ServiceContainer do
       ADI::ServiceContainer.new.some_un_typed_service.service.id.should eq 1234
     end
   end
+
+  describe "compiler passes" do
+    describe "pre argument" do
+      it "has access to registered services, but not arguments" do
+        BeforeArgsPassClient.factory_string_value.should eq 10
+        BeforeArgsPassClient.factory_service_argument_count.should be_nil
+      end
+    end
+
+    describe "post argument" do
+      it "has access to service arguments" do
+        AfterArgsPassClient.scalar_client_default_value.should eq 22
+        AfterArgsPassClient.scalar_client_arg_count.should eq 3
+      end
+    end
+  end
 end

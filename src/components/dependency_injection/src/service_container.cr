@@ -162,7 +162,7 @@ class Athena::DependencyInjection::ServiceContainer
                   internal_name:        initializer_arg.internal_name.stringify,
                   restriction:          initializer_arg.restriction,
                   resolved_restriction: ((r = initializer_arg.restriction).is_a?(Nop) ? nil : r.resolve),
-                  default_value:        initializer_arg.default_value,
+                  default_value:        ((dv = initializer_arg.default_value).is_a?(Nop) ? nil : dv),
                   value:                nil,
                 }
               end
