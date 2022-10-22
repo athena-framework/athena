@@ -145,10 +145,8 @@ module Athena::Console::Spec
   # Say we have the following command:
   #
   # ```
+  # @[ACONA::AsCommand("add", description: "Sums two numbers, optionally making making the sum negative")]
   # class AddCommand < ACON::Command
-  #   @@default_name = "add"
-  #   @@default_description = "Sums two numbers, optionally making making the sum negative"
-  #
   #   protected def configure : Nil
   #     self
   #       .argument("value1", :required, "The first value")
@@ -196,9 +194,8 @@ module Athena::Console::Spec
   # A command that are asking `ACON::Question`s can also be tested:
   #
   # ```
+  # @[ACONA::AsCommand("question")]
   # class QuestionCommand < ACON::Command
-  #   @@default_name = "question"
-  #
   #   protected def execute(input : ACON::Input::Interface, output : ACON::Output::Interface) : ACON::Command::Status
   #     helper = self.helper ACON::Helper::Question
   #

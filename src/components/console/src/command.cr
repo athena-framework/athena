@@ -8,9 +8,8 @@
 # For example:
 #
 # ```
+# @[ACONA::AsCommand("app:create-user")]
 # class CreateUserCommand < ACON::Command
-#   @@default_name = "app:create-user"
-#
 #   protected def configure : Nil
 #     # ...
 #   end
@@ -34,9 +33,8 @@
 # 1. `execute` (required) - Contains the business logic for the command, returning the status of the invocation via `ACON::Command::Status`.
 #
 # ```
+# @[ACONA::AsCommand("app:create-user")]
 # class CreateUserCommand < ACON::Command
-#   @@default_name = "app:create-user"
-#
 #   protected def configure : Nil
 #     # ...
 #   end
@@ -72,8 +70,8 @@
 # end
 # ```
 #
-# INFO: The name and description can also be set via `@@default_name` and `@@default_description` class variables,
-# which is the preferred way of setting them.
+# TIP: The suggested way of setting the name and description of the command is via the `ACONA::AsCommand` annotation.
+# This enables lazy command instantiation when used within the Athena framework. Checkout the [external documentation](/components/console/) for more information.
 #
 # The `#configure` command is called automatically at the end of the constructor method.
 # If your command defines its own, be sure to call `super()` to also run the parent constructor.
@@ -167,10 +165,18 @@ abstract class Athena::Console::Command
   end
 
   # Returns the default name of `self`, or `nil` if it was not set.
-  class_getter default_name : String? = nil
+  def self.default_name : String?
+    {% if ann = @type.annotation ACONA::AsCommand %}
+      {{ann[0] || ann[:name]}}
+    {% end %}
+  end
 
   # Returns the default description of `self`, or `nil` if it was not set.
-  class_getter default_description : String? = nil
+  def self.default_description : String?
+    {% if ann = @type.annotation ACONA::AsCommand %}
+      {{ann[:description]}}
+    {% end %}
+  end
 
   # Returns the name of `self`.
   getter! name : String
