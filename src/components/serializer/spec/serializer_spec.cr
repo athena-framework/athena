@@ -77,6 +77,18 @@ end
 
 record Unionable, type : BaseModel.class
 
+struct JSONAnyThing
+  include ASR::Serializable
+
+  getter json : Hash(String, JSON::Any)
+end
+
+struct YAMLAnyThing
+  include ASR::Serializable
+
+  getter yaml : Hash(String, YAML::Any)
+end
+
 describe ASR::Serializer do
   describe "#deserialize" do
     describe ASR::Serializable do
@@ -198,6 +210,22 @@ describe ASR::Serializer do
         model.should be_a ModelOne
         model.id.should eq 1
         model.name.should eq "Fred"
+      end
+    end
+
+    describe ASR::Any do
+      it "works with base JSON type" do
+        model = ASR.serializer.deserialize JSONAnyThing, %({"json":{"foo":"bar"}}), :json
+        model.json.should be_a Hash(String, JSON::Any)
+
+        model.json["foo"].as_s.should eq "bar"
+      end
+
+      it "works with base YAML type" do
+        model = ASR.serializer.deserialize YAMLAnyThing, %({"yaml":{"biz":"baz"}}), :yaml
+        model.yaml.should be_a Hash(String, YAML::Any)
+
+        model.yaml["biz"].as_s.should eq "baz"
       end
     end
   end

@@ -81,6 +81,11 @@ describe ASR::Visitors::YAMLDeserializationVisitor do
         assert_deserialized_output ASR::Visitors::YAMLDeserializationVisitor, Hash(String, String?)?, %(---\nfoo: bar), {"foo" => "bar"}
         assert_deserialized_output ASR::Visitors::YAMLDeserializationVisitor, Hash(String, String?), %(---\nfoo: bar), {"foo" => "bar"}
       end
+
+      it YAML::Any do
+        assert_deserialized_output ASR::Visitors::YAMLDeserializationVisitor, Hash(String, YAML::Any), %(---\nfoo: bar), {"foo" => "bar"}
+        assert_deserialized_output ASR::Visitors::YAMLDeserializationVisitor, Hash(String, YAML::Any)?, %(---\nfoo: bar), {"foo" => "bar"}
+      end
     end
   end
 end

@@ -3,3 +3,8 @@ class Athena::Serializer::Visitors::JSONDeserializationVisitor < Athena::Seriali
     JSON.parse data
   end
 end
+
+# :nodoc:
+def JSON::Any.deserialize(visitor : ASR::Visitors::DeserializationVisitorInterface, data : ASR::Any)
+  data.as JSON::Any
+end
