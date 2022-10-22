@@ -62,18 +62,6 @@ describe Athena::Framework do
       CODE
     end
 
-    it "when a controller type is registered as a service but is not public" do
-      assert_error "Controller service 'CompileController' must be declared as public.", <<-CODE
-        @[ADI::Register]
-        class CompileController < ATH::Controller
-          @[ARTA::Get(path: "/")]
-          def action : String
-            "foo"
-          end
-        end
-      CODE
-    end
-
     describe "when a controller action is mistakenly overridden" do
       it "within the same controller" do
         assert_error "A controller action named '#action' already exists within 'CompileController'.", <<-CODE

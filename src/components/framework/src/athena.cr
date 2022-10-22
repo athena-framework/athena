@@ -30,6 +30,7 @@ require "./time_converter"
 
 require "./arguments/**"
 require "./config/*"
+require "./compiler_passes/*"
 require "./events/*"
 require "./exceptions/*"
 require "./listeners/*"
@@ -60,7 +61,7 @@ module Athena::Framework
   # Custom events can also be defined and dispatched within a controller, listener, or some other service.
   #
   # See each specific event and the [external documentation](/components/event_dispatcher/) for more information.
-  module Athena::Framework::Events; end
+  module Events; end
 
   # Exception handling in Athena is similar to exception handling in any Crystal program, with the addition of a new unique exception type, `ATH::Exceptions::HTTPException`.
   #
@@ -71,12 +72,12 @@ module Athena::Framework
   # To provide the best response to the client, non `ATH::Exceptions::HTTPException` should be rescued and converted into a corresponding `ATH::Exceptions::HTTPException`.
   # Custom HTTP errors can also be defined by inheriting from `ATH::Exceptions::HTTPException` or a child type. A use case for this could be allowing for additional data/context to be included
   # within the exception that ultimately could be used in a `ATH::Events::Exception` listener.
-  module Athena::Framework::Exceptions; end
+  module Exceptions; end
 
   # The `AED::EventListenerInterface` that act upon `ATH::Events` to handle a request. Custom listeners can also be defined, see `AED::EventListenerInterface`.
   #
   # See each listener and the [external documentation](/components/event_dispatcher/) for more information.
-  module Athena::Framework::Listeners
+  module Listeners
     # The tag name for Athena event listeners.
     TAG = "athena.event_dispatcher.listener"
 
@@ -87,7 +88,7 @@ module Athena::Framework
   # Namespace for types related to controller action arguments.
   #
   # See `ATH::Arguments::ArgumentMetadata`.
-  module Athena::Framework::Arguments; end
+  module Arguments; end
 
   # The default `ATH::Arguments::Resolvers::ArgumentValueResolverInterface`s that will handle resolving controller action arguments from a request (or other source).
   # Custom argument value resolvers can also be defined, see `ATH::Arguments::Resolvers::ArgumentValueResolverInterface`.
@@ -96,7 +97,7 @@ module Athena::Framework
   # A `priority` field can also be optionally included in the annotation, the higher the value the sooner in the array it'll be when injected.
   #
   # See each resolver for more detailed information.
-  module Athena::Framework::Arguments::Resolvers
+  module Arguments::Resolvers
     # The tag name for `ATH::Arguments::Resolvers::ArgumentValueResolverInterface`s.
     TAG = "athena.argument_value_resolver"
   end
@@ -104,7 +105,10 @@ module Athena::Framework
   # Namespace for types related to request parameter processing.
   #
   # See `ATHA::QueryParam` and `ATHA::RequestParam`.
-  module Athena::Framework::Params; end
+  module Params; end
+
+  # :nodoc:
+  module CompilerPasses; end
 
   # Runs an `HTTP::Server` listening on the given *port* and *host*.
   #
