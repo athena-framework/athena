@@ -144,7 +144,7 @@ describe Athena::DependencyInjection do
         CR
       end
 
-      it "assert the service has been removed from the container" do
+      it "asserts private unused services are removed from the container" do
         assert_error "undefined method 'service' for Athena::DependencyInjection::ServiceContainer", <<-CR
           @[ADI::Register]
           class Service
@@ -155,33 +155,14 @@ describe Athena::DependencyInjection do
         CR
       end
 
-      it "assert synthetic services are not public" do
-        assert_error " protected method 'synthetic_service' called for Athena::DependencyInjection::ServiceContainer", <<-CR
-          record SyntheticService, id : Int32 = 123
+      it "asserts internal unused services are not removed from the container & can be set via auto_configure" do
+        assert_error "protected method 'custom_visibility_service' called for Athena::DependencyInjection::ServiceContainer", <<-CR
+          @[ADI::Register]
+          record CustomVisibilityService
 
-          module ManualService
-            include ADI::PreArgumentsCompilerPass
+          ADI.auto_configure CustomVisibilityService, {visibility: Visibility::INTERNAL}
 
-            macro included
-              macro finished
-                {% verbatim do %}
-                  {%
-                    SERVICE_HASH["synthetic_service"] = {
-                      public:    false,
-                      synthetic: true,
-                      service:   SyntheticService,
-                      ivar_type: SyntheticService,
-                      tags:      [] of Nil,
-                      generics:  [] of Nil,
-                      arguments: [] of Nil,
-                    }
-                  %}
-                {% end %}
-              end
-            end
-          end
-
-          ADI::ServiceContainer.new.synthetic_service
+          ADI::ServiceContainer.new.custom_visibility_service
         CR
       end
 

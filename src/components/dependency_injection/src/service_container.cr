@@ -18,6 +18,23 @@ class Athena::DependencyInjection::ServiceContainer
   # I.e. that another service depends on, or is public.
   private USED_SERVICE_IDS = [] of Nil
 
+  private enum Visibility
+    # Used only via the SC.
+    # Protected method accessor.
+    # May be removed if unused.
+    PRIVATE = 0
+
+    # Used internally by additional types
+    # Protected method accessor.
+    # Never automatically removed.
+    INTERNAL = 1
+
+    # Used externally via user code.
+    # Public method accessor.
+    # Never automatically removed.
+    PUBLIC = 2
+  end
+
   private module RegisterServices
     macro included
       macro finished
@@ -106,10 +123,13 @@ class Athena::DependencyInjection::ServiceContainer
                   end
 
                   SERVICE_HASH[service_id] = {
-                    generics:           generics,
-                    public:             ann[:public] != nil ? ann[:public] : (auto_configuration[:public] != nil ? auto_configuration[:public] : false),
-                    synthetic:          false,
-                    public_alias:       ann[:public_alias] != nil ? ann[:public_alias] : false,
+                    generics:   generics,
+                    visibility: ann[:public] != nil ? Visibility::PUBLIC : (
+                      auto_configuration[:public] != nil ? Visibility::PUBLIC : (
+                        auto_configuration[:visibility] != nil ? auto_configuration[:visibility] : Visibility::PRIVATE
+                      )
+                    ),
+                    alias_visibility:   ann[:public_alias] != nil ? Visibility::PUBLIC : Visibility::PRIVATE,
                     service_annotation: ann,
                     tags:               tags,
 
@@ -357,8 +377,8 @@ class Athena::DependencyInjection::ServiceContainer
       macro finished
         {% verbatim do %}
       {% SERVICE_HASH.each do |service_id, metadata|
-           # Services that are private and not used in other dependencies can safely be removed.
-           if metadata[:synthetic] == true || metadata[:public] == true || metadata[:public_alias] == true || USED_SERVICE_IDS.includes?(service_id.id)
+           # Remove private services that are not used in other dependencies.
+           if metadata[:visibility] != Visibility::PRIVATE || metadata[:alias_visibility] != Visibility::PRIVATE || USED_SERVICE_IDS.includes?(service_id.id)
            else
              SERVICE_HASH[service_id] = nil
            end
@@ -389,9 +409,9 @@ class Athena::DependencyInjection::ServiceContainer
                 {% constructor_method = factory[1] %}
               {% end %}
 
-              {% if metadata[:public] != true %}protected{% end %} getter {{service_id.id}} : {{ivar_type}} { {{constructor_service}}.{{constructor_method.id}}({{metadata[:arguments].map(&.[:value]).splat}}) }
+              {% if metadata[:visibility] != Visibility::PUBLIC %}protected{% end %} getter {{service_id.id}} : {{ivar_type}} { {{constructor_service}}.{{constructor_method.id}}({{metadata[:arguments].map(&.[:value]).splat}}) }
 
-              {% if metadata[:public] %}
+              {% if metadata[:visibility] == Visibility::PUBLIC %}
                 def get(service : {{service}}.class) : {{service.id}}
                   {{service_id.id}}
                 end
@@ -408,9 +428,9 @@ class Athena::DependencyInjection::ServiceContainer
               {% service_name = metadata[:service].is_a?(StringLiteral) ? metadata[:service] : metadata[:service].name(generic_args: false) %}
               {% type = metadata[:generics].empty? ? service_name : "#{service_name}(#{metadata[:generics].splat})".id %}
 
-              {% if metadata[:public_alias] != true %}protected{% end %} def {{service_type.name.gsub(/::/, "_").underscore.id}} : {{type}}; {{service_id.id}}; end
+              {% if metadata[:alias_visibility] != Visibility::PUBLIC %}protected{% end %} def {{service_type.name.gsub(/::/, "_").underscore.id}} : {{type}}; {{service_id.id}}; end
 
-              {% if metadata[:public_alias] %}
+              {% if metadata[:alias_visibility] == Visibility::PUBLIC %}
                 def get(service : {{service_type}}.class) : {{service_type}}
                   {{service_id.id}}
                 end
