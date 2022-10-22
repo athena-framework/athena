@@ -7,7 +7,7 @@ module Athena::Framework::CompilerPasses::MakeControllerServicesPublicPass
         {%
           SERVICE_HASH.each do |service_id, metadata|
             if metadata[:service] <= ATH::Controller
-              metadata[:public] = true
+              metadata[:visibility] = Visibility::PUBLIC
             end
           end
         %}
