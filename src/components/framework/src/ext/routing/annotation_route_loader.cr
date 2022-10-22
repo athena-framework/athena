@@ -329,13 +329,9 @@ module Athena::Framework::Routing::AnnotationRouteLoader
           {% if base == nil %}
             @@actions[{{action_name}}] = ATH::Action.new(
               action: ->{
-                # If the controller is not registered as a service, simply new one up
-                # TODO: Replace this with a compiler pass after https://github.com/crystal-lang/crystal/pull/9091 is released
+                # If the controller is not registered as a service, simply new one up,
+                # otherwise fetch it directly from the SC.
                 {% if ann = klass.annotation(ADI::Register) %}
-                  {% unless ann[:public] %}
-                    {% klass.raise "Controller service '#{klass.id}' must be declared as public." %}
-                  {% end %}
-
                   %instance = ADI.container.get({{klass.id}})
                 {% else %}
                   %instance = {{klass.id}}.new

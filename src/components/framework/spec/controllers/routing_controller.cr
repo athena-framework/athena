@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-@[ADI::Register(public: true)]
+@[ADI::Register]
 class RoutingController < ATH::Controller
   def initialize(@request_store : ATH::RequestStore); end
 
