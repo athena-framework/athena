@@ -2,9 +2,8 @@
 # allows writing on any position of the output.
 #
 # ```
+# @[ACONA::AsCommand("cursor")]
 # class CursorCommand < ACON::Command
-#   @@default_name = "cursor"
-#
 #   protected def execute(input : ACON::Input::Interface, output : ACON::Output::Interface) : ACON::Command::Status
 #     cursor = ACON::Cursor.new output
 #

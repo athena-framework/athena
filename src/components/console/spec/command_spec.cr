@@ -11,13 +11,13 @@ describe ACON::Command do
     it "falls back on class vars" do
       command = ClassVarConfiguredCommand.new
       command.name.should eq "class:var:configured"
-      command.description.should eq "Command configured via class vars"
+      command.description.should eq "Command configured via annotation"
     end
 
     it "prioritizes constructor args" do
       command = ClassVarConfiguredCommand.new "cv"
       command.name.should eq "cv"
-      command.description.should eq "Command configured via class vars"
+      command.description.should eq "Command configured via annotation"
     end
 
     it "raises on invalid name" do
