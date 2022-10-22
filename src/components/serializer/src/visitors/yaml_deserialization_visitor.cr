@@ -3,3 +3,8 @@ class Athena::Serializer::Visitors::YAMLDeserializationVisitor < Athena::Seriali
     YAML.parse data
   end
 end
+
+# :nodoc:
+def YAML::Any.deserialize(visitor : ASR::Visitors::DeserializationVisitorInterface, data : ASR::Any)
+  data.as YAML::Any
+end

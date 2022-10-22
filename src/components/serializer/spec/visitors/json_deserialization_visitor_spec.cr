@@ -81,6 +81,11 @@ describe ASR::Visitors::JSONDeserializationVisitor do
         assert_deserialized_output ASR::Visitors::JSONDeserializationVisitor, Hash(String, String?)?, %({"foo": "bar"}), {"foo" => "bar"}
         assert_deserialized_output ASR::Visitors::JSONDeserializationVisitor, Hash(String, String?), %({"foo": "bar"}), {"foo" => "bar"}
       end
+
+      it JSON::Any do
+        assert_deserialized_output ASR::Visitors::JSONDeserializationVisitor, Hash(String, JSON::Any), %({"foo":"bar"}), {"foo" => "bar"}
+        assert_deserialized_output ASR::Visitors::JSONDeserializationVisitor, Hash(String, JSON::Any)?, %({"foo":"bar"}), {"foo" => "bar"}
+      end
     end
   end
 end
