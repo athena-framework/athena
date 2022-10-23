@@ -56,6 +56,7 @@ module Athena::DependencyInjection
 
   private BINDINGS            = {} of Nil => Nil
   private AUTO_CONFIGURATIONS = {} of Nil => Nil
+  private AUTO_REGISTRATIONS  = [] of Nil
 
   # :nodoc:
   module PreArgumentsCompilerPass; end
@@ -99,6 +100,11 @@ module Athena::DependencyInjection
   # ```
   macro auto_configure(type, options)
     {% AUTO_CONFIGURATIONS[type.resolve] = options %}
+  end
+
+  # :nodoc:
+  macro auto_register(type)
+    {% AUTO_REGISTRATIONS << type.resolve %}
   end
 
   # Allows binding a *value* to a *key* in order to enable auto registration of that value.
@@ -184,3 +190,19 @@ module Athena::DependencyInjection
     Fiber.current.container
   end
 end
+
+module MyModule; end
+
+@[ADI::Register(_value: 123)]
+class One
+  getter value : Int32
+
+  def initialize(@value : Int32 = 10); end
+
+  include MyModule
+end
+
+ADI.auto_register AED::EventListenerInterface
+ADI.auto_configure MyModule, {public: true}
+
+pp ADI.container.one.value

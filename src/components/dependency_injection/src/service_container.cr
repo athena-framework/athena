@@ -35,6 +35,32 @@ class Athena::DependencyInjection::ServiceContainer
     PUBLIC = 2
   end
 
+  private module AutoRegisterServices
+    macro included
+      macro finished
+        {% verbatim do %}
+          {% for service in AUTO_REGISTRATIONS %}
+            {% if service.class? || service.struct? %}
+              {% for child in service.all_subclasses %}
+                {% if child.annotation(ADI::Register) == nil %}
+                  @[ADI::Register]
+                  {{ child.class? ? "class".id : "struct".id }} ::{{child.id}}; end
+                {% end %}
+              {% end %}
+            {% elsif service.module? %}
+              {% for child in service.includers %} 
+                {% if !child.module? && child.annotation(ADI::Register) == nil %}
+                  @[ADI::Register]
+                  {{ child.class? ? "class".id : "struct".id }} ::{{child.id}}; end
+                {% end %}
+              {% end %}
+            {% end %}
+          {% end %}
+        {% end %}
+      end
+    end
+  end
+
   private module RegisterServices
     macro included
       macro finished
@@ -443,6 +469,7 @@ class Athena::DependencyInjection::ServiceContainer
   end
 
   macro finished
+    include AutoRegisterServices
     include RegisterServices
 
     # Hook into container after services are registered, but before arguments are resolved.
