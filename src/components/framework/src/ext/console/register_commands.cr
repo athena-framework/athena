@@ -85,7 +85,7 @@ module Athena::Framework::CompilerPasses::RegisterCommands
               tags:       [] of Nil,
               generics:   [] of Nil,
               arguments:  [
-                {value: command_map},
+                {value: "#{command_map} of String => ACON::Command.class".id},
                 {value: loader_id.id},
               ],
             }
