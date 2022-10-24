@@ -169,10 +169,24 @@ abstract class Athena::Console::Command
     {% begin %}
       {% if ann = @type.annotation ACONA::AsCommand %}
         {% if !ann[:hidden] && !ann[:aliases] %}
-          {{ann[0] || ann[:name]}}
+          {%
+            name = (ann[0] || ann[:name])
+
+            unless name
+              ann.raise "Console command '#{@type}' has an 'ACONA::AsCommand' annotation but is missing the commands's name. It was not provided as the first positional argument nor via the 'name' field."
+            end
+          %}
+
+          {{name}}
         {% else %}
           {%
-            name = (ann[0] || ann[:name]).split '|'
+            name = (ann[0] || ann[:name])
+
+            unless name
+              ann.raise "Console command '#{@type}' has an 'ACONA::AsCommand' annotation but is missing the commands's name. It was not provided as the first positional argument nor via the 'name' field."
+            end
+
+            name = name.split '|'
             name = name + (ann[:aliases] || [] of Nil)
 
             if ann[:hidden] && "" != name[0]
