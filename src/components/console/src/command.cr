@@ -168,24 +168,18 @@ abstract class Athena::Console::Command
   def self.default_name : String?
     {% begin %}
       {% if ann = @type.annotation ACONA::AsCommand %}
+        {%
+          name = (ann[0] || ann[:name])
+
+          unless name
+            ann.raise "Console command '#{@type}' has an 'ACONA::AsCommand' annotation but is missing the commands's name. It was not provided as the first positional argument nor via the 'name' field."
+          end
+        %}
+        
         {% if !ann[:hidden] && !ann[:aliases] %}
-          {%
-            name = (ann[0] || ann[:name])
-
-            unless name
-              ann.raise "Console command '#{@type}' has an 'ACONA::AsCommand' annotation but is missing the commands's name. It was not provided as the first positional argument nor via the 'name' field."
-            end
-          %}
-
           {{name}}
         {% else %}
           {%
-            name = (ann[0] || ann[:name])
-
-            unless name
-              ann.raise "Console command '#{@type}' has an 'ACONA::AsCommand' annotation but is missing the commands's name. It was not provided as the first positional argument nor via the 'name' field."
-            end
-
             name = name.split '|'
             name = name + (ann[:aliases] || [] of Nil)
 

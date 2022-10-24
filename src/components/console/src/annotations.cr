@@ -39,7 +39,7 @@ module Athena::Console::Annotations
   #
   # ### aliases
   #
-  # **Type:** `String`
+  # **Type:** `Enumerable(String)`
   #
   # Alternate names this command may be invoked by.
   # See `ACON::Command#aliases`.
