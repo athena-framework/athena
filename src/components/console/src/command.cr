@@ -175,7 +175,7 @@ abstract class Athena::Console::Command
             ann.raise "Console command '#{@type}' has an 'ACONA::AsCommand' annotation but is missing the commands's name. It was not provided as the first positional argument nor via the 'name' field."
           end
         %}
-        
+
         {% if !ann[:hidden] && !ann[:aliases] %}
           {{name}}
         {% else %}
