@@ -165,7 +165,9 @@ class Athena::Console::Application
       return nil
     end
 
-    # TODO: Do something about LazyCommands?
+    if !command.is_a? ACON::Commands::Lazy
+      command.definition
+    end
 
     @commands[command.name] = command
 

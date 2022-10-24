@@ -166,8 +166,30 @@ abstract class Athena::Console::Command
 
   # Returns the default name of `self`, or `nil` if it was not set.
   def self.default_name : String?
-    {% if ann = @type.annotation ACONA::AsCommand %}
-      {{ann[0] || ann[:name]}}
+    {% begin %}
+      {% if ann = @type.annotation ACONA::AsCommand %}
+        {%
+          name = (ann[0] || ann[:name])
+
+          unless name
+            ann.raise "Console command '#{@type}' has an 'ACONA::AsCommand' annotation but is missing the commands's name. It was not provided as the first positional argument nor via the 'name' field."
+          end
+        %}
+
+        {% if !ann[:hidden] && !ann[:aliases] %}
+          {{name}}
+        {% else %}
+          {%
+            name = name.split '|'
+            name = name + (ann[:aliases] || [] of Nil)
+
+            if ann[:hidden] && "" != name[0]
+              name.unshift ""
+            end
+          %}
+            {{name.join '|'}}
+        {% end %}
+      {% end %}
     {% end %}
   end
 
@@ -195,11 +217,6 @@ abstract class Athena::Console::Command
   # Returns/sets the list of aliases that may also be used to execute `self` in addition to its `#name`.
   property aliases : Array(String) = [] of String
 
-  # Sets the process title of `self`.
-  #
-  # TODO: Implement this.
-  setter process_title : String? = nil
-
   # Returns/sets an `ACON::Helper::HelperSet` on `self`.
   property helper_set : ACON::Helper::HelperSet? = nil
 
@@ -220,10 +237,22 @@ abstract class Athena::Console::Command
   @full_definition : ACON::Input::Definition? = nil
   @ignore_validation_errors : Bool = false
   @synopsis = Hash(Synopsis, String).new
+  @process_title : String? = nil
 
   def initialize(name : String? = nil)
-    if n = (name || self.class.default_name)
-      self.name n
+    if name.nil? && (n = self.class.default_name)
+      aliases = n.split '|'
+
+      if (name = aliases.shift).empty?
+        self.hidden true
+        name = aliases.shift?
+      end
+
+      self.aliases aliases
+    end
+
+    unless name.nil?
+      self.name name
     end
 
     if (@description.empty?) && (description = self.class.default_description)
@@ -247,7 +276,7 @@ abstract class Athena::Console::Command
     self
   end
 
-  def application=(@application : ACON::Application? = nil) : Nil
+  def application=(@application : ACON::Application?) : Nil
     if application = @application
       @helper_set = application.helper_set
     else
@@ -339,6 +368,15 @@ abstract class Athena::Console::Command
     if full_definition = @full_definition
       full_definition << ACON::Input::Option.new name, shortcut, value_mode, description, default
     end
+
+    self
+  end
+
+  # Sets the process title of `self`.
+  #
+  # TODO: Implement this.
+  def process_title(title : String) : self
+    @process_title = title
 
     self
   end

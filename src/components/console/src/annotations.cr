@@ -19,12 +19,29 @@ module Athena::Console::Annotations
   #
   # **Type:** `String` - **required**
   #
-  # The name of the command. May be provided as either an explicit named argument, or the first positional argument.
+  # The name of the command.
+  # May be provided as either an explicit named argument, or the first positional argument.
+  # See `ACON::Command#name`.
   #
   # ### description
   #
   # **Type:** `String`
   #
   # A short sentence describing the function of the command.
+  # See `ACON::Command#description`.
+  #
+  # ### hidden
+  #
+  # **Type:** `Bool`
+  #
+  # If this command should be hidden from the command list.
+  # See `ACON::Command#hidden?`.
+  #
+  # ### aliases
+  #
+  # **Type:** `Enumerable(String)`
+  #
+  # Alternate names this command may be invoked by.
+  # See `ACON::Command#aliases`.
   annotation AsCommand; end
 end

@@ -8,29 +8,54 @@ end
 
 describe ACON::Command do
   describe ".new" do
-    it "falls back on class vars" do
-      command = ClassVarConfiguredCommand.new
-      command.name.should eq "class:var:configured"
-      command.description.should eq "Command configured via annotation"
+    describe "when configured via annotation" do
+      it "sets name and description" do
+        command = AnnotationConfiguredCommand.new
+        command.name.should eq "annotation:configured"
+        command.description.should eq "Command configured via annotation"
+        command.hidden?.should be_false
+        command.aliases.should eq ["ac"]
+      end
+
+      it "sets the command as hidden if its name is an empty string" do
+        command = AnnotationConfiguredHiddenCommand.new
+        command.name.should eq "annotation:configured"
+        command.hidden?.should be_true
+        command.aliases.should be_empty
+      end
+
+      it "sets the command as hidden if that field is true" do
+        command = AnnotationConfiguredHiddenFieldCommand.new
+        command.name.should eq "annotation:configured"
+        command.hidden?.should be_true
+        command.aliases.should be_empty
+      end
+
+      it "sets aliases" do
+        command = AnnotationConfiguredAliasesCommand.new
+        command.name.should eq "annotation:configured"
+        command.hidden?.should be_false
+        command.aliases.should eq ["ac"]
+      end
     end
 
     it "prioritizes constructor args" do
-      command = ClassVarConfiguredCommand.new "cv"
+      command = AnnotationConfiguredCommand.new "cv"
       command.name.should eq "cv"
       command.description.should eq "Command configured via annotation"
     end
 
     it "raises on invalid name" do
       expect_raises ACON::Exceptions::InvalidArgument, "Command name '' is invalid." do
-        ClassVarConfiguredCommand.new ""
+        AnnotationConfiguredCommand.new ""
       end
 
       expect_raises ACON::Exceptions::InvalidArgument, "Command name '  ' is invalid." do
-        ClassVarConfiguredCommand.new "  "
+        AnnotationConfiguredCommand.new "  "
       end
 
       expect_raises ACON::Exceptions::InvalidArgument, "Command name 'foo:' is invalid." do
-        ClassVarConfiguredCommand.new "foo:"
+        AnnotationConfiguredCommand.new "foo:"
       end
     end
   end
