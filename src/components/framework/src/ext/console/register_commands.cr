@@ -8,9 +8,11 @@ module Athena::Framework::CompilerPasses::RegisterCommands
     macro finished
       {% verbatim do %}
         {%
-          service_ids = [] of Nil
           command_map = {} of Nil => Nil
           command_refs = {} of Nil => Nil
+
+          # Services that are not configured via the annotation so must be registered eagerly.
+          eager_service_ids = [] of Nil
 
           (TAG_HASH["athena.console.command"] || [] of Nil).each do |service_id|
             metadata = SERVICE_HASH[service_id]
@@ -19,7 +21,15 @@ module Athena::Framework::CompilerPasses::RegisterCommands
 
             metadata[:visibility] = metadata[:visibility] != Visibility::PRIVATE ? metadata[:visibility] : Visibility::INTERNAL
 
-            if ann = metadata[:service].annotation ACONA::AsCommand
+            ann = metadata[:service].annotation ACONA::AsCommand
+
+            if ann == nil
+              if metadata[:visibility] == Visibility::PRIVATE
+                SERVICE_HASH[public_service_id = "_#{service_id.id}_public"] = metadata + {visibility: Visibility::INTERNAL}
+                service_id = public_service_id
+              end
+              eager_service_ids << service_id.id
+            else
               name = ann[0] || ann[:name]
 
               unless name
@@ -41,46 +51,39 @@ module Athena::Framework::CompilerPasses::RegisterCommands
                 aliases = aliases[1..]
               end
 
-              if command_name == nil
-                # TODO: Do something here?
-                # Make public alias for the command?
-              else
-                description = ann[:description]
+              description = ann[:description]
 
-                command_map[command_name] = metadata[:service]
-                command_refs[metadata[:service]] = service_id
+              command_map[command_name] = metadata[:service]
+              command_refs[metadata[:service]] = service_id
 
-                aliases.each do |a|
-                  command_map[a] = metadata[:service]
-                end
-
-                if description
-                  # TODO: Add method call to handle description
-                end
-
-                SERVICE_HASH[lazy_service_id = "_#{service_id.id}_lazy"] = {
-                  visibility: Visibility::INTERNAL,
-                  service:    "ACON::Commands::Lazy",
-                  ivar_type:  "ACON::Commands::Lazy",
-                  tags:       [] of Nil,
-                  generics:   [] of Nil,
-                  arguments:  [
-                    {value: command_name},
-                    {value: "#{aliases} of String".id},
-                    {value: description || ""},
-                    {value: is_hidden},
-                    {value: "->{ #{service_id.id}.as(ACON::Command) }".id},
-                  ],
-                }
-
-                command_refs[metadata[:service]] = lazy_service_id
-
-                # TODO: Add method calls to handle additional aliases, and hidden commands
+              aliases.each do |a|
+                command_map[a] = metadata[:service]
               end
+
+              if description
+                # TODO: Add method call to handle description
+              end
+
+              SERVICE_HASH[lazy_service_id = "_#{service_id.id}_lazy"] = {
+                visibility: Visibility::INTERNAL,
+                service:    "ACON::Commands::Lazy",
+                ivar_type:  "ACON::Commands::Lazy",
+                tags:       [] of Nil,
+                generics:   [] of Nil,
+                arguments:  [
+                  {value: command_name},
+                  {value: "#{aliases} of String".id},
+                  {value: description || ""},
+                  {value: is_hidden},
+                  {value: "->{ #{service_id.id}.as(ACON::Command) }".id},
+                ],
+              }
+
+              command_refs[metadata[:service]] = lazy_service_id
+
+              # TODO: Add method calls to handle additional aliases, and hidden commands
             end
           end
-
-          # TODO: How to track eager commands?
 
           unless command_map.empty?
             SERVICE_HASH[loader_id = "athena_console_command_loader_container"] = {
@@ -109,6 +112,7 @@ module Athena::Framework::CompilerPasses::RegisterCommands
 
             # FIXME: Is there a better way to handle this?
             SERVICE_HASH["athena_console_application"][:arguments][0][:value] = "athena_console_command_loader".id
+            SERVICE_HASH["athena_console_application"][:arguments][2][:value] = eager_service_ids
           end
         %}
 
