@@ -1,4 +1,8 @@
 @[ADI::Register(public: true, name: "athena_console_application")]
+# Entrypoint for the `Athena::Console` integration.
+# This service should be fetched via `ADI.container` within your console CLI file.
+#
+# Checkout the [external documentation](/components/console/) for more information.
 class Athena::Framework::Console::Application < ACON::Application
   def initialize(
     command_loader : ACON::Loader::Interface? = nil,
