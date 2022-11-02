@@ -20,9 +20,15 @@ module Athena::Spec::Methods
   # ```
   #
   # NOTE: When files are required within the *code*, they are relative to the file calling this method.
-  def assert_error(message : String, code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
+  #
+  # By default this method does not perform any codegen; meaning it only validates that the code can be successfully compiled,
+  # excluding any runtime exceptions.
+  #
+  # The *codegen* option can be used to enable codegen, thus allowing runtime logic to also be tested.
+  # This can be helpful in order to test something in isolation, without affecting other test cases.
+  def assert_error(message : String, code : String, *, codegen : Bool = false, line : Int32 = __LINE__, file : String = __FILE__) : Nil
     buffer = IO::Memory.new
-    result = execute code, buffer, file
+    result = execute code, buffer, file, codegen
 
     fail buffer.to_s, line: line if result.success?
     buffer.to_s.should contain(message), line: line
@@ -38,20 +44,35 @@ module Athena::Spec::Methods
   # ```
   #
   # NOTE: When files are required within the *code*, they are relative to the file calling this method.
-  def assert_success(code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
+  #
+  # By default this method does not perform any codegen; meaning it only validates that the code can be successfully compiled,
+  # excluding any runtime exceptions.
+  #
+  # The *codegen* option can be used to enable codegen, thus allowing runtime logic to also be tested.
+  # This can be helpful in order to test something in isolation, without affecting other test cases.
+  def assert_success(code : String, *, codegen : Bool = false, line : Int32 = __LINE__, file : String = __FILE__) : Nil
     buffer = IO::Memory.new
-    result = execute code, buffer, file
+    result = execute code, buffer, file, codegen
 
     fail buffer.to_s, line: line unless result.success?
     buffer.close
   end
 
-  private def execute(code : String, buffer : IO, file : String) : Process::Status
+  private def execute(code : String, buffer : IO, file : String, codegen : Bool) : Process::Status
     input = IO::Memory.new <<-CR
       #{code}
     CR
 
-    Process.run("crystal", ["run", "--no-color", "--no-codegen", "--stdin-filename", "#{file}"], input: input.rewind, output: buffer, error: buffer)
+    args = [
+      "run",
+      "--no-color",
+      "--stdin-filename",
+      "#{file}",
+    ]
+
+    args << "--no-codegen" unless codegen
+
+    Process.run("crystal", args, input: input.rewind, output: buffer, error: buffer)
   end
 
   # Runs the executable at the given *path*, optionally with the provided *args*.
