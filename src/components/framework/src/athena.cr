@@ -38,6 +38,7 @@ require "./parameters/*"
 require "./params/*"
 require "./view/*"
 
+require "./ext/console"
 require "./ext/conversion_types"
 require "./ext/event_dispatcher"
 require "./ext/negotiation"
