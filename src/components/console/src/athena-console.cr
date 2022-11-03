@@ -105,3 +105,12 @@ module Athena::Console
   # Contains types realted to lazily loading commands.
   module Loader; end
 end
+
+output = ACON::Output::IO.new STDOUT
+
+table = Athena::Console::Helper::Table.new output
+
+table.headers ["foo"]
+# table.rows [["123"]]
+
+pp table
