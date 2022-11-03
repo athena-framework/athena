@@ -17,11 +17,11 @@ private def assert_success(code : String, *, line : Int32 = __LINE__) : Nil
 end
 
 describe ATH do
-  describe "Console", focus: true do
+  describe "Console" do
     it "errors if no name is provided" do
       assert_error "Console command 'TestCommand' has an 'ACONA::AsCommand' annotation but is missing the commands's name. It was not provided as the first positional argument nor via the 'name' field.", <<-CR
         require "../../spec_helper.cr"
-        
+
         @[ADI::Register]
         @[ACONA::AsCommand]
         class TestCommand < ACON::Command
@@ -32,7 +32,7 @@ describe ATH do
     it "is initialized eagerly if not configured via annotation" do
       assert_success <<-CR
         require "../../spec_helper.cr"
-        
+
         @[ADI::Register]
         class TestCommand < ACON::Command
           class_getter initialized = false
@@ -65,7 +65,7 @@ describe ATH do
     it "is initialized lazily if configured via annotation" do
       assert_success <<-CR
         require "../../spec_helper.cr"
-        
+
         @[ADI::Register]
         @[ACONA::AsCommand("test")]
         class TestCommand < ACON::Command
@@ -96,7 +96,7 @@ describe ATH do
     it "applies data from annotation" do
       assert_success <<-CR
         require "../../spec_helper.cr"
-        
+
         @[ADI::Register]
         @[ACONA::AsCommand("test|tset", hidden: true, description: "Test desc")]
         class TestCommand < ACON::Command
@@ -107,6 +107,8 @@ describe ATH do
 
         it do
           application = ADI.container.athena_console_application
+          application.has?("tset").should be_true
+
           command = application.get "test"
           command.hidden?.should be_true
           command.description.should eq "Test desc"
@@ -118,7 +120,7 @@ describe ATH do
     it "applies hidden status via empty command name" do
       assert_success <<-CR
         require "../../spec_helper.cr"
-        
+
         @[ADI::Register]
         @[ACONA::AsCommand("|test")]
         class TestCommand < ACON::Command
