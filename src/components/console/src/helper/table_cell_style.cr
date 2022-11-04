@@ -6,15 +6,9 @@ struct Athena::Console::Helper::Table::CellStyle
     BOTH
   end
 
-  enum Pad
-    LEFT
-    RIGHT
-    BOTH
-  end
-
   getter foreground : String
   getter background : String
-  getter align : ACON::Helper::Table::CellStyle::Align
+  getter align : Align
   getter format : String?
 
   def initialize(
@@ -25,11 +19,11 @@ struct Athena::Console::Helper::Table::CellStyle
   )
   end
 
-  def pad_type : ACON::Helper::Table::CellStyle::Pad
+  protected def pad(string : String, width : Int32, padding_char) : String
     case @align
-    in .left?, .default? then :right
-    in .right?           then :left
-    in .center?          then :both
+    in .left?, .default? then string.rjust width, padding_char
+    in .right?           then string.ljust width, padding_char
+    in .center?          then string.center width, padding_char
     end
   end
 end

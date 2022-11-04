@@ -248,7 +248,68 @@ class Athena::Console::Helper::Table
     row_groups = self.build_table_rows rows
     self.calculate_columns_width row_groups
 
-    rows
+    is_header = !@orientation.horizontal?
+    is_first_row = @orientation.horizontal?
+    has_title = !!@header_title.presence
+
+    row_groups.each do |row_group|
+      is_header_separator_rendered : Bool = false
+
+      row_group.each do |row|
+        if divider == row
+          is_header = false
+          is_first_row = true
+
+          next
+        end
+
+        if row.is_a? TableSeperator
+          self.render_row_separator
+
+          next
+        end
+
+        # TODO: Handle empty/nil rows?
+
+        if is_header && !is_header_separator_rendered
+          self.render_row_separator(
+            is_header ? Separator::TOP : Separator::TOP_BOTTOM,
+            has_title ? @header_title : nil,
+            has_title ? @style.header_title_format : nil
+          )
+
+          has_title = false
+          is_header_separator_rendered = true
+        end
+
+        if is_first_row
+          self.render_row_separator(
+            is_header ? Separator::TOP : Separator::TOP_BOTTOM,
+            has_title ? @header_title : nil,
+            has_title ? @style.header_title_format : nil
+          )
+
+          is_first_row = false
+          has_title = false
+        end
+
+        if @orientation.vertical?
+          is_header = false
+          is_first_row = false
+        end
+
+        if @orientation.horizontal?
+          self.render_row row, @style.cell_row_format, @style.cell_header_format
+        else
+          self.render_row row, is_header ? @style.cell_header_format : @style.cell_row_format
+        end
+      end
+    end
+
+    self.render_row_separator :bottom, @footer_title, @style.footer_title_format
+
+    # self.cleanup
+    @rendered = true
   end
 
   private def build_table_rows(rows : Array(InternalRowType)) : Rows
@@ -377,6 +438,117 @@ class Athena::Console::Helper::Table
     columns
   end
 
+  private enum Separator
+    TOP
+    TOP_BOTTOM
+    MIDDLE
+    BOTTOM
+  end
+
+  private def render_row_separator(type : Separator = :middle, title : String? = nil, title_format : String? = nil) : Nil
+    return unless (count = @number_of_columns)
+
+    borders = @style.border_chars
+
+    if !borders[0].presence && !borders[2].presence && !@style.crossing_char.presence
+      return
+    end
+
+    crossings = @style.crossing_chars
+    horizontal, left_char, middle_char, right_char = case type
+                                                     when .middle?     then {borders[2], crossings[8], crossings[0], crossings[4]}
+                                                     when .top?        then {borders[0], crossings[1], crossings[2], crossings[3]}
+                                                     when .top_bottom? then {borders[0], crossings[9], crossings[10], crossings[11]}
+                                                     else
+                                                       {borders[0], crossings[7], crossings[6], crossings[5]}
+                                                     end
+
+    markup = String.build do |io|
+      io << left_char
+
+      count.times do |column|
+        io << horizontal * @effective_column_widths[column]
+        io << ((column == (count - 1)) ? right_char : middle_char)
+      end
+
+      unless title.nil?
+        raise "Title was not nil"
+      end
+    end
+
+    @output.puts sprintf @style.border_format, markup
+  end
+
+  private def render_row(row : Rows::Type, cell_format : String, first_cell_format : String? = nil) : Nil
+    columns = self.get_row_columns row
+    last = columns.size - 1
+
+    markup = String.build do |io|
+      io << self.render_column_separator :outside
+
+      columns.each_with_index do |column, idx|
+        io << if first_cell_format && idx.zero?
+          self.render_cell row, column, first_cell_format
+        else
+          self.render_cell row, column, cell_format
+        end
+
+        io << self.render_column_separator last == idx ? Border::OUTSIDE : Border::INSIDE
+      end
+    end
+
+    @output.puts markup
+  end
+
+  private def render_cell(row : Rows::Type, column : Int32, cell_format : String) : String
+    cell = (row[column]? || "").to_s
+    width = @effective_column_widths[column]
+
+    if cell.is_a? Cell && cell.colspan > 1
+      raise "Colspan > 1"
+    end
+
+    # TODO: Handle multi-byte strings?
+
+    style = self.get_column_style column
+
+    if cell.is_a? TableSeperator
+      return sprintf style.border_format, style.border_chars[2] * width
+    end
+
+    width += cell.size - Helper.remove_decoration(@output.formatter, cell).size
+    content = sprintf style.cell_row_content_format, cell
+
+    if cell.is_a?(Cell) && cell.style.is_a?(CellStyle)
+      raise "Cell is table cell"
+    end
+
+    sprintf cell_format, style.pad content, width, style.padding_char
+  end
+
+  private def get_row_columns(row : Rows::Type) : Array(Int32)
+    columns = (0...@number_of_columns).to_a
+
+    row.each_with_index do |cell, cell_key|
+      if cell.is_a? ACON::Helper::Table::Cell
+        raise "Cell is table cell"
+      end
+    end
+
+    columns
+  end
+
+  private enum Border
+    OUTSIDE
+    INSIDE
+  end
+
+  private def render_column_separator(type : Border = :outside) : String
+    borders = @style.border_chars
+
+    sprintf @style.border_format, type.outside? ? borders[1] : borders[3]
+  end
+
   # Helper method that allows iterating over the cells of a row, skipping cell seperators
   private def iterate_row(rows : Enumerable, line : Int32, & : String | ACON::Helper::Table::Cell, Int32 ->) : Nil
     columns = rows[line]
@@ -388,11 +560,15 @@ class Athena::Console::Helper::Table
     end
   end
 
-  private def resolve_style(style : ACON::Helper::Table::Style) : ACON::Helper::Table::Style
+  private def get_column_style(column : Int32) : Style
+    @column_styles[column]? || @style
+  end
+
+  private def resolve_style(style : ACON::Helper::Table::Style) : Style
     style
   end
 
-  private def resolve_style(style : String) : ACON::Helper::Table::Style
+  private def resolve_style(style : String) : Style
     @@styles[style]? || raise ACON::Exceptions::InvalidArgument.new "The table style '#{style}' is not defined."
   end
 end

@@ -1,12 +1,12 @@
 class Athena::Console::Helper::Table::Style
-  enum Pad
+  enum Align
     LEFT
     RIGHT
-    BOTH
+    CENTER
   end
 
   # Returns the character used for cell padding.
-  getter padding_char : String = " "
+  getter padding_char : Char = ' '
 
   @horizontal_outside_border_char = "-"
   @horizontal_inside_border_char = "-"
@@ -37,14 +37,22 @@ class Athena::Console::Helper::Table::Style
 
   property border_format : String = "%s"
 
-  property pad_type : Pad = :right
+  property align : Align = :right
 
-  def padding_char=(char : String) : self
+  def padding_char=(char : Char) : self
     raise ArgumentError.new "The padding char cannot be empty" if char.empty?
 
     @padding_char = char
 
     self
+  end
+
+  protected def pad(string : String, width : Int32, padding_char) : String
+    case @align
+    in .left?   then string.rjust width, padding_char
+    in .right?  then string.ljust width, padding_char
+    in .center? then string.center width, padding_char
+    end
   end
 
   # Sets the horizontal border chars, for example:
@@ -94,6 +102,15 @@ class Athena::Console::Helper::Table::Style
     self.vertical_outside_border_char inside || outside
 
     self
+  end
+
+  protected def border_chars : Tuple(String, String, String, String)
+    {
+      @horizontal_outside_border_char,
+      @vertical_outside_border_char,
+      @horizontal_inside_border_char,
+      @vertical_inside_border_char,
+    }
   end
 
   # Sets the crossing characters.
@@ -174,5 +191,22 @@ class Athena::Console::Helper::Table::Style
       )
 
     self
+  end
+
+  protected def crossing_chars : Tuple(String, String, String, String, String, String, String, String, String, String, String, String)
+    {
+      @crossing_char,
+      @crossing_top_left_char,
+      @crossing_top_middle_char,
+      @crossing_top_right_char,
+      @crossing_middle_right_char,
+      @crossing_bottom_right_char,
+      @crossing_bottom_middle_char,
+      @crossing_bottom_left_char,
+      @crossing_middle_left_char,
+      @crossing_top_left_bottom_char,
+      @crossing_top_middle_bottom_char,
+      @crossing_top_right_bottom_char,
+    }
   end
 end
