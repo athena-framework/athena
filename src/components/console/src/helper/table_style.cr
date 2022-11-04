@@ -28,21 +28,57 @@ class Athena::Console::Helper::Table::Style
   @crossing_top_middle_bottom_char = "+"
   @crossing_top_right_bottom_char = "+"
 
-  property header_title_format : String = "<fg=black;bg=white;options=bold> %s </>"
-  property footer_title_format : String = "<fg=black;bg=white;options=bold> %s </>"
+  getter header_title_format : String = "<fg=black;bg=white;options=bold> %s </>"
+  getter footer_title_format : String = "<fg=black;bg=white;options=bold> %s </>"
 
-  property cell_header_format : String = "<info>%s</info>"
-  property cell_row_format : String = "%s"
-  property cell_row_content_format : String = " %s "
+  getter cell_header_format : String = "<info>%s</info>"
+  getter cell_row_format : String = "%s"
+  getter cell_row_content_format : String = " %s "
 
   property border_format : String = "%s"
 
   property align : Align = :right
 
-  def padding_char=(char : Char) : self
+  def padding_char(char : Char) : self
     raise ArgumentError.new "The padding char cannot be empty" if char.empty?
 
     @padding_char = char
+
+    self
+  end
+
+  def header_title_format(format : String) : self
+    @header_title_format = format
+
+    self
+  end
+
+  def footer_title_format(format : String) : self
+    @footer_title_format = format
+
+    self
+  end
+
+  def cell_header_format(format : String) : self
+    @cell_header_format = format
+
+    self
+  end
+
+  def cell_row_format(format : String) : self
+    @cell_row_format = format
+
+    self
+  end
+
+  def cell_row_content_format(format : String) : self
+    @cell_row_content_format = format
+
+    self
+  end
+
+  def border_format(format : String) : self
+    @border_format = format
 
     self
   end
@@ -73,8 +109,8 @@ class Athena::Console::Helper::Table::Style
   # * #1 *outside*
   # * #2 *inside*
   def horizontal_border_chars(outside : String, inside : String? = nil) : self
-    self.horizontal_outside_border_char outside
-    self.horizontal_inside_border_char inside || outside
+    @horizontal_outside_border_char = outside
+    @horizontal_inside_border_char = inside || outside
 
     self
   end
@@ -98,8 +134,8 @@ class Athena::Console::Helper::Table::Style
   # * #1 *outside*
   # * #2 *inside*
   def vertical_border_chars(outside : String, inside : String? = nil) : self
-    self.vertical_outside_border_char outside
-    self.vertical_outside_border_char inside || outside
+    @vertical_outside_border_char = outside
+    @vertical_inside_border_char = inside || outside
 
     self
   end

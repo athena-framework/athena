@@ -59,6 +59,61 @@ class Athena::Console::Helper::Table
     end
   end
 
+  # INTERNAL
+  protected class_getter styles : Hash(String, ACON::Helper::Table::Style) { self.init_styles }
+
+  def self.set_style_definition(name : String, style : ACON::Helper::Table::Style) : Nil
+    self.styles[name] = style
+  end
+
+  def self.style_definition(name : String) : ACON::Helper::Table::Style
+    self.styles[style]? || raise ACON::Exceptions::InvalidArgument.new "The table style '#{style}' is not defined."
+  end
+
+  # INTERNAL
+  private def self.init_styles : Hash(String, ACON::Helper::Table::Style)
+    borderless = Table::Style.new
+    borderless
+      .horizontal_border_chars("=")
+      .vertical_border_chars(" ")
+      .default_crossing_char(" ")
+
+    compact = Table::Style.new
+    compact
+      .horizontal_border_chars("")
+      .vertical_border_chars("")
+      .default_crossing_char("")
+      .cell_row_content_format("%s ")
+
+    suggested = Table::Style.new
+    suggested
+      .horizontal_border_chars("-")
+      .vertical_border_chars(" ")
+      .default_crossing_char(" ")
+      .cell_header_format("%s")
+
+    box = Table::Style.new
+    box
+      .horizontal_border_chars("─")
+      .vertical_border_chars("│")
+      .crossing_chars("┼", "┌", "┬", "┐", "┤", "┘", "┴", "└", "├")
+
+    double_box = Table::Style.new
+    double_box
+      .horizontal_border_chars("═", "─")
+      .vertical_border_chars("║", "│")
+      .crossing_chars("┼", "╔", "╤", "╗", "╢", "╝", "╧", "╚", "╟", "╠", "╪", "╣")
+
+    {
+      "borderless" => borderless,
+      "compact"    => compact,
+      "suggested"  => suggested,
+      "box"        => box,
+      "double-box" => double_box,
+      "default"    => ACON::Helper::Table::Style.new,
+    }
+  end
+
   setter header_title : String? = nil
   setter footer_title : String? = nil
 
@@ -67,7 +122,7 @@ class Athena::Console::Helper::Table
 
   @effective_column_widths = Hash(Int32, Int32).new
   @number_of_columns : Int32? = nil
-  property style : ACON::Helper::Table::Style
+  getter style : ACON::Helper::Table::Style
   @column_styles = Hash(Int32, ACON::Helper::Table::Style).new
   @column_widths = Hash(Int32, Int32).new
   @column_max_widths = Hash(Int32, Int32).new
@@ -76,30 +131,14 @@ class Athena::Console::Helper::Table
 
   @output : ACON::Output::Interface
 
-  @@styles : Hash(String, ACON::Helper::Table::Style)? = nil
-
-  def self.set_style_definition(name : String, style : ACON::Helper::Table::Style) : Nil
-    @@styles ||= init_styles
-
-    @@styles[name] = style
-  end
-
-  def self.style_definition(name : String) : ACON::Helper::Table::Style
-    @@styles ||= init_styles
-
-    @@styles[style]? || raise ACON::Exceptions::InvalidArgument.new "The table style '#{style}' is not defined."
-  end
-
-  protected def self.init_styles : Hash(String, ACON::Helper::Table::Style)
-    {
-      "default" => ACON::Helper::Table::Style.new,
-    }
-  end
-
   def initialize(@output : ACON::Output::Interface)
-    @@styles ||= self.class.init_styles
-
     @style = ACON::Helper::Table::Style.new
+  end
+
+  def style(name : String) : self
+    @style = self.resolve_style name
+
+    self
   end
 
   def column_style(index : Int32, style : ACON::Helper::Table::Style | String) : self
@@ -569,6 +608,6 @@ class Athena::Console::Helper::Table
   end
 
   private def resolve_style(style : String) : Style
-    @@styles[style]? || raise ACON::Exceptions::InvalidArgument.new "The table style '#{style}' is not defined."
+    self.class.styles[style]? || raise ACON::Exceptions::InvalidArgument.new "The table style '#{style}' is not defined."
   end
 end

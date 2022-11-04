@@ -113,5 +113,6 @@ table = Athena::Console::Helper::Table.new output
 table.headers ["id", "active", "balance"]
 # table.rows [["123"]]
 table.add_row 1_i64, "f", 102.2
+table.style "double-box"
 
 table.render
