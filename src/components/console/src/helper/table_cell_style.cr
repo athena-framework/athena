@@ -1,4 +1,4 @@
-struct Athena::Console::Helper::Table::Cell::Style
+struct Athena::Console::Helper::Table::CellStyle
   enum Align
     DEFAULT
     LEFT
@@ -14,18 +14,18 @@ struct Athena::Console::Helper::Table::Cell::Style
 
   getter foreground : String
   getter background : String
-  getter align : ACON::Helper::Table::Cell::Style::Align
+  getter align : ACON::Helper::Table::CellStyle::Align
   getter format : String?
 
   def initialize(
     @foreground : String = "default",
     @background : String = "default",
-    @align : ACON::Helper::Table::Cell::Style::Align = :default,
+    @align : ACON::Helper::Table::CellStyle::Align = :default,
     @format : String? = nil
   )
   end
 
-  def pad_type : ACON::Helper::Table::Cell::Style::Pad
+  def pad_type : ACON::Helper::Table::CellStyle::Pad
     case @align
     in .left?, .default? then :right
     in .right?           then :left

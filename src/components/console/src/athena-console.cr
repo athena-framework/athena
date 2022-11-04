@@ -110,7 +110,10 @@ output = ACON::Output::IO.new STDOUT
 
 table = Athena::Console::Helper::Table.new output
 
-table.headers ["foo"]
+table.headers ["id", "active", "balance"]
 # table.rows [["123"]]
+table.add_row 1_i64, false, 102.2
+
+table.render
 
 pp table
