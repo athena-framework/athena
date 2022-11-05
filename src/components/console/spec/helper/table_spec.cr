@@ -5,7 +5,7 @@ struct TableSpec < ASPEC::TestCase
   @output : IO
 
   protected def get_table_contents(table_name : String) : String
-    File.read File.join __DIR__, "..", "fixtures", "helper", "#{table_name}.txt"
+    File.read File.join __DIR__, "..", "fixtures", "helper", "table", "#{table_name}.txt"
   end
 
   def initialize
@@ -77,6 +77,78 @@ struct TableSpec < ASPEC::TestCase
         ],
         "double-box",
         self.get_table_contents("double_box_seperator"),
+        false,
+      },
+      {
+        ["ISBN", "Title"],
+        [
+          ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
+          ["9971-5-0210-0"],
+          ["960-425-059-0", "The Lord of the Rings", "J. R. R. Tolkien"],
+          ["80-902734-1-6", "And Then There Were None", "Agatha Christie"],
+        ],
+        "default",
+        self.get_table_contents("default_missing_cell_values"),
+        false,
+      },
+      {
+        [] of String,
+        [
+          ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
+          ["9971-5-0210-0"],
+          ["960-425-059-0", "The Lord of the Rings", "J. R. R. Tolkien"],
+          ["80-902734-1-6", "And Then There Were None", "Agatha Christie"],
+        ],
+        "default",
+        self.get_table_contents("default_headerless"),
+        false,
+      },
+      {
+        ["ISBN", "Title", "Author"],
+        [
+          ["99921-58-10-7", "Divine\nComedy", "Dante Alighieri"],
+          ["9971-5-0210-2", "Harry Potter\nand the Chamber of Secrets", "Rowling\nJoanne K."],
+          ["9971-5-0210-2", "Harry Potter\nand the Chamber of Secrets", "Rowling\nJoanne K."],
+          ["960-425-059-0", "The Lord of the Rings", "J. R. R.\nTolkien"],
+        ],
+        "default",
+        self.get_table_contents("default_multiline_cells"),
+        false,
+      },
+      {
+        ["ISBN", "Title"],
+        [] of String,
+        "default",
+        self.get_table_contents("default_no_rows"),
+        false,
+      },
+      {
+        [] of String,
+        [] of String,
+        "default",
+        "",
+        false,
+      },
+      # Tags used for output formatting
+      {
+        ["ISBN", "Title", "Author"],
+        [
+          ["<info>99921-58-10-7</info>", "<error>Divine Comedy</error>", "<fg=blue;bg=white>Dante Alighieri</fg=blue;bg=white>"],
+          ["9971-5-0210-0", "A Tale of Two Cities", "<info>Charles Dickens</>"],
+        ],
+        "default",
+        self.get_table_contents("default_cells_with_formatting_tags"),
+        false,
+      },
+      # Tags not used for output formatting
+      {
+        ["ISBN", "Title", "Author"],
+        [
+          ["<strong>99921-58-10-700</strong>", "<f>Divine Com</f>", "Dante Alighieri"],
+          ["9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens"],
+        ],
+        "default",
+        self.get_table_contents("default_cells_with_non_formatting_tags"),
         false,
       },
     }

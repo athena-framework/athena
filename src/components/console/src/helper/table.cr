@@ -41,7 +41,7 @@ class Athena::Console::Helper::Table
   private struct Row
     alias Type = String | Table::Cell
 
-    include Enumerable(Type)
+    include Indexable::Mutable(Type)
 
     @columns : Array(Type)
 
@@ -51,6 +51,18 @@ class Athena::Console::Helper::Table
 
     def initialize(columns : Enumerable(Type))
       @columns = columns.to_a.map &.as Type
+    end
+
+    def size : Int
+      @columns.size
+    end
+
+    def unsafe_fetch(index : Int) : Type
+      @columns[index]
+    end
+
+    def unsafe_put(index : Int, value : Type) : Nil
+      @columns[index] = value
     end
 
     def each(& : Type ->) : Nil
@@ -202,6 +214,11 @@ class Athena::Console::Helper::Table
   end
 
   # Overrides the rows of this table to those provided in *rows*.
+  def rows(rows : RowType) : self
+    self.rows({rows})
+  end
+
+  # Overrides the rows of this table to those provided in *rows*.
   def rows(rows : Enumerable(RowType)) : self
     @rows.clear
 
@@ -293,13 +310,13 @@ class Athena::Console::Helper::Table
       # end
     elsif @orientation.vertical?
     else
-      @headers.each { |h| rows << Row.new h }
+      @headers.each { |h| rows << Row.new h unless h.empty? }
       rows << divider
       @rows.each do |r|
-        rows << case r
-        when Table::TableSeperator then r
+        case r
+        when Table::TableSeperator then rows << r
         else
-          Row.new r
+          rows << Row.new r unless r.empty?
         end
       end
     end
@@ -376,7 +393,8 @@ class Athena::Console::Helper::Table
   private def build_table_rows(rows : Array(InternalRowType)) : Rows
     formatter = @output.formatter.as ACON::Formatter::WrappableInterface
 
-    unmerged_rows = [] of String
+    # row_key => line_key => column idx
+    unmerged_rows = Hash(Int32, Hash(Int32, Hash(Int32, String | Table::Cell))).new
 
     rows.size.times do |row_key|
       rows = self.fill_next_rows rows, row_key
@@ -393,16 +411,38 @@ class Athena::Console::Helper::Table
 
         next unless cell_value.includes? '\n'
 
-        raise "Cell contained new line"
+        escaped = cell_value.split('\n').join '\n' { |v| ACON::Formatter::Output.escape_trailing_backslash v }
+        cell = cell.is_a?(Table::Cell) ? Table::Cell.new(escaped, colspan: cell.colspan) : escaped
+        cell_value = cell.to_s
+        lines = cell_value.gsub('\n', "<fg=default;bg=default></>\n").split '\n'
+        lines.each_with_index do |line, line_key|
+          if colspan > 1
+            line = Table::Cell.new line, colspan: colspan
+          end
+
+          if line_key.zero?
+            rows[row_key].as(Row)[column] = line
+          else
+            if !unmerged_rows.has_key?(row_key) || !unmerged_rows[row_key].has_key? line_key
+              (unmerged_rows[row_key] ||= Hash(Int32, Hash(Int32, String | Table::Cell)).new)[line_key] = self.copy_row rows, row_key
+            end
+
+            unmerged_rows[row_key][line_key][column] = line
+          end
+        end
       end
     end
 
     row_groups = [] of Array(Rows::Type)
 
     rows.each_with_index do |row, row_key|
-      row_group = [row.is_a?(ACON::Helper::Table::TableSeperator) ? row : self.fill_cells(row)] of Rows::Type
+      row_group = [row.is_a?(Table::TableSeperator) ? row : self.fill_cells(row)] of Rows::Type
 
-      # TODO: Handle unmerged rows
+      if ur = unmerged_rows[row_key]?
+        ur.each_value do |row|
+          row_group << (row.is_a?(Table::TableSeperator) ? row : self.fill_cells(row))
+        end
+      end
 
       row_groups << row_group
     end
@@ -439,7 +479,35 @@ class Athena::Console::Helper::Table
       end
     end
 
-    new_row.empty? ? row.to_a : new_row
+    new_row.empty? ? Array(Row::Type).new : new_row
+  end #
+
+  # OPTIMIZE: See about making Row an Enumerable({Int32, Row::Type}) to allow both Row and Hash contexts
+  private def fill_cells(row : Hash(Int32, Row::Type)) : Array(Row::Type)
+    new_row = [] of String | ACON::Helper::Table::Cell
+
+    row.each do |column, cell|
+      new_row << cell
+
+      if cell.is_a?(ACON::Helper::Table::Cell) && cell.colspan > 1
+        raise "Colspan > 1"
+      end
+    end
+
+    new_row
+  end
+
+  private def copy_row(rows : Array(InternalRowType), line : Int32) : Hash(Int32, String | Table::Cell)
+    new_row = Hash(Int32, String | Table::Cell).new
+    rows[line].as(Row).each_with_index do |cell_value, cell_key|
+      new_row[cell_key] = ""
+
+      if cell_value.is_a? Table::Cell
+        new_row[cell_key] = Table::Cell.new("", colspan: cell_value.colspan)
+      end
+    end
+
+    new_row
   end
 
   private def calculate_number_of_columns(rows : Enumerable) : Nil
@@ -525,6 +593,8 @@ class Athena::Console::Helper::Table
                                                      end
 
     markup = String.build do |io|
+      break if count.zero?
+
       io << left_char
 
       count.times do |column|
@@ -536,6 +606,8 @@ class Athena::Console::Helper::Table
         raise "Title was not nil"
       end
     end
+
+    return unless markup.presence
 
     @output.puts sprintf @style.border_format, markup
   end
