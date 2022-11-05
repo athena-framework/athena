@@ -5,23 +5,41 @@ class Athena::Console::Helper::Table
     VERTICAL
   end
 
-  record Athena::Console::Helper::Table::Cell, value : String = "", rowspan : Int32 = 1, colspan : Int32 = 1, style : ACON::Helper::Table::CellStyle? = nil do
+  class Cell
+    getter rowspan : Int32
+    getter colspan : Int32
+
+    @value : String
+    @style : Table::CellStyle?
+
+    def initialize(
+      @value : String = "",
+      @rowspan : Int32 = 1,
+      @colspan : Int32 = 1,
+      @style : Table::CellStyle? = nil
+    )
+    end
+
     def to_s(io : IO) : Nil
       io << @value
     end
   end
 
-  record Athena::Console::Helper::Table::TableSeperator, rowspan : Int32 = 1, colspan : Int32 = 1, style : ACON::Helper::Table::CellStyle? = nil do
-    def to_s(io : IO) : Nil
-      io << @value
+  class TableSeperator < Table::Cell
+    def initialize(
+      rowspan : Int32 = 1,
+      colspan : Int32 = 1,
+      style : Table::CellStyle? = nil
+    )
+      super "", rowspan, colspan, style
     end
   end
 
   alias CellType = String | Int64 | Float64 | Bool | Athena::Console::Helper::Table::Cell
-  alias RowType = Enumerable(CellType) | Athena::Console::Helper::Table::TableSeperator
+  alias RowType = Enumerable(CellType) | Table::TableSeperator
 
   private struct Row
-    alias Type = String | Athena::Console::Helper::Table::Cell
+    alias Type = String | Table::Cell
 
     include Enumerable(Type)
 
@@ -118,7 +136,7 @@ class Athena::Console::Helper::Table
   setter footer_title : String? = nil
 
   @headers = [] of Array(String)
-  @rows = Array(Row).new
+  @rows = Array(Row | Table::TableSeperator).new
 
   @effective_column_widths = Hash(Int32, Int32).new
   @number_of_columns : Int32? = nil
@@ -206,14 +224,12 @@ class Athena::Console::Helper::Table
   end
 
   # Adds a single new row
-  def add_row(row : Athena::Console::Helper::Table::Cell) : self
-    @rows << row
-
-    self
-  end
-
   def add_row(row : RowType) : self
-    @rows << Row.new row
+    @rows << case row
+    when Table::TableSeperator then row
+    else
+      Row.new row
+    end
 
     self
   end
@@ -279,7 +295,13 @@ class Athena::Console::Helper::Table
     else
       @headers.each { |h| rows << Row.new h }
       rows << divider
-      @rows.each { |h| rows << Row.new h }
+      @rows.each do |r|
+        rows << case r
+        when Table::TableSeperator then r
+        else
+          Row.new r
+        end
+      end
     end
 
     self.calculate_number_of_columns rows

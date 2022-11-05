@@ -106,13 +106,21 @@ module Athena::Console
   module Loader; end
 end
 
-output = ACON::Output::IO.new STDOUT
+# rows = [
+#   ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
+#   ["9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens"],
+#   ACON::Helper::Table::TableSeperator.new,
+#   ["960-425-059-0", "The Lord of the Rings", "J. R. R. Tolkien"],
+#   ["80-902734-1-6", "And Then There Were None", "Agatha Christie"],
+# ]
 
-table = Athena::Console::Helper::Table.new output
+# headers = ["ISBN", "Title", "Author"]
+# style = "double-box"
 
-table.headers ["id", "active", "balance"]
-# table.rows [["123"]]
-table.add_row 1_i64, "f", 102.2
-table.style "double-box"
+# table = ACON::Helper::Table.new ACON::Output::IO.new STDOUT
+# table
+#   .headers(headers)
+#   .rows(rows)
+#   .style(style)
 
-table.render
+# table.render
