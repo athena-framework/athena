@@ -8,9 +8,9 @@ class Athena::Console::Helper::Table
   class Cell
     getter rowspan : Int32
     getter colspan : Int32
+    getter style : Table::CellStyle?
 
     @value : String
-    @style : Table::CellStyle?
 
     def initialize(
       @value : String = "",
@@ -74,7 +74,7 @@ class Athena::Console::Helper::Table
 
   # OPTIMIZE: Can this be merged into `Row`?
   private struct Rows
-    alias Type = Athena::Console::Helper::Table::TableSeperator | Array(Row::Type)
+    alias Type = Table::TableSeperator | Array(Row::Type)
 
     include Enumerable(Type)
 
@@ -469,28 +469,32 @@ class Athena::Console::Helper::Table
 
   # Fills cells for a colspan > 1
   private def fill_cells(row : Row) : Array(Row::Type)
-    new_row = [] of String | ACON::Helper::Table::Cell
+    new_row = [] of String | Table::Cell
 
     row.each_with_index do |cell, column|
       new_row << cell
 
-      if cell.is_a?(ACON::Helper::Table::Cell) && cell.colspan > 1
-        raise "Colspan > 1"
+      if cell.is_a?(Table::Cell) && cell.colspan > 1
+        ((column + 1)...(column + cell.colspan)).each do
+          new_row << ""
+        end
       end
     end
 
-    new_row.empty? ? Array(Row::Type).new : new_row
+    new_row.empty? ? row.to_a : new_row
   end #
 
   # OPTIMIZE: See about making Row an Enumerable({Int32, Row::Type}) to allow both Row and Hash contexts
   private def fill_cells(row : Hash(Int32, Row::Type)) : Array(Row::Type)
-    new_row = [] of String | ACON::Helper::Table::Cell
+    new_row = [] of String | Table::Cell
 
     row.each do |column, cell|
       new_row << cell
 
-      if cell.is_a?(ACON::Helper::Table::Cell) && cell.colspan > 1
-        raise "Colspan > 1"
+      if cell.is_a?(Table::Cell) && cell.colspan > 1
+        ((column + 1)...(column + cell.colspan)).each do
+          new_row << ""
+        end
       end
     end
 
@@ -528,11 +532,24 @@ class Athena::Console::Helper::Table
 
       groups.each do |group|
         group.each do |row|
-          next if row.is_a? ACON::Helper::Table::TableSeperator
+          # Avoid mutating the actual row, as the logic below is just used to calculate widths
+          row = row.dup
+
+          next if row.is_a? Table::TableSeperator
 
           row.each_with_index do |cell, idx|
-            if cell.is_a? ACON::Helper::Table::Cell
-              raise "cell was table cell"
+            if cell.is_a? Table::Cell
+              text_content = Helper.remove_decoration @output.formatter, cell.to_s
+              text_length = Helper.width text_content
+
+              if text_length > 0
+                # Split content into an array of n chars each
+                content_columns = text_content.split(/(#{"." * (text_length / cell.colspan).ceil.to_i})/, remove_empty: true)
+
+                content_columns.each_with_index do |content, position|
+                  row[idx + position] = content
+                end
+              end
             end
 
             lengths << self.get_cell_width row, column
@@ -555,6 +572,10 @@ class Athena::Console::Helper::Table
     cell_width = Math.max cell_width, column_width
 
     (max_width = @column_max_widths[column]?) ? Math.min(max_width, cell_width) : cell_width
+  end
+
+  private def get_column_separator_width : Int32
+    Helper.width sprintf @style.border_format, @style.border_chars[3]
   end
 
   private def get_number_of_columns(row : Enumerable) : Int32
@@ -634,11 +655,15 @@ class Athena::Console::Helper::Table
   end
 
   private def render_cell(row : Rows::Type, column : Int32, cell_format : String) : String
-    cell = (row[column]? || "").to_s
+    cell = (row[column]? || "")
+    cell_value = cell.to_s
     width = @effective_column_widths[column]
 
-    if cell.is_a? Cell && cell.colspan > 1
-      raise "Colspan > 1"
+    if cell.is_a?(Table::Cell) && cell.colspan > 1
+      # Add the width of the following columns (numbers of colspan)
+      ((column + 1)..(column + cell.colspan - 1)).each do |next_column|
+        width += self.get_column_separator_width + @effective_column_widths[next_column]
+      end
     end
 
     # TODO: Handle multi-byte strings?
@@ -649,10 +674,10 @@ class Athena::Console::Helper::Table
       return sprintf style.border_format, style.border_chars[2] * width
     end
 
-    width += cell.size - Helper.remove_decoration(@output.formatter, cell).size
-    content = sprintf style.cell_row_content_format, cell
+    width += cell_value.size - Helper.remove_decoration(@output.formatter, cell_value).size
+    content = sprintf style.cell_row_content_format, cell_value
 
-    if cell.is_a?(Cell) && cell.style.is_a?(CellStyle)
+    if cell.is_a?(Table::Cell) && cell.style.is_a?(CellStyle)
       raise "Cell is table cell"
     end
 
@@ -663,8 +688,9 @@ class Athena::Console::Helper::Table
     columns = (0...@number_of_columns).to_a
 
     row.each_with_index do |cell, cell_key|
-      if cell.is_a? ACON::Helper::Table::Cell
-        raise "Cell is table cell"
+      if cell.is_a? Table::Cell
+        # Exclude grouped columns
+        columns = columns - ((cell_key + 1)...(cell_key + cell.colspan)).to_a
       end
     end
 
