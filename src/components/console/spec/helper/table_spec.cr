@@ -71,7 +71,7 @@ struct TableSpec < ASPEC::TestCase
         [
           ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
           ["9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens"],
-          ACON::Helper::Table::TableSeparator.new,
+          ACON::Helper::Table::Separator.new,
           ["960-425-059-0", "The Lord of the Rings", "J. R. R. Tolkien"],
           ["80-902734-1-6", "And Then There Were None", "Agatha Christie"],
         ],
@@ -153,21 +153,21 @@ struct TableSpec < ASPEC::TestCase
         [["ISBN", "Title", "Author"]],
         [
           ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
-          ACON::Helper::Table::TableSeparator.new,
+          ACON::Helper::Table::Separator.new,
           [
             ACON::Helper::Table::Cell.new("Divine Comedy(Dante Alighieri)", colspan: 3),
           ],
-          ACON::Helper::Table::TableSeparator.new,
+          ACON::Helper::Table::Separator.new,
           [
             ACON::Helper::Table::Cell.new("Arduino: A Quick-Start Guide", colspan: 2),
             "Mark Schmidt",
           ],
-          ACON::Helper::Table::TableSeparator.new,
+          ACON::Helper::Table::Separator.new,
           [
             "9971-5-0210-0",
             ACON::Helper::Table::Cell.new("A Tale of \nTwo Cities", colspan: 2),
           ],
-          ACON::Helper::Table::TableSeparator.new,
+          ACON::Helper::Table::Separator.new,
           [
             ACON::Helper::Table::Cell.new("Cupiditate dicta atque porro, tempora exercitationem modi animi nulla nemo vel nihil!", colspan: 3),
           ],
@@ -210,7 +210,7 @@ struct TableSpec < ASPEC::TestCase
           ],
           [] of String,
           ["The Lord of \nthe Rings", "J. R. \nR. Tolkien"],
-          ACON::Helper::Table::TableSeparator.new,
+          ACON::Helper::Table::Separator.new,
           ["80-902734-1-6", ACON::Helper::Table::Cell.new("And Then \nThere \nWere None", rowspan: 3), "Agatha Christie"],
           ["80-902734-1-7", "Test"],
         ],
@@ -226,7 +226,7 @@ struct TableSpec < ASPEC::TestCase
             "Dante Alighieri",
           ],
           ["Charles Dickens"],
-          ACON::Helper::Table::TableSeparator.new,
+          ACON::Helper::Table::Separator.new,
           [
             "Dante Alighieri",
             ACON::Helper::Table::Cell.new("9971-5-0210-0", rowspan: 3, colspan: 2),
@@ -246,13 +246,13 @@ struct TableSpec < ASPEC::TestCase
             "Dante Alighieri",
           ],
           ["Charles Dickens"],
-          ACON::Helper::Table::TableSeparator.new,
+          ACON::Helper::Table::Separator.new,
           [
             "Dante Alighieri",
             ACON::Helper::Table::Cell.new("9971\n-5-\n021\n0-0", rowspan: 2, colspan: 2),
           ],
           ["Charles Dickens"],
-          ACON::Helper::Table::TableSeparator.new,
+          ACON::Helper::Table::Separator.new,
           [
             ACON::Helper::Table::Cell.new("9971\n-5-\n021\n0-0", rowspan: 2, colspan: 2),
             ACON::Helper::Table::Cell.new("Dante \nAlighieri", rowspan: 2, colspan: 1),
@@ -287,7 +287,7 @@ struct TableSpec < ASPEC::TestCase
             ACON::Helper::Table::Cell.new("9971-5-0210-0", rowspan: 3, colspan: 1),
             "Dante Alighieri",
           ],
-          [ACON::Helper::Table::TableSeparator.new],
+          [ACON::Helper::Table::Separator.new],
           ["Charles Dickens"],
         ],
         "default",
@@ -328,7 +328,7 @@ struct TableSpec < ASPEC::TestCase
           [
             ACON::Helper::Table::Cell.new("9971-5-0210-0", colspan: 3),
           ],
-          ACON::Helper::Table::TableSeparator.new,
+          ACON::Helper::Table::Separator.new,
           [
             "Dante Alighieri",
             "J. R. R. Tolkien",
@@ -345,7 +345,7 @@ struct TableSpec < ASPEC::TestCase
           [
             ACON::Helper::Table::Cell.new("<error>Dont break\nhere</error>", colspan: 2),
           ],
-          ACON::Helper::Table::TableSeparator.new,
+          ACON::Helper::Table::Separator.new,
           [
             "foo",
             ACON::Helper::Table::Cell.new("<error>Dont break\nhere</error>", rowspan: 2),
@@ -378,7 +378,7 @@ struct TableSpec < ASPEC::TestCase
             "<info>99921-58-10-7</info>",
             "Divine Comedy",
           ],
-          ACON::Helper::Table::TableSeparator.new,
+          ACON::Helper::Table::Separator.new,
           [
             ACON::Helper::Table::Cell.new("<error>test</error>", colspan: 2, style: ACON::Helper::Table::CellStyle.new(align: :center)),
             ACON::Helper::Table::Cell.new("tttt", style: ACON::Helper::Table::CellStyle.new(align: :right)),
@@ -400,7 +400,7 @@ struct TableSpec < ASPEC::TestCase
             "<info>99921-58-10-7</info>",
             "Divine Comedy",
           ],
-          ACON::Helper::Table::TableSeparator.new,
+          ACON::Helper::Table::Separator.new,
           [
             ACON::Helper::Table::Cell.new("<error>test</error>", colspan: 2, style: ACON::Helper::Table::CellStyle.new(foreground: "red", background: "green", align: :center)),
             ACON::Helper::Table::Cell.new("tttt", style: ACON::Helper::Table::CellStyle.new(foreground: "red", background: "green", align: :right)),
@@ -435,11 +435,428 @@ struct TableSpec < ASPEC::TestCase
     }
   end
 
+  @[Pending]
+  # TODO: Enable when multi byte string widths are supported
+  def test_render_multi_byte : Nil
+    table = ACON::Helper::Table.new output = self.io_output
+    table
+      .headers(["🍝"])
+      .rows([[1234]])
+      .style("default")
+
+    table.render
+
+    self.output_content(output).should eq <<-TABLE
+    +------+
+    | 🍝   |
+    +------+
+    | 1234 |
+    +------+
+
+    TABLE
+  end
+
+  def test_render_table_cell_numeric_int_value : Nil
+    table = ACON::Helper::Table.new output = self.io_output
+    table
+      .rows([[ACON::Helper::Table::Cell.new(1234)]])
+
+    table.render
+
+    self.output_content(output).should eq <<-TABLE
+    +------+
+    | 1234 |
+    +------+
+
+    TABLE
+  end
+
+  def test_render_table_cell_numeric_float_value : Nil
+    table = ACON::Helper::Table.new output = self.io_output
+    table
+      .rows([[ACON::Helper::Table::Cell.new(3.14)]])
+
+    table.render
+
+    self.output_content(output).should eq <<-TABLE
+    +------+
+    | 3.14 |
+    +------+
+
+    TABLE
+  end
+
+  def test_render_custom_style : Nil
+    style = ACON::Helper::Table::Style.new
+    style
+      .horizontal_border_chars('.')
+      .vertical_border_chars('.')
+      .default_crossing_char('.')
+
+    ACON::Helper::Table.set_style_definition "dotfull", style
+    table = ACON::Helper::Table.new output = self.io_output
+    table
+      .headers(["Foo"])
+      .rows([["Bar"]])
+      .style("dotfull")
+
+    table.render
+
+    self.output_content(output).should eq <<-TABLE
+    .......
+    . Foo .
+    .......
+    . Bar .
+    .......
+
+    TABLE
+  end
+
+  def test_render_multiple_times : Nil
+    table = ACON::Helper::Table.new output = self.io_output
+    table
+      .rows([[ACON::Helper::Table::Cell.new("foo", colspan: 2)]])
+
+    table.render
+    table.render
+    table.render
+
+    self.output_content(output).should eq <<-TABLE
+    +----+---+
+    | foo    |
+    +----+---+
+    +----+---+
+    | foo    |
+    +----+---+
+    +----+---+
+    | foo    |
+    +----+---+
+
+    TABLE
+  end
+
+  def test_column_style : Nil
+    table = ACON::Helper::Table.new output = self.io_output
+    table
+      .headers(["ISBN", "Title", "Author", "Price"])
+      .rows([
+        ["99921-58-10-7", "Divine Comedy", "Dante Alighieri", "9.95"],
+        ["9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"],
+      ])
+
+    style = ACON::Helper::Table::Style.new
+    style.align = :left
+    table.column_style 3, style
+
+    table.render
+
+    self.output_content(output).should eq <<-TABLE
+    +---------------+----------------------+-----------------+--------+
+    | ISBN          | Title                | Author          |  Price |
+    +---------------+----------------------+-----------------+--------+
+    | 99921-58-10-7 | Divine Comedy        | Dante Alighieri |   9.95 |
+    | 9971-5-0210-0 | A Tale of Two Cities | Charles Dickens | 139.25 |
+    +---------------+----------------------+-----------------+--------+
+
+    TABLE
+  end
+
+  def test_column_width : Nil
+    table = ACON::Helper::Table.new output = self.io_output
+    table
+      .headers(["ISBN", "Title", "Author", "Price"])
+      .rows([
+        ["99921-58-10-7", "Divine Comedy", "Dante Alighieri", "9.95"],
+        ["9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"],
+      ])
+      .column_width(0, 15)
+      .column_width(3, 10)
+
+    style = ACON::Helper::Table::Style.new
+    style.align = :left
+    table.column_style 3, style
+
+    table.render
+
+    self.output_content(output).should eq <<-TABLE
+    +-----------------+----------------------+-----------------+------------+
+    | ISBN            | Title                | Author          |      Price |
+    +-----------------+----------------------+-----------------+------------+
+    | 99921-58-10-7   | Divine Comedy        | Dante Alighieri |       9.95 |
+    | 9971-5-0210-0   | A Tale of Two Cities | Charles Dickens |     139.25 |
+    +-----------------+----------------------+-----------------+------------+
+
+    TABLE
+  end
+
+  def test_column_widths : Nil
+    table = ACON::Helper::Table.new output = self.io_output
+    table
+      .headers(["ISBN", "Title", "Author", "Price"])
+      .rows([
+        ["99921-58-10-7", "Divine Comedy", "Dante Alighieri", "9.95"],
+        ["9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"],
+      ])
+      .column_widths(15, 0, -1, 10)
+
+    style = ACON::Helper::Table::Style.new
+    style.align = :left
+    table.column_style 3, style
+
+    table.render
+
+    self.output_content(output).should eq <<-TABLE
+    +-----------------+----------------------+-----------------+------------+
+    | ISBN            | Title                | Author          |      Price |
+    +-----------------+----------------------+-----------------+------------+
+    | 99921-58-10-7   | Divine Comedy        | Dante Alighieri |       9.95 |
+    | 9971-5-0210-0   | A Tale of Two Cities | Charles Dickens |     139.25 |
+    +-----------------+----------------------+-----------------+------------+
+
+    TABLE
+  end
+
+  def test_append_row : Nil
+    sections = [] of ACON::Output::Section
+
+    output = self.io_output true
+
+    table = ACON::Helper::Table.new ACON::Output::Section.new output.io, sections, output.verbosity, output.decorated?, ACON::Formatter::Output.new
+
+    table
+      .headers(["ISBN", "Title", "Author", "Price"])
+      .rows([
+        ["99921-58-10-7", "Divine Comedy", "Dante Alighieri", "9.95"],
+      ])
+
+    table.render
+
+    table.append_row ["9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"]
+    table.append_row "9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"
+
+    self.output_content(output).should eq <<-TABLE
+    +---------------+---------------+-----------------+-------+
+    |[32m ISBN          [0m|[32m Title         [0m|[32m Author          [0m|[32m Price [0m|
+    +---------------+---------------+-----------------+-------+
+    | 99921-58-10-7 | Divine Comedy | Dante Alighieri | 9.95  |
+    +---------------+---------------+-----------------+-------+
+    [5A[0J+---------------+----------------------+-----------------+--------+
+    |[32m ISBN          [0m|[32m Title                [0m|[32m Author          [0m|[32m Price  [0m|
+    +---------------+----------------------+-----------------+--------+
+    | 99921-58-10-7 | Divine Comedy        | Dante Alighieri | 9.95   |
+    | 9971-5-0210-0 | A Tale of Two Cities | Charles Dickens | 139.25 |
+    +---------------+----------------------+-----------------+--------+
+    [6A[0J+---------------+----------------------+-----------------+--------+
+    |[32m ISBN          [0m|[32m Title                [0m|[32m Author          [0m|[32m Price  [0m|
+    +---------------+----------------------+-----------------+--------+
+    | 99921-58-10-7 | Divine Comedy        | Dante Alighieri | 9.95   |
+    | 9971-5-0210-0 | A Tale of Two Cities | Charles Dickens | 139.25 |
+    | 9971-5-0210-0 | A Tale of Two Cities | Charles Dickens | 139.25 |
+    +---------------+----------------------+-----------------+--------+
+
+    TABLE
+  end
+
+  def test_append_row_doesnt_clear_if_not_rendered : Nil
+    sections = [] of ACON::Output::Section
+
+    output = self.io_output true
+
+    table = ACON::Helper::Table.new ACON::Output::Section.new output.io, sections, output.verbosity, output.decorated?, ACON::Formatter::Output.new
+
+    table
+      .headers(["ISBN", "Title", "Author", "Price"])
+      .rows([
+        ["99921-58-10-7", "Divine Comedy", "Dante Alighieri", "9.95"],
+      ])
+
+    table.append_row "9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"
+
+    self.output_content(output).should eq <<-TABLE
+    +---------------+----------------------+-----------------+--------+
+    |[32m ISBN          [0m|[32m Title                [0m|[32m Author          [0m|[32m Price  [0m|
+    +---------------+----------------------+-----------------+--------+
+    | 99921-58-10-7 | Divine Comedy        | Dante Alighieri | 9.95   |
+    | 9971-5-0210-0 | A Tale of Two Cities | Charles Dickens | 139.25 |
+    +---------------+----------------------+-----------------+--------+
+
+    TABLE
+  end
+
+  def test_append_row_without_decoration : Nil
+    sections = [] of ACON::Output::Section
+
+    output = self.io_output
+
+    table = ACON::Helper::Table.new ACON::Output::Section.new output.io, sections, output.verbosity, output.decorated?, ACON::Formatter::Output.new
+
+    table
+      .headers(["ISBN", "Title", "Author", "Price"])
+      .rows([
+        ["99921-58-10-7", "Divine Comedy", "Dante Alighieri", "9.95"],
+      ])
+
+    table.render
+
+    table.append_row "9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"
+
+    self.output_content(output).should eq <<-TABLE
+    +---------------+---------------+-----------------+-------+
+    | ISBN          | Title         | Author          | Price |
+    +---------------+---------------+-----------------+-------+
+    | 99921-58-10-7 | Divine Comedy | Dante Alighieri | 9.95  |
+    +---------------+---------------+-----------------+-------+
+    +---------------+----------------------+-----------------+--------+
+    | ISBN          | Title                | Author          | Price  |
+    +---------------+----------------------+-----------------+--------+
+    | 99921-58-10-7 | Divine Comedy        | Dante Alighieri | 9.95   |
+    | 9971-5-0210-0 | A Tale of Two Cities | Charles Dickens | 139.25 |
+    +---------------+----------------------+-----------------+--------+
+
+    TABLE
+  end
+
+  def test_append_row_first_row : Nil
+    sections = [] of ACON::Output::Section
+
+    output = self.io_output true
+
+    table = ACON::Helper::Table.new ACON::Output::Section.new output.io, sections, output.verbosity, output.decorated?, ACON::Formatter::Output.new
+
+    table
+      .headers(["ISBN", "Title", "Author", "Price"])
+
+    table.render
+
+    table.append_row "9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"
+
+    self.output_content(output).should eq <<-TABLE
+    +------+-------+--------+-------+
+    |[32m ISBN [0m|[32m Title [0m|[32m Author [0m|[32m Price [0m|
+    +------+-------+--------+-------+
+    [3A[0J+---------------+----------------------+-----------------+--------+
+    |[32m ISBN          [0m|[32m Title                [0m|[32m Author          [0m|[32m Price  [0m|
+    +---------------+----------------------+-----------------+--------+
+    | 9971-5-0210-0 | A Tale of Two Cities | Charles Dickens | 139.25 |
+    +---------------+----------------------+-----------------+--------+
+
+    TABLE
+  end
+
+  def test_append_row_no_section_output : Nil
+    table = ACON::Helper::Table.new output = self.io_output
+
+    expect_raises ACON::Exceptions::Logic, "Appending a row is only supported when using a Athena::Console::Output::Section output, got Athena::Console::Output::IO." do
+      table.append_row "9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"
+    end
+  end
+
+  def test_missing_table_definition : Nil
+    table = ACON::Helper::Table.new output = self.io_output
+
+    expect_raises ACON::Exceptions::InvalidArgument, "The table style 'absent' is not defined." do
+      table.style "absent"
+    end
+  end
+
+  def test_style_definition_missing : Nil
+    expect_raises ACON::Exceptions::InvalidArgument, "The table style 'absent' is not defined." do
+      ACON::Helper::Table.style_definition "absent"
+    end
+  end
+
+  @[DataProvider("title_provider")]
+  def test_render_titles(header_title : String, footer_title : String, style : String, expected : String) : Nil
+    ACON::Helper::Table.new(output = self.io_output)
+      .header_title(header_title)
+      .footer_title(footer_title)
+      .headers(["ISBN", "Title", "Author"])
+      .rows([
+        ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
+        ["9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens"],
+        ["960-425-059-0", "The Lord of the Rings", "J. R. R. Tolkien"],
+        ["80-902734-1-6", "And Then There Were None", "Agatha Christie"],
+      ])
+      .style(style)
+      .render
+  end
+
+  def title_provider : Tuple
+    {
+      {
+        "Books",
+        "Page 1/2",
+        "default",
+        <<-'TABLE'
+        +---------------+----------- Books --------+------------------+
+        | ISBN          | Title                    | Author           |
+        +---------------+--------------------------+------------------+
+        | 99921-58-10-7 | Divine Comedy            | Dante Alighieri  |
+        | 9971-5-0210-0 | A Tale of Two Cities     | Charles Dickens  |
+        | 960-425-059-0 | The Lord of the Rings    | J. R. R. Tolkien |
+        | 80-902734-1-6 | And Then There Were None | Agatha Christie  |
+        +---------------+--------- Page 1/2 -------+------------------+
+
+        TABLE
+      },
+      {
+        "Multiline\nheader\nhere",
+        "footer",
+        "default",
+        <<-'TABLE'
+        +---------------+---- Multiline
+        header
+        here -+------------------+
+        | ISBN          | Title                    | Author           |
+        +---------------+--------------------------+------------------+
+        | 99921-58-10-7 | Divine Comedy            | Dante Alighieri  |
+        | 9971-5-0210-0 | A Tale of Two Cities     | Charles Dickens  |
+        | 960-425-059-0 | The Lord of the Rings    | J. R. R. Tolkien |
+        | 80-902734-1-6 | And Then There Were None | Agatha Christie  |
+        +---------------+---------- footer --------+------------------+
+
+        TABLE
+      },
+      {
+        "Books",
+        "Page 1/2",
+        "box",
+        <<-'TABLE'
+        ┌───────────────┬─────────── Books ────────┬──────────────────┐
+        │ ISBN          │ Title                    │ Author           │
+        ├───────────────┼──────────────────────────┼──────────────────┤
+        │ 99921-58-10-7 │ Divine Comedy            │ Dante Alighieri  │
+        │ 9971-5-0210-0 │ A Tale of Two Cities     │ Charles Dickens  │
+        │ 960-425-059-0 │ The Lord of the Rings    │ J. R. R. Tolkien │
+        │ 80-902734-1-6 │ And Then There Were None │ Agatha Christie  │
+        └───────────────┴───────── Page 1/2 ───────┴──────────────────┘
+
+        TABLE
+      },
+      {
+        "Boooooooooooooooooooooooooooooooooooooooooooooooooooooooks",
+        "Page 1/999999999999999999999999999999999999999999999999999",
+        "default",
+        <<-'TABLE'
+        +- Booooooooooooooooooooooooooooooooooooooooooooooooooooo... -+
+        | ISBN          | Title                    | Author           |
+        +---------------+--------------------------+------------------+
+        | 99921-58-10-7 | Divine Comedy            | Dante Alighieri  |
+        | 9971-5-0210-0 | A Tale of Two Cities     | Charles Dickens  |
+        | 960-425-059-0 | The Lord of the Rings    | J. R. R. Tolkien |
+        | 80-902734-1-6 | And Then There Were None | Agatha Christie  |
+        +- Page 1/99999999999999999999999999999999999999999999999... -+
+
+        TABLE
+      },
+    }
+  end
+
   private def output_content(output : ACON::Output::IO) : String
     output.to_s
   end
 
-  private def io_output(decorated : Bool) : ACON::Output::IO
+  private def io_output(decorated : Bool = false) : ACON::Output::IO
     ACON::Output::IO.new @output, decorated: decorated
   end
 end

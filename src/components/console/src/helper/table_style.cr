@@ -47,38 +47,38 @@ class Athena::Console::Helper::Table::Style
     self
   end
 
-  def header_title_format(format : String) : self
-    @header_title_format = format
+  def header_title_format(format : String | Char) : self
+    @header_title_format = format.to_s
 
     self
   end
 
-  def footer_title_format(format : String) : self
-    @footer_title_format = format
+  def footer_title_format(format : String | Char) : self
+    @footer_title_format = format.to_s
 
     self
   end
 
-  def cell_header_format(format : String) : self
-    @cell_header_format = format
+  def cell_header_format(format : String | Char) : self
+    @cell_header_format = format.to_s
 
     self
   end
 
-  def cell_row_format(format : String) : self
-    @cell_row_format = format
+  def cell_row_format(format : String | Char) : self
+    @cell_row_format = format.to_s
 
     self
   end
 
-  def cell_row_content_format(format : String) : self
-    @cell_row_content_format = format
+  def cell_row_content_format(format : String | Char) : self
+    @cell_row_content_format = format.to_s
 
     self
   end
 
-  def border_format(format : String) : self
-    @border_format = format
+  def border_format(format : String | Char) : self
+    @border_format = format.to_s
 
     self
   end
@@ -108,9 +108,9 @@ class Athena::Console::Helper::Table::Style
   #
   # * #1 *outside*
   # * #2 *inside*
-  def horizontal_border_chars(outside : String, inside : String? = nil) : self
-    @horizontal_outside_border_char = outside
-    @horizontal_inside_border_char = inside || outside
+  def horizontal_border_chars(outside : String | Char, inside : String | Char | Nil = nil) : self
+    @horizontal_outside_border_char = outside.to_s
+    @horizontal_inside_border_char = inside.try &.to_s || outside.to_s
 
     self
   end
@@ -133,9 +133,9 @@ class Athena::Console::Helper::Table::Style
   #
   # * #1 *outside*
   # * #2 *inside*
-  def vertical_border_chars(outside : String, inside : String? = nil) : self
-    @vertical_outside_border_char = outside
-    @vertical_inside_border_char = inside || outside
+  def vertical_border_chars(outside : String | Char, inside : String | Char | Nil = nil) : self
+    @vertical_outside_border_char = outside.to_s
+    @vertical_inside_border_char = inside.try &.to_s || outside.to_s
 
     self
   end
@@ -179,32 +179,32 @@ class Athena::Console::Helper::Table::Style
   # * #0 *top_middle_bottom* - defaults to *cross* if `nil`
   # * #4 *top_right_bottom* - defaults to *middle_right* if `nil`
   def crossing_chars(
-    cross : String,
-    top_left : String,
-    top_middle : String,
-    top_right : String,
-    middle_right : String,
-    bottom_right : String,
-    bottom_middle : String,
-    bottom_left : String,
-    middle_left : String,
-    top_left_bottom : String? = nil,
-    top_middle_bottom : String? = nil,
-    top_right_bottom : String? = nil
+    cross : String | Char,
+    top_left : String | Char,
+    top_middle : String | Char,
+    top_right : String | Char,
+    middle_right : String | Char,
+    bottom_right : String | Char,
+    bottom_middle : String | Char,
+    bottom_left : String | Char,
+    middle_left : String | Char,
+    top_left_bottom : String | Char | Nil = nil,
+    top_middle_bottom : String | Char | Nil = nil,
+    top_right_bottom : String | Char | Nil = nil
   ) : self
-    @crossing_char = cross
-    @crossing_top_left_char = top_left
-    @crossing_top_middle_char = top_middle
-    @crossing_top_right_char = top_right
-    @crossing_middle_right_char = middle_right
-    @crossing_bottom_right_char = bottom_right
-    @crossing_bottom_middle_char = bottom_middle
-    @crossing_bottom_left_char = bottom_left
-    @crossing_middle_left_char = middle_left
+    @crossing_char = cross.to_s
+    @crossing_top_left_char = top_left.to_s
+    @crossing_top_middle_char = top_middle.to_s
+    @crossing_top_right_char = top_right.to_s
+    @crossing_middle_right_char = middle_right.to_s
+    @crossing_bottom_right_char = bottom_right.to_s
+    @crossing_bottom_middle_char = bottom_middle.to_s
+    @crossing_bottom_left_char = bottom_left.to_s
+    @crossing_middle_left_char = middle_left.to_s
 
-    @crossing_top_left_bottom_char = top_left_bottom || middle_left
-    @crossing_top_middle_bottom_char = top_middle_bottom || cross
-    @crossing_top_right_bottom_char = top_right_bottom || middle_right
+    @crossing_top_left_bottom_char = top_left_bottom.try &.to_s || middle_left.to_s
+    @crossing_top_middle_bottom_char = top_middle_bottom.try &.to_s || cross.to_s
+    @crossing_top_right_bottom_char = top_right_bottom.try &.to_s || middle_right.to_s
 
     self
   end
@@ -212,7 +212,7 @@ class Athena::Console::Helper::Table::Style
   # Sets the default character used for each cross.
   #
   # See `#crossing_chars`.
-  def default_crossing_char(char : String) : self
+  def default_crossing_char(char : String | Char) : self
     self
       .crossing_chars(
         char,

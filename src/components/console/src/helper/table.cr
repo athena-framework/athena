@@ -13,11 +13,12 @@ class Athena::Console::Helper::Table
     @value : String
 
     def initialize(
-      @value : String = "",
+      value : _ = "",
       @rowspan : Int32 = 1,
       @colspan : Int32 = 1,
       @style : Table::CellStyle? = nil
     )
+      @value = value.to_s
     end
 
     def to_s(io : IO) : Nil
@@ -25,7 +26,7 @@ class Athena::Console::Helper::Table
     end
   end
 
-  class TableSeparator < Table::Cell
+  class Separator < Table::Cell
     def initialize(
       rowspan : Int32 = 1,
       colspan : Int32 = 1,
@@ -35,8 +36,8 @@ class Athena::Console::Helper::Table
     end
   end
 
-  alias CellType = String | Int64 | Float64 | Bool | Athena::Console::Helper::Table::Cell
-  alias RowType = Enumerable(CellType) | Table::TableSeparator
+  alias CellType = String | Int64 | Int32 | Float32 | Float64 | Bool | Athena::Console::Helper::Table::Cell
+  alias RowType = Enumerable(CellType) | Table::Separator
 
   private struct Row
     alias Type = String | Table::Cell
@@ -76,7 +77,7 @@ class Athena::Console::Helper::Table
 
   # OPTIMIZE: Can this be merged into `Row`?
   private struct Rows
-    alias Type = Table::TableSeparator | Array(Row::Type)
+    alias Type = Table::Separator | Array(Row::Type)
 
     include Enumerable(Type)
 
@@ -99,7 +100,7 @@ class Athena::Console::Helper::Table
   end
 
   def self.style_definition(name : String) : ACON::Helper::Table::Style
-    self.styles[style]? || raise ACON::Exceptions::InvalidArgument.new "The table style '#{style}' is not defined."
+    self.styles[name]? || raise ACON::Exceptions::InvalidArgument.new "The table style '#{name}' is not defined."
   end
 
   # INTERNAL
@@ -146,11 +147,11 @@ class Athena::Console::Helper::Table
     }
   end
 
-  setter header_title : String? = nil
-  setter footer_title : String? = nil
+  @header_title : String? = nil
+  @footer_title : String? = nil
 
   @headers = Array(Row).new
-  @rows = Array(Row | Table::TableSeparator).new
+  @rows = Array(Row | Table::Separator).new
 
   @effective_column_widths = Hash(Int32, Int32).new
   @number_of_columns : Int32? = nil
@@ -165,6 +166,14 @@ class Athena::Console::Helper::Table
 
   def initialize(@output : ACON::Output::Interface)
     @style = ACON::Helper::Table::Style.new
+  end
+
+  def header_title(@header_title : String?) : self
+    self
+  end
+
+  def footer_title(@footer_title : String?) : self
+    self
   end
 
   def style(name : String) : self
@@ -189,7 +198,7 @@ class Athena::Console::Helper::Table
     self
   end
 
-  def column_width(widths : Enumerable(Int32)) : self
+  def column_widths(widths : Enumerable(Int32)) : self
     @column_widths.clear
 
     widths.each_with_index do |w, idx|
@@ -199,9 +208,13 @@ class Athena::Console::Helper::Table
     self
   end
 
+  def column_widths(*widths : Int32) : self
+    self.column_widths widths
+  end
+
   def scolumn_max_width(index : Int32, width : Int32) : self
     if !@output.formatter.is_a? ACON::Formatter::WrappableInterface
-      raise ACON::Exceptions::Logic.new "Setting a maximum column width is only supported when using a #{ACON::Formatter::WrappableInterface} formatter, got #{@output.class}"
+      raise ACON::Exceptions::Logic.new "Setting a maximum column width is only supported when using a #{ACON::Formatter::WrappableInterface} formatter, got #{@output.class}."
     end
 
     @column_max_widths[index] = width
@@ -244,16 +257,10 @@ class Athena::Console::Helper::Table
     self
   end
 
-  def add_row(*columns : CellType) : self
-    self.add_row columns
-
-    self
-  end
-
   # Adds a single new row
   def add_row(row : RowType) : self
     @rows << case row
-    when Table::TableSeparator then row
+    when Table::Separator then row
     else
       Row.new row
     end
@@ -261,20 +268,30 @@ class Athena::Console::Helper::Table
     self
   end
 
-  # def append_row(row : RowType) : self
-  #   if !@output.is_a? ACON::Output::Section
-  #     raise ACON::Exceptions::Logic.new "Appending a row is only supported when using a #{ACON::Output::Section} output, got #{@output.class}"
-  #   end
+  def add_row(*columns : CellType) : self
+    self.add_row columns
 
-  #   if @rendered
-  #     @output.clear self.calculate_row_count
-  #   end
+    self
+  end
 
-  #   self.add_row row
-  #   self.render
+  def append_row(row : RowType) : self
+    unless (output = @output).is_a? ACON::Output::Section
+      raise ACON::Exceptions::Logic.new "Appending a row is only supported when using a #{ACON::Output::Section} output, got #{@output.class}."
+    end
 
-  #   self
-  # end
+    if @rendered
+      output.clear self.calculate_row_count
+    end
+
+    self.add_row row
+    self.render
+
+    self
+  end
+
+  def append_row(*columns : CellType) : self
+    self.append_row([*columns])
+  end
 
   #
   def row(index : Int32, row : RowType) : self
@@ -295,12 +312,9 @@ class Athena::Console::Helper::Table
     self
   end
 
-  private alias InternalRowType = Row | ACON::Helper::Table::TableSeparator
+  private alias InternalRowType = Row | ACON::Helper::Table::Separator
 
-  def render
-    divider = ACON::Helper::Table::TableSeparator.new
-    is_cell_with_colspan = ->(cell : CellType) { cell.is_a?(ACON::Helper::Table::Cell) && cell.colspan >= 2 }
-
+  private def combined_rows(divider : Table::Separator) : Array(InternalRowType)
     rows = Array(InternalRowType).new
 
     if @orientation.horizontal?
@@ -308,7 +322,7 @@ class Athena::Console::Helper::Table
       #   rows[idx] = [header].as RowType
 
       #   @rows.each do |row|
-      #     next if row.is_a? ACON::Helper::Table::TableSeparator
+      #     next if row.is_a? ACON::Helper::Table::Separator
 
       #     if r = row[idx]?
       #       rows[idx].as(Enumerable(CellType)) << r
@@ -324,12 +338,21 @@ class Athena::Console::Helper::Table
       rows << divider
       @rows.each do |r|
         case r
-        when Table::TableSeparator then rows << r
+        when Table::Separator then rows << r
         else
           rows << Row.new r unless r.empty?
         end
       end
     end
+
+    rows
+  end
+
+  def render
+    divider = ACON::Helper::Table::Separator.new
+    is_cell_with_colspan = ->(cell : CellType) { cell.is_a?(ACON::Helper::Table::Cell) && cell.colspan >= 2 }
+
+    rows = self.combined_rows divider
 
     self.calculate_number_of_columns rows
 
@@ -351,7 +374,7 @@ class Athena::Console::Helper::Table
           next
         end
 
-        if row.is_a? Table::TableSeparator
+        if row.is_a? Table::Separator
           self.render_row_separator
 
           next
@@ -361,7 +384,7 @@ class Athena::Console::Helper::Table
 
         if is_header && !is_header_separator_rendered
           self.render_row_separator(
-            is_header ? Separator::TOP : Separator::TOP_BOTTOM,
+            is_header ? RowSeparator::TOP : RowSeparator::TOP_BOTTOM,
             has_title ? @header_title : nil,
             has_title ? @style.header_title_format : nil
           )
@@ -372,7 +395,7 @@ class Athena::Console::Helper::Table
 
         if is_first_row
           self.render_row_separator(
-            is_header ? Separator::TOP : Separator::TOP_BOTTOM,
+            is_header ? RowSeparator::TOP : RowSeparator::TOP_BOTTOM,
             has_title ? @header_title : nil,
             has_title ? @style.header_title_format : nil
           )
@@ -396,8 +419,13 @@ class Athena::Console::Helper::Table
 
     self.render_row_separator :bottom, @footer_title, @style.footer_title_format
 
-    # self.cleanup
+    self.cleanup
     @rendered = true
+  end
+
+  private def cleanup : Nil
+    @effective_column_widths.clear
+    @number_of_columns = nil
   end
 
   private def build_table_rows(rows : Array(InternalRowType)) : Rows
@@ -449,11 +477,11 @@ class Athena::Console::Helper::Table
     row_groups = [] of Array(Rows::Type)
 
     rows.each_with_index do |row, row_key|
-      row_group = [row.is_a?(Table::TableSeparator) ? row : self.fill_cells(row)] of Rows::Type
+      row_group = [row.is_a?(Table::Separator) ? row : self.fill_cells(row)] of Rows::Type
 
       if ur = unmerged_rows[row_key]?
         ur.each_value do |row|
-          row_group << (row.is_a?(Table::TableSeparator) ? row : self.fill_cells(row))
+          row_group << (row.is_a?(Table::Separator) ? row : self.fill_cells(row))
         end
       end
 
@@ -566,7 +594,7 @@ class Athena::Console::Helper::Table
     columns = [0]
 
     rows.each do |row|
-      next if row.is_a? ACON::Helper::Table::TableSeparator
+      next if row.is_a? ACON::Helper::Table::Separator
 
       columns << self.get_number_of_columns row
     end
@@ -583,7 +611,7 @@ class Athena::Console::Helper::Table
           # Avoid mutating the actual row, as the logic below is just used to calculate widths
           row = row.dup
 
-          next if row.is_a? Table::TableSeparator
+          next if row.is_a? Table::Separator
 
           row.each_with_index do |cell, idx|
             if cell.is_a? Table::Cell
@@ -636,14 +664,28 @@ class Athena::Console::Helper::Table
     columns
   end
 
-  private enum Separator
+  private def calculate_row_count : Int32
+    number_of_rows = self.combined_rows(Table::Separator.new).size
+
+    unless @headers.empty?
+      number_of_rows += 1
+    end
+
+    unless @rows.empty?
+      number_of_rows += 1
+    end
+
+    number_of_rows
+  end
+
+  private enum RowSeparator
     TOP
     TOP_BOTTOM
     MIDDLE
     BOTTOM
   end
 
-  private def render_row_separator(type : Separator = :middle, title : String? = nil, title_format : String? = nil) : Nil
+  private def render_row_separator(type : RowSeparator = :middle, title : String? = nil, title_format : String? = nil) : Nil
     return unless (count = @number_of_columns)
 
     borders = @style.border_chars
@@ -662,7 +704,7 @@ class Athena::Console::Helper::Table
                                                      end
 
     markup = String.build do |io|
-      break if count.zero?
+      break "" if count.zero?
 
       io << left_char
 
@@ -670,10 +712,20 @@ class Athena::Console::Helper::Table
         io << horizontal * @effective_column_widths[column]
         io << ((column == (count - 1)) ? right_char : middle_char)
       end
+    end
 
-      unless title.nil?
-        raise "Title was not nil"
+    if !title.nil? && title_format
+      title_length = Helper.width Helper.remove_decoration((formatter = @output.formatter), (formatted_title = sprintf(title_format, title)))
+      markup_length = Helper.width markup
+
+      if title_length > (limit = markup_length - 4)
+        title_length = limit
+        format_length = Helper.width Helper.remove_decoration(formatter, sprintf(title_format, ""))
+        formatted_title = sprintf title_format, "#{title[0, limit - format_length - 3]}..."
       end
+
+      title_start = (markup_length - title_length) // 2
+      markup = markup.insert title_start, formatted_title
     end
 
     return unless markup.presence
@@ -714,12 +766,10 @@ class Athena::Console::Helper::Table
       end
     end
 
-    # TODO: Handle multi-byte strings?
-
     style = self.get_column_style column
     padding_style = style
 
-    if cell.is_a? TableSeparator
+    if cell.is_a? Separator
       return sprintf style.border_format, style.border_chars[2] * width
     end
 
@@ -778,7 +828,7 @@ class Athena::Console::Helper::Table
   private def iterate_row(rows : Enumerable, line : Int32, & : String | ACON::Helper::Table::Cell, Int32 ->) : Nil
     columns = rows[line]
 
-    return if columns.is_a? ACON::Helper::Table::TableSeparator
+    return if columns.is_a? ACON::Helper::Table::Separator
 
     columns.each_with_index do |cell, idx|
       yield cell, idx
