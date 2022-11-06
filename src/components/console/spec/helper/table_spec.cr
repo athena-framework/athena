@@ -304,6 +304,112 @@ struct TableSpec < ASPEC::TestCase
         self.get_table_contents("default_multiple_header_lines"),
         false,
       },
+      "Default row with multiple cells" => {
+        [[] of String],
+        [
+          [
+            ACON::Helper::Table::Cell.new("1", colspan: 3),
+            ACON::Helper::Table::Cell.new("2", colspan: 2),
+            ACON::Helper::Table::Cell.new("3", colspan: 2),
+            ACON::Helper::Table::Cell.new("4", colspan: 2),
+          ],
+        ],
+        "default",
+        self.get_table_contents("default_row_with_multiple_cells"),
+        false,
+      },
+      "Default colspan and table cells with comment style" => {
+        [
+          [
+            ACON::Helper::Table::Cell.new("<comment>Long Title</comment>", colspan: 3),
+          ],
+        ],
+        [
+          [
+            ACON::Helper::Table::Cell.new("9971-5-0210-0", colspan: 3),
+          ],
+          ACON::Helper::Table::TableSeparator.new,
+          [
+            "Dante Alighieri",
+            "J. R. R. Tolkien",
+            "J. R. R",
+          ],
+        ],
+        "default",
+        self.get_table_contents("default_colspan_and_table_cell_with_comment_style"),
+        true,
+      },
+      "Default row with formatted cells containing a newline" => {
+        [[] of String],
+        [
+          [
+            ACON::Helper::Table::Cell.new("<error>Dont break\nhere</error>", colspan: 2),
+          ],
+          ACON::Helper::Table::TableSeparator.new,
+          [
+            "foo",
+            ACON::Helper::Table::Cell.new("<error>Dont break\nhere</error>", rowspan: 2),
+          ],
+          [
+            "bar",
+          ],
+        ],
+        "default",
+        self.get_table_contents("default_formatted_row_with_line_breaks"),
+        true,
+      },
+      "Default cells with rowspan and colspan with alignment" => {
+        [
+          ACON::Helper::Table::Cell.new("ISBN", style: ACON::Helper::Table::CellStyle.new(align: :right)),
+          "Title",
+          ACON::Helper::Table::Cell.new("Author", style: ACON::Helper::Table::CellStyle.new(align: :center)),
+        ],
+        [
+          [
+            ACON::Helper::Table::Cell.new("<fg=red>978</>", style: ACON::Helper::Table::CellStyle.new(align: :center)),
+            "De Monarchia",
+            ACON::Helper::Table::Cell.new(
+              "Dante Alighieri \nspans multiple rows rows Dante Alighieri \nspans multiple rows rows",
+              rowspan: 2,
+              style: ACON::Helper::Table::CellStyle.new(align: :center)
+            ),
+          ],
+          [
+            "<info>99921-58-10-7</info>",
+            "Divine Comedy",
+          ],
+          ACON::Helper::Table::TableSeparator.new,
+          [
+            ACON::Helper::Table::Cell.new("<error>test</error>", colspan: 2, style: ACON::Helper::Table::CellStyle.new(align: :center)),
+            ACON::Helper::Table::Cell.new("tttt", style: ACON::Helper::Table::CellStyle.new(align: :right)),
+          ],
+        ],
+        "default",
+        self.get_table_contents("default_cells_with_rowspan_and_colspan_and_alignment"),
+        false,
+      },
+      "Default cells with rowspan and colspan with fg,bg" => {
+        [] of String,
+        [
+          [
+            ACON::Helper::Table::Cell.new("<fg=red>978</>", style: ACON::Helper::Table::CellStyle.new(foreground: "black", background: "green")),
+            "De Monarchia",
+            ACON::Helper::Table::Cell.new("Dante Alighieri \nspans multiple rows rows Dante Alighieri \nspans multiple rows rows", rowspan: 2, style: ACON::Helper::Table::CellStyle.new(foreground: "red", background: "green", align: :center)),
+          ],
+          [
+            "<info>99921-58-10-7</info>",
+            "Divine Comedy",
+          ],
+          ACON::Helper::Table::TableSeparator.new,
+          [
+            ACON::Helper::Table::Cell.new("<error>test</error>", colspan: 2, style: ACON::Helper::Table::CellStyle.new(foreground: "red", background: "green", align: :center)),
+            ACON::Helper::Table::Cell.new("tttt", style: ACON::Helper::Table::CellStyle.new(foreground: "red", background: "green", align: :right)),
+          ],
+        ],
+        "default",
+        self.get_table_contents("default_cells_with_rowspan_and_colspan_and_fgbg"),
+        true,
+      },
     }
   end
 

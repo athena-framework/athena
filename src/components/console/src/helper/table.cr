@@ -209,6 +209,10 @@ class Athena::Console::Helper::Table
     self
   end
 
+  def headers(headers : RowType) : self
+    self.headers({headers})
+  end
+
   def headers(headers : Enumerable(RowType)) : self
     @headers.clear
 
@@ -713,6 +717,7 @@ class Athena::Console::Helper::Table
     # TODO: Handle multi-byte strings?
 
     style = self.get_column_style column
+    padding_style = style
 
     if cell.is_a? TableSeparator
       return sprintf style.border_format, style.border_chars[2] * width
@@ -721,11 +726,28 @@ class Athena::Console::Helper::Table
     width += cell_value.size - Helper.remove_decoration(@output.formatter, cell_value).size
     content = sprintf style.cell_row_content_format, cell_value
 
-    if cell.is_a?(Table::Cell) && cell.style.is_a?(CellStyle)
-      raise "Cell is table cell"
+    if cell.is_a?(Table::Cell) && (cell_style = cell.style)
+      unless cell_value.matches? /^<(\w+|(\w+=[\w,]+;?)*)>.+<\/(\w+|(\w+=\w+;?)*)?>$/
+        unless cell_format = cell_style.format
+          tag = cell_style.tag
+          cell_format = "<#{tag}>%s</>"
+        end
+
+        if content.includes? "</>"
+          content = content.gsub "</>", ""
+          width -= 3
+        end
+
+        if content.includes? "<fg=default;bg=default>"
+          content = content.gsub "<fg=default;bg=default>", ""
+          width -= "<fg=default;bg=default>".size
+        end
+      end
+
+      padding_style = cell_style
     end
 
-    sprintf cell_format, style.pad content, width, style.padding_char
+    sprintf cell_format, padding_style.pad(content, width, style.padding_char)
   end
 
   private def get_row_columns(row : Rows::Type) : Array(Int32)
