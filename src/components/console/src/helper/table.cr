@@ -591,9 +591,9 @@ class Athena::Console::Helper::Table
                 end
               end
             end
-
-            lengths << self.get_cell_width row, column
           end
+
+          lengths << self.get_cell_width row, column
         end
       end
 

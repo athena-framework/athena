@@ -223,6 +223,27 @@ struct TableSpec < ASPEC::TestCase
         self.get_table_contents("default_cells_with_rowspan"),
         false,
       },
+      # Cell with rowspan and colspan
+      {
+        ["ISBN", "Title", "Author"],
+        [
+          [
+            ACON::Helper::Table::Cell.new("9971-5-0210-0", rowspan: 2, colspan: 2),
+            "Dante Alighieri",
+          ],
+          ["Charles Dickens"],
+          ACON::Helper::Table::TableSeparator.new,
+          [
+            "Dante Alighieri",
+            ACON::Helper::Table::Cell.new("9971-5-0210-0", rowspan: 3, colspan: 2),
+          ],
+          ["J. R. R. Tolkien"],
+          ["J. R. R"],
+        ],
+        "default",
+        self.get_table_contents("default_cells_with_rowspan_and_colspan"),
+        false,
+      },
     }
   end
 
