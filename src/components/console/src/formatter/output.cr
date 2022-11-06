@@ -61,6 +61,8 @@ class Athena::Console::Formatter::Output
 
   # :inherit:
   def format_and_wrap(message : String?, width : Int32) : String
+    return "" if message.nil?
+
     offset = 0
     output = ""
 
@@ -153,7 +155,7 @@ class Athena::Console::Formatter::Output
     end
 
     # TODO: Something about matching `~(\\n)$~`.
-    text = "#{prefix}#{text.gsub(/([^\\n]{#{width}})\ */, "\\1\n")}"
+    text = "#{prefix}#{text.gsub(/([^\n]{#{width}})\ */, "\\1\n")}"
     text = text.chomp
 
     if @current_line_length.zero? && !current.empty? && !current.ends_with? "\n"

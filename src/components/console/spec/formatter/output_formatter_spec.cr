@@ -194,5 +194,9 @@ struct OutputFormatterTest < ASPEC::TestCase
     @formatter.format_and_wrap("pre <error>foo bar baz</error> post", 3).should eq "pre\nfoo\nbar\nbaz\npos\nt"
     @formatter.format_and_wrap("pre <error>foo bar baz</error> post", 4).should eq "pre \nfoo \nbar \nbaz \npost"
     @formatter.format_and_wrap("pre <error>foo bar baz</error> post", 5).should eq "pre f\noo ba\nr baz\npost"
+
+    @formatter.format_and_wrap(nil, 5).should eq ""
+
+    @formatter.format_and_wrap("And Then There Were None", 15).should eq "And Then There \nWere None"
   end
 end
