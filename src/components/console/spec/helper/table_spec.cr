@@ -410,6 +410,28 @@ struct TableSpec < ASPEC::TestCase
         self.get_table_contents("default_cells_with_rowspan_and_colspan_and_fgbg"),
         true,
       },
+      "Default cells with rowspan and colspan > 1 with custom cell format" => {
+        [
+          ACON::Helper::Table::Cell.new("ISBN", style: ACON::Helper::Table::CellStyle.new(format: "<fg=black;bg=cyan>%s</>")),
+          "Title",
+          "Author",
+        ],
+        [
+          [
+            "978-0521567817",
+            "De Monarchia",
+            ACON::Helper::Table::Cell.new("Dante Alighieri\nspans multiple rows", rowspan: 2, style: ACON::Helper::Table::CellStyle.new(format: "<info>%s</info>")),
+          ],
+          ["978-0804169127", "Divine Comedy"],
+          [
+            ACON::Helper::Table::Cell.new("test", colspan: 2, style: ACON::Helper::Table::CellStyle.new(format: "<error>%s</error>")),
+            "tttt",
+          ],
+        ],
+        "default",
+        self.get_table_contents("default_cells_with_rowspan_and_colspan_and_custom_format"),
+        true,
+      },
     }
   end
 
