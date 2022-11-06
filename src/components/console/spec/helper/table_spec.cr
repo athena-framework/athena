@@ -29,7 +29,7 @@ struct TableSpec < ASPEC::TestCase
     self.output_content(output).should eq expected
   end
 
-  def render_provider : Tuple
+  def render_provider : Hash
     books = [
       ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
       ["9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens"],
@@ -38,35 +38,35 @@ struct TableSpec < ASPEC::TestCase
     ]
 
     {
-      {
+      "Default style" => {
         ["ISBN", "Title", "Author"],
         books,
         style = "default",
         self.get_table_contents(style),
         false,
       },
-      {
+      "Compact style" => {
         ["ISBN", "Title", "Author"],
         books,
         style = "compact",
         self.get_table_contents(style),
         false,
       },
-      {
+      "Borderless style" => {
         ["ISBN", "Title", "Author"],
         books,
         style = "borderless",
         self.get_table_contents(style),
         false,
       },
-      {
+      "Box style" => {
         ["ISBN", "Title", "Author"],
         books,
         style = "box",
         self.get_table_contents(style),
         false,
       },
-      {
+      "Double box with separator" => {
         ["ISBN", "Title", "Author"],
         [
           ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
@@ -79,7 +79,7 @@ struct TableSpec < ASPEC::TestCase
         self.get_table_contents("double_box_separator"),
         false,
       },
-      {
+      "Default missing cell values" => {
         ["ISBN", "Title"],
         [
           ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
@@ -91,7 +91,7 @@ struct TableSpec < ASPEC::TestCase
         self.get_table_contents("default_missing_cell_values"),
         false,
       },
-      {
+      "Default no headers" => {
         [] of String,
         [
           ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
@@ -103,7 +103,7 @@ struct TableSpec < ASPEC::TestCase
         self.get_table_contents("default_headerless"),
         false,
       },
-      {
+      "Default multiline cells" => {
         ["ISBN", "Title", "Author"],
         [
           ["99921-58-10-7", "Divine\nComedy", "Dante Alighieri"],
@@ -115,22 +115,21 @@ struct TableSpec < ASPEC::TestCase
         self.get_table_contents("default_multiline_cells"),
         false,
       },
-      {
+      "Default no rows" => {
         ["ISBN", "Title"],
         [] of String,
         "default",
         self.get_table_contents("default_no_rows"),
         false,
       },
-      {
+      "Default no rows or headers" => {
         [] of String,
         [] of String,
         "default",
         "",
         false,
       },
-      # Tags used for output formatting
-      {
+      "Default tags used for output formatting" => {
         ["ISBN", "Title", "Author"],
         [
           ["<info>99921-58-10-7</info>", "<error>Divine Comedy</error>", "<fg=blue;bg=white>Dante Alighieri</fg=blue;bg=white>"],
@@ -140,8 +139,7 @@ struct TableSpec < ASPEC::TestCase
         self.get_table_contents("default_cells_with_formatting_tags"),
         false,
       },
-      # Tags not used for output formatting
-      {
+      "Default tags not used for output formatting" => {
         ["ISBN", "Title", "Author"],
         [
           ["<strong>99921-58-10-700</strong>", "<f>Divine Com</f>", "Dante Alighieri"],
@@ -151,7 +149,7 @@ struct TableSpec < ASPEC::TestCase
         self.get_table_contents("default_cells_with_non_formatting_tags"),
         false,
       },
-      {
+      "Default cells with colspan" => {
         ["ISBN", "Title", "Author"],
         [
           ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
@@ -178,8 +176,7 @@ struct TableSpec < ASPEC::TestCase
         self.get_table_contents("default_cells_with_colspan"),
         false,
       },
-      # Cell after colspan contains new line break
-      {
+      "Default cell after colspan contains line break" => {
         ["Foo", "Bar", "Baz"],
         [
           [
@@ -191,8 +188,7 @@ struct TableSpec < ASPEC::TestCase
         self.get_table_contents("default_line_break_after_colspan_cell"),
         false,
       },
-      # Cell after colspan contains multiple new lines
-      {
+      "Default cell after colspan contains multiple line breaks" => {
         ["Foo", "Bar", "Baz"],
         [
           [
@@ -204,8 +200,7 @@ struct TableSpec < ASPEC::TestCase
         self.get_table_contents("default_line_breaks_after_colspan_cell"),
         false,
       },
-      # Cell with rowspan
-      {
+      "Default cell with rowspan" => {
         ["ISBN", "Title", "Author"],
         [
           [
@@ -223,8 +218,7 @@ struct TableSpec < ASPEC::TestCase
         self.get_table_contents("default_cells_with_rowspan"),
         false,
       },
-      # Cell with rowspan and colspan
-      {
+      "Default cell with rowspan and rowspan" => {
         ["ISBN", "Title", "Author"],
         [
           [
@@ -242,6 +236,30 @@ struct TableSpec < ASPEC::TestCase
         ],
         "default",
         self.get_table_contents("default_cells_with_rowspan_and_colspan"),
+        false,
+      },
+      "Cell with rowspan and colspan that contain new lines" => {
+        ["ISBN", "Title", "Author"],
+        [
+          [
+            ACON::Helper::Table::Cell.new("9971\n-5-\n021\n0-0", rowspan: 2, colspan: 2),
+            "Dante Alighieri",
+          ],
+          ["Charles Dickens"],
+          ACON::Helper::Table::TableSeparator.new,
+          [
+            "Dante Alighieri",
+            ACON::Helper::Table::Cell.new("9971\n-5-\n021\n0-0", rowspan: 2, colspan: 2),
+          ],
+          ["Charles Dickens"],
+          ACON::Helper::Table::TableSeparator.new,
+          [
+            ACON::Helper::Table::Cell.new("9971\n-5-\n021\n0-0", rowspan: 2, colspan: 2),
+            ACON::Helper::Table::Cell.new("Dante \nAlighieri", rowspan: 2, colspan: 1),
+          ],
+        ],
+        "default",
+        self.get_table_contents("default_cells_with_rowspan_and_colspan_and_line_breaks"),
         false,
       },
     }

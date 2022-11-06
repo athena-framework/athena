@@ -398,8 +398,9 @@ class Athena::Console::Helper::Table
     # row_key => line_key => column idx
     unmerged_rows = Hash(Int32, Hash(Int32, Hash(Int32, String | Table::Cell))).new
 
-    rows.size.times do |row_key|
-      rows = self.fill_next_rows rows, row_key
+    row_key = 0
+    while row_key < rows.size
+      self.fill_next_rows rows, row_key
 
       # Remove any line breaks and replace it with a new line
       self.iterate_row(rows, row_key) do |cell, column|
@@ -433,6 +434,8 @@ class Athena::Console::Helper::Table
           end
         end
       end
+
+      row_key += 1
     end
 
     row_groups = [] of Array(Rows::Type)
@@ -453,7 +456,7 @@ class Athena::Console::Helper::Table
   end
 
   # Fills rows that contain rowspan > 1
-  private def fill_next_rows(rows : Enumerable, line : Int32) : Enumerable
+  private def fill_next_rows(rows : Enumerable, line : Int32) : Nil
     unmerged_rows = Hash(Int32, Hash(Int32, Table::Cell)).new
 
     self.iterate_row(rows, line) do |cell, column|
@@ -465,7 +468,6 @@ class Athena::Console::Helper::Table
 
         if cell_value.includes? '\n'
           lines = cell_value.gsub("\n", "<fg=default;bg=default>\n</>").split '\n'
-
           nb_lines = lines.size > nb_lines ? cell_value.count('\n') : nb_lines
 
           rows[line].as(Row)[column] = Table::Cell.new lines.first, colspan: cell.colspan, style: cell.style
@@ -503,8 +505,6 @@ class Athena::Console::Helper::Table
         rows.insert unmerged_row_key, Row.new row.values
       end
     end
-
-    rows
   end
 
   # Fills cells for a colspan > 1
@@ -543,11 +543,11 @@ class Athena::Console::Helper::Table
 
   private def copy_row(rows : Array(InternalRowType), line : Int32) : Hash(Int32, String | Table::Cell)
     new_row = Hash(Int32, String | Table::Cell).new
-    rows[line].as(Row).each_with_index do |cell_value, cell_key|
+    rows[line].as(Row).each_with_index do |cell, cell_key|
       new_row[cell_key] = ""
 
-      if cell_value.is_a? Table::Cell
-        new_row[cell_key] = Table::Cell.new("", colspan: cell_value.colspan)
+      if cell.is_a? Table::Cell
+        new_row[cell_key] = Table::Cell.new("", colspan: cell.colspan)
       end
     end
 
