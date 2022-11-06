@@ -71,12 +71,12 @@ struct TableSpec < ASPEC::TestCase
         [
           ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
           ["9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens"],
-          ACON::Helper::Table::TableSeperator.new,
+          ACON::Helper::Table::TableSeparator.new,
           ["960-425-059-0", "The Lord of the Rings", "J. R. R. Tolkien"],
           ["80-902734-1-6", "And Then There Were None", "Agatha Christie"],
         ],
         "double-box",
-        self.get_table_contents("double_box_seperator"),
+        self.get_table_contents("double_box_separator"),
         false,
       },
       {
@@ -149,6 +149,78 @@ struct TableSpec < ASPEC::TestCase
         ],
         "default",
         self.get_table_contents("default_cells_with_non_formatting_tags"),
+        false,
+      },
+      {
+        ["ISBN", "Title", "Author"],
+        [
+          ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
+          ACON::Helper::Table::TableSeparator.new,
+          [
+            ACON::Helper::Table::Cell.new("Divine Comedy(Dante Alighieri)", colspan: 3),
+          ],
+          ACON::Helper::Table::TableSeparator.new,
+          [
+            ACON::Helper::Table::Cell.new("Arduino: A Quick-Start Guide", colspan: 2),
+            "Mark Schmidt",
+          ],
+          ACON::Helper::Table::TableSeparator.new,
+          [
+            "9971-5-0210-0",
+            ACON::Helper::Table::Cell.new("A Tale of \nTwo Cities", colspan: 2),
+          ],
+          ACON::Helper::Table::TableSeparator.new,
+          [
+            ACON::Helper::Table::Cell.new("Cupiditate dicta atque porro, tempora exercitationem modi animi nulla nemo vel nihil!", colspan: 3),
+          ],
+        ],
+        "default",
+        self.get_table_contents("default_cells_with_colspan"),
+        false,
+      },
+      # Cell after colspan contains new line break
+      {
+        ["Foo", "Bar", "Baz"],
+        [
+          [
+            ACON::Helper::Table::Cell.new("foo\nbar", colspan: 2),
+            "baz\nqux",
+          ],
+        ],
+        "default",
+        self.get_table_contents("default_line_break_after_colspan_cell"),
+        false,
+      },
+      # Cell after colspan contains multiple new lines
+      {
+        ["Foo", "Bar", "Baz"],
+        [
+          [
+            ACON::Helper::Table::Cell.new("foo\nbar", colspan: 2),
+            "baz\nqux\nquux",
+          ],
+        ],
+        "default",
+        self.get_table_contents("default_line_breaks_after_colspan_cell"),
+        false,
+      },
+      # Cell with rowspan
+      {
+        ["ISBN", "Title", "Author"],
+        [
+          [
+            ACON::Helper::Table::Cell.new("9971-5-0210-0", rowspan: 3),
+            ACON::Helper::Table::Cell.new("Divine Comedy", rowspan: 2),
+            "Dante Alighieri",
+          ],
+          [] of String,
+          ["The Lord of \nthe Rings", "J. R. \nR. Tolkien"],
+          ACON::Helper::Table::TableSeparator.new,
+          ["80-902734-1-6", ACON::Helper::Table::Cell.new("And Then \nThere \nWere None", rowspan: 3), "Agatha Christie"],
+          ["80-902734-1-7", "Test"],
+        ],
+        "default",
+        self.get_table_contents("default_cells_with_rowspan"),
         false,
       },
     }

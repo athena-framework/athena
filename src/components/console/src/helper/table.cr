@@ -25,7 +25,7 @@ class Athena::Console::Helper::Table
     end
   end
 
-  class TableSeperator < Table::Cell
+  class TableSeparator < Table::Cell
     def initialize(
       rowspan : Int32 = 1,
       colspan : Int32 = 1,
@@ -36,12 +36,14 @@ class Athena::Console::Helper::Table
   end
 
   alias CellType = String | Int64 | Float64 | Bool | Athena::Console::Helper::Table::Cell
-  alias RowType = Enumerable(CellType) | Table::TableSeperator
+  alias RowType = Enumerable(CellType) | Table::TableSeparator
 
   private struct Row
     alias Type = String | Table::Cell
 
     include Indexable::Mutable(Type)
+
+    delegate :insert, to: @columns
 
     @columns : Array(Type)
 
@@ -74,7 +76,7 @@ class Athena::Console::Helper::Table
 
   # OPTIMIZE: Can this be merged into `Row`?
   private struct Rows
-    alias Type = Table::TableSeperator | Array(Row::Type)
+    alias Type = Table::TableSeparator | Array(Row::Type)
 
     include Enumerable(Type)
 
@@ -148,7 +150,7 @@ class Athena::Console::Helper::Table
   setter footer_title : String? = nil
 
   @headers = [] of Array(String)
-  @rows = Array(Row | Table::TableSeperator).new
+  @rows = Array(Row | Table::TableSeparator).new
 
   @effective_column_widths = Hash(Int32, Int32).new
   @number_of_columns : Int32? = nil
@@ -243,7 +245,7 @@ class Athena::Console::Helper::Table
   # Adds a single new row
   def add_row(row : RowType) : self
     @rows << case row
-    when Table::TableSeperator then row
+    when Table::TableSeparator then row
     else
       Row.new row
     end
@@ -285,10 +287,10 @@ class Athena::Console::Helper::Table
     self
   end
 
-  private alias InternalRowType = Row | ACON::Helper::Table::TableSeperator
+  private alias InternalRowType = Row | ACON::Helper::Table::TableSeparator
 
   def render
-    divider = ACON::Helper::Table::TableSeperator.new
+    divider = ACON::Helper::Table::TableSeparator.new
     is_cell_with_colspan = ->(cell : CellType) { cell.is_a?(ACON::Helper::Table::Cell) && cell.colspan >= 2 }
 
     rows = Array(InternalRowType).new
@@ -298,7 +300,7 @@ class Athena::Console::Helper::Table
       #   rows[idx] = [header].as RowType
 
       #   @rows.each do |row|
-      #     next if row.is_a? ACON::Helper::Table::TableSeperator
+      #     next if row.is_a? ACON::Helper::Table::TableSeparator
 
       #     if r = row[idx]?
       #       rows[idx].as(Enumerable(CellType)) << r
@@ -314,7 +316,7 @@ class Athena::Console::Helper::Table
       rows << divider
       @rows.each do |r|
         case r
-        when Table::TableSeperator then rows << r
+        when Table::TableSeparator then rows << r
         else
           rows << Row.new r unless r.empty?
         end
@@ -341,7 +343,7 @@ class Athena::Console::Helper::Table
           next
         end
 
-        if row.is_a? TableSeperator
+        if row.is_a? Table::TableSeparator
           self.render_row_separator
 
           next
@@ -436,11 +438,11 @@ class Athena::Console::Helper::Table
     row_groups = [] of Array(Rows::Type)
 
     rows.each_with_index do |row, row_key|
-      row_group = [row.is_a?(Table::TableSeperator) ? row : self.fill_cells(row)] of Rows::Type
+      row_group = [row.is_a?(Table::TableSeparator) ? row : self.fill_cells(row)] of Rows::Type
 
       if ur = unmerged_rows[row_key]?
         ur.each_value do |row|
-          row_group << (row.is_a?(Table::TableSeperator) ? row : self.fill_cells(row))
+          row_group << (row.is_a?(Table::TableSeparator) ? row : self.fill_cells(row))
         end
       end
 
@@ -452,16 +454,54 @@ class Athena::Console::Helper::Table
 
   # Fills rows that contain rowspan > 1
   private def fill_next_rows(rows : Enumerable, line : Int32) : Enumerable
-    unmerged_rows = [] of String
+    unmerged_rows = Hash(Int32, Hash(Int32, Table::Cell)).new
 
     self.iterate_row(rows, line) do |cell, column|
+      cell_value = cell.to_s
+
       if cell.is_a?(ACON::Helper::Table::Cell) && cell.rowspan > 1
-        raise "Rowspan > 1"
+        nb_lines = cell.rowspan - 1
+        lines = [cell_value]
+
+        if cell_value.includes? '\n'
+          lines = cell_value.gsub("\n", "<fg=default;bg=default>\n</>").split '\n'
+
+          nb_lines = lines.size > nb_lines ? cell_value.count('\n') : nb_lines
+
+          rows[line].as(Row)[column] = Table::Cell.new lines.first, colspan: cell.colspan, style: cell.style
+        end
+
+        fill = Hash(Int32, Hash(Int32, Table::Cell)).new
+        nb_lines.times do |l|
+          fill[line + 1 + l] = Hash(Int32, Table::Cell).new
+        end
+
+        unmerged_rows = fill.merge! unmerged_rows
+
+        unmerged_rows.each do |unmerged_row_key, unmerged_row|
+          value = lines[unmerged_row_key - line]? || ""
+          (unmerged_rows[unmerged_row_key] ||= Hash(Int32, Table::Cell).new)[column] = Table::Cell.new value, colspan: cell.colspan, style: cell.style
+
+          if nb_lines == unmerged_row_key - line
+            break
+          end
+        end
       end
     end
 
-    unmerged_rows.each_with_index do |unmerged_row, unmerged_row_key|
-      raise ">1 unmerged row"
+    unmerged_rows.each do |unmerged_row_key, unmerged_row|
+      if (ur = rows[unmerged_row_key]?) && ur.is_a?(Enumerable) && ((self.get_number_of_columns(ur) + self.get_number_of_columns(unmerged_rows[unmerged_row_key])) <= @number_of_columns.not_nil!)
+        unmerged_row.each do |cell_key, c|
+          rows[unmerged_row_key].as(Row).insert cell_key, c
+        end
+      else
+        row = self.copy_row rows, unmerged_row_key - 1
+        unmerged_row.each do |column, c|
+          row[column] = unmerged_row[column]
+        end
+
+        rows.insert unmerged_row_key, Row.new row.values
+      end
     end
 
     rows
@@ -518,7 +558,7 @@ class Athena::Console::Helper::Table
     columns = [0]
 
     rows.each do |row|
-      next if row.is_a? ACON::Helper::Table::TableSeperator
+      next if row.is_a? ACON::Helper::Table::TableSeparator
 
       columns << self.get_number_of_columns row
     end
@@ -535,7 +575,7 @@ class Athena::Console::Helper::Table
           # Avoid mutating the actual row, as the logic below is just used to calculate widths
           row = row.dup
 
-          next if row.is_a? Table::TableSeperator
+          next if row.is_a? Table::TableSeparator
 
           row.each_with_index do |cell, idx|
             if cell.is_a? Table::Cell
@@ -670,7 +710,7 @@ class Athena::Console::Helper::Table
 
     style = self.get_column_style column
 
-    if cell.is_a? TableSeperator
+    if cell.is_a? TableSeparator
       return sprintf style.border_format, style.border_chars[2] * width
     end
 
@@ -708,11 +748,11 @@ class Athena::Console::Helper::Table
     sprintf @style.border_format, type.outside? ? borders[1] : borders[3]
   end
 
-  # Helper method that allows iterating over the cells of a row, skipping cell seperators
+  # Helper method that allows iterating over the cells of a row, skipping cell separators
   private def iterate_row(rows : Enumerable, line : Int32, & : String | ACON::Helper::Table::Cell, Int32 ->) : Nil
     columns = rows[line]
 
-    return if columns.is_a? ACON::Helper::Table::TableSeperator
+    return if columns.is_a? ACON::Helper::Table::TableSeparator
 
     columns.each_with_index do |cell, idx|
       yield cell, idx
