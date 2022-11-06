@@ -44,7 +44,7 @@ class Athena::Console::Helper::Table
 
     include Indexable::Mutable(Type)
 
-    delegate :insert, to: @columns
+    delegate :insert, :<<, :[], to: @columns
 
     @columns : Array(Type)
 
@@ -320,22 +320,23 @@ class Athena::Console::Helper::Table
 
   private def combined_rows(divider : Table::Separator) : Array(InternalRowType)
     rows = Array(InternalRowType).new
+    is_cell_with_colspan = ->(cell : CellType) { cell.is_a?(ACON::Helper::Table::Cell) && cell.colspan >= 2 }
 
     if @orientation.horizontal?
-      # (@headers[0]? || Array(String).new).each_with_index do |header, idx|
-      #   rows[idx] = [header].as RowType
+      @headers[0]?.try &.each_with_index do |header, idx|
+        rows.insert idx, Row.new [header]
+        @rows.each do |row|
+          next if row.is_a? Table::Separator
 
-      #   @rows.each do |row|
-      #     next if row.is_a? ACON::Helper::Table::Separator
-
-      #     if r = row[idx]?
-      #       rows[idx].as(Enumerable(CellType)) << r
-      #     elsif is_cell_with_colspan.call(rows[idx].first)
-      #     else
-      #       rows[idx] << ACON::Helper::Table::Cell::Value.new ""
-      #     end
-      #   end
-      # end
+          if rv = row[idx]?
+            rows[idx].as(Row) << rv
+          elsif is_cell_with_colspan.call rows[idx].as(Row)[0]
+            # Noop, there is a "title"
+          else
+            rows[idx].as(Row) << ""
+          end
+        end
+      end
     elsif @orientation.vertical?
     else
       @headers.each { |h| rows << Row.new h unless h.empty? }
@@ -354,7 +355,6 @@ class Athena::Console::Helper::Table
 
   def render
     divider = ACON::Helper::Table::Separator.new
-    is_cell_with_colspan = ->(cell : CellType) { cell.is_a?(ACON::Helper::Table::Cell) && cell.colspan >= 2 }
 
     rows = self.combined_rows divider
 

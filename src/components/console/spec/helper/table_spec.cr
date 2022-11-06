@@ -962,6 +962,68 @@ struct TableSpec < ASPEC::TestCase
     TABLE
   end
 
+  @[DataProvider("horizontal_provider")]
+  def test_render_horizontal(headers, rows, expected)
+    ACON::Helper::Table.new(output = self.io_output)
+      .headers(headers)
+      .rows(rows)
+      .horizontal
+      .render
+
+    self.output_content(output).should eq expected
+  end
+
+  def horizontal_provider : Tuple
+    {
+      {
+        %w(foo bar baz),
+        [
+          %w(one two tree),
+          %w(1 2 3),
+        ],
+        <<-'TABLE'
+        +-----+------+---+
+        | foo | one  | 1 |
+        | bar | two  | 2 |
+        | baz | tree | 3 |
+        +-----+------+---+
+
+        TABLE
+      },
+      {
+        %w(foo bar baz),
+        [
+          %w(one two),
+          %w(1),
+        ],
+        <<-'TABLE'
+        +-----+-----+---+
+        | foo | one | 1 |
+        | bar | two |   |
+        | baz |     |   |
+        +-----+-----+---+
+
+        TABLE
+      },
+      {
+        %w(foo bar baz),
+        [
+          %w(one two tree),
+          ACON::Helper::Table::Separator.new,
+          %w(1 2 3),
+        ],
+        <<-'TABLE'
+        +-----+------+---+
+        | foo | one  | 1 |
+        | bar | two  | 2 |
+        | baz | tree | 3 |
+        +-----+------+---+
+
+        TABLE
+      },
+    }
+  end
+
   private def output_content(output : ACON::Output::IO) : String
     output.to_s
   end
