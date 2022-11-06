@@ -149,7 +149,7 @@ class Athena::Console::Helper::Table
   setter header_title : String? = nil
   setter footer_title : String? = nil
 
-  @headers = [] of Array(String)
+  @headers = Array(Row).new
   @rows = Array(Row | Table::TableSeparator).new
 
   @effective_column_widths = Hash(Int32, Int32).new
@@ -209,8 +209,12 @@ class Athena::Console::Helper::Table
     self
   end
 
-  def headers(headers : Enumerable(String)) : self
-    @headers = [headers.to_a]
+  def headers(headers : Enumerable(RowType)) : self
+    @headers.clear
+
+    headers.each do |h|
+      @headers << Row.new h
+    end
 
     self
   end

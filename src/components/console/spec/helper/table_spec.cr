@@ -17,7 +17,7 @@ struct TableSpec < ASPEC::TestCase
   end
 
   @[DataProvider("render_provider")]
-  def test_render(headers : Array(String), rows, style : String, expected : String, decorated : Bool) : Nil
+  def test_render(headers, rows, style : String, expected : String, decorated : Bool) : Nil
     table = ACON::Helper::Table.new output = self.io_output decorated
     table
       .headers(headers)
@@ -39,35 +39,35 @@ struct TableSpec < ASPEC::TestCase
 
     {
       "Default style" => {
-        ["ISBN", "Title", "Author"],
+        [["ISBN", "Title", "Author"]],
         books,
         style = "default",
         self.get_table_contents(style),
         false,
       },
       "Compact style" => {
-        ["ISBN", "Title", "Author"],
+        [["ISBN", "Title", "Author"]],
         books,
         style = "compact",
         self.get_table_contents(style),
         false,
       },
       "Borderless style" => {
-        ["ISBN", "Title", "Author"],
+        [["ISBN", "Title", "Author"]],
         books,
         style = "borderless",
         self.get_table_contents(style),
         false,
       },
       "Box style" => {
-        ["ISBN", "Title", "Author"],
+        [["ISBN", "Title", "Author"]],
         books,
         style = "box",
         self.get_table_contents(style),
         false,
       },
       "Double box with separator" => {
-        ["ISBN", "Title", "Author"],
+        [["ISBN", "Title", "Author"]],
         [
           ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
           ["9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens"],
@@ -80,7 +80,7 @@ struct TableSpec < ASPEC::TestCase
         false,
       },
       "Default missing cell values" => {
-        ["ISBN", "Title"],
+        [["ISBN", "Title"]],
         [
           ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
           ["9971-5-0210-0"],
@@ -92,7 +92,7 @@ struct TableSpec < ASPEC::TestCase
         false,
       },
       "Default no headers" => {
-        [] of String,
+        [[] of String],
         [
           ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
           ["9971-5-0210-0"],
@@ -104,7 +104,7 @@ struct TableSpec < ASPEC::TestCase
         false,
       },
       "Default multiline cells" => {
-        ["ISBN", "Title", "Author"],
+        [["ISBN", "Title", "Author"]],
         [
           ["99921-58-10-7", "Divine\nComedy", "Dante Alighieri"],
           ["9971-5-0210-2", "Harry Potter\nand the Chamber of Secrets", "Rowling\nJoanne K."],
@@ -116,21 +116,21 @@ struct TableSpec < ASPEC::TestCase
         false,
       },
       "Default no rows" => {
-        ["ISBN", "Title"],
+        [["ISBN", "Title"]],
         [] of String,
         "default",
         self.get_table_contents("default_no_rows"),
         false,
       },
       "Default no rows or headers" => {
-        [] of String,
+        [[] of String],
         [] of String,
         "default",
         "",
         false,
       },
       "Default tags used for output formatting" => {
-        ["ISBN", "Title", "Author"],
+        [["ISBN", "Title", "Author"]],
         [
           ["<info>99921-58-10-7</info>", "<error>Divine Comedy</error>", "<fg=blue;bg=white>Dante Alighieri</fg=blue;bg=white>"],
           ["9971-5-0210-0", "A Tale of Two Cities", "<info>Charles Dickens</>"],
@@ -140,7 +140,7 @@ struct TableSpec < ASPEC::TestCase
         false,
       },
       "Default tags not used for output formatting" => {
-        ["ISBN", "Title", "Author"],
+        [["ISBN", "Title", "Author"]],
         [
           ["<strong>99921-58-10-700</strong>", "<f>Divine Com</f>", "Dante Alighieri"],
           ["9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens"],
@@ -150,7 +150,7 @@ struct TableSpec < ASPEC::TestCase
         false,
       },
       "Default cells with colspan" => {
-        ["ISBN", "Title", "Author"],
+        [["ISBN", "Title", "Author"]],
         [
           ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
           ACON::Helper::Table::TableSeparator.new,
@@ -177,7 +177,7 @@ struct TableSpec < ASPEC::TestCase
         false,
       },
       "Default cell after colspan contains line break" => {
-        ["Foo", "Bar", "Baz"],
+        [["Foo", "Bar", "Baz"]],
         [
           [
             ACON::Helper::Table::Cell.new("foo\nbar", colspan: 2),
@@ -189,7 +189,7 @@ struct TableSpec < ASPEC::TestCase
         false,
       },
       "Default cell after colspan contains multiple line breaks" => {
-        ["Foo", "Bar", "Baz"],
+        [["Foo", "Bar", "Baz"]],
         [
           [
             ACON::Helper::Table::Cell.new("foo\nbar", colspan: 2),
@@ -201,7 +201,7 @@ struct TableSpec < ASPEC::TestCase
         false,
       },
       "Default cell with rowspan" => {
-        ["ISBN", "Title", "Author"],
+        [["ISBN", "Title", "Author"]],
         [
           [
             ACON::Helper::Table::Cell.new("9971-5-0210-0", rowspan: 3),
@@ -219,7 +219,7 @@ struct TableSpec < ASPEC::TestCase
         false,
       },
       "Default cell with rowspan and rowspan" => {
-        ["ISBN", "Title", "Author"],
+        [["ISBN", "Title", "Author"]],
         [
           [
             ACON::Helper::Table::Cell.new("9971-5-0210-0", rowspan: 2, colspan: 2),
@@ -238,8 +238,8 @@ struct TableSpec < ASPEC::TestCase
         self.get_table_contents("default_cells_with_rowspan_and_colspan"),
         false,
       },
-      "Cell with rowspan and colspan that contain new lines" => {
-        ["ISBN", "Title", "Author"],
+      "Default cell with rowspan and colspan that contain new lines" => {
+        [["ISBN", "Title", "Author"]],
         [
           [
             ACON::Helper::Table::Cell.new("9971\n-5-\n021\n0-0", rowspan: 2, colspan: 2),
@@ -260,6 +260,48 @@ struct TableSpec < ASPEC::TestCase
         ],
         "default",
         self.get_table_contents("default_cells_with_rowspan_and_colspan_and_line_breaks"),
+        false,
+      },
+      "Default cell with rowspan and colspan without table separators" => {
+        [["ISBN", "Title", "Author"]],
+        [
+          [
+            ACON::Helper::Table::Cell.new("9971\n-5-\n021\n0-0", rowspan: 2, colspan: 2),
+            "Dante Alighieri",
+          ],
+          ["Charles Dickens"],
+          [
+            "Dante Alighieri",
+            ACON::Helper::Table::Cell.new("9971\n-5-\n021\n0-0", rowspan: 2, colspan: 2),
+          ],
+          ["Charles Dickens"],
+        ],
+        "default",
+        self.get_table_contents("default_cells_with_rowspan_and_colspan_no_separators"),
+        false,
+      },
+      "Default cell with rowspan and colspan with separators inside a rowspan" => {
+        [["ISBN", "Author"]],
+        [
+          [
+            ACON::Helper::Table::Cell.new("9971-5-0210-0", rowspan: 3, colspan: 1),
+            "Dante Alighieri",
+          ],
+          [ACON::Helper::Table::TableSeparator.new],
+          ["Charles Dickens"],
+        ],
+        "default",
+        self.get_table_contents("default_cells_with_rowspan_and_colspan_separator_in_rowspan"),
+        false,
+      },
+      "Default cell with multiple header lines" => {
+        [
+          [ACON::Helper::Table::Cell.new("Main title", colspan: 3)],
+          ["ISBN", "Title", "Author"],
+        ],
+        [] of String,
+        "default",
+        self.get_table_contents("default_multiple_header_lines"),
         false,
       },
     }
