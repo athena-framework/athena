@@ -23,8 +23,7 @@ struct TableSpec < ASPEC::TestCase
       .headers(headers)
       .rows(rows)
       .style(style)
-
-    table.render
+      .render
 
     self.output_content(output).should eq expected
   end
@@ -443,8 +442,7 @@ struct TableSpec < ASPEC::TestCase
       .headers(["🍝"])
       .rows([[1234]])
       .style("default")
-
-    table.render
+      .render
 
     self.output_content(output).should eq <<-TABLE
     +------+
@@ -460,8 +458,7 @@ struct TableSpec < ASPEC::TestCase
     table = ACON::Helper::Table.new output = self.io_output
     table
       .rows([[ACON::Helper::Table::Cell.new(1234)]])
-
-    table.render
+      .render
 
     self.output_content(output).should eq <<-TABLE
     +------+
@@ -475,8 +472,7 @@ struct TableSpec < ASPEC::TestCase
     table = ACON::Helper::Table.new output = self.io_output
     table
       .rows([[ACON::Helper::Table::Cell.new(3.14)]])
-
-    table.render
+      .render
 
     self.output_content(output).should eq <<-TABLE
     +------+
@@ -499,8 +495,7 @@ struct TableSpec < ASPEC::TestCase
       .headers(["Foo"])
       .rows([["Bar"]])
       .style("dotfull")
-
-    table.render
+      .render
 
     self.output_content(output).should eq <<-TABLE
     .......
@@ -516,8 +511,8 @@ struct TableSpec < ASPEC::TestCase
     table = ACON::Helper::Table.new output = self.io_output
     table
       .rows([[ACON::Helper::Table::Cell.new("foo", colspan: 2)]])
+      .render
 
-    table.render
     table.render
     table.render
 
@@ -616,6 +611,78 @@ struct TableSpec < ASPEC::TestCase
     TABLE
   end
 
+  def test_column_max_width : Nil
+    table = ACON::Helper::Table.new output = self.io_output
+    table
+      .rows([
+        ["Divine Comedy", "A Tale of Two Cities", "The Lord of the Rings", "And Then There Were None"],
+      ])
+      .column_max_width(1, 5)
+      .column_max_width(2, 10)
+      .column_max_width(3, 15)
+      .render
+
+    self.output_content(output).should eq <<-TABLE
+    +---------------+-------+------------+-----------------+
+    | Divine Comedy | A Tal | The Lord o | And Then There  |
+    |               | e of  | f the Ring | Were None       |
+    |               | Two C | s          |                 |
+    |               | ities |            |                 |
+    +---------------+-------+------------+-----------------+
+
+    TABLE
+  end
+
+  def test_column_max_width_with_headers : Nil
+    table = ACON::Helper::Table.new output = self.io_output
+
+    table
+      .headers([
+        [
+          "Publication",
+          "Very long header with a lot of information",
+        ],
+      ])
+      .rows([
+        [
+          "1954",
+          "The Lord of the Rings, by J.R.R. Tolkien",
+        ],
+      ])
+      .column_max_width(1, 30)
+      .render
+
+    self.output_content(output).should eq <<-TABLE
+    +-------------+--------------------------------+
+    | Publication | Very long header with a lot of |
+    |             | information                    |
+    +-------------+--------------------------------+
+    | 1954        | The Lord of the Rings, by J.R. |
+    |             | R. Tolkien                     |
+    +-------------+--------------------------------+
+
+    TABLE
+  end
+
+  def test_column_max_width_trailing_backslash : Nil
+    table = ACON::Helper::Table.new output = self.io_output
+
+    table
+      .rows([
+        ["1234\\6"],
+      ])
+      .column_max_width(0, 5)
+      .render
+
+    self.output_content(output).should eq <<-'TABLE'
+    +-------+
+    | 1234\ |
+    | 6     |
+    +-------+
+
+    TABLE
+  end
+
   def test_append_row : Nil
     sections = [] of ACON::Output::Section
 
@@ -628,8 +695,7 @@ struct TableSpec < ASPEC::TestCase
       .rows([
         ["99921-58-10-7", "Divine Comedy", "Dante Alighieri", "9.95"],
       ])
-
-    table.render
+      .render
 
     table.append_row ["9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"]
     table.append_row "9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"
@@ -695,8 +761,7 @@ struct TableSpec < ASPEC::TestCase
       .rows([
         ["99921-58-10-7", "Divine Comedy", "Dante Alighieri", "9.95"],
       ])
-
-    table.render
+      .render
 
     table.append_row "9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"
 
@@ -725,8 +790,7 @@ struct TableSpec < ASPEC::TestCase
 
     table
       .headers(["ISBN", "Title", "Author", "Price"])
-
-    table.render
+      .render
 
     table.append_row "9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"
 
@@ -850,6 +914,52 @@ struct TableSpec < ASPEC::TestCase
         TABLE
       },
     }
+  end
+
+  def test_render_titles_no_headers : Nil
+    ACON::Helper::Table.new(output = self.io_output)
+      .header_title("Reproducer")
+      .rows([
+        ["Value", "123-456"],
+        ["Some other value", "789-0"],
+      ])
+      .render
+
+    self.output_content(output).should eq <<-TABLE
+    +-------- Reproducer --------+
+    | Value            | 123-456 |
+    | Some other value | 789-0   |
+    +------------------+---------+
+
+    TABLE
+  end
+
+  def test_box_style_with_colspan : Nil
+    boxed = ACON::Helper::Table::Style.new
+      .horizontal_border_chars('─')
+      .vertical_border_chars('│')
+      .crossing_chars('┼', '┌', '┬', '┐', '┤', '┘', '┴', '└', '├')
+
+    ACON::Helper::Table.new(output = self.io_output)
+      .style(boxed)
+      .headers("ISBN", "Title", "Author")
+      .rows([
+        ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
+        ACON::Helper::Table::Separator.new,
+        [ACON::Helper::Table::Cell.new("This value spans 3 columns.", colspan: 3)],
+      ])
+      .render
+
+    self.output_content(output).should eq <<-TABLE
+    ┌───────────────┬───────────────┬─────────────────┐
+    │ ISBN          │ Title         │ Author          │
+    ├───────────────┼───────────────┼─────────────────┤
+    │ 99921-58-10-7 │ Divine Comedy │ Dante Alighieri │
+    ├───────────────┼───────────────┼─────────────────┤
+    │ This value spans 3 columns.                     │
+    └───────────────┴───────────────┴─────────────────┘
+
+    TABLE
   end
 
   private def output_content(output : ACON::Output::IO) : String

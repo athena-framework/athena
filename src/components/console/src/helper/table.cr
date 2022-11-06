@@ -176,7 +176,7 @@ class Athena::Console::Helper::Table
     self
   end
 
-  def style(name : String) : self
+  def style(name : String | ACON::Helper::Table::Style) : self
     @style = self.resolve_style name
 
     self
@@ -212,7 +212,7 @@ class Athena::Console::Helper::Table
     self.column_widths widths
   end
 
-  def scolumn_max_width(index : Int32, width : Int32) : self
+  def column_max_width(index : Int32, width : Int32) : self
     if !@output.formatter.is_a? ACON::Formatter::WrappableInterface
       raise ACON::Exceptions::Logic.new "Setting a maximum column width is only supported when using a #{ACON::Formatter::WrappableInterface} formatter, got #{@output.class}."
     end
@@ -220,6 +220,10 @@ class Athena::Console::Helper::Table
     @column_max_widths[index] = width
 
     self
+  end
+
+  def headers(*names : CellType) : self
+    self.headers names
   end
 
   def headers(headers : RowType) : self
@@ -725,7 +729,7 @@ class Athena::Console::Helper::Table
       end
 
       title_start = (markup_length - title_length) // 2
-      markup = markup.insert title_start, formatted_title
+      markup = "#{markup[0, title_start]}#{formatted_title}#{markup[((title_start + title_length)..)]}"
     end
 
     return unless markup.presence
