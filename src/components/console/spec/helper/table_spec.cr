@@ -1071,10 +1071,13 @@ struct TableSpec < ASPEC::TestCase
   end
 
   @[DataProvider("vertical_provider")]
-  def test_render_vertical(headers, rows, expected)
+  def test_render_vertical(headers, rows, expected, style : String, header_title, footer_title)
     ACON::Helper::Table.new(output = self.io_output)
       .headers(headers)
       .rows(rows)
+      .style(style)
+      .header_title(header_title)
+      .footer_title(footer_title)
       .vertical
       .render
 
@@ -1091,7 +1094,7 @@ struct TableSpec < ASPEC::TestCase
       "With header for all" => {
         %w(ISBN Title Author Price),
         books,
-        <<-'TABLE'
+        <<-'TABLE',
         +------------------------------+
         |   ISBN: 99921-58-10-7        |
         |  Title: Divine Comedy        |
@@ -1105,6 +1108,296 @@ struct TableSpec < ASPEC::TestCase
         +------------------------------+
 
         TABLE
+        "default",
+        nil,
+        nil,
+      },
+      "With header for none" => {
+        %w(),
+        books,
+        <<-'TABLE',
+        +----------------------+
+        | 99921-58-10-7        |
+        | Divine Comedy        |
+        | Dante Alighieri      |
+        | 9.95                 |
+        |----------------------|
+        | 9971-5-0210-0        |
+        | A Tale of Two Cities |
+        | Charles Dickens      |
+        | 139.25               |
+        +----------------------+
+
+        TABLE
+        "default",
+        nil,
+        nil,
+      },
+      "With header for some" => {
+        %w(ISBN Title Author),
+        books,
+        <<-'TABLE',
+        +------------------------------+
+        |   ISBN: 99921-58-10-7        |
+        |  Title: Divine Comedy        |
+        | Author: Dante Alighieri      |
+        |       : 9.95                 |
+        |------------------------------|
+        |   ISBN: 9971-5-0210-0        |
+        |  Title: A Tale of Two Cities |
+        | Author: Charles Dickens      |
+        |       : 139.25               |
+        +------------------------------+
+
+        TABLE
+        "default",
+        nil,
+        nil,
+      },
+      "With row for some headers" => {
+        %w(foo bar baz),
+        [
+          %w(one two),
+          %w(1),
+        ],
+        <<-'TABLE',
+        +----------+
+        | foo: one |
+        | bar: two |
+        | baz:     |
+        |----------|
+        | foo: 1   |
+        | bar:     |
+        | baz:     |
+        +----------+
+
+        TABLE
+        "default",
+        nil,
+        nil,
+      },
+      "With table separator" => {
+        %w(foo bar baz),
+        [
+          %w(one two tree),
+          ACON::Helper::Table::Separator.new,
+          %w(1 2 3),
+        ],
+        <<-'TABLE',
+        +-----------+
+        | foo: one  |
+        | bar: two  |
+        | baz: tree |
+        |-----------|
+        | foo: 1    |
+        | bar: 2    |
+        | baz: 3    |
+        +-----------+
+
+        TABLE
+        "default",
+        nil,
+        nil,
+      },
+      "With line breaks" => {
+        %w(ISBN Title Author Price),
+        [
+          ["99921-58-10-7", "Divine Comedy", "Dante Alighieri", "9.95"],
+          ["9971-5-0210-0", "A Tale\nof Two Cities", "Charles Dickens", "139.25"],
+        ],
+        <<-'TABLE',
+        +-------------------------+
+        |   ISBN: 99921-58-10-7   |
+        |  Title: Divine Comedy   |
+        | Author: Dante Alighieri |
+        |  Price: 9.95            |
+        |-------------------------|
+        |   ISBN: 9971-5-0210-0   |
+        |  Title: A Tale          |
+        | of Two Cities           |
+        | Author: Charles Dickens |
+        |  Price: 139.25          |
+        +-------------------------+
+
+        TABLE
+        "default",
+        nil,
+        nil,
+      },
+      "With formatting tags" => {
+        %w(ISBN Title Author),
+        [
+          ["<info>99921-58-10-7</info>", "<error>Divine Comedy</error>", "<fg=blue;bg=white>Dante Alighieri</fg=blue;bg=white>"],
+          ["9971-5-0210-0", "A Tale of Two Cities", "<info>Charles Dickens</>"],
+        ],
+        <<-'TABLE',
+        +------------------------------+
+        |   ISBN: 99921-58-10-7        |
+        |  Title: Divine Comedy        |
+        | Author: Dante Alighieri      |
+        |------------------------------|
+        |   ISBN: 9971-5-0210-0        |
+        |  Title: A Tale of Two Cities |
+        | Author: Charles Dickens      |
+        +------------------------------+
+
+        TABLE
+        "default",
+        nil,
+        nil,
+      },
+      "With colspan" => {
+        %w(ISBN Title Author),
+        [
+          ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
+          [ACON::Helper::Table::Cell.new("Cupiditate dicta atque porro, tempora exercitationem modi animi nulla nemo vel nihil!", colspan: 3)],
+          ["9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens"],
+        ],
+        <<-'TABLE',
+        +---------------------------------------------------------------------------------------+
+        |   ISBN: 99921-58-10-7                                                                 |
+        |  Title: Divine Comedy                                                                 |
+        | Author: Dante Alighieri                                                               |
+        |---------------------------------------------------------------------------------------|
+        | Cupiditate dicta atque porro, tempora exercitationem modi animi nulla nemo vel nihil! |
+        |---------------------------------------------------------------------------------------|
+        |   ISBN: 9971-5-0210-0                                                                 |
+        |  Title: A Tale of Two Cities                                                          |
+        | Author: Charles Dickens                                                               |
+        +---------------------------------------------------------------------------------------+
+
+        TABLE
+        "default",
+        nil,
+        nil,
+      },
+      "With colspans but no header" => {
+        %w(),
+        [
+          [ACON::Helper::Table::Cell.new("Lorem ipsum dolor sit amet, <fg=white;bg=green>consectetur</> adipiscing elit, <fg=white;bg=red>sed</> do <fg=white;bg=red>eiusmod</> tempor", colspan: 3)],
+          ACON::Helper::Table::Separator.new,
+          [ACON::Helper::Table::Cell.new("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor", colspan: 3)],
+          ACON::Helper::Table::Separator.new,
+          [ACON::Helper::Table::Cell.new("Lorem ipsum <fg=white;bg=red>dolor</> sit amet, consectetur ", colspan: 2), "hello world"],
+          ACON::Helper::Table::Separator.new,
+          ["hello <fg=white;bg=green>world</>", ACON::Helper::Table::Cell.new("Lorem ipsum dolor sit amet, <fg=white;bg=green>consectetur</> adipiscing elit", colspan: 2)],
+          ACON::Helper::Table::Separator.new,
+          ["hello ", ACON::Helper::Table::Cell.new("world", colspan: 1), "Lorem ipsum dolor sit amet, consectetur"],
+          ACON::Helper::Table::Separator.new,
+          ["Symfony ", ACON::Helper::Table::Cell.new("Test", colspan: 1), "Lorem <fg=white;bg=green>ipsum</> dolor sit amet, consectetur"],
+        ],
+        <<-'TABLE',
+        +--------------------------------------------------------------------------------+
+        | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor |
+        |--------------------------------------------------------------------------------|
+        | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor |
+        |--------------------------------------------------------------------------------|
+        | Lorem ipsum dolor sit amet, consectetur                                        |
+        | hello world                                                                    |
+        |--------------------------------------------------------------------------------|
+        | hello world                                                                    |
+        | Lorem ipsum dolor sit amet, consectetur adipiscing elit                        |
+        |--------------------------------------------------------------------------------|
+        | hello                                                                          |
+        | world                                                                          |
+        | Lorem ipsum dolor sit amet, consectetur                                        |
+        |--------------------------------------------------------------------------------|
+        | Symfony                                                                        |
+        | Test                                                                           |
+        | Lorem ipsum dolor sit amet, consectetur                                        |
+        +--------------------------------------------------------------------------------+
+
+        TABLE
+        "default",
+        nil,
+        nil,
+      },
+      "Borderless style" => {
+        %w(ISBN Title Author Price),
+        books,
+        self.get_table_contents("borderless_vertical"),
+        "borderless",
+        nil,
+        nil,
+      },
+      "Compact style" => {
+        %w(ISBN Title Author Price),
+        books,
+        self.get_table_contents("compact_vertical"),
+        "compact",
+        nil,
+        nil,
+      },
+      "Suggested style" => {
+        %w(ISBN Title Author Price),
+        books,
+        self.get_table_contents("suggested_vertical"),
+        "suggested",
+        nil,
+        nil,
+      },
+      "Box style" => {
+        %w(ISBN Title Author Price),
+        books,
+        <<-'TABLE',
+        ┌──────────────────────────────┐
+        │   ISBN: 99921-58-10-7        │
+        │  Title: Divine Comedy        │
+        │ Author: Dante Alighieri      │
+        │  Price: 9.95                 │
+        │──────────────────────────────│
+        │   ISBN: 9971-5-0210-0        │
+        │  Title: A Tale of Two Cities │
+        │ Author: Charles Dickens      │
+        │  Price: 139.25               │
+        └──────────────────────────────┘
+
+        TABLE
+        "box",
+        nil,
+        nil,
+      },
+      "Double box style" => {
+        %w(ISBN Title Author Price),
+        books,
+        <<-'TABLE',
+        ╔══════════════════════════════╗
+        ║   ISBN: 99921-58-10-7        ║
+        ║  Title: Divine Comedy        ║
+        ║ Author: Dante Alighieri      ║
+        ║  Price: 9.95                 ║
+        ║──────────────────────────────║
+        ║   ISBN: 9971-5-0210-0        ║
+        ║  Title: A Tale of Two Cities ║
+        ║ Author: Charles Dickens      ║
+        ║  Price: 139.25               ║
+        ╚══════════════════════════════╝
+
+        TABLE
+        "double-box",
+        nil,
+        nil,
+      },
+      "With titles" => {
+        %w(ISBN Title Author Price),
+        books,
+        <<-'TABLE',
+        +----------- Books ------------+
+        |   ISBN: 99921-58-10-7        |
+        |  Title: Divine Comedy        |
+        | Author: Dante Alighieri      |
+        |  Price: 9.95                 |
+        |------------------------------|
+        |   ISBN: 9971-5-0210-0        |
+        |  Title: A Tale of Two Cities |
+        | Author: Charles Dickens      |
+        |  Price: 139.25               |
+        +---------- Page 1/2 ----------+
+
+        TABLE
+        "default",
+        "Books",
+        "Page 1/2",
       },
     }
   end

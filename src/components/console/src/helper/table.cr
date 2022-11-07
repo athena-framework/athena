@@ -364,11 +364,11 @@ class Athena::Console::Helper::Table
         max_rows.times do |idx|
           cell = (row[idx]? || "").to_s
 
-          if !contains_colspan && (h = headers[idx]?)
+          if !headers.empty? && !contains_colspan
             rows << Row.new([
               sprintf(
                 "<comment>%s</>: %s",
-                h.to_s.rjust(max_header_length, ' '),
+                headers[idx]?.to_s.rjust(max_header_length, ' '),
                 cell
               ),
             ])
