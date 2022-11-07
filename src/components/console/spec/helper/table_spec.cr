@@ -683,6 +683,52 @@ struct TableSpec < ASPEC::TestCase
     TABLE
   end
 
+  def test_render_max_width_colspan : Nil
+    ACON::Helper::Table.new(output = self.io_output)
+      .rows([
+        [ACON::Helper::Table::Cell.new("Lorem ipsum dolor sit amet, <fg=white;bg=green>consectetur</> adipiscing elit, <fg=white;bg=red>sed</> do <fg=white;bg=red>eiusmod</> tempor", colspan: 3)],
+        ACON::Helper::Table::Separator.new,
+        [ACON::Helper::Table::Cell.new("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor", colspan: 3)],
+        ACON::Helper::Table::Separator.new,
+        [ACON::Helper::Table::Cell.new("Lorem ipsum <fg=white;bg=red>dolor</> sit amet, consectetur ", colspan: 2), "hello world"],
+        ACON::Helper::Table::Separator.new,
+        ["hello <fg=white;bg=green>world</>", ACON::Helper::Table::Cell.new("Lorem ipsum dolor sit amet, <fg=white;bg=green>consectetur</> adipiscing elit", colspan: 2)],
+        ACON::Helper::Table::Separator.new,
+        ["hello ", ACON::Helper::Table::Cell.new("world", colspan: 1), "Lorem ipsum dolor sit amet, consectetur"],
+        ACON::Helper::Table::Separator.new,
+        ["Athena ", ACON::Helper::Table::Cell.new("Test", colspan: 1), "Lorem <fg=white;bg=green>ipsum</> dolor sit amet, consectetur"],
+      ])
+      .column_max_width(0, 15)
+      .column_max_width(1, 15)
+      .column_max_width(2, 15)
+      .render
+
+    self.output_content(output).should eq <<-'TABLE'
+    +-----------------+-----------------+-----------------+
+    | Lorem ipsum dolor sit amet, consectetur adipi       |
+    | scing elit, sed do eiusmod tempor                   |
+    +-----------------+-----------------+-----------------+
+    | Lorem ipsum dolor sit amet, consectetur adipi       |
+    | scing elit, sed do eiusmod tempor                   |
+    +-----------------+-----------------+-----------------+
+    | Lorem ipsum dolor sit amet, co    | hello world     |
+    | nsectetur                         |                 |
+    +-----------------+-----------------+-----------------+
+    | hello world     | Lorem ipsum dolor sit amet, co    |
+    |                 | nsectetur adipiscing elit         |
+    +-----------------+-----------------+-----------------+
+    | hello           | world           | Lorem ipsum dol |
+    |                 |                 | or sit amet, co |
+    |                 |                 | nsectetur       |
+    +-----------------+-----------------+-----------------+
+    | Athena          | Test            | Lorem ipsum dol |
+    |                 |                 | or sit amet, co |
+    |                 |                 | nsectetur       |
+    +-----------------+-----------------+-----------------+
+
+    TABLE
+  end
+
   def test_append_row : Nil
     sections = [] of ACON::Output::Section
 
@@ -1018,6 +1064,45 @@ struct TableSpec < ASPEC::TestCase
         | bar | two  | 2 |
         | baz | tree | 3 |
         +-----+------+---+
+
+        TABLE
+      },
+    }
+  end
+
+  @[DataProvider("vertical_provider")]
+  def test_render_vertical(headers, rows, expected)
+    ACON::Helper::Table.new(output = self.io_output)
+      .headers(headers)
+      .rows(rows)
+      .vertical
+      .render
+
+    self.output_content(output).should eq expected
+  end
+
+  def vertical_provider : Hash
+    books = [
+      ["99921-58-10-7", "Divine Comedy", "Dante Alighieri", "9.95"],
+      ["9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"],
+    ]
+
+    {
+      "With header for all" => {
+        %w(ISBN Title Author Price),
+        books,
+        <<-'TABLE'
+        +------------------------------+
+        |   ISBN: 99921-58-10-7        |
+        |  Title: Divine Comedy        |
+        | Author: Dante Alighieri      |
+        |  Price: 9.95                 |
+        |------------------------------|
+        |   ISBN: 9971-5-0210-0        |
+        |  Title: A Tale of Two Cities |
+        | Author: Charles Dickens      |
+        |  Price: 139.25               |
+        +------------------------------+
 
         TABLE
       },

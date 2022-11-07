@@ -338,6 +338,45 @@ class Athena::Console::Helper::Table
         end
       end
     elsif @orientation.vertical?
+      formatter = @output.formatter
+      max_header_length = (@headers[0]? || [] of String).reduce 0 do |acc, header|
+        Math.max acc, Helper.width(Helper.remove_decoration(formatter, header.to_s))
+      end
+
+      @rows.each do |row|
+        next if row.is_a? Table::Separator
+
+        unless rows.empty?
+          rows << Row.new [divider]
+        end
+
+        contains_colspan = false
+
+        row.each do |cell|
+          if contains_colspan = is_cell_with_colspan.call cell
+            break
+          end
+        end
+
+        headers = @headers[0]? || [] of String
+        max_rows = Math.max headers.size, row.size
+
+        max_rows.times do |idx|
+          cell = (row[idx]? || "").to_s
+
+          if !contains_colspan && (h = headers[idx]?)
+            rows << Row.new([
+              sprintf(
+                "<comment>%s</>: %s",
+                h.to_s.rjust(max_header_length, ' '),
+                cell
+              ),
+            ])
+          elsif !cell.empty?
+            rows << Row.new [cell]
+          end
+        end
+      end
     else
       @headers.each { |h| rows << Row.new h unless h.empty? }
       rows << divider
@@ -773,7 +812,7 @@ class Athena::Console::Helper::Table
     style = self.get_column_style column
     padding_style = style
 
-    if cell.is_a? Separator
+    if cell.is_a? Table::Separator
       return sprintf style.border_format, style.border_chars[2] * width
     end
 
