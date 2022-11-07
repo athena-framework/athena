@@ -1,6 +1,5 @@
 require "../spec_helper"
 
-@[ASPEC::TestCase::Focus]
 struct TableSpec < ASPEC::TestCase
   @output : IO
 
@@ -854,7 +853,7 @@ struct TableSpec < ASPEC::TestCase
   end
 
   def test_append_row_no_section_output : Nil
-    table = ACON::Helper::Table.new output = self.io_output
+    table = ACON::Helper::Table.new self.io_output
 
     expect_raises ACON::Exceptions::Logic, "Appending a row is only supported when using a Athena::Console::Output::Section output, got Athena::Console::Output::IO." do
       table.append_row "9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"
@@ -862,7 +861,7 @@ struct TableSpec < ASPEC::TestCase
   end
 
   def test_missing_table_definition : Nil
-    table = ACON::Helper::Table.new output = self.io_output
+    table = ACON::Helper::Table.new self.io_output
 
     expect_raises ACON::Exceptions::InvalidArgument, "The table style 'absent' is not defined." do
       table.style "absent"
@@ -889,6 +888,8 @@ struct TableSpec < ASPEC::TestCase
       ])
       .style(style)
       .render
+
+    self.output_content(output).should eq expected
   end
 
   def title_provider : Tuple
@@ -914,9 +915,9 @@ struct TableSpec < ASPEC::TestCase
         "footer",
         "default",
         <<-'TABLE'
-        +---------------+---- Multiline
+        +---------------+--- Multiline
         header
-        here -+------------------+
+        here +------------------+
         | ISBN          | Title                    | Author           |
         +---------------+--------------------------+------------------+
         | 99921-58-10-7 | Divine Comedy            | Dante Alighieri  |

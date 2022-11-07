@@ -60,6 +60,7 @@ class Athena::Console::Formatter::Output
   end
 
   # :inherit:
+  # ameba:disable Metrics/CyclomaticComplexity
   def format_and_wrap(message : String?, width : Int32) : String
     return "" if message.nil?
 

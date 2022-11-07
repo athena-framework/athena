@@ -318,6 +318,7 @@ class Athena::Console::Helper::Table
 
   private alias InternalRowType = Row | ACON::Helper::Table::Separator
 
+  # ameba:disable Metrics/CyclomaticComplexity
   private def combined_rows(divider : Table::Separator) : Array(InternalRowType)
     rows = Array(InternalRowType).new
     is_cell_with_colspan = ->(cell : CellType) { cell.is_a?(ACON::Helper::Table::Cell) && cell.colspan >= 2 }
@@ -392,6 +393,7 @@ class Athena::Console::Helper::Table
     rows
   end
 
+  # ameba:disable Metrics/CyclomaticComplexity
   def render
     divider = ACON::Helper::Table::Separator.new
 
@@ -471,6 +473,7 @@ class Athena::Console::Helper::Table
     @number_of_columns = nil
   end
 
+  # ameba:disable Metrics/CyclomaticComplexity
   private def build_table_rows(rows : Array(InternalRowType)) : Rows
     formatter = @output.formatter.as ACON::Formatter::WrappableInterface
 
@@ -519,12 +522,12 @@ class Athena::Console::Helper::Table
 
     row_groups = [] of Array(Rows::Type)
 
-    rows.each_with_index do |row, row_key|
+    rows.each_with_index do |row, rk|
       row_group = [row.is_a?(Table::Separator) ? row : self.fill_cells(row)] of Rows::Type
 
-      if ur = unmerged_rows[row_key]?
-        ur.each_value do |row|
-          row_group << (row.is_a?(Table::Separator) ? row : self.fill_cells(row))
+      if ur = unmerged_rows[rk]?
+        ur.each_value do |r|
+          row_group << (r.is_a?(Table::Separator) ? r : self.fill_cells(r))
         end
       end
 
@@ -559,7 +562,7 @@ class Athena::Console::Helper::Table
 
         unmerged_rows = fill.merge! unmerged_rows
 
-        unmerged_rows.each do |unmerged_row_key, unmerged_row|
+        unmerged_rows.each_key do |unmerged_row_key|
           value = lines[unmerged_row_key - line]? || ""
           (unmerged_rows[unmerged_row_key] ||= Hash(Int32, Table::Cell).new)[column] = Table::Cell.new value, colspan: cell.colspan, style: cell.style
 
@@ -577,7 +580,7 @@ class Athena::Console::Helper::Table
         end
       else
         row = self.copy_row rows, unmerged_row_key - 1
-        unmerged_row.each do |column, c|
+        unmerged_row.each_key do |column|
           row[column] = unmerged_row[column]
         end
 
@@ -728,6 +731,7 @@ class Athena::Console::Helper::Table
     BOTTOM
   end
 
+  # ameba:disable Metrics/CyclomaticComplexity
   private def render_row_separator(type : RowSeparator = :middle, title : String? = nil, title_format : String? = nil) : Nil
     return unless (count = @number_of_columns)
 
