@@ -1,3 +1,424 @@
+# The Table helper can be used to display tabular data rendered to any `ACON::Output::Interface`.
+#
+# ```text
+# +---------------+--------------------------+------------------+
+# | ISBN          | Title                    | Author           |
+# +---------------+--------------------------+------------------+
+# | 99921-58-10-7 | Divine Comedy            | Dante Alighieri  |
+# | 9971-5-0210-0 | A Tale of Two Cities     | Charles Dickens  |
+# | 960-425-059-0 | The Lord of the Rings    | J. R. R. Tolkien |
+# | 80-902734-1-6 | And Then There Were None | Agatha Christie  |
+# +---------------+--------------------------+------------------+
+# ```
+#
+# # Usage
+#
+# Most commonly, a table will consist of a header row followed by one or more data rows:
+# ```
+# @[ACONA::AsCommand("table")]
+# class TableCommand < ACON::Command
+#   protected def execute(input : ACON::Input::Interface, output : ACON::Output::Interface) : ACON::Command::Status
+#     ACON::Helper::Table.new(output)
+#       .headers("ISBN", "Title", "Author")
+#       .rows([
+#         ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
+#         ["9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens"],
+#         ["960-425-059-0", "The Lord of the Rings", "J. R. R. Tolkien"],
+#         ["80-902734-1-6", "And Then There Were None", "Agatha Christie"],
+#       ])
+#       .render
+#
+#     ACON::Command::Status::SUCCESS
+#   end
+# end
+# ```
+#
+# ## Separating Rows
+#
+# Row separators can be added anywhere in the output by passing an `ACON::Helper::Table::Separator` as a row.
+#
+# ```
+# table
+#   .rows([
+#     ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
+#     ["9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens"],
+#     ACON::Helper::Table::Separator.new,
+#     ["960-425-059-0", "The Lord of the Rings", "J. R. R. Tolkien"],
+#     ["80-902734-1-6", "And Then There Were None", "Agatha Christie"],
+#   ])
+# ```
+#
+# ```text
+# +---------------+--------------------------+------------------+
+# | ISBN          | Title                    | Author           |
+# +---------------+--------------------------+------------------+
+# | 99921-58-10-7 | Divine Comedy            | Dante Alighieri  |
+# | 9971-5-0210-0 | A Tale of Two Cities     | Charles Dickens  |
+# +---------------+--------------------------+------------------+
+# | 960-425-059-0 | The Lord of the Rings    | J. R. R. Tolkien |
+# | 80-902734-1-6 | And Then There Were None | Agatha Christie  |
+# +---------------+--------------------------+------------------+
+# ```
+#
+# ## Header/Footer Titles
+#
+# Header and/or footer titles can optionally be added via the `#header_title` and/or `#footer_title` methods.
+#
+# ```
+# table
+#   .header_title("Books")
+#   .footer_title("Page 1/2")
+# ```
+#
+# ```text
+# +---------------+----------- Books --------+------------------+
+# | ISBN          | Title                    | Author           |
+# +---------------+--------------------------+------------------+
+# | 99921-58-10-7 | Divine Comedy            | Dante Alighieri  |
+# | 9971-5-0210-0 | A Tale of Two Cities     | Charles Dickens  |
+# +---------------+--------------------------+------------------+
+# | 960-425-059-0 | The Lord of the Rings    | J. R. R. Tolkien |
+# | 80-902734-1-6 | And Then There Were None | Agatha Christie  |
+# +---------------+--------- Page 1/2 -------+------------------+
+# ```
+#
+# ## Column Sizing
+#
+# By default, the width of each column is calculated automatically based on their contents.
+# The `#column_widths` method can be used to set the column widths explicitly.
+#
+# ```
+# table
+#   .column_widths(10, 0, 30)
+#   .render
+# ```
+#
+# In this example, the first column's width will be `10`, the last column's width will be `30`, and the second column's width will be calculated automatically since it is zero.
+# If you only want to set the width of a specific column, the `#column_width` method can be used.
+#
+# ```
+# table
+#   .column_width(0, 10)
+#   .column_width(2, 30)
+#   .render
+# ```
+#
+# The resulting table would be:
+#
+# ```text
+# +---------------+------------------ Books -+--------------------------------+
+# | ISBN          | Title                    | Author                         |
+# +---------------+--------------------------+--------------------------------+
+# | 99921-58-10-7 | Divine Comedy            | Dante Alighieri                |
+# | 9971-5-0210-0 | A Tale of Two Cities     | Charles Dickens                |
+# +---------------+--------------------------+--------------------------------+
+# | 960-425-059-0 | The Lord of the Rings    | J. R. R. Tolkien               |
+# | 80-902734-1-6 | And Then There Were None | Agatha Christie                |
+# +---------------+--------------------------+--------------------------------+
+# ```
+#
+# Notice that the width of the first column is greater than 10 characters wide.
+# This is because column widths are always considered as the minimum width.
+# If the content doesn't fit, it will be automatically increased to the longest content length.
+#
+# ### Max Width
+#
+# If you would rather wrap the contents in multiple rows, the `#column_max_width` method can be used.
+#
+# ```
+# table
+#   .column_max_width(0, 5)
+#   .column_max_width(1, 10)
+#   .render
+# ```
+#
+# This would cause the table to now be:
+#
+# ```text
+# +-------+------------+-- Books -----------------------+
+# | ISBN  | Title      | Author                         |
+# +-------+------------+--------------------------------+
+# | 99921 | Divine Com | Dante Alighieri                |
+# | -58-1 | edy        |                                |
+# | 0-7   |            |                                |
+# |                (the rest of the rows...)            |
+# +-------+------------+--------------------------------+
+# ```
+#
+# ## Orientation
+#
+# By default, the table contents are displayed as normal table with the data being in rows, the first being the header row(s).
+# The table can also be rendered vertically or horizontally via the `#vertical` and `#horizontal` method respectively.
+#
+# For example, the same contents rendered vertically would be:
+#
+# ```text
+# +----------------------------------+
+# |   ISBN: 99921-58-10-7            |
+# |  Title: Divine Comedy            |
+# | Author: Dante Alighieri          |
+# |----------------------------------|
+# |   ISBN: 9971-5-0210-0            |
+# |  Title: A Tale of Two Cities     |
+# | Author: Charles Dickens          |
+# |----------------------------------|
+# |   ISBN: 960-425-059-0            |
+# |  Title: The Lord of the Rings    |
+# | Author: J. R. R. Tolkien         |
+# |----------------------------------|
+# |   ISBN: 80-902734-1-6            |
+# |  Title: And Then There Were None |
+# | Author: Agatha Christie          |
+# +----------------------------------+
+# ```
+#
+# While horizontally, it would be:
+#
+# ```text
+# +--------+-----------------+----------------------+-----------------------+--------------------------+
+# | ISBN   | 99921-58-10-7   | 9971-5-0210-0        | 960-425-059-0         | 80-902734-1-6            |
+# | Title  | Divine Comedy   | A Tale of Two Cities | The Lord of the Rings | And Then There Were None |
+# | Author | Dante Alighieri | Charles Dickens      | J. R. R. Tolkien      | Agatha Christie          |
+# +--------+-----------------+----------------------+-----------------------+--------------------------+
+# ```
+#
+# ## Style
+#
+# Up until now, all the tables have been rendered using the `default` style.
+# The table helper comes with a few additional built in styles, including:
+#
+# * borderless
+# * compact
+# * box
+# * double-box
+# * suggested
+#
+# The desired can be set via the `#style` method.
+#
+# ```
+# table
+#   .style("default") # Same as not calling the method
+#   .render
+# ```
+#
+# ### borderless
+#
+# ```text
+# =============== ========================== ==================
+#  ISBN            Title                      Author
+# =============== ========================== ==================
+#  99921-58-10-7   Divine Comedy              Dante Alighieri
+#  9971-5-0210-0   A Tale of Two Cities       Charles Dickens
+# =============== ========================== ==================
+#  960-425-059-0   The Lord of the Rings      J. R. R. Tolkien
+#  80-902734-1-6   And Then There Were None   Agatha Christie
+# =============== ========================== ==================
+# ```
+#
+# ### compact
+#
+# ```text
+# ISBN          Title                    Author
+# 99921-58-10-7 Divine Comedy            Dante Alighieri
+# 9971-5-0210-0 A Tale of Two Cities     Charles Dickens
+# 960-425-059-0 The Lord of the Rings    J. R. R. Tolkien
+# 80-902734-1-6 And Then There Were None Agatha Christie
+# ```
+#
+# ### box
+#
+# ```text
+# ┌───────────────┬──────────────────────────┬──────────────────┐
+# │ ISBN          │ Title                    │ Author           │
+# ├───────────────┼──────────────────────────┼──────────────────┤
+# │ 99921-58-10-7 │ Divine Comedy            │ Dante Alighieri  │
+# │ 9971-5-0210-0 │ A Tale of Two Cities     │ Charles Dickens  │
+# ├───────────────┼──────────────────────────┼──────────────────┤
+# │ 960-425-059-0 │ The Lord of the Rings    │ J. R. R. Tolkien │
+# │ 80-902734-1-6 │ And Then There Were None │ Agatha Christie  │
+# └───────────────┴──────────────────────────┴──────────────────┘
+# ```
+#
+# ### double-box
+#
+# ```text
+# ╔═══════════════╤══════════════════════════╤══════════════════╗
+# ║ ISBN          │ Title                    │ Author           ║
+# ╠═══════════════╪══════════════════════════╪══════════════════╣
+# ║ 99921-58-10-7 │ Divine Comedy            │ Dante Alighieri  ║
+# ║ 9971-5-0210-0 │ A Tale of Two Cities     │ Charles Dickens  ║
+# ╟───────────────┼──────────────────────────┼──────────────────╢
+# ║ 960-425-059-0 │ The Lord of the Rings    │ J. R. R. Tolkien ║
+# ║ 80-902734-1-6 │ And Then There Were None │ Agatha Christie  ║
+# ╚═══════════════╧══════════════════════════╧══════════════════╝
+# ```
+#
+# ### suggested
+#
+# The suggested style that fits in with `ACON::Style::Athena`.
+#
+# ```text
+# --------------- -------------------------- ------------------
+#  ISBN            Title                      Author
+# --------------- -------------------------- ------------------
+#  99921-58-10-7   Divine Comedy              Dante Alighieri
+#  9971-5-0210-0   A Tale of Two Cities       Charles Dickens
+# --------------- -------------------------- ------------------
+#  960-425-059-0   The Lord of the Rings      J. R. R. Tolkien
+#  80-902734-1-6   And Then There Were None   Agatha Christie
+# --------------- -------------------------- ------------------
+# ```
+#
+# ## Custom Styles
+#
+# If you would rather something more personal, custom styles can also be defined by providing `#style` with an `ACON::Helper::Table::Style` instance.
+#
+# ```
+# table_style = ACON::Helper::Table::Style.new
+#   .horizontal_border_chars("<fg=magenta>|</>")
+#   .vertical_border_chars("<info>-</>")
+#   .default_crossing_char(' ')
+#
+# table
+#   .style(table_style)
+#   .render
+# ```
+#
+# Notice you can use the same style tags/styles as you can with `ACON::Formatter::OutputStyleInterface`s.
+# This is used by default to give some color to headers when allowed.
+#
+# TIP: Custom styles can also be registered globally:
+# ```
+# ACON::Helper::Table.set_style_definition "colorful", table_style
+#
+# table.style("colorful")
+# ```
+# This method can also be used to override the built-in styles.
+#
+# See the related type for more information.
+#
+# ## Table Cells
+#
+# While table styles are helpful for providing a standardized global style for a table,
+# the `ACON::Helper::Table::Cell` type can be used to style a specific cell.
+# Such as customizing the fore/background color, the alignment of the text, or the overall format of the cell.
+#
+# See the related type for more information/examples.
+#
+# ### Spanning Multiple Columns and Rows
+#
+# The `ACON::Helper::Table::Cell` type can also be used to add *colspan* and/or *rowspan* to a cell;
+# which would make it span more than one column/row.
+#
+# ```
+# ACON::Helper::Table.new(output)
+#   .headers("ISBN", "Title", "Author")
+#   .rows([
+#     ["99921-58-10-7", "Divine Comedy", "Dante Alighieri"],
+#     ACON::Helper::Table::Separator.new,
+#     [ACON::Helper::Table::Cell.new("This value spans 3 columns.", colspan: 3)],
+#   ])
+#   .render
+# ```
+#
+# This would result in:
+#
+# ```text
+# +---------------+---------------+-----------------+
+# | ISBN          | Title         | Author          |
+# +---------------+---------------+-----------------+
+# | 99921-58-10-7 | Divine Comedy | Dante Alighieri |
+# +---------------+---------------+-----------------+
+# | This value spans 3 columns.                     |
+# +---------------+---------------+-----------------+
+# ```
+#
+# TIP: This table cells with colspan and `center` alignment can be used to create header cells that span the entire table width:
+# ```
+# table
+#   .headers([
+#     [ACON::Helper::Table::Cell.new(
+#       "Main table title",
+#       colspan: 3,
+#       style: ACON::Helper::Table::CellStyle.new(
+#         align: :center
+#       )
+#     )],
+#     %w(ISBN Title Author),
+#   ])
+# ```
+# Would generate:
+# ```text
+# +--------+--------+--------+
+# |     Main table title     |
+# +--------+--------+--------+
+# | ISBN   | Title  | Author |
+# +--------+--------+--------+
+# ```
+#
+# In a similar way, *rowspan* can be used to have a column span multiple lines.
+# This is especially helpful for columns with line breaks.
+#
+# ```
+# ACON::Helper::Table.new(output)
+#   .headers("ISBN", "Title", "Author")
+#   .rows([
+#     [
+#       "978-0521567817",
+#       "De Monarchia",
+#       ACON::Helper::Table::Cell.new("Dante Alighieri\nspans multiple rows", rowspan: 2),
+#     ],
+#     ["978-0804169127", "Divine Comedy"],
+#   ])
+#   .render
+# ```
+#
+# This would result in:
+#
+# ```text
+# +----------------+---------------+---------------------+
+# | ISBN           | Title         | Author              |
+# +----------------+---------------+---------------------+
+# | 978-0521567817 | De Monarchia  | Dante Alighieri     |
+# | 978-0804169127 | Divine Comedy | spans multiple rows |
+# +----------------+---------------+---------------------+
+# ```
+#
+# *colspan* and *rowspan* may also be used together to create any layout you can think of.
+#
+# ## Modifying Rendered Tables
+#
+# The `#render` method requires providing the entire table's content in order to fully render the table.
+# In some cases, that may not be possible if the data is generated dynamically.
+# In such cases, the `#append_row` method can be used which functions similarly to `#add_row`, but will append the rows to an already rendered table.
+#
+# WARNING: This feature is only available when the table is rendered in an `ACON::Output::Section`.
+#
+# ```
+# @[ACONA::AsCommand("table")]
+# class TableCommand < ACON::Command
+#   protected def execute(input : ACON::Input::Interface, output : ACON::Output::Interface) : ACON::Command::Status
+#     section = output.section
+#     table = ACON::Helper::Table.new(section)
+#       .add_row("Foo")
+#
+#     table.render
+#
+#     table.append_row "Bar"
+#
+#     ACON::Command::Status::SUCCESS
+#   end
+# end
+# ```
+#
+# This ultimately results in:
+#
+# ```text
+# +-----+
+# | Foo |
+# | Bar |
+# +-----+
+# ```
 class Athena::Console::Helper::Table
   enum Orientation
     DEFAULT
@@ -155,12 +576,13 @@ class Athena::Console::Helper::Table
 
   @effective_column_widths = Hash(Int32, Int32).new
   @number_of_columns : Int32? = nil
-  getter style : ACON::Helper::Table::Style
   @column_styles = Hash(Int32, ACON::Helper::Table::Style).new
   @column_widths = Hash(Int32, Int32).new
   @column_max_widths = Hash(Int32, Int32).new
   @rendered = false
   @orientation : Orientation = :default
+
+  getter style : ACON::Helper::Table::Style
 
   @output : ACON::Output::Interface
 
@@ -319,81 +741,6 @@ class Athena::Console::Helper::Table
   private alias InternalRowType = Row | ACON::Helper::Table::Separator
 
   # ameba:disable Metrics/CyclomaticComplexity
-  private def combined_rows(divider : Table::Separator) : Array(InternalRowType)
-    rows = Array(InternalRowType).new
-    is_cell_with_colspan = ->(cell : CellType) { cell.is_a?(ACON::Helper::Table::Cell) && cell.colspan >= 2 }
-
-    if @orientation.horizontal?
-      @headers[0]?.try &.each_with_index do |header, idx|
-        rows.insert idx, Row.new [header]
-        @rows.each do |row|
-          next if row.is_a? Table::Separator
-
-          if rv = row[idx]?
-            rows[idx].as(Row) << rv
-          elsif is_cell_with_colspan.call rows[idx].as(Row)[0]
-            # Noop, there is a "title"
-          else
-            rows[idx].as(Row) << ""
-          end
-        end
-      end
-    elsif @orientation.vertical?
-      formatter = @output.formatter
-      max_header_length = (@headers[0]? || [] of String).reduce 0 do |acc, header|
-        Math.max acc, Helper.width(Helper.remove_decoration(formatter, header.to_s))
-      end
-
-      @rows.each do |row|
-        next if row.is_a? Table::Separator
-
-        unless rows.empty?
-          rows << Row.new [divider]
-        end
-
-        contains_colspan = false
-
-        row.each do |cell|
-          if contains_colspan = is_cell_with_colspan.call cell
-            break
-          end
-        end
-
-        headers = @headers[0]? || [] of String
-        max_rows = Math.max headers.size, row.size
-
-        max_rows.times do |idx|
-          cell = (row[idx]? || "").to_s
-
-          if !headers.empty? && !contains_colspan
-            rows << Row.new([
-              sprintf(
-                "<comment>%s</>: %s",
-                headers[idx]?.to_s.rjust(max_header_length, ' '),
-                cell
-              ),
-            ])
-          elsif !cell.empty?
-            rows << Row.new [cell]
-          end
-        end
-      end
-    else
-      @headers.each { |h| rows << Row.new h unless h.empty? }
-      rows << divider
-      @rows.each do |r|
-        case r
-        when Table::Separator then rows << r
-        else
-          rows << Row.new r unless r.empty?
-        end
-      end
-    end
-
-    rows
-  end
-
-  # ameba:disable Metrics/CyclomaticComplexity
   def render
     divider = ACON::Helper::Table::Separator.new
 
@@ -466,6 +813,81 @@ class Athena::Console::Helper::Table
 
     self.cleanup
     @rendered = true
+  end
+
+  # ameba:disable Metrics/CyclomaticComplexity
+  private def combined_rows(divider : Table::Separator) : Array(InternalRowType)
+    rows = Array(InternalRowType).new
+    is_cell_with_colspan = ->(cell : CellType) { cell.is_a?(ACON::Helper::Table::Cell) && cell.colspan >= 2 }
+
+    if @orientation.horizontal?
+      @headers[0]?.try &.each_with_index do |header, idx|
+        rows.insert idx, Row.new [header]
+        @rows.each do |row|
+          next if row.is_a? Table::Separator
+
+          if rv = row[idx]?
+            rows[idx].as(Row) << rv
+          elsif is_cell_with_colspan.call rows[idx].as(Row)[0]
+            # Noop, there is a "title"
+          else
+            rows[idx].as(Row) << ""
+          end
+        end
+      end
+    elsif @orientation.vertical?
+      formatter = @output.formatter
+      max_header_length = (@headers[0]? || [] of String).reduce 0 do |acc, header|
+        Math.max acc, Helper.width(Helper.remove_decoration(formatter, header.to_s))
+      end
+
+      @rows.each do |row|
+        next if row.is_a? Table::Separator
+
+        unless rows.empty?
+          rows << Row.new [divider]
+        end
+
+        contains_colspan = false
+
+        row.each do |cell|
+          if contains_colspan = is_cell_with_colspan.call cell
+            break
+          end
+        end
+
+        headers = @headers[0]? || [] of String
+        max_rows = Math.max headers.size, row.size
+
+        max_rows.times do |idx|
+          cell = (row[idx]? || "").to_s
+
+          if !headers.empty? && !contains_colspan
+            rows << Row.new([
+              sprintf(
+                "<comment>%s</>: %s",
+                headers[idx]?.to_s.rjust(max_header_length, ' '),
+                cell
+              ),
+            ])
+          elsif !cell.empty?
+            rows << Row.new [cell]
+          end
+        end
+      end
+    else
+      @headers.each { |h| rows << Row.new h unless h.empty? }
+      rows << divider
+      @rows.each do |r|
+        case r
+        when Table::Separator then rows << r
+        else
+          rows << Row.new r unless r.empty?
+        end
+      end
+    end
+
+    rows
   end
 
   private def cleanup : Nil

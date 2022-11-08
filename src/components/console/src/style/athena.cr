@@ -86,7 +86,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   # :inherit:
   #
-  # ```
+  # ```text
   # !
   # ! [CAUTION] Some Message
   # !
@@ -104,7 +104,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   # :inherit:
   #
-  # ```
+  # ```text
   # // Some Message
   # ```
   #
@@ -120,7 +120,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   # :inherit:
   #
-  # ```
+  # ```text
   # [ERROR] Some Message
   # ```
   #
@@ -136,7 +136,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   # :inherit:
   #
-  # ```
+  # ```text
   # [INFO] Some Message
   # ```
   #
@@ -147,7 +147,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   # :inherit:
   #
-  # ```
+  # ```text
   # * Item 1
   # * Item 2
   # * Item 3
@@ -175,7 +175,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   # :inherit:
   #
-  # ```
+  # ```text
   # ! [NOTE] Some Message
   # ```
   #
@@ -206,7 +206,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   # :inherit:
   #
-  # ```
+  # ```text
   # Some Message
   # ------------
   # ```
@@ -221,7 +221,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   # :inherit:
   #
-  # ```
+  # ```text
   #  [OK] Some Message
   # ```
   #
@@ -248,7 +248,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   # :inherit:
   #
-  # ```
+  # ```text
   # Some Message
   # ============
   # ```
@@ -263,7 +263,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   # :inherit:
   #
-  # ```
+  # ```text
   #  [WARNING] Some Message
   # ```
   #
