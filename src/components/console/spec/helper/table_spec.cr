@@ -539,7 +539,8 @@ struct TableSpec < ASPEC::TestCase
       ])
 
     style = ACON::Helper::Table::Style.new
-    style.align = :left
+      .align(:right)
+
     table.column_style 3, style
 
     table.render
@@ -567,7 +568,8 @@ struct TableSpec < ASPEC::TestCase
       .column_width(3, 10)
 
     style = ACON::Helper::Table::Style.new
-    style.align = :left
+      .align(:right)
+
     table.column_style 3, style
 
     table.render
@@ -594,7 +596,8 @@ struct TableSpec < ASPEC::TestCase
       .column_widths(15, 0, -1, 10)
 
     style = ACON::Helper::Table::Style.new
-    style.align = :left
+      .align(:right)
+
     table.column_style 3, style
 
     table.render

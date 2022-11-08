@@ -1,10 +1,4 @@
 class Athena::Console::Helper::Table::Style
-  enum Align
-    LEFT
-    RIGHT
-    CENTER
-  end
-
   # Returns the character used for cell padding.
   getter padding_char : Char = ' '
 
@@ -35,9 +29,19 @@ class Athena::Console::Helper::Table::Style
   getter cell_row_format : String = "%s"
   getter cell_row_content_format : String = " %s "
 
-  property border_format : String = "%s"
+  getter border_format : String = "%s"
 
-  property align : Align = :right
+  getter align : ACON::Helper::Table::Alignment = :left
+
+  def align(@align : ACON::Helper::Table::Alignment) : self
+    self
+  end
+
+  def border_format(format : String) : self
+    @border_format = format
+
+    self
+  end
 
   def padding_char(char : Char) : self
     raise ArgumentError.new "The padding char cannot be empty" if char.empty?
@@ -47,37 +51,37 @@ class Athena::Console::Helper::Table::Style
     self
   end
 
-  def header_title_format(format : String | Char) : self
+  def header_title_format(format : String) : self
     @header_title_format = format.to_s
 
     self
   end
 
-  def footer_title_format(format : String | Char) : self
+  def footer_title_format(format : String) : self
     @footer_title_format = format.to_s
 
     self
   end
 
-  def cell_header_format(format : String | Char) : self
+  def cell_header_format(format : String) : self
     @cell_header_format = format.to_s
 
     self
   end
 
-  def cell_row_format(format : String | Char) : self
+  def cell_row_format(format : String) : self
     @cell_row_format = format.to_s
 
     self
   end
 
-  def cell_row_content_format(format : String | Char) : self
+  def cell_row_content_format(format : String) : self
     @cell_row_content_format = format.to_s
 
     self
   end
 
-  def border_format(format : String | Char) : self
+  def border_format(format : String) : self
     @border_format = format.to_s
 
     self
@@ -85,8 +89,8 @@ class Athena::Console::Helper::Table::Style
 
   protected def pad(string : String, width : Int32, padding_char) : String
     case @align
-    in .left?   then string.rjust width, padding_char
-    in .right?  then string.ljust width, padding_char
+    in .left?   then string.ljust width, padding_char
+    in .right?  then string.rjust width, padding_char
     in .center? then string.center width, padding_char
     end
   end
@@ -154,7 +158,7 @@ class Athena::Console::Helper::Table::Style
   # ```
   # 1═══════════════2══════════════════════════2══════════════════3
   # ║ ISBN          │ Title                    │ Author           ║
-  # 8'══════════════0'═════════════════════════0'═════════════════4'
+  # 8'══════════════0══════════════════════════0══════════════════4
   # ║ 99921-58-10-7 │ Divine Comedy            │ Dante Alighieri  ║
   # ║ 9971-5-0210-0 │ A Tale of Two Cities     │ Charles Dickens  ║
   # 8───────────────0──────────────────────────0──────────────────4

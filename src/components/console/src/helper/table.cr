@@ -147,8 +147,8 @@
 #
 # ## Orientation
 #
-# By default, the table contents are displayed as normal table with the data being in rows, the first being the header row(s).
-# The table can also be rendered vertically or horizontally via the `#vertical` and `#horizontal` method respectively.
+# By default, the table contents are displayed as a normal table with the data being in rows, the first being the header row(s).
+# The table can also be rendered vertically or horizontally via the `#vertical` and `#horizontal` methods respectively.
 #
 # For example, the same contents rendered vertically would be:
 #
@@ -182,7 +182,7 @@
 # +--------+-----------------+----------------------+-----------------------+--------------------------+
 # ```
 #
-# ## Style
+# ## Styles
 #
 # Up until now, all the tables have been rendered using the `default` style.
 # The table helper comes with a few additional built in styles, including:
@@ -191,7 +191,6 @@
 # * compact
 # * box
 # * double-box
-# * suggested
 #
 # The desired can be set via the `#style` method.
 #
@@ -253,22 +252,6 @@
 # ╚═══════════════╧══════════════════════════╧══════════════════╝
 # ```
 #
-# ### suggested
-#
-# The suggested style that fits in with `ACON::Style::Athena`.
-#
-# ```text
-# --------------- -------------------------- ------------------
-#  ISBN            Title                      Author
-# --------------- -------------------------- ------------------
-#  99921-58-10-7   Divine Comedy              Dante Alighieri
-#  9971-5-0210-0   A Tale of Two Cities       Charles Dickens
-# --------------- -------------------------- ------------------
-#  960-425-059-0   The Lord of the Rings      J. R. R. Tolkien
-#  80-902734-1-6   And Then There Were None   Agatha Christie
-# --------------- -------------------------- ------------------
-# ```
-#
 # ## Custom Styles
 #
 # If you would rather something more personal, custom styles can also be defined by providing `#style` with an `ACON::Helper::Table::Style` instance.
@@ -284,23 +267,24 @@
 #   .render
 # ```
 #
-# Notice you can use the same style tags/styles as you can with `ACON::Formatter::OutputStyleInterface`s.
+# Notice you can use the same style tags as you can with `ACON::Formatter::OutputStyleInterface`s.
 # This is used by default to give some color to headers when allowed.
 #
 # TIP: Custom styles can also be registered globally:
 # ```
 # ACON::Helper::Table.set_style_definition "colorful", table_style
 #
+# # ...
+#
 # table.style("colorful")
 # ```
 # This method can also be used to override the built-in styles.
 #
-# See the related type for more information.
+# See `ACON::Helper::Table::Style` for more information.
 #
 # ## Table Cells
 #
-# While table styles are helpful for providing a standardized global style for a table,
-# the `ACON::Helper::Table::Cell` type can be used to style a specific cell.
+# The `ACON::Helper::Table::Cell` type can be used to style a specific cell.
 # Such as customizing the fore/background color, the alignment of the text, or the overall format of the cell.
 #
 # See the related type for more information/examples.
@@ -356,7 +340,7 @@
 # +--------+--------+--------+
 # ```
 #
-# In a similar way, *rowspan* can be used to have a column span multiple lines.
+# In a similar way, *rowspan* can be used to have a column span multiple rows.
 # This is especially helpful for columns with line breaks.
 #
 # ```
@@ -392,7 +376,7 @@
 # In some cases, that may not be possible if the data is generated dynamically.
 # In such cases, the `#append_row` method can be used which functions similarly to `#add_row`, but will append the rows to an already rendered table.
 #
-# WARNING: This feature is only available when the table is rendered in an `ACON::Output::Section`.
+# INFO: This feature is only available when the table is rendered in an `ACON::Output::Section`.
 #
 # ```
 # @[ACONA::AsCommand("table")]
@@ -420,15 +404,73 @@
 # +-----+
 # ```
 class Athena::Console::Helper::Table
-  enum Orientation
+  # Represents how the text within a cell should be aligned.
+  enum Alignment
+    # Aligns the text to the left of the cell.
+    #
+    # ```text
+    # +-----------------+
+    # | Text            |
+    # +-----------------+
+    # ```
+    LEFT
+
+    # Aligns the text to the right of the cell.
+    #
+    # ```text
+    # +-----------------+
+    # |            Text |
+    # +-----------------+
+    # ```
+    RIGHT
+
+    # Centers the text within the cell.
+    #
+    # ```text
+    # +-----------------+
+    # |      Text       |
+    # +-----------------+
+    # ```
+    CENTER
+  end
+
+  private enum Orientation
     DEFAULT
     HORIZONTAL
     VERTICAL
   end
 
+  # Represents a cell that can span more than one column/row
+  # and/or have a unique style.
+  #
+  # For example:
+  #
+  # ```
+  # table
+  #   .rows([
+  #     [
+  #       "Foo",
+  #       ACON::Helper::Table::Cell.new(
+  #         "Bar",
+  #         style: ACON::Helper::Table::CellStyle.new(
+  #           align: :center,
+  #           foreground: "red",
+  #           background: "green"
+  #         )
+  #       ),
+  #     ],
+  #   ])
+  # ```
+  #
+  # See the [table docs][Athena::Console::Helper::Table--table-cells] and `ACON::Helper::Table::CellStyle` for more information.
   class Cell
+    # Returns how many rows this cell should span.
     getter rowspan : Int32
+
+    # Returns how many columns this cell should span.
     getter colspan : Int32
+
+    # Returns the style representing how this cell should be styled.
     getter style : Table::CellStyle?
 
     @value : String
@@ -447,6 +489,9 @@ class Athena::Console::Helper::Table
     end
   end
 
+  # Represents a line that separates one or more rows.
+  #
+  # See the [separating rows][Athena::Console::Helper::Table--separating-rows] section for more information.
   class Separator < Table::Cell
     def initialize(
       rowspan : Int32 = 1,
@@ -457,8 +502,12 @@ class Athena::Console::Helper::Table
     end
   end
 
-  alias CellType = String | Int64 | Int32 | Float32 | Float64 | Bool | Athena::Console::Helper::Table::Cell
-  alias RowType = Enumerable(CellType) | Table::Separator
+  # The possible types that are accepted as cell values.
+  # They are all eventually turned into strings.
+  alias CellType = String | Number::Primitive | Bool | Athena::Console::Helper::Table::Cell
+
+  # The possible types that represent a row.
+  alias RowType = Enumerable(CellType) | Athena::Console::Helper::Table::Separator
 
   private struct Row
     alias Type = String | Table::Cell
