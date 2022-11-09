@@ -105,3 +105,33 @@ module Athena::Console
   # Contains types realted to lazily loading commands.
   module Loader; end
 end
+
+@[ACONA::AsCommand("table")]
+class TableCommand < ACON::Command
+  protected def execute(input : ACON::Input::Interface, output : ACON::Output::Interface) : ACON::Command::Status
+    table_style = ACON::Helper::Table::Style.new
+      .border_format("~%s~")
+
+    ACON::Helper::Table.new(output)
+      # .headers("Data")
+      .add_row("text", "ba")
+      .style(table_style)
+      # .horizontal
+      .render
+
+    ACON::Command::Status::SUCCESS
+  end
+end
+
+class MyCustomApplication < ACON::Application
+  protected def configure_io(input : ACON::Input::Interface, output : ACON::Output::Interface) : Nil
+    super
+
+    my_style = ACON::Formatter::OutputStyle.new :red, "#f87b05", Colorize::Mode.flags Bold, Underline
+    output.formatter.set_style "fire", my_style
+  end
+end
+
+app = MyCustomApplication.new "Athena"
+app.add TableCommand.new
+app.run

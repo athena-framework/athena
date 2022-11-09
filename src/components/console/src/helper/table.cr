@@ -440,8 +440,8 @@ class Athena::Console::Helper::Table
     VERTICAL
   end
 
-  # Represents a cell that can span more than one column/row
-  # and/or have a unique style.
+  # Represents a cell that can span more than one column/row and/or have a unique style.
+  # The cell may also have a value, which represents the value to display in the cell.
   #
   # For example:
   #
@@ -1207,12 +1207,8 @@ class Athena::Console::Helper::Table
     return unless (count = @number_of_columns)
 
     borders = @style.border_chars
-
-    if !borders[0].presence && !borders[2].presence && !@style.crossing_char.presence
-      return
-    end
-
     crossings = @style.crossing_chars
+
     horizontal, left_char, middle_char, right_char = case type
                                                      when .middle?     then {borders[2], crossings[8], crossings[0], crossings[4]}
                                                      when .top?        then {borders[0], crossings[1], crossings[2], crossings[3]}
