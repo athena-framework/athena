@@ -565,10 +565,15 @@ class Athena::Console::Helper::Table
   # INTERNAL
   protected class_getter styles : Hash(String, ACON::Helper::Table::Style) { self.init_styles }
 
+  # Registers the provided *style* with the provided *name*.
+  #
+  # See [custom styles][Athena::Console::Helper::Table--custom-styles].
   def self.set_style_definition(name : String, style : ACON::Helper::Table::Style) : Nil
     self.styles[name] = style
   end
 
+  # Returns the `ACON::Helper::Table::Style` style with the provided *name*,
+  # raising an `ACON::Exceptions::InvalidArgument` if no style with that name is defined.
   def self.style_definition(name : String) : ACON::Helper::Table::Style
     self.styles[name]? || raise ACON::Exceptions::InvalidArgument.new "The table style '#{name}' is not defined."
   end
@@ -631,6 +636,7 @@ class Athena::Console::Helper::Table
   @rendered = false
   @orientation : Orientation = :default
 
+  # Returns the `ACON::Helper::Table::Style` used by this table.
   getter style : ACON::Helper::Table::Style
 
   @output : ACON::Output::Interface
@@ -639,36 +645,53 @@ class Athena::Console::Helper::Table
     @style = ACON::Helper::Table::Style.new
   end
 
+  # Sets the table [header title][Athena::Console::Helper::Table--headerfooter-titles].
   def header_title(@header_title : String?) : self
     self
   end
 
+  # Sets the table [footer title][Athena::Console::Helper::Table--headerfooter-titles].
   def footer_title(@footer_title : String?) : self
     self
   end
 
-  def style(name : String | ACON::Helper::Table::Style) : self
-    @style = self.resolve_style name
+  # Sets the style of this table.
+  # *style* may either be an explicit `ACON::Helper::Table::Style`,
+  # or the name of the style to use if it is built-in, or was registered via `.set_style_definition`.
+  #
+  # See [styles][Athena::Console::Helper::Table--styles] and [custom styles][Athena::Console::Helper::Table--custom-styles].
+  def style(style : String | ACON::Helper::Table::Style) : self
+    @style = self.resolve_style style
 
     self
   end
 
+  # Sets the style of the column at the provided *index*.
+  # *style* may either be an explicit `ACON::Helper::Table::Style`,
+  # or the name of the style to use if it is built-in, or was registered via `.set_style_definition`.
   def column_style(index : Int32, style : ACON::Helper::Table::Style | String) : self
     @column_styles[index] = self.resolve_style style
 
     self
   end
 
+  # Returns the `ACON::Helper::Table::Style` the column at the provided *index* is using, falling back on `#style`.
   def column_style(index : Int32) : ACON::Helper::Table::Style
     @column_styles[index]? || self.style
   end
 
+  # Sets the minimum *width* for the column at the provided *index*.
+  #
+  # See [column sizing][Athena::Console::Helper::Table--column-sizing].
   def column_width(index : Int32, width : Int32) : self
     @column_widths[index] = width
 
     self
   end
 
+  # Sets the minimum column widths to the provided *widths*.
+  #
+  # See [column sizing][Athena::Console::Helper::Table--column-sizing].
   def column_widths(widths : Enumerable(Int32)) : self
     @column_widths.clear
 
@@ -679,10 +702,14 @@ class Athena::Console::Helper::Table
     self
   end
 
+  # :ditto:
   def column_widths(*widths : Int32) : self
     self.column_widths widths
   end
 
+  # Sets the maximum *width* for the column at the provided *index*.
+  #
+  # See [column sizing][Athena::Console::Helper::Table--column-sizing].
   def column_max_width(index : Int32, width : Int32) : self
     if !@output.formatter.is_a? ACON::Formatter::WrappableInterface
       raise ACON::Exceptions::Logic.new "Setting a maximum column width is only supported when using a #{ACON::Formatter::WrappableInterface} formatter, got #{@output.class}."
@@ -712,18 +739,43 @@ class Athena::Console::Helper::Table
   end
 
   # Overrides the rows of this table to those provided in *rows*.
+  #
+  # ```
+  # table
+  #   .rows(%w(Foo Bar Baz))
+  #   .render
+  # ```
   def rows(rows : RowType) : self
     self.rows({rows})
   end
 
   # Overrides the rows of this table to those provided in *rows*.
+  #
+  # ```
+  # table
+  #   .rows([
+  #     %w(One Two Three),
+  #     %w(Foo Bar Baz),
+  #   ])
+  #   .render
+  # ```
   def rows(rows : Enumerable(RowType)) : self
     @rows.clear
 
     self.add_rows rows
   end
 
-  # Adds n new rows
+  # Similar to `#rows(rows : Enumerable(RowType))`, but appends the provided *rows* to this table.
+  #
+  # ```
+  # # Existing rows are not removed.
+  # table
+  #   .add_rows([
+  #     %w(One Two Three),
+  #     %w(Foo Bar Baz),
+  #   ])
+  #   .render
+  # ```
   def add_rows(rows : Enumerable(RowType)) : self
     rows.each do |r|
       self.add_row r
@@ -732,7 +784,15 @@ class Athena::Console::Helper::Table
     self
   end
 
-  # Adds a single new row
+  # Adds a single new *row* to this table.
+  #
+  # ```
+  # # Existing rows are not removed.
+  # table
+  #   .add_row(%w(One Two Three))
+  #   .add_row(%w(Foo Bar Baz))
+  #   .render
+  # ```
   def add_row(row : RowType) : self
     @rows << case row
     when Table::Separator then row
@@ -743,12 +803,24 @@ class Athena::Console::Helper::Table
     self
   end
 
+  # Adds the provided *columns* as a single row to this table.
+  #
+  # ```
+  # # Existing rows are not removed.
+  # table
+  #   .add_row("One", "Two", "Three")
+  #   .add_row("Foo", "Bar", "Baz")
+  #   .render
+  # ```
   def add_row(*columns : CellType) : self
     self.add_row columns
 
     self
   end
 
+  # Appends *row* to an already rendered table.
+  #
+  # See [modifying rendered tables][Athena::Console::Helper::Table--modifying-rendered-tables]
   def append_row(row : RowType) : self
     unless (output = @output).is_a? ACON::Output::Section
       raise ACON::Exceptions::Logic.new "Appending a row is only supported when using a #{ACON::Output::Section} output, got #{@output.class}."
@@ -764,23 +836,36 @@ class Athena::Console::Helper::Table
     self
   end
 
+  # Appends the provided *columns* as a single row to an already rendered table.
+  #
+  # See [modifying rendered tables][Athena::Console::Helper::Table--modifying-rendered-tables]
   def append_row(*columns : CellType) : self
     self.append_row([*columns])
   end
 
+  # Manually sets the provided *row* to the provided *index*.
   #
+  # ```
+  # # Existing rows are not removed.
+  # table
+  #   .add_row(%w(One Two Three))
+  #   .row(0, %w(Foo Bar Baz)) # Overrides row 0 to this row
+  #   .render
+  # ```
   def row(index : Int32, row : RowType) : self
-    @rows[index] = row
+    @rows[index] = Row.new row
 
     self
   end
 
+  # Changes this table's [orientation][Athena::Console::Helper::Table--orientation] to horizontal.
   def horizontal : self
     @orientation = :horizontal
 
     self
   end
 
+  # Changes this table's [orientation][Athena::Console::Helper::Table--orientation] to vertical.
   def vertical : self
     @orientation = :vertical
 
@@ -789,6 +874,8 @@ class Athena::Console::Helper::Table
 
   private alias InternalRowType = Row | ACON::Helper::Table::Separator
 
+  # Renders this table to the `ACON::Output::Interface` it was instantiated with.
+  #
   # ameba:disable Metrics/CyclomaticComplexity
   def render
     divider = ACON::Helper::Table::Separator.new

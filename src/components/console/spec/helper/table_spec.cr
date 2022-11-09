@@ -15,6 +15,33 @@ struct TableSpec < ASPEC::TestCase
     @output.close
   end
 
+  def test_rows_headers_overloads : Nil
+    ACON::Helper::Table.new(output = self.io_output)
+      .headers(["1", "2", 3])
+      .headers([4, 5, 6])
+      .headers(false, true, false)
+      .add_row(["Foo", 123, 19.075])
+      .add_row("Bar", 456, false)
+      .add_rows([
+        ["Baz"],
+        ["Biz"],
+      ])
+      .row(0, %w(a b c))
+      .render
+
+    self.output_content(output).should eq <<-TABLE
+    +-------+------+-------+
+    | false | true | false |
+    +-------+------+-------+
+    | a     | b    | c     |
+    | Bar   | 456  | false |
+    | Baz   |      |       |
+    | Biz   |      |       |
+    +-------+------+-------+
+
+    TABLE
+  end
+
   @[DataProvider("render_provider")]
   def test_render(headers, rows, style : String, expected : String, decorated : Bool) : Nil
     table = ACON::Helper::Table.new output = self.io_output decorated
@@ -542,6 +569,7 @@ struct TableSpec < ASPEC::TestCase
       .align(:right)
 
     table.column_style 3, style
+    table.column_style(3).should eq style
 
     table.render
 
@@ -594,6 +622,34 @@ struct TableSpec < ASPEC::TestCase
         ["9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"],
       ])
       .column_widths(15, 0, -1, 10)
+
+    style = ACON::Helper::Table::Style.new
+      .align(:right)
+
+    table.column_style 3, style
+
+    table.render
+
+    self.output_content(output).should eq <<-TABLE
+    +-----------------+----------------------+-----------------+------------+
+    | ISBN            | Title                | Author          |      Price |
+    +-----------------+----------------------+-----------------+------------+
+    | 99921-58-10-7   | Divine Comedy        | Dante Alighieri |       9.95 |
+    | 9971-5-0210-0   | A Tale of Two Cities | Charles Dickens |     139.25 |
+    +-----------------+----------------------+-----------------+------------+
+
+    TABLE
+  end
+
+  def test_column_widths_enumerable : Nil
+    table = ACON::Helper::Table.new output = self.io_output
+    table
+      .headers(["ISBN", "Title", "Author", "Price"])
+      .rows([
+        ["99921-58-10-7", "Divine Comedy", "Dante Alighieri", "9.95"],
+        ["9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"],
+      ])
+      .column_widths({15, 0, -1, 10})
 
     style = ACON::Helper::Table::Style.new
       .align(:right)
