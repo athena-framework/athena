@@ -86,7 +86,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   # :inherit:
   #
-  # ```
+  # ```text
   # !
   # ! [CAUTION] Some Message
   # !
@@ -98,13 +98,63 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
   end
 
   # :inherit:
+  #
+  # ```text
+  # ----- -------
+  #  Foo   Bar
+  # ----- -------
+  #  Biz   Baz
+  #  12    false
+  # ----- -------
+  #
+  # ```
+  def table(headers : Enumerable, rows : Enumerable) : Nil
+    self.create_table
+      .headers(headers)
+      .rows(rows)
+      .render
+
+    self.new_line
+  end
+
+  # Sames as `#table`, but horizontal
+  def horizontal_table(headers : Enumerable, rows : Enumerable) : Nil
+    self.create_table
+      .headers(headers)
+      .rows(rows)
+      .horizontal
+      .render
+
+    self.new_line
+  end
+
+  # Sames as `#table`, but vertical
+  def vertical_table(headers : Enumerable, rows : Enumerable) : Nil
+    self.create_table
+      .headers(headers)
+      .rows(rows)
+      .vertical
+      .render
+
+    self.new_line
+  end
+
+  # Creates and returns an Athena styled `ACON::Helper::Table` instance.
+  def create_table : ACON::Helper::Table
+    ACON::Helper::Table.new(
+      (output = @output).is_a?(ACON::Output::ConsoleOutputInterface) ? output.section : @output
+    )
+      .style("suggested")
+  end
+
+  # :inherit:
   def choice(question : String, choices : Indexable | Hash, default = nil)
     self.ask ACON::Question::Choice.new question, choices, default
   end
 
   # :inherit:
   #
-  # ```
+  # ```text
   # // Some Message
   # ```
   #
@@ -120,7 +170,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   # :inherit:
   #
-  # ```
+  # ```text
   # [ERROR] Some Message
   # ```
   #
@@ -136,7 +186,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   # :inherit:
   #
-  # ```
+  # ```text
   # [INFO] Some Message
   # ```
   #
@@ -147,7 +197,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   # :inherit:
   #
-  # ```
+  # ```text
   # * Item 1
   # * Item 2
   # * Item 3
@@ -175,7 +225,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   # :inherit:
   #
-  # ```
+  # ```text
   # ! [NOTE] Some Message
   # ```
   #
@@ -206,7 +256,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   # :inherit:
   #
-  # ```
+  # ```text
   # Some Message
   # ------------
   # ```
@@ -221,7 +271,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   # :inherit:
   #
-  # ```
+  # ```text
   #  [OK] Some Message
   # ```
   #
@@ -248,7 +298,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   # :inherit:
   #
-  # ```
+  # ```text
   # Some Message
   # ============
   # ```
@@ -263,7 +313,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   # :inherit:
   #
-  # ```
+  # ```text
   #  [WARNING] Some Message
   # ```
   #

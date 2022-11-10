@@ -280,4 +280,74 @@ struct AthenaStyleTest < ASPEC::TestCase
       #   },
     }
   end
+
+  def test_create_table : Nil
+    command = ACON::Commands::Generic.new "foo" do |input, output|
+      output.decorated = true
+      style = ACON::Style::Athena.new input, output
+
+      style
+        .create_table
+        .headers(["Foo", "Bar"])
+        .rows([["Biz", "Baz"], [12, false]])
+        .render
+
+      style.new_line
+
+      ACON::Command::Status::SUCCESS
+    end
+
+    tester = ACON::Spec::CommandTester.new command
+
+    tester.execute interactive: false, decorated: false
+    self.assert_file_equals_string "style/table.txt", tester.display
+  end
+
+  def test_table : Nil
+    command = ACON::Commands::Generic.new "foo" do |input, output|
+      output.decorated = true
+      style = ACON::Style::Athena.new input, output
+
+      style.table ["Foo", "Bar"], [["Biz", "Baz"], [12, false]]
+
+      ACON::Command::Status::SUCCESS
+    end
+
+    tester = ACON::Spec::CommandTester.new command
+
+    tester.execute interactive: false, decorated: false
+    self.assert_file_equals_string "style/table.txt", tester.display
+  end
+
+  def test_horizontal_table : Nil
+    command = ACON::Commands::Generic.new "foo" do |input, output|
+      output.decorated = true
+      style = ACON::Style::Athena.new input, output
+
+      style.horizontal_table ["Foo", "Bar"], [["Biz", "Baz"], [12, false]]
+
+      ACON::Command::Status::SUCCESS
+    end
+
+    tester = ACON::Spec::CommandTester.new command
+
+    tester.execute interactive: false, decorated: false
+    self.assert_file_equals_string "style/table_horizontal.txt", tester.display
+  end
+
+  def test_vertical_table : Nil
+    command = ACON::Commands::Generic.new "foo" do |input, output|
+      output.decorated = true
+      style = ACON::Style::Athena.new input, output
+
+      style.vertical_table ["Foo", "Bar"], [["Biz", "Baz"], [12, false]]
+
+      ACON::Command::Status::SUCCESS
+    end
+
+    tester = ACON::Spec::CommandTester.new command
+
+    tester.execute interactive: false, decorated: false
+    self.assert_file_equals_string "style/table_vertical.txt", tester.display
+  end
 end

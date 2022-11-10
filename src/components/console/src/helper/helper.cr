@@ -1,7 +1,7 @@
 require "./interface"
 
 # Contains `ACON::Helper::Interface` implementations that can be used to help with various tasks.
-# Such as asking questions, or customizing the output format.
+# Such as asking questions, customizing the output format, or generating tables.
 #
 # This class also acts as a base type that implements common functionality between each helper.
 abstract class Athena::Console::Helper

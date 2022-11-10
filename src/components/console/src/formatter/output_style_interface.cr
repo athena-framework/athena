@@ -29,7 +29,7 @@ require "colorize"
 # Custom styles can also be defined/used:
 #
 # ```
-# my_style = ACON::Formatter::OutputStyle.new :red, "#f87b05", ACON::Formatter::Mode.flags Bold, Underline
+# my_style = ACON::Formatter::OutputStyle.new :red, "#f87b05", Colorize::Mode.flags Bold, Underline
 # output.formatter.set_style "fire", my_style
 #
 # output.puts "<fire>foo</>"
@@ -44,7 +44,7 @@ require "colorize"
 #   protected def configure_io(input : ACON::Input::Interface, output : ACON::Output::Interface) : Nil
 #     super
 #
-#     my_style = ACON::Formatter::OutputStyle.new :red, "#f87b05", ACON::Formatter::Mode.flags Bold, Underline
+#     my_style = ACON::Formatter::OutputStyle.new :red, "#f87b05", Colorize::Mode.flags Bold, Underline
 #     output.formatter.set_style "fire", my_style
 #   end
 # end
@@ -89,10 +89,10 @@ module Athena::Console::Formatter::OutputStyleInterface
   abstract def background=(background : Colorize::Color)
 
   # Adds a text mode to `self`.
-  abstract def add_option(option : ACON::Formatter::Mode) : Nil
+  abstract def add_option(option : Colorize::Mode) : Nil
 
   # Removes a text mode to `self`.
-  abstract def remove_option(option : ACON::Formatter::Mode) : Nil
+  abstract def remove_option(option : Colorize::Mode) : Nil
 
   # Applies `self` to the provided *text*.
   abstract def apply(text : String) : String

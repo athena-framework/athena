@@ -11,11 +11,11 @@ class Athena::Console::Formatter::NullStyle
   end
 
   # :inherit:
-  def add_option(option : ACON::Formatter::Mode) : Nil
+  def add_option(option : Colorize::Mode) : Nil
   end
 
   # :inherit:
-  def remove_option(option : ACON::Formatter::Mode) : Nil
+  def remove_option(option : Colorize::Mode) : Nil
   end
 
   # :inherit:
