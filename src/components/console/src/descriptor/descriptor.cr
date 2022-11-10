@@ -18,6 +18,10 @@ abstract class Athena::Console::Descriptor
   protected abstract def describe(argument : ACON::Input::Argument, context : ACON::Descriptor::Context) : Nil
   protected abstract def describe(option : ACON::Input::Option, context : ACON::Descriptor::Context) : Nil
 
+  protected def describe(obj : _, context : ACON::Descriptor::Context) : Nil
+    raise "BUG: Failed to describe #{obj}"
+  end
+
   protected def write(content : String, decorated : Bool = false) : Nil
     self.output.print content, output_type: decorated ? Athena::Console::Output::Type::NORMAL : Athena::Console::Output::Type::RAW
   end
