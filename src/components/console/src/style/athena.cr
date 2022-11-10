@@ -98,6 +98,16 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
   end
 
   # :inherit:
+  #
+  # ```text
+  # ----- -------
+  #  Foo   Bar
+  # ----- -------
+  #  Biz   Baz
+  #  12    false
+  # ----- -------
+  #
+  # ```
   def table(headers : Enumerable, rows : Enumerable) : Nil
     self.create_table
       .headers(headers)
