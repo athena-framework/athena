@@ -175,11 +175,11 @@ struct OutputFormatterTest < ASPEC::TestCase
   end
 
   def test_format_and_wrap : Nil
-    @formatter.format_and_wrap("foo<error>bar</error> baz", 2).should eq "fo\no\e[97;41mb\e[0m\n\e[97;41mar\e[0m\nba\nz"
+    @formatter.format_and_wrap("ooo<error>bar</error> bbz", 2).should eq "oo\no\e[97;41mb\e[0m\n\e[97;41mar\e[0m\nbb\nz"
     @formatter.format_and_wrap("pre <error>foo bar baz</error> post", 2).should eq "pr\ne \e[97;41m\e[0m\n\e[97;41mfo\e[0m\n\e[97;41mo \e[0m\n\e[97;41mba\e[0m\n\e[97;41mr \e[0m\n\e[97;41mba\e[0m\n\e[97;41mz\e[0m \npo\nst"
     @formatter.format_and_wrap("pre <error>foo bar baz</error> post", 3).should eq "pre\e[97;41m\e[0m\n\e[97;41mfoo\e[0m\n\e[97;41mbar\e[0m\n\e[97;41mbaz\e[0m\npos\nt"
     @formatter.format_and_wrap("pre <error>foo bar baz</error> post", 4).should eq "pre \e[97;41m\e[0m\n\e[97;41mfoo \e[0m\n\e[97;41mbar \e[0m\n\e[97;41mbaz\e[0m \npost"
-    @formatter.format_and_wrap("pre <error>foo bar baz</error> post", 5).should eq "pre \e[97;41mf\e[0m\n\e[97;41moo ba\e[0m\n\e[97;41mr baz\e[0m\npost"
+    @formatter.format_and_wrap("pre <error>foo bbr baz</error> post", 5).should eq "pre \e[97;41mf\e[0m\n\e[97;41moo bb\e[0m\n\e[97;41mr baz\e[0m\npost"
 
     @formatter.format_and_wrap("Lorem <error>ipsum</error> dolor <info>sit</info> amet", 4).should eq "Lore\nm \e[97;41mip\e[0m\n\e[97;41msum\e[0m \ndolo\nr \e[32msi\e[0m\n\e[32mt\e[0m am\net"
     @formatter.format_and_wrap("Lorem <error>ipsum</error> dolor <info>sit</info> amet", 8).should eq "Lorem \e[97;41mip\e[0m\n\e[97;41msum\e[0m dolo\nr \e[32msit\e[0m am\net"
@@ -189,11 +189,11 @@ struct OutputFormatterTest < ASPEC::TestCase
   def test_format_and_wrap_non_decorated : Nil
     @formatter = ACON::Formatter::Output.new
 
-    @formatter.format_and_wrap("foo<error>bar</error> baz", 2).should eq "fo\nob\nar\nba\nz"
-    @formatter.format_and_wrap("pre <error>foo bar baz</error> post", 2).should eq "pr\ne \nfo\no \nba\nr \nba\nz \npo\nst"
+    @formatter.format_and_wrap("ooo<error>bar</error> baz", 2).should eq "oo\nob\nar\nba\nz"
+    @formatter.format_and_wrap("pre <error>foo bbr baz</error> post", 2).should eq "pr\ne \nfo\no \nbb\nr \nba\nz \npo\nst"
     @formatter.format_and_wrap("pre <error>foo bar baz</error> post", 3).should eq "pre\nfoo\nbar\nbaz\npos\nt"
     @formatter.format_and_wrap("pre <error>foo bar baz</error> post", 4).should eq "pre \nfoo \nbar \nbaz \npost"
-    @formatter.format_and_wrap("pre <error>foo bar baz</error> post", 5).should eq "pre f\noo ba\nr baz\npost"
+    @formatter.format_and_wrap("pre <error>foo bbr baz</error> post", 5).should eq "pre f\noo bb\nr baz\npost"
 
     @formatter.format_and_wrap(nil, 5).should eq ""
 

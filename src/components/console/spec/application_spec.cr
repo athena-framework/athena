@@ -161,7 +161,7 @@ struct ApplicationTest < ASPEC::TestCase
     app.find_namespace("foo").should eq "foo"
   end
 
-  def test_find_namespace_ambigous : Nil
+  def test_find_namespace_ambiguous : Nil
     app = ACON::Application.new "foo"
     app.add FooCommand.new
     app.add BarBucCommand.new
@@ -236,7 +236,7 @@ struct ApplicationTest < ASPEC::TestCase
 
     app.find("f:b").should be_a FooSameCaseLowercaseCommand
     app.find("f:B").should be_a FooSameCaseLowercaseCommand
-    app.find("foO:BaR").should be_a FooSameCaseLowercaseCommand
+    app.find("fOO:bar").should be_a FooSameCaseLowercaseCommand
   end
 
   def test_find_case_insensitive_ambiguous : Nil
@@ -244,8 +244,8 @@ struct ApplicationTest < ASPEC::TestCase
     app.add FooSameCaseUppercaseCommand.new
     app.add FooSameCaseLowercaseCommand.new
 
-    expect_raises ACON::Exceptions::CommandNotFound, "Command 'FoO:BaR' is ambiguous." do
-      app.find "FoO:BaR"
+    expect_raises ACON::Exceptions::CommandNotFound, "Command 'FOO:bar' is ambiguous." do
+      app.find "FOO:bar"
     end
   end
 
@@ -378,7 +378,7 @@ struct ApplicationTest < ASPEC::TestCase
 
     # Command + plural
     ex = expect_raises ACON::Exceptions::CommandNotFound do
-      app.find "foo:baR"
+      app.find "foo:BAR"
     end
 
     message = ex.message.should_not be_nil
