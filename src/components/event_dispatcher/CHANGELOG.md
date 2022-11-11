@@ -32,7 +32,7 @@ _First release a part of the monorepo._
 
 ### Added
 
-- Add the [AED::Spec](https://athenaframework.org/EventDispatcher/Spec/) module to provide helpful testing utilties ([#11](https://github.com/athena-framework/event-dispatcher/pull/11)) (George Dietrich)
+- Add the [AED::Spec](https://athenaframework.org/EventDispatcher/Spec/) module to provide helpful testing utilities ([#11](https://github.com/athena-framework/event-dispatcher/pull/11)) (George Dietrich)
 
 ## [0.1.0] - 2020-01-11
 
