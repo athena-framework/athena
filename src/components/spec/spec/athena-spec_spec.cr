@@ -8,7 +8,7 @@ private class Calculator
     v1 + v2
   end
 
-  def substract(v1, v2)
+  def subtract(v1, v2)
     raise NotImplementedError.new "TODO"
   end
 end
@@ -26,7 +26,7 @@ struct ExampleSpec < ASPEC::TestCase
 
   # A pending test.
   def ptest_subtract : Nil
-    @target.substract(10, 5).should eq 5
+    @target.subtract(10, 5).should eq 5
   end
 
   test "with macro helper" do
