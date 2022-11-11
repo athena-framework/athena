@@ -91,8 +91,8 @@ class Athena::Routing::RouteCollection
     @routes.each do |name, route|
       prefixed_routes["#{prefix}#{name}"] = route
 
-      if cannonical_route = route.default "_canonical_route"
-        route.set_default "_canonical_route", "#{prefix}#{cannonical_route}"
+      if canonical_route = route.default "_canonical_route"
+        route.set_default "_canonical_route", "#{prefix}#{canonical_route}"
       end
 
       if priority = @priorities[name]?

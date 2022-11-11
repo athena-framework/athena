@@ -566,7 +566,7 @@ struct URLGeneratorTest < ASPEC::TestCase
   def test_generate_with_fragment : Nil
     generator = self.generator(self.routes(ART::Route.new("/")))
 
-    generator.generate("test", "_fragment": "frag ment").should eq "/base/#frag%20ment"
+    generator.generate("test", "_fragment": "some text").should eq "/base/#some%20text"
     generator.generate("test", "_fragment": "0").should eq "/base/#0"
   end
 
