@@ -34,7 +34,7 @@
 #     # Validate an invalid value against a new instance of the constraint with a custom message.
 #     self.validator.validate nil, self.new_constraint message: "my_message"
 #
-#     # Asssert a violation with the expected message, code, and value parameter is added to the context.
+#     # Assert a violation with the expected message, code, and value parameter is added to the context.
 #     self
 #       .build_violation("my_message", CONSTRAINT::IS_NULL_ERROR, nil)
 #       .assert_violation
@@ -52,7 +52,7 @@
 # ```
 #
 # This type is an extension of `ASPEC::TestCase`, see that type for more information on this testing approach.
-# This approach also allows using `ASPEC::TestCase::DataProvider`s for reducing duplication withing your test.
+# This approach also allows using `ASPEC::TestCase::DataProvider`s for reducing duplication within your test.
 abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::TestCase
   # Used to assert that a violation added via the `AVD::ConstraintValidatorInterface` was built as expected.
   #

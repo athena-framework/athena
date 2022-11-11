@@ -272,7 +272,7 @@ abstract struct Athena::Validator::Spec::ValidatorTestCase < AVD::Spec::Abstract
     violation.code.should eq "CODE"
   end
 
-  def ptest_validate_no_dupliate_violations_if_class_constraint_is_in_multiple_groups : Nil
+  def ptest_validate_no_duplicate_violations_if_class_constraint_is_in_multiple_groups : Nil
     object = Entity.new
 
     callback = AVD::Constraints::Callback::CallbackProc.new do |_value, context|
@@ -284,7 +284,7 @@ abstract struct Athena::Validator::Spec::ValidatorTestCase < AVD::Spec::Abstract
     self.validate(object, AVD::Constraints::Valid.new, groups: ["group1", "group2"]).size.should eq 1
   end
 
-  def ptest_validate_no_dupliate_violations_if_property_constraint_is_in_multiple_groups : Nil
+  def ptest_validate_no_duplicate_violations_if_property_constraint_is_in_multiple_groups : Nil
     object = Entity.new
 
     callback = AVD::Constraints::Callback::CallbackProc.new do |_value, context|
