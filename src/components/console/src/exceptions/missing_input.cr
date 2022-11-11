@@ -1,4 +1,4 @@
-require "./console_exception"
+require "./runtime"
 
-class Athena::Console::Exceptions::MissingInput < Athena::Console::Exceptions::ConsoleException
+class Athena::Console::Exceptions::MissingInput < Athena::Console::Exceptions::RuntimeError
 end

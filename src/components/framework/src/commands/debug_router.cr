@@ -1,6 +1,6 @@
 @[ACONA::AsCommand("debug:router", description: "Display current routes for an application")]
 @[ADI::Register]
-class DebugRouter < ACON::Command
+class Athena::Framework::Commands::DebugRouter < ACON::Command
   def initialize(
     @router : ART::RouterInterface
   )
@@ -80,7 +80,7 @@ class DebugRouter < ACON::Command
   end
 
   private def find_route_name_containing(name : String, routes : ART::RouteCollection) : Array(String)
-    routes.compact_map do |route_name, route|
+    routes.compact_map do |route_name, _|
       next unless route_name.includes? name
 
       route_name

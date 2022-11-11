@@ -1,2 +1,2 @@
-class Athena::Console::Exceptions::ValidationFailed < Athena::Console::Exceptions::ConsoleException
+class Athena::Console::Exceptions::ValidationFailed < Athena::Console::Exceptions::RuntimeError
 end

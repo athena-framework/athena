@@ -145,7 +145,7 @@ class Athena::Console::Helper::Question < Athena::Console::Helper
 
   private def autocomplete(output : ACON::Output::Interface, question : ACON::Question::Base, input_stream : IO, autocompleter) : String
     # TODO: Support autocompletion.
-    self.read_input(input_stream, question) || ""
+    self.read_input(input_stream, question) || raise ACON::Exceptions::MissingInput.new "Aborted."
   end
 
   private def hidden_response(output : ACON::Output::Interface, input_stream : IO) : String
@@ -194,12 +194,13 @@ class Athena::Console::Helper::Question < Athena::Console::Helper
 
       begin
         return question.validator.not_nil!.call yield
-      rescue ex : ACON::Exceptions::ValidationFailed
+      rescue ex : ACON::Exceptions::RuntimeError
         raise ex
       rescue ex : Exception
         error = ex
       ensure
         attempts -= 1 if attempts
+        sleep 0
       end
     end
 
