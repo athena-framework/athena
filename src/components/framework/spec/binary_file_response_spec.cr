@@ -130,7 +130,7 @@ struct ATH::BinaryFileResponseTest < ASPEC::TestCase
     response.headers["accept-ranges"]?.should eq "none"
   end
 
-  def test_accept_range_not_overriden : Nil
+  def test_accept_range_not_overridden : Nil
     request = ATH::Request.new "POST", "/"
     response = ATH::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", headers: HTTP::Headers{"accept-ranges" => "foo"}
 

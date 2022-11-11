@@ -189,7 +189,7 @@ class Athena::Framework::View::ViewHandler
       context.emit_nil = view_handler_emit_nil
     end
 
-    # TOOD: Set status code in context attributes if that's ever implemented.
+    # TODO: Set status code in context attributes if that's ever implemented.
 
     context
   end

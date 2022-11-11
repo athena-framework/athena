@@ -63,10 +63,10 @@ struct ContextTest < ASPEC::TestCase
   def test_exclusion_strategies : Nil
     @context.exclusion_strategies.should be_empty
 
-    strat = IgnoreExclusionStrategy.new
+    strategy = IgnoreExclusionStrategy.new
 
-    @context.add_exclusion_strategy strat
+    @context.add_exclusion_strategy strategy
 
-    @context.exclusion_strategies.should eq [strat]
+    @context.exclusion_strategies.should eq [strategy]
   end
 end

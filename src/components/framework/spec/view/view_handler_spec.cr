@@ -150,7 +150,7 @@ struct ViewHandlerTest < ASPEC::TestCase
     }
   end
 
-  def test_handle_unsuported_format : Nil
+  def test_handle_unsupported_format : Nil
     request = ATH::Request.new "GET", "/"
     request.request_format = "rss"
 

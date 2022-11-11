@@ -15,7 +15,7 @@ module Athena::Framework::CompilerPasses::RegisterCommands
           (TAG_HASH["athena.console.command"] || [] of Nil).each do |service_id|
             metadata = SERVICE_HASH[service_id]
 
-            # TODO: Any benefit in allowing commmands to be configured via tags instead of the annotation?
+            # TODO: Any benefit in allowing commands to be configured via tags instead of the annotation?
 
             metadata[:visibility] = metadata[:visibility] != Visibility::PRIVATE ? metadata[:visibility] : Visibility::INTERNAL
 
