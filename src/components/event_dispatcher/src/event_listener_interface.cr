@@ -36,7 +36,7 @@ module Athena::EventDispatcher::EventListenerInterface
   # Returns the `AED::Event`s that `self` is listening on, along with
   # the listener priority of each event.
   #
-  # Implementors should overide this with the events it should listen on.
+  # Implementors should override this with the events it should listen on.
   def self.subscribed_events : AED::SubscribedEvents
     AED::SubscribedEvents.new
   end

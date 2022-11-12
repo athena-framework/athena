@@ -8,6 +8,12 @@ on:
     - cron: '37 0 * * *' # Nightly at 00:37
 
 jobs:
+  check_spelling:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check Spelling
+        uses: crate-ci/typos@v1.12.14
   check_format:
     runs-on: ubuntu-latest
     container:

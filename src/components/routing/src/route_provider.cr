@@ -324,8 +324,8 @@ class Athena::Routing::RouteProvider
   private def self.compile_dynamic_route(route : ART::Route, name : String, vars : Set(String)?, has_trailing_slash : Bool, has_trailing_var : Bool, conditions : Array(Condition)) : DynamicRouteData
     defaults = route.defaults.dup
 
-    if cannonical_route = defaults["_canonical_route"]?
-      name = cannonical_route
+    if canonical_route = defaults["_canonical_route"]?
+      name = canonical_route
       defaults.delete "_canonical_route"
     end
 
@@ -347,8 +347,8 @@ class Athena::Routing::RouteProvider
   private def self.compile_static_route(route : ART::Route, name : String, host : String | Regex | Nil, has_trailing_slash : Bool, has_trailing_var : Bool, conditions : Array(Condition)) : StaticRouteData
     defaults = route.defaults.dup
 
-    if cannonical_route = defaults["_canonical_route"]?
-      name = cannonical_route
+    if canonical_route = defaults["_canonical_route"]?
+      name = canonical_route
       defaults.delete "_canonical_route"
     end
 

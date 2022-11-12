@@ -62,7 +62,7 @@ struct Athena::Framework::ParameterBag
     @parameters[name]?.try &.value
   end
 
-  # Returns the value of the parameter with the provided *name* casted to the provied *type* if it exists, otherwise `nil`.
+  # Returns the value of the parameter with the provided *name* casted to the provided *type* if it exists, otherwise `nil`.
   def get?(name : String, type : T?.class) : T? forall T
     self.get?(name).as T?
   end

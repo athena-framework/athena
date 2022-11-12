@@ -434,12 +434,12 @@ module Athena::Serializer::Annotations
   #   property last_name : String = "Snow"
   #
   #   @[ASRA::PreSerialize]
-  #   private def pre_ser : Nil
+  #   private def pre_serialize : Nil
   #     @name = "#{first_name} #{last_name}"
   #   end
   #
   #   @[ASRA::PostSerialize]
-  #   private def post_ser : Nil
+  #   private def post_serialize : Nil
   #     @name = nil
   #   end
   # end
@@ -466,12 +466,12 @@ module Athena::Serializer::Annotations
   #   property last_name : String = "Snow"
   #
   #   @[ASRA::PreSerialize]
-  #   private def pre_ser : Nil
+  #   private def pre_serialize : Nil
   #     @name = "#{first_name} #{last_name}"
   #   end
   #
   #   @[ASRA::PostSerialize]
-  #   private def post_ser : Nil
+  #   private def post_serialize : Nil
   #     @name = nil
   #   end
   # end

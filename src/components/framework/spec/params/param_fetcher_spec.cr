@@ -3,16 +3,16 @@ require "../spec_helper"
 struct ParamFetcherTest < ASPEC::TestCase
   @request_store : ATH::RequestStore
   @param_fetcher : ATH::Params::ParamFetcher
-  @valiator : AVD::Spec::MockValidator
+  @validator : AVD::Spec::MockValidator
 
   def initialize
     @expected_violations = AVD::Violation::ConstraintViolationList.new
 
     @request_store = ATH::RequestStore.new
     @request_store.request = new_request
-    @valiator = AVD::Spec::MockValidator.new @expected_violations
+    @validator = AVD::Spec::MockValidator.new @expected_violations
 
-    @param_fetcher = ATH::Params::ParamFetcher.new @request_store, @valiator
+    @param_fetcher = ATH::Params::ParamFetcher.new @request_store, @validator
   end
 
   def test_missing_param : Nil

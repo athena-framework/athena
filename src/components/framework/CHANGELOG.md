@@ -52,7 +52,7 @@ _First release in the [athena-framework/framework](https://github.com/athena-fra
 
 ### Removed
 
-- **Breaking:** remove dependecy on [amberframework/amber-router](https://github.com/amberframework/amber-router) ([#141](https://github.com/athena-framework/athena/pull/141)) (George Dietrich)
+- **Breaking:** remove dependency on [amberframework/amber-router](https://github.com/amberframework/amber-router) ([#141](https://github.com/athena-framework/athena/pull/141)) (George Dietrich)
 
 ## [0.15.1] - 2021-12-13
 

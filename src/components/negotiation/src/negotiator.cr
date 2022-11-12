@@ -12,7 +12,7 @@ class Athena::Negotiation::Negotiator < Athena::Negotiation::AbstractNegotiator(
     accept_sub_type = accept.sub_type
     priority_sub_type = priority.sub_type
 
-    intercection = accept.parameters.each_with_object({} of String => String) do |(k, v), params|
+    intersection = accept.parameters.each_with_object({} of String => String) do |(k, v), params|
       priority.parameters.tap do |pp|
         params[k] = v if pp.has_key?(k) && pp[k] == v
       end
@@ -24,9 +24,9 @@ class Athena::Negotiation::Negotiator < Athena::Negotiation::AbstractNegotiator(
     if (
          (accept_type == "*" || type_equals) &&
          (accept_sub_type == "*" || sub_type_equals) &&
-         intercection.size == accept.parameters.size
+         intersection.size == accept.parameters.size
        )
-      score = 100 * (type_equals ? 1 : 0) + 10 * (sub_type_equals ? 1 : 0) + intercection.size
+      score = 100 * (type_equals ? 1 : 0) + 10 * (sub_type_equals ? 1 : 0) + intersection.size
 
       return ANG::AcceptMatch.new accept.quality * priority.quality, score, index
     end
@@ -49,9 +49,9 @@ class Athena::Negotiation::Negotiator < Athena::Negotiation::AbstractNegotiator(
     if (
          (accept_sub_type == "*" || priority_sub_type == "*" || sub_type_equals) &&
          (accept_plus == "*" || priority_plus == '*' || plus_equals) &&
-         intercection.size == accept.parameters.size
+         intersection.size == accept.parameters.size
        )
-      score = 100 * (type_equals ? 1 : 0) + 10 * (sub_type_equals ? 1 : 0) + (plus_equals ? 1 : 0) + intercection.size
+      score = 100 * (type_equals ? 1 : 0) + 10 * (sub_type_equals ? 1 : 0) + (plus_equals ? 1 : 0) + intersection.size
       return ANG::AcceptMatch.new accept.quality * priority.quality, score, index
     end
 

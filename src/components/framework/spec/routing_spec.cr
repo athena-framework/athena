@@ -31,6 +31,12 @@ struct RoutingTest < ATH::Spec::APITestCase
     response.body.should eq %({"code":404,"message":"No route found for 'GET /fake/route'."})
   end
 
+  def test_route_doesnt_exist_with_referrer : Nil
+    response = self.get "/fake/route", headers: HTTP::Headers{"referrer" => "somebody"}
+    response.status.should eq HTTP::Status::NOT_FOUND
+    response.body.should eq %({"code":404,"message":"No route found for 'GET /fake/route' (from: 'somebody')."})
+  end
+
   def test_invalid_method : Nil
     response = self.post "/art/response"
     response.status.should eq HTTP::Status::METHOD_NOT_ALLOWED

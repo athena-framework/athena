@@ -15,7 +15,7 @@
 # The validator will allow ISSN values to end with a lowercase `x` by default.
 # When set to `true`, this requires an uppcase case `X`.
 #
-# ### require_hypen
+# ### require_hyphen
 #
 # **Type:** `Bool` **Default:** `false`
 #
@@ -65,11 +65,11 @@ class Athena::Validator::Constraints::ISSN < Athena::Validator::Constraint
   }
 
   getter? case_sensitive : Bool
-  getter? require_hypen : Bool
+  getter? require_hyphen : Bool
 
   def initialize(
     @case_sensitive : Bool = false,
-    @require_hypen : Bool = false,
+    @require_hyphen : Bool = false,
     message : String = "This value is not a valid International Standard Serial Number (ISSN).",
     groups : Array(String) | String | Nil = nil,
     payload : Hash(String, String)? = nil
@@ -88,7 +88,7 @@ class Athena::Validator::Constraints::ISSN < Athena::Validator::Constraint
 
       if canonical[4]? == '-'
         canonical = canonical.delete '-'
-      elsif constraint.require_hypen?
+      elsif constraint.require_hyphen?
         return self.context.add_violation constraint.message, MISSING_HYPHEN_ERROR, value
       end
 

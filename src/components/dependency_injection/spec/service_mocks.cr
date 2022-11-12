@@ -480,7 +480,7 @@ class ServiceOne
 end
 
 ###############
-# PARAMETERES #
+# PARAMETERS #
 ###############
 ADI.bind password, "%db.password%"
 

@@ -2,7 +2,7 @@ require "../spec_helper"
 
 private alias CONSTRAINT = AVD::Constraints::Email
 
-private class EmtpyEmailObject
+private class EmptyEmailObject
   def to_s(io : IO) : Nil
     io << ""
   end
@@ -19,7 +19,7 @@ struct EmailValidatorTest < AVD::Spec::ConstraintValidatorTestCase
   end
 
   def test_empty_string_from_object_is_valid : Nil
-    self.validator.validate EmtpyEmailObject.new, self.new_constraint
+    self.validator.validate EmptyEmailObject.new, self.new_constraint
     self.assert_no_violation
   end
 

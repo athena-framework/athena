@@ -11,7 +11,7 @@ class Athena::Routing::Router
   # :inherit:
   getter context : ART::RequestContext
 
-  # TOOD: Should the matcher/generator types be customizable?
+  # TODO: Should the matcher/generator types be customizable?
 
   getter matcher : ART::Matcher::URLMatcherInterface do
     ART::Matcher::URLMatcher.new(@context)
