@@ -1,6 +1,10 @@
 require "../spec_helper"
 
-struct TraceableURLMatcherTest < ASPEC::TestCase
+struct TraceableURLMatcherTest < AbstractURLMatcherTestCase
+  private def get_matcher(routes : ART::RouteCollection, context : ART::RequestContext = ART::RequestContext.new) : ART::Matcher::URLMatcher
+    ART::Matcher::TraceableURLMatcher.new routes, context
+  end
+
   def test_traces : Nil
     condition_route = ART::Route.new "/foo2", host: "baz"
     condition_route.condition do |ctx|

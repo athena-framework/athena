@@ -41,8 +41,12 @@ class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::
     allow = Array(String).new
     allow_schemes = Array(String).new
 
-    if match = self.do_match (URI.decode(path).presence || "/"), allow, allow_schemes, @routes
+    if match = self.match_collection (URI.decode(path).presence || "/"), allow, allow_schemes, @routes
       return match
+    end
+
+    if "/" == path && allow.empty? && allow_schemes.empty?
+      raise ART::Exception::NoConfiguration.new
     end
 
     unless allow.empty?
@@ -52,13 +56,14 @@ class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::
     raise ART::Exception::ResourceNotFound.new "No routes found for '#{path}'."
   end
 
-  # def each_trace(@request : ART::Request, & : ART::Matcher::TraceableURLMatcher::Trace ->) : Nil
-  # end
+  def each_trace(@request : ART::Request, & : ART::Matcher::TraceableURLMatcher::Trace ->) : Nil
+  end
 
-  # def each_trace(path : String, & : ART::Matcher::TraceableURLMatcher::Trace ->) : Nil
-  # end
+  def each_trace(path : String, & : ART::Matcher::TraceableURLMatcher::Trace ->) : Nil
+  end
+
   # ameba:disable Metrics/CyclomaticComplexity
-  private def do_match(path : String, allow : Array(String), allow_schemes : Array(String), routes : ART::RouteCollection) : Hash(String, String?)?
+  private def match_collection(path : String, allow : Array(String), allow_schemes : Array(String), routes : ART::RouteCollection) : Hash(String, String?)?
     method = @context.method
     method = "GET" if "HEAD" == method
 
@@ -80,15 +85,20 @@ class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::
 
       regex_source = compiled_route.regex.source
 
-      pos = regex_source.index('$').not_nil!
+      # Use rindex since we want the right most ending `$`
+      pos = regex_source.rindex('$').not_nil!
       has_trailing_slash = '/' == regex_source[pos - 1]
 
       trailing_slash_padding = has_trailing_slash ? 1 : 0
 
       start_index = pos - trailing_slash_padding
       end_index = start_index + trailing_slash_padding
-      regex_source = regex_source.sub (start_index..end_index), "/?$"
-      regex = Regex.new(regex_source)
+
+      # Use `\z` instead of `$` so that trailing newlines are not matched
+      regex_source = regex_source.sub (start_index..end_index), "/?\\z"
+
+      # Enable multiline mode to catch paths with new lines
+      regex = Regex.new(regex_source, Regex::Options::MULTILINE)
 
       unless match = regex.match path
         # Does it match w/o any requirements?
@@ -129,7 +139,6 @@ class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::
         end
       end
 
-      # TODO: Handle host matches
       if (host_pattern = compiled_route.host_regex) && !(host_match = host_pattern.match @context.host)
         @traces << Trace.new "Host '#{@context.host}' does not match the requirement ('#{route.host}')", :partial, name, route
 
@@ -172,12 +181,10 @@ class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::
 
       return attributes
     end
-
-    return
   end
 
   private def get_attributes(route : ART::Route, name : String, attributes : Hash(String | Int32, String?)) : Hash(String, String?)
-    defaults = route.defaults
+    defaults = route.defaults.dup
 
     if canonical_route = defaults["_canonical_route"]?
       name = canonical_route
