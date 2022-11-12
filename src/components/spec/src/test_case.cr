@@ -61,7 +61,7 @@
 #   end
 #
 #   # A pending test.
-#   def ptest_substract : Nil
+#   def ptest_subtract : Nil
 #     @target.subtract(10, 5).should eq 5
 #   end
 #
@@ -287,7 +287,7 @@ abstract struct Athena::Spec::TestCase
 
           {% unless test.annotations(DataProvider).empty? %}
             {% for data_provider in test.annotations DataProvider %}
-              {% data_provider_method_name = data_provider[0] || data_provider.raise "One or more data provider for test '#{@type}##{test.name.id}' is mising its name." %}
+              {% data_provider_method_name = data_provider[0] || data_provider.raise "One or more data provider for test '#{@type}##{test.name.id}' is missing its name." %}
               {% methods = @type.methods %}
 
               {% for ancestor in @type.ancestors.select &.<=(ASPEC::TestCase) %}

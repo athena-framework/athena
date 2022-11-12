@@ -15,7 +15,7 @@ private struct ActivePropertyExclusionStrategy
   end
 end
 
-# Mainly testing `Athena::Config` integration in regards to custom annotations accessable via the property metadata.
+# Mainly testing `Athena::Config` integration in regards to custom annotations accessible via the property metadata.
 describe ActivePropertyExclusionStrategy do
   describe "#skip_property?" do
     describe :deserialization do

@@ -45,8 +45,8 @@ struct Athena::Framework::Listeners::Routing
     rescue ex : ART::Exception::ResourceNotFound
       message = "No route found for '#{request.method} #{request.resource}'"
 
-      if referer = request.headers["referer"]?
-        message += " (from: '#{referer}')"
+      if referrer = request.headers["referrer"]?
+        message += " (from: '#{referrer}')"
       end
 
       message += "."

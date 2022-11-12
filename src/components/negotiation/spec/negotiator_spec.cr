@@ -86,7 +86,7 @@ struct NegotiatorTest < NegotiatorTestCase
       {php_pear_header, {"audio/midi"}, {"audio/midi", nil}},
       {"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", {"application/rss+xml"}, {"application/rss+xml", nil}},
 
-      # Case sensitiviy
+      # Case sensitivity
       {"text/* ; q=0.3, TEXT/html ;Q=0.7, text/html ; level=1, texT/Html ;leVel = 2 ;q=0.4, */* ; q=0.5", {"text/html; level=2"}, {"text/html", {"level" => "2"}}},
       {"text/* ; q=0.3, text/html;Q=0.7, text/html ;level=1, text/html; level=2;q=0.4, */*;q=0.5", {"text/HTML; level=3"}, {"text/html", {"level" => "3"}}},
 

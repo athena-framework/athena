@@ -764,7 +764,7 @@ struct URLMatcherTest < ASPEC::TestCase
 
     matcher = self.get_matcher routes
     matcher.match("/aa").should eq({"_route" => "c", "a" => "a"})
-    matcher.match("/ba").should eq({"_route" => "f", "a" => "a", "b" => "b"})
+    matcher.match("/be").should eq({"_route" => "f", "a" => "e", "b" => "b"})
   end
 
   def test_match_requirements_with_capture_groups : Nil

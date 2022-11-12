@@ -69,8 +69,8 @@ class Athena::Console::Helper::Formatter < Athena::Console::Helper
   #
   # ```
   # message = "This is a very long message, which should be truncated"
-  # truncated_message = formatter.truncate message, -5
-  # output.puts truncated_message # => This is a very long message, which should be trun...
+  # truncated_message = formatter.truncate message, -4
+  # output.puts truncated_message # => This is a very long message, which should be trunc...
   # ```
   def truncate(message : String, length : Int, suffix : String = "...") : String
     computed_length = length - self.class.width suffix

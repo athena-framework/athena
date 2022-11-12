@@ -32,7 +32,7 @@ struct ISSNValidatorTest < AVD::Spec::ConstraintValidatorTestCase
 
   @[DataProvider("valid_non_hyphenated_issns")]
   def test_hyphen_required_issns(value : String) : Nil
-    self.validator.validate value, self.new_constraint message: "my_message", require_hypen: true
+    self.validator.validate value, self.new_constraint message: "my_message", require_hyphen: true
     self.assert_violation "my_message", CONSTRAINT::MISSING_HYPHEN_ERROR, value
   end
 

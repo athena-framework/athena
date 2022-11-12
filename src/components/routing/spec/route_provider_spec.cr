@@ -8,7 +8,7 @@ struct RouteProviderTest < ASPEC::TestCase
     self.redirection_collection,
     self.root_prefix_collection,
     self.head_match_case_collection,
-    self.group_optmized_collection,
+    self.group_optimized_collection,
     self.trailing_slash_collection,
     self.trailing_slash_collection,
     self.host_tree_collection,
@@ -201,7 +201,7 @@ struct RouteProviderTest < ASPEC::TestCase
     collection
   end
 
-  def self.group_optmized_collection : ART::RouteCollection
+  def self.group_optimized_collection : ART::RouteCollection
     collection = ART::RouteCollection.new
 
     collection.add "a_first", ART::Route.new "/a/11"

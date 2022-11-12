@@ -1,0 +1,4 @@
+[files]
+extend-exclude = [
+  "src/components/routing/spec/fixtures/route_provider/*"
+]

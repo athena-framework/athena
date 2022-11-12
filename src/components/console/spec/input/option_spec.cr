@@ -40,8 +40,8 @@ describe ACON::Input::Option do
       end
 
       it "array with different characters" do
-        expect_raises ACON::Exceptions::InvalidArgument, "An option shortcut must consist of the same character, got 'ba'." do
-          ACON::Input::Option.new "foo", ["a", "ba"]
+        expect_raises ACON::Exceptions::InvalidArgument, "An option shortcut must consist of the same character, got 'ab'." do
+          ACON::Input::Option.new "foo", ["a", "ab"]
         end
       end
 

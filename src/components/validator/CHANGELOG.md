@@ -93,7 +93,7 @@ _First release a part of the monorepo._
 
 ### Fixed
 
-- Fix compiler error due to less strict `abstract def` implemenations ([#6](https://github.com/athena-framework/validator/pull/6)) (George Dietrich)
+- Fix compiler error due to less strict `abstract def` implementations ([#6](https://github.com/athena-framework/validator/pull/6)) (George Dietrich)
 
 ## [0.1.0] - 2020-10-17
 

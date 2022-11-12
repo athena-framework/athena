@@ -19,21 +19,21 @@ describe ATH::RedirectResponse do
 
   describe "#status" do
     it "defaults to 302" do
-      ATH::RedirectResponse.new("addresss").status.should eq HTTP::Status::FOUND
+      ATH::RedirectResponse.new("address").status.should eq HTTP::Status::FOUND
     end
 
     it "disallows non redirect codes" do
       expect_raises(ArgumentError, "'422' is not an HTTP redirect status code.") do
-        ATH::RedirectResponse.new("addresss", 422)
+        ATH::RedirectResponse.new("address", 422)
       end
     end
 
     it Int do
-      ATH::RedirectResponse.new("addresss", 301).status.should eq HTTP::Status::MOVED_PERMANENTLY
+      ATH::RedirectResponse.new("address", 301).status.should eq HTTP::Status::MOVED_PERMANENTLY
     end
 
     it HTTP::Status do
-      ATH::RedirectResponse.new("addresss", HTTP::Status::MOVED_PERMANENTLY).status.should eq HTTP::Status::MOVED_PERMANENTLY
+      ATH::RedirectResponse.new("address", HTTP::Status::MOVED_PERMANENTLY).status.should eq HTTP::Status::MOVED_PERMANENTLY
     end
   end
 
@@ -45,7 +45,7 @@ describe ATH::RedirectResponse do
     end
 
     it "adds the location header" do
-      ATH::RedirectResponse.new("addresss").headers["location"].should eq "addresss"
+      ATH::RedirectResponse.new("address").headers["location"].should eq "address"
     end
   end
 end

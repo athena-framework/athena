@@ -29,7 +29,7 @@ describe Athena do
     end
 
     describe ".parameters" do
-      it "should return an ACF::Parmaeters instance" do
+      it "should return an ACF::Parameters instance" do
         ACF.parameters.username.should eq "fred"
       end
 

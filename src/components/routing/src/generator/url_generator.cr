@@ -132,7 +132,7 @@ class Athena::Routing::Generator::URLGenerator
               raise ART::Exception::InvalidParameter.new message % {var_name, name, r, merged_params[var_name]}
             end
 
-            # TOOD: Add logger integration
+            # TODO: Add logger integration
 
             return ""
           end
@@ -180,7 +180,7 @@ class Athena::Routing::Generator::URLGenerator
               raise ART::Exception::InvalidParameter.new message % {token.var_name, name, r, merged_params[token.var_name]}
             end
 
-            # TOOD: Add logger integration
+            # TODO: Add logger integration
 
             return ""
           end

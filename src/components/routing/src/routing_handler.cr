@@ -43,7 +43,7 @@
 #   def call(context)
 #     call_next context
 #   rescue ex
-#     # Do something based on the ex, such as rendering the appropiate template, etc.
+#     # Do something based on the ex, such as rendering the appropriate template, etc.
 #   end
 # end
 #
@@ -53,7 +53,7 @@
 #
 # # Have the `ErrorHandler` run _before_ the routing handler.
 # server = HTTP::Server.new([
-#   ErrorHander.new,
+#   ErrorHandler.new,
 #   handler.compile,
 # ])
 #
