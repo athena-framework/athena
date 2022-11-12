@@ -1,5 +1,42 @@
 @[ACONA::AsCommand("debug:router", description: "Display current routes for an application")]
 @[ADI::Register]
+# Utility command to allow viewing all of the routes Athena is aware of within your application.
+#
+# ```text
+# $ ./bin/console debug:router
+# ----------------  -------  -------  -----  --------------------------------------------
+# Name              Method   Scheme   Host   Path
+# ----------------  -------  -------  -----  --------------------------------------------
+# homepage          ANY      ANY      ANY    /
+# contact           GET      ANY      ANY    /contact
+# contact_process   POST     ANY      ANY    /contact
+# article_show      ANY      ANY      ANY    /articles/{_locale}/{year}/{title}.{_format}
+# blog              ANY      ANY      ANY    /blog/{page}
+# blog_show         ANY      ANY      ANY    /blog/{slug}
+# ----------------  -------  -------  -----  --------------------------------------------
+# ```
+#
+# The command also supports viewing additional information about a specific route:
+# ```text
+# $ ./bin/console debug:router test
+# +--------------+-------------------------------------+
+# | Property     | Value                               |
+# +--------------+-------------------------------------+
+# | Route Name   | test                                |
+# | Path         | /{id}/{a}                           |
+# | Path Regex   | ^/(?P<id>\d+)/(?P<a>10)$            |
+# | Host         | ANY                                 |
+# | Host Regex   |                                     |
+# | Scheme       | ANY                                 |
+# | Methods      | GET                                 |
+# | Requirements | a: 10                               |
+# |              | id: \d+                             |
+# | Class        | Athena::Routing::Route              |
+# | Defaults     | _controller: ExampleController#root |
+# +--------------+-------------------------------------+
+# ```
+#
+# TIP: Checkout `ATH::Commands::RouterMatch` to test paths against a specific route.
 class Athena::Framework::Commands::DebugRouter < ACON::Command
   def initialize(
     @router : ART::RouterInterface

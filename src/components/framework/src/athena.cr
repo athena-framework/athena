@@ -113,6 +113,9 @@ module Athena::Framework
   # :nodoc:
   module CompilerPasses; end
 
+  # Namespace for the built in `Athena::Console` commands that come bundled with the framework.
+  module Commands; end
+
   # Runs an `HTTP::Server` listening on the given *port* and *host*.
   #
   # ```
