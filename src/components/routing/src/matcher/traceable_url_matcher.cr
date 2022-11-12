@@ -1,13 +1,22 @@
 require "./url_matcher"
 
+# Extension of `ART::Matcher::URLMatcher` to assist with debugging by tracing the match.
+#
+# See `#traces`.
 class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::URLMatcher
+  # Represents the match level of a `ART::Matcher::TraceableURLMatcher::Trace`.
   enum Match
+    # The route did not match at all.
     NONE
+
+    # The route matched, but not fully.
     PARTIAL
+
+    # The route is a match.
     FULL
   end
 
-  record Trace, message : String, level : ART::Matcher::TraceableURLMatcher::Match, name : String? = nil, route : ART::Route? = nil
+  record Trace, message : String, level : ART::Matcher::TraceableURLMatcher::Match, name : String, route : ART::Route
 
   @traces = Array(Trace).new
 
@@ -18,12 +27,14 @@ class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::
     super context
   end
 
+  # Returns an array of `ART::Matcher::TraceableURLMatcher::Trace` representing the history of the matching logic when trying to match the provided *request*.
   def traces(@request : ART::Request) : Array(ART::Matcher::TraceableURLMatcher::Trace)
     self.traces @request.not_nil!.path
   ensure
     @request = nil
   end
 
+  # Returns an array of `ART::Matcher::TraceableURLMatcher::Trace` representing the history of the matching logic when trying to match the provided *path*.
   def traces(path : String) : Array(ART::Matcher::TraceableURLMatcher::Trace)
     @traces.clear
 
@@ -56,18 +67,11 @@ class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::
     raise ART::Exception::ResourceNotFound.new "No routes found for '#{path}'."
   end
 
-  def each_trace(@request : ART::Request, & : ART::Matcher::TraceableURLMatcher::Trace ->) : Nil
-  end
-
-  def each_trace(path : String, & : ART::Matcher::TraceableURLMatcher::Trace ->) : Nil
-  end
-
   # ameba:disable Metrics/CyclomaticComplexity
   private def match_collection(path : String, allow : Array(String), allow_schemes : Array(String), routes : ART::RouteCollection) : Hash(String, String?)?
     method = @context.method
     method = "GET" if "HEAD" == method
 
-    # ameba:disable Lint/UselessAssign
     supports_trailing_slash = false # TODO: Support this
 
     trimmed_path = path.rstrip('/').presence || "/"
