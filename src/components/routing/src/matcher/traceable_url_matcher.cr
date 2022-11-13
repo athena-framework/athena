@@ -169,7 +169,7 @@ class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::
         next
       end
 
-      if (schemes = route.schemes) && !route.has_scheme(@context.scheme)
+      if (schemes = route.schemes) && !route.has_scheme?(@context.scheme)
         allow_schemes.concat schemes
         @traces << Trace.new "Scheme '#{@context.scheme}' does not match any of the required schemes (#{schemes.join ", "})", :partial, name, route
         next

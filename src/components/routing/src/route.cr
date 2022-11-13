@@ -278,7 +278,7 @@ class Athena::Routing::Route
   end
 
   # Returns `true` if this route allows the provided *scheme*, otherwise `false`.
-  def has_scheme(scheme : String) : Bool
+  def has_scheme?(scheme : String) : Bool
     !!@schemes.try &.includes? scheme.downcase
   end
 
