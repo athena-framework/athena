@@ -11,6 +11,9 @@ struct RouteTest < ASPEC::TestCase
     route = ART::Route.new "/", schemes: {"Https"}, methods: {"POST", "put"}
     route.schemes.should eq Set{"https"}
     route.methods.should eq Set{"POST", "PUT"}
+    route.has_scheme?("https").should be_true
+    route.has_scheme?("HTTPS").should be_true
+    route.has_scheme?("HTTP").should be_false
 
     route = ART::Route.new "/", schemes: "Https", methods: "Post"
     route.schemes.should eq Set{"https"}

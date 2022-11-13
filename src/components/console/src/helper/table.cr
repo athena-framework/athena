@@ -504,7 +504,7 @@ class Athena::Console::Helper::Table
 
   # The possible types that are accepted as cell values.
   # They are all eventually turned into strings.
-  alias CellType = String | Number::Primitive | Bool | Athena::Console::Helper::Table::Cell
+  alias CellType = String | Number::Primitive | Bool | Athena::Console::Helper::Table::Cell | Nil
 
   # The possible types that represent a row.
   alias RowType = Enumerable(CellType) | Athena::Console::Helper::Table::Separator

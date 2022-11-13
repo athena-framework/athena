@@ -389,7 +389,7 @@ abstract class Athena::Console::Command
   def processed_help : String
     is_single_command = (application = @application) && application.single_command?
     prog_name = Path.new(PROGRAM_NAME).basename
-    full_name = is_single_command ? prog_name : "#{prog_name} #{@name}"
+    full_name = is_single_command ? prog_name : "./#{prog_name} #{@name}"
 
     processed_help = self.help.presence || self.description
 

@@ -142,8 +142,11 @@ class Athena::Console::Descriptor::Text < Athena::Console::Descriptor
       self.write_text "<comment>Arguments:</comment>", context
       self.write_text "\n"
 
+      new_context = context.clone
+      new_context.total_width = total_width
+
       definition.arguments.each_value do |arg|
-        self.describe arg, context.copy_with total_width: total_width
+        self.describe arg, new_context
         self.write_text "\n"
       end
     end
@@ -163,13 +166,20 @@ class Athena::Console::Descriptor::Text < Athena::Console::Descriptor
           next
         end
 
+        new_context = context.clone
+        new_context.total_width = total_width
+
         self.write_text "\n"
-        self.describe option, context.copy_with total_width: total_width
+        self.describe option, new_context
       end
 
       later_options.each do |option|
         self.write_text "\n"
-        self.describe option, context.copy_with total_width: total_width
+
+        new_context = context.clone
+        new_context.total_width = total_width
+
+        self.describe option, new_context
       end
     end
   end

@@ -277,6 +277,11 @@ class Athena::Routing::Route
     self
   end
 
+  # Returns `true` if this route allows the provided *scheme*, otherwise `false`.
+  def has_scheme?(scheme : String) : Bool
+    !!@schemes.try &.includes? scheme.downcase
+  end
+
   # Sets the set of valid HTTP *method(s)* that this route supports.
   # See [ART::Route][] for more information.
   def methods=(methods : String | Enumerable(String)) : self

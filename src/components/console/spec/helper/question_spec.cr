@@ -74,7 +74,7 @@ struct QuestionHelperTest < AbstractQuestionHelperTest
   def test_ask_multiple_choice : Nil
     heroes = ["Superman", "Batman", "Spiderman"]
 
-    self.with_input "1\n0,2\n 0 , 2  " do |input|
+    self.with_input "1\n0,2\n 0 , 2  \n\n\n" do |input|
       question = ACON::Question::MultipleChoice.new "Who are your favorite superheros?", heroes
       question.max_attempts = 1
 

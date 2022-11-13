@@ -3,6 +3,7 @@ require "http/server"
 require "json"
 
 require "athena-config"
+require "athena-console"
 require "athena-dependency_injection"
 require "athena-event_dispatcher"
 require "athena-negotiation"
@@ -29,6 +30,7 @@ require "./streamed_response"
 require "./time_converter"
 
 require "./arguments/**"
+require "./commands/*"
 require "./config/*"
 require "./compiler_passes/*"
 require "./events/*"
@@ -110,6 +112,9 @@ module Athena::Framework
 
   # :nodoc:
   module CompilerPasses; end
+
+  # Namespace for the built in `Athena::Console` commands that come bundled with the framework.
+  module Commands; end
 
   # Runs an `HTTP::Server` listening on the given *port* and *host*.
   #

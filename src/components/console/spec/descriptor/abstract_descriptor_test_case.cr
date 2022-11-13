@@ -59,7 +59,9 @@ abstract struct AbstractDescriptorTestCase < ASPEC::TestCase
 
   protected def assert_description(expected : String, object, context : ACON::Descriptor::Context = ACON::Descriptor::Context.new) : Nil
     output = ACON::Output::IO.new IO::Memory.new
-    self.descriptor.describe output, object, context.copy_with(raw_output: true)
+    context = context.clone
+    context.raw_output = true
+    self.descriptor.describe output, object, context
     output.to_s.strip.should eq expected.strip
   end
 end
