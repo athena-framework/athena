@@ -7,7 +7,7 @@ on:
   schedule:
     - cron: '37 0 * * *' # Nightly at 00:37
 
-concurrency: 
+concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
