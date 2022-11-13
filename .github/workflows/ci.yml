@@ -8,7 +8,7 @@ on:
     - cron: '37 0 * * *' # Nightly at 00:37
 
 concurrency:
-  group: ${{ github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
