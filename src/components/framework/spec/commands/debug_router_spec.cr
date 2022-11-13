@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-struct DebugRouterCommand < ASPEC::TestCase
+struct DebugRouterCommandTest < ASPEC::TestCase
   @router : ART::Router
 
   def initialize

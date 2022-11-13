@@ -36,7 +36,7 @@
 # +--------------+-------------------------------------+
 # ```
 #
-# TIP: Checkout `ATH::Commands::RouterMatch` to test paths against a specific route.
+# TIP: Checkout `ATH::Commands::RouterMatch` to test which route a given path resolves to.
 class Athena::Framework::Commands::DebugRouter < ACON::Command
   def initialize(
     @router : ART::RouterInterface
