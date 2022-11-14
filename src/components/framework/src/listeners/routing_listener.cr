@@ -3,12 +3,6 @@
 struct Athena::Framework::Listeners::Routing
   include AED::EventListenerInterface
 
-  def self.subscribed_events : AED::SubscribedEvents
-    AED::SubscribedEvents{
-      ATH::Events::Request => 32,
-    }
-  end
-
   @request_context : ART::RequestContext
 
   def initialize(
@@ -16,9 +10,12 @@ struct Athena::Framework::Listeners::Routing
     @request_store : ATH::RequestStore,
     request_context : ART::RequestContext? = nil
   )
+    pp "New #{self.class}"
+
     @request_context = request_context || @matcher.context
   end
 
+  @[AEDA::AsEventListener(priority: 32)]
   def call(event : ATH::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
     request = event.request
 

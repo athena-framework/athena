@@ -15,10 +15,6 @@ module Athena::EventDispatcher::Spec
   class TracableEventDispatcher < AED::EventDispatcher
     getter emitted_events : Array(AED::Event.class) = [] of AED::Event.class
 
-    def self.new
-      new [] of AED::EventListenerInterface
-    end
-
     def dispatch(event : AED::Event) : Nil
       @emitted_events << event.class
 

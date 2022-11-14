@@ -10,15 +10,14 @@ require "mime"
 struct Athena::Framework::Listeners::Format
   include AED::EventListenerInterface
 
-  def self.subscribed_events : AED::SubscribedEvents
-    AED::SubscribedEvents{ATH::Events::Request => 34}
-  end
-
   def initialize(
     @config : ATH::Config::ContentNegotiation?,
     @format_negotiator : ATH::View::FormatNegotiator
-  ); end
+  )
+    pp "New #{self.class}"
+  end
 
+  @[AEDA::AsEventListener(priority: 34)]
   def call(event : ATH::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
     request = event.request
 

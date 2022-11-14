@@ -28,14 +28,11 @@
 struct Athena::Framework::Listeners::Error
   include AED::EventListenerInterface
 
-  def self.subscribed_events : AED::SubscribedEvents
-    AED::SubscribedEvents{
-      ATH::Events::Exception => -50,
-    }
+  def initialize(@error_renderer : ATH::ErrorRendererInterface)
+    pp "New #{self.class}"
   end
 
-  def initialize(@error_renderer : ATH::ErrorRendererInterface); end
-
+  @[AEDA::AsEventListener(priority: -50)]
   def call(event : ATH::Events::Exception, dispatcher : AED::EventDispatcherInterface) : Nil
     exception = event.exception
 

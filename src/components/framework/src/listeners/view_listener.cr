@@ -7,12 +7,11 @@
 struct Athena::Framework::Listeners::View
   include AED::EventListenerInterface
 
-  def self.subscribed_events : AED::SubscribedEvents
-    AED::SubscribedEvents{ATH::Events::View => 100}
+  def initialize(@view_handler : ATH::View::ViewHandlerInterface)
+    pp "New #{self.class}"
   end
 
-  def initialize(@view_handler : ATH::View::ViewHandlerInterface); end
-
+  @[AEDA::AsEventListener(priority: 100)]
   def call(event : ATH::Events::View, dispatcher : AED::EventDispatcherInterface) : Nil
     request = event.request
     action = request.action

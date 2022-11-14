@@ -2,14 +2,11 @@
 struct Athena::Framework::Listeners::ParamFetcher
   include AED::EventListenerInterface
 
-  def self.subscribed_events : AED::SubscribedEvents
-    AED::SubscribedEvents{
-      ATH::Events::Action => 5,
-    }
+  def initialize(@param_fetcher : ATH::Params::ParamFetcherInterface)
+    pp "New #{self.class}"
   end
 
-  def initialize(@param_fetcher : ATH::Params::ParamFetcherInterface); end
-
+  @[AEDA::AsEventListener(priority: 5)]
   def call(event : ATH::Events::Action, dispatcher : AED::EventDispatcherInterface) : Nil
     request = event.request
 
