@@ -10,8 +10,6 @@ struct Athena::Framework::Listeners::Routing
     @request_store : ATH::RequestStore,
     request_context : ART::RequestContext? = nil
   )
-    pp "New #{self.class}"
-
     @request_context = request_context || @matcher.context
   end
 

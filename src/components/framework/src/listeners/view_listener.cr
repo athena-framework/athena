@@ -7,9 +7,7 @@
 struct Athena::Framework::Listeners::View
   include AED::EventListenerInterface
 
-  def initialize(@view_handler : ATH::View::ViewHandlerInterface)
-    pp "New #{self.class}"
-  end
+  def initialize(@view_handler : ATH::View::ViewHandlerInterface); end
 
   @[AEDA::AsEventListener(priority: 100)]
   def call(event : ATH::Events::View, dispatcher : AED::EventDispatcherInterface) : Nil

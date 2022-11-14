@@ -209,33 +209,3 @@ module Athena::Framework
     end
   end
 end
-
-class MyEvent < AED::Event; end
-
-@[ADI::Register]
-class MyEventListener
-  include AED::EventListenerInterface
-
-  def initialize
-    pp "New #{self.class}"
-  end
-
-  @[AEDA::AsEventListener]
-  def test(event : MyEvent)
-    pp event
-  end
-end
-
-@[ADI::Register]
-class ExampleController < ATH::Controller
-  def initialize(@event_dispatcher : AED::EventDispatcherInterface); end
-
-  @[ARTA::Get("/")]
-  def root : String
-    # pp @event_dispatcher.dispatch MyEvent.new
-
-    "At the index"
-  end
-end
-
-ATH.run

@@ -87,9 +87,7 @@ struct Athena::Framework::Listeners::CORS
 
   private getter! config : ATH::Config::CORS?
 
-  def initialize(@config : ATH::Config::CORS?)
-    pp "New #{self.class}"
-  end
+  def initialize(@config : ATH::Config::CORS?); end
 
   @[AEDA::AsEventListener(priority: 250)]
   def call(event : ATH::Events::Request) : Nil

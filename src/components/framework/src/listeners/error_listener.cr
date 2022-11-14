@@ -28,9 +28,7 @@
 struct Athena::Framework::Listeners::Error
   include AED::EventListenerInterface
 
-  def initialize(@error_renderer : ATH::ErrorRendererInterface)
-    pp "New #{self.class}"
-  end
+  def initialize(@error_renderer : ATH::ErrorRendererInterface); end
 
   @[AEDA::AsEventListener(priority: -50)]
   def call(event : ATH::Events::Exception, dispatcher : AED::EventDispatcherInterface) : Nil

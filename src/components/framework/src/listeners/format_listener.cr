@@ -14,7 +14,6 @@ struct Athena::Framework::Listeners::Format
     @config : ATH::Config::ContentNegotiation?,
     @format_negotiator : ATH::View::FormatNegotiator
   )
-    pp "New #{self.class}"
   end
 
   @[AEDA::AsEventListener(priority: 34)]

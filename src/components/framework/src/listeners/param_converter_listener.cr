@@ -8,8 +8,6 @@ struct Athena::Framework::Listeners::ParamConverter
   @param_converters = Hash(ATH::ParamConverter.class, ATH::ParamConverter).new
 
   def initialize(param_converters : Array(ATH::ParamConverter))
-    pp "New #{self.class}"
-
     param_converters.each do |converter|
       @param_converters[converter.class] = converter
     end
