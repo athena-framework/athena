@@ -5,97 +5,163 @@ require "./event_listener_interface"
 class Athena::EventDispatcher::EventDispatcher
   include Athena::EventDispatcher::EventDispatcherInterface
 
-  # Mapping of `Event` types to `EventListener` listening on that event.
-  @events : Hash(Event.class, Array(EventListener))
+  alias OneType = Proc(Athena::EventDispatcher::Event, Nil)
+  alias TwoType = Proc(Athena::EventDispatcher::Event, EventDispatcherInterface, Nil)
+  alias Type = OneType | TwoType
 
-  # Keep track of which events have been sorted so that listener arrays can be sorted only when needed.
-  @sorted : Set(Event.class) = Set(Event.class).new
+  @listeners = Hash(AED::Event.class, Hash(Int32, Hash(UInt64, Type))).new
+  @sorted = Hash(AED::Event.class, Array(Type)).new
 
-  # Initializes `self` with the provided *listeners*.
-  #
-  # This overload is mainly intended for DI or to manually
-  # configure the listeners that should be listened on.
-  def initialize(listeners : Array(AED::EventListenerInterface))
-    # Initialize the event_hash, with a default size of the number of event subclasses. Add one to account for `Event` itself.
-    @events = Hash(AED::Event.class, Array(AED::EventListener)).new {{Event.all_subclasses.size + 1}} { raise "Bug: Accessed missing event type" }
+  def listener(listener : T) : Nil forall T
+    {% @def.raise "Cannot add non AED::EventListenerInterface" unless T <= AED::EventListenerInterface %}
 
-    # Iterate over event classes to "register" them with the events hash
-    {% for event in AED::Event.all_subclasses %}
-      {% raise "Event '#{event.name}' cannot be generic" if event.type_vars.size >= 1 %}
-      {% unless event.abstract? %}
-        # Initialize each event to an empty array with a default size of the number of total listeners
-        @events[{{event.id}}] = Array(AED::EventListener).new {{AED::EventListenerInterface.includers.size}}
+    {% begin %}
+      {% for m in T.methods.select &.annotation(AEDA::AsEventListener) %}
+        {% ann = m.annotation AEDA::AsEventListener %}
+        {% event = m.args[0].restriction || m.args[0].raise "No resetriction" %}
+
+        {% if 1 == m.args.size %}
+          # self.add_listener {{event}}, OneType.new { |event| ->listener.{{m.name.id}}({{event}}).call event.as({{event}}) }, priority: {{ann[:priority] || 0}}
+          self.add_listener(
+            {{event}},
+            OneType.new { |event| ->listener.{{m.name.id}}({{event}}).call event.as({{event}}) },
+            priority: {{ann[:priority] || 0}},
+            origin: listener
+          )
+        {% else %}
+          self.add_listener(
+            {{event}},
+            TwoType.new { |event, dispatcher| ->listener.{{m.name.id}}({{event}}, AED::EventDispatcherInterface).call event.as({{event}}), dispatcher },
+            priority: {{ann[:priority] || 0}},
+            origin: listener
+          )
+        {% end %}
       {% end %}
     {% end %}
+  end
 
-    listeners.each do |listener|
-      listener.class.subscribed_events.each do |event, priority|
-        add_listener event, listener, priority
+  def listener(event_class : T.class, *, priority : Int32 = 0, &block : T, AED::EventDispatcherInterface ->) : Nil forall T
+    ((@listeners[event_class] ||= Hash(Int32, Hash(UInt64, Type)).new)[priority] ||= Hash(UInt64, Type).new)[block.hash] = TwoType.new do |event, dispatcher|
+      block.call event.as(T), dispatcher
+    end
+
+    @sorted.delete event_class
+  end
+
+  protected def add_listener(event_class : AED::Event.class, block : Type, *, priority : Int32 = 0, origin = nil) : Nil
+    ((@listeners[event_class] ||= Hash(Int32, Hash(UInt64, Type)).new)[priority] ||= Hash(UInt64, Type).new)[origin.try(&.hash) || block.hash] = block
+
+    @sorted.delete event_class
+  end
+
+  def has_listeners?(event_class : AED::Event.class | Nil = nil) : Bool
+    if event_class
+      return @listeners.has_key?(event_class) && !@listeners[event_class].empty?
+    end
+
+    @listeners.each_value do |listeners|
+      return true unless listeners.empty?
+    end
+
+    false
+  end
+
+  def remove_listener(listener : T) : Nil forall T
+    {% @def.raise "Cannot remove events from a non AED::EventListenerInterface" unless T <= AED::EventListenerInterface %}
+
+    {% begin %}
+      {% for m in T.methods.select &.annotation(AEDA::AsEventListener) %}
+        {% ann = m.annotation AEDA::AsEventListener %}
+        {% event = m.args[0].restriction || m.args[0].raise "No resetriction" %}
+
+        self.remove_listener {{event}}, listener.hash
+      {% end %}
+    {% end %}
+  end
+
+  def remove_listener(event_class : T.class, listener : Proc) forall T
+    self.remove_listener event_class, listener.hash
+  end
+
+  private def remove_listener(event_class : AED::Event.class, hash : UInt64) : Nil
+    return unless (listener_priorities = @listeners[event_class]?)
+    return if listener_priorities.empty?
+
+    listener_priorities.each do |priority, listeners|
+      listeners.reject! do |k, v|
+        k == hash
+      end
+
+      if listeners.empty?
+        listener_priorities.delete priority
       end
     end
   end
 
-  # Initializes `self` automatically via macros.  This overload is mainly intended for
-  # use cases where the listener types don't have any dependencies, and/or all listeners should listen.
-  def self.new
-    new {{AED::EventListenerInterface.includers.map { |listener| "#{listener.id}.new".id }}}
+  def dispatch(event : AED::Event) : AED::Event
+    listeners = self.listeners event.class
+
+    self.call_listeners event, listeners
+
+    event
   end
 
-  # :inherit:
-  def add_listener(event : AED::Event.class, listener : AED::EventListenerType, priority : Int32 = 0) : Nil
-    @events[event] << AED::EventListener.new listener, priority
-    @sorted.delete event
+  def listeners(for event_class : AED::Event.class) : Array(Type)
+    return [] of Type if !@listeners.has_key?(event_class) || @listeners[event_class].empty?
+
+    if !@sorted.has_key? event_class
+      self.sort_listeners event_class
+    end
+
+    return @sorted[event_class]
   end
 
-  # :inherit:
-  def dispatch(event : AED::Event) : Nil
-    listeners(event.class).each do |listener|
-      return if event.is_a?(AED::StoppableEvent) && !event.propagate?
+  def listeners : Hash(AED::Event.class, Array(Type))
+    @listeners.each do |ec, listeners|
+      if !@sorted.has_key? ec
+        self.sort_listeners ec
+      end
+    end
 
-      listener.call event, self
+    @sorted
+  end
+
+  def listener_priority(event_class : AED::Event.class, listener) : Int32?
+    return if !@listeners.has_key?(event_class) || @listeners[event_class].empty?
+
+    @listeners[event_class].each do |priority, listeners|
+      listeners.each do |hash, l|
+        return priority if hash == listener.hash
+      end
     end
   end
 
-  # :inherit:
-  def listeners(event : AED::Event.class | Nil = nil) : Array(AED::EventListener)
-    if event
-      sort(event) unless @sorted.includes? event
+  private def call_listeners(event : AED::Event, listeners : Array(Type)) : Nil
+    stoppable = event.is_a? AED::StoppableEvent
 
-      return @events[event]
+    listeners.each do |listener|
+      break if stoppable && !event.propagate?
+
+      case listener
+      in OneType then listener.call event
+      in TwoType then listener.call event, self
+      end
     end
-
-    @events.each do |ev, _listeners|
-      sort(ev) unless @sorted.includes? event
-    end
-
-    @events.values.flatten
   end
 
-  # :inherit:
-  def listener_priority(event : AED::Event.class, listener : AED::EventListenerInterface.class) : Int32?
-    return nil unless has_listeners? event
+  private def sort_listeners(event_class : AED::Event.class) : Nil
+    listeners = @listeners[event_class]
+    @sorted[event_class] = [] of Type
 
-    @events[event].find(&.listener.class.==(listener)).try &.priority
-  end
-
-  # :inherit:
-  def has_listeners?(event : AED::Event.class | Nil = nil) : Bool
-    return !@events[event].empty? if event
-
-    @events.values.any? { |listener_arr| !listener_arr.empty? }
-  end
-
-  # :inherit:
-  def remove_listener(event : AED::Event.class, listener : AED::EventListenerInterface.class) : Nil
-    @events[event].reject! &.listener.class.==(listener)
-  end
-
-  # :inherit:
-  def remove_listener(event : AED::Event.class, listener : AED::EventListenerType) : Nil
-    @events[event].reject! &.==(listener)
-  end
-
-  private def sort(event : AED::Event.class) : Nil
-    @events[event].sort_by!(&.priority).reverse!
+    listeners
+      .to_a
+      .sort do |(p1, l1), (p2, l2)|
+        p2 <=> p1
+      end
+      .each do |a, b|
+        b.each_value do |l|
+          @sorted[event_class] << l
+        end
+      end
   end
 end

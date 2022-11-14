@@ -1,7 +1,11 @@
+require "./annotations"
 require "./event_dispatcher"
 
 # Convenience alias to make referencing `Athena::EventDispatcher` types easier.
 alias AED = Athena::EventDispatcher
+
+# Convenience alias to make referencing `AED::Annotations` types easier.
+alias AEDA = AED::Annotations
 
 # A [Mediator](https://en.wikipedia.org/wiki/Mediator_pattern) and [Observer](https://en.wikipedia.org/wiki/Observer_pattern)
 # pattern event library.
@@ -109,50 +113,4 @@ alias AED = Athena::EventDispatcher
 # Consider pairing this component with the [Athena::DependencyInjection][Athena::DependencyInjection--getting-started] component as a way to handle this.
 module Athena::EventDispatcher
   VERSION = "0.1.4"
-
-  # The possible types an event listener can be.  `AED::EventListenerInterface` instances use `#call`
-  # in order to keep a common interface with the `Proc` based listeners.
-  alias EventListenerType = EventListenerInterface | Proc(Event, EventDispatcherInterface, Nil)
-
-  # The mapping of the `AED::Event` and the priority a `AED::EventListenerInterface` is listening on.
-  #
-  # See `AED::EventListenerInterface`.
-  alias SubscribedEvents = Hash(AED::Event.class, Int32)
-
-  # Wraps an `EventListenerType` in order to keep track of its `priority`.
-  struct EventListener
-    # :nodoc:
-    delegate :call, :==, to: @listener
-
-    # The wrapped `EventListenerType` instance.
-    getter listener : EventListenerType
-
-    # The priority of the `EventListenerType` instance.
-    #
-    # The higher the `priority` the sooner `listener` will be executed.
-    getter priority : Int32 = 0
-
-    def initialize(@listener : EventListenerType, @priority : Int32 = 0); end
-  end
-
-  # Creates a listener for the provided *event*.  The macro's block is used as the listener.
-  #
-  # The macro *block* implicitly yields `event` and `dispatcher`.
-  #
-  # ```
-  # listener = AED.create_listener(SampleEvent) do
-  #   # Do something with the event.
-  #   event.some_method
-  #
-  #   # A reference to the `AED::EventDispatcherInterface` is also provided.
-  #   dispatcher.dispatch FakeEvent.new
-  # end
-  # ```
-  macro create_listener(event, &)
-    Proc(AED::Event, AED::EventDispatcherInterface, Nil).new do |event, dispatcher|
-      Proc({{event.id}}, AED::EventDispatcherInterface, Nil).new do |event, dispatcher|
-        {{yield}}
-      end.call event.as({{event}}), dispatcher
-    end
-  end
 end

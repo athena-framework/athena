@@ -1,284 +1,178 @@
 require "./spec_helper"
 
-class TestEvent < AED::Event
-  property value : Int32 = 0
+class PreFoo < AED::Event; end
 
-  property? should_stop_propagation : Bool = false
-end
+class PostFoo < AED::Event; end
 
-class FakeEvent < AED::Event
-end
+class PreBar < AED::Event; end
 
-class NoListenerEvent < AED::Event
-end
-
-struct OtherTestListener
+class TestListener
   include AED::EventListenerInterface
 
-  def self.subscribed_events : AED::SubscribedEvents
-    AED::SubscribedEvents{
-      TestEvent => 12,
-    }
+  getter values = [] of Int32
+
+  @[AEDA::AsEventListener]
+  def on_pre1(event : PreFoo) : Nil
+    @values << 1
   end
 
-  def call(event : TestEvent, dispatcher : AED::EventDispatcherInterface) : Nil
-    event.stop_propagation if event.should_stop_propagation?
-
-    event.value += 1
-  end
-end
-
-struct TestListener
-  include AED::EventListenerInterface
-
-  def self.subscribed_events : AED::SubscribedEvents
-    AED::SubscribedEvents{
-      TestEvent => 0,
-      FakeEvent => 4,
-    }
-  end
-
-  def call(event : TestEvent, dispatcher : AED::EventDispatcherInterface) : Nil
-    event.value += 2
-  end
-
-  def call(event : FakeEvent, dispatcher : AED::EventDispatcherInterface) : Nil
+  @[AEDA::AsEventListener(priority: 10)]
+  def on_pre2(event : PreFoo, dispatcher : AED::EventDispatcherInterface) : Nil
+    @values << 2
   end
 end
 
-describe AED::EventDispatcher do
-  describe "#add_listener" do
-    describe Proc do
-      it "should add the provided proc as a listener" do
-        dispatcher = AED::EventDispatcher.new [] of AED::EventListenerInterface
+struct EventDispatcherTest < ASPEC::TestCase
+  @dispatcher : AED::EventDispatcher
 
-        dispatcher.has_listeners?(FakeEvent).should be_false
-
-        listener = AED.create_listener(FakeEvent) { }
-
-        dispatcher.add_listener FakeEvent, listener
-
-        dispatcher.has_listeners?(FakeEvent).should be_true
-      end
-    end
-
-    describe AED::EventListenerInterface do
-      it "should add the provided listener" do
-        dispatcher = AED::EventDispatcher.new [] of AED::EventListenerInterface
-
-        dispatcher.has_listeners?(TestEvent).should be_false
-
-        listener = TestListener.new
-
-        dispatcher.add_listener TestEvent, listener
-
-        dispatcher.has_listeners?(TestEvent).should be_true
-      end
-    end
+  def initialize
+    @dispatcher = AED::EventDispatcher.new
   end
 
-  describe "#dispatch" do
-    it "should pass the event to all listeners" do
-      event = TestEvent.new
-
-      AED::EventDispatcher.new.dispatch event
-
-      event.value.should eq 3
-    end
-
-    it "should stop calling listeners if the event propagation is stopped" do
-      event = TestEvent.new
-      event.should_stop_propagation = true
-
-      AED::EventDispatcher.new.dispatch event
-
-      event.value.should eq 1
-    end
+  def test_initial_state : Nil
+    @dispatcher.listeners.should be_empty
+    @dispatcher.has_listeners?(PreFoo).should be_false
+    @dispatcher.has_listeners?(PostFoo).should be_false
   end
 
-  describe "#listeners" do
-    describe :event do
-      describe "that has listeners" do
-        it "should return an array of Listeners" do
-          dispatcher = AED::EventDispatcher.new
-
-          listeners = dispatcher.listeners(TestEvent)
-
-          event = TestEvent.new
-
-          listeners.size.should eq 2
-          listeners.first.call(event, dispatcher)
-
-          event.value.should eq 1
-        end
-      end
-
-      describe "that doesn't have any listeners" do
-        it "should return an empty array" do
-          AED::EventDispatcher.new.listeners(NoListenerEvent).should be_empty
-        end
-      end
-
-      describe "when a new listener is added" do
-        describe Proc do
-          it "should resort the listeners" do
-            dispatcher = AED::EventDispatcher.new
-
-            listener = AED.create_listener(TestEvent) { event.value = 14 }
-
-            dispatcher.add_listener TestEvent, listener, 99
-
-            listeners = dispatcher.listeners(TestEvent)
-
-            event = TestEvent.new
-
-            listeners.size.should eq 3
-            listeners.first.call(event, dispatcher)
-
-            event.value.should eq 14
-          end
-        end
-
-        describe AED::EventListenerInterface do
-          it "should resort the listeners" do
-            dispatcher = AED::EventDispatcher.new
-
-            listener = TestListener.new
-
-            dispatcher.add_listener TestEvent, listener, 99
-
-            listeners = dispatcher.listeners(TestEvent)
-
-            event = TestEvent.new
-
-            listeners.size.should eq 3
-            listeners.first.call(event, dispatcher)
-
-            event.value.should eq 2
-          end
-        end
-      end
+  def test_listener : Nil
+    @dispatcher.listener PreFoo do
     end
 
-    describe :no_event do
-      it "should return an array of listeners" do
-        AED::EventDispatcher.new.listeners.size.should eq 3
-      end
-
-      describe "when a new listener is added" do
-        describe Proc do
-          it "should resort the listeners" do
-            dispatcher = AED::EventDispatcher.new
-
-            listener = AED.create_listener(TestEvent) { event.value = 14 }
-
-            dispatcher.add_listener TestEvent, listener, 99
-
-            listeners = dispatcher.listeners
-
-            event = TestEvent.new
-
-            listeners.size.should eq 4
-            listeners.first.call(event, dispatcher)
-
-            event.value.should eq 14
-          end
-        end
-      end
+    @dispatcher.listener PostFoo do
     end
+
+    @dispatcher.has_listeners?.should be_true
+    @dispatcher.has_listeners?(PreFoo).should be_true
+    @dispatcher.has_listeners?(PostFoo).should be_true
+    @dispatcher.has_listeners?(PreBar).should be_false
+
+    @dispatcher.listeners(PreFoo).size.should eq 1
+    @dispatcher.listeners(PostFoo).size.should eq 1
+    @dispatcher.listeners.size.should eq 2
   end
 
-  describe "#has_listeners?" do
-    describe :event do
-      describe "and there are some listening" do
-        it "should return true" do
-          AED::EventDispatcher.new.has_listeners?(TestEvent).should be_true
-        end
-      end
+  def test_listeners_sorted_by_priority : Nil
+    vals = [] of Int32
 
-      describe "and there are none listening" do
-        it "should return false" do
-          AED::EventDispatcher.new.has_listeners?(NoListenerEvent).should be_false
-        end
-      end
-    end
+    callback1 = Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { vals << 1 }
+    callback2 = Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { vals << 2 }
+    callback3 = Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { vals << 3 }
+    callback4 = Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { vals << 4 }
 
-    describe :no_event do
-      describe "and there are some listening" do
-        it "should return true" do
-          AED::EventDispatcher.new.has_listeners?.should be_true
-        end
-      end
+    @dispatcher.listener PreFoo, priority: -10, &callback1
+    @dispatcher.listener PreFoo, priority: 10, &callback2
+    @dispatcher.listener PreFoo, &callback3
+    @dispatcher.listener PreFoo, priority: 20, &callback4
 
-      describe "and there are some listening" do
-        it "should return false" do
-          AED::EventDispatcher.new([] of AED::EventListenerInterface).has_listeners?.should be_false
-        end
-      end
-    end
+    # `#dispatch` inherently calls `#listeners`
+    @dispatcher.dispatch PreFoo.new
+
+    @dispatcher.listeners(PreFoo).size.should eq 4
+
+    vals.should eq [4, 2, 3, 1]
   end
 
-  describe "#listener_priority" do
-    describe "that exists" do
-      it "should return the listener priority of the event" do
-        AED::EventDispatcher.new.listener_priority(FakeEvent, TestListener).should eq 4
-      end
-    end
+  def test_all_listeners_sorts_by_priority
+    pre_foo_vals = [] of Int32
+    post_foo_vals = [] of Int32
 
-    describe "that doesn't have any listeners" do
-      it "should return nil" do
-        AED::EventDispatcher.new.listener_priority(NoListenerEvent, TestListener).should be_nil
-      end
-    end
+    callback1 = Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { pre_foo_vals << 1 }
+    callback2 = Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { pre_foo_vals << 2 }
+    callback3 = Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { pre_foo_vals << 3 }
 
-    describe "where a listener isn't listening on that event" do
-      it "should return nil" do
-        AED::EventDispatcher.new.listener_priority(FakeEvent, OtherTestListener).should be_nil
-      end
-    end
+    callback4 = Proc(PostFoo, AED::EventDispatcherInterface, Nil).new { post_foo_vals << 4 }
+    callback5 = Proc(PostFoo, AED::EventDispatcherInterface, Nil).new { post_foo_vals << 5 }
+    callback6 = Proc(PostFoo, AED::EventDispatcherInterface, Nil).new { post_foo_vals << 6 }
+
+    @dispatcher.listener PreFoo, priority: -10, &callback1
+    @dispatcher.listener PreFoo, &callback2
+    @dispatcher.listener PreFoo, priority: 10, &callback3
+
+    @dispatcher.listener PostFoo, priority: -10, &callback4
+    @dispatcher.listener PostFoo, &callback5
+    @dispatcher.listener PostFoo, priority: 10, &callback6
+
+    listeners = @dispatcher.listeners
+    listeners.keys.should eq [PreFoo, PostFoo]
+    listeners[PreFoo].size.should eq 3
+    listeners[PostFoo].size.should eq 3
+
+    # `#dispatch` inherently calls `#listeners`
+    @dispatcher.dispatch PreFoo.new
+    @dispatcher.dispatch PostFoo.new
+
+    pre_foo_vals.should eq [3, 2, 1]
+    post_foo_vals.should eq [6, 5, 4]
   end
 
-  describe "#remove_listener" do
-    describe AED::EventListenerInterface.class do
-      it "should remove the listeners of the given type off the event" do
-        dispatcher = AED::EventDispatcher.new [TestListener.new]
+  def test_listener_priority : Nil
+    callback1 = Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { }
+    callback2 = Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { }
 
-        dispatcher.has_listeners?(TestEvent).should be_true
+    @dispatcher.listener PreFoo, priority: -10, &callback1
+    @dispatcher.listener PreFoo, &callback2
 
-        dispatcher.remove_listener TestEvent, TestListener
+    @dispatcher.listener_priority(PreFoo, callback1).should eq -10
+    @dispatcher.listener_priority(PreFoo, callback2).should eq 0
+    @dispatcher.listener_priority(PreBar, callback1).should be_nil
+    @dispatcher.listener_priority(PreFoo, Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { }).should be_nil
+  end
 
-        dispatcher.has_listeners?(TestEvent).should be_false
-      end
+  def test_dispatch_stop_event_propagation : Nil
+    pre_foo_invoked = false
+    other_pre_foo_invoked = false
+
+    @dispatcher.listener PreFoo do |event|
+      pre_foo_invoked = true
+      event.stop_propagation
     end
 
-    describe Proc do
-      it "should remove the listeners procs off the given event" do
-        listener = AED.create_listener(FakeEvent) { }
-
-        dispatcher = AED::EventDispatcher.new [] of AED::EventListenerInterface
-
-        dispatcher.add_listener FakeEvent, listener
-
-        dispatcher.has_listeners?(FakeEvent).should be_true
-
-        dispatcher.remove_listener FakeEvent, listener
-
-        dispatcher.has_listeners?(FakeEvent).should be_false
-      end
+    @dispatcher.listener PreFoo do |event|
+      other_pre_foo_invoked = true
     end
 
-    describe AED::EventListenerInterface do
-      it "should remove the listeners based on a listener instance" do
-        listener = TestListener.new
+    @dispatcher.dispatch PreFoo.new
 
-        dispatcher = AED::EventDispatcher.new [listener]
+    pre_foo_invoked.should be_true
+    other_pre_foo_invoked.should be_false
+  end
 
-        dispatcher.has_listeners?(TestEvent).should be_true
+  def test_remove_listener : Nil
+    callback1 = Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { }
 
-        dispatcher.remove_listener TestEvent, listener
+    @dispatcher.listener PreFoo, &callback1
+    @dispatcher.has_listeners?(PreFoo).should be_true
 
-        dispatcher.has_listeners?(TestEvent).should be_false
-      end
-    end
+    @dispatcher.remove_listener PreFoo, callback1
+    @dispatcher.has_listeners?(PreFoo).should be_false
+
+    @dispatcher.remove_listener PostFoo, callback1
+  end
+
+  def test_add_event_listener_instance
+    listener = TestListener.new
+
+    @dispatcher.listener listener
+
+    @dispatcher.has_listeners?(PreFoo).should be_true
+    @dispatcher.listeners(PreFoo).size.should eq 2
+
+    @dispatcher.dispatch PreFoo.new
+
+    listener.values.should eq [2, 1]
+  end
+
+  def test_remove_event_listener_instance
+    listener = TestListener.new
+
+    @dispatcher.listener listener
+    @dispatcher.has_listeners?(PreFoo).should be_true
+    @dispatcher.listeners(PreFoo).size.should eq 2
+
+    @dispatcher.remove_listener listener
+
+    @dispatcher.has_listeners?(PreFoo).should be_false
+    @dispatcher.listeners(PreFoo).should be_empty
   end
 end
