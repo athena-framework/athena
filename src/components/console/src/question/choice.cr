@@ -1,6 +1,6 @@
 require "./abstract_choice"
 
-# A question whose answer _MUCH_ be within a set of predefined answers.
+# A question whose answer _MUST_ be within a set of predefined answers.
 # If the user enters an invalid answer, an error is displayed and they are prompted again.
 #
 # ```
