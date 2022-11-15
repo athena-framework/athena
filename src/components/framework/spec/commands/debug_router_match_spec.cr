@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-struct RouterMatchCommandTest < ASPEC::TestCase
+struct DebugRouterMatchCommandTest < ASPEC::TestCase
   def test_matches : Nil
     tester = self.command_tester
     ret = tester.execute path_info: "/foo", decorated: false
@@ -31,7 +31,7 @@ struct RouterMatchCommandTest < ASPEC::TestCase
     application.add ATH::Commands::RouterMatch.new self.router
     application.add ATH::Commands::DebugRouter.new self.router
 
-    ACON::Spec::CommandTester.new application.find "router:match"
+    ACON::Spec::CommandTester.new application.find "debug:router:match"
   end
 
   private def router : ART::RouterInterface
