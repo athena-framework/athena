@@ -28,7 +28,7 @@ struct DebugRouterMatchCommandTest < ASPEC::TestCase
 
   private def command_tester : ACON::Spec::CommandTester
     application = ACON::Application.new "Athena Specs"
-    application.add ATH::Commands::RouterMatch.new self.router
+    application.add ATH::Commands::DebugRouterMatch.new self.router
     application.add ATH::Commands::DebugRouter.new self.router
 
     ACON::Spec::CommandTester.new application.find "debug:router:match"
