@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-struct RouterMatchCommandTest < ASPEC::TestCase
+struct DebugRouterMatchCommandTest < ASPEC::TestCase
   def test_matches : Nil
     tester = self.command_tester
     ret = tester.execute path_info: "/foo", decorated: false
@@ -28,10 +28,10 @@ struct RouterMatchCommandTest < ASPEC::TestCase
 
   private def command_tester : ACON::Spec::CommandTester
     application = ACON::Application.new "Athena Specs"
-    application.add ATH::Commands::RouterMatch.new self.router
+    application.add ATH::Commands::DebugRouterMatch.new self.router
     application.add ATH::Commands::DebugRouter.new self.router
 
-    ACON::Spec::CommandTester.new application.find "router:match"
+    ACON::Spec::CommandTester.new application.find "debug:router:match"
   end
 
   private def router : ART::RouterInterface
