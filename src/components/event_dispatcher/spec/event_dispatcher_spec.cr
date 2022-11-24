@@ -35,7 +35,7 @@ struct EventDispatcherTest < ASPEC::TestCase
     @dispatcher.has_listeners?(PostFoo).should be_false
   end
 
-  def test_listener : Nil
+  def test_listener_block : Nil
     @dispatcher.listener PreFoo do
     end
 
@@ -52,71 +52,88 @@ struct EventDispatcherTest < ASPEC::TestCase
     @dispatcher.listeners.size.should eq 2
   end
 
+  def test_listener_callable : Nil
+    callback1 = PreFoo.callable do
+    end
+
+    callback2 = PostFoo.callable do
+    end
+
+    @dispatcher.listener callback1
+    @dispatcher.listener callback2
+
+    @dispatcher.has_listeners?.should be_true
+    @dispatcher.has_listeners?(PreFoo).should be_true
+    @dispatcher.has_listeners?(PostFoo).should be_true
+    @dispatcher.has_listeners?(PreBar).should be_false
+
+    @dispatcher.listeners(PreFoo).size.should eq 1
+    @dispatcher.listeners(PostFoo).size.should eq 1
+    @dispatcher.listeners.size.should eq 2
+  end
+
   def test_listeners_sorted_by_priority : Nil
-    vals = [] of Int32
+    callback1 = PreFoo.callable(priority: -10) { }
+    callback2 = PreFoo.callable(priority: 10) { }
+    callback3 = PreFoo.callable { }
+    callback4 = PreFoo.callable(priority: 20) { }
+    callback5 = PreFoo.callable { }
 
-    callback1 = Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { vals << 1 }
-    callback2 = Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { vals << 2 }
-    callback3 = Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { vals << 3 }
-    callback4 = Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { vals << 4 }
+    @dispatcher.listener callback1
+    @dispatcher.listener callback2
+    @dispatcher.listener callback3
+    @dispatcher.listener callback4
 
-    @dispatcher.listener PreFoo, priority: -10, &callback1
-    @dispatcher.listener PreFoo, priority: 10, &callback2
-    @dispatcher.listener PreFoo, &callback3
-    @dispatcher.listener PreFoo, priority: 20, &callback4
+    # Returns a new copy with thew new priority set
+    callback5 = @dispatcher.listener callback5, priority: 5
 
-    # `#dispatch` inherently calls `#listeners`
-    @dispatcher.dispatch PreFoo.new
-
-    @dispatcher.listeners(PreFoo).size.should eq 4
-
-    vals.should eq [4, 2, 3, 1]
+    @dispatcher.listeners(PreFoo).should eq([
+      callback4,
+      callback2,
+      callback5,
+      callback3,
+      callback1,
+    ])
   end
 
   def test_all_listeners_sorts_by_priority
-    pre_foo_vals = [] of Int32
-    post_foo_vals = [] of Int32
+    callback1 = PreFoo.callable(priority: -10) { }
+    callback2 = PreFoo.callable { }
+    callback3 = PreFoo.callable(priority: 10) { }
 
-    callback1 = Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { pre_foo_vals << 1 }
-    callback2 = Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { pre_foo_vals << 2 }
-    callback3 = Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { pre_foo_vals << 3 }
+    callback4 = PostFoo.callable(priority: -10) { }
+    callback5 = PostFoo.callable { }
+    callback6 = PostFoo.callable(priority: 10) { }
 
-    callback4 = Proc(PostFoo, AED::EventDispatcherInterface, Nil).new { post_foo_vals << 4 }
-    callback5 = Proc(PostFoo, AED::EventDispatcherInterface, Nil).new { post_foo_vals << 5 }
-    callback6 = Proc(PostFoo, AED::EventDispatcherInterface, Nil).new { post_foo_vals << 6 }
+    @dispatcher.listener callback1
+    @dispatcher.listener callback2
+    @dispatcher.listener callback3
+    @dispatcher.listener callback4
+    @dispatcher.listener callback5
+    @dispatcher.listener callback6
 
-    @dispatcher.listener PreFoo, priority: -10, &callback1
-    @dispatcher.listener PreFoo, &callback2
-    @dispatcher.listener PreFoo, priority: 10, &callback3
-
-    @dispatcher.listener PostFoo, priority: -10, &callback4
-    @dispatcher.listener PostFoo, &callback5
-    @dispatcher.listener PostFoo, priority: 10, &callback6
-
-    listeners = @dispatcher.listeners
-    listeners.keys.should eq [PreFoo, PostFoo]
-    listeners[PreFoo].size.should eq 3
-    listeners[PostFoo].size.should eq 3
-
-    # `#dispatch` inherently calls `#listeners`
-    @dispatcher.dispatch PreFoo.new
-    @dispatcher.dispatch PostFoo.new
-
-    pre_foo_vals.should eq [3, 2, 1]
-    post_foo_vals.should eq [6, 5, 4]
+    @dispatcher.listeners.should eq({
+      PreFoo  => [callback3, callback2, callback1],
+      PostFoo => [callback6, callback5, callback4],
+    })
   end
 
   def test_listener_priority : Nil
-    callback1 = Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { }
-    callback2 = Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { }
+    callback1 = PreFoo.callable priority: -10 { }
+    callback2 = PreFoo.callable { }
+    callback3 = PreFoo.callable priority: 50 { }
 
-    @dispatcher.listener PreFoo, priority: -10, &callback1
-    @dispatcher.listener PreFoo, &callback2
+    @dispatcher.listener callback1
+    @dispatcher.listener callback2
+
+    # Returns a new copy with thew new priority set
+    callback3 = @dispatcher.listener callback3, priority: 10
 
     @dispatcher.listener_priority(PreFoo, callback1).should eq -10
     @dispatcher.listener_priority(PreFoo, callback2).should eq 0
+    @dispatcher.listener_priority(PreFoo, callback3).should eq 10
     @dispatcher.listener_priority(PreBar, callback1).should be_nil
-    @dispatcher.listener_priority(PreFoo, Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { }).should be_nil
+    @dispatcher.listener_priority(PreFoo, PreFoo.callable { }).should be_nil
   end
 
   def test_dispatch_stop_event_propagation : Nil
@@ -128,7 +145,7 @@ struct EventDispatcherTest < ASPEC::TestCase
       event.stop_propagation
     end
 
-    @dispatcher.listener PreFoo do |event|
+    @dispatcher.listener PreFoo do
       other_pre_foo_invoked = true
     end
 
@@ -139,15 +156,25 @@ struct EventDispatcherTest < ASPEC::TestCase
   end
 
   def test_remove_listener : Nil
-    callback1 = Proc(PreFoo, AED::EventDispatcherInterface, Nil).new { }
+    callback1 = PreFoo.callable { }
 
-    @dispatcher.listener PreFoo, &callback1
+    @dispatcher.listener callback1
     @dispatcher.has_listeners?(PreFoo).should be_true
 
-    @dispatcher.remove_listener PreFoo, callback1
+    @dispatcher.remove_listener callback1
     @dispatcher.has_listeners?(PreFoo).should be_false
 
-    @dispatcher.remove_listener PostFoo, callback1
+    @dispatcher.remove_listener callback1
+  end
+
+  def test_remove_listener_via_get : Nil
+    @dispatcher.listener(PreFoo) { }
+
+    @dispatcher.has_listeners?(PreFoo).should be_true
+
+    @dispatcher.remove_listener @dispatcher.listeners(PreFoo).first
+
+    @dispatcher.has_listeners?(PreFoo).should be_false
   end
 
   def test_add_event_listener_instance
@@ -165,14 +192,24 @@ struct EventDispatcherTest < ASPEC::TestCase
 
   def test_remove_event_listener_instance
     listener = TestListener.new
+    listener2 = TestListener.new
 
     @dispatcher.listener listener
     @dispatcher.has_listeners?(PreFoo).should be_true
     @dispatcher.listeners(PreFoo).size.should eq 2
 
+    @dispatcher.listener listener2
+    @dispatcher.has_listeners?(PreFoo).should be_true
+    @dispatcher.listeners(PreFoo).size.should eq 4
+
     @dispatcher.remove_listener listener
 
+    @dispatcher.has_listeners?(PreFoo).should be_true
+    @dispatcher.listeners(PreFoo).size.should eq 2
+
+    @dispatcher.remove_listener listener2
+
     @dispatcher.has_listeners?(PreFoo).should be_false
-    @dispatcher.listeners(PreFoo).should be_empty
+    @dispatcher.listeners.should be_empty
   end
 end

@@ -25,6 +25,10 @@ require "./stoppable_event"
 # exception = ArgumentError.new "Value cannot be negative"
 # dispatcher.dispatch ExceptionEvent.new exception
 # ```
-class Athena::EventDispatcher::Event
+abstract class Athena::EventDispatcher::Event
   include Athena::EventDispatcher::StoppableEvent
+
+  def self.callable(*, priority : Int32 = 0, &block : self, AED::EventDispatcherInterface ->) : AED::Callable
+    AED::Callable::EventDispatcher(self).new block, priority
+  end
 end

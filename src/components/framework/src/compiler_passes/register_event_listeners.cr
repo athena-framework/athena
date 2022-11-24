@@ -26,8 +26,7 @@ module Athena::Framework::CompilerPasses::RegisterEventListenersPass
                 dispatcher.add_listener(
                   {{event}},
                   AED::EventDispatcher::OneType.new do |event|
-                    %service{service_id} = self.{{service_id.id}}
-                   ->%service{service_id}.{{m.name.id}}({{event}}).call event.as({{event}})
+                    self.{{service_id.id}}.{{m.name.id}} event.as({{event}})
                  end,
                   priority: {{ann[:priority] || 0}},
                 )
@@ -35,8 +34,7 @@ module Athena::Framework::CompilerPasses::RegisterEventListenersPass
                 dispatcher.add_listener(
                   {{event}},
                   AED::EventDispatcher::TwoType.new do |event, dispatcher|
-                    %service{service_id} = self.{{service_id.id}}
-                    ->%service{service_id}.{{m.name.id}}({{event}}, AED::EventDispatcherInterface).call event.as({{event}}), dispatcher
+                    self.{{service_id.id}}.{{m.name.id}} event.as({{event}}), dispatcher
                   end,
                   priority: {{ann[:priority] || 0}},
                 )
