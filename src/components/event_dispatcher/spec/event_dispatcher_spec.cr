@@ -6,6 +6,10 @@ class PostFoo < AED::Event; end
 
 class PreBar < AED::Event; end
 
+class Sum < AED::Event
+  property value : Int32 = 0
+end
+
 class TestListener
   include AED::EventListenerInterface
 
@@ -31,6 +35,7 @@ struct EventDispatcherTest < ASPEC::TestCase
 
   def test_initial_state : Nil
     @dispatcher.listeners.should be_empty
+    @dispatcher.has_listeners?.should be_false
     @dispatcher.has_listeners?(PreFoo).should be_false
     @dispatcher.has_listeners?(PostFoo).should be_false
   end
@@ -134,6 +139,38 @@ struct EventDispatcherTest < ASPEC::TestCase
     @dispatcher.listener_priority(PreFoo, callback3).should eq 10
     @dispatcher.listener_priority(PreBar, callback1).should be_nil
     @dispatcher.listener_priority(PreFoo, PreFoo.callable { }).should be_nil
+  end
+
+  def test_dispatch : Nil
+    event = Sum.new
+
+    @dispatcher.listener Sum do |e|
+      e.value += 10
+    end
+
+    @dispatcher.listener PostFoo do
+    end
+
+    @dispatcher.dispatch event
+    @dispatcher.dispatch PostFoo.new
+
+    event.value.should eq 10
+  end
+
+  def test_dispatch_sub_dispatch : Nil
+    value = 0
+
+    @dispatcher.listener Sum do
+      value += 123
+    end
+
+    @dispatcher.listener PostFoo do |_, dispatcher|
+      dispatcher.dispatch Sum.new
+    end
+
+    @dispatcher.dispatch PostFoo.new
+
+    value.should eq 123
   end
 
   def test_dispatch_stop_event_propagation : Nil

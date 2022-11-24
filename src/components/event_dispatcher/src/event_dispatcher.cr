@@ -19,11 +19,11 @@ class Athena::EventDispatcher::EventDispatcher
     self.add_callable callable.copy_with priority: priority
   end
 
-  def listener(listener : AED::EventListenerInterface) : AED::Callable
+  def listener(listener : AED::EventListenerInterface) : Nil
     self.add_listener listener
   end
 
-  private def add_listener(listener : T) : AED::Callable forall T
+  private def add_listener(listener : T) : Nil forall T
     {% begin %}
       {% for m in T.methods.select &.annotation(AEDA::AsEventListener) %}
         {% ann = m.annotation AEDA::AsEventListener %}
@@ -69,11 +69,7 @@ class Athena::EventDispatcher::EventDispatcher
       return @listeners.has_key? event_class
     end
 
-    @listeners.each_value do |listeners|
-      return true unless listeners.empty?
-    end
-
-    false
+    @listeners.each_value.any? { |listeners| !listeners.empty? }
   end
 
   def remove_listener(listener : AED::EventListenerInterface) : Nil
