@@ -51,7 +51,7 @@ require "./composite"
 # Manually wire up the constraint via code if you require more than that.
 class Athena::Validator::Constraints::All < Athena::Validator::Constraints::Composite
   def initialize(
-    constraints : Array(AVD::Constraint) | AVD::Constraint,
+    constraints : AVD::Constraints::Composite::Type,
     groups : Array(String) | String | Nil = nil,
     payload : Hash(String, String)? = nil
   )
@@ -65,7 +65,7 @@ class Athena::Validator::Constraints::All < Athena::Validator::Constraints::Comp
 
       self.with_validator do |validator|
         value.each do |k, v|
-          validator.at_path("[#{k}]").validate(v, constraint.constraints)
+          validator.at_path("[#{k}]").validate(v, constraint.constraints.values)
         end
       end
     end
@@ -76,7 +76,7 @@ class Athena::Validator::Constraints::All < Athena::Validator::Constraints::Comp
 
       self.with_validator do |validator|
         value.each_with_index do |item, idx|
-          validator.at_path("[#{idx}]").validate(item, constraint.constraints)
+          validator.at_path("[#{idx}]").validate(item, constraint.constraints.values)
         end
       end
     end

@@ -33,7 +33,7 @@
 # # NOTE: The constraint _MUST_ be defined within the `AVD::Constraints` namespace for implementation reasons.  This may change in the future.
 # class AVD::Constraints::ValidPassword < AVD::Constraints::Compound
 #   # Define a method that returns an array of the constraints we want to be a part of `self`.
-#   def constraints : Array(AVD::Constraint)
+#   def constraints : AVD::Constraints::Composite::Type
 #     [
 #       AVD::Constraints::NotBlank.new,       # Not empty/null
 #       AVD::Constraints::Size.new(12..),     # At least 12 characters longs
@@ -68,7 +68,7 @@ abstract class Athena::Validator::Constraints::Compound < Athena::Validator::Con
     AVD::Constraints::Compound::Validator
   end
 
-  abstract def constraints : Array(AVD::Constraint)
+  abstract def constraints : AVD::Constraints::Composite::Type
 
   class Validator < Athena::Validator::ConstraintValidator
     # :inherit:
@@ -77,7 +77,7 @@ abstract class Athena::Validator::Constraints::Compound < Athena::Validator::Con
 
       validator = context.validator.in_context context
 
-      validator.validate value, constraint.constraints
+      validator.validate value, constraint.@constraints.values
     end
   end
 end

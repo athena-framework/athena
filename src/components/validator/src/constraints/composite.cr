@@ -13,26 +13,33 @@
 #
 # NOTE: You most likely want to use `AVD::Constraints::Compound` instead of this type.
 abstract class Athena::Validator::Constraints::Composite < Athena::Validator::Constraint
-  getter constraints : Array(AVD::Constraint) = [] of AVD::Constraint
+  alias Type = Array(AVD::Constraint) | AVD::Constraint | Enumerable({String, AVD::Constraint})
+
+  getter constraints : Enumerable({String, AVD::Constraint})
 
   def initialize(
-    constraints : Array(AVD::Constraint) | AVD::Constraint,
+    constraints : AVD::Constraints::Composite::Type,
     message : String,
     groups : Array(String) | String | Nil = nil,
     payload : Hash(String, String)? = nil
   )
     super message, groups, payload
 
-    unless constraints.is_a? Array
-      constraints = [constraints] of AVD::Constraint
-    end
+    constraints = case constraints
+                  when AVD::Constraint        then {"0" => constraints} of String => AVD::Constraint
+                  when Array(AVD::Constraint) then constraints.each_with_index.to_h { |v, k| {k.to_s, v} }
+                  else
+                    constraints
+                  end
+
+    constraints = initialize_nested_constraints constraints
 
     # TODO: Prevent `Valid` constraints
 
     if groups.nil?
       merged_groups = Hash(String, Bool).new
 
-      constraints.each do |constraint|
+      constraints.each_value do |constraint|
         constraint.groups.each do |group|
           merged_groups[group] = true
         end
@@ -44,7 +51,7 @@ abstract class Athena::Validator::Constraints::Composite < Athena::Validator::Co
       return
     end
 
-    constraints.each do |constraint|
+    constraints.each_value do |constraint|
       # if !constraint.groups.nil?
       #   # TODO: Validate there are no excess groups
       # else
@@ -58,6 +65,10 @@ abstract class Athena::Validator::Constraints::Composite < Athena::Validator::Co
   def add_implicit_group(group : String) : Nil
     super group
 
-    @constraints.each &.add_implicit_group(group)
+    @constraints.each_value &.add_implicit_group(group)
+  end
+
+  private def initialize_nested_constraints(constraints : Enumerable({String, AVD::Constraint})) : Enumerable({String, AVD::Constraint})
+    constraints
   end
 end
