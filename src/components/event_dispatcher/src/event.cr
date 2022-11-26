@@ -28,7 +28,7 @@ require "./stoppable_event"
 abstract class Athena::EventDispatcher::Event
   include Athena::EventDispatcher::StoppableEvent
 
-  def self.callable(*, priority : Int32 = 0, &block : self, AED::EventDispatcherInterface ->) : AED::Callable
+  def self.callable(*, priority : Int32 = 0, &block : self, AED::EventDispatcherInterface -> Nil) : AED::Callable
     AED::Callable::EventDispatcher(self).new block, priority
   end
 end

@@ -50,10 +50,10 @@ class Athena::EventDispatcher::EventDispatcher
     {% end %}
   end
 
-  def listener(event_class : E.class, *, priority : Int32 = 0, &block : E, AED::EventDispatcherInterface ->) : AED::Callable forall E
-    {% @def.args[0].raise "expected argument #1 to '#{@def.name}' to be #{AED::Event.class}, not #{E}" unless E <= AED::Event %}
+  def listener(event_class : E.class, *, priority : Int32 = 0, &block : E, AED::EventDispatcherInterface -> Nil) : AED::Callable forall E
+    {% @def.args[0].raise "expected argument #1 to '#{@def.name}' to be #{AED::Event.class}, not #{E}." unless E <= AED::Event %}
 
-    self.add_callable AED::Callable::EventDispatcher(E).new block, priority, event_class
+    self.add_callable AED::Callable::EventDispatcher(E).new block, priority
   end
 
   protected def add_callable(callable : AED::Callable) : AED::Callable
@@ -83,16 +83,13 @@ class Athena::EventDispatcher::EventDispatcher
   def remove_listener(callable : AED::Callable) : Nil
     return unless (listeners = @listeners[callable.event_class]?)
 
-    listeners.reject! do |c|
-      c == callable
-    end
+    listeners.reject! { |c| c == callable }
 
     @listeners.delete callable.event_class if listeners.empty?
     @sorted.delete callable.event_class
   end
 
   def dispatch(event : AED::Event) : AED::Event
-    # self.call_listeners event, self.listeners event.class
     self.call_listeners event, self.listeners event.class
 
     event
@@ -125,10 +122,8 @@ class Athena::EventDispatcher::EventDispatcher
   end
 
   private def call_listeners(event : AED::Event, listeners : Array(AED::Callable)) : Nil
-    stoppable = event.is_a? AED::StoppableEvent
-
     listeners.each do |listener|
-      break if stoppable && !event.propagate?
+      break if event.is_a?(AED::StoppableEvent) && !event.propagate?
 
       listener.call event, self
     end

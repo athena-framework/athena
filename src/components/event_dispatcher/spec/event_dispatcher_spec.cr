@@ -24,6 +24,11 @@ class TestListener
   def on_pre2(event : PreFoo, dispatcher : AED::EventDispatcherInterface) : Nil
     @values << 2
   end
+
+  @[AEDA::AsEventListener]
+  def on_post1(event : PostFoo) : Nil
+    @values << 3
+  end
 end
 
 struct EventDispatcherTest < ASPEC::TestCase
@@ -121,6 +126,25 @@ struct EventDispatcherTest < ASPEC::TestCase
       PreFoo  => [callback3, callback2, callback1],
       PostFoo => [callback6, callback5, callback4],
     })
+  end
+
+  def test_listeners_are_sorted_stably : Nil
+    callback1 = PreFoo.callable(priority: -10) { }
+    callback2 = PreFoo.callable { }
+    callback3 = PreFoo.callable { }
+    callback4 = PreFoo.callable(priority: 10) { }
+
+    @dispatcher.listener callback1
+    @dispatcher.listener callback2
+    @dispatcher.listener callback3
+    @dispatcher.listener callback4
+
+    @dispatcher.listeners(PreFoo).should eq([
+      callback4,
+      callback2,
+      callback3,
+      callback1,
+    ])
   end
 
   def test_listener_priority : Nil
@@ -235,18 +259,46 @@ struct EventDispatcherTest < ASPEC::TestCase
     @dispatcher.has_listeners?(PreFoo).should be_true
     @dispatcher.listeners(PreFoo).size.should eq 2
 
+    @dispatcher.has_listeners?(PostFoo).should be_true
+    @dispatcher.listeners(PostFoo).size.should eq 1
+
     @dispatcher.listener listener2
     @dispatcher.has_listeners?(PreFoo).should be_true
     @dispatcher.listeners(PreFoo).size.should eq 4
+
+    @dispatcher.has_listeners?(PostFoo).should be_true
+    @dispatcher.listeners(PostFoo).size.should eq 2
 
     @dispatcher.remove_listener listener
 
     @dispatcher.has_listeners?(PreFoo).should be_true
     @dispatcher.listeners(PreFoo).size.should eq 2
 
+    @dispatcher.has_listeners?(PostFoo).should be_true
+    @dispatcher.listeners(PostFoo).size.should eq 1
+
     @dispatcher.remove_listener listener2
 
     @dispatcher.has_listeners?(PreFoo).should be_false
+    @dispatcher.has_listeners?(PostFoo).should be_false
     @dispatcher.listeners.should be_empty
+  end
+
+  def test_remove_event_listener_instance_diff_instance
+    listener = TestListener.new
+    listener2 = TestListener.new
+
+    @dispatcher.listener listener
+    @dispatcher.listener listener2
+
+    @dispatcher.listeners(PreFoo).size.should eq 4
+
+    @dispatcher.remove_listener TestListener.new
+
+    @dispatcher.listeners(PreFoo).size.should eq 4
+
+    @dispatcher.remove_listener listener2
+
+    @dispatcher.listeners(PreFoo).size.should eq 2
   end
 end
