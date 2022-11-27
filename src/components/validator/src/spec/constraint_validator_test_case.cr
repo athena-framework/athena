@@ -145,7 +145,7 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
     include AVD::Validator::ContextualValidatorInterface
 
     record Expectation,
-      value : String,
+      value : String | Int32 | Nil,
       groups : Array(String) | String | AVD::Constraints::GroupSequence | Nil,
       constraints : Proc(Array(AVD::Constraint) | AVD::Constraint | Nil, Nil),
       violation : AVD::Violation::ConstraintViolationInterface? = nil
@@ -154,9 +154,9 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
 
     @expect_no_validate = false
     @at_path_calls = -1
-    @expected_at_path = [] of String
+    @expected_at_path = [] of String?
     @validate_calls = -1
-    @expected_validate = [] of Expectation
+    @expected_validate = [] of Expectation?
 
     def initialize(@context : AVD::ExecutionContextInterface); end
 
@@ -167,7 +167,7 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
         fail "Validation for property path '#{path}' was not expected."
       end
 
-      @expected_at_path.delete_at @at_path_calls
+      @expected_at_path[@at_path_calls] = nil
 
       path.should eq expected_path
 
@@ -180,6 +180,7 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
       unless expectation = @expected_validate[@validate_calls += 1]?
         return self
       end
+      @expected_validate[@validate_calls] = nil
 
       value.should eq expectation.value
       expectation.constraints.call constraints

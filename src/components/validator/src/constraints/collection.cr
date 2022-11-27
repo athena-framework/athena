@@ -33,24 +33,30 @@ class Athena::Validator::Constraints::Collection < Athena::Validator::Constraint
 
   class Validator < Athena::Validator::ConstraintValidator
     # :inherit:
-    def validate(value : Enumerable({K, V}), constraint : AVD::Constraints::Collection) : Nil forall K, V
+    #
+    # TODO: Support https://github.com/crystal-lang/crystal/issues/10886 when/if implemented.
+    def validate(value : Enumerable({K, V})?, constraint : AVD::Constraints::Collection) : Nil forall K, V
+      return if value.nil?
+
       context = self.context
 
       constraint.constraints.each do |field, field_constraint|
         field_constraint = field_constraint.as AVD::Constraints::Existence
 
         if value.has_key? field
-          context
-            .validator
-            .in_context(context)
-            .at_path("[#{field}]")
-            .validate(value[field], field_constraint.constraints.values)
+          if field_constraint.constraints.size > 0
+            context
+              .validator
+              .in_context(context)
+              .at_path("[#{field}]")
+              .validate(value[field], field_constraint.constraints.values)
+          end
         elsif !field_constraint.is_a?(AVD::Constraints::Optional) && !constraint.allow_missing_fields?
           context
-            .build_violation(constraint.missing_fields_message)
-            .code(MISSING_FIELD_ERROR)
-            .add_parameter("{{ field }}", field)
+            .build_violation(constraint.missing_fields_message, MISSING_FIELD_ERROR)
             .at_path("[#{field}]")
+            .add_parameter("{{ field }}", field)
+            .invalid_value(nil)
             .add
         end
       end
@@ -59,14 +65,19 @@ class Athena::Validator::Constraints::Collection < Athena::Validator::Constraint
         value.each do |field, field_value|
           unless constraint.constraints.has_key? field
             context
-              .build_violation(constraint.extra_fields_message)
-              .code(NO_SUCH_FIELD_ERROR)
-              .add_parameter("{{ field }}", field)
+              .build_violation(constraint.extra_fields_message, NO_SUCH_FIELD_ERROR)
               .at_path("[#{field}]")
+              .add_parameter("{{ field }}", field)
+              .invalid_value(field_value)
               .add
           end
         end
       end
+    end
+
+    # :inherit:
+    def validate(actual : _, expected : _) : NoReturn
+      self.raise_invalid_type actual, "Enumerable({K, V})"
     end
   end
 end
