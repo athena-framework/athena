@@ -32,8 +32,6 @@ abstract class Athena::Validator::Constraints::Composite < Athena::Validator::Co
                     constraints
                   end
 
-    constraints = initialize_nested_constraints constraints
-
     # TODO: Prevent `Valid` constraints
 
     if groups.nil?
@@ -66,9 +64,5 @@ abstract class Athena::Validator::Constraints::Composite < Athena::Validator::Co
     super group
 
     @constraints.each_value &.add_implicit_group(group)
-  end
-
-  private def initialize_nested_constraints(constraints : Enumerable({String, AVD::Constraint})) : Enumerable({String, AVD::Constraint})
-    constraints
   end
 end

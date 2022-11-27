@@ -71,8 +71,8 @@ struct Athena::Validator::Violation::ConstraintViolation
   # :inherit:
   def to_s(io : IO) : Nil
     klass = case self.root
-            when Hash             then "Hash"
-            when AVD::Validatable then "Object(#{self.root.class})"
+            when Hash                         then "Hash"
+            when AVD::Validatable, Enumerable then "Object(#{self.root.class})"
             else
               self.root.to_s
             end
