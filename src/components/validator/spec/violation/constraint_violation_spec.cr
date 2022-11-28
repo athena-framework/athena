@@ -17,8 +17,13 @@ describe AVD::Violation::ConstraintViolation do
       get_violation("Array", root: "Root", property_path: "[2].value").to_s.should eq "Root[2].value:\n\tArray\n"
     end
 
+    it Enumerable do
+      get_violation("Array", root: [1, 2, 3], property_path: "[1]").to_s.should eq "Object(Array(Int32))[1]:\n\tArray\n"
+    end
+
     it Hash do
       get_violation("Some message", root: {"key" => "value"}, property_path: "key").to_s.should eq "Hash.key:\n\tSome message\n"
+      get_violation("Some message", root: {"key" => "value"}, property_path: "[key]").to_s.should eq "Hash[key]:\n\tSome message\n"
     end
 
     it "code" do

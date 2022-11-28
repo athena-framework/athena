@@ -83,7 +83,12 @@ struct Athena::Validator::Violation::ConstraintViolation
       code = " (code: #{c})"
     end
 
-    io.puts "#{klass}#{@property_path}:\n\t#{@message}#{code}"
+    io << klass
+    io << @property_path
+    io << ':' << '\n' << '\t'
+    io << @message
+    io << code
+    io << '\n'
   end
 
   # Returns `true` if *other* is the same as `self`, otherwise `false`.
