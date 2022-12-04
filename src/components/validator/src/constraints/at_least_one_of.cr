@@ -96,7 +96,7 @@ class Athena::Validator::Constraints::AtLeastOneOf < Athena::Validator::Constrai
   getter message_collection : String
 
   def initialize(
-    constraints : Array(AVD::Constraint) | AVD::Constraint,
+    constraints : AVD::Constraints::Composite::Type,
     @include_internal_messages : Bool = true,
     @message_collection : String = "Each element of this collection should satisfy its own set of constraints.",
     message : String = "This value should satisfy at least one of the following constraints:",
@@ -113,14 +113,14 @@ class Athena::Validator::Constraints::AtLeastOneOf < Athena::Validator::Constrai
 
       validator = self.context.validator
 
-      constraint.constraints.each_with_index do |item, idx|
+      constraint.constraints.each do |idx, item|
         violations = validator.validate value, [item]
 
         return if violations.empty?
 
         if constraint.include_internal_messages
           messages << String.build do |str|
-            str << " [#{idx + 1}] "
+            str << " [#{idx.to_i + 1}] "
 
             str << if item.is_a? AVD::Constraints::All
               constraint.message_collection

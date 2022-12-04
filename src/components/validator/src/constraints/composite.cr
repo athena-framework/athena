@@ -13,26 +13,33 @@
 #
 # NOTE: You most likely want to use `AVD::Constraints::Compound` instead of this type.
 abstract class Athena::Validator::Constraints::Composite < Athena::Validator::Constraint
-  getter constraints : Array(AVD::Constraint) = [] of AVD::Constraint
+  alias Type = Array(AVD::Constraint) | AVD::Constraint | Enumerable({String | Int32, AVD::Constraint})
+
+  getter constraints : Enumerable({String | Int32, AVD::Constraint})
 
   def initialize(
-    constraints : Array(AVD::Constraint) | AVD::Constraint,
+    constraints : AVD::Constraints::Composite::Type,
     message : String,
     groups : Array(String) | String | Nil = nil,
     payload : Hash(String, String)? = nil
   )
     super message, groups, payload
 
-    unless constraints.is_a? Array
-      constraints = [constraints] of AVD::Constraint
-    end
+    constraints = case constraints
+                  when AVD::Constraint        then {0 => constraints} of String | Int32 => AVD::Constraint
+                  when Array(AVD::Constraint) then constraints.each_with_index.to_h { |v, k| {k.as(Int32 | String), v} }
+                  else
+                    constraints.transform_keys(&.as(String | Int32))
+                  end
 
-    # TODO: Prevent `Valid` constraints
+    constraints.each_value do |c|
+      raise AVD::Exceptions::Logic.new "The '#{AVD::Constraints::Valid}' constraint cannot be nested inside a '#{self.class}' constraint." if c.is_a? AVD::Constraints::Valid
+    end
 
     if groups.nil?
       merged_groups = Hash(String, Bool).new
 
-      constraints.each do |constraint|
+      constraints.each_value do |constraint|
         constraint.groups.each do |group|
           merged_groups[group] = true
         end
@@ -44,12 +51,14 @@ abstract class Athena::Validator::Constraints::Composite < Athena::Validator::Co
       return
     end
 
-    constraints.each do |constraint|
-      # if !constraint.groups.nil?
-      #   # TODO: Validate there are no excess groups
-      # else
-      constraint.groups = self.groups
-      # end
+    constraints.each_value do |constraint|
+      if !constraint.@groups.nil?
+        unless (excess_groups = (constraint.groups - self.groups)).empty?
+          raise AVD::Exceptions::Logic.new "The group(s) '#{excess_groups.join ", "}' passed to the constraint '#{constraint.class}' should also be passed to its containing constraint '#{self.class}'."
+        end
+      else
+        constraint.groups = self.groups
+      end
     end
 
     @constraints = constraints
@@ -58,6 +67,6 @@ abstract class Athena::Validator::Constraints::Composite < Athena::Validator::Co
   def add_implicit_group(group : String) : Nil
     super group
 
-    @constraints.each &.add_implicit_group(group)
+    @constraints.each_value &.add_implicit_group(group)
   end
 end

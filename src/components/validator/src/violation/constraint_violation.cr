@@ -71,8 +71,8 @@ struct Athena::Validator::Violation::ConstraintViolation
   # :inherit:
   def to_s(io : IO) : Nil
     klass = case self.root
-            when Hash             then "Hash"
-            when AVD::Validatable then "Object(#{self.root.class})"
+            when Hash                         then "Hash"
+            when AVD::Validatable, Enumerable then "Object(#{self.root.class})"
             else
               self.root.to_s
             end
@@ -83,7 +83,12 @@ struct Athena::Validator::Violation::ConstraintViolation
       code = " (code: #{c})"
     end
 
-    io.puts "#{klass}#{@property_path}:\n\t#{@message}#{code}"
+    io << klass
+    io << @property_path
+    io << ':' << '\n' << '\t'
+    io << @message
+    io << code
+    io << '\n'
   end
 
   # Returns `true` if *other* is the same as `self`, otherwise `false`.

@@ -140,6 +140,91 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
     end
   end
 
+  # :nodoc:
+  class AssertingContextualValidator
+    include AVD::Validator::ContextualValidatorInterface
+
+    record Expectation,
+      value : String | Int32 | Nil,
+      groups : Array(String) | String | AVD::Constraints::GroupSequence | Nil,
+      constraints : Proc(Array(AVD::Constraint) | AVD::Constraint | Nil, Nil),
+      violation : AVD::Violation::ConstraintViolationInterface? = nil
+
+    @context : AVD::ExecutionContextInterface
+
+    @expect_no_validate = false
+    @at_path_calls = -1
+    @expected_at_path = [] of String?
+    @validate_calls = -1
+    @expected_validate = [] of Expectation?
+
+    def initialize(@context : AVD::ExecutionContextInterface); end
+
+    def at_path(path : String) : AVD::Validator::ContextualValidatorInterface
+      @expect_no_validate.should be_false, failure_message: "No validation calls have been expected."
+
+      unless expected_path = @expected_at_path[@at_path_calls += 1]?
+        fail "Validation for property path '#{path}' was not expected."
+      end
+
+      @expected_at_path[@at_path_calls] = nil
+
+      path.should eq expected_path
+
+      self
+    end
+
+    def validate(value : _, constraints : Array(AVD::Constraint) | AVD::Constraint | Nil = nil, groups : Array(String) | String | AVD::Constraints::GroupSequence | Nil = nil) : AVD::Validator::ContextualValidatorInterface
+      @expect_no_validate.should be_false, failure_message: "No validation calls have been expected."
+
+      unless expectation = @expected_validate[@validate_calls += 1]?
+        return self
+      end
+      @expected_validate[@validate_calls] = nil
+
+      value.should eq expectation.value
+      expectation.constraints.call constraints
+      expectation.groups.should eq groups
+
+      if v = expectation.violation
+        @context.add_violation v.message, v.parameters
+      end
+
+      self
+    end
+
+    def validate_property(object : AVD::Validatable, property_name : String, groups : Array(String) | String | AVD::Constraints::GroupSequence | Nil = nil) : AVD::Validator::ContextualValidatorInterface
+      self
+    end
+
+    def validate_property_value(object : AVD::Validatable, property_name : String, value : _, groups : Array(String) | String | AVD::Constraints::GroupSequence | Nil = nil) : AVD::Validator::ContextualValidatorInterface
+      self
+    end
+
+    def violations : AVD::Violation::ConstraintViolationListInterface
+      @context.violations
+    end
+
+    def expect_no_validate : Nil
+      @expect_no_validate = true
+    end
+
+    def expect_validation(
+      call : Int32,
+      property_path : String?,
+      value : _,
+      group : Array(String) | String | AVD::Constraints::GroupSequence | Nil,
+      violation : AVD::Violation::ConstraintViolationInterface? = nil,
+      &block : Array(AVD::Constraint) | AVD::Constraint | Nil -> Nil
+    )
+      if property_path
+        @expected_at_path.insert call, property_path
+      end
+
+      @expected_validate.insert call, Expectation.new value, group, block, violation
+    end
+  end
+
   @group : String
   @metadata : Nil = nil
   @object : Nil = nil
@@ -218,6 +303,24 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
     self.build_violation(message).code(code).add_parameter("{{ value }}", value)
   end
 
+  # Asserts that a validation within a specific context occurs with the provided *property_path*, *value*, *constraints*, and optionally *groups*.
+  #
+  # See `CollectionValidatorTestCase` for an example.
+  def expect_validate_value_at(
+    idx : Int32,
+    property_path : String,
+    value : _,
+    constraints : Array(AVD::Constraint) | AVD::Constraint,
+    groups : Array(String) | String | AVD::Constraints::GroupSequence | Nil = nil
+  )
+    raise "BUG: Null context" unless (c = @context)
+
+    contextual_validator = c.validator.in_context(c).as AssertingContextualValidator
+    contextual_validator.expect_validation idx, property_path, value, groups do |passed_constraints|
+      constraints.should eq passed_constraints
+    end
+  end
+
   # Can be used to have a nested validator return the correct violations when used within another validator.
   #
   # Creates a separate validation context, validating the provided *value* against the provided *constraint*,
@@ -261,6 +364,9 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
     ctx.group = @group
     ctx.set_node @value, @object, @metadata, @property_path
     ctx.constraint = @constraint
+
+    contextual_validator = AssertingContextualValidator.new ctx
+    validator.contextual_validator = contextual_validator
 
     ctx
   end

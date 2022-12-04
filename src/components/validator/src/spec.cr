@@ -141,12 +141,15 @@ module Athena::Validator::Spec
     include Athena::Validator::Validator::ValidatorInterface
 
     setter violations_callback : Proc(AVD::Violation::ConstraintViolationListInterface)
+    protected property! contextual_validator : AVD::Validator::ContextualValidatorInterface?
 
     def self.new(violations : AVD::Violation::ConstraintViolationListInterface = AVD::Violation::ConstraintViolationList.new) : self
       new &->{ violations.as AVD::Violation::ConstraintViolationListInterface }
     end
 
-    def initialize(&@violations_callback : -> AVD::Violation::ConstraintViolationListInterface); end
+    def initialize(
+      &@violations_callback : -> AVD::Violation::ConstraintViolationListInterface
+    ); end
 
     # :inherit:
     def validate(value : _, constraints : Array(AVD::Constraint) | AVD::Constraint | Nil = nil, groups : Array(String) | String | AVD::Constraints::GroupSequence | Nil = nil) : AVD::Violation::ConstraintViolationListInterface
@@ -165,12 +168,12 @@ module Athena::Validator::Spec
 
     # :inherit:
     def start_context(root = nil) : AVD::Validator::ContextualValidatorInterface
-      MockContextualValidator.new @violations_callback.call
+      @contextual_validator || MockContextualValidator.new @violations_callback.call
     end
 
     # :inherit:
     def in_context(context : AVD::ExecutionContextInterface) : AVD::Validator::ContextualValidatorInterface
-      MockContextualValidator.new @violations_callback.call
+      @contextual_validator || MockContextualValidator.new @violations_callback.call
     end
   end
 

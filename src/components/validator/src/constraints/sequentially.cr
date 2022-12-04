@@ -65,7 +65,7 @@
 # Manually wire up the constraint via code if you require more than that.
 class Athena::Validator::Constraints::Sequentially < Athena::Validator::Constraints::Composite
   def initialize(
-    constraints : Array(AVD::Constraint) | AVD::Constraint,
+    constraints : AVD::Constraints::Composite::Type,
     groups : Array(String) | String | Nil = nil,
     payload : Hash(String, String)? = nil
   )
@@ -79,7 +79,7 @@ class Athena::Validator::Constraints::Sequentially < Athena::Validator::Constrai
 
       original_count = validator.violations.size
 
-      constraint.constraints.each do |c|
+      constraint.constraints.each_value do |c|
         break if original_count != validator.validate(value, c).violations.size
       end
     end
