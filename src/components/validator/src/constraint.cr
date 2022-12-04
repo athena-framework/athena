@@ -269,24 +269,35 @@ abstract class Athena::Validator::Constraint
   # properties in order to support more specific error messages.
   getter message : String
 
-  # The validation groups `self` is a part of.
-  property groups : Array(String)
-
   # Returns any domain specific data associated with `self`.
   getter payload : Hash(String, String)?
 
+  # This isn't set directly as a property such that we can somewhat tell if it's been customized or not.
+  # E.g. so that the composite constraint knows if it needs to apply its groups to it or not
+  @groups : Array(String)? = nil
+
   def initialize(@message : String, groups : Array(String) | String | Nil = nil, @payload : Hash(String, String)? = nil)
-    @groups = case groups
-              in Nil    then [DEFAULT_GROUP]
-              in Array  then groups
-              in String then [groups]
-              end
+    unless groups.nil?
+      @groups = case groups
+                when Array  then groups
+                when String then [groups]
+                end
+    end
+  end
+
+  # Sets the validation groups `self` is a part of.
+  def groups=(@groups : Array(String))
+  end
+
+  # Returns the validation groups `self` is a part of.
+  def groups : Array(String)
+    @groups ||= [DEFAULT_GROUP]
   end
 
   # Adds the provided *group* to `#groups` if `self` is in the `AVD::Constraint::DEFAULT_GROUP`.
   def add_implicit_group(group : String) : Nil
-    if @groups.includes?(DEFAULT_GROUP) && !@groups.includes?(group)
-      @groups << group
+    if self.groups.includes?(DEFAULT_GROUP) && !self.groups.includes?(group)
+      self.groups << group
     end
   end
 
