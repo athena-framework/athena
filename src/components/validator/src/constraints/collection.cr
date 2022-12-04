@@ -29,7 +29,7 @@
 # validator.validate data, constraint
 # ```
 #
-# The collection constraint expects a hash representing the keys in the collection, and for which constraint(s) should be executed against their value.
+# The collection constraint expects a hash representing the keys in the collection, with the value being which constraint(s) should be executed against its value.
 # From there we can go ahead and validate our data hash against the constraint.
 #
 # ## Presence and Absence of Fields
@@ -42,10 +42,10 @@
 # ## Required and Optional Constraints
 #
 # Each field in the collection is assumed to be required by default.
-# While you could make everything optional via the setting [allow_missing_fields](#allow_missing_fields) to `false`,
+# While you could make everything optional via the setting [allow_missing_fields](#allow_missing_fields) to `true`,
 # this is less than ideal in some cases when you only want to affect a single key, or a subset of keys.
 #
-# In this case a single constraint, or array of constraints, can be wrapped via the `AVD::Constraints::Optional` or `AVD::Constraints::Required` constraints.
+# In this case, a single constraint, or array of constraints, can be wrapped via the `AVD::Constraints::Optional` or `AVD::Constraints::Required` constraints.
 # For example, if you wanted to require that the *personal_email* field is not blank and is a valid email,
 # but also have an optional *alternate_email* field that must be a valid email if supplied, you could set things up like:
 #
@@ -77,7 +77,7 @@
 # constraint.groups # => ["basic", "contact"]
 # ```
 #
-# TIP: The collection constraint can be used to validate form data via [URI::Param](https://crystal-lang.org/api/URI/Params.html)
+# TIP: The collection constraint can be used to validate form data via a [URI::Param](https://crystal-lang.org/api/URI/Params.html) instance.
 #
 # # Configuration
 #
@@ -95,13 +95,13 @@
 #
 # **Type:** `Bool` **Default:** `false`
 #
-# If extra fields in the collection other than those defined within `#fields` are allowed. By default extra fields will result in a validation error.
+# If extra fields in the collection other than those defined within [fields](#fields) are allowed. By default extra fields will result in a validation error.
 #
 # ### allow_missing_fields
 #
 # **Type:** `Bool` **Default:** `false`
 #
-# If the fields defined within `#fields` are allowed to be missing. By default a validation error will be returned if one or more field is missing.
+# If the fields defined within [fields](#fields) are allowed to be missing. By default a validation error will be returned if one or more field is missing.
 #
 # ### extra_fields_message
 #
