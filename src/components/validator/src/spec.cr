@@ -96,6 +96,42 @@ module Athena::Validator::Spec
     end
   end
 
+  # A spec implementation of `AVD::Validator::ContextualValidatorInterface`.
+  #
+  # Allows settings the violations that should be returned, defaulting to no violations.
+  class MockContextualValidator
+    include Athena::Validator::Validator::ContextualValidatorInterface
+
+    setter violations : AVD::Violation::ConstraintViolationListInterface
+
+    def initialize(@violations : AVD::Violation::ConstraintViolationListInterface = AVD::Violation::ConstraintViolationList.new); end
+
+    # :inherit:
+    def at_path(path : String) : AVD::Validator::ContextualValidatorInterface
+      self
+    end
+
+    # :inherit:
+    def validate(value : _, constraints : Array(AVD::Constraint) | AVD::Constraint | Nil = nil, groups : Array(String) | String | AVD::Constraints::GroupSequence | Nil = nil) : AVD::Validator::ContextualValidatorInterface
+      self
+    end
+
+    # :inherit:
+    def validate_property(object : AVD::Validatable, property_name : String, groups : Array(String) | String | AVD::Constraints::GroupSequence | Nil = nil) : AVD::Validator::ContextualValidatorInterface
+      self
+    end
+
+    # :inherit:
+    def validate_property_value(object : AVD::Validatable, property_name : String, value : _, groups : Array(String) | String | AVD::Constraints::GroupSequence | Nil = nil) : AVD::Validator::ContextualValidatorInterface
+      self
+    end
+
+    # :inherit:
+    def violations : AVD::Violation::ConstraintViolationListInterface
+      @violations
+    end
+  end
+
   # A spec implementation of `AVD::Validator::ValidatorInterface`.
   #
   # Allows settings the violations that should be returned, defaulting to no violations.
@@ -132,12 +168,12 @@ module Athena::Validator::Spec
 
     # :inherit:
     def start_context(root = nil) : AVD::Validator::ContextualValidatorInterface
-      raise NotImplementedError.new "BUG: Invoked #{self.class}#{{{@def.name.stringify}}}"
+      @contextual_validator || MockContextualValidator.new @violations_callback.call
     end
 
     # :inherit:
     def in_context(context : AVD::ExecutionContextInterface) : AVD::Validator::ContextualValidatorInterface
-      self.contextual_validator
+      @contextual_validator || MockContextualValidator.new @violations_callback.call
     end
   end
 

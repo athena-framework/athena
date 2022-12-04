@@ -13,9 +13,9 @@
 #
 # NOTE: You most likely want to use `AVD::Constraints::Compound` instead of this type.
 abstract class Athena::Validator::Constraints::Composite < Athena::Validator::Constraint
-  alias Type = Array(AVD::Constraint) | AVD::Constraint | Enumerable({String, AVD::Constraint})
+  alias Type = Array(AVD::Constraint) | AVD::Constraint | Enumerable({String | Int32, AVD::Constraint})
 
-  getter constraints : Enumerable({String, AVD::Constraint})
+  getter constraints : Enumerable({String | Int32, AVD::Constraint})
 
   def initialize(
     constraints : AVD::Constraints::Composite::Type,
@@ -26,10 +26,10 @@ abstract class Athena::Validator::Constraints::Composite < Athena::Validator::Co
     super message, groups, payload
 
     constraints = case constraints
-                  when AVD::Constraint        then {"0" => constraints} of String => AVD::Constraint
-                  when Array(AVD::Constraint) then constraints.each_with_index.to_h { |v, k| {k.to_s, v} }
+                  when AVD::Constraint        then {0 => constraints} of String | Int32 => AVD::Constraint
+                  when Array(AVD::Constraint) then constraints.each_with_index.to_h { |v, k| {k.as(Int32 | String), v} }
                   else
-                    constraints
+                    constraints = constraints.transform_keys &.as(String | Int32)
                   end
 
     constraints.each_value do |c|

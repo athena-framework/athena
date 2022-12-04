@@ -21,8 +21,8 @@ struct CompositeTest < ASPEC::TestCase
     ])
 
     constraint.groups.should eq ["default"]
-    constraint.constraints["0"].groups.should eq ["default"]
-    constraint.constraints["1"].groups.should eq ["default"]
+    constraint.constraints[0].groups.should eq ["default"]
+    constraint.constraints[1].groups.should eq ["default"]
   end
 
   def test_nested_composite_constraint_has_default_group : Nil
@@ -32,8 +32,8 @@ struct CompositeTest < ASPEC::TestCase
     ] of AVD::Constraint)
 
     constraint.groups.should eq ["default"]
-    constraint.constraints["0"].groups.should eq ["default"]
-    constraint.constraints["1"].groups.should eq ["default"]
+    constraint.constraints[0].groups.should eq ["default"]
+    constraint.constraints[1].groups.should eq ["default"]
   end
 
   def test_implicit_nested_groups_if_explicit_parent_group : Nil
@@ -43,8 +43,8 @@ struct CompositeTest < ASPEC::TestCase
     ], groups: ["default", "strict"])
 
     constraint.groups.should eq ["default", "strict"]
-    constraint.constraints["0"].groups.should eq ["default", "strict"]
-    constraint.constraints["1"].groups.should eq ["default", "strict"]
+    constraint.constraints[0].groups.should eq ["default", "strict"]
+    constraint.constraints[1].groups.should eq ["default", "strict"]
   end
 
   def test_explicit_nested_groups_must_be_subset_of_explicit_parent_groups : Nil
@@ -54,8 +54,8 @@ struct CompositeTest < ASPEC::TestCase
     ], groups: ["default", "strict"])
 
     constraint.groups.should eq ["default", "strict"]
-    constraint.constraints["0"].groups.should eq ["default"]
-    constraint.constraints["1"].groups.should eq ["strict"]
+    constraint.constraints[0].groups.should eq ["default"]
+    constraint.constraints[1].groups.should eq ["strict"]
   end
 
   def test_fail_if_explicit_nest_group_not_subset_of_explicit_parent_groups : Nil
@@ -75,8 +75,8 @@ struct CompositeTest < ASPEC::TestCase
     constraint.add_implicit_group "implicit"
 
     constraint.groups.should eq ["default", "strict", "implicit"]
-    constraint.constraints["0"].groups.should eq ["default", "implicit"]
-    constraint.constraints["1"].groups.should eq ["strict"]
+    constraint.constraints[0].groups.should eq ["default", "implicit"]
+    constraint.constraints[1].groups.should eq ["strict"]
   end
 
   def test_valid_cannot_be_nested : Nil
