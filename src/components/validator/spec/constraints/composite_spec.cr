@@ -80,7 +80,7 @@ struct CompositeTest < ASPEC::TestCase
   end
 
   def test_valid_cannot_be_nested : Nil
-    expect_raises AVD::Exceptions::Logic, "The Athena::Validator::Constraints::Valid constraint cannot be nested inside a ConcreteComposite constraint." do
+    expect_raises AVD::Exceptions::Logic, "The 'Athena::Validator::Constraints::Valid' constraint cannot be nested inside a 'ConcreteComposite' constraint." do
       ConcreteComposite.new([
         AVD::Constraints::Valid.new,
       ] of AVD::Constraint)
