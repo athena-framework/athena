@@ -1,10 +1,10 @@
-@[ACONA::AsCommand("router:match", description: "Help debug routes by simulating a path match")]
+@[ACONA::AsCommand("debug:router:match", description: "Simulate a path match to see which route, if any, would handle it")]
 @[ADI::Register]
 # Similar to `ATH::Commands::DebugRouter`, but instead of providing the route name, you provide the request path
 # in order to determine which, if any, route that path maps to.
 #
 # ```text
-# $ ./bin/console router:match /user/10
+# $ ./bin/console debug:router:match /user/10
 #  [OK] Route 'example_controller_user' matches
 #
 # +--------------+-------------------------------------+
@@ -26,12 +26,12 @@
 # Or if the route only partially matches:
 #
 # ```text
-# $ ./bin/console router:match /user/foo
+# $ ./bin/console debug:router:match /user/foo
 #  Route 'example_controller_user' almost matches but requirement for 'id' does not match (\d+)
 #
 #  [ERROR] None of the routes match the path '/user/foo'
 # ```
-class Athena::Framework::Commands::RouterMatch < ACON::Command
+class Athena::Framework::Commands::DebugRouterMatch < ACON::Command
   def initialize(
     @router : ART::RouterInterface
   )

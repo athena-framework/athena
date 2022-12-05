@@ -10,7 +10,7 @@
 #
 # ### mode
 #
-# **Type:** `AVD::Constraints::Email::Mode` **Default:** `AVD::Constraints::Email::Mode::Loose`
+# **Type:** `AVD::Constraints::Email::Mode` **Default:** `AVD::Constraints::Email::Mode::HTML5`
 #
 # Defines the pattern that should be used to validate the email address.
 #
@@ -42,11 +42,11 @@
 class Athena::Validator::Constraints::Email < Athena::Validator::Constraint
   # Determines _how_ the email address should be validated.
   enum Mode
-    # Validates the email against a simple `::Regex` that allows all values with an `@` symbol and a `.` in the host part of the email address.
-    Loose
-
-    # Validates the email against the [HTML5 input pattern](https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address).
+    # Validates the email against the [HTML5 input pattern](https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address), but requires a [TLD](https://en.wikipedia.org/wiki/Top-level_domain) to be present.
     HTML5
+
+    # Same as `HTML5`, but follows the pattern exactly, allowing there to be no [TLD](https://en.wikipedia.org/wiki/Top-level_domain).
+    HTML5_ALLOW_NO_TLD
 
     # TODO: Implement this mode.
     # STRICT
@@ -54,8 +54,8 @@ class Athena::Validator::Constraints::Email < Athena::Validator::Constraint
     # Returns the `::Regex` pattern for `self`.
     def pattern : ::Regex
       case self
-      in .html5? then /^[a-zA-Z0-9.!\#$\%&\'*+\\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/
-      in .loose? then /^.+\@\S+\.\S+$/
+      in .html5?              then /^[a-zA-Z0-9.!\#$\%&\'*+\\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/
+      in .html5_allow_no_tld? then /^[a-zA-Z0-9.!\#$\%&\'*+\\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
       end
     end
   end
@@ -69,7 +69,7 @@ class Athena::Validator::Constraints::Email < Athena::Validator::Constraint
   getter mode : AVD::Constraints::Email::Mode
 
   def initialize(
-    @mode : AVD::Constraints::Email::Mode = :loose,
+    @mode : AVD::Constraints::Email::Mode = :html5,
     message : String = "This value is not a valid email address.",
     groups : Array(String) | String | Nil = nil,
     payload : Hash(String, String)? = nil

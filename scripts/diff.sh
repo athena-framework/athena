@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Syncs the provided component if changes were made within the provided sub directory
+# Displays the current version and commits since last version
 #
 # $1 - Component name
 # $2 - Git URL
@@ -24,7 +24,7 @@ function diff()
     then
         echo "============"
         echo "$1: $LATEST_TAG"
-        git log --oneline $LATEST_TAG..master | sed 's/^/  /'
+        git log --pretty="  %h %s%b" $LATEST_TAG..master | sed 's/^\*/    \*/'
     fi
 
     cd $OLDPWD

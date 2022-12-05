@@ -1,7 +1,7 @@
 require "../spec_helper"
 
 private class DummyCompoundConstraint < AVD::Constraints::Compound
-  def constraints : Array(AVD::Constraint)
+  def constraints : Type
     [
       AVD::Constraints::NotBlank.new,
       AVD::Constraints::Size.new(..3),
