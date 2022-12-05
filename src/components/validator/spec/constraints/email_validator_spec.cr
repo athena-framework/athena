@@ -23,13 +23,13 @@ struct EmailValidatorTest < AVD::Spec::ConstraintValidatorTestCase
     self.assert_no_violation
   end
 
-  @[DataProvider("valid_emails_html5")]
-  def test_valid_emails_html5(value : String) : Nil
-    self.validator.validate value, self.new_constraint mode: CONSTRAINT::Mode::HTML5
+  @[DataProvider("valid_emails")]
+  def test_valid_emails(value : String) : Nil
+    self.validator.validate value, self.new_constraint
     self.assert_no_violation
   end
 
-  def valid_emails_html5 : Tuple
+  def valid_emails : Tuple
     {
       {"blacksmoke16@dietrich.app"},
       {"example@example.co.uk"},
@@ -49,21 +49,6 @@ struct EmailValidatorTest < AVD::Spec::ConstraintValidatorTestCase
       {"example"},
       {"example@"},
       {"example@localhost"},
-      {"foo@example.com bar"},
-    }
-  end
-
-  @[DataProvider("invalid_emails_html5")]
-  def test_invalid_emails_html5(value : String) : Nil
-    self.validator.validate value, self.new_constraint mode: CONSTRAINT::Mode::HTML5, message: "my_message"
-    self.assert_violation "my_message", CONSTRAINT::INVALID_FORMAT_ERROR, value
-  end
-
-  def invalid_emails_html5 : Tuple
-    {
-      {"example"},
-      {"example@"},
-      {"example@localhost"},
       {"example@example.co..uk"},
       {"foo@example.com bar"},
       {"example@example."},
@@ -78,6 +63,27 @@ struct EmailValidatorTest < AVD::Spec::ConstraintValidatorTestCase
       {"example@-example.com"},
       {"example@#{"a"*64}.com"},
     }
+  end
+
+  @[DataProvider("invalid_emails_html5_allow_no_tld")]
+  def test_invalid_emails_html5_allow_no_tld(value : String) : Nil
+    self.validator.validate value, self.new_constraint mode: CONSTRAINT::Mode::HTML5_ALLOW_NO_TLD, message: "my_message"
+    self.assert_violation "my_message", CONSTRAINT::INVALID_FORMAT_ERROR, value
+  end
+
+  def invalid_emails_html5_allow_no_tld : Tuple
+    {
+      {"example bar"},
+      {"example@"},
+      {"example@ bar"},
+      {"example@localhost bar"},
+      {"foo@example.com bar"},
+    }
+  end
+
+  def test_valid_email_html5_allow_no_tld : Nil
+    self.validator.validate "example@example", self.new_constraint mode: CONSTRAINT::Mode::HTML5_ALLOW_NO_TLD
+    self.assert_no_violation
   end
 
   private def create_validator : AVD::ConstraintValidatorInterface
