@@ -42,9 +42,6 @@
 class Athena::Validator::Constraints::Email < Athena::Validator::Constraint
   # Determines _how_ the email address should be validated.
   enum Mode
-    # Validates the email against a simple `::Regex` that allows all values with an `@` symbol and a `.` in the host part of the email address.
-    Loose
-
     # Validates the email against the [HTML5 input pattern](https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address).
     HTML5
 
@@ -55,7 +52,6 @@ class Athena::Validator::Constraints::Email < Athena::Validator::Constraint
     def pattern : ::Regex
       case self
       in .html5? then /^[a-zA-Z0-9.!\#$\%&\'*+\\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/
-      in .loose? then /^.+\@\S+\.\S+$/
       end
     end
   end
@@ -69,7 +65,7 @@ class Athena::Validator::Constraints::Email < Athena::Validator::Constraint
   getter mode : AVD::Constraints::Email::Mode
 
   def initialize(
-    @mode : AVD::Constraints::Email::Mode = :loose,
+    @mode : AVD::Constraints::Email::Mode = :html5,
     message : String = "This value is not a valid email address.",
     groups : Array(String) | String | Nil = nil,
     payload : Hash(String, String)? = nil
