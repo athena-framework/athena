@@ -5,7 +5,7 @@ DEFAULT_OPTIONS=(-Dstrict_multi_assign --order=random --error-on-warnings)
 
 # Runs the specs for all, or optionally a single component
 #
-# $1 - (optional) comonent to runs specs, or all if empty
+# $1 - (optional) component to runs specs, or all if empty
 
 if [ -n "$1" ]
 then
