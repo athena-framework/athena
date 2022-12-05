@@ -23,25 +23,6 @@ struct EmailValidatorTest < AVD::Spec::ConstraintValidatorTestCase
     self.assert_no_violation
   end
 
-  @[DataProvider("valid_emails")]
-  def test_valid_emails(value : String) : Nil
-    self.validator.validate value, self.new_constraint
-    self.assert_no_violation
-  end
-
-  def valid_emails : Tuple
-    {
-      {"blacksmoke16@dietrich.app"},
-      {"example@example.co.uk"},
-      {"fabien_potencier@example.fr"},
-      {"example@example.co..uk"},
-      {"{}~!@!@£$%%^&*().!@£$%^&*()"},
-      {"example@example.co..uk"},
-      {"example@-example.com"},
-      {"example@#{"a"*64}.com"},
-    }
-  end
-
   @[DataProvider("valid_emails_html5")]
   def test_valid_emails_html5(value : String) : Nil
     self.validator.validate value, self.new_constraint mode: CONSTRAINT::Mode::HTML5
