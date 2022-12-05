@@ -1,10 +1,21 @@
 #!/usr/bin/env bash
 
 EXIT_CODE=0
+DEFAULT_OPTIONS=(-Dstrict_multi_assign --order=random --error-on-warnings)
+
+# Runs the specs for all, or optionally a single component
+#
+# $1 - (optional) comonent to runs specs, or all if empty
+
+if [ -n "$1" ]
+then
+  set -e
+  crystal spec "${DEFAULT_OPTIONS[@]}" "src/components/$1/spec"
+fi
 
 for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | sort); do
   echo "::group::$component"
-  crystal spec -Dstrict_multi_assign $component/spec --order random --error-on-warnings --exclude-warnings $component/spec || EXIT_CODE=1
+  crystal spec "${DEFAULT_OPTIONS[@]}" $component/spec || EXIT_CODE=1
   echo "::endgroup::"
 done
 
