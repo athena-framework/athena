@@ -9,11 +9,12 @@ abstract struct Athena::EventDispatcher::Callable
     @priority : Int32
   ); end
 
-  # :inherit:
+  # :nodoc:
   def <=>(other : AED::Callable) : Int32?
     other.priority <=> @priority
   end
 
+  # :nodoc:
   def call(event : AED::Event, dispatcher : AED::EventDispatcherInterface) : NoReturn
     raise "BUG: Invoked wrong `call` overload"
   end
@@ -29,6 +30,7 @@ abstract struct Athena::EventDispatcher::Callable
       super event_class, priority
     end
 
+    # :nodoc:
     def_equals @event_class, @priority, @callback
 
     def call(event : E, dispatcher : AED::EventDispatcherInterface) : Nil
@@ -54,6 +56,7 @@ abstract struct Athena::EventDispatcher::Callable
       super event_class, priority
     end
 
+    # :nodoc:
     def_equals @event_class, @priority, @callback
 
     def call(event : E, dispatcher : AED::EventDispatcherInterface) : Nil
@@ -82,6 +85,7 @@ abstract struct Athena::EventDispatcher::Callable
       super event_class, priority
     end
 
+    # :nodoc:
     def_equals @event_class, @priority, @callback, @instance
 
     def call(event : E, dispatcher : AED::EventDispatcherInterface) : Nil

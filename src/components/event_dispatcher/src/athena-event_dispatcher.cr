@@ -1,5 +1,6 @@
 require "./annotations"
 require "./event_dispatcher"
+require "./generic_event"
 
 # Convenience alias to make referencing `Athena::EventDispatcher` types easier.
 alias AED = Athena::EventDispatcher
@@ -113,4 +114,7 @@ alias AEDA = AED::Annotations
 # Consider pairing this component with the [Athena::DependencyInjection][Athena::DependencyInjection--getting-started] component as a way to handle this.
 module Athena::EventDispatcher
   VERSION = "0.1.4"
+
+  # Contains all the `Athena::EventDispatcher` based annotations.
+  module Annotations; end
 end

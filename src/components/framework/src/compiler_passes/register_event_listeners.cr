@@ -18,6 +18,8 @@ module Athena::Framework::CompilerPasses::RegisterEventListenersPass
           {% for service_id in TAG_HASH["athena.event_dispatcher.listener"] %}
             {% metadata = SERVICE_HASH[service_id] %}
 
+            # Changes made here should also be reflected within `AED::EventListenerInterface` overload within `AED::EventDispatcher`.
+            # E.g. changes to the error handling logic.
             {% for m in metadata[:service].methods.select &.annotation(AEDA::AsEventListener) %}
               {% ann = m.annotation AEDA::AsEventListener %}
               {% event = m.args[0].restriction || m.args[0].raise "No resetriction" %}

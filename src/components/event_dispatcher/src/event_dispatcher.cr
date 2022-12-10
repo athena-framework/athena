@@ -25,6 +25,9 @@ class Athena::EventDispatcher::EventDispatcher
 
   private def add_listener(listener : T) : Nil forall T
     {% begin %}
+
+      # Changes made here should also be reflected within `ATH::CompilerPasses::RegisterEventListenersPass`.
+      # E.g. changes to the error handling logic.
       {% for m in T.methods.select &.annotation(AEDA::AsEventListener) %}
         {% ann = m.annotation AEDA::AsEventListener %}
         {% event = m.args[0].restriction || m.args[0].raise "No resetriction" %}
