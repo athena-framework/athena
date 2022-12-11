@@ -1,13 +1,12 @@
 require "./stoppable_event"
 
-# Base class for all event objects.
-# This event does not contain any event data.
-# Custom events should inherit from this type, and include any useful information that listeners may need.
+# An event consists of a subclass of this type, usually with extra context specific information.
+# The metaclass of the event type is used as a unique identifier, which generally should end in a verb that indicates what action has been taken.
 # The `AED::GenericEvent` type may be used for simple use cases, but dedicated event types are still considered a best practice.
 #
 # ```
 # # Define a custom event
-# class ExceptionEvent < AED::Event
+# class ExceptionRaisedEvent < AED::Event
 #   getter exception : Exception
 #
 #   def initialize(@exception : Exception); end
@@ -15,11 +14,18 @@ require "./stoppable_event"
 #
 # # Dispatch a custom event
 # exception = ArgumentError.new "Value cannot be negative"
-# dispatcher.dispatch ExceptionEvent.new exception
+# dispatcher.dispatch ExceptionRaisedEvent.new exception
 # ```
 #
 # Abstract event classes may also be used to share common data/methods between a group of related events.
 # However they cannot be used as a catchall to listen on all events that extend it.
+#
+# ## Stopping Propagation
+#
+# In some cases it may make sense for a listener to prevent any other listeners from being called for a specific event.
+# In order to do this, the listener needs a way to tell the dispatcher that it should stop propagation, i.e. do not notify any more listeners.
+# The base event type includes `AED::StoppableEvent` that enables this behavior.
+# Checkout the related module for more information.
 #
 # ## Generics
 #
@@ -60,6 +66,20 @@ require "./stoppable_event"
 abstract class Athena::EventDispatcher::Event
   include Athena::EventDispatcher::StoppableEvent
 
+  # Returns an `AED::Callable` based on the event class the method was called on.
+  # Optionally allows customizing the *priority* of the listener.
+  #
+  # ```
+  # class MyEvent < AED::Event; end
+  #
+  # callable = MyEvent.callable do |event, dispatcher|
+  #   # Do something with the event, and/or dispatcher
+  # end
+  #
+  # dispatcher.listener callable
+  # ```
+  #
+  # Essentially the same as using [AED::EventDispatcherInterface#listener(event_class,*,priority,&)][Athena::EventDispatcher::EventDispatcherInterface#listener(callable,*,priority)], but removes the need to pass the *event_class*.
   def self.callable(*, priority : Int32 = 0, &block : self, AED::EventDispatcherInterface -> Nil) : AED::Callable
     AED::Callable::EventDispatcher(self).new block, priority
   end

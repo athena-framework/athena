@@ -3,7 +3,7 @@
 # The first parameter should be the concrete `AED::Event` instance the method is listening on.
 # The optional second parameter should be typed as an `AED::EventDispatcherInterface`.
 #
-# The annotation accepts an optional `priority` field, defaulting to `0`, denoting that listeners [listener priority][]
+# The annotation accepts an optional `priority` field, defaulting to `0`, denoting the [listener's priority][Athena::EventDispatcher::EventDispatcherInterface--listener-priority]
 #
 # ```
 # class MyListener

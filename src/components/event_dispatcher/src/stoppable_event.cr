@@ -2,6 +2,21 @@
 #
 # `AED::EventDispatcherInterface` implementations *MUST* check to determine if an `AED::Event` is marked as stopped after each listener is called.
 # If it is, then the dispatcher should return immediately without calling any further listeners.
+#
+# ```
+# class MyEvent < AED::Event; end
+#
+# dispatcher = AED::EventDispatcher.new
+#
+# dispatcher.listener(MyEvent) { pp "callback1" }
+# dispatcher.listener(MyEvent) { |e| pp "callback2"; e.stop_propagation }
+# dispatcher.listener(MyEvent) { pp "callback3" }
+#
+# dispatcher.dispatch MyEvent.new
+# # =>
+# #   "callback1"
+# #   "callback2"
+# ```
 module Athena::EventDispatcher::StoppableEvent
   @propagation_stopped : Bool = false
 

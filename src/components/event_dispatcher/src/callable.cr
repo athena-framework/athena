@@ -1,7 +1,18 @@
+# Encapsulates everything required to represent an event listener.
+# Including what event is being listened on, the callback itself, and its priority.
+#
+# Each subclass represents a specific "type" of listener.
+# See each subclass for more information.
+#
+# TIP: These types can be manually instantiated and added via the related `AED::EventDispatcherInterface#listener(callable)` overload.
+# This can be useful as a point of integration to other libraries, such as lazily instantiating a `AED::EventListenerInterface` instance.
 abstract struct Athena::EventDispatcher::Callable
   include Comparable(self)
 
+  # Returns what `AED::Event` class this callable represents.
   getter event_class : AED::Event.class
+
+  # Returns the [listener priority][Athena::EventDispatcher::EventDispatcherInterface--listener-priority] of this callable.
   getter priority : Int32
 
   def initialize(
@@ -19,6 +30,9 @@ abstract struct Athena::EventDispatcher::Callable
     raise "BUG: Invoked wrong `call` overload"
   end
 
+  protected abstract def copy_with(priority _priority = @priority)
+
+  # Represents a listener that only accepts the `AED::Event` instance.
   struct Event(E) < Athena::EventDispatcher::Callable
     @callback : E -> Nil
 
@@ -33,6 +47,7 @@ abstract struct Athena::EventDispatcher::Callable
     # :nodoc:
     def_equals @event_class, @priority, @callback
 
+    # :nodoc:
     def call(event : E, dispatcher : AED::EventDispatcherInterface) : Nil
       @callback.call event
     end
@@ -45,6 +60,8 @@ abstract struct Athena::EventDispatcher::Callable
     end
   end
 
+  # Represents a listener that accepts both the `AED::Event` instance and the `AED::EventDispatcherInterface` instance.
+  # Such as when using [AED::EventDispatcherInterface#listener(event_class,*,priority,&)][Athena::EventDispatcher::EventDispatcherInterface#listener(callable,*,priority)], or the `AED::Event.callable` method.
   struct EventDispatcher(E) < Athena::EventDispatcher::Callable
     @callback : E, AED::EventDispatcherInterface -> Nil
 
@@ -59,6 +76,7 @@ abstract struct Athena::EventDispatcher::Callable
     # :nodoc:
     def_equals @event_class, @priority, @callback
 
+    # :nodoc:
     def call(event : E, dispatcher : AED::EventDispatcherInterface) : Nil
       @callback.call event, dispatcher
     end
@@ -71,7 +89,9 @@ abstract struct Athena::EventDispatcher::Callable
     end
   end
 
+  # Represents a listener associated with an `AED::EventListenerInterface` when using the `AEDA::AsEventListener` annotation.
   struct EventListenerInstance(I, E) < Athena::EventDispatcher::Callable
+    # Returns the `AED::EventListenerInterface` instance this listener is associated with.
     getter instance : I
 
     @callback : Proc(E, Nil) | Proc(E, AED::EventDispatcherInterface, Nil)
@@ -88,6 +108,7 @@ abstract struct Athena::EventDispatcher::Callable
     # :nodoc:
     def_equals @event_class, @priority, @callback, @instance
 
+    # :nodoc:
     def call(event : E, dispatcher : AED::EventDispatcherInterface) : Nil
       case cb = @callback
       in Proc(E, Nil)                                then cb.call event

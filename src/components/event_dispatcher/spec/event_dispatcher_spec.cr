@@ -147,7 +147,7 @@ struct EventDispatcherTest < ASPEC::TestCase
     ])
   end
 
-  def test_listener_priority : Nil
+  def test_callable_exposes_correct_priority : Nil
     callback1 = PreFoo.callable priority: -10 { }
     callback2 = PreFoo.callable { }
     callback3 = PreFoo.callable priority: 50 { }
@@ -158,11 +158,10 @@ struct EventDispatcherTest < ASPEC::TestCase
     # Returns a new copy with thew new priority set
     callback3 = @dispatcher.listener callback3, priority: 10
 
-    @dispatcher.listener_priority(PreFoo, callback1).should eq -10
-    @dispatcher.listener_priority(PreFoo, callback2).should eq 0
-    @dispatcher.listener_priority(PreFoo, callback3).should eq 10
-    @dispatcher.listener_priority(PreBar, callback1).should be_nil
-    @dispatcher.listener_priority(PreFoo, PreFoo.callable { }).should be_nil
+    callback1.priority.should eq -10
+    callback2.priority.should eq 0
+    callback3.priority.should eq 10
+    PreFoo.callable { }.priority.should eq 0
   end
 
   def test_dispatch : Nil

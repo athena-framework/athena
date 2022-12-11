@@ -3,6 +3,7 @@ require "./event"
 require "./event_listener_interface"
 require "./callable"
 
+# Default implementation of `AED::EventDispatcherInterface`.
 class Athena::EventDispatcher::EventDispatcher
   include Athena::EventDispatcher::EventDispatcherInterface
 
@@ -11,14 +12,41 @@ class Athena::EventDispatcher::EventDispatcher
   # Keeps track of event types that have already been sorted.
   @sorted = Set(AED::Event.class).new
 
+  # :inherit:
+  def dispatch(event : AED::Event) : AED::Event
+    self.call_listeners event, self.listeners event.class
+
+    event
+  end
+
+  # :inherit:
+  def has_listeners? : Bool
+    @listeners.each_value.any? { |listeners| !listeners.empty? }
+  end
+
+  # :inherit:
+  def has_listeners?(event_class : AED::Event.class) : Bool
+    @listeners.has_key? event_class
+  end
+
+  # :inherit:
   def listener(callable : AED::Callable) : AED::Callable
     self.add_callable callable
   end
 
+  # :inherit:
   def listener(callable : AED::Callable, *, priority : Int32) : AED::Callable
     self.add_callable callable.copy_with priority: priority
   end
 
+  # :inherit:
+  def listener(event_class : E.class, *, priority : Int32 = 0, &block : E, AED::EventDispatcherInterface -> Nil) : AED::Callable forall E
+    {% @def.args[0].raise "expected argument #1 to '#{@def.name}' to be #{AED::Event.class}, not #{E}." unless E <= AED::Event %}
+
+    self.add_callable AED::Callable::EventDispatcher(E).new block, priority
+  end
+
+  # :inherit:
   def listener(listener : AED::EventListenerInterface) : Nil
     self.add_listener listener
   end
@@ -53,12 +81,6 @@ class Athena::EventDispatcher::EventDispatcher
     {% end %}
   end
 
-  def listener(event_class : E.class, *, priority : Int32 = 0, &block : E, AED::EventDispatcherInterface -> Nil) : AED::Callable forall E
-    {% @def.args[0].raise "expected argument #1 to '#{@def.name}' to be #{AED::Event.class}, not #{E}." unless E <= AED::Event %}
-
-    self.add_callable AED::Callable::EventDispatcher(E).new block, priority
-  end
-
   protected def add_callable(callable : AED::Callable) : AED::Callable
     (@listeners[callable.event_class] ||= Array(Callable).new) << callable
 
@@ -67,37 +89,16 @@ class Athena::EventDispatcher::EventDispatcher
     callable
   end
 
-  def has_listeners?(event_class : AED::Event.class | Nil = nil) : Bool
-    if event_class
-      return @listeners.has_key? event_class
+  # :inherit:
+  def listeners : Hash(AED::Event.class, Array(AED::Callable))
+    @listeners.each_key do |ec|
+      self.sort_listeners ec unless @sorted.includes? ec
     end
 
-    @listeners.each_value.any? { |listeners| !listeners.empty? }
+    @listeners
   end
 
-  def remove_listener(listener : AED::EventListenerInterface) : Nil
-    @listeners.each do |event_class, listeners|
-      listeners.reject! { |l| l.is_a?(AED::Callable::EventListenerInstance) && l.instance == listener }
-
-      @listeners.delete event_class if listeners.empty?
-    end
-  end
-
-  def remove_listener(callable : AED::Callable) : Nil
-    return unless (listeners = @listeners[callable.event_class]?)
-
-    listeners.reject! { |c| c == callable }
-
-    @listeners.delete callable.event_class if listeners.empty?
-    @sorted.delete callable.event_class
-  end
-
-  def dispatch(event : AED::Event) : AED::Event
-    self.call_listeners event, self.listeners event.class
-
-    event
-  end
-
+  # :inherit:
   def listeners(for event_class : AED::Event.class) : Array(AED::Callable)
     return [] of AED::Callable unless @listeners.has_key? event_class
 
@@ -108,19 +109,22 @@ class Athena::EventDispatcher::EventDispatcher
     @listeners[event_class]
   end
 
-  def listeners : Hash(AED::Event.class, Array(AED::Callable))
-    @listeners.each_key do |ec|
-      self.sort_listeners ec unless @sorted.includes? ec
-    end
+  # :inherit:
+  def remove_listener(callable : AED::Callable) : Nil
+    return unless (listeners = @listeners[callable.event_class]?)
 
-    @listeners
+    listeners.reject! { |c| c == callable }
+
+    @listeners.delete callable.event_class if listeners.empty?
+    @sorted.delete callable.event_class
   end
 
-  def listener_priority(event_class : AED::Event.class, callable : AED::Callable) : Int32?
-    return unless (listeners = @listeners[event_class]?)
+  # :inherit:
+  def remove_listener(listener : AED::EventListenerInterface) : Nil
+    @listeners.each do |event_class, listeners|
+      listeners.reject! { |l| l.is_a?(AED::Callable::EventListenerInstance) && l.instance == listener }
 
-    listeners.each do |l|
-      return l.priority if l == callable
+      @listeners.delete event_class if listeners.empty?
     end
   end
 
