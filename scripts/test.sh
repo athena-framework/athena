@@ -9,8 +9,8 @@ DEFAULT_OPTIONS=(-Dstrict_multi_assign --order=random --error-on-warnings)
 
 if [ -n "$1" ]
 then
-  set -e
   crystal spec "${DEFAULT_OPTIONS[@]}" "src/components/$1/spec"
+  exit $?
 fi
 
 for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | sort); do
