@@ -38,7 +38,7 @@ describe ATH::Listeners::View do
       event = ATH::Events::View.new request, "FOO"
       view_handler = MockViewHandler.new
 
-      ATH::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
+      ATH::Listeners::View.new(view_handler).on_view event
 
       view_handler.view.data.should eq "FOO"
       view_handler.view.format.should eq "json"
@@ -52,7 +52,7 @@ describe ATH::Listeners::View do
       event = ATH::Events::View.new request, view
       view_handler = MockViewHandler.new
 
-      ATH::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
+      ATH::Listeners::View.new(view_handler).on_view event
 
       view_handler.view.data.should eq "BAR"
       view_handler.view.format.should eq "xml"
@@ -70,7 +70,7 @@ describe ATH::Listeners::View do
           event = ATH::Events::View.new request, "FOO"
           view_handler = MockViewHandler.new
 
-          ATH::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
+          ATH::Listeners::View.new(view_handler).on_view event
 
           view_handler.view.status.should eq HTTP::Status::FOUND
         end
@@ -85,7 +85,7 @@ describe ATH::Listeners::View do
           event = ATH::Events::View.new request, view
           view_handler = MockViewHandler.new
 
-          ATH::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
+          ATH::Listeners::View.new(view_handler).on_view event
 
           view_handler.view.status.should eq HTTP::Status::GONE
         end
@@ -100,7 +100,7 @@ describe ATH::Listeners::View do
           event = ATH::Events::View.new request, view
           view_handler = MockViewHandler.new
 
-          ATH::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
+          ATH::Listeners::View.new(view_handler).on_view event
 
           view_handler.view.status.should eq HTTP::Status::FOUND
         end
@@ -116,7 +116,7 @@ describe ATH::Listeners::View do
           event = ATH::Events::View.new request, "FOO"
           view_handler = MockViewHandler.new
 
-          ATH::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
+          ATH::Listeners::View.new(view_handler).on_view event
 
           groups = view_handler.view.context.groups.should_not be_nil
           groups.should eq Set{"one", "two"}
@@ -135,7 +135,7 @@ describe ATH::Listeners::View do
           event = ATH::Events::View.new request, view
           view_handler = MockViewHandler.new
 
-          ATH::Listeners::View.new(view_handler).call event, AED::Spec::TracableEventDispatcher.new
+          ATH::Listeners::View.new(view_handler).on_view event
 
           groups = view_handler.view.context.groups.should_not be_nil
           groups.should eq Set{"three", "four", "one", "two"}

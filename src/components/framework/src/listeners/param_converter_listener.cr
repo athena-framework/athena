@@ -14,7 +14,7 @@ struct Athena::Framework::Listeners::ParamConverter
   end
 
   @[AEDA::AsEventListener(priority: -250)]
-  def call(event : ATH::Events::Action, dispatcher : AED::EventDispatcherInterface) : Nil
+  def on_action(event : ATH::Events::Action) : Nil
     event.action.apply_param_converters @param_converters, event.request
   end
 end

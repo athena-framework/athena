@@ -14,7 +14,7 @@ struct Athena::Framework::Listeners::Routing
   end
 
   @[AEDA::AsEventListener(priority: 32)]
-  def call(event : ATH::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
+  def on_request(event : ATH::Events::Request) : Nil
     request = event.request
 
     @request_context.apply request

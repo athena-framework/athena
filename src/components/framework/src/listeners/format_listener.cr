@@ -17,7 +17,7 @@ struct Athena::Framework::Listeners::Format
   end
 
   @[AEDA::AsEventListener(priority: 34)]
-  def call(event : ATH::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
+  def on_request(event : ATH::Events::Request) : Nil
     request = event.request
 
     # Return early if there is no content_negotiation configuration.

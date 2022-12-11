@@ -19,7 +19,7 @@ describe ATH::Listeners::ParamFetcher do
 
     event = ATH::Events::Action.new request, new_action
 
-    ATH::Listeners::ParamFetcher.new(MockParamFetcher.new).call(event, AED::Spec::TracableEventDispatcher.new)
+    ATH::Listeners::ParamFetcher.new(MockParamFetcher.new).on_action event
 
     request.attributes.get("foo").should eq "bar"
     request.attributes.get("baz").should eq "biz"
@@ -31,7 +31,7 @@ describe ATH::Listeners::ParamFetcher do
 
     event = ATH::Events::Action.new request, new_action
 
-    ATH::Listeners::ParamFetcher.new(MockParamFetcher.new).call(event, AED::Spec::TracableEventDispatcher.new)
+    ATH::Listeners::ParamFetcher.new(MockParamFetcher.new).on_action event
 
     request.attributes.get("foo").should eq "bar"
     request.attributes.get("baz").should eq "biz"
@@ -44,7 +44,7 @@ describe ATH::Listeners::ParamFetcher do
     event = ATH::Events::Action.new request, new_action
 
     expect_raises ArgumentError, "Parameter 'foo' conflicts with a path parameter for route 'test_controller_test'." do
-      ATH::Listeners::ParamFetcher.new(MockParamFetcher.new).call(event, AED::Spec::TracableEventDispatcher.new)
+      ATH::Listeners::ParamFetcher.new(MockParamFetcher.new).on_action event
     end
   end
 end

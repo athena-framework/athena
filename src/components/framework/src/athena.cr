@@ -83,9 +83,6 @@ module Athena::Framework
   module Listeners
     # The tag name for Athena event listeners.
     TAG = "athena.event_dispatcher.listener"
-
-    # Apply `TAG` to all `AED::EventListenerInterface` instances automatically.
-    ADI.auto_configure AED::EventListenerInterface, {tags: [ATH::Listeners::TAG]}
   end
 
   # Namespace for types related to controller action arguments.

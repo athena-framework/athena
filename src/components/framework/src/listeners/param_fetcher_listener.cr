@@ -5,7 +5,7 @@ struct Athena::Framework::Listeners::ParamFetcher
   def initialize(@param_fetcher : ATH::Params::ParamFetcherInterface); end
 
   @[AEDA::AsEventListener(priority: 5)]
-  def call(event : ATH::Events::Action, dispatcher : AED::EventDispatcherInterface) : Nil
+  def on_action(event : ATH::Events::Action) : Nil
     request = event.request
 
     # Process each registered parameter, adding them to the request's attributes.

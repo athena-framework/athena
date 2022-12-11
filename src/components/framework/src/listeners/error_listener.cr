@@ -31,7 +31,7 @@ struct Athena::Framework::Listeners::Error
   def initialize(@error_renderer : ATH::ErrorRendererInterface); end
 
   @[AEDA::AsEventListener(priority: -50)]
-  def call(event : ATH::Events::Exception, dispatcher : AED::EventDispatcherInterface) : Nil
+  def on_exception(event : ATH::Events::Exception) : Nil
     exception = event.exception
 
     log_exception(exception) { "Uncaught exception #{exception.inspect} at #{exception.backtrace?.try &.first}" }

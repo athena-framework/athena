@@ -11,7 +11,7 @@ struct FormatListenerTest < ASPEC::TestCase
 
     listener = ATH::Listeners::Format.new nil, negotiator
 
-    listener.call event, AED::Spec::TracableEventDispatcher.new
+    listener.on_request event
 
     event.request.request_format.should eq "json"
     event.request.attributes.get?("media_type").should be_nil
@@ -31,7 +31,7 @@ struct FormatListenerTest < ASPEC::TestCase
 
     listener = ATH::Listeners::Format.new config, negotiator
 
-    listener.call event, AED::Spec::TracableEventDispatcher.new
+    listener.on_request event
 
     event.request.request_format.should eq "xml"
     event.request.attributes.get?("media_type").should eq "text/xml"
@@ -53,7 +53,7 @@ struct FormatListenerTest < ASPEC::TestCase
 
     listener = ATH::Listeners::Format.new config, negotiator
 
-    listener.call event, AED::Spec::TracableEventDispatcher.new
+    listener.on_request event
 
     event.request.request_format.should eq "xml"
     event.request.attributes.get?("media_type").should be_nil
@@ -72,7 +72,7 @@ struct FormatListenerTest < ASPEC::TestCase
     listener = ATH::Listeners::Format.new config, negotiator
 
     expect_raises ATH::Exceptions::NotAcceptable, "No matching accepted Response format could be determined." do
-      listener.call event, AED::Spec::TracableEventDispatcher.new
+      listener.on_request event
     end
   end
 
@@ -96,7 +96,7 @@ struct FormatListenerTest < ASPEC::TestCase
 
     listener = ATH::Listeners::Format.new config, negotiator
 
-    listener.call event, AED::Spec::TracableEventDispatcher.new
+    listener.on_request event
 
     event.request.request_format.should eq expected
     event.request.attributes.get?("media_type").should eq media_type

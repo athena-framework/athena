@@ -10,7 +10,7 @@ struct Athena::Framework::Listeners::View
   def initialize(@view_handler : ATH::View::ViewHandlerInterface); end
 
   @[AEDA::AsEventListener(priority: 100)]
-  def call(event : ATH::Events::View, dispatcher : AED::EventDispatcherInterface) : Nil
+  def on_view(event : ATH::Events::View) : Nil
     request = event.request
     action = request.action
 
