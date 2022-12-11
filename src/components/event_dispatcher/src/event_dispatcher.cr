@@ -53,27 +53,61 @@ class Athena::EventDispatcher::EventDispatcher
 
   private def add_listener(listener : T) : Nil forall T
     {% begin %}
+      {% listeners = [] of Nil %}
 
       # Changes made here should also be reflected within `ATH::CompilerPasses::RegisterEventListenersPass`.
-      # E.g. changes to the error handling logic.
-      {% for m in T.methods.select &.annotation(AEDA::AsEventListener) %}
-        {% ann = m.annotation AEDA::AsEventListener %}
-        {% event = m.args[0].restriction || m.args[0].raise "No resetriction" %}
+      {%
+        class_listeners = T.class.methods.select &.annotation(AEDA::AsEventListener)
 
-        {% if 1 == m.args.size %}
+        # Raise compile time error if a listener is defined as a class method.
+        unless class_listeners.empty?
+          class_listeners.first.raise "Event listener methods can only be defined as instance methods. Did you mean '#{T.name}##{class_listeners.first.name}'?"
+        end
+
+        T.methods.select(&.annotation(AEDA::AsEventListener)).each do |m|
+          # Validate the parameters of each method.
+          if (m.args.size < 1) || (m.args.size > 2)
+            m.raise "Expected '#{T.name}##{m.name}' to have 1..2 parameters, got '#{m.args.size}'."
+          end
+
+          event_arg = m.args[0]
+
+          # Validate the type restriction of the first parameter, if present
+          event_arg.raise "Expected parameter #1 of '#{T.name}##{m.name}' to have a type restriction of an 'AED::Event' instance, but it is not restricted." if event_arg.restriction.is_a?(Nop)
+          event_arg.raise "Expected parameter #1 of '#{T.name}##{m.name}' to have a type restriction of an 'AED::Event' instance, not '#{event_arg.restriction}'." if !(event_arg.restriction.resolve <= AED::Event)
+
+          if dispatcher_arg = m.args[1]
+            event_arg.raise "Expected parameter #2 of '#{T.name}##{m.name}' to have a type restriction of 'AED::EventDispatcherInterface', but it is not restricted." if dispatcher_arg.restriction.is_a?(Nop)
+            event_arg.raise "Expected parameter #2 of '#{T.name}##{m.name}' to have a type restriction of 'AED::EventDispatcherInterface', not '#{dispatcher_arg.restriction}'." if !(dispatcher_arg.restriction.resolve <= AED::EventDispatcherInterface)
+          end
+
+          priority = m.annotation(AEDA::AsEventListener)[:priority] || 0
+
+          unless priority.is_a? NumberLiteral
+            m.raise "Event listener method '#{T.name}##{m.name}' expects a 'NumberLiteral' for its 'AEDA::AsEventListener#priority' field, but got a '#{priority.class_name.id}'."
+          end
+
+          listeners << {event_arg.restriction.resolve.id, m.args.size, m.name.id, priority}
+        end
+      %}
+
+      {% for info in listeners %}
+        {% event, count, method, priority = info %}
+
+        {% if 1 == count %}
           self.add_callable(
             AED::Callable::EventListenerInstance(T, {{event}}).new(
-              ->listener.{{m.name.id}}({{event}}),
+              ->listener.{{method}}({{event}}),
               listener,
-              {{ann[:priority] || 0}}
+              {{priority}}
             )
           )
         {% else %}
           self.add_callable(
             AED::Callable::EventListenerInstance(T, {{event}}).new(
-              ->listener.{{m.name.id}}({{event}}, AED::EventDispatcherInterface),
+              ->listener.{{method}}({{event}}, AED::EventDispatcherInterface),
               listener,
-              {{ann[:priority] || 0}}
+              {{priority}}
             )
           )
         {% end %}
