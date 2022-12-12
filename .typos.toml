@@ -1,3 +1,7 @@
+[default.extend-words]
+# Remove this once https://github.com/crate-ci/typos/issues/316 is resolved
+referer = "referer"
+
 [files]
 extend-exclude = [
   "src/components/routing/spec/fixtures/route_provider/*"
