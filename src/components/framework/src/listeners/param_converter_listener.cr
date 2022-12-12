@@ -5,12 +5,6 @@
 struct Athena::Framework::Listeners::ParamConverter
   include AED::EventListenerInterface
 
-  def self.subscribed_events : AED::SubscribedEvents
-    AED::SubscribedEvents{
-      ATH::Events::Action => -250,
-    }
-  end
-
   @param_converters = Hash(ATH::ParamConverter.class, ATH::ParamConverter).new
 
   def initialize(param_converters : Array(ATH::ParamConverter))
@@ -19,7 +13,8 @@ struct Athena::Framework::Listeners::ParamConverter
     end
   end
 
-  def call(event : ATH::Events::Action, dispatcher : AED::EventDispatcherInterface) : Nil
+  @[AEDA::AsEventListener(priority: -250)]
+  def on_action(event : ATH::Events::Action) : Nil
     event.action.apply_param_converters @param_converters, event.request
   end
 end

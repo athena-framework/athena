@@ -28,15 +28,10 @@
 struct Athena::Framework::Listeners::Error
   include AED::EventListenerInterface
 
-  def self.subscribed_events : AED::SubscribedEvents
-    AED::SubscribedEvents{
-      ATH::Events::Exception => -50,
-    }
-  end
-
   def initialize(@error_renderer : ATH::ErrorRendererInterface); end
 
-  def call(event : ATH::Events::Exception, dispatcher : AED::EventDispatcherInterface) : Nil
+  @[AEDA::AsEventListener(priority: -50)]
+  def on_exception(event : ATH::Events::Exception) : Nil
     exception = event.exception
 
     log_exception(exception) { "Uncaught exception #{exception.inspect} at #{exception.backtrace?.try &.first}" }

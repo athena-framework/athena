@@ -10,16 +10,13 @@ require "mime"
 struct Athena::Framework::Listeners::Format
   include AED::EventListenerInterface
 
-  def self.subscribed_events : AED::SubscribedEvents
-    AED::SubscribedEvents{ATH::Events::Request => 34}
-  end
-
   def initialize(
     @config : ATH::Config::ContentNegotiation?,
     @format_negotiator : ATH::View::FormatNegotiator
   ); end
 
-  def call(event : ATH::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
+  @[AEDA::AsEventListener(priority: 34)]
+  def on_request(event : ATH::Events::Request) : Nil
     request = event.request
 
     # Return early if there is no content_negotiation configuration.

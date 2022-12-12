@@ -16,7 +16,7 @@ describe ATH::Listeners::ParamConverter do
 
     event.request.attributes.has?("argument").should be_false
 
-    ATH::Listeners::ParamConverter.new([MockParamConverter.new]).call event, AED::Spec::TracableEventDispatcher.new
+    ATH::Listeners::ParamConverter.new([MockParamConverter.new]).on_action event
 
     event.request.attributes.has?("argument").should be_true
   end

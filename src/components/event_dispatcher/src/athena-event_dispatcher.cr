@@ -1,30 +1,33 @@
+require "./annotations"
 require "./event_dispatcher"
+require "./generic_event"
 
 # Convenience alias to make referencing `Athena::EventDispatcher` types easier.
 alias AED = Athena::EventDispatcher
 
-# A [Mediator](https://en.wikipedia.org/wiki/Mediator_pattern) and [Observer](https://en.wikipedia.org/wiki/Observer_pattern)
-# pattern event library.
+# Convenience alias to make referencing `AED::Annotations` types easier.
+alias AEDA = AED::Annotations
+
+# # Introduction
 #
-# `Athena::EventDispatcher` or, `AED` for short, allows defining instance methods on `EventListenerInterface` types (observers) that will be executed
-# when an `Event` is dispatched via the `EventDispatcher` (mediator).
+# Object-oriented code has helped a lot in ensuring code extensibility.
+# By having classes with well defined responsibilities, it becomes more flexible and easily extendable to modify their behavior.
+# However inheritance has its limits is not the best option when these modifications need to be shared between other modified subclasses.
+# Say for example you want to do something before and after a method is executed, without interfering with the other plugins.
 #
-# All events are registered with an `EventDispatcher` at compile time.  While the recommended usage involves using
-# listener structs, it is also possible to add/remove event handlers dynamically at runtime.  The `EventDispatcher` has two constructors;
-# one that supports manual or DI initialization, while the other auto registers listeners at compile time via macros.
+# The `Athena::EventDispatcher` component is a [Mediator](https://en.wikipedia.org/wiki/Mediator_pattern) and [Observer](https://en.wikipedia.org/wiki/Observer_pattern) pattern event library.
+# This pattern allows creating very flexibly and truly extensible applications.
 #
-# An event is nothing more than a `class` that, optionally, contains stateful information about the event.  For example a `HttpOnRequest` event would
-# contain a reference to the `HTTP::Request` object so that the listeners have access to request data.  Similarly, a `HttpOnResponse` event
-# would contain a reference to the `HTTP::Server::Response` object so that the response body/headers/status can be mutated by the listeners.
+# A good example of this is the [architecture](/components) of Athena Framework itself.
+# Once an `ATH::Response` has been created by a controller, it may be useful to allow additional modifications before it is actually returned to the client.
+# Such modifications could include adding additional headers, paginating the data itself, or capturing performance metrics to name a few.
+# To handle this, the framework itself makes use of `Athena::EventDispatcher` to dispatch an event that notifies all registered listeners on that event.
+# From which, they could make any necessary modifications seamlessly without affecting the framework logic itself, or the other listeners.
 #
-# Since events and listeners are registered at compile time (via macros or DI), listeners can be added to a project seamlessly without updating any configuration, or having
-# to instantiate a `HTTP::Handler` object and add it to an array for example.  The main benefit of this is that an external shard that defines a listener could
-# be installed and would inherently be picked up and used by `Athena::EventDispatcher`; thus making an application easily extendable.
-#
-# ### Example
+# ## Usage
 # ```
 # # Create a custom event.
-# class ExceptionEvent < AED::Event
+# class ExceptionRaisedEvent < AED::Event
 #   property? handled : Bool = false
 #
 #   getter exception : Exception
@@ -33,52 +36,36 @@ alias AED = Athena::EventDispatcher
 #   def initialize(@exception : Exception); end
 # end
 #
-# # Create a listener.
-# struct ExceptionListener
+# dispatcher = AED::EventDispatcher.new
+#
+# # Register a listener directly with the dispatcher
+# dispatcher.listener ExceptionRaisedEvent do |event|
+#   pp event.exception.message
+# end
+#
+# # Or use a dedicated type for more complex use cases.
+# class ExceptionListener
 #   include AED::EventListenerInterface
 #
-#   # Define what events `self` is listening on as well as their priorities.
-#   #
-#   # The higher the priority the sooner that specific listener is executed.
-#   def self.subscribed_events : AED::SubscribedEvents
-#     AED::SubscribedEvents{
-#       ExceptionEvent => 0,
-#     }
-#   end
-#
-#   # Listener handler's are `#call` instance methods restricted to the type of event it should handle.
-#   #
-#   # Multiple methods can be defined to handle multiple events within the same listener.
-#   #
-#   # Event handler's also have access to the dispatcher instance itself.
-#   def call(event : ExceptionEvent, dispatcher : AED::EventDispatcherInterface) : Nil
-#     # Do something with the `ExceptionEvent` and/or dispatcher
+#   @[AEDA::AsEventListener]
+#   # Multiple methods can be defined to handle multiple events within the same listener,
+#   # and/or to share state via instance variables between listener methods on different events.
+#   def on_exception(event : ExceptionRaisedEvent) : Nil
+#     # Do something with the event`
 #     event.handled = true
 #   end
 # end
 #
-# # New up an `AED::EventDispatcher`, using `AED::EventDispatcher#new`.
-# # This overload automatically registers listeners using macros.
-# #
-# # See also `AED::EventDispatcher#new(listeners : Array(EventListenerInterface))` for a more manual/DI friendly initializer.
-# dispatcher = AED::EventDispatcher.new
+# dispatcher.listener ExceptionListener.new
 #
 # # Instantiate our custom event.
-# event = ExceptionEvent.new ArgumentError.new("Test exception")
+# event = ExceptionRaisedEvent.new ArgumentError.new("Test exception")
 #
-# # All events are dispatched via an `AED::EventDispatcher` instance.
-# #
-# # Similarly, all listeners are registered with it.
 # dispatcher.dispatch event
+# # =>
+# #   "Test exception"
 #
-# event.handled # => true
-#
-# # Additional methods also exist on the dispatcher, such as:
-# # * Adding/removing listeners at runtime
-# # * Checking the priority of a listener
-# # * Getting an array of listeners for a given event
-# # * Checking if there is a listener(s) listening on a given `AED::Event`
-# dispatcher.has_listeners? ExceptionEvent # => true
+# event.handled? # => true
 # ```
 #
 # ## Getting Started
@@ -97,10 +84,8 @@ alias AED = Athena::EventDispatcher
 #
 # Then run `shards install`, being sure to require it via `require "athena-event_dispatcher"`.
 #
-# From here you will want to define any `AED::EventListenerInterface` and/or custom `AED::Event`s as required by your application.
+# From here you will want to create your `AED::Event`s classes.
 # You will then need a way to create/register the listeners with an `AED::EventDispatcherInterface`.
-# If none of your listeners have any constructor arguments, you can most likely just call `.new` on the default implementation,
-# otherwise you will need to pass it an array of the instantiated listener types.
 #
 # The dispatcher should be created in a way that allows it to be used throughout the application such that any mutations that happen to the listeners are reflected on subsequent dispatches.
 #
@@ -110,49 +95,6 @@ alias AED = Athena::EventDispatcher
 module Athena::EventDispatcher
   VERSION = "0.1.4"
 
-  # The possible types an event listener can be.  `AED::EventListenerInterface` instances use `#call`
-  # in order to keep a common interface with the `Proc` based listeners.
-  alias EventListenerType = EventListenerInterface | Proc(Event, EventDispatcherInterface, Nil)
-
-  # The mapping of the `AED::Event` and the priority a `AED::EventListenerInterface` is listening on.
-  #
-  # See `AED::EventListenerInterface`.
-  alias SubscribedEvents = Hash(AED::Event.class, Int32)
-
-  # Wraps an `EventListenerType` in order to keep track of its `priority`.
-  struct EventListener
-    # :nodoc:
-    delegate :call, :==, to: @listener
-
-    # The wrapped `EventListenerType` instance.
-    getter listener : EventListenerType
-
-    # The priority of the `EventListenerType` instance.
-    #
-    # The higher the `priority` the sooner `listener` will be executed.
-    getter priority : Int32 = 0
-
-    def initialize(@listener : EventListenerType, @priority : Int32 = 0); end
-  end
-
-  # Creates a listener for the provided *event*.  The macro's block is used as the listener.
-  #
-  # The macro *block* implicitly yields `event` and `dispatcher`.
-  #
-  # ```
-  # listener = AED.create_listener(SampleEvent) do
-  #   # Do something with the event.
-  #   event.some_method
-  #
-  #   # A reference to the `AED::EventDispatcherInterface` is also provided.
-  #   dispatcher.dispatch FakeEvent.new
-  # end
-  # ```
-  macro create_listener(event, &)
-    Proc(AED::Event, AED::EventDispatcherInterface, Nil).new do |event, dispatcher|
-      Proc({{event.id}}, AED::EventDispatcherInterface, Nil).new do |event, dispatcher|
-        {{yield}}
-      end.call event.as({{event}}), dispatcher
-    end
-  end
+  # Contains all the `Athena::EventDispatcher` based annotations.
+  module Annotations; end
 end

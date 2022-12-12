@@ -15,7 +15,7 @@ describe ATH::Listeners::Error do
   it "converts an exception into a response and logs the exception as warning" do
     event = ATH::Events::Exception.new new_request, MockException.new "Something went wrong"
 
-    ATH::Listeners::Error.new(MockErrorRenderer.new).call(event, AED::Spec::TracableEventDispatcher.new)
+    ATH::Listeners::Error.new(MockErrorRenderer.new).on_exception event
 
     response = event.response.should_not be_nil
     response.status.should eq HTTP::Status::IM_A_TEAPOT
@@ -28,7 +28,7 @@ describe ATH::Listeners::Error do
       event = ATH::Events::Exception.new new_request, Exception.new "err"
 
       Log.capture do |logs|
-        ATH::Listeners::Error.new(MockErrorRenderer.new).call(event, AED::Spec::TracableEventDispatcher.new)
+        ATH::Listeners::Error.new(MockErrorRenderer.new).on_exception event
 
         logs.check :error, /Exception:err/
       end
@@ -38,7 +38,7 @@ describe ATH::Listeners::Error do
       event = ATH::Events::Exception.new new_request, ATH::Exceptions::NotImplemented.new "nope"
 
       Log.capture do |logs|
-        ATH::Listeners::Error.new(MockErrorRenderer.new).call(event, AED::Spec::TracableEventDispatcher.new)
+        ATH::Listeners::Error.new(MockErrorRenderer.new).on_exception event
 
         logs.check :error, /Athena::Framework::Exceptions::NotImplemented:nope/
       end
@@ -48,7 +48,7 @@ describe ATH::Listeners::Error do
       event = ATH::Events::Exception.new new_request, ATH::Exceptions::UnprocessableEntity.new "Vaidation tests failed"
 
       Log.capture do |logs|
-        ATH::Listeners::Error.new(MockErrorRenderer.new).call(event, AED::Spec::TracableEventDispatcher.new)
+        ATH::Listeners::Error.new(MockErrorRenderer.new).on_exception event
 
         logs.check :notice, /Athena::Framework::Exceptions::UnprocessableEntity:Vaidation tests failed/
       end
@@ -58,7 +58,7 @@ describe ATH::Listeners::Error do
       event = ATH::Events::Exception.new new_request, MockException.new "Something went wrong"
 
       Log.capture do |logs|
-        ATH::Listeners::Error.new(MockErrorRenderer.new).call(event, AED::Spec::TracableEventDispatcher.new)
+        ATH::Listeners::Error.new(MockErrorRenderer.new).on_exception event
 
         logs.check :warn, /MockException:Something went wrong/
       end

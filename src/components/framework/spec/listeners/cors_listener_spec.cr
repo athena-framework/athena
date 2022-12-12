@@ -44,12 +44,12 @@ private CONFIG = ATH::Config::CORS.new(
 )
 
 describe ATH::Listeners::CORS do
-  describe "#call - request" do
+  describe "#on_request - request" do
     it "without a configuration defined" do
       listener = ATH::Listeners::CORS.new nil
       event = new_request_event
 
-      listener.call event, AED::Spec::TracableEventDispatcher.new
+      listener.on_request event
 
       event.response.should be_nil
       event.request.attributes.has?(ATH::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
@@ -59,7 +59,7 @@ describe ATH::Listeners::CORS do
       listener = ATH::Listeners::CORS.new EMPTY_CONFIG
       event = new_request_event
 
-      listener.call event, AED::Spec::TracableEventDispatcher.new
+      listener.on_request event
 
       event.response.should be_nil
       event.request.attributes.has?(ATH::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
@@ -75,7 +75,7 @@ describe ATH::Listeners::CORS do
             request.headers.add "access-control-request-method", "GET"
           end
 
-          listener.call event, AED::Spec::TracableEventDispatcher.new
+          listener.on_request event
 
           response = event.response.should_not be_nil
           response.headers["vary"].should eq "origin"
@@ -92,7 +92,7 @@ describe ATH::Listeners::CORS do
           request.headers.add "access-control-request-method", "LINK"
         end
 
-        listener.call event, AED::Spec::TracableEventDispatcher.new
+        listener.on_request event
 
         response = event.response.should_not be_nil
         response.status.should eq HTTP::Status::METHOD_NOT_ALLOWED
@@ -111,7 +111,7 @@ describe ATH::Listeners::CORS do
         end
 
         expect_raises ATH::Exceptions::Forbidden, "Unauthorized header: 'X-BAD'" do
-          listener.call event, AED::Spec::TracableEventDispatcher.new
+          listener.on_request event
         end
 
         event.request.attributes.has?(ATH::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
@@ -127,7 +127,7 @@ describe ATH::Listeners::CORS do
           request.headers.add "access-control-request-method", "GET"
         end
 
-        listener.call event, AED::Spec::TracableEventDispatcher.new
+        listener.on_request event
 
         response = event.response.should_not be_nil
         response.headers["vary"].should eq "origin"
@@ -145,7 +145,7 @@ describe ATH::Listeners::CORS do
             request.headers.add "access-control-request-headers", "X-FOO"
           end
 
-          listener.call event, AED::Spec::TracableEventDispatcher.new
+          listener.on_request event
 
           event.request.attributes.has?(ATH::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
 
@@ -161,7 +161,7 @@ describe ATH::Listeners::CORS do
             request.headers.add "access-control-request-headers", "X-FOO"
           end
 
-          listener.call event, AED::Spec::TracableEventDispatcher.new
+          listener.on_request event
 
           event.request.attributes.has?(ATH::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
 
@@ -177,7 +177,7 @@ describe ATH::Listeners::CORS do
           request.headers.add "access-control-request-method", "GET"
         end
 
-        listener.call event, AED::Spec::TracableEventDispatcher.new
+        listener.on_request event
 
         event.request.attributes.has?(ATH::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
 
@@ -192,7 +192,7 @@ describe ATH::Listeners::CORS do
           request.headers.add "access-control-request-method", "GET"
         end
 
-        listener.call event, AED::Spec::TracableEventDispatcher.new
+        listener.on_request event
 
         event.request.attributes.has?(ATH::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
 
@@ -210,7 +210,7 @@ describe ATH::Listeners::CORS do
           request.headers.add "access-control-request-headers", "X-FOO"
         end
 
-        listener.call event, AED::Spec::TracableEventDispatcher.new
+        listener.on_request event
 
         event.request.attributes.has?(ATH::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
         event.response.should be_nil
@@ -225,7 +225,7 @@ describe ATH::Listeners::CORS do
           request.headers.add "access-control-request-headers", "X-FOO"
         end
 
-        listener.call event, AED::Spec::TracableEventDispatcher.new
+        listener.on_request event
 
         event.request.attributes.has?(ATH::Listeners::CORS::ALLOW_SET_ORIGIN).should be_true
         event.response.should be_nil
@@ -233,7 +233,7 @@ describe ATH::Listeners::CORS do
     end
   end
 
-  describe "#call - response" do
+  describe "#on_response - response" do
     describe "with a proper request" do
       it "static origin" do
         listener = ATH::Listeners::CORS.new CONFIG
@@ -246,7 +246,7 @@ describe ATH::Listeners::CORS do
           request.attributes.set ATH::Listeners::CORS::ALLOW_SET_ORIGIN, true
         end
 
-        listener.call event, AED::Spec::TracableEventDispatcher.new
+        listener.on_response event
 
         event.response.headers["access-control-allow-origin"].should eq "https://example.com"
         event.response.headers["access-control-allow-credentials"].should eq "true"
@@ -264,7 +264,7 @@ describe ATH::Listeners::CORS do
           request.attributes.set ATH::Listeners::CORS::ALLOW_SET_ORIGIN, true
         end
 
-        listener.call event, AED::Spec::TracableEventDispatcher.new
+        listener.on_response event
 
         event.response.headers["access-control-allow-origin"].should eq "https://app.example.com"
         event.response.headers["access-control-allow-credentials"].should eq "true"
@@ -283,7 +283,7 @@ describe ATH::Listeners::CORS do
         request.attributes.set ATH::Listeners::CORS::ALLOW_SET_ORIGIN, false
       end
 
-      listener.call event, AED::Spec::TracableEventDispatcher.new
+      listener.on_response event
 
       event.response.headers.size.should eq 2
     end
@@ -292,7 +292,7 @@ describe ATH::Listeners::CORS do
       listener = ATH::Listeners::CORS.new nil
       event = new_response_event
 
-      listener.call event, AED::Spec::TracableEventDispatcher.new
+      listener.on_response event
 
       event.response.headers.size.should eq 2
     end

@@ -46,12 +46,10 @@ describe Athena::Framework::RouteHandler do
 
       describe "view layer" do
         it "should resolve the returned value into a response" do
-          listener = AED.create_listener(ATH::Events::View) do
+          dispatcher = AED::Spec::TracableEventDispatcher.new
+          dispatcher.listener ATH::Events::View do |event|
             event.response = ATH::Response.new "TEST".to_json, 201, HTTP::Headers{"content-type" => "application/json"}
           end
-
-          dispatcher = AED::Spec::TracableEventDispatcher.new
-          dispatcher.add_listener ATH::Events::View, listener
 
           action = new_action
 
@@ -86,12 +84,10 @@ describe Athena::Framework::RouteHandler do
 
       describe "that was handled via a request listener" do
         it "should emit the proper events and set the proper response" do
-          listener = AED.create_listener(ATH::Events::Request) do
+          dispatcher = AED::Spec::TracableEventDispatcher.new
+          dispatcher.listener ATH::Events::Request do |event|
             event.response = ATH::Response.new "", HTTP::Status::IM_A_TEAPOT, HTTP::Headers{"FOO" => "BAR"}
           end
-
-          dispatcher = AED::Spec::TracableEventDispatcher.new
-          dispatcher.add_listener ATH::Events::Request, listener
 
           handler = ATH::RouteHandler.new dispatcher, ATH::RequestStore.new, MockArgumentResolver.new, MockControllerResolver.new
 
@@ -109,12 +105,10 @@ describe Athena::Framework::RouteHandler do
     describe "exception" do
       describe "that is handled" do
         it "should emit the proper events and set correct response" do
-          listener = AED.create_listener(ATH::Events::Exception) do
+          dispatcher = AED::Spec::TracableEventDispatcher.new
+          dispatcher.listener ATH::Events::Exception do |event|
             event.response = ATH::Response.new "HANDLED", HTTP::Status::BAD_REQUEST
           end
-
-          dispatcher = AED::Spec::TracableEventDispatcher.new
-          dispatcher.add_listener ATH::Events::Exception, listener
 
           handler = ATH::RouteHandler.new dispatcher, ATH::RequestStore.new, MockArgumentResolver.new(ATH::Exceptions::BadRequest.new("TEST_EX")), MockControllerResolver.new new_action
 
@@ -143,17 +137,14 @@ describe Athena::Framework::RouteHandler do
 
       describe "when another exception is raised in the response listener" do
         it "should return the previous response" do
-          listener = AED.create_listener(ATH::Events::Response) do
+          dispatcher = AED::Spec::TracableEventDispatcher.new
+          dispatcher.listener ATH::Events::Response do
             raise ATH::Exceptions::NotFound.new "NOT_FOUND"
           end
 
-          ex_listener = AED.create_listener(ATH::Events::Exception) do
+          dispatcher.listener ATH::Events::Exception do |event|
             event.response = ATH::Response.new "HANDLED", HTTP::Status::NOT_FOUND
           end
-
-          dispatcher = AED::Spec::TracableEventDispatcher.new
-          dispatcher.add_listener ATH::Events::Response, listener
-          dispatcher.add_listener ATH::Events::Exception, ex_listener
 
           action = create_action(ATH::Response) do
             ATH::Response.new "TEST"

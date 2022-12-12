@@ -7,13 +7,8 @@ ACF.configuration_annotation CustomAnn, id : Int32
 struct CustomAnnotationListener
   include AED::EventListenerInterface
 
-  def self.subscribed_events : AED::SubscribedEvents
-    AED::SubscribedEvents{
-      ATH::Events::Response => 0,
-    }
-  end
-
-  def call(event : ATH::Events::Response, dispatcher : AED::EventDispatcherInterface) : Nil
+  @[AEDA::AsEventListener]
+  def on_response(event : ATH::Events::Response) : Nil
     return unless action = event.request.action?
 
     ann_configs = action.annotation_configurations

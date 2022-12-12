@@ -85,18 +85,12 @@ struct Athena::Framework::Listeners::CORS
     "HEAD",
   ]
 
-  def self.subscribed_events : AED::SubscribedEvents
-    AED::SubscribedEvents{
-      ATH::Events::Request  => 250,
-      ATH::Events::Response => 0,
-    }
-  end
-
   private getter! config : ATH::Config::CORS?
 
   def initialize(@config : ATH::Config::CORS?); end
 
-  def call(event : ATH::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
+  @[AEDA::AsEventListener(priority: 250)]
+  def on_request(event : ATH::Events::Request) : Nil
     request = event.request
     request_headers = RequestHeaders.new(request.headers)
 
@@ -117,7 +111,8 @@ struct Athena::Framework::Listeners::CORS
     event.request.attributes.set ALLOW_SET_ORIGIN, true, Bool
   end
 
-  def call(event : ATH::Events::Response, dispatcher : AED::EventDispatcherInterface) : Nil
+  @[AEDA::AsEventListener]
+  def on_response(event : ATH::Events::Response) : Nil
     # Return early if the request shouldn't have CORS set.
     return unless event.request.attributes.get? ALLOW_SET_ORIGIN
 
