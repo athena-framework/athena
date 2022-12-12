@@ -13,8 +13,7 @@ struct Athena::Framework::Listeners::Format
   def initialize(
     @config : ATH::Config::ContentNegotiation?,
     @format_negotiator : ATH::View::FormatNegotiator
-  )
-  end
+  ); end
 
   @[AEDA::AsEventListener(priority: 34)]
   def on_request(event : ATH::Events::Request) : Nil
