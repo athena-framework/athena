@@ -24,7 +24,7 @@ function diff()
     then
         echo "============"
         echo "$1: $LATEST_TAG"
-        git log --pretty="  %h %s%b" $LATEST_TAG..master | sed 's/^\*/    \*/'
+        git log --pretty="  %h %s%b" $LATEST_TAG..master | sed "s/)\*/)\n    \*/" | sed 's/^\*/    \*/'
     fi
 
     cd $OLDPWD
