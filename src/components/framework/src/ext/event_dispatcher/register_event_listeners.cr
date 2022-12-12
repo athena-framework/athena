@@ -61,11 +61,23 @@ module Athena::Framework::CompilerPasses::RegisterEventListenersPass
 
               {% if 1 == count %}
                 dispatcher.add_callable(
-                  {{event}}.callable(priority: {{priority}}) { |event| self.{{service_id.id}}.{{method}} event.as({{event}}) },
+                  ATH::EventDispatcher::Callable::Service({{event}}).new(
+                    callback: Proc({{event}}, AED::EventDispatcherInterface, Nil).new { |event| self.{{service_id.id}}.{{method}} event },
+                    service_class: {{metadata[:service].stringify}},
+                    method_name: {{method.stringify}},
+                    service_id: {{service_id.stringify}},
+                    priority: {{priority}}
+                  )
                 )
               {% else %}
                 dispatcher.add_callable(
-                  {{event}}.callable(priority: {{priority}}) { |event, dispatcher| self.{{service_id.id}}.{{method}} event.as({{event}}), dispatcher },
+                  ATH::EventDispatcher::Callable::Service({{event}}).new(
+                    callback: Proc({{event}}, AED::EventDispatcherInterface, Nil).new { |event, dispatcher| self.{{service_id.id}}.{{method}} event, dispatcher },
+                    service_class: {{metadata[:service].stringify}},
+                    method_name: {{method.stringify}},
+                    service_id: {{service_id.stringify}},
+                    priority: {{priority}}
+                  )
                 )
               {% end %}
             {% end %}
