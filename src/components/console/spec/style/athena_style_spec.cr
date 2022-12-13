@@ -21,6 +21,26 @@ struct AthenaStyleTest < ASPEC::TestCase
     string.should match(Regex.new(File.read(normalized_path))), file: file, line: line
   end
 
+  def test_error_style : Nil
+    error_output = ACON::Output::IO.new io = IO::Memory.new
+    output = ACON::Output::ConsoleOutput.new
+    output.stderr = error_output
+
+    style = ACON::Style::Athena.new ACON::Input::Hash.new({} of String => String), output
+    style.error_style.puts "foo"
+
+    io.to_s.should eq "foo\n"
+  end
+
+  def test_error_style_non_console_output : Nil
+    output = ACON::Output::IO.new io = IO::Memory.new
+
+    style = ACON::Style::Athena.new ACON::Input::Hash.new({} of String => String), output
+    style.error_style.puts "foo"
+
+    io.to_s.should eq "foo\n"
+  end
+
   @[DataProvider("output_provider")]
   def test_outputs(command_proc : ACON::Commands::Generic::Proc, file_path : String) : Nil
     command = ACON::Commands::Generic.new "foo", &command_proc
