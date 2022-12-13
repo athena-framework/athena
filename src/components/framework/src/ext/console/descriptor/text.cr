@@ -79,4 +79,61 @@ class Athena::Framework::Console::Descriptor::Text < Athena::Framework::Console:
       end
     end.strip
   end
+
+  protected def describe(event_dispatcher : AED::EventDispatcherInterface, context : EventDispatcherContext) : Nil
+    # TODO: Support specific dispatcher services
+
+    title = "Registered Listeners"
+
+    if event = context.event_class
+      title = "#{title} for the #{event} Event"
+      listeners = event_dispatcher.listeners event
+    else
+      title = "#{title} Grouped by Event"
+      listeners = if (events = context.event_classes)
+                    events.each_with_object({} of AED::Event.class => Array(AED::Callable)) do |ec, map|
+                      map[ec] = event_dispatcher.listeners ec
+                    end
+                  else
+                    event_dispatcher.listeners
+                  end
+    end
+
+    output = context.output.as ACON::Style::Athena
+
+    output.title title
+
+    self.render_event_listener_table output, event_dispatcher, listeners
+  end
+
+  private def render_event_listener_table(
+    output : ACON::Style::Athena,
+    event_dispatcher : AED::EventDispatcherInterface,
+    event_listeners : Hash(AED::Event.class, Array(AED::Callable))
+  ) : Nil
+    sorted_listeners = event_listeners
+      .to_a
+      .sort! { |(n1, _), (n2, _)| n1.to_s <=> n2.to_s }
+      .to_h
+
+    sorted_listeners.each do |event, el|
+      output.section "#{event} event"
+      self.render_event_listener_table output, event_dispatcher, el
+    end
+  end
+
+  private def render_event_listener_table(
+    output : ACON::Style::Athena,
+    event_dispatcher : AED::EventDispatcherInterface,
+    event_listeners : Array(AED::Callable)
+  ) : Nil
+    table_headers = %w(Order Callable Priority)
+    table_rows = [] of Array(String | Int32)
+
+    event_listeners.each_with_index do |callable, idx|
+      table_rows << ["##{idx + 1}", callable.name, callable.priority]
+    end
+
+    output.table table_headers, table_rows
+  end
 end
