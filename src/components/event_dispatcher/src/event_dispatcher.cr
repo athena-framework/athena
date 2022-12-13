@@ -40,10 +40,10 @@ class Athena::EventDispatcher::EventDispatcher
   end
 
   # :inherit:
-  def listener(event_class : E.class, *, priority : Int32 = 0, &block : E, AED::EventDispatcherInterface -> Nil) : AED::Callable forall E
+  def listener(event_class : E.class, *, priority : Int32 = 0, name : String? = nil, &block : E, AED::EventDispatcherInterface -> Nil) : AED::Callable forall E
     {% @def.args[0].raise "expected argument #1 to '#{@def.name}' to be #{AED::Event.class}, not #{E}." unless E <= AED::Event %}
 
-    self.add_callable AED::Callable::EventDispatcher(E).new block, priority
+    self.add_callable AED::Callable::EventDispatcher(E).new block, priority, name
   end
 
   # :inherit:
@@ -99,7 +99,8 @@ class Athena::EventDispatcher::EventDispatcher
             AED::Callable::EventListenerInstance(T, {{event}}).new(
               ->listener.{{method}}({{event}}),
               listener,
-              {{priority}}
+              {{priority}},
+              "{{T}}##{{{method.stringify}}}"
             )
           )
         {% else %}
@@ -107,7 +108,8 @@ class Athena::EventDispatcher::EventDispatcher
             AED::Callable::EventListenerInstance(T, {{event}}).new(
               ->listener.{{method}}({{event}}, AED::EventDispatcherInterface),
               listener,
-              {{priority}}
+              {{priority}},
+              "{{T}}##{{{method.stringify}}}"
             )
           )
         {% end %}

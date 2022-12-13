@@ -67,7 +67,7 @@ abstract class Athena::EventDispatcher::Event
   include Athena::EventDispatcher::StoppableEvent
 
   # Returns an `AED::Callable` based on the event class the method was called on.
-  # Optionally allows customizing the *priority* of the listener.
+  # Optionally allows customizing the *priority* and *name* of the listener.
   #
   # ```
   # class MyEvent < AED::Event; end
@@ -80,7 +80,7 @@ abstract class Athena::EventDispatcher::Event
   # ```
   #
   # Essentially the same as using [AED::EventDispatcherInterface#listener(event_class,*,priority,&)][Athena::EventDispatcher::EventDispatcherInterface#listener(callable,*,priority)], but removes the need to pass the *event_class*.
-  def self.callable(*, priority : Int32 = 0, &block : self, AED::EventDispatcherInterface -> Nil) : AED::Callable
-    AED::Callable::EventDispatcher(self).new block, priority
+  def self.callable(*, priority : Int32 = 0, name : String? = nil, &block : self, AED::EventDispatcherInterface -> Nil) : AED::Callable
+    AED::Callable::EventDispatcher(self).new block, priority, name
   end
 end

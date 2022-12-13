@@ -49,6 +49,9 @@ struct EventDispatcherTest < ASPEC::TestCase
     @dispatcher.listener PreFoo do
     end
 
+    @dispatcher.listener PreFoo, name: "#2" do
+    end
+
     @dispatcher.listener PostFoo do
     end
 
@@ -57,7 +60,8 @@ struct EventDispatcherTest < ASPEC::TestCase
     @dispatcher.has_listeners?(PostFoo).should be_true
     @dispatcher.has_listeners?(PreBar).should be_false
 
-    @dispatcher.listeners(PreFoo).size.should eq 1
+    @dispatcher.listeners(PreFoo).size.should eq 2
+    @dispatcher.listeners(PreFoo).map(&.name).should eq ["unknown callable", "#2"]
     @dispatcher.listeners(PostFoo).size.should eq 1
     @dispatcher.listeners.size.should eq 2
   end
@@ -244,6 +248,7 @@ struct EventDispatcherTest < ASPEC::TestCase
 
     @dispatcher.has_listeners?(PreFoo).should be_true
     @dispatcher.listeners(PreFoo).size.should eq 2
+    @dispatcher.listeners(PreFoo).map(&.name).should eq ["TestListener#on_pre2", "TestListener#on_pre1"]
 
     @dispatcher.dispatch PreFoo.new
 
