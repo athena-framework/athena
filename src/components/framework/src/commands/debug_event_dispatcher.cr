@@ -1,5 +1,47 @@
 @[ACONA::AsCommand("debug:event-dispatcher", description: "Display configured listeners for an application")]
 @[ADI::Register]
+# Utility command to allow viewing information about an `AED::EventDispatcherInterface`.
+# Includes the type/method of each event listener, along with the order they run in based on their priority.
+# Accepts an optional argument to allow filtering the list to a specific event, or ones that contain the provided string.
+#
+# ```text
+# $ ./bin/console debug:event-dispatcher
+# Registered Listeners Grouped by Event
+# =====================================
+#
+# Athena::Framework::Events::Action event
+# ---------------------------------------
+#
+#  ------- -------------------------------------------------------- ----------
+#   Order   Callable                                                 Priority
+#  ------- -------------------------------------------------------- ----------
+#   #1      Athena::Framework::Listeners::ParamFetcher#on_action     5
+#   #2      Athena::Framework::Listeners::ParamConverter#on_action   -250
+#  ------- -------------------------------------------------------- ----------
+#
+# Athena::Framework::Events::Exception event
+# ------------------------------------------
+#
+#  ------- -------------------------------------------------- ----------
+#   Order   Callable                                           Priority
+#  ------- -------------------------------------------------- ----------
+#   #1      Athena::Framework::Listeners::Error#on_exception   -50
+#  ------- -------------------------------------------------- ----------
+#
+# Athena::Framework::Events::Request event
+# ----------------------------------------
+#
+#  ------- -------------------------------------------------- ----------
+#   Order   Callable                                           Priority
+#  ------- -------------------------------------------------- ----------
+#   #1      Athena::Framework::Listeners::CORS#on_request      250
+#   #2      Athena::Framework::Listeners::Format#on_request    34
+#   #3      Athena::Framework::Listeners::Routing#on_request   32
+#  ------- -------------------------------------------------- ----------
+#
+# ...
+# ```
+#
 # TODO: Support dedicated `AED::EventDispatcherInterface` services other than the default.
 class Athena::Framework::Commands::DebugEventDispatcher < ACON::Command
   def initialize(
