@@ -52,32 +52,26 @@ module Athena::Framework::CompilerPasses::RegisterEventListenersPass
                   m.raise "Event listener method '#{metadata[:service].name}##{m.name}' expects a 'NumberLiteral' for its 'AEDA::AsEventListener#priority' field, but got a '#{priority.class_name.id}'."
                 end
 
-                listeners << {event_arg.restriction.resolve.id, m.args.size, m.name.id, priority}
+                listeners << {
+                  event_arg.restriction.resolve.id,
+                  m.args.size,
+                  m.name.id,
+                  "#{metadata[:service]}##{m.name.id}",
+                  priority,
+                }
               end
             %}
 
             {% for info in listeners %}
-              {% event, count, method, priority = info %}
+              {% event, count, method, name, priority = info %}
 
               {% if 1 == count %}
                 dispatcher.add_callable(
-                  ATH::EventDispatcher::Callable::Service({{event}}).new(
-                    callback: Proc({{event}}, AED::EventDispatcherInterface, Nil).new { |event| self.{{service_id.id}}.{{method}} event },
-                    service_class: {{metadata[:service].stringify}},
-                    method_name: {{method.stringify}},
-                    service_id: {{service_id.stringify}},
-                    priority: {{priority}}
-                  )
+                  {{event}}.callable(priority: {{priority}}, name: {{name}}) { |event| self.{{service_id.id}}.{{method}} event.as({{event}}) },
                 )
               {% else %}
                 dispatcher.add_callable(
-                  ATH::EventDispatcher::Callable::Service({{event}}).new(
-                    callback: Proc({{event}}, AED::EventDispatcherInterface, Nil).new { |event, dispatcher| self.{{service_id.id}}.{{method}} event, dispatcher },
-                    service_class: {{metadata[:service].stringify}},
-                    method_name: {{method.stringify}},
-                    service_id: {{service_id.stringify}},
-                    priority: {{priority}}
-                  )
+                  {{event}}.callable(priority: {{priority}}, name: {{name}}) { |event, dispatcher| self.{{service_id.id}}.{{method}} event.as({{event}}), dispatcher },
                 )
               {% end %}
             {% end %}

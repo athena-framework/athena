@@ -131,13 +131,7 @@ class Athena::Framework::Console::Descriptor::Text < Athena::Framework::Console:
     table_rows = [] of Array(String | Int32)
 
     event_listeners.each_with_index do |callable, idx|
-      listener = if callable.is_a? ATH::EventDispatcher::Callable::Service
-                   "#{callable.service_class}##{callable.method_name}"
-                 else
-                   "unknown service"
-                 end
-
-      table_rows << ["##{idx + 1}", listener, callable.priority]
+      table_rows << ["##{idx + 1}", callable.name, callable.priority]
     end
 
     output.table table_headers, table_rows

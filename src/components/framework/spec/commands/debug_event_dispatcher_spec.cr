@@ -11,7 +11,7 @@ struct DebugEventDispatcherCommandTest < ASPEC::TestCase
 
     ret.should eq ACON::Command::Status::SUCCESS
     tester.display.should contain "Registered Listeners for the MyEvent Event"
-    tester.display.should contain "#1      unknown service            0"
+    tester.display.should contain "#1      unknown callable           0"
     tester.display.should contain "#2      some_service#some_method   -1"
 
     tester.display.should_not contain "GenericEvent"
@@ -32,7 +32,7 @@ struct DebugEventDispatcherCommandTest < ASPEC::TestCase
 
     ret.should eq ACON::Command::Status::SUCCESS
     tester.display.should contain "Registered Listeners for the MyOtherEvent Event"
-    tester.display.should contain "#1      unknown service   0"
+    tester.display.should contain "#1      unknown callable   0"
 
     tester.display.should_not contain "MyEvent"
     tester.display.should_not contain "GenericEvent"
@@ -46,11 +46,11 @@ struct DebugEventDispatcherCommandTest < ASPEC::TestCase
     tester.display.should contain "Registered Listeners Grouped by Event"
 
     tester.display.should contain "MyEvent event"
-    tester.display.should contain "#1      unknown service            0"
+    tester.display.should contain "#1      unknown callable           0"
     tester.display.should contain "#2      some_service#some_method   -1"
 
     tester.display.should contain "MyOtherEvent event"
-    tester.display.should contain "#1      unknown service   0"
+    tester.display.should contain "#1      unknown callable   0"
 
     tester.display.should_not contain "GenericEvent"
   end
@@ -63,14 +63,14 @@ struct DebugEventDispatcherCommandTest < ASPEC::TestCase
     tester.display.should contain "Registered Listeners Grouped by Event"
 
     tester.display.should contain "MyEvent event"
-    tester.display.should contain "#1      unknown service            0"
+    tester.display.should contain "#1      unknown callable           0"
     tester.display.should contain "#2      some_service#some_method   -1"
 
     tester.display.should contain "MyOtherEvent event"
-    tester.display.should contain "#1      unknown service   0"
+    tester.display.should contain "#1      unknown callable   0"
 
     tester.display.should contain "Athena::EventDispatcher::GenericEvent(String, String) event"
-    tester.display.should contain "#1      unknown service   0"
+    tester.display.should contain "#1      generic-event   0"
   end
 
   private def command_tester : ACON::Spec::CommandTester
@@ -79,18 +79,10 @@ struct DebugEventDispatcherCommandTest < ASPEC::TestCase
 
   private def dispatcher : AED::EventDispatcherInterface
     dispatcher = AED::EventDispatcher.new
-    dispatcher.listener(AED::GenericEvent(String, String)) { }
+    dispatcher.listener(AED::GenericEvent(String, String), name: "generic-event") { }
     dispatcher.listener(MyEvent) { }
+    dispatcher.listener(MyEvent, priority: -1, name: "some_service#some_method") { }
     dispatcher.listener(MyOtherEvent) { }
-
-    # Simulate how the framework registers listeners
-    dispatcher.listener ATH::EventDispatcher::Callable::Service.new(
-      callback: Proc(MyEvent, AED::EventDispatcherInterface, Nil).new { },
-      service_class: "some_service",
-      method_name: "some_method",
-      service_id: "string",
-      priority: -1
-    )
 
     dispatcher
   end
