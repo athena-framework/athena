@@ -17,6 +17,7 @@
 #
 # dispatcher = AED::EventDispatcher.new
 #
+# dispatcher.listener(MyEvent) { }
 # dispatcher.listener(MyEvent, name: "block-listener") { }
 #
 # class MyListener
@@ -29,7 +30,7 @@
 #
 # dispatcher.listener MyListener.new
 #
-# dispatcher.listeners(MyEvent).map &.name # => ["block-listener", "MyListener#on_my_event"]
+# dispatcher.listeners(MyEvent).map &.name # => ["unknown callable", "block-listener", "MyListener#on_my_event"]
 # ```
 #
 # `AED::Callable::EventListenerInstance` instances registered via `AED::EventDispatcherInterface#listener(listener)` will automatically have a name including the
