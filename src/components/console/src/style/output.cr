@@ -53,4 +53,12 @@ abstract class Athena::Console::Style::Output
   def verbosity=(verbosity : ACON::Output::Verbosity) : Nil
     @output.verbosity = verbosity
   end
+
+  protected def error_output : ACON::Output::Interface
+    unless (output = @output).is_a? ACON::Output::ConsoleOutputInterface
+      return @output
+    end
+
+    output.error_output
+  end
 end
