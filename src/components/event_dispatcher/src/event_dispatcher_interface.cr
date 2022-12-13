@@ -64,8 +64,8 @@ module Athena::EventDispatcher::EventDispatcherInterface
   # Registers the provided *callable* listener to this dispatcher, overriding its priority with that of the provided *priority*.
   abstract def listener(callable : AED::Callable, *, priority : Int32) : AED::Callable
 
-  # Registers the block as an `AED::Callable` on the provided *event_class*, optionally with the provided *priority*.
-  abstract def listener(event_class : E.class, *, priority : Int32 = 0, &block : E, AED::EventDispatcherInterface -> Nil) : AED::Callable forall E
+  # Registers the block as an `AED::Callable` on the provided *event_class*, optionally with the provided *priority* and/or *name*.
+  abstract def listener(event_class : E.class, *, priority : Int32 = 0, name : String? = nil, &block : E, AED::EventDispatcherInterface -> Nil) : AED::Callable forall E
 
   # Registers the provided *listener* instance to this dispatcher.
   abstract def listener(listener : AED::EventListenerInterface) : Nil
