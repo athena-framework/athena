@@ -70,7 +70,6 @@ macro create_action(return_type = String, param_converters = nil, &)
     Array(ATH::Params::ParamInterface).new,
     TestController,
     {{return_type}},
-    typeof(Tuple.new),
   )
 end
 
@@ -96,7 +95,6 @@ def new_action(
     params,
     TestController,
     String,
-    typeof(Tuple.new),
   )
 end
 

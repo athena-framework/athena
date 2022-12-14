@@ -29,8 +29,7 @@ struct Athena::Framework::Action(Controller, ReturnType, ArgTypeTuple, Arguments
     @params : Array(ATH::Params::ParamInterface),
     # Don't bother making these ivars since we just need them to set the generic types
     _controller : Controller.class,
-    _return_type : ReturnType.class,
-    _arg_types : ArgTypeTuple.class
+    _return_type : ReturnType.class
   ); end
 
   # The type that `self`'s route should return.
