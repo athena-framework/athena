@@ -63,7 +63,7 @@ end
 
 macro create_action(return_type = String, param_converters = nil, &)
   ATH::Action.new(
-    ->{ ->{ {{yield}} } },
+    Proc(typeof(Tuple.new), {{return_type}}).new { {{yield}} },
     Array(ATH::Arguments::ArgumentMetadata(Nil)).new,
     {{param_converters ? param_converters : "Tuple.new".id}},
     ACF::AnnotationConfigurations.new,
@@ -89,7 +89,7 @@ def new_action(
   annotation_configurations = nil
 ) : ATH::ActionBase
   ATH::Action.new(
-    ->{ test_controller = TestController.new; ->test_controller.get_test },
+    Proc(typeof(Tuple.new), String).new { test_controller = TestController.new; test_controller.get_test },
     arguments || Array(ATH::Arguments::ArgumentMetadata(Nil)).new,
     Tuple.new,
     annotation_configurations || ACF::AnnotationConfigurations.new,
