@@ -6,7 +6,7 @@ abstract struct Athena::Framework::ActionBase; end
 # Represents a controller action that will handle a request.
 #
 # Includes metadata about the endpoint, such as its controller, arguments, return type, and the action that should be executed.
-struct Athena::Framework::Action(Controller, ActionType, ReturnType, ArgTypeTuple, ArgumentsType, ParamConverterType) < Athena::Framework::ActionBase
+struct Athena::Framework::Action(Controller, ReturnType, ArgTypeTuple, ArgumentsType, ParamConverterType) < Athena::Framework::ActionBase
   # Returns an `Array(ATH::Arguments::ArgumentMetadata)` that `self` requires.
   getter arguments : ArgumentsType
 
@@ -22,17 +22,15 @@ struct Athena::Framework::Action(Controller, ActionType, ReturnType, ArgTypeTupl
   getter params : Array(ATH::Params::ParamInterface)
 
   def initialize(
-    @action : ActionType,
+    @action : Proc(ArgTypeTuple, ReturnType),
     @arguments : ArgumentsType,
     @param_converters : ParamConverterType,
     @annotation_configurations : ACF::AnnotationConfigurations,
     @params : Array(ATH::Params::ParamInterface),
     # Don't bother making these ivars since we just need them to set the generic types
     _controller : Controller.class,
-    _return_type : ReturnType.class,
-    _arg_types : ArgTypeTuple.class
-  )
-  end
+    _return_type : ReturnType.class
+  ); end
 
   # The type that `self`'s route should return.
   def return_type : ReturnType.class
@@ -46,7 +44,7 @@ struct Athena::Framework::Action(Controller, ActionType, ReturnType, ArgTypeTupl
 
   # Executes the action related to `self` with the provided *arguments* array.
   def execute(arguments : Array) : ReturnType
-    @action.call.call *{{ArgTypeTuple.type_vars.empty? ? "Tuple.new".id : ArgTypeTuple}}.from arguments
+    @action.call {{ArgTypeTuple.type_vars.empty? ? "Tuple.new".id : ArgTypeTuple}}.from arguments
   end
 
   # Applies all of the `ATH::ParamConverter::ConfigurationInterface`s on `self` against the provided `request` and *converters*.
