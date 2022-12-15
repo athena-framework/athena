@@ -26,12 +26,9 @@ struct Athena::Framework::Arguments::Resolvers::DefaultValue
   include Athena::Framework::Arguments::Resolvers::Interface
 
   # :inherit:
-  def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Bool
-    argument.has_default? || argument.nilable?
-  end
-
-  # :inherit:
   def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
+    return if !argument.has_default? && !argument.nilable?
+
     argument.default_value?
   end
 end

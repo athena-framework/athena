@@ -203,11 +203,11 @@ module Athena::Framework::Routing::AnnotationRouteLoader
               arg.raise "Route action argument '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction." if arg.restriction.is_a? Nop
               arguments << %(ATH::Arguments::ArgumentMetadata(#{arg.restriction}).new(
                 #{arg.name.stringify},
+                #{!arg.default_value.is_a? Nop},
+                #{arg.default_value.is_a?(Nop) ? nil : arg.default_value},
                 ACF::AnnotationConfigurations.new(
                   #{parameter_annotation_configurations} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)
                 ),
-                #{!arg.default_value.is_a? Nop},
-                #{arg.default_value.is_a?(Nop) ? nil : arg.default_value}
               )).id
             end
 
@@ -337,8 +337,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
           {% if base == nil %}
             @@actions[{{action_name}}] = ATH::Action.new(
               action: Proc({{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}, {{m.return_type}}).new do |arguments|
-                # If the controller is not registered as a service, simply new one up,
-                # otherwise fetch it directly from the SC.
+                # If the controller is not registered as a service, simply new one up, otherwise fetch it directly from the SC.
                 {% if klass.annotation(ADI::Register) %}
                   %instance = ADI.container.get({{klass.id}})
                 {% else %}
@@ -347,8 +346,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
 
                 %instance.{{m.name.id}} *arguments
               end,
-              arguments: {{arguments.empty? ? "Array(ATH::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},
-              param_converters: {{param_converters.empty? ? "Tuple.new".id : "{#{param_converters.splat}}".id}},
+              arguments: {{arguments.empty? ? "Tuple.new".id : "{#{arguments.splat}}".id}},
               annotation_configurations: ACF::AnnotationConfigurations.new({{annotation_configurations}} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)),
               params: ({{params}} of ATH::Params::ParamInterface),
               _controller: {{klass.id}},
