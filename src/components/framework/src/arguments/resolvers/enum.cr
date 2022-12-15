@@ -40,8 +40,9 @@ struct Athena::Framework::Arguments::Resolvers::Enum
 
   # :inherit:
   def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
+    return unless argument.instance_of? ::Enum
     return unless (enum_type = argument.first_type_of ::Enum)
-    value = request.attributes.get argument.name, String
+    return unless (value = request.attributes.get? argument.name, String)
 
     member = if (num = value.to_i128?(whitespace: false)) && (m = enum_type.from_value? num)
                m

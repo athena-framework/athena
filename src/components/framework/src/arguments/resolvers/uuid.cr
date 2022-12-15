@@ -19,21 +19,14 @@ require "uuid"
 # ```
 #
 # TIP: Checkout `ART::Requirement` for an easy way to restrict/validate the version of the UUID that is allowed.
-#
-# TODO: Update this to use `UUID.parse?` in Crystal 1.5.0.
 struct Athena::Framework::Arguments::Resolvers::UUID
   include Athena::Framework::Arguments::Resolvers::Interface
 
   # :inherit:
-  def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Bool
-    argument.instance_of?(::UUID) && request.attributes.has?(argument.name, String)
-  end
-
-  # :inherit:
   def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
-    ::UUID.new value = request.attributes.get argument.name, String
-  rescue ex : ArgumentError
-    # Catch invalid UUID errors and bubble it up as a BadRequest
-    raise ATH::Exceptions::BadRequest.new "Parameter '#{argument.name}' with value '#{value}' is not a valid 'UUID'.", cause: ex
+    return unless argument.instance_of? ::UUID # TODO: Test making this not nil
+    return unless (value = request.attributes.get? argument.name, String)
+
+    ::UUID.parse?(value) || raise ATH::Exceptions::BadRequest.new "Parameter '#{argument.name}' with value '#{value}' is not a valid 'UUID'."
   end
 end

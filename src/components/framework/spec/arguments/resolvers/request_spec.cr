@@ -1,25 +1,18 @@
 require "../../spec_helper"
 
 describe ATH::Arguments::Resolvers::Request do
-  describe "#supports?" do
-    it ATH::Request do
-      argument = ATH::Arguments::ArgumentMetadata(ATH::Request).new "id"
-
-      ATH::Arguments::Resolvers::Request.new.supports?(new_request, argument).should be_true
-    end
-
-    it TestController do
-      argument = ATH::Arguments::ArgumentMetadata(TestController).new "id"
-
-      ATH::Arguments::Resolvers::Request.new.supports?(new_request, argument).should be_false
-    end
-  end
-
   describe "#resolve" do
-    it "with a default value" do
+    it TestController do
+      argument = ATH::Arguments::ArgumentMetadata(TestController).new "foo"
+
+      ATH::Arguments::Resolvers::Request.new.resolve(new_request, argument).should be_nil
+    end
+
+    it "with a valid value" do
+      argument = ATH::Arguments::ArgumentMetadata(ATH::Request).new "foo"
       request = new_request
 
-      ATH::Arguments::Resolvers::Request.new.resolve(request, new_argument).should be request
+      ATH::Arguments::Resolvers::Request.new.resolve(request, argument).should be request
     end
   end
 end

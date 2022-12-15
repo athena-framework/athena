@@ -12,12 +12,9 @@ struct Athena::Framework::Arguments::Resolvers::RequestAttribute
   include Athena::Framework::Arguments::Resolvers::Interface
 
   # :inherit:
-  def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Bool
-    request.attributes.has? argument.name
-  end
-
-  # :inherit:
   def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
+    return unless request.attributes.has? argument.name
+
     value = request.attributes.get argument.name
 
     argument.type.from_parameter value

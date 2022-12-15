@@ -6,9 +6,7 @@ struct Athena::Framework::Arguments::Resolvers::Time
 
   # :inherit:
   def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
-    if !argument.instance_of? ::Time
-      return
-    end
+    return unless argument.instance_of? ::Time
 
     if value = request.attributes.get? argument.name, ::Time?
       return value
