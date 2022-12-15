@@ -82,13 +82,13 @@ end
 
 def new_action(
   *,
-  arguments : Array(ATH::Arguments::ArgumentMetadata)? = nil,
+  arguments : Tuple = Tuple.new,
   params : Array(ATH::Params::ParamInterface) = Array(ATH::Params::ParamInterface).new,
   annotation_configurations = nil
 ) : ATH::ActionBase
   ATH::Action.new(
     Proc(typeof(Tuple.new), String).new { test_controller = TestController.new; test_controller.get_test },
-    Tuple.new,
+    arguments,
     annotation_configurations || ACF::AnnotationConfigurations.new,
     params,
     TestController,

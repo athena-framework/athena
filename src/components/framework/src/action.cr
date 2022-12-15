@@ -57,12 +57,22 @@ struct Athena::Framework::Action(Controller, ReturnType, ArgTypeTuple, Arguments
             begin
               %argument = @arguments[{{idx}}]
 
-              value = nil
 
-              resolvers.each do |resolver|
-                resolver.resolve(request, %argument).try do |v|
-                  value = v
-                end
+
+              # Variadic parameters are not supported.
+              # `nil` represents both the value `nil` and that resolver was unable to resolve a value
+              # Each resolver can return at most one value.
+              # First resolver to resolve a non-nil value wins, otherwise `nil` itself is used as the value,
+              # assuming the argument accepts nil, otherwise an error is raised.
+              # TODO: Determine if that is robust enough, or we need some other implementation.
+
+               value = resolvers.each do |resolver|
+                resolved_value = resolver.resolve request, %argument
+                break resolved_value unless resolved_value.nil?
+              end
+
+              if value.nil? && !%argument.nilable?
+                raise RuntimeError.new "Controller '#{request.attributes.get "_controller"}' requires that you provide a value for the '#{%argument.name}' parameter. Either the argument is nilable and no nil value has been provided, or no default value has been provided."
               end
 
               value
