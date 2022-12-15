@@ -11,7 +11,7 @@ struct Athena::Framework::Arguments::Resolvers::Request
   include Athena::Framework::Arguments::Resolvers::Interface
 
   # :inherit:
-  def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
+  def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : ATH::Request?
     return unless argument.instance_of? ::ATH::Request
 
     request

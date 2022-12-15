@@ -185,12 +185,14 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                 annotations = [] of Nil
 
                 (arg.annotations ann_class).each do |ann|
+                  resolver = parse_type(ann.name.names[0..-2].join "::").resolve
+
                   # See if this annotation relates to a typed resolver interface.
-                  if interface = parse_type(ann.name.names[0..-2].join "::").resolve.ancestors.find &.<=(ATHR::Interface::Typed)
+                  if interface = resolver.resolve.ancestors.find &.<=(ATHR::Interface::Typed)
                     supported_types = interface.type_vars.first.type_vars
 
                     unless supported_types.any? { |t| arg.restriction.resolve <= t.resolve }
-                      arg.raise %(The annotation '#{ann}' cannot be applied to '#{klass.name}##{m.name}:#{arg.name} : #{arg.restriction}' since it only supports parameters of type #{supported_types.join ", "}.)
+                      arg.raise %(The annotation '#{ann}' cannot be applied to '#{klass.name}##{m.name}:#{arg.name} : #{arg.restriction}' since the '#{resolver}' resolver only supports parameters of type '#{supported_types.join(" | ").id}'.)
                     end
                   end
 

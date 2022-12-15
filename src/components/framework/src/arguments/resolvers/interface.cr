@@ -28,6 +28,10 @@ module Athena::Framework::Arguments::Resolvers::Interface
     ACF.configuration_annotation {{@type}}::{{name.id}}{% unless args.empty? %}, {{args.splat}}{% end %}
   end
 
+  module Typed(*SupportedTypes)
+    include Athena::Framework::Arguments::Resolvers::Interface
+  end
+
   # Returns a value resolved from the provided *request* and *argument*.
   abstract def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
 end

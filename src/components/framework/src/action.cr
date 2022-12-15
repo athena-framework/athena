@@ -1,4 +1,4 @@
-# Parent type of a route just used for typing.
+# Parent type of a controller action just used for typing.
 #
 # See `ATH::Action`.
 abstract struct Athena::Framework::ActionBase; end
@@ -56,8 +56,6 @@ struct Athena::Framework::Action(Controller, ReturnType, ArgTypeTuple, Arguments
           {% for idx in (0...ArgumentsType.size) %}
             begin
               %argument = @arguments[{{idx}}]
-
-
 
               # Variadic parameters are not supported.
               # `nil` represents both the value `nil` and that resolver was unable to resolve a value

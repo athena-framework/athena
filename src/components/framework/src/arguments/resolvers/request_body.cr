@@ -10,26 +10,25 @@ struct Athena::Framework::Arguments::Resolvers::RequestBody
   ); end
 
   # :inherit:
-  def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Bool
-    super && argument.annotation_configurations.has? Enable
-  end
+  def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata(T)) : T? forall T
+    return unless argument.annotation_configurations.has? Enable
 
-  # :inherit:
-  def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
     if !(body = request.body) || body.peek.try &.empty?
       raise ATH::Exceptions::BadRequest.new "Request does not have a body."
     end
 
-    type = argument.type
+    object = nil
 
     begin
-      object = if type <= ASR::Serializable
-                 @serializer.deserialize type, body, :json
-               elsif type <= JSON::Serializable
-                 type.from_json body
-               else
-                 return
-               end
+      {% begin %}
+        {% if T.instance <= ASR::Serializable %}
+          object = @serializer.deserialize T, body, :json
+        {% elsif T.instance <= JSON::Serializable %}
+          object = T.from_json body
+        {% else %}
+          return
+        {% end %}
+      {% end %}
     rescue ex : JSON::ParseException | ASR::Exceptions::DeserializationException
       raise ATH::Exceptions::BadRequest.new "Malformed JSON payload.", cause: ex
     end
@@ -39,6 +38,6 @@ struct Athena::Framework::Arguments::Resolvers::RequestBody
       raise AVD::Exceptions::ValidationFailed.new errors unless errors.empty?
     end
 
-    object
+    object.as T
   end
 end

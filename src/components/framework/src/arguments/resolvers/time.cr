@@ -5,7 +5,7 @@ struct Athena::Framework::Arguments::Resolvers::Time
   configuration Format, format : String? = nil, location : ::Time::Location = ::Time::Location::UTC
 
   # :inherit:
-  def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
+  def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : ::Time?
     return unless argument.instance_of? ::Time
 
     if value = request.attributes.get? argument.name, ::Time?

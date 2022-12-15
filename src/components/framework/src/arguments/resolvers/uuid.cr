@@ -23,7 +23,7 @@ struct Athena::Framework::Arguments::Resolvers::UUID
   include Athena::Framework::Arguments::Resolvers::Interface
 
   # :inherit:
-  def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
+  def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : ::UUID?
     return unless argument.instance_of? ::UUID # TODO: Test making this not nil
     return unless (value = request.attributes.get? argument.name, String)
 

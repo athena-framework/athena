@@ -34,12 +34,7 @@ struct Athena::Framework::Arguments::Resolvers::Enum
   include Athena::Framework::Arguments::Resolvers::Interface
 
   # :inherit:
-  def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Bool
-    argument.instance_of?(::Enum) && request.attributes.has?(argument.name, String)
-  end
-
-  # :inherit:
-  def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
+  def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata(T)) : T? forall T
     return unless argument.instance_of? ::Enum
     return unless (enum_type = argument.first_type_of ::Enum)
     return unless (value = request.attributes.get? argument.name, String)
