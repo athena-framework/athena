@@ -28,21 +28,6 @@ module Athena::Framework::Arguments::Resolvers::Interface
     ACF.configuration_annotation {{@type}}::{{name.id}}{% unless args.empty? %}, {{args.splat}}{% end %}
   end
 
-  # Returns `true` if the provided *argument* is one of this resolver's `SupportedTypes`.
-  abstract def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Bool
-
-  module Typed(*SupportedTypes)
-    include Athena::Framework::Arguments::Resolvers::Interface
-
-    def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Bool
-      {% for t in SupportedTypes %}
-        return true if argument.instance_of? {{"::#{t}".id}}
-      {% end %}
-
-      false
-    end
-  end
-
   # Returns a value resolved from the provided *request* and *argument*.
   abstract def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
 end

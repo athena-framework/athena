@@ -61,11 +61,10 @@ class DeserializableMockSerializer(T) < MockSerializer
   end
 end
 
-macro create_action(return_type = String, param_converters = nil, &)
+macro create_action(return_type = String, &)
   ATH::Action.new(
     Proc(typeof(Tuple.new), {{return_type}}).new { {{yield}} },
-    Array(ATH::Arguments::ArgumentMetadata(Nil)).new,
-    {{param_converters ? param_converters : "Tuple.new".id}},
+    Tuple.new,
     ACF::AnnotationConfigurations.new,
     Array(ATH::Params::ParamInterface).new,
     TestController,
@@ -89,7 +88,6 @@ def new_action(
 ) : ATH::ActionBase
   ATH::Action.new(
     Proc(typeof(Tuple.new), String).new { test_controller = TestController.new; test_controller.get_test },
-    arguments || Array(ATH::Arguments::ArgumentMetadata(Nil)).new,
     Tuple.new,
     annotation_configurations || ACF::AnnotationConfigurations.new,
     params,

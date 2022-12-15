@@ -14,9 +14,9 @@ struct Athena::Framework::Arguments::ArgumentMetadata(T)
 
   protected def initialize(
     @name : String,
-    @annotation_configurations : ACF::AnnotationConfigurations,
     @has_default : Bool = false,
-    @default_value : T? = nil
+    @default_value : T? = nil,
+    @annotation_configurations : ACF::AnnotationConfigurations = ACF::AnnotationConfigurations.new
   ); end
 
   # If `nil` is a valid argument for the argument.

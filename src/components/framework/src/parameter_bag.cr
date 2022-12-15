@@ -64,7 +64,7 @@ struct Athena::Framework::ParameterBag
 
   # Returns the value of the parameter with the provided *name* casted to the provided *type* if it exists, otherwise `nil`.
   def get?(name : String, type : T?.class) : T? forall T
-    self.get?(name).as T?
+    self.get?(name).as? T?
   end
 
   # Returns the value of the parameter with the provided *name*.
@@ -90,7 +90,7 @@ struct Athena::Framework::ParameterBag
     # Returns the value of the parameter with the provided *name* as a `{{type}}`, or `nil` if it does not exist.
     def get?(name : String, _type : {{type}}?.class) : {{type}}?
       return nil unless (value = self.get? name)
-      {{type}}.from_parameter(value).as {{type}}?
+      {{type}}.from_parameter?(value).as? {{type}}?
     end
   {% end %}
 

@@ -7,7 +7,7 @@ abstract struct Athena::Framework::ActionBase; end
 #
 # Includes metadata about the endpoint, such as its controller, arguments, return type, and the action that should be executed.
 struct Athena::Framework::Action(Controller, ReturnType, ArgTypeTuple, ArgumentsType) < Athena::Framework::ActionBase
-  # Returns an `Array(ATH::Arguments::ArgumentMetadata)` that `self` requires.
+  # Returns a tuple of `ATH::Arguments::ArgumentMetadata` representing the arguments this route expects.
   getter arguments : ArgumentsType
 
   # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to `self`.
@@ -49,19 +49,27 @@ struct Athena::Framework::Action(Controller, ReturnType, ArgTypeTuple, Arguments
   # See https://forum.crystal-lang.org/t/incorrect-overload-selected-with-freevar-and-generic-inheritance/3625.
   protected def resolve_arguments(resolvers : Array(ATHR::Interface), request : ATH::Request) : Array
     {% begin %}
-      {
-        {% for idx in (0...ArgumentsType.size) %}
-          begin
-            %argument = @arguments[{{idx}}]
-            
-            if resolver = resolvers.find &.supports? request, %argument
-              resolver.resolve request, %argument
-            else
-              raise RuntimeError.new %(Could not resolve required argument '#{%argument.name}' for '#{request.attributes.get "_route"}'.)
-            end
-          end,
-        {% end %}
-      }.to_a
+      {% if 0 == ArgumentsType.size %}
+        Tuple.new.to_a
+      {% else %}
+        {
+          {% for idx in (0...ArgumentsType.size) %}
+            begin
+              %argument = @arguments[{{idx}}]
+
+              value = nil
+
+              resolvers.each do |resolver|
+                resolver.resolve(request, %argument).try do |v|
+                  value = v
+                end
+              end
+
+              value
+            end,
+          {% end %}
+        }.to_a
+      {% end %}
     {% end %}
   end
 
