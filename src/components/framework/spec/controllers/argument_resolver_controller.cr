@@ -1,15 +1,4 @@
-@[ADI::Register(tags: [{name: ATH::Arguments::Resolvers::TAG}])]
-class GenericCustomResolver
-  include Athena::Framework::Arguments::Resolvers::Interface
-
-  def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata(T)) : Int32? forall T
-    case T
-    when Int32.class then 1
-    end
-  end
-end
-
-@[ADI::Register(tags: [{name: ATH::Arguments::Resolvers::TAG}])]
+@[ADI::Register(tags: [{name: ATH::Arguments::Resolvers::TAG, priority: 101}])]
 class GenericAnnotationEnabledCustomResolver
   include Athena::Framework::Arguments::Resolvers::Interface
 
@@ -33,13 +22,8 @@ end
 
 @[ARTA::Route(path: "/param-converter")]
 class ArgumentResolverController < ATH::Controller
-  @[ARTA::Post("")]
-  def happy_path1(value : Int32 = 0) : Int32
-    value
-  end
-
   @[ARTA::Post("/float")]
-  def happy_path2(
+  def happy_path1(
     @[GenericAnnotationEnabledCustomResolver::Enable]
     value : Float64
   ) : Float64
@@ -47,7 +31,7 @@ class ArgumentResolverController < ATH::Controller
   end
 
   @[ARTA::Post("/string")]
-  def happy_path3(
+  def happy_path2(
     @[GenericAnnotationEnabledCustomResolver::Enable]
     value : String
   ) : String
