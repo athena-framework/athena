@@ -1,7 +1,7 @@
-require "./argument_resolvers/interface"
+require "./value_resolvers/interface"
 require "./argument_resolver_interface"
 
-ADI.bind argument_resolvers : Array(Athena::Framework::Controller::ArgumentResolvers::Interface), "!athena.argument_value_resolver"
+ADI.bind argument_resolvers : Array(Athena::Framework::Controller::ValueResolvers::Interface), "!athena.controller.value_resolver"
 
 @[ADI::Register]
 # The default implementation of `ATH::Controller::ArgumentResolverInterface`.

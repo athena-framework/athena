@@ -52,8 +52,8 @@ alias ATH = Athena::Framework
 # Convenience alias to make referencing `Athena::Framework::Annotations` types easier.
 alias ATHA = ATH::Annotations
 
-# Convenience alias to make referencing `ATH::Controller::ArgumentResolvers` types easier.
-alias ATHR = ATH::Controller::ArgumentResolvers
+# Convenience alias to make referencing `ATH::Controller::ValueResolvers` types easier.
+alias ATHR = ATH::Controller::ValueResolvers
 
 # See the [external documentation](https://athenaframework.org) for an introduction to `Athena`.
 #
@@ -61,7 +61,8 @@ alias ATHR = ATH::Controller::ArgumentResolvers
 module Athena::Framework
   VERSION = "0.17.1"
 
-  # Athena includes a few built-in resolvers that run in the following order:
+  # This type includes all of the built-in resolvers that Athena uses to try and resolve an argument for a particular controller action parameter.
+  # They run in the following order:
   #
   # 1. `ATHR::Enum` (105) - Attempts to resolve a value from `ATH::Request#attributes` into an enum member of the related type.
   # Works well in conjunction with `ART::Requirement::Enum`.
@@ -81,7 +82,9 @@ module Athena::Framework
   # 1. `ATHR::DefaultValue` (-100) - Provides the default value of the parameter if it has one, or `nil` if it is nilable.
   #
   # See each resolver for more detailed information.
-  module Controller::ArgumentResolvers; end
+  # Custom resolvers may also be defined.
+  # See `ATHR::Interface` for more information.
+  module Controller::ValueResolvers; end
 
   # The `AED::Event` that are emitted via `Athena::EventDispatcher` to handle a request during its life-cycle.
   # Custom events can also be defined and dispatched within a controller, listener, or some other service.

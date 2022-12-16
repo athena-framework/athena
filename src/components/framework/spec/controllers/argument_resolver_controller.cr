@@ -1,4 +1,4 @@
-@[ADI::Register(tags: [{name: ATH::Controller::ArgumentResolverInterface::TAG, priority: 101}])]
+@[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 101}])]
 class GenericAnnotationEnabledCustomResolver
   include ATHR::Interface
 

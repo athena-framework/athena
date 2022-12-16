@@ -8,7 +8,7 @@ struct Athena::Framework::Controller::ParameterMetadata(T)
 
   # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to this argument.
   #
-  # These configurations could then be accessed within `ATH::Controller::ArgumentResolverInterface`s and/or `ATH::Listeners`s.
+  # These configurations could then be accessed within `ATHR::Interface`s and/or `ATH::Listeners`s.
   getter annotation_configurations : ACF::AnnotationConfigurations
 
   protected def initialize(

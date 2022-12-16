@@ -1,4 +1,4 @@
-@[ADI::Register(tags: [{name: ATH::Controller::ArgumentResolverInterface::TAG, priority: 105}])]
+@[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 105}])]
 # Attempts to parse a date(time) string into a `::Time` instance.
 #
 # Optionally allows specifying the *format* and *location* to use when parsing the string via the `ATHR::Time::Format` annotation.
@@ -28,8 +28,8 @@
 #
 # # GET /event/2020-04-07/2020-04-08T12:34:56Z
 # ```
-struct Athena::Framework::Controller::ArgumentResolvers::Time
-  include Athena::Framework::Controller::ArgumentResolvers::Interface
+struct Athena::Framework::Controller::ValueResolvers::Time
+  include Athena::Framework::Controller::ValueResolvers::Interface
 
   # Allows customing the time format and/or location used to parse the string datetime as part of the `ATHR::Time` resolver.
   # See the related resolver documentation for more information.

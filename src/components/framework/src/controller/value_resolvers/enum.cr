@@ -1,4 +1,4 @@
-@[ADI::Register(tags: [{name: ATH::Controller::ArgumentResolverInterface::TAG, priority: 105}])]
+@[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 105}])]
 # Handles resolving an [Enum](https://crystal-lang.org/api/Enum.html) member from a string value that is stored in the request's `ATH::Request#attributes`.
 # This resolver supports both numeric and string based parsing, returning a proper error response if the provided value does not map to any valid member.
 #
@@ -30,8 +30,8 @@
 # ```
 #
 # TIP: Checkout `ART::Requirement::Enum` for an easy way to restrict routing to an enum's members, or a subset of them.
-struct Athena::Framework::Controller::ArgumentResolvers::Enum
-  include Athena::Framework::Controller::ArgumentResolvers::Interface
+struct Athena::Framework::Controller::ValueResolvers::Enum
+  include Athena::Framework::Controller::ValueResolvers::Interface
 
   # :inherit:
   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata(T)) : T? forall T

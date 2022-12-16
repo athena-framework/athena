@@ -1,6 +1,6 @@
 require "uuid"
 
-@[ADI::Register(tags: [{name: ATH::Controller::ArgumentResolverInterface::TAG, priority: 105}])]
+@[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 105}])]
 # Handles resolving a [UUID](https://crystal-lang.org/api/UUID.html) from a string value that is stored in the request's `ATH::Request#attributes`.
 #
 # ```
@@ -19,8 +19,8 @@ require "uuid"
 # ```
 #
 # TIP: Checkout `ART::Requirement` for an easy way to restrict/validate the version of the UUID that is allowed.
-struct Athena::Framework::Controller::ArgumentResolvers::UUID
-  include Athena::Framework::Controller::ArgumentResolvers::Interface
+struct Athena::Framework::Controller::ValueResolvers::UUID
+  include Athena::Framework::Controller::ValueResolvers::Interface
 
   # :inherit:
   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata) : ::UUID?

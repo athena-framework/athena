@@ -1,10 +1,8 @@
-# Argument resolvers handle resolving the parameter(s) to pass to a controller action based on values stored within the `ATH::Request`, or some other source.
+# Value resolvers handle resolving the argument(s) to pass to a controller action based on values stored within the `ATH::Request`, or some other source.
 #
-# Custom resolvers can be defined by creating a service that implements this interface, and is tagged with `ATH::Controller::ArgumentResolverInterface::TAG`,
-# optionally with a priority to determine the order in which the resolvers are executed.
-#
+# Custom resolvers can be defined by creating a service that implements this interface, and is tagged with `ATHR::Interface::TAG`.
 # The tag also accepts an optional *priority* field the determines the order in which the resolvers execute.
-# The list of built in resolvers and their priorities can be found on the `ATH::Arguments::Resolvers` module.
+# The list of built in resolvers and their priorities can be found on the `ATH::Controller::ValueResolvers` module.
 #
 # WARNING: Resolvers that mutate a value already within the `ATH::Request#attributes`, such as one from a route or query parameter _MUST_ have a priority `>100`
 # to ensure the custom logic is applied before the raw value is resolved via the `ATHR::RequestAttribute` resolver.
@@ -17,7 +15,7 @@
 # For example:
 #
 # ```
-# @[ADI::Register(tags: [{name: ATH::Controller::ArgumentResolverInterface::TAG, priority: 10}])]
+# @[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 10}])]
 # struct CustomResolver
 #   include ATHR::Interface
 #
@@ -59,7 +57,7 @@
 #
 # ```
 # # The priority _MUST_ be `>100` to ensure the value isnt preemptively resolved by the `ATHR::RequestAttribute` resolver.
-# @[ADI::Register(tags: [{name: ATH::Controller::ArgumentResolverInterface::TAG, priority: 110}])]
+# @[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 110}])]
 # struct Multiply
 #   include ATHR::Interface
 #
@@ -104,7 +102,7 @@
 #
 # ```
 # # The priority _MUST_ be `>100` to ensure the value isnt preemptively resolved by the `ATHR::RequestAttribute` resolver.
-# @[ADI::Register(tags: [{name: ATH::Controller::ArgumentResolverInterface::TAG, priority: 110}])]
+# @[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 110}])]
 # struct Multiply
 #   include ATHR::Interface
 #
@@ -149,7 +147,7 @@
 #
 # ```
 # # The priority _MUST_ be `>100` to ensure the value isnt preemptively resolved by the `ATHR::RequestAttribute` resolver.
-# @[ADI::Register(tags: [{name: ATH::Controller::ArgumentResolverInterface::TAG, priority: 110}])]
+# @[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 110}])]
 # struct MyResolver
 #   include ATHR::Interface
 #
@@ -231,7 +229,7 @@
 # WARNING: Strict typing is _ONLY_ supported when a configuration annotation is used to enable the resolver.
 #
 # ```
-# @[ADI::Register(tags: [{name: ATH::Controller::ArgumentResolverInterface::TAG}])]
+# @[ADI::Register(tags: [{name: ATHR::Interface::TAG}])]
 # struct MyResolver
 #   # Multiple types may also be supplied by providing it a comma separated list.
 #   # If `nil` is a valid option, the `Nil` type should also be included.
@@ -272,20 +270,23 @@
 # ```
 #
 # Since `MyResolver` was defined to only support `String` types, a compile time error is raised when its annotation is applied to a non `String` parameter.
-# This feature pairs nicely with the [free var][Athena::Framework::Controller::ArgumentResolvers::Interface--free-vars] section as it essentially allows
+# This feature pairs nicely with the [free var][Athena::Framework::Controller::ValueResolvers::Interface--free-vars] section as it essentially allows
 # scoping the possible types of `T` to the set of types defined as part of the module.
-module Athena::Framework::Controller::ArgumentResolvers::Interface
+module Athena::Framework::Controller::ValueResolvers::Interface
+  # The tag name for `ATHR::Interface` services.
+  TAG = "athena.controller.value_resolver"
+
   # Helper macro around `ACF.configuration_annotation` that allows defining resolver specific annotations.
-  # See the underlying macro and the [configuration][Athena::Framework::Controller::ArgumentResolvers::Interface--configuration] section for more information.
+  # See the underlying macro and the [configuration][Athena::Framework::Controller::ValueResolvers::Interface--configuration] section for more information.
   macro configuration(name, *args)
     ACF.configuration_annotation ::{{@type}}::{{name.id}}{% unless args.empty? %}, {{args.splat}}{% end %}
   end
 
   # Represents an `ATHR::Interface` that only supports a subset of types.
   #
-  # See the [strict typing][Athena::Framework::Controller::ArgumentResolvers::Interface--strict-typing] section for more information.
+  # See the [strict typing][Athena::Framework::Controller::ValueResolvers::Interface--strict-typing] section for more information.
   module Typed(*SupportedTypes)
-    include Athena::Framework::Controller::ArgumentResolvers::Interface
+    include Athena::Framework::Controller::ValueResolvers::Interface
   end
 
   # Returns a value resolved from the provided *request* and *parameter* if possible, otherwise returns `nil` if no parameter could be resolved.

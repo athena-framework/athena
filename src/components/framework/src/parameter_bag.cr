@@ -28,7 +28,7 @@
 # class ExampleController < ATH::Controller
 #   # Define an action argument with the same name of the argument stored in attributes.
 #   #
-#   # The argument is resolved via `ATH::Arguments::Resolvers::RequestAttribute`.
+#   # The argument is resolved via `ATHR::RequestAttribute`.
 #   get "/", my_arg : String do
 #     my_arg
 #   end
