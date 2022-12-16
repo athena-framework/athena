@@ -86,16 +86,31 @@ module Athena::Framework
     TAG = "athena.event_dispatcher.listener"
   end
 
-  # Namespace for types related to controller action arguments.
+  # Namespace for types related to resolving controller action arguments.
   #
   # See `ATH::Arguments::ArgumentMetadata`.
   module Arguments; end
 
-  # The default `ATH::Arguments::Resolvers::ArgumentValueResolverInterface`s that will handle resolving controller action arguments from a request (or other source).
-  # Custom argument value resolvers can also be defined, see `ATH::Arguments::Resolvers::ArgumentValueResolverInterface`.
+  # The default `ATH::Arguments::Resolvers::Interface`s that will handle resolving controller action arguments from a request (or other source).
+  # Custom argument value resolvers can also be defined, see `ATH::Arguments::Resolvers::Interface`.
   #
-  # NOTE: In order for `Athena::Framework` to pick up your custom value resolvers, be sure to `ADI::Register` it as a service, and tag it as `ATH::Arguments::Resolvers::TAG`.
-  # A `priority` field can also be optionally included in the annotation, the higher the value the sooner in the array it'll be when injected.
+  # Athena includes a few built-in resolvers that run in the following order:
+  #
+  # 1. `ATHR::Enum` (105) - Attempts to resolve a value from `ATH::Request#attributes` into an enum member of the related type.
+  # Works well in conjunction with `ART::Requirement::Enum`.
+  #
+  # 1. `ATHR::Time` (105) - Attempts to resolve a value from the request attributes into a `::Time` instance, defaulting to [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339).
+  # Format/location can be customized via the `ATHR::Time::Format` annotation.
+  #
+  # 1. `ATHR::UUID` (105) - Attempts to resolve a value from the request attributes into a `::UUID` instance.
+  #
+  # 1. `ATHR::RequestBody` (105) - If enabled, attempts to deserialize the request body into the type of the related parameter, running any validations, if any.
+  #
+  # 1. `ATHR::RequestAttribute` (100) - Provides a value stored in `ATH::Request#attributes` if one with the same name as the action parameter exists.
+  #
+  # 1. `ATHR::Request` (50) - Provides the current `ATH::Request` if the related parameter is typed as such.
+  #
+  # 1. `ATHR::DefaultValue` (-100) - Provides the default value of the parameter if it has one, or `nil` if it is nilable.
   #
   # See each resolver for more detailed information.
   module Arguments::Resolvers

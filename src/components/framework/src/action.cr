@@ -7,10 +7,10 @@ abstract struct Athena::Framework::ActionBase; end
 #
 # Includes metadata about the endpoint, such as its controller, arguments, return type, and the action that should be executed.
 struct Athena::Framework::Action(Controller, ReturnType, ArgTypeTuple, ArgumentsType) < Athena::Framework::ActionBase
-  # Returns a tuple of `ATH::Arguments::ArgumentMetadata` representing the arguments this route expects.
+  # Returns a tuple of `ATH::Arguments::ArgumentMetadata` representing the arguments this action expects.
   getter arguments : ArgumentsType
 
-  # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to `self`.
+  # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to this action.
   #
   # These configurations could then be accessed within `ATH::ParamConverter`s and/or `ATH::Listeners`s.
   # See `ATH::Events::RequestAware` for an example.
@@ -28,17 +28,17 @@ struct Athena::Framework::Action(Controller, ReturnType, ArgTypeTuple, Arguments
     _return_type : ReturnType.class
   ); end
 
-  # The type that `self`'s route should return.
+  # Returns the type that this action returns.
   def return_type : ReturnType.class
     ReturnType
   end
 
-  # The `ATH::Controller` that includes `self`.
+  # Returns the `ATH::Controller` that this action is a part of.
   def controller : Controller.class
     Controller
   end
 
-  # Executes the action related to `self` with the provided *arguments* array.
+  # Executes this action with the provided *arguments* array.
   def execute(arguments : Array) : ReturnType
     @action.call {{ArgTypeTuple.type_vars.empty? ? "Tuple.new".id : ArgTypeTuple}}.from arguments
   end

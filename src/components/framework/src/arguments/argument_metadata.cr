@@ -6,10 +6,9 @@ struct Athena::Framework::Arguments::ArgumentMetadata(T)
   # Returns `true` if this argument has a default value set, otherwise `false`.
   getter? has_default : Bool
 
-  # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to `self`.
+  # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to this argument.
   #
-  # These configurations could then be accessed within `ATH::ParamConverter`s and/or `ATH::Listeners`s.
-  # See `ATH::Events::RequestAware` for an example.
+  # These configurations could then be accessed within `ATH::Arguments::ArgumentResolverInterface`s and/or `ATH::Listeners`s.
   getter annotation_configurations : ACF::AnnotationConfigurations
 
   protected def initialize(
