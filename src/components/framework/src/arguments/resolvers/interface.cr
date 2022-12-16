@@ -234,6 +234,7 @@
 # @[ADI::Register(tags: [{name: ATH::Arguments::Resolvers::TAG}])]
 # struct MyResolver
 #   # Multiple types may also be supplied by providing it a comma separated list.
+#   # If `nil` is a valid option, the `Nil` type should also be included.
 #   include ATHR::Interface::Typed(String)
 #
 #   configuration Enable
@@ -280,6 +281,9 @@ module Athena::Framework::Arguments::Resolvers::Interface
     ACF.configuration_annotation ::{{@type}}::{{name.id}}{% unless args.empty? %}, {{args.splat}}{% end %}
   end
 
+  # Represents an `ATHR::Interface` that only supports a subset of types.
+  #
+  # See the [strict typing][Athena::Framework::Arguments::Resolvers::Interface--strict-typing] section for more information.
   module Typed(*SupportedTypes)
     include Athena::Framework::Arguments::Resolvers::Interface
   end
