@@ -1,15 +1,15 @@
 require "./spec_helper"
 
-struct ParamConverterControllerTest < ATH::Spec::APITestCase
-  def test_happy_path : Nil
-    self.request("POST", "/param-converter").body.should eq "1"
+struct ArgumentResolverControllerTest < ATH::Spec::APITestCase
+  def test_happy_path1 : Nil
+    self.post("/param-converter").body.should eq "1"
   end
 
-  def test_single_additional_generic : Nil
-    self.request("POST", "/param-converter/single-additional").body.should eq "2"
+  def test_happy_path2 : Nil
+    self.post("/param-converter/float").body.should eq "3.14"
   end
 
-  def test_multiple_additional_generic : Nil
-    self.request("POST", "/param-converter/multiple-additional").body.should eq "4"
+  def test_happy_path3 : Nil
+    self.post("/param-converter/string").body.should eq %("fooo")
   end
 end
