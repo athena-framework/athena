@@ -47,7 +47,7 @@ struct Athena::Framework::Action(Controller, ReturnType, ArgTypeTuple, Arguments
   #
   # This is defined in here as opposed to `ATH::Controller::ArgumentResolver` so that the free vars are resolved correctly.
   # See https://forum.crystal-lang.org/t/incorrect-overload-selected-with-freevar-and-generic-inheritance/3625.
-  protected def resolve_arguments(resolvers : Array(ATHR::Interface), request : ATH::Request) : Array
+  protected def resolve_arguments(value_resolvers : Array(ATHR::Interface), request : ATH::Request) : Array
     {% begin %}
       {% if 0 == ArgumentsType.size %}
         Tuple.new.to_a
@@ -64,7 +64,7 @@ struct Athena::Framework::Action(Controller, ReturnType, ArgTypeTuple, Arguments
               # assuming the argument accepts nil, otherwise an error is raised.
               # TODO: Determine if that is robust enough, or we need some other implementation.
 
-               value = resolvers.each do |resolver|
+               value = value_resolvers.each do |resolver|
                 resolved_value = resolver.resolve request, %argument
                 break resolved_value unless resolved_value.nil?
               end
