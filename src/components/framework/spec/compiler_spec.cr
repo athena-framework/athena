@@ -377,21 +377,20 @@ describe Athena::Framework do
       end
     end
 
-    # describe ATH::RequestBodyConverter do
-    #   it "when the action argument is not serializable" do
-    #     assert_error "'Athena::Framework::RequestBodyConverter' cannot convert 'Foo', as it is not serializable. 'Foo' must include `JSON::Serializable` or `ASR::Serializable`.", <<-CODE
-    #       record Foo, text : String
+    describe ATHR::RequestBody do
+      it "when the action argument is not serializable" do
+        assert_error " The annotation '@[ATHR::RequestBody::Extract]' cannot be applied to 'CompileController#action:foo : Foo' since the 'Athena::Framework::Arguments::Resolvers::RequestBody' resolver only supports parameters of type 'Athena::Serializer::Serializable | JSON::Serializable'.", <<-CODE
+          record Foo, text : String
 
-    #       class CompileController < ATH::Controller
-    #         @[ARTA::Get(path: "/")]
-    #         @[ATHA::ParamConverter("foo", converter: ATH::RequestBodyConverter)]
-    #         def action(foo : Foo) : Foo
-    #           foo
-    #         end
-    #       end
-    #     CODE
-    #   end
-    # end
+          class CompileController < ATH::Controller
+            @[ARTA::Get(path: "/")]
+            def action(@[ATHR::RequestBody::Extract] foo : Foo) : Foo
+              foo
+            end
+          end
+        CODE
+      end
+    end
 
     describe ATHA::QueryParam do
       it "missing name" do
@@ -483,44 +482,6 @@ describe Athena::Framework do
           end
         end
       end
-
-      # describe "converter" do
-      #   it "disallows non NamedTuple and Paths" do
-      #     assert_error "Route action 'CompileController#action' has an Athena::Framework::Annotations::QueryParam annotation with an invalid 'converter' type: 'StringLiteral'. Only NamedTuples, or the converter class are supported.", <<-CODE
-      #     class CompileController < ATH::Controller
-      #       @[ARTA::Get(path: "/")]
-      #       @[ATHA::QueryParam("all", converter: "foo")]
-      #       def action(all : Bool) : Int32
-      #         123
-      #       end
-      #     end
-      #   CODE
-      #   end
-
-      #   it "disallows non ATH::ParamConverter types" do
-      #     assert_error "Route action 'CompileController#action' has an Athena::Framework::Annotations::QueryParam annotation with an invalid 'converter' value. Expected 'ATH::ParamConverter.class' got 'Athena::Framework::Controller'.", <<-CODE
-      #     class CompileController < ATH::Controller
-      #       @[ARTA::Get(path: "/")]
-      #       @[ATHA::QueryParam("all", converter: ATH::Controller)]
-      #       def action(all : Bool) : Int32
-      #         123
-      #       end
-      #     end
-      #   CODE
-      #   end
-
-      #   it "requires the name to be provided when using a NamedTuple" do
-      #     assert_error "Route action 'CompileController#action' has an Athena::Framework::Annotations::QueryParam annotation with an invalid 'converter'. The converter's name was not provided via the 'name' field.", <<-CODE
-      #     class CompileController < ATH::Controller
-      #       @[ARTA::Get(path: "/")]
-      #       @[ATHA::QueryParam("all", converter: {format: "%Y--%m//%d %T"})]
-      #       def action(all : Bool) : Int32
-      #         123
-      #       end
-      #     end
-      #   CODE
-      #   end
-      # end
     end
 
     # This is essentially the same as `ATHA::QueryParam`.

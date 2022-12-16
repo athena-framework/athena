@@ -2,7 +2,7 @@
 struct Athena::Framework::Arguments::Resolvers::RequestBody
   include Athena::Framework::Arguments::Resolvers::Interface::Typed(Athena::Serializer::Serializable, JSON::Serializable)
 
-  configuration Enable
+  configuration Extract
 
   def initialize(
     @serializer : ASR::SerializerInterface,
@@ -11,7 +11,7 @@ struct Athena::Framework::Arguments::Resolvers::RequestBody
 
   # :inherit:
   def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata(T)) : T? forall T
-    return unless argument.annotation_configurations.has? Enable
+    return unless argument.annotation_configurations.has? Extract
 
     if !(body = request.body) || body.peek.try &.empty?
       raise ATH::Exceptions::BadRequest.new "Request does not have a body."

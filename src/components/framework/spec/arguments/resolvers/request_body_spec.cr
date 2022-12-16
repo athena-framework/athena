@@ -103,8 +103,8 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     ATH::Arguments::ArgumentMetadata(T).new(
       "foo",
       annotation_configurations: ACF::AnnotationConfigurations.new({
-        Athena::Framework::Arguments::Resolvers::RequestBody::Enable => [
-          Athena::Framework::Arguments::Resolvers::RequestBody::EnableConfiguration.new,
+        Athena::Framework::Arguments::Resolvers::RequestBody::Extract => [
+          Athena::Framework::Arguments::Resolvers::RequestBody::ExtractConfiguration.new,
         ] of ACF::AnnotationConfigurations::ConfigurationBase,
       } of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase))
     )

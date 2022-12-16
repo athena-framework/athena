@@ -277,35 +277,10 @@ module Athena::Framework::Routing::AnnotationRouteLoader
 
                 ann_args[:requirements] = requirements
 
-                # Handle query param specific param converters
-                if converter = ann_args[:converter]
-                  if converter.is_a?(NamedTupleLiteral)
-                    converter_args = converter
-                    converter_args[:converter] = converter_args[:name] || converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter'. The converter's name was not provided via the 'name' field."
-                    converter_args[:name] = arg_name
-                  elsif converter.is_a? Path
-                    unless converter.resolve <= ATH::ParamConverter
-                      converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter' value. Expected 'ATH::ParamConverter.class' got '#{converter.resolve.id}'."
-                    end
-
-                    converter_args = {converter: converter.resolve, name: arg_name}
-                  else
-                    converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter' type: '#{converter.class_name.id}'. Only NamedTuples, or the converter class are supported."
-                  end
-
-                  configuration_type = converter_args[:type_vars] != nil ? "Configuration(#{arg.restriction}, #{converter_args[:type_vars].is_a?(Path) ? converter_args[:type_vars].id : converter_args[:type_vars].splat})" : "Configuration(#{arg.restriction})"
-                  configuration_args = {name: converter_args[:name]}
-                  converter_args.to_a.select { |(k, _)| k != :type_vars }.each { |(k, v)| configuration_args[k] = v }
-                  param_converters << %(#{converter_args[:converter].resolve}::#{configuration_type.id}.new(#{configuration_args.double_splat})).id
-                end
-
                 # Non strict parameters must be nilable or have a default value.
                 if ann_args[:strict] == false && !arg.restriction.resolve.nilable? && arg.default_value.is_a?(Nop)
                   ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with `strict: false` but the related action argument is not nilable nor has a default value."
                 end
-
-                # TODO: Use `.delete :converter` and remove `converter` argument from `ScalarParam`.
-                ann_args[:converter] = nil
 
                 params << %(#{param_class}(#{arg.restriction}).new(
                   name: #{arg_name},
@@ -356,156 +331,156 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             )
           {% end %}
 
-            {%
-              paths = {} of Nil => Nil
-              defaults = {} of Nil => Nil
-              requirements = {} of Nil => Nil
+          {%
+            paths = {} of Nil => Nil
+            defaults = {} of Nil => Nil
+            requirements = {} of Nil => Nil
 
-              # Resolve `ART::Route` data from the route annotation and globals.
+            # Resolve `ART::Route` data from the route annotation and globals.
 
-              globals[:defaults].each { |k, v| defaults[k] = v }
-              globals[:requirements].each { |k, v| requirements[k] = v }
+            globals[:defaults].each { |k, v| defaults[k] = v }
+            globals[:requirements].each { |k, v| requirements[k] = v }
 
-              if (value = route_def[:locale]) != nil
-                value.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral' for its '#{route_def.name}#locale' field, but got a '#{value.class_name.id}'." unless value.is_a? StringLiteral
-                defaults["_locale"] = value
+            if (value = route_def[:locale]) != nil
+              value.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral' for its '#{route_def.name}#locale' field, but got a '#{value.class_name.id}'." unless value.is_a? StringLiteral
+              defaults["_locale"] = value
+            end
+
+            if (value = route_def[:format]) != nil
+              value.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral' for its '#{route_def.name}#format' field, but got a '#{value.class_name.id}'." unless value.is_a? StringLiteral
+              defaults["_format"] = value
+            end
+
+            if route_def[:stateless] != nil
+              value = route_def[:stateless]
+
+              value.raise "Route action '#{klass.name}##{m.name}' expects a 'BoolLiteral' for its '#{route_def.name}#stateless' field, but got a '#{value.class_name.id}'." unless value.is_a? BoolLiteral
+              defaults["_stateless"] = value
+            end
+            if ann_defaults = route_def[:defaults]
+              unless ann_defaults.is_a? HashLiteral
+                ann_defaults.raise "Route action '#{klass.name}##{m.name}' expects a 'HashLiteral(StringLiteral, _)' for its '#{route_def.name}#defaults' field, but got a '#{ann_defaults.class_name.id}'."
               end
 
-              if (value = route_def[:format]) != nil
-                value.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral' for its '#{route_def.name}#format' field, but got a '#{value.class_name.id}'." unless value.is_a? StringLiteral
-                defaults["_format"] = value
+              ann_defaults.each { |k, v| defaults[k] = v }
+            end
+
+            if ann_requirements = route_def[:requirements]
+              unless ann_requirements.is_a? HashLiteral
+                ann_requirements.raise "Route action '#{klass.name}##{m.name}' expects a 'HashLiteral(StringLiteral, StringLiteral | RegexLiteral)' for its '#{route_def.name}#requirements' field, but got a '#{ann_requirements.class_name.id}'."
               end
 
-              if route_def[:stateless] != nil
-                value = route_def[:stateless]
-
-                value.raise "Route action '#{klass.name}##{m.name}' expects a 'BoolLiteral' for its '#{route_def.name}#stateless' field, but got a '#{value.class_name.id}'." unless value.is_a? BoolLiteral
-                defaults["_stateless"] = value
+              ann_requirements.each do |k, v|
+                requirements[k] = if v.is_a?(StringLiteral) || v.is_a?(RegexLiteral)
+                                    v
+                                  else
+                                    "#{v}.to_s".id
+                                  end
               end
-              if ann_defaults = route_def[:defaults]
-                unless ann_defaults.is_a? HashLiteral
-                  ann_defaults.raise "Route action '#{klass.name}##{m.name}' expects a 'HashLiteral(StringLiteral, _)' for its '#{route_def.name}#defaults' field, but got a '#{ann_defaults.class_name.id}'."
-                end
+            end
 
-                ann_defaults.each { |k, v| defaults[k] = v }
+            if (value = route_def[:host]) != nil
+              if !value.is_a?(StringLiteral) && !value.is_a?(RegexLiteral)
+                value.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral | RegexLiteral' for its '#{route_def.name}#host' field, but got a '#{value.class_name.id}'."
               end
+            end
 
-              if ann_requirements = route_def[:requirements]
-                unless ann_requirements.is_a? HashLiteral
-                  ann_requirements.raise "Route action '#{klass.name}##{m.name}' expects a 'HashLiteral(StringLiteral, StringLiteral | RegexLiteral)' for its '#{route_def.name}#requirements' field, but got a '#{ann_requirements.class_name.id}'."
-                end
-
-                ann_requirements.each do |k, v|
-                  requirements[k] = if v.is_a?(StringLiteral) || v.is_a?(RegexLiteral)
-                                      v
-                                    else
-                                      "#{v}.to_s".id
-                                    end
-                end
+            if (value = route_def[:priority]) != nil
+              if !value.is_a?(NumberLiteral)
+                value.raise "Route action '#{klass.name}##{m.name}' expects a 'NumberLiteral' for its '#{route_def.name}#priority' field, but got a '#{value.class_name.id}'."
               end
+            end
 
-              if (value = route_def[:host]) != nil
-                if !value.is_a?(StringLiteral) && !value.is_a?(RegexLiteral)
-                  value.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral | RegexLiteral' for its '#{route_def.name}#host' field, but got a '#{value.class_name.id}'."
-                end
+            if (value = route_def[:condition]) != nil
+              if !value.is_a?(Call) || value.receiver.resolve != ART::Route::Condition
+                value.raise "Route action '#{klass.name}##{m.name}' expects an 'ART::Route::Condition' for its '#{route_def.name}#condition' field, but got a '#{value.class_name.id}'."
               end
+            end
 
-              if (value = route_def[:priority]) != nil
-                if !value.is_a?(NumberLiteral)
-                  value.raise "Route action '#{klass.name}##{m.name}' expects a 'NumberLiteral' for its '#{route_def.name}#priority' field, but got a '#{value.class_name.id}'."
-                end
-              end
+            schemes = (globals[:schemes] + (route_def[:schemes] || [] of Nil)).uniq
+            methods = (globals[:methods] + methods).uniq
+            priority = route_def[:priority] || globals[:priority]
+            host = route_def[:host] || globals[:host]
 
-              if (value = route_def[:condition]) != nil
-                if !value.is_a?(Call) || value.receiver.resolve != ART::Route::Condition
-                  value.raise "Route action '#{klass.name}##{m.name}' expects an 'ART::Route::Condition' for its '#{route_def.name}#condition' field, but got a '#{value.class_name.id}'."
-                end
-              end
+            condition = route_def[:condition] || globals[:condition]
+            priority = route_def[:priority] || globals[:priority]
 
-              schemes = (globals[:schemes] + (route_def[:schemes] || [] of Nil)).uniq
-              methods = (globals[:methods] + methods).uniq
-              priority = route_def[:priority] || globals[:priority]
-              host = route_def[:host] || globals[:host]
+            unless (path = route_def[:localized_paths] || route_def[0] || route_def[:path])
+              m.raise "Route action '#{klass.name}##{m.name}' is missing its path."
+            end
 
-              condition = route_def[:condition] || globals[:condition]
-              priority = route_def[:priority] || globals[:priority]
+            if !path.is_a?(StringLiteral) && !path.is_a?(HashLiteral)
+              path.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral | HashLiteral(StringLiteral, StringLiteral)' for its '#{route_def.name}#path' field, but got a '#{path.class_name.id}'."
+            end
 
-              unless (path = route_def[:localized_paths] || route_def[0] || route_def[:path])
-                m.raise "Route action '#{klass.name}##{m.name}' is missing its path."
-              end
+            prefix = globals[:localized_paths] || globals[:path]
 
-              if !path.is_a?(StringLiteral) && !path.is_a?(HashLiteral)
-                path.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral | HashLiteral(StringLiteral, StringLiteral)' for its '#{route_def.name}#path' field, but got a '#{path.class_name.id}'."
-              end
-
-              prefix = globals[:localized_paths] || globals[:path]
-
-              # Process path/prefix values to a hash of paths that should be created.
-              if path.is_a? HashLiteral
-                if !prefix.is_a? HashLiteral
-                  path.each { |locale, locale_path| paths[locale] = "#{prefix.id}#{locale_path.id}" }
-                elsif !(missing = prefix.keys.reject { |k| path[k] }).empty?
-                  m.raise "Route action '#{klass.name}##{m.name}' is missing paths for locale(s) '#{missing.join(",").id}'."
-                else
-                  path.each do |locale, locale_path|
-                    if prefix[locale] == nil
-                      m.raise "Route action '#{klass.name}##{m.name}' is missing a corresponding route prefix for the '#{locale.id}' locale."
-                    end
-
-                    paths[locale] = "#{prefix[locale].id}#{locale_path.id}"
-                  end
-                end
-              elsif prefix.is_a? HashLiteral
-                prefix.each { |locale, locale_prefix| paths[locale] = "#{locale_prefix.id}#{path.id}" }
+            # Process path/prefix values to a hash of paths that should be created.
+            if path.is_a? HashLiteral
+              if !prefix.is_a? HashLiteral
+                path.each { |locale, locale_path| paths[locale] = "#{prefix.id}#{locale_path.id}" }
+              elsif !(missing = prefix.keys.reject { |k| path[k] }).empty?
+                m.raise "Route action '#{klass.name}##{m.name}' is missing paths for locale(s) '#{missing.join(",").id}'."
               else
-                paths["_default"] = "#{prefix.id}#{path.id}"
-              end
+                path.each do |locale, locale_path|
+                  if prefix[locale] == nil
+                    m.raise "Route action '#{klass.name}##{m.name}' is missing a corresponding route prefix for the '#{locale.id}' locale."
+                  end
 
-              m.args.each do |arg|
-                paths.each do |_, pth|
-                  pth.split('/').each do |p|
-                    if p.starts_with?("{#{arg.name}") && defaults[arg.name.stringify] == nil && !arg.default_value.is_a?(Nop) && p =~ /\{\w+(?:<.*?>)?\}/
-                      defaults[arg.name.stringify] = arg.default_value
-                    end
+                  paths[locale] = "#{prefix[locale].id}#{locale_path.id}"
+                end
+              end
+            elsif prefix.is_a? HashLiteral
+              prefix.each { |locale, locale_prefix| paths[locale] = "#{locale_prefix.id}#{path.id}" }
+            else
+              paths["_default"] = "#{prefix.id}#{path.id}"
+            end
+
+            m.args.each do |arg|
+              paths.each do |_, pth|
+                pth.split('/').each do |p|
+                  if p.starts_with?("{#{arg.name}") && defaults[arg.name.stringify] == nil && !arg.default_value.is_a?(Nop) && p =~ /\{\w+(?:<.*?>)?\}/
+                    defaults[arg.name.stringify] = arg.default_value
                   end
                 end
+              end
+            end
+          %}
+
+          {% for locale, path in paths %}
+            {%
+              r_name = route_name
+              r_defaults = defaults
+              r_requirements = requirements
+
+              if locale != "_default"
+                r_defaults["_locale"] = locale
+                r_requirements["_locale"] = "Regex.escape(#{locale})".id
+                r_defaults["_canonical_route"] = r_name
+                r_name = "#{route_name.id}.#{locale.id}"
               end
             %}
 
-            {% for locale, path in paths %}
-              {%
-                r_name = route_name
-                r_defaults = defaults
-                r_requirements = requirements
+            %route{path} = ART::Route.new(
+              path: {{path}},
+              defaults: {{r_defaults.empty? ? "Hash(String, String?).new".id : r_defaults}},
+              requirements: {{r_requirements}} of String => Regex | String,
+              host: {{host}},
+              schemes: {{schemes.empty? ? nil : schemes}},
+              methods: {{methods.empty? ? nil : methods}},
+              condition: {{condition}}
+            )
 
-                if locale != "_default"
-                  r_defaults["_locale"] = locale
-                  r_requirements["_locale"] = "Regex.escape(#{locale})".id
-                  r_defaults["_canonical_route"] = r_name
-                  r_name = "#{route_name.id}.#{locale.id}"
-                end
-              %}
-
-              %route{path} = ART::Route.new(
-                path: {{path}},
-                defaults: {{r_defaults.empty? ? "Hash(String, String?).new".id : r_defaults}},
-                requirements: {{r_requirements}} of String => Regex | String,
-                host: {{host}},
-                schemes: {{schemes.empty? ? nil : schemes}},
-                methods: {{methods.empty? ? nil : methods}},
-                condition: {{condition}}
-              )
-
-              %collection{c_idx}.add({{r_name}}, %route{path}, {{priority}})
-            {% end %}
+            %collection{c_idx}.add({{r_name}}, %route{path}, {{priority}})
           {% end %}
-
-          collection.add %collection{c_idx}
         {% end %}
+
+        collection.add %collection{c_idx}
       {% end %}
+    {% end %}
 
-      ART.compile collection
+    ART.compile collection
 
-      collection
+    collection
   end
 end
