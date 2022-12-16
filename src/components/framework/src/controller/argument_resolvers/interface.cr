@@ -1,6 +1,6 @@
-# Argument resolvers handle resolving the argument(s) to pass to a controller action based on values stored within the `ATH::Request`, or some other source.
+# Argument resolvers handle resolving the parameter(s) to pass to a controller action based on values stored within the `ATH::Request`, or some other source.
 #
-# Custom resolvers can be defined by creating a service that implements this interface, and is tagged with `ATH::Arguments::Resolvers::TAG`,
+# Custom resolvers can be defined by creating a service that implements this interface, and is tagged with `ATH::Controller::ArgumentResolverInterface::TAG`,
 # optionally with a priority to determine the order in which the resolvers are executed.
 #
 # The tag also accepts an optional *priority* field the determines the order in which the resolvers execute.
@@ -9,22 +9,22 @@
 # WARNING: Resolvers that mutate a value already within the `ATH::Request#attributes`, such as one from a route or query parameter _MUST_ have a priority `>100`
 # to ensure the custom logic is applied before the raw value is resolved via the `ATHR::RequestAttribute` resolver.
 #
-# The first resolver to return a value wins and no other resolvers will be executed for that particular argument.
+# The first resolver to return a value wins and no other resolvers will be executed for that particular parameter.
 # The resolver should return `nil` to denote no value could be resolved,
-# such as if the argument is of the wrong type, does not have a specific annotation applied, or anything else that can be deduced from either argument.
-# If no resolver is able to resole a value for a specific argument, an error is thrown and processing of the request ceases.
+# such as if the parameter is of the wrong type, does not have a specific annotation applied, or anything else that can be deduced from either parameter.
+# If no resolver is able to resole a value for a specific parameter, an error is thrown and processing of the request ceases.
 #
 # For example:
 #
 # ```
-# @[ADI::Register(tags: [{name: ATH::Arguments::Resolvers::TAG, priority: 10}])]
+# @[ADI::Register(tags: [{name: ATH::Controller::ArgumentResolverInterface::TAG, priority: 10}])]
 # struct CustomResolver
 #   include ATHR::Interface
 #
 #   # :inherit:
-#   def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : MyCustomType?
-#     # Return early if a value is unresolvable from the current *request* and/or *argument*.
-#     return if argument.type != MyCustomType
+#   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata) : MyCustomType?
+#     # Return early if a value is unresolvable from the current *request* and/or *parameter*.
+#     return if parameter.type != MyCustomType
 #
 #     # Return the resolved value. It could either come from the request itself, an injected service, or hard coded.
 #     MyCustomType.new "foo"
@@ -50,30 +50,30 @@
 #
 # ## Configuration
 #
-# In some cases, the request and argument themselves may not be enough to know if a resolver should try to resolve a value or not.
+# In some cases, the request and parameter themselves may not be enough to know if a resolver should try to resolve a value or not.
 # A naive example would be say you want to have a resolver that multiplies certain `Int32` parameters by `10`.
-# It wouldn't be enough to just check if the argument is an `Int32` as that leaves too much room for unexpected contexts to be resolved unexpectedly.
+# It wouldn't be enough to just check if the parameter is an `Int32` as that leaves too much room for unexpected contexts to be resolved unexpectedly.
 # For such cases a `.configuration` annotation type may be defined to allow marking the specific parameters the related resolver should apply to.
 #
 # For example:
 #
 # ```
 # # The priority _MUST_ be `>100` to ensure the value isnt preemptively resolved by the `ATHR::RequestAttribute` resolver.
-# @[ADI::Register(tags: [{name: ATH::Arguments::Resolvers::TAG, priority: 110}])]
+# @[ADI::Register(tags: [{name: ATH::Controller::ArgumentResolverInterface::TAG, priority: 110}])]
 # struct Multiply
 #   include ATHR::Interface
 #
 #   configuration This
 #
 #   # :inherit:
-#   def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Int32?
+#   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata) : Int32?
 #     # Return early if the controller action parameter doesn't have the annotation.
-#     return unless argument.annotation_configurations.has? This
+#     return unless parameter.annotation_configurations.has? This
 #
 #     # Return early if the parameter type is not `Int32`.
-#     return if argument.type != Int32
+#     return if parameter.type != Int32
 #
-#     request.attributes.get(argument.name, Int32) * 10
+#     request.attributes.get(parameter.name, Int32) * 10
 #   end
 # end
 #
@@ -104,21 +104,21 @@
 #
 # ```
 # # The priority _MUST_ be `>100` to ensure the value isnt preemptively resolved by the `ATHR::RequestAttribute` resolver.
-# @[ADI::Register(tags: [{name: ATH::Arguments::Resolvers::TAG, priority: 110}])]
+# @[ADI::Register(tags: [{name: ATH::Controller::ArgumentResolverInterface::TAG, priority: 110}])]
 # struct Multiply
 #   include ATHR::Interface
 #
 #   configuration This, multiplier : Int32 = 10
 #
 #   # :inherit:
-#   def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Int32?
+#   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata) : Int32?
 #     # Return early if the controller action parameter doesn't have the annotation.
-#     return unless (config = argument.annotation_configurations[This]?)
+#     return unless (config = parameter.annotation_configurations[This]?)
 #
 #     # Return early if the parameter type is not `Int32`.
-#     return if argument.type != Int32
+#     return if parameter.type != Int32
 #
-#     request.attributes.get(argument.name, Int32) * config.multiplier
+#     request.attributes.get(parameter.name, Int32) * config.multiplier
 #   end
 # end
 #
@@ -149,30 +149,30 @@
 #
 # ```
 # # The priority _MUST_ be `>100` to ensure the value isnt preemptively resolved by the `ATHR::RequestAttribute` resolver.
-# @[ADI::Register(tags: [{name: ATH::Arguments::Resolvers::TAG, priority: 110}])]
+# @[ADI::Register(tags: [{name: ATH::Controller::ArgumentResolverInterface::TAG, priority: 110}])]
 # struct MyResolver
 #   include ATHR::Interface
 #
 #   configuration Enable
 #
 #   # :inherit:
-#   def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata(Int32)) : Int32?
-#     return unless argument.annotation_configurations.has? Enable
+#   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata(Int32)) : Int32?
+#     return unless parameter.annotation_configurations.has? Enable
 #
-#     request.attributes.get(argument.name, Int32) * 10
+#     request.attributes.get(parameter.name, Int32) * 10
 #   end
 #
 #   # :inherit:
-#   def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata(String)) : String?
-#     return unless argument.annotation_configurations.has? Enable
+#   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata(String)) : String?
+#     return unless parameter.annotation_configurations.has? Enable
 #
-#     request.attributes.get(argument.name, String).upcase
+#     request.attributes.get(parameter.name, String).upcase
 #   end
 #
 #   # :inherit:
 #   #
 #   # Fallback overload for types other than `Int32` and `String.
-#   def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Nil
+#   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata) : Nil
 #   end
 # end
 #
@@ -231,7 +231,7 @@
 # WARNING: Strict typing is _ONLY_ supported when a configuration annotation is used to enable the resolver.
 #
 # ```
-# @[ADI::Register(tags: [{name: ATH::Arguments::Resolvers::TAG}])]
+# @[ADI::Register(tags: [{name: ATH::Controller::ArgumentResolverInterface::TAG}])]
 # struct MyResolver
 #   # Multiple types may also be supplied by providing it a comma separated list.
 #   # If `nil` is a valid option, the `Nil` type should also be included.
@@ -240,8 +240,8 @@
 #   configuration Enable
 #
 #   # :inherit:
-#   def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : String?
-#     return unless argument.annotation_configurations.has? Enable
+#   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata) : String?
+#     return unless parameter.annotation_configurations.has? Enable
 #
 #     "foo"
 #   end
@@ -272,22 +272,22 @@
 # ```
 #
 # Since `MyResolver` was defined to only support `String` types, a compile time error is raised when its annotation is applied to a non `String` parameter.
-# This feature pairs nicely with the [free var][Athena::Framework::Arguments::Resolvers::Interface--free-vars] section as it essentially allows
+# This feature pairs nicely with the [free var][Athena::Framework::Controller::ArgumentResolvers::Interface--free-vars] section as it essentially allows
 # scoping the possible types of `T` to the set of types defined as part of the module.
-module Athena::Framework::Arguments::Resolvers::Interface
+module Athena::Framework::Controller::ArgumentResolvers::Interface
   # Helper macro around `ACF.configuration_annotation` that allows defining resolver specific annotations.
-  # See the underlying macro and the [configuration][Athena::Framework::Arguments::Resolvers::Interface--configuration] section for more information.
+  # See the underlying macro and the [configuration][Athena::Framework::Controller::ArgumentResolvers::Interface--configuration] section for more information.
   macro configuration(name, *args)
     ACF.configuration_annotation ::{{@type}}::{{name.id}}{% unless args.empty? %}, {{args.splat}}{% end %}
   end
 
   # Represents an `ATHR::Interface` that only supports a subset of types.
   #
-  # See the [strict typing][Athena::Framework::Arguments::Resolvers::Interface--strict-typing] section for more information.
+  # See the [strict typing][Athena::Framework::Controller::ArgumentResolvers::Interface--strict-typing] section for more information.
   module Typed(*SupportedTypes)
-    include Athena::Framework::Arguments::Resolvers::Interface
+    include Athena::Framework::Controller::ArgumentResolvers::Interface
   end
 
-  # Returns a value resolved from the provided *request* and *argument* if possible, otherwise returns `nil` if no argument could be resolved.
-  abstract def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
+  # Returns a value resolved from the provided *request* and *parameter* if possible, otherwise returns `nil` if no parameter could be resolved.
+  abstract def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata)
 end

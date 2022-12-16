@@ -1,5 +1,5 @@
 # Represents a controller action argument. Stores metadata associated with it, such as its name, type, and default value if any.
-struct Athena::Framework::Arguments::ArgumentMetadata(T)
+struct Athena::Framework::Controller::ParameterMetadata(T)
   # Returns the name of the argument.
   getter name : String
 
@@ -8,7 +8,7 @@ struct Athena::Framework::Arguments::ArgumentMetadata(T)
 
   # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to this argument.
   #
-  # These configurations could then be accessed within `ATH::Arguments::ArgumentResolverInterface`s and/or `ATH::Listeners`s.
+  # These configurations could then be accessed within `ATH::Controller::ArgumentResolverInterface`s and/or `ATH::Listeners`s.
   getter annotation_configurations : ACF::AnnotationConfigurations
 
   protected def initialize(
@@ -43,9 +43,9 @@ struct Athena::Framework::Arguments::ArgumentMetadata(T)
   # Returns `true` if this argument's `#type` includes the provided *klass*.
   #
   # ```
-  # ATH::Arguments::ArgumentMetadata(Int32).new("foo").instance_of?(Int32)       # => true
-  # ATH::Arguments::ArgumentMetadata(Int32 | Bool).new("foo").instance_of?(Bool) # => true
-  # ATH::Arguments::ArgumentMetadata(Int32).new("foo").instance_of?(String)      # => false
+  # ATH::Controller::ParameterMetadata(Int32).new("foo").instance_of?(Int32)       # => true
+  # ATH::Controller::ParameterMetadata(Int32 | Bool).new("foo").instance_of?(Bool) # => true
+  # ATH::Controller::ParameterMetadata(Int32).new("foo").instance_of?(String)      # => false
   # ```
   def instance_of?(klass : Type.class) : Bool forall Type
     {{ T.union? ? T.union_types.any? { |t| t <= Type } : T <= Type }}
@@ -55,10 +55,10 @@ struct Athena::Framework::Arguments::ArgumentMetadata(T)
   # If this the `#type` is union, this would be the first viable type.
   #
   # ```
-  # ATH::Arguments::ArgumentMetadata(Int32).new("foo").first_type_of(Int32)                            # => Int32.class
-  # ATH::Arguments::ArgumentMetadata(String | Int32 | Bool).new("foo").first_type_of(Int32)            # => Int32.class
-  # ATH::Arguments::ArgumentMetadata(String | Int8 | Float64 | Int64).new("foo").first_type_of(Number) # => Float64.class
-  # ATH::Arguments::ArgumentMetadata(String | Int32 | Bool).new("foo").first_type_of(Float64)          # => nil
+  # ATH::Controller::ParameterMetadata(Int32).new("foo").first_type_of(Int32)                            # => Int32.class
+  # ATH::Controller::ParameterMetadata(String | Int32 | Bool).new("foo").first_type_of(Int32)            # => Int32.class
+  # ATH::Controller::ParameterMetadata(String | Int8 | Float64 | Int64).new("foo").first_type_of(Number) # => Float64.class
+  # ATH::Controller::ParameterMetadata(String | Int32 | Bool).new("foo").first_type_of(Float64)          # => nil
   # ```
   def first_type_of(klass : Type.class) forall Type
     {% if T.union? %}

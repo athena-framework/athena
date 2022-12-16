@@ -1,45 +1,45 @@
 require "../../spec_helper"
 
-describe ATH::Arguments::Resolvers::RequestAttribute do
+describe ATHR::RequestAttribute do
   describe "#resolve" do
     it "that does not exist in the request attributes" do
-      ATH::Arguments::Resolvers::RequestAttribute.new.resolve(new_request, new_argument).should be_nil
+      ATHR::RequestAttribute.new.resolve(new_request, new_parameter).should be_nil
     end
 
     it "that exists in the request attributes" do
       request = new_request
       request.attributes.set "id", 1
 
-      ATH::Arguments::Resolvers::RequestAttribute.new.resolve(request, new_argument).should eq 1
+      ATHR::RequestAttribute.new.resolve(request, new_parameter).should eq 1
     end
 
     describe "that needs to be converted" do
       it String do
-        argument = ATH::Arguments::ArgumentMetadata(Int32).new "id"
+        parameter = ATH::Controller::ParameterMetadata(Int32).new "id"
 
         request = new_request
         request.attributes.set "id", "1"
 
-        ATH::Arguments::Resolvers::RequestAttribute.new.resolve(request, argument).should eq 1
+        ATHR::RequestAttribute.new.resolve(request, parameter).should eq 1
       end
 
       it Bool do
-        argument = ATH::Arguments::ArgumentMetadata(Bool).new "id"
+        parameter = ATH::Controller::ParameterMetadata(Bool).new "id"
 
         request = new_request
         request.attributes.set "id", "false"
 
-        ATH::Arguments::Resolvers::RequestAttribute.new.resolve(request, argument).should be_false
+        ATHR::RequestAttribute.new.resolve(request, parameter).should be_false
       end
 
       it "that fails conversion" do
-        argument = ATH::Arguments::ArgumentMetadata(Int32).new "id"
+        parameter = ATH::Controller::ParameterMetadata(Int32).new "id"
 
         request = new_request
         request.attributes.set "id", "foo"
 
         expect_raises ATH::Exceptions::BadRequest, "Parameter 'id' with value 'foo' could not be converted into a valid 'Int32'." do
-          ATH::Arguments::Resolvers::RequestAttribute.new.resolve request, argument
+          ATHR::RequestAttribute.new.resolve request, parameter
         end
       end
     end

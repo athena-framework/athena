@@ -76,8 +76,8 @@ def new_context(*, request : ATH::Request = new_request, response : HTTP::Server
   HTTP::Server::Context.new request, response
 end
 
-def new_argument : ATH::Arguments::ArgumentMetadata
-  ATH::Arguments::ArgumentMetadata(Int32).new "id"
+def new_parameter : ATH::Controller::ParameterMetadata
+  ATH::Controller::ParameterMetadata(Int32).new "id"
 end
 
 def new_action(

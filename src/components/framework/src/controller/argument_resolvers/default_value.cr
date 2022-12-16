@@ -1,4 +1,4 @@
-@[ADI::Register(tags: [{name: ATH::Arguments::Resolvers::TAG, priority: -100}])]
+@[ADI::Register(tags: [{name: ATH::Controller::ArgumentResolverInterface::TAG, priority: -100}])]
 # Resolves the default value of a controller action parameter if no other value was provided;
 # using `nil` if the parameter does not have a default value, but is nilable.
 #
@@ -22,13 +22,13 @@
 # # GET /default # => 123
 # # GET /nilable # => null
 # ```
-struct Athena::Framework::Arguments::Resolvers::DefaultValue
-  include Athena::Framework::Arguments::Resolvers::Interface
+struct Athena::Framework::Controller::ArgumentResolvers::DefaultValue
+  include Athena::Framework::Controller::ArgumentResolvers::Interface
 
   # :inherit:
-  def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
-    return if !argument.has_default? && !argument.nilable?
+  def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata)
+    return if !parameter.has_default? && !parameter.nilable?
 
-    argument.default_value?
+    parameter.default_value?
   end
 end

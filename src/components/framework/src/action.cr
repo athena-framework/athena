@@ -7,7 +7,7 @@ abstract struct Athena::Framework::ActionBase; end
 #
 # Includes metadata about the endpoint, such as its controller, arguments, return type, and the action that should be executed.
 struct Athena::Framework::Action(Controller, ReturnType, ArgTypeTuple, ArgumentsType) < Athena::Framework::ActionBase
-  # Returns a tuple of `ATH::Arguments::ArgumentMetadata` representing the arguments this action expects.
+  # Returns a tuple of `ATH::Controller::ParameterMetadata` representing the arguments this action expects.
   getter arguments : ArgumentsType
 
   # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to this action.
@@ -45,7 +45,7 @@ struct Athena::Framework::Action(Controller, ReturnType, ArgTypeTuple, Arguments
 
   # Resolves the arguments for this action for the given *request*.
   #
-  # This is defined in here as opposed to `ATH::Arguments::ArgumentResolver` so that the free vars are resolved correctly.
+  # This is defined in here as opposed to `ATH::Controller::ArgumentResolver` so that the free vars are resolved correctly.
   # See https://forum.crystal-lang.org/t/incorrect-overload-selected-with-freevar-and-generic-inheritance/3625.
   protected def resolve_arguments(resolvers : Array(ATHR::Interface), request : ATH::Request) : Array
     {% begin %}

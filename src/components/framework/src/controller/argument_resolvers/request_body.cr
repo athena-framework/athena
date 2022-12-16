@@ -1,4 +1,4 @@
-@[ADI::Register(tags: [{name: ATH::Arguments::Resolvers::TAG, priority: 105}])]
+@[ADI::Register(tags: [{name: ATH::Controller::ArgumentResolverInterface::TAG, priority: 105}])]
 # Attempts to resolve the value of any parameter with the `ATHR::RequestBody::Extract` annotation by
 # deserializing the request body of the request into an object of the type of the related parameter.
 # Also handles running any validations defined on it, if it is `AVD::Validatable`.
@@ -85,8 +85,8 @@
 #   "email": "george@dietrich.app"
 # }
 # ```
-struct Athena::Framework::Arguments::Resolvers::RequestBody
-  include Athena::Framework::Arguments::Resolvers::Interface::Typed(Athena::Serializer::Serializable, JSON::Serializable)
+struct Athena::Framework::Controller::ArgumentResolvers::RequestBody
+  include Athena::Framework::Controller::ArgumentResolvers::Interface::Typed(Athena::Serializer::Serializable, JSON::Serializable)
 
   # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to.
   # See the related resolver documentation for more information.
@@ -98,8 +98,8 @@ struct Athena::Framework::Arguments::Resolvers::RequestBody
   ); end
 
   # :inherit:
-  def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata(T)) : T? forall T
-    return unless argument.annotation_configurations.has? Extract
+  def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata(T)) : T? forall T
+    return unless parameter.annotation_configurations.has? Extract
 
     if !(body = request.body) || body.peek.try &.empty?
       raise ATH::Exceptions::BadRequest.new "Request does not have a body."

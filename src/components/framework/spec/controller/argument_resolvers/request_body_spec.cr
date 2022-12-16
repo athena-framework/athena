@@ -27,7 +27,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
   end
 
   def test_no_annotation : Nil
-    ATHR::RequestBody.new(@serializer, @validator).resolve(new_request, new_argument).should be_nil
+    ATHR::RequestBody.new(@serializer, @validator).resolve(new_request, new_parameter).should be_nil
   end
 
   def test_raises_on_no_body : Nil
@@ -100,11 +100,11 @@ struct RequestBodyResolverTest < ASPEC::TestCase
   end
 
   private def get_config(type : T.class) forall T
-    ATH::Arguments::ArgumentMetadata(T).new(
+    ATH::Controller::ParameterMetadata(T).new(
       "foo",
       annotation_configurations: ACF::AnnotationConfigurations.new({
-        Athena::Framework::Arguments::Resolvers::RequestBody::Extract => [
-          Athena::Framework::Arguments::Resolvers::RequestBody::ExtractConfiguration.new,
+        ATHR::RequestBody::Extract => [
+          ATHR::RequestBody::ExtractConfiguration.new,
         ] of ACF::AnnotationConfigurations::ConfigurationBase,
       } of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase))
     )

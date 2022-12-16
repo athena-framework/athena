@@ -203,7 +203,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
               end
 
               arg.raise "Route action argument '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction." if arg.restriction.is_a? Nop
-              arguments << %(ATH::Arguments::ArgumentMetadata(#{arg.restriction}).new(
+              arguments << %(ATH::Controller::ParameterMetadata(#{arg.restriction}).new(
                 #{arg.name.stringify},
                 #{!arg.default_value.is_a? Nop},
                 #{arg.default_value.is_a?(Nop) ? nil : arg.default_value},

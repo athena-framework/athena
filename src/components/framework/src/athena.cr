@@ -28,9 +28,9 @@ require "./streamed_response"
 
 require "./ext/serializer"
 
-require "./arguments/**"
 require "./commands/*"
 require "./config/*"
+require "./controller/**"
 require "./compiler_passes/*"
 require "./events/*"
 require "./exceptions/*"
@@ -52,14 +52,36 @@ alias ATH = Athena::Framework
 # Convenience alias to make referencing `Athena::Framework::Annotations` types easier.
 alias ATHA = ATH::Annotations
 
-# Convenience alias to make referencing `Athena::Framework::Arguments::Resolvers` types easier.
-alias ATHR = ATH::Arguments::Resolvers
+# Convenience alias to make referencing `ATH::Controller::ArgumentResolvers` types easier.
+alias ATHR = ATH::Controller::ArgumentResolvers
 
 # See the [external documentation](https://athenaframework.org) for an introduction to `Athena`.
 #
 # Also checkout the [Components](/components) for an overview of how `Athena` is designed.
 module Athena::Framework
   VERSION = "0.17.1"
+
+  # Athena includes a few built-in resolvers that run in the following order:
+  #
+  # 1. `ATHR::Enum` (105) - Attempts to resolve a value from `ATH::Request#attributes` into an enum member of the related type.
+  # Works well in conjunction with `ART::Requirement::Enum`.
+  #
+  # 1. `ATHR::Time` (105) - Attempts to resolve a value from the request attributes into a `::Time` instance,
+  # defaulting to [RFC 3339](https://crystal-lang.org/api/Time.html#parse_rfc3339%28time:String%29-class-method).
+  # Format/location can be customized via the `ATHR::Time::Format` annotation.
+  #
+  # 1. `ATHR::UUID` (105) - Attempts to resolve a value from the request attributes into a `::UUID` instance.
+  #
+  # 1. `ATHR::RequestBody` (105) - If enabled, attempts to deserialize the request body into the type of the related parameter, running any validations, if any.
+  #
+  # 1. `ATHR::RequestAttribute` (100) - Provides a value stored in `ATH::Request#attributes` if one with the same name as the action parameter exists.
+  #
+  # 1. `ATHR::Request` (50) - Provides the current `ATH::Request` if the related parameter is typed as such.
+  #
+  # 1. `ATHR::DefaultValue` (-100) - Provides the default value of the parameter if it has one, or `nil` if it is nilable.
+  #
+  # See each resolver for more detailed information.
+  module Controller::ArgumentResolvers; end
 
   # The `AED::Event` that are emitted via `Athena::EventDispatcher` to handle a request during its life-cycle.
   # Custom events can also be defined and dispatched within a controller, listener, or some other service.
@@ -84,39 +106,6 @@ module Athena::Framework
   module Listeners
     # The tag name for Athena event listeners.
     TAG = "athena.event_dispatcher.listener"
-  end
-
-  # Namespace for types related to resolving controller action arguments.
-  #
-  # See `ATH::Arguments::ArgumentMetadata`.
-  module Arguments; end
-
-  # The default `ATH::Arguments::Resolvers::Interface`s that will handle resolving controller action arguments from a request (or other source).
-  # Custom argument value resolvers can also be defined, see `ATH::Arguments::Resolvers::Interface`.
-  #
-  # Athena includes a few built-in resolvers that run in the following order:
-  #
-  # 1. `ATHR::Enum` (105) - Attempts to resolve a value from `ATH::Request#attributes` into an enum member of the related type.
-  # Works well in conjunction with `ART::Requirement::Enum`.
-  #
-  # 1. `ATHR::Time` (105) - Attempts to resolve a value from the request attributes into a `::Time` instance,
-  # defaulting to [RFC 3339](https://crystal-lang.org/api/Time.html#parse_rfc3339%28time:String%29-class-method).
-  # Format/location can be customized via the `ATHR::Time::Format` annotation.
-  #
-  # 1. `ATHR::UUID` (105) - Attempts to resolve a value from the request attributes into a `::UUID` instance.
-  #
-  # 1. `ATHR::RequestBody` (105) - If enabled, attempts to deserialize the request body into the type of the related parameter, running any validations, if any.
-  #
-  # 1. `ATHR::RequestAttribute` (100) - Provides a value stored in `ATH::Request#attributes` if one with the same name as the action parameter exists.
-  #
-  # 1. `ATHR::Request` (50) - Provides the current `ATH::Request` if the related parameter is typed as such.
-  #
-  # 1. `ATHR::DefaultValue` (-100) - Provides the default value of the parameter if it has one, or `nil` if it is nilable.
-  #
-  # See each resolver for more detailed information.
-  module Arguments::Resolvers
-    # The tag name for `ATH::Arguments::Resolvers::ArgumentValueResolverInterface`s.
-    TAG = "athena.argument_value_resolver"
   end
 
   # Namespace for types related to request parameter processing.

@@ -1,4 +1,4 @@
-@[ADI::Register(tags: [{name: ATH::Arguments::Resolvers::TAG, priority: 105}])]
+@[ADI::Register(tags: [{name: ATH::Controller::ArgumentResolverInterface::TAG, priority: 105}])]
 # Attempts to parse a date(time) string into a `::Time` instance.
 #
 # Optionally allows specifying the *format* and *location* to use when parsing the string via the `ATHR::Time::Format` annotation.
@@ -28,29 +28,29 @@
 #
 # # GET /event/2020-04-07/2020-04-08T12:34:56Z
 # ```
-struct Athena::Framework::Arguments::Resolvers::Time
-  include Athena::Framework::Arguments::Resolvers::Interface
+struct Athena::Framework::Controller::ArgumentResolvers::Time
+  include Athena::Framework::Controller::ArgumentResolvers::Interface
 
   # Allows customing the time format and/or location used to parse the string datetime as part of the `ATHR::Time` resolver.
   # See the related resolver documentation for more information.
   configuration Format, format : String? = nil, location : ::Time::Location = ::Time::Location::UTC
 
   # :inherit:
-  def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : ::Time?
-    return unless argument.instance_of? ::Time
+  def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata) : ::Time?
+    return unless parameter.instance_of? ::Time
 
-    if value = request.attributes.get? argument.name, ::Time?
+    if value = request.attributes.get? parameter.name, ::Time?
       return value
     end
 
-    return unless (value = request.attributes.get? argument.name, String?)
+    return unless (value = request.attributes.get? parameter.name, String?)
 
-    if !(configuration = argument.annotation_configurations[Format]?) || !(format = configuration.format)
+    if !(configuration = parameter.annotation_configurations[Format]?) || !(format = configuration.format)
       return ::Time.parse_rfc3339(value)
     end
 
     ::Time.parse value, format, configuration.location
   rescue ex : ::Time::Format::Error
-    raise ATH::Exceptions::BadRequest.new "Invalid date(time) for parameter '#{argument.name}'."
+    raise ATH::Exceptions::BadRequest.new "Invalid date(time) for parameter '#{parameter.name}'."
   end
 end
