@@ -1,12 +1,12 @@
-# Represents a controller action argument. Stores metadata associated with it, such as its name, type, and default value if any.
+# Represents a controller action parameter. Stores metadata associated with it, such as its name, type, and default value if any.
 struct Athena::Framework::Controller::ParameterMetadata(T)
-  # Returns the name of the argument.
+  # Returns the name of the parameter.
   getter name : String
 
-  # Returns `true` if this argument has a default value set, otherwise `false`.
+  # Returns `true` if this parameter has a default value set, otherwise `false`.
   getter? has_default : Bool
 
-  # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to this argument.
+  # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to this parameter.
   #
   # These configurations could then be accessed within `ATHR::Interface`s and/or `ATH::Listeners`s.
   getter annotation_configurations : ACF::AnnotationConfigurations
@@ -18,19 +18,19 @@ struct Athena::Framework::Controller::ParameterMetadata(T)
     @annotation_configurations : ACF::AnnotationConfigurations = ACF::AnnotationConfigurations.new
   ); end
 
-  # If `nil` is a valid argument for the argument.
+  # If `nil` is a valid value for the parameter.
   def nilable? : Bool
     {{T.nilable?}}
   end
 
-  # Returns the default value for this argument, raising an exception if it does not have one.
+  # Returns the default value for this parameter, raising an exception if it does not have one.
   def default_value : T
     raise "Argument '#{@name}' does not have a default value." unless self.has_default?
 
     @default_value.not_nil!
   end
 
-  # Returns the default value for this argument, or `nil` if it does not have one.
+  # Returns the default value for this parameter, or `nil` if it does not have one.
   def default_value? : T?
     @default_value
   end
@@ -40,7 +40,7 @@ struct Athena::Framework::Controller::ParameterMetadata(T)
     T
   end
 
-  # Returns `true` if this argument's `#type` includes the provided *klass*.
+  # Returns `true` if this parameter's `#type` includes the provided *klass*.
   #
   # ```
   # ATH::Controller::ParameterMetadata(Int32).new("foo").instance_of?(Int32)       # => true

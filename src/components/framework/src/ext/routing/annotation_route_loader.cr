@@ -133,7 +133,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
           {% end %}
 
           {%
-            arguments = [] of Nil
+            parameters = [] of Nil
             params = [] of Nil
             annotation_configurations = {} of Nil => Nil
 
@@ -175,7 +175,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
               route_def.raise "Route action '#{klass.name}##{m.name}' cannot change the required methods when _NOT_ using the 'ARTA::Route' annotation."
             end
 
-            # Process controller action arguments.
+            # Process controller action parameters.
             m.args.each do |arg|
               parameter_annotation_configurations = {} of Nil => Nil
 
@@ -202,8 +202,8 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                 parameter_annotation_configurations[ann_class] = "(#{annotations} of ACF::AnnotationConfigurations::ConfigurationBase)".id unless annotations.empty?
               end
 
-              arg.raise "Route action argument '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction." if arg.restriction.is_a? Nop
-              arguments << %(ATH::Controller::ParameterMetadata(#{arg.restriction}).new(
+              arg.raise "Route action parameter '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction." if arg.restriction.is_a? Nop
+              parameters << %(ATH::Controller::ParameterMetadata(#{arg.restriction}).new(
                 #{arg.name.stringify},
                 #{!arg.default_value.is_a? Nop},
                 #{arg.default_value.is_a?(Nop) ? nil : arg.default_value},
@@ -229,13 +229,13 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             [{ATHA::QueryParam, "ATH::Params::QueryParam".id}, {ATHA::RequestParam, "ATH::Params::RequestParam".id}].each do |(param_ann, param_class)|
               m.annotations(param_ann).each do |ann|
                 unless arg_name = (ann[0] || ann[:name])
-                  ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation but is missing the argument's name. It was not provided as the first positional argument nor via the 'name' field."
+                  ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation but is missing the parameter's name. It was not provided as the first positional argument nor via the 'name' field."
                 end
 
                 arg = m.args.find &.name.stringify.==(arg_name)
 
                 unless arg_names.includes? arg_name
-                  ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation but does not have a corresponding action argument for '#{arg_name.id}'."
+                  ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation but does not have a corresponding action parameter for '#{arg_name.id}'."
                 end
 
                 ann_args = ann.named_args
@@ -279,7 +279,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
 
                 # Non strict parameters must be nilable or have a default value.
                 if ann_args[:strict] == false && !arg.restriction.resolve.nilable? && arg.default_value.is_a?(Nop)
-                  ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with `strict: false` but the related action argument is not nilable nor has a default value."
+                  ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with `strict: false` but the related action parameter is not nilable nor has a default value."
                 end
 
                 params << %(#{param_class}(#{arg.restriction}).new(
@@ -323,7 +323,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
 
                 %instance.{{m.name.id}} *arguments
               end,
-              arguments: {{arguments.empty? ? "Tuple.new".id : "{#{arguments.splat}}".id}},
+              parameters: {{parameters.empty? ? "Tuple.new".id : "{#{parameters.splat}}".id}},
               annotation_configurations: ACF::AnnotationConfigurations.new({{annotation_configurations}} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)),
               params: ({{params}} of ATH::Params::ParamInterface),
               _controller: {{klass.id}},

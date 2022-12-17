@@ -1,33 +1,13 @@
 # Contains all the `Athena::Framework` based annotations.
 # See each annotation for more information.
 module Athena::Framework::Annotations
-  # Applies an `ATH::ParamConverter` to a given argument.
+  # Used to define (and configure) a query parameter tied to a given parameter.
   #
-  # See `ATH::ParamConverter` for more information on defining a param converter.
-  #
-  # ## Fields
-  #
-  # * name : `String` - The name of the argument that should be converted, may also be provided as the first positional argument.
-  # * converter : `ATH::ParamConverter.class` - The `ATH::ParamConverter` that should be used to convert this argument.
-  #
-  # ## Example
-  #
-  # ```
-  # @[ARTA::Get(path: "/multiply/{num}")]
-  # @[ATHA::ParamConverter("num", converter: MultiplyConverter)]
-  # def multiply(num : Int32) : Int32
-  #   num
-  # end
-  # ```
-  annotation ParamConverter; end
-
-  # Used to define (and configure) a query parameter tied to a given argument.
-  #
-  # The type of the query param is derived from the type restriction of the associated controller action argument.
+  # The type of the query param is derived from the type restriction of the associated controller action parameter.
   #
   # ## Usage
   #
-  # The most basic usage is adding an annotation to a controller action whose name matches a controller action argument.
+  # The most basic usage is adding an annotation to a controller action whose name matches a controller action parameter.
   # A `description` may also be included to describe what the query param is used for.
   # In the future this may be used for generating OpenAPI documentation for the related parameter.
   #
@@ -38,7 +18,7 @@ module Athena::Framework::Annotations
   #
   # class ExampleController < ATH::Controller
   #   @[ARTA::Get("/")]
-  #   @[ATHA::QueryParam("page", description: "What page of results to return.")] # The name can also be supplied as a named argument like `@[ATHA::QueryParam(name: "page")]`.
+  #   @[ATHA::QueryParam("page", description: "What page of results to return.")] # The name can also be supplied as a named parameter like `@[ATHA::QueryParam(name: "page")]`.
   #   def index(page : Int32) : Int32
   #     page
   #   end
@@ -63,7 +43,7 @@ module Athena::Framework::Annotations
   #
   # ### Key
   #
-  # In the case of wanting the controller action argument to have a different name than the actual query parameter, the `key` option can be used.
+  # In the case of wanting the controller action parameter to have a different name than the actual query parameter, the `key` option can be used.
   #
   # ```
   # require "athena"
@@ -117,7 +97,7 @@ module Athena::Framework::Annotations
   #
   # When strict mode is disabled, the default value (or `nil`) will be used instead of raising an exception if the actual value is invalid.
   #
-  # NOTE: When setting `strict: false`, the related controller action argument must be nilable or have a default value.
+  # NOTE: When setting `strict: false`, the related controller action parameter must be nilable or have a default value.
   #
   # ```
   # require "athena"
@@ -137,7 +117,7 @@ module Athena::Framework::Annotations
   # # GET /?page=bar # => null
   # ```
   #
-  # If strict mode is enabled _AND_ the argument is nilable, the value will only be checked strictly if it is provided
+  # If strict mode is enabled _AND_ the parameter is nilable, the value will only be checked strictly if it is provided
   # and does not meet the parameter's requirements, or could not be converted.
   # If it was not provided at all, `nil`, or the default value will be used.
   #

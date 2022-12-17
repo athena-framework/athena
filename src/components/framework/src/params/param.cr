@@ -14,7 +14,7 @@ abstract struct Athena::Framework::Params::Param
   # :inherit:
   getter? strict : Bool = true
 
-  # If this argument has a default value.
+  # If this parameter has a default value.
   getter? has_default : Bool
 
   # If `nil` is a valid value for the param.

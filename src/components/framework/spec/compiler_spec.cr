@@ -18,8 +18,8 @@ end
 
 describe Athena::Framework do
   describe "compiler errors", tags: "compiler" do
-    it "action argument missing type restriction" do
-      assert_error "Route action argument 'CompileController#action:id' must have a type restriction.", <<-CODE
+    it "action parameter missing type restriction" do
+      assert_error "Route action parameter 'CompileController#action:id' must have a type restriction.", <<-CODE
         class CompileController < ATH::Controller
           @[ARTA::Get(path: "/:id")]
           def action(id) : Int32
@@ -378,7 +378,7 @@ describe Athena::Framework do
     end
 
     describe ATHR::RequestBody do
-      it "when the action argument is not serializable" do
+      it "when the action parameter is not serializable" do
         assert_error " The annotation '@[ATHR::RequestBody::Extract]' cannot be applied to 'CompileController#action:foo : Foo' since the 'Athena::Framework::Controller::ValueResolvers::RequestBody' resolver only supports parameters of type 'Athena::Serializer::Serializable | JSON::Serializable'.", <<-CODE
           record Foo, text : String
 
@@ -394,7 +394,7 @@ describe Athena::Framework do
 
     describe ATHA::QueryParam do
       it "missing name" do
-        assert_error "Route action 'CompileController#action' has an Athena::Framework::Annotations::QueryParam annotation but is missing the argument's name. It was not provided as the first positional argument nor via the 'name' field.", <<-CODE
+        assert_error "Route action 'CompileController#action' has an Athena::Framework::Annotations::QueryParam annotation but is missing the parameter's name. It was not provided as the first positional argument nor via the 'name' field.", <<-CODE
           class CompileController < ATH::Controller
             @[ARTA::Get(path: "/")]
             @[ATHA::QueryParam]
@@ -405,8 +405,8 @@ describe Athena::Framework do
         CODE
       end
 
-      it "missing corresponding action argument" do
-        assert_error "Route action 'CompileController#action' has an Athena::Framework::Annotations::QueryParam annotation but does not have a corresponding action argument for 'foo'.", <<-CODE
+      it "missing corresponding action parameter" do
+        assert_error "Route action 'CompileController#action' has an Athena::Framework::Annotations::QueryParam annotation but does not have a corresponding action parameter for 'foo'.", <<-CODE
           class CompileController < ATH::Controller
             @[ARTA::Get(path: "/")]
             @[ATHA::QueryParam("foo")]
@@ -418,7 +418,7 @@ describe Athena::Framework do
       end
 
       it "disallows non nilable non strict and no default params" do
-        assert_error "Route action 'CompileController#action' has an Athena::Framework::Annotations::QueryParam annotation with `strict: false` but the related action argument is not nilable nor has a default value.", <<-CODE
+        assert_error "Route action 'CompileController#action' has an Athena::Framework::Annotations::QueryParam annotation with `strict: false` but the related action parameter is not nilable nor has a default value.", <<-CODE
           class CompileController < ATH::Controller
             @[ARTA::Get("/")]
             @[ATHA::QueryParam("page", strict: false)]
@@ -488,7 +488,7 @@ describe Athena::Framework do
     # Just do a simple check to ensure its working as expected while doing most other assertions with `ATHA::QueryParam`.
     describe ATHA::RequestParam do
       it "missing name" do
-        assert_error "Route action 'CompileController#action' has an Athena::Framework::Annotations::RequestParam annotation but is missing the argument's name. It was not provided as the first positional argument nor via the 'name' field.", <<-CODE
+        assert_error "Route action 'CompileController#action' has an Athena::Framework::Annotations::RequestParam annotation but is missing the parameter's name. It was not provided as the first positional argument nor via the 'name' field.", <<-CODE
           class CompileController < ATH::Controller
             @[ARTA::Get(path: "/")]
             @[ATHA::RequestParam]

@@ -5,10 +5,10 @@ abstract struct Athena::Framework::ActionBase; end
 
 # Represents a controller action that will handle a request.
 #
-# Includes metadata about the endpoint, such as its controller, arguments, return type, and the action that should be executed.
-struct Athena::Framework::Action(Controller, ReturnType, ArgTypeTuple, ArgumentsType) < Athena::Framework::ActionBase
-  # Returns a tuple of `ATH::Controller::ParameterMetadata` representing the arguments this action expects.
-  getter arguments : ArgumentsType
+# Includes metadata about the endpoint, such as its controller, action parameters and return type, and the action that should be executed.
+struct Athena::Framework::Action(Controller, ReturnType, ParameterTypeTuple, ParametersType) < Athena::Framework::ActionBase
+  # Returns a tuple of `ATH::Controller::ParameterMetadata` representing the parameters this action expects.
+  getter parameters : ParametersType
 
   # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to this action.
   #
@@ -19,8 +19,8 @@ struct Athena::Framework::Action(Controller, ReturnType, ArgTypeTuple, Arguments
   getter params : Array(ATH::Params::ParamInterface)
 
   def initialize(
-    @action : Proc(ArgTypeTuple, ReturnType),
-    @arguments : ArgumentsType,
+    @action : Proc(ParameterTypeTuple, ReturnType),
+    @parameters : ParametersType,
     @annotation_configurations : ACF::AnnotationConfigurations,
     @params : Array(ATH::Params::ParamInterface),
     # Don't bother making these ivars since we just need them to set the generic types
@@ -40,7 +40,7 @@ struct Athena::Framework::Action(Controller, ReturnType, ArgTypeTuple, Arguments
 
   # Executes this action with the provided *arguments* array.
   def execute(arguments : Array) : ReturnType
-    @action.call {{ArgTypeTuple.type_vars.empty? ? "Tuple.new".id : ArgTypeTuple}}.from arguments
+    @action.call {{ParameterTypeTuple.type_vars.empty? ? "Tuple.new".id : ParameterTypeTuple}}.from arguments
   end
 
   # Resolves the arguments for this action for the given *request*.
@@ -49,28 +49,28 @@ struct Athena::Framework::Action(Controller, ReturnType, ArgTypeTuple, Arguments
   # See https://forum.crystal-lang.org/t/incorrect-overload-selected-with-freevar-and-generic-inheritance/3625.
   protected def resolve_arguments(value_resolvers : Array(ATHR::Interface), request : ATH::Request) : Array
     {% begin %}
-      {% if 0 == ArgumentsType.size %}
+      {% if 0 == ParametersType.size %}
         Tuple.new.to_a
       {% else %}
         {
-          {% for idx in (0...ArgumentsType.size) %}
+          {% for idx in (0...ParametersType.size) %}
             begin
-              %argument = @arguments[{{idx}}]
+              %parameter = @parameters[{{idx}}]
 
               # Variadic parameters are not supported.
               # `nil` represents both the value `nil` and that resolver was unable to resolve a value
               # Each resolver can return at most one value.
               # First resolver to resolve a non-nil value wins, otherwise `nil` itself is used as the value,
-              # assuming the argument accepts nil, otherwise an error is raised.
+              # assuming the parameter accepts nil, otherwise an error is raised.
               # TODO: Determine if that is robust enough, or we need some other implementation.
 
                value = value_resolvers.each do |resolver|
-                resolved_value = resolver.resolve request, %argument
+                resolved_value = resolver.resolve request, %parameter
                 break resolved_value unless resolved_value.nil?
               end
 
-              if value.nil? && !%argument.nilable?
-                raise RuntimeError.new "Controller '#{request.attributes.get "_controller"}' requires that you provide a value for the '#{%argument.name}' parameter. Either the argument is nilable and no nil value has been provided, or no default value has been provided."
+              if value.nil? && !%parameter.nilable?
+                raise RuntimeError.new "Controller '#{request.attributes.get "_controller"}' requires that you provide a value for the '#{%parameter.name}' parameter. Either the parameter is nilable and no nil value has been provided, or no default value has been provided."
               end
 
               value

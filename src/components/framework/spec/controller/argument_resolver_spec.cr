@@ -23,7 +23,7 @@ describe ATH::Controller::ArgumentResolver do
       it "should raise a runtime error" do
         route = new_action arguments: {new_parameter}
 
-        expect_raises(RuntimeError, "Controller 'TestController#test' requires that you provide a value for the 'id' parameter. Either the argument is nilable and no nil value has been provided, or no default value has been provided.") do
+        expect_raises(RuntimeError, "Controller 'TestController#test' requires that you provide a value for the 'id' parameter. Either the parameter is nilable and no nil value has been provided, or no default value has been provided.") do
           ATH::Controller::ArgumentResolver.new([] of ATHR::Interface).get_arguments(new_request, route)
         end
       end

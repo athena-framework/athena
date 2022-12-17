@@ -26,9 +26,9 @@
 # end
 #
 # class ExampleController < ATH::Controller
-#   # Define an action argument with the same name of the argument stored in attributes.
+#   # Define an action parameter with the same name of the parameter stored in attributes.
 #   #
-#   # The argument is resolved via `ATHR::RequestAttribute`.
+#   # The argument to pass is resolved via `ATHR::RequestAttribute`.
 #   get "/", my_arg : String do
 #     my_arg
 #   end
