@@ -1,8 +1,7 @@
 # The core of any framework is routing; how a route is tied to an action.
-# Athena takes an annotation based approach; an annotation, such as `ARTA::Get` is applied to an instance method of a controller class,
-# which will be executed when that endpoint receives a request.
+# Athena takes an annotation based approach; an annotation, such as `ARTA::Get` is applied to an instance method of a controller class, which will be executed when that endpoint receives a request.
 #
-# Additional annotations also exist for setting a query param or a param converter. See `ATHA::QueryParam` and `ATHA::ParamConverter` respectively.
+# Additional annotation also exist for defining a query parameter. See `ATHA::QueryParam` for more information.
 #
 # Child controllers must inherit from `ATH::Controller` (or an abstract child of it). Each request gets its own instance of the controller to better allow for DI via `Athena::DependencyInjection`.
 #
@@ -37,29 +36,6 @@
 #     ATH::StreamedResponse.new headers: HTTP::Headers{"content-type" => "application/json; charset=UTF-8"} do |io|
 #       User.all.to_json io
 #     end
-#   end
-#
-#   # A GET endpoint using a param converter to render a template.
-#   #
-#   # Assumes there is a `User` object that exposes their name,
-#   # and an `ATH::ParamConverter` to provide the user with the provided *id*.
-#   #
-#   # Route parameters are enclosed within `{}`.
-#   #
-#   # ```
-#   # # user.ecr
-#   # Morning, <%= user.name %> it is currently <%= time %>.
-#   # ```
-#   @[ARTA::Get("/wakeup/{id}")]
-#   @[ATHA::ParamConverter("user", converter: SomeConverter)]
-#   def wakeup(user : User) : ATH::Response
-#     # Template variables not supplied in the action's parameters
-#     #  must be defined manually
-#     time = Time.utc
-#
-#     # Creates an `ATH::Response` with the content of rendering the template,
-#     # also sets the content type to `text/html`.
-#     render "user.ecr"
 #   end
 #
 #   # A GET endpoint with no params returning a `String`.

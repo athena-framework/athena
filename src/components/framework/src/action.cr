@@ -12,8 +12,7 @@ struct Athena::Framework::Action(Controller, ReturnType, ParameterTypeTuple, Par
 
   # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to this action.
   #
-  # These configurations could then be accessed within `ATH::ParamConverter`s and/or `ATH::Listeners`s.
-  # See `ATH::Events::RequestAware` for an example.
+  # These configurations could then be accessed within `ATHR::Interface`s and/or `ATH::Listeners`s.
   getter annotation_configurations : ACF::AnnotationConfigurations
 
   getter params : Array(ATH::Params::ParamInterface)

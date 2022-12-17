@@ -294,56 +294,6 @@ module Athena::Framework::Annotations
   # #   "message":"Parameter 'foo' is incompatible with parameter 'bar'."
   # # }
   # ```
-  #
-  # ### Param Converters
-  #
-  # While Athena is able to auto convert query parameters from their `String` representation to `Bool`, or `Number` types, it is unable to do that for more complex types, such as `Time`.
-  # In such cases an `ATH::ParamConverter` is required.
-  #
-  # For simple converters that do not require any additional configuration, you can just specify the `ATH::ParamConverter.class` you wish to use for this query parameter.
-  # Default and nilable values work as they do when not using a converter.
-  #
-  # ```
-  # require "athena"
-  #
-  # class ExampleController < ATH::Controller
-  #   @[ATHA::QueryParam("start_time", converter: ATH::TimeConverter)]
-  #   @[ARTA::Get("/time")]
-  #   def time(start_time : Time = Time.utc) : String
-  #     "Starting at: #{start_time}"
-  #   end
-  # end
-  #
-  # ATH.run
-  #
-  # # GET /time                                 # => "Starting at: 2020-11-25 20:29:55 UTC"
-  # # GET /time?start_time=2020-04-07T12:34:56Z # => "Starting at: 2020-04-07 12:34:56 UTC"
-  # ```
-  #
-  # #### Extra Configuration
-  #
-  # In some cases a param converter may require [additional configuration][Athena::Framework::ParamConverter].
-  # In this case a `NamedTuple` may be provided as the value of `converter`.
-  # The named tuple must contain a `name` key that represents the `ATH::ParamConverter.class` you wish to use for this query parameter.
-  # Any additional key/value pairs will be passed to the param converter.
-  #
-  # ```
-  # require "athena"
-  #
-  # class ExampleController < ATH::Controller
-  #   @[ATHA::QueryParam("start_time", converter: {name: ATH::TimeConverter, format: "%Y--%m//%d  %T"})]
-  #   @[ARTA::Get("/time")]
-  #   def time(start_time : Time) : String
-  #     "Starting at: #{start_time}"
-  #   end
-  # end
-  #
-  # ATH.run
-  #
-  # # GET /time?start_time="2020--04//07  12:34:56" # => "Starting at: 2020-04-07 12:34:56 UTC"
-  # ```
-  #
-  # NOTE: The dedicated `ATHA::ParamConverter` annotation may be used as well, just be sure to give it and the query parameter the same name.
   annotation QueryParam; end
 
   # Represents a form data request parameter.
