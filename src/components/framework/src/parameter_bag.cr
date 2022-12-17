@@ -13,13 +13,8 @@
 # struct TestListener
 #   include AED::EventListenerInterface
 #
-#   def self.subscribed_events : AED::SubscribedEvents
-#     AED::SubscribedEvents{
-#       ATH::Events::Request => 0,
-#     }
-#   end
-#
-#   def call(event : ATH::Events::Request, dispatcher : AED::EventDispatcherInterface) : Nil
+#   @[AEDA::AsEventListener]
+#   def on_request(event : ATH::Events::Request) : Nil
 #     # Store our value within the request's attributes, restricted to a `String`.
 #     event.request.attributes.set "my_arg", "foo", String
 #   end
