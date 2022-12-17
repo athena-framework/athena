@@ -75,27 +75,19 @@ struct ParamTest < ATH::Spec::APITestCase
     response.body.should eq %({"code":422,"message":"Parameter 'ids' is invalid.","errors":[{"property":"ids[1]","message":"This value should be positive or zero.","code":"e09e52d0-b549-4ba1-8b4e-420aad76f0de"},{"property":"ids[1]","message":"This value should be between -1.0 and 10.","code":"7e62386d-30ae-4e7c-918f-1b7e571c6d69"}]})
   end
 
-  def test_param_converter_class : Nil
+  def test_automatically_resolves_params_from_query_params : Nil
     self.request("GET", "/query/time?time=2020-04-07T12:34:56Z").body.should eq %("Today is: 2020-04-07 12:34:56 UTC")
   end
 
-  def test_param_converter_class_single_generic : Nil
-    self.request("GET", "/query/generic/single").body.should eq "1"
+  def test_applies_resolvers_to_args_from_query_params : Nil
+    self.request("GET", "/query/param/enabled/resolver?value=blah").body.should eq %("fooo")
   end
 
-  def test_param_converter_class_single_additional_generic : Nil
-    self.request("GET", "/query/generic/single-additional").body.should eq "2"
-  end
-
-  def test_param_converter_class_multiple_additional_generic : Nil
-    self.request("GET", "/query/generic/multiple-additional").body.should eq "4"
-  end
-
-  def test_param_converter_default_missing : Nil
+  def test_automatically_resolves_from_default_if_query_param_is_missing : Nil
     self.request("GET", "/query/time").body.should eq %("Today is: 2020-10-01 00:00:00 UTC")
   end
 
-  def test_param_converter_named_tuple : Nil
+  def test_query_param_with_annotated_parameter : Nil
     self.request("GET", "/query/nt_time?time=2020--10//20  12:34:56").body.should eq %("Today is: 2020-10-20 12:34:56 UTC")
   end
 

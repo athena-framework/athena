@@ -3,6 +3,10 @@ def Object.from_parameter(value)
   value
 end
 
+def Object.from_parameter?(value)
+  value
+end
+
 # :nodoc:
 def Array.from_parameter(value : Array)
   value.map { |item| T.from_parameter(item).as T }
@@ -16,6 +20,17 @@ def Bool.from_parameter(value : String) : Bool
     false
   else
     raise ArgumentError.new "Invalid Bool: #{value}"
+  end
+end
+
+# :nodoc:
+def Bool.from_parameter?(value : String) : Bool?
+  if value == "true"
+    true
+  elsif value == "false"
+    false
+  else
+    nil
   end
 end
 
@@ -35,6 +50,11 @@ end
 # :nodoc:
 def Number.from_parameter(value : String) : Number
   new value, whitespace: false
+end
+
+# :nodoc:
+def Number.from_parameter?(value : String)
+  new value, whitespace: false rescue nil
 end
 
 # :nodoc:

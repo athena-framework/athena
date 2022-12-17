@@ -95,17 +95,6 @@ class RoutingController < ATH::Controller
     id
   end
 
-  @[ATHA::ParamConverter("since", converter: ATH::TimeConverter)]
-  @[ATHA::QueryParam("since")]
-  @[ARTA::Get("events")]
-  def events(since : Time? = nil) : Nil
-    if s = since
-      s.should be_a Time
-    else
-      s.should be_nil
-    end
-  end
-
   @[ARTA::Route("/custom-method", methods: "FOO")]
   def custom_http_method : String
     "FOO"

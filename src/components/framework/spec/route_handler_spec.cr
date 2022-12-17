@@ -1,7 +1,7 @@
 require "./spec_helper"
 
 private struct MockArgumentResolver
-  include Athena::Framework::Arguments::ArgumentResolverInterface
+  include Athena::Framework::Controller::ArgumentResolverInterface
 
   def initialize(@exception : ::Exception? = nil); end
 

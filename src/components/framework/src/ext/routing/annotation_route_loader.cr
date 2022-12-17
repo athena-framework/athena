@@ -133,8 +133,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
           {% end %}
 
           {%
-            arguments = [] of Nil
-            param_converters = [] of Nil
+            parameters = [] of Nil
             params = [] of Nil
             annotation_configurations = {} of Nil => Nil
 
@@ -176,31 +175,42 @@ module Athena::Framework::Routing::AnnotationRouteLoader
               route_def.raise "Route action '#{klass.name}##{m.name}' cannot change the required methods when _NOT_ using the 'ARTA::Route' annotation."
             end
 
-            # Process controller action arguments.
+            # Process controller action parameters.
             m.args.each do |arg|
-              arg.raise "Route action argument '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction." if arg.restriction.is_a? Nop
-              arguments << %(ATH::Arguments::ArgumentMetadata(#{arg.restriction}).new(#{arg.name.stringify}, #{!arg.default_value.is_a? Nop}, #{arg.default_value.is_a?(Nop) ? nil : arg.default_value})).id
-            end
+              parameter_annotation_configurations = {} of Nil => Nil
 
-            # Process param converters
-            m.annotations(ATHA::ParamConverter).each do |converter|
-              unless arg_name = (converter[0] || converter[:name])
-                converter.raise "Route action '#{klass.name}##{m.name}' has an ATHA::ParamConverter annotation but is missing the argument's name. It was not provided as the first positional argument nor via the 'name' field."
+              # Process custom annotation types
+              ACF::CUSTOM_ANNOTATIONS.each do |ann_class|
+                ann_class = ann_class.resolve
+                annotations = [] of Nil
+
+                (arg.annotations ann_class).each do |ann|
+                  resolver = parse_type(ann.name.names[0..-2].join "::").resolve
+
+                  # See if this annotation relates to a typed resolver interface.
+                  if interface = resolver.resolve.ancestors.find &.<=(ATHR::Interface::Typed)
+                    supported_types = interface.type_vars.first.type_vars
+
+                    unless supported_types.any? { |t| arg.restriction.resolve <= t.resolve }
+                      arg.raise %(The annotation '#{ann}' cannot be applied to '#{klass.name}##{m.name}:#{arg.name} : #{arg.restriction}' since the '#{resolver}' resolver only supports parameters of type '#{supported_types.join(" | ").id}'.)
+                    end
+                  end
+
+                  annotations << "#{ann_class}Configuration.new(#{ann.args.empty? ? "".id : "#{ann.args.splat},".id}#{ann.named_args.double_splat})".id
+                end
+
+                parameter_annotation_configurations[ann_class] = "(#{annotations} of ACF::AnnotationConfigurations::ConfigurationBase)".id unless annotations.empty?
               end
 
-              unless (arg = m.args.find(&.name.stringify.==(arg_name.id.stringify)))
-                converter.raise "Route action '#{klass.name}##{m.name}' has an ATHA::ParamConverter annotation but does not have a corresponding action argument for '#{arg_name.id}'."
-              end
-
-              unless converter_class = converter[:converter]
-                converter.raise "Route action '#{klass.name}##{m.name}' has an ATHA::ParamConverter annotation but is missing the converter class. It was not provided via the 'converter' field."
-              end
-
-              ann_args = converter.named_args
-              configuration_type = ann_args[:type_vars] != nil ? "Configuration(#{arg.restriction}, #{ann_args[:type_vars].is_a?(Path) ? ann_args[:type_vars].id : ann_args[:type_vars].splat})" : "Configuration(#{arg.restriction})"
-              configuration_args = {name: arg_name.id.stringify}
-              converter.named_args.to_a.select { |(k, _)| k != :type_vars }.each { |(k, v)| configuration_args[k] = v }
-              param_converters << %(#{converter_class.resolve}::#{configuration_type.id}.new(#{configuration_args.double_splat})).id
+              arg.raise "Route action parameter '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction." if arg.restriction.is_a? Nop
+              parameters << %(ATH::Controller::ParameterMetadata(#{arg.restriction}).new(
+                #{arg.name.stringify},
+                #{!arg.default_value.is_a? Nop},
+                #{arg.default_value.is_a?(Nop) ? nil : arg.default_value},
+                ACF::AnnotationConfigurations.new(
+                  #{parameter_annotation_configurations} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)
+                ),
+              )).id
             end
 
             # Process custom annotation types
@@ -219,13 +229,13 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             [{ATHA::QueryParam, "ATH::Params::QueryParam".id}, {ATHA::RequestParam, "ATH::Params::RequestParam".id}].each do |(param_ann, param_class)|
               m.annotations(param_ann).each do |ann|
                 unless arg_name = (ann[0] || ann[:name])
-                  ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation but is missing the argument's name. It was not provided as the first positional argument nor via the 'name' field."
+                  ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation but is missing the parameter's name. It was not provided as the first positional argument nor via the 'name' field."
                 end
 
                 arg = m.args.find &.name.stringify.==(arg_name)
 
                 unless arg_names.includes? arg_name
-                  ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation but does not have a corresponding action argument for '#{arg_name.id}'."
+                  ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation but does not have a corresponding action parameter for '#{arg_name.id}'."
                 end
 
                 ann_args = ann.named_args
@@ -267,35 +277,10 @@ module Athena::Framework::Routing::AnnotationRouteLoader
 
                 ann_args[:requirements] = requirements
 
-                # Handle query param specific param converters
-                if converter = ann_args[:converter]
-                  if converter.is_a?(NamedTupleLiteral)
-                    converter_args = converter
-                    converter_args[:converter] = converter_args[:name] || converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter'. The converter's name was not provided via the 'name' field."
-                    converter_args[:name] = arg_name
-                  elsif converter.is_a? Path
-                    unless converter.resolve <= ATH::ParamConverter
-                      converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter' value. Expected 'ATH::ParamConverter.class' got '#{converter.resolve.id}'."
-                    end
-
-                    converter_args = {converter: converter.resolve, name: arg_name}
-                  else
-                    converter.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'converter' type: '#{converter.class_name.id}'. Only NamedTuples, or the converter class are supported."
-                  end
-
-                  configuration_type = converter_args[:type_vars] != nil ? "Configuration(#{arg.restriction}, #{converter_args[:type_vars].is_a?(Path) ? converter_args[:type_vars].id : converter_args[:type_vars].splat})" : "Configuration(#{arg.restriction})"
-                  configuration_args = {name: converter_args[:name]}
-                  converter_args.to_a.select { |(k, _)| k != :type_vars }.each { |(k, v)| configuration_args[k] = v }
-                  param_converters << %(#{converter_args[:converter].resolve}::#{configuration_type.id}.new(#{configuration_args.double_splat})).id
-                end
-
                 # Non strict parameters must be nilable or have a default value.
                 if ann_args[:strict] == false && !arg.restriction.resolve.nilable? && arg.default_value.is_a?(Nop)
-                  ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with `strict: false` but the related action argument is not nilable nor has a default value."
+                  ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with `strict: false` but the related action parameter is not nilable nor has a default value."
                 end
-
-                # TODO: Use `.delete :converter` and remove `converter` argument from `ScalarParam`.
-                ann_args[:converter] = nil
 
                 params << %(#{param_class}(#{arg.restriction}).new(
                   name: #{arg_name},
@@ -329,8 +314,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
           {% if base == nil %}
             @@actions[{{action_name}}] = ATH::Action.new(
               action: Proc({{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}, {{m.return_type}}).new do |arguments|
-                # If the controller is not registered as a service, simply new one up,
-                # otherwise fetch it directly from the SC.
+                # If the controller is not registered as a service, simply new one up, otherwise fetch it directly from the SC.
                 {% if klass.annotation(ADI::Register) %}
                   %instance = ADI.container.get({{klass.id}})
                 {% else %}
@@ -339,8 +323,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
 
                 %instance.{{m.name.id}} *arguments
               end,
-              arguments: {{arguments.empty? ? "Array(ATH::Arguments::ArgumentMetadata(Nil)).new".id : arguments}},
-              param_converters: {{param_converters.empty? ? "Tuple.new".id : "{#{param_converters.splat}}".id}},
+              parameters: {{parameters.empty? ? "Tuple.new".id : "{#{parameters.splat}}".id}},
               annotation_configurations: ACF::AnnotationConfigurations.new({{annotation_configurations}} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)),
               params: ({{params}} of ATH::Params::ParamInterface),
               _controller: {{klass.id}},
@@ -348,156 +331,156 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             )
           {% end %}
 
-            {%
-              paths = {} of Nil => Nil
-              defaults = {} of Nil => Nil
-              requirements = {} of Nil => Nil
+          {%
+            paths = {} of Nil => Nil
+            defaults = {} of Nil => Nil
+            requirements = {} of Nil => Nil
 
-              # Resolve `ART::Route` data from the route annotation and globals.
+            # Resolve `ART::Route` data from the route annotation and globals.
 
-              globals[:defaults].each { |k, v| defaults[k] = v }
-              globals[:requirements].each { |k, v| requirements[k] = v }
+            globals[:defaults].each { |k, v| defaults[k] = v }
+            globals[:requirements].each { |k, v| requirements[k] = v }
 
-              if (value = route_def[:locale]) != nil
-                value.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral' for its '#{route_def.name}#locale' field, but got a '#{value.class_name.id}'." unless value.is_a? StringLiteral
-                defaults["_locale"] = value
+            if (value = route_def[:locale]) != nil
+              value.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral' for its '#{route_def.name}#locale' field, but got a '#{value.class_name.id}'." unless value.is_a? StringLiteral
+              defaults["_locale"] = value
+            end
+
+            if (value = route_def[:format]) != nil
+              value.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral' for its '#{route_def.name}#format' field, but got a '#{value.class_name.id}'." unless value.is_a? StringLiteral
+              defaults["_format"] = value
+            end
+
+            if route_def[:stateless] != nil
+              value = route_def[:stateless]
+
+              value.raise "Route action '#{klass.name}##{m.name}' expects a 'BoolLiteral' for its '#{route_def.name}#stateless' field, but got a '#{value.class_name.id}'." unless value.is_a? BoolLiteral
+              defaults["_stateless"] = value
+            end
+            if ann_defaults = route_def[:defaults]
+              unless ann_defaults.is_a? HashLiteral
+                ann_defaults.raise "Route action '#{klass.name}##{m.name}' expects a 'HashLiteral(StringLiteral, _)' for its '#{route_def.name}#defaults' field, but got a '#{ann_defaults.class_name.id}'."
               end
 
-              if (value = route_def[:format]) != nil
-                value.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral' for its '#{route_def.name}#format' field, but got a '#{value.class_name.id}'." unless value.is_a? StringLiteral
-                defaults["_format"] = value
+              ann_defaults.each { |k, v| defaults[k] = v }
+            end
+
+            if ann_requirements = route_def[:requirements]
+              unless ann_requirements.is_a? HashLiteral
+                ann_requirements.raise "Route action '#{klass.name}##{m.name}' expects a 'HashLiteral(StringLiteral, StringLiteral | RegexLiteral)' for its '#{route_def.name}#requirements' field, but got a '#{ann_requirements.class_name.id}'."
               end
 
-              if route_def[:stateless] != nil
-                value = route_def[:stateless]
-
-                value.raise "Route action '#{klass.name}##{m.name}' expects a 'BoolLiteral' for its '#{route_def.name}#stateless' field, but got a '#{value.class_name.id}'." unless value.is_a? BoolLiteral
-                defaults["_stateless"] = value
+              ann_requirements.each do |k, v|
+                requirements[k] = if v.is_a?(StringLiteral) || v.is_a?(RegexLiteral)
+                                    v
+                                  else
+                                    "#{v}.to_s".id
+                                  end
               end
-              if ann_defaults = route_def[:defaults]
-                unless ann_defaults.is_a? HashLiteral
-                  ann_defaults.raise "Route action '#{klass.name}##{m.name}' expects a 'HashLiteral(StringLiteral, _)' for its '#{route_def.name}#defaults' field, but got a '#{ann_defaults.class_name.id}'."
-                end
+            end
 
-                ann_defaults.each { |k, v| defaults[k] = v }
+            if (value = route_def[:host]) != nil
+              if !value.is_a?(StringLiteral) && !value.is_a?(RegexLiteral)
+                value.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral | RegexLiteral' for its '#{route_def.name}#host' field, but got a '#{value.class_name.id}'."
               end
+            end
 
-              if ann_requirements = route_def[:requirements]
-                unless ann_requirements.is_a? HashLiteral
-                  ann_requirements.raise "Route action '#{klass.name}##{m.name}' expects a 'HashLiteral(StringLiteral, StringLiteral | RegexLiteral)' for its '#{route_def.name}#requirements' field, but got a '#{ann_requirements.class_name.id}'."
-                end
-
-                ann_requirements.each do |k, v|
-                  requirements[k] = if v.is_a?(StringLiteral) || v.is_a?(RegexLiteral)
-                                      v
-                                    else
-                                      "#{v}.to_s".id
-                                    end
-                end
+            if (value = route_def[:priority]) != nil
+              if !value.is_a?(NumberLiteral)
+                value.raise "Route action '#{klass.name}##{m.name}' expects a 'NumberLiteral' for its '#{route_def.name}#priority' field, but got a '#{value.class_name.id}'."
               end
+            end
 
-              if (value = route_def[:host]) != nil
-                if !value.is_a?(StringLiteral) && !value.is_a?(RegexLiteral)
-                  value.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral | RegexLiteral' for its '#{route_def.name}#host' field, but got a '#{value.class_name.id}'."
-                end
+            if (value = route_def[:condition]) != nil
+              if !value.is_a?(Call) || value.receiver.resolve != ART::Route::Condition
+                value.raise "Route action '#{klass.name}##{m.name}' expects an 'ART::Route::Condition' for its '#{route_def.name}#condition' field, but got a '#{value.class_name.id}'."
               end
+            end
 
-              if (value = route_def[:priority]) != nil
-                if !value.is_a?(NumberLiteral)
-                  value.raise "Route action '#{klass.name}##{m.name}' expects a 'NumberLiteral' for its '#{route_def.name}#priority' field, but got a '#{value.class_name.id}'."
-                end
-              end
+            schemes = (globals[:schemes] + (route_def[:schemes] || [] of Nil)).uniq
+            methods = (globals[:methods] + methods).uniq
+            priority = route_def[:priority] || globals[:priority]
+            host = route_def[:host] || globals[:host]
 
-              if (value = route_def[:condition]) != nil
-                if !value.is_a?(Call) || value.receiver.resolve != ART::Route::Condition
-                  value.raise "Route action '#{klass.name}##{m.name}' expects an 'ART::Route::Condition' for its '#{route_def.name}#condition' field, but got a '#{value.class_name.id}'."
-                end
-              end
+            condition = route_def[:condition] || globals[:condition]
+            priority = route_def[:priority] || globals[:priority]
 
-              schemes = (globals[:schemes] + (route_def[:schemes] || [] of Nil)).uniq
-              methods = (globals[:methods] + methods).uniq
-              priority = route_def[:priority] || globals[:priority]
-              host = route_def[:host] || globals[:host]
+            unless (path = route_def[:localized_paths] || route_def[0] || route_def[:path])
+              m.raise "Route action '#{klass.name}##{m.name}' is missing its path."
+            end
 
-              condition = route_def[:condition] || globals[:condition]
-              priority = route_def[:priority] || globals[:priority]
+            if !path.is_a?(StringLiteral) && !path.is_a?(HashLiteral)
+              path.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral | HashLiteral(StringLiteral, StringLiteral)' for its '#{route_def.name}#path' field, but got a '#{path.class_name.id}'."
+            end
 
-              unless (path = route_def[:localized_paths] || route_def[0] || route_def[:path])
-                m.raise "Route action '#{klass.name}##{m.name}' is missing its path."
-              end
+            prefix = globals[:localized_paths] || globals[:path]
 
-              if !path.is_a?(StringLiteral) && !path.is_a?(HashLiteral)
-                path.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral | HashLiteral(StringLiteral, StringLiteral)' for its '#{route_def.name}#path' field, but got a '#{path.class_name.id}'."
-              end
-
-              prefix = globals[:localized_paths] || globals[:path]
-
-              # Process path/prefix values to a hash of paths that should be created.
-              if path.is_a? HashLiteral
-                if !prefix.is_a? HashLiteral
-                  path.each { |locale, locale_path| paths[locale] = "#{prefix.id}#{locale_path.id}" }
-                elsif !(missing = prefix.keys.reject { |k| path[k] }).empty?
-                  m.raise "Route action '#{klass.name}##{m.name}' is missing paths for locale(s) '#{missing.join(",").id}'."
-                else
-                  path.each do |locale, locale_path|
-                    if prefix[locale] == nil
-                      m.raise "Route action '#{klass.name}##{m.name}' is missing a corresponding route prefix for the '#{locale.id}' locale."
-                    end
-
-                    paths[locale] = "#{prefix[locale].id}#{locale_path.id}"
-                  end
-                end
-              elsif prefix.is_a? HashLiteral
-                prefix.each { |locale, locale_prefix| paths[locale] = "#{locale_prefix.id}#{path.id}" }
+            # Process path/prefix values to a hash of paths that should be created.
+            if path.is_a? HashLiteral
+              if !prefix.is_a? HashLiteral
+                path.each { |locale, locale_path| paths[locale] = "#{prefix.id}#{locale_path.id}" }
+              elsif !(missing = prefix.keys.reject { |k| path[k] }).empty?
+                m.raise "Route action '#{klass.name}##{m.name}' is missing paths for locale(s) '#{missing.join(",").id}'."
               else
-                paths["_default"] = "#{prefix.id}#{path.id}"
-              end
+                path.each do |locale, locale_path|
+                  if prefix[locale] == nil
+                    m.raise "Route action '#{klass.name}##{m.name}' is missing a corresponding route prefix for the '#{locale.id}' locale."
+                  end
 
-              m.args.each do |arg|
-                paths.each do |_, pth|
-                  pth.split('/').each do |p|
-                    if p.starts_with?("{#{arg.name}") && defaults[arg.name.stringify] == nil && !arg.default_value.is_a?(Nop) && p =~ /\{\w+(?:<.*?>)?\}/
-                      defaults[arg.name.stringify] = arg.default_value
-                    end
+                  paths[locale] = "#{prefix[locale].id}#{locale_path.id}"
+                end
+              end
+            elsif prefix.is_a? HashLiteral
+              prefix.each { |locale, locale_prefix| paths[locale] = "#{locale_prefix.id}#{path.id}" }
+            else
+              paths["_default"] = "#{prefix.id}#{path.id}"
+            end
+
+            m.args.each do |arg|
+              paths.each do |_, pth|
+                pth.split('/').each do |p|
+                  if p.starts_with?("{#{arg.name}") && defaults[arg.name.stringify] == nil && !arg.default_value.is_a?(Nop) && p =~ /\{\w+(?:<.*?>)?\}/
+                    defaults[arg.name.stringify] = arg.default_value
                   end
                 end
+              end
+            end
+          %}
+
+          {% for locale, path in paths %}
+            {%
+              r_name = route_name
+              r_defaults = defaults
+              r_requirements = requirements
+
+              if locale != "_default"
+                r_defaults["_locale"] = locale
+                r_requirements["_locale"] = "Regex.escape(#{locale})".id
+                r_defaults["_canonical_route"] = r_name
+                r_name = "#{route_name.id}.#{locale.id}"
               end
             %}
 
-            {% for locale, path in paths %}
-              {%
-                r_name = route_name
-                r_defaults = defaults
-                r_requirements = requirements
+            %route{path} = ART::Route.new(
+              path: {{path}},
+              defaults: {{r_defaults.empty? ? "Hash(String, String?).new".id : r_defaults}},
+              requirements: {{r_requirements}} of String => Regex | String,
+              host: {{host}},
+              schemes: {{schemes.empty? ? nil : schemes}},
+              methods: {{methods.empty? ? nil : methods}},
+              condition: {{condition}}
+            )
 
-                if locale != "_default"
-                  r_defaults["_locale"] = locale
-                  r_requirements["_locale"] = "Regex.escape(#{locale})".id
-                  r_defaults["_canonical_route"] = r_name
-                  r_name = "#{route_name.id}.#{locale.id}"
-                end
-              %}
-
-              %route{path} = ART::Route.new(
-                path: {{path}},
-                defaults: {{r_defaults.empty? ? "Hash(String, String?).new".id : r_defaults}},
-                requirements: {{r_requirements}} of String => Regex | String,
-                host: {{host}},
-                schemes: {{schemes.empty? ? nil : schemes}},
-                methods: {{methods.empty? ? nil : methods}},
-                condition: {{condition}}
-              )
-
-              %collection{c_idx}.add({{r_name}}, %route{path}, {{priority}})
-            {% end %}
+            %collection{c_idx}.add({{r_name}}, %route{path}, {{priority}})
           {% end %}
-
-          collection.add %collection{c_idx}
         {% end %}
+
+        collection.add %collection{c_idx}
       {% end %}
+    {% end %}
 
-      ART.compile collection
+    ART.compile collection
 
-      collection
+    collection
   end
 end

@@ -61,11 +61,10 @@ class DeserializableMockSerializer(T) < MockSerializer
   end
 end
 
-macro create_action(return_type = String, param_converters = nil, &)
+macro create_action(return_type = String, &)
   ATH::Action.new(
     Proc(typeof(Tuple.new), {{return_type}}).new { {{yield}} },
-    Array(ATH::Arguments::ArgumentMetadata(Nil)).new,
-    {{param_converters ? param_converters : "Tuple.new".id}},
+    Tuple.new,
     ACF::AnnotationConfigurations.new,
     Array(ATH::Params::ParamInterface).new,
     TestController,
@@ -77,20 +76,19 @@ def new_context(*, request : ATH::Request = new_request, response : HTTP::Server
   HTTP::Server::Context.new request, response
 end
 
-def new_argument : ATH::Arguments::ArgumentMetadata
-  ATH::Arguments::ArgumentMetadata(Int32).new "id"
+def new_parameter : ATH::Controller::ParameterMetadata
+  ATH::Controller::ParameterMetadata(Int32).new "id"
 end
 
 def new_action(
   *,
-  arguments : Array(ATH::Arguments::ArgumentMetadata)? = nil,
+  arguments : Tuple = Tuple.new,
   params : Array(ATH::Params::ParamInterface) = Array(ATH::Params::ParamInterface).new,
   annotation_configurations = nil
 ) : ATH::ActionBase
   ATH::Action.new(
     Proc(typeof(Tuple.new), String).new { test_controller = TestController.new; test_controller.get_test },
-    arguments || Array(ATH::Arguments::ArgumentMetadata(Nil)).new,
-    Tuple.new,
+    arguments,
     annotation_configurations || ACF::AnnotationConfigurations.new,
     params,
     TestController,

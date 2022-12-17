@@ -6,7 +6,7 @@ struct Athena::Framework::RouteHandler
   def initialize(
     @event_dispatcher : AED::EventDispatcherInterface,
     @request_store : ATH::RequestStore,
-    @argument_resolver : ATH::Arguments::ArgumentResolverInterface,
+    @argument_resolver : ATH::Controller::ArgumentResolverInterface,
     @controller_resolver : ATH::ControllerResolverInterface
   )
   end

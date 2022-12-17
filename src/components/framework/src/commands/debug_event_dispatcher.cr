@@ -16,7 +16,6 @@
 #   Order   Callable                                                 Priority
 #  ------- -------------------------------------------------------- ----------
 #   #1      Athena::Framework::Listeners::ParamFetcher#on_action     5
-#   #2      Athena::Framework::Listeners::ParamConverter#on_action   -250
 #  ------- -------------------------------------------------------- ----------
 #
 # Athena::Framework::Events::Exception event

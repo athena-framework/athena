@@ -1,62 +1,3 @@
-@[ADI::Register]
-class QPGenericConverter < ATH::ParamConverter
-  def apply(request : ATH::Request, configuration : Configuration(T)) : Nil forall T
-    value = case T
-            in Int32.class  then 1
-            in String.class then 2
-            end
-
-    request.attributes.set "value", value, Int32
-  end
-end
-
-@[ADI::Register]
-class SingleAdditionalQPGenericConverter < ATH::ParamConverter
-  configuration type_vars: B
-
-  def apply(request : ATH::Request, configuration : Configuration(A, B)) : Nil forall A, B
-    value = 0
-
-    value += case A
-             in Int32.class  then 1
-             in String.class then 2
-             end
-
-    value += case B
-             in Int32.class  then 1
-             in String.class then 2
-             end
-
-    request.attributes.set "value", value, Int32
-  end
-end
-
-@[ADI::Register]
-class MultipleAdditionalQPGenericConverter < ATH::ParamConverter
-  configuration type_vars: {B, C}
-
-  def apply(request : ATH::Request, configuration : Configuration(A, B, C)) : Nil forall A, B, C
-    value = 0
-
-    value += case A
-             in Int32.class  then 1
-             in String.class then 2
-             end
-
-    value += case B
-             in Int32.class  then 1
-             in String.class then 2
-             end
-
-    value += case C
-             in Int32.class  then 1
-             in String.class then 2
-             end
-
-    request.attributes.set "value", value, Int32
-  end
-end
-
 @[ARTA::Route(path: "/query")]
 class QueryParamController < ATH::Controller
   # Simple, just name/description
@@ -110,37 +51,29 @@ class QueryParamController < ATH::Controller
   end
 
   # Param converter type
-  @[ATHA::QueryParam("time", converter: ATH::TimeConverter)]
+  @[ATHA::QueryParam("time")]
   @[ARTA::Get("/time")]
   def time(time : Time = Time.utc(2020, 10, 1)) : String
     "Today is: #{time}"
   end
 
-  # Param converter type - single generic - arg type
-  @[ATHA::QueryParam("value", converter: QPGenericConverter)]
-  @[ARTA::Get("/generic/single")]
-  def generic_arg_converter(value : Int32 = 0) : Int32
-    value
-  end
-
-  # Param converter type - single additional generic
-  @[ATHA::QueryParam("value", converter: {name: SingleAdditionalQPGenericConverter, type_vars: Int32})]
-  @[ARTA::Get("/generic/single-additional")]
-  def generic_arg_converter_single_additional(value : Int32 = 0) : Int32
-    value
-  end
-
-  # Param converter type - multiple additional generic
-  @[ATHA::QueryParam("value", converter: {name: MultipleAdditionalQPGenericConverter, type_vars: {Int32, String}})]
-  @[ARTA::Get("/generic/multiple-additional")]
-  def generic_arg_converter_multiple_additional(value : Int32 = 0) : Int32
+  # Applies QP values to custom resolvers via annotation
+  @[ATHA::QueryParam("value")]
+  @[ARTA::Get("/param/enabled/resolver")]
+  def annotation_enabled_resolver_on_query_param_parameter(
+    @[GenericAnnotationEnabledCustomResolver::Enable]
+    value : String
+  ) : String
     value
   end
 
   # Param converter named tuple
-  @[ATHA::QueryParam("time", converter: {name: ATH::TimeConverter, format: "%Y--%m//%d  %T"})]
+  @[ATHA::QueryParam("time")]
   @[ARTA::Get("/nt_time")]
-  def nt_time(time : Time) : String
+  def nt_time(
+    @[ATHR::Time::Format(format: "%Y--%m//%d  %T")]
+    time : Time
+  ) : String
     "Today is: #{time}"
   end
 

@@ -1,4 +1,4 @@
-@[ADI::Register(tags: [{name: ATH::Arguments::Resolvers::TAG, priority: 105}])]
+@[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 105}])]
 # Handles resolving an [Enum](https://crystal-lang.org/api/Enum.html) member from a string value that is stored in the request's `ATH::Request#attributes`.
 # This resolver supports both numeric and string based parsing, returning a proper error response if the provided value does not map to any valid member.
 #
@@ -30,18 +30,14 @@
 # ```
 #
 # TIP: Checkout `ART::Requirement::Enum` for an easy way to restrict routing to an enum's members, or a subset of them.
-struct Athena::Framework::Arguments::Resolvers::Enum
-  include Athena::Framework::Arguments::Resolvers::Interface
+struct Athena::Framework::Controller::ValueResolvers::Enum
+  include Athena::Framework::Controller::ValueResolvers::Interface
 
   # :inherit:
-  def supports?(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata) : Bool
-    argument.instance_of?(::Enum) && request.attributes.has?(argument.name, String)
-  end
-
-  # :inherit:
-  def resolve(request : ATH::Request, argument : ATH::Arguments::ArgumentMetadata)
-    return unless (enum_type = argument.first_type_of ::Enum)
-    value = request.attributes.get argument.name, String
+  def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata(T)) : T? forall T
+    return unless parameter.instance_of? ::Enum
+    return unless (enum_type = parameter.first_type_of ::Enum)
+    return unless (value = request.attributes.get? parameter.name, String)
 
     member = if (num = value.to_i128?(whitespace: false)) && (m = enum_type.from_value? num)
                m
@@ -50,7 +46,7 @@ struct Athena::Framework::Arguments::Resolvers::Enum
              end
 
     unless member
-      raise ATH::Exceptions::BadRequest.new "Parameter '#{argument.name}' of enum type '#{enum_type}' has no valid member for '#{value}'."
+      raise ATH::Exceptions::BadRequest.new "Parameter '#{parameter.name}' of enum type '#{enum_type}' has no valid member for '#{value}'."
     end
 
     member

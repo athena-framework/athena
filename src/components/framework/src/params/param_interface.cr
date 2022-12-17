@@ -2,7 +2,7 @@
 #
 # See `ATHA::QueryParam` and `ATHA::RequestParam`.
 module Athena::Framework::Params::ParamInterface
-  # Returns the name of the parameter, maps to the controller action argument name.
+  # Returns the name of the parameter, maps to the controller action parameter name.
   abstract def name : String
 
   # Returns the value that should be used if `#strict?` is false and the parameter was not provided, defaulting to `nil`.

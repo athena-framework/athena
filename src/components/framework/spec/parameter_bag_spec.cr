@@ -63,6 +63,12 @@ describe ATH::ParameterBag do
         data["foo"].should eq "bar"
       end
     end
+
+    it "returns nil if the value is set, but of a different type" do
+      bag = ATH::ParameterBag.new
+      bag.set "value", "foo"
+      bag.get?("value", Int32).should be_nil
+    end
   end
 
   describe "#get" do
