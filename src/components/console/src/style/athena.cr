@@ -139,12 +139,39 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
     self.new_line
   end
 
+  # Formats a list of key/value pairs horizontally.
+  #
+  # TODO: `Mappable` when/if https://github.com/crystal-lang/crystal/issues/10886 is implemented.
+  def definition_list(*rows : String | ACON::Helper::Table::Separator | Enumerable({K, V})) : Nil forall K, V
+    table_headers = [] of String | ACON::Helper::Table::Cell
+    table_row = [] of String | ACON::Helper::Table::Cell | Nil
+
+    rows.each do |row|
+      case row
+      in String
+        table_headers << ACON::Helper::Table::Cell.new row, colspan: 2
+        table_row << nil
+      in ACON::Helper::Table::Cell
+        table_headers << row
+        table_row << row
+      in Enumerable
+        table_headers << row.first_key.to_s
+        table_row << row.first_value.to_s
+      end
+    end
+
+    self.horizontal_table table_headers, {table_row}
+  end
+
   # Creates and returns an Athena styled `ACON::Helper::Table` instance.
   def create_table : ACON::Helper::Table
+    style = ACON::Helper::Table.style_definition("suggested").clone
+    style.cell_header_format "<info>%s</info>"
+
     ACON::Helper::Table.new(
       (output = @output).is_a?(ACON::Output::ConsoleOutputInterface) ? output.section : @output
     )
-      .style("suggested")
+      .style(style)
   end
 
   # :inherit:

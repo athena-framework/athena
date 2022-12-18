@@ -30,6 +30,8 @@ class Athena::Console::Helper::Table::Style
   protected getter border_format : String = "%s"
   protected getter align : ACON::Helper::Table::Alignment = :left
 
+  def_clone
+
   # Sets the default cell alignment for the table.
   #
   # See `ACON::Helper::Table::Alignment`.

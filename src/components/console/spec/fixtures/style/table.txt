@@ -1,5 +1,5 @@
  ----- ------- 
-  Foo   Bar    
+ \e\[32m Foo \e\[0m \e\[32m Bar   \e\[0m 
  ----- ------- 
   Biz   Baz    
   12    false  

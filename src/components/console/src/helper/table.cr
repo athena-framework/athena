@@ -510,7 +510,7 @@ class Athena::Console::Helper::Table
   alias RowType = Enumerable(CellType) | Athena::Console::Helper::Table::Separator
 
   private struct Row
-    alias Type = String | Table::Cell
+    alias Type = String | Table::Cell | Nil
 
     include Indexable::Mutable(Type)
 
@@ -519,7 +519,12 @@ class Athena::Console::Helper::Table
     @columns : Array(Type)
 
     def self.new(columns : Enumerable(CellType))
-      new columns.map { |c| c.is_a?(Athena::Console::Helper::Table::Cell) ? c : c.to_s }
+      new(columns.map do |c|
+        case c
+        when Athena::Console::Helper::Table::Cell, Nil then c
+        else                                                c.to_s
+        end
+      end)
     end
 
     def initialize(columns : Enumerable(Type))
@@ -1149,7 +1154,7 @@ class Athena::Console::Helper::Table
 
   # Fills cells for a colspan > 1
   private def fill_cells(row : Row) : Array(Row::Type)
-    new_row = [] of String | Table::Cell
+    new_row = [] of Row::Type
 
     row.each_with_index do |cell, column|
       new_row << cell
@@ -1166,7 +1171,7 @@ class Athena::Console::Helper::Table
 
   # OPTIMIZE: See about making Row an Enumerable({Int32, Row::Type}) to allow both Row and Hash contexts
   private def fill_cells(row : Hash(Int32, Row::Type)) : Array(Row::Type)
-    new_row = [] of String | Table::Cell
+    new_row = [] of Row::Type
 
     row.each do |column, cell|
       new_row << cell
@@ -1426,7 +1431,7 @@ class Athena::Console::Helper::Table
   end
 
   # Helper method that allows iterating over the cells of a row, skipping cell separators
-  private def iterate_row(rows : Enumerable, line : Int32, & : String | ACON::Helper::Table::Cell, Int32 ->) : Nil
+  private def iterate_row(rows : Enumerable, line : Int32, & : Row::Type, Int32 ->) : Nil
     columns = rows[line]
 
     return if columns.is_a? ACON::Helper::Table::Separator
