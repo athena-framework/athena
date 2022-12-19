@@ -8,10 +8,10 @@ require "./test_case"
 #
 # ## Getting Started
 #
-# If using this component within the [Athena Framework][Athena::Framework], it is already installed and required for you.
-# Checkout the [manual](/components/spec) for some additional information on how to use it within the framework.
+# Unlike the other components, this one requires being manually installed, even if it is being used within the framework.
+# This is due to there not being a way for a library to define development dependencies for the project that it is a dependency of.
 #
-# If using it outside of the framework, you will first need to add it as a dependency:
+# First add the component as a development dependency:
 #
 # ```yaml
 # development_dependencies:
@@ -21,8 +21,9 @@ require "./test_case"
 # ```
 #
 # Then run `shards install`, being sure to require it via `require "athena-spec"` within your `spec/spec_helper.cr` file.
-#
 # From here you can create some `ASPEC::TestCase`s, or make use of the provided `ASPEC::Methods`.
+#
+# If using the component with the framework, also checkout the [manual](/components/spec) for some additional information on how it is integrated.
 module Athena::Spec
   VERSION = "0.3.0"
 
