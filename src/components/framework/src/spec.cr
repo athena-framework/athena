@@ -115,11 +115,11 @@ module Athena::Framework::Spec
   # ```
   # struct ExampleControllerTest < ATH::Spec::APITestCase
   #   def test_add_positive : Nil
-  #     self.request("GET", "/add/5/3").body.should eq "8"
+  #     self.get("/add/5/3").body.should eq "8"
   #   end
   #
   #   def test_add_negative : Nil
-  #     self.request("GET", "/add/5/3?negative=true").body.should eq "-8"
+  #     self.get("/add/5/3?negative=true").body.should eq "-8"
   #   end
   # end
   # ```
@@ -187,7 +187,7 @@ module Athena::Framework::Spec
   #   end
   #
   #   def test_sync_data : Nil
-  #     self.request("POST", "/sync").body.should eq %("MOCK_DATA")
+  #     self.post("/sync").body.should eq %("MOCK_DATA")
   #   end
   # end
   # ```
