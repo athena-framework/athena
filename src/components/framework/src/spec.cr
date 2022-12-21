@@ -4,7 +4,7 @@ require "./spec/*"
 
 # :nodoc:
 #
-# Monkey patch HTTP::Server::Response to allow accessing the response body directly.
+# Monkey patch HTTP::Server::Response to allow accessing the response body directly and string representation of it.
 class HTTP::Server::Response
   @body_io : IO = IO::Memory.new
   @body : String? = nil
@@ -17,6 +17,11 @@ class HTTP::Server::Response
 
   def body : String
     @body ||= @body_io.to_s
+  end
+
+  def to_s(io : IO) : Nil
+    io << @version << ' ' << self.status_code << ' ' << @status.description << '\n' << '\n'
+    HTTP.serialize_headers_and_string_body io, @headers, self.body
   end
 end
 
