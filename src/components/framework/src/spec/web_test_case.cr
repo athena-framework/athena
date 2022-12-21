@@ -1,10 +1,10 @@
-require "./assertions/*"
+require "./expectations/*"
 
 # Base `ASPEC::TestCase` for web based integration tests.
 #
 # NOTE: Currently only `API` based tests are supported. This type exists to allow for introduction of other types in the future.
 abstract struct Athena::Framework::Spec::WebTestCase < ASPEC::TestCase
-  include ATH::Spec::Assertions::Response
+  include ATH::Spec::Expectations::Response
 
   protected getter client : AbstractBrowser?
 
