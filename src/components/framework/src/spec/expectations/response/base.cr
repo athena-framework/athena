@@ -1,3 +1,4 @@
+# :nodoc:
 abstract struct Athena::Framework::Spec::Expectations::Response::Base
   @description : String?
 

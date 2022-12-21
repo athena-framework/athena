@@ -1,3 +1,4 @@
+# :nodoc:
 struct Athena::Framework::Spec::Expectations::Response::FormatEquals < Athena::Framework::Spec::Expectations::Response::Base
   @request : ATH::Request
   @format : String?

@@ -1,3 +1,4 @@
+# :nodoc:
 struct Athena::Framework::Spec::Expectations::Response::IsRedirected < Athena::Framework::Spec::Expectations::Response::Base
   def match(actual_value : HTTP::Server::Response) : Bool
     actual_value.status.redirection?

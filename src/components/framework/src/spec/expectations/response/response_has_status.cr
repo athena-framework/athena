@@ -1,3 +1,4 @@
+# :nodoc:
 struct Athena::Framework::Spec::Expectations::Response::HasStatus < Athena::Framework::Spec::Expectations::Response::Base
   @status : HTTP::Status
 

@@ -1,3 +1,4 @@
+# :nodoc:
 struct Athena::Framework::Spec::Expectations::Response::HeaderEquals < Athena::Framework::Spec::Expectations::Response::Base
   @header_name : String
   @value : String
