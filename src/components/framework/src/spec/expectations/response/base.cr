@@ -20,13 +20,17 @@ abstract struct Athena::Framework::Spec::Expectations::Response::Base
     self.build_message actual_value, self.negated_failure_message
   end
 
+  private def include_response? : Bool
+    true
+  end
+
   private def build_message(response : HTTP::Server::Response, message : String) : String
     String.build do |io|
       if desc = @description
         io << desc << '\n' << '\n'
       end
 
-      io << "Failed asserting that the response #{message}:\n#{response}"
+      io << "Failed asserting that the response #{message}#{self.include_response? ? ":\n#{response}" : "."}"
 
       if (
            ("500" == response.headers["x-debug-exception-code"]?.presence) &&
