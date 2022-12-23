@@ -20,7 +20,7 @@ class GenericAnnotationEnabledCustomResolver
   end
 end
 
-@[ARTA::Route(path: "/param-converter")]
+@[ARTA::Route(path: "/argument-resolvers")]
 class ArgumentResolverController < ATH::Controller
   @[ARTA::Post("/float")]
   def happy_path1(

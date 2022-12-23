@@ -1,12 +1,12 @@
 # :nodoc:
 struct Athena::Framework::Spec::Expectations::Response::HasCookie < Athena::Framework::Spec::Expectations::Response::Base
   @name : String
-  @path : String
+  @path : String?
   @domain : String?
 
   def initialize(
     @name : String,
-    @path : String = "/",
+    @path : String? = nil,
     @domain : String? = nil,
     description : String? = nil
   )

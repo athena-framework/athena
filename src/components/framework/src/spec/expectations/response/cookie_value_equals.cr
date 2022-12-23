@@ -2,13 +2,13 @@
 struct Athena::Framework::Spec::Expectations::Response::CookieValueEquals < Athena::Framework::Spec::Expectations::Response::Base
   @name : String
   @value : String
-  @path : String
+  @path : String?
   @domain : String?
 
   def initialize(
     @name : String,
     @value : String,
-    @path : String = "/",
+    @path : String? = nil,
     @domain : String? = nil,
     description : String? = nil
   )

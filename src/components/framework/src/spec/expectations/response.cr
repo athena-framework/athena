@@ -21,11 +21,11 @@ module Athena::Framework::Spec::Expectations::Response
     self.response.should_not Response::HasHeader.new(name, description), file: file, line: line
   end
 
-  def assert_response_has_cookie(name : String, path : String = "/", domain : String? = nil, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
+  def assert_response_has_cookie(name : String, path : String? = nil, domain : String? = nil, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
     self.response.should Response::HasCookie.new(name, path, domain, description), file: file, line: line
   end
 
-  def assert_response_not_has_cookie(name : String, path : String = "/", domain : String? = nil, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
+  def assert_response_not_has_cookie(name : String, path : String? = nil, domain : String? = nil, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
     self.response.should_not Response::HasCookie.new(name, path, domain, description), file: file, line: line
   end
 
@@ -41,7 +41,7 @@ module Athena::Framework::Spec::Expectations::Response
     self.response.should_not Response::HeaderEquals.new(name, value, description), file: file, line: line
   end
 
-  def assert_cookie_has_value(name : String, value : String, path : String = "/", domain : String? = nil, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
+  def assert_cookie_has_value(name : String, value : String, path : String? = nil, domain : String? = nil, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
     self.response.should Response::HasCookie.new(name, path, domain, description), file: file, line: line
     self.response.should Response::CookieValueEquals.new(name, value, path, domain, description), file: file, line: line
   end
@@ -51,17 +51,17 @@ module Athena::Framework::Spec::Expectations::Response
   end
 
   def assert_route_equals(name : String, parameters : Hash? = nil, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
-    self.request.should Response::RequestAttributeEquals.new("_route", name, description)
+    self.request.should Response::RequestAttributeEquals.new("_route", name, description), file: file, line: line
 
     parameters.try &.each do |k, v|
-      self.request.should Response::RequestAttributeEquals.new(k, v, description)
+      self.request.should Response::RequestAttributeEquals.new(k, v, description), file: file, line: line
     end
   end
 
   def assert_response_redirects(location : String? = nil, status : HTTP::Status | Int32 | Nil = nil, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
-    self.response.should Response::IsRedirected.new description
-    self.response.should Response::HeaderEquals.new "location", location if location
-    self.response.should Response::HasStatus.new status if status
+    self.response.should Response::IsRedirected.new(description), file: file, line: line
+    self.response.should Response::HeaderEquals.new("location", location), file: file, line: line if location
+    self.response.should Response::HasStatus.new(status), file: file, line: line if status
   end
 
   private abstract def client : AbstractBrowser?

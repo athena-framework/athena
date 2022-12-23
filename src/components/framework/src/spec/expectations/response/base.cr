@@ -38,7 +38,6 @@ abstract struct Athena::Framework::Spec::Expectations::Response::Base
            (exception_file = response.headers["x-debug-exception-file"]?.presence) &&
            (exception_class = response.headers["x-debug-exception-class"]?.presence)
          )
-        file, line, column = exception_file.split ':'
         io << '\n' << '\n'
 
         io << "Caused By:\n"

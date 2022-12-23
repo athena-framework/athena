@@ -215,29 +215,3 @@ module Athena::Framework
     end
   end
 end
-
-require "spec"
-require "athena-spec"
-require "athena-event_dispatcher/spec"
-require "athena-console/spec"
-require "athena-validator/spec"
-require "./spec"
-
-class ExampleController < ATH::Controller
-  @[ARTA::Get("/add/{value1}/{value2}")]
-  def add(value1 : Int32, value2 : Int32) : Int32
-    raise ArgumentError.new "value2 may not be negative" if 0 > value2
-
-    value1 + value2
-  end
-end
-
-struct ExampleControllerTest < ATH::Spec::APITestCase
-  def test_add_positive : Nil
-    self.request("GET", "/add/5/-1")
-
-    self.assert_response_is_successful
-  end
-end
-
-ASPEC.run_all
