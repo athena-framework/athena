@@ -39,6 +39,6 @@ end
 # Add `Athena::Spec` as a development dependency, then run a `shards install`.
 # See the individual types for more information.
 module Athena::Framework::Spec
-  module Assertions
+  module Expectations
   end
 end

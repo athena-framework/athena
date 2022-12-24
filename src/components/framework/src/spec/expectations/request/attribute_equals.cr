@@ -1,5 +1,5 @@
 # :nodoc:
-struct Athena::Framework::Spec::Expectations::Response::RequestAttributeEquals(T)
+struct Athena::Framework::Spec::Expectations::Request::AttributeEquals(T)
   @name : String
   @value : T
   @description : String?

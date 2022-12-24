@@ -4,7 +4,7 @@ abstract struct Athena::Framework::Spec::Expectations::Response::Base
 
   def initialize(@description : String? = nil); end
 
-  abstract def match(actual_value : HTTP::Server::Response) : Bool
+  abstract def match(actual_value : ::HTTP::Server::Response) : Bool
   abstract def failure_message : String
   abstract def negated_failure_message : String
 
@@ -12,11 +12,11 @@ abstract struct Athena::Framework::Spec::Expectations::Response::Base
     false
   end
 
-  def failure_message(actual_value : HTTP::Server::Response) : String
+  def failure_message(actual_value : ::HTTP::Server::Response) : String
     self.build_message actual_value, self.failure_message
   end
 
-  def negative_failure_message(actual_value : HTTP::Server::Response) : String
+  def negative_failure_message(actual_value : ::HTTP::Server::Response) : String
     self.build_message actual_value, self.negated_failure_message
   end
 
@@ -24,13 +24,17 @@ abstract struct Athena::Framework::Spec::Expectations::Response::Base
     true
   end
 
-  private def build_message(response : HTTP::Server::Response, message : String) : String
+  private def type : String
+    "response"
+  end
+
+  private def build_message(response : ::HTTP::Server::Response, message : String) : String
     String.build do |io|
       if desc = @description
         io << desc << '\n' << '\n'
       end
 
-      io << "Failed asserting that the response #{message}#{self.include_response? ? ":\n#{response}" : "."}"
+      io << "Failed asserting that the #{self.type} #{message}#{self.include_response? ? ":\n#{response}" : "."}"
 
       if (
            ("500" == response.headers["x-debug-exception-code"]?.presence) &&

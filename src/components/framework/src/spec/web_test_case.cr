@@ -4,7 +4,7 @@ require "./expectations/*"
 #
 # NOTE: Currently only `API` based tests are supported. This type exists to allow for introduction of other types in the future.
 abstract struct Athena::Framework::Spec::WebTestCase < ASPEC::TestCase
-  include ATH::Spec::Expectations::Response
+  include ATH::Spec::Expectations::HTTP
 
   protected getter client : AbstractBrowser?
 

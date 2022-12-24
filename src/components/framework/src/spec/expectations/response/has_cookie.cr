@@ -13,7 +13,7 @@ struct Athena::Framework::Spec::Expectations::Response::HasCookie < Athena::Fram
     super description
   end
 
-  def match(actual_value : HTTP::Server::Response) : Bool
+  def match(actual_value : ::HTTP::Server::Response) : Bool
     return false unless (cookie = actual_value.cookies[@name]?)
 
     @path == cookie.path && @domain == cookie.domain
@@ -23,7 +23,7 @@ struct Athena::Framework::Spec::Expectations::Response::HasCookie < Athena::Fram
     String.build do |io|
       io << "has cookie '#{@name}'"
 
-      io << " with path '#{@path}'" if "/" != @path
+      io << " with path '#{@path}'" unless @path.nil?
       io << " for domain '#{@domain}'" unless @domain.nil?
     end
   end
@@ -32,7 +32,7 @@ struct Athena::Framework::Spec::Expectations::Response::HasCookie < Athena::Fram
     String.build do |io|
       io << "does not have cookie '#{@name}'"
 
-      io << " with path '#{@path}'" if "/" != @path
+      io << " with path '#{@path}'" unless @path.nil?
       io << " for domain '#{@domain}'" unless @domain.nil?
     end
   end

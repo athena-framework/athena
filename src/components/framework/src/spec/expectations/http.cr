@@ -1,6 +1,7 @@
 require "./response/*"
+require "./request/*"
 
-module Athena::Framework::Spec::Expectations::Response
+module Athena::Framework::Spec::Expectations::HTTP
   def assert_response_is_successful(description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
     self.response.should Response::IsSuccessful.new(description), file: file, line: line
   end
@@ -9,8 +10,8 @@ module Athena::Framework::Spec::Expectations::Response
     self.response.should Response::IsUnprocessable.new(description), file: file, line: line
   end
 
-  def assert_response_has_status(status : HTTP::Status | Int32, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
-    self.response.should Response::HasStatus.new(status.is_a?(Int32) ? HTTP::Status.from_value(status) : status, description), file: file, line: line
+  def assert_response_has_status(status : ::HTTP::Status | Int32, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
+    self.response.should Response::HasStatus.new(status.is_a?(Int32) ? ::HTTP::Status.from_value(status) : status, description), file: file, line: line
   end
 
   def assert_response_has_header(name : String, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
@@ -47,18 +48,18 @@ module Athena::Framework::Spec::Expectations::Response
   end
 
   def assert_request_attribute_equals(name : String, value : _, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
-    self.request.should Response::RequestAttributeEquals.new(name, value, description), file: file, line: line
+    self.request.should Request::AttributeEquals.new(name, value, description), file: file, line: line
   end
 
   def assert_route_equals(name : String, parameters : Hash? = nil, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
-    self.request.should Response::RequestAttributeEquals.new("_route", name, description), file: file, line: line
+    self.request.should Request::AttributeEquals.new("_route", name, description), file: file, line: line
 
     parameters.try &.each do |k, v|
-      self.request.should Response::RequestAttributeEquals.new(k, v, description), file: file, line: line
+      self.request.should Request::AttributeEquals.new(k, v, description), file: file, line: line
     end
   end
 
-  def assert_response_redirects(location : String? = nil, status : HTTP::Status | Int32 | Nil = nil, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
+  def assert_response_redirects(location : String? = nil, status : ::HTTP::Status | Int32 | Nil = nil, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
     self.response.should Response::IsRedirected.new(description), file: file, line: line
     self.response.should Response::HeaderEquals.new("location", location), file: file, line: line if location
     self.response.should Response::HasStatus.new(status), file: file, line: line if status
@@ -66,7 +67,7 @@ module Athena::Framework::Spec::Expectations::Response
 
   private abstract def client : AbstractBrowser?
 
-  private def response : HTTP::Server::Response
+  private def response : ::HTTP::Server::Response
     self.client.response
   end
 

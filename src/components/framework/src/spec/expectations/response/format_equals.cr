@@ -11,8 +11,10 @@ struct Athena::Framework::Spec::Expectations::Response::FormatEquals < Athena::F
     super description
   end
 
-  def match(actual_value : HTTP::Server::Response) : Bool
-    @format == @request.format(actual_value.headers["content-type"])
+  def match(actual_value : ::HTTP::Server::Response) : Bool
+    return false unless (content_type = actual_value.headers["content-type"]?)
+
+    @format == @request.format(content_type)
   end
 
   private def failure_message : String
@@ -21,5 +23,9 @@ struct Athena::Framework::Spec::Expectations::Response::FormatEquals < Athena::F
 
   private def negated_failure_message : String
     "format is not '#{@format || "null"}'"
+  end
+
+  private def type : String
+    "request"
   end
 end
