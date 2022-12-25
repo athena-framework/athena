@@ -13,6 +13,13 @@ private class Calculator
   end
 end
 
+@[ASPEC::TestCase::Skip]
+struct SkipSpec < ASPEC::TestCase
+  def test_skipped
+    fail "Test should have been skipped"
+  end
+end
+
 struct ExampleSpec < ASPEC::TestCase
   @target : Calculator
 
