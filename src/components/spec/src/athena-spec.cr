@@ -31,7 +31,7 @@ module Athena::Spec
   #
   # Is equivalent to manually calling `.run` on each test case.
   def self.run_all : Nil
-    {% for unit_test in ASPEC::TestCase.all_subclasses.reject &.abstract? %}
+    {% for unit_test in ASPEC::TestCase.all_subclasses.reject { |tc| tc.abstract? || tc.annotation(ASPEC::TestCase::Skip) } %}
       {{unit_test.id}}.run
     {% end %}
   end

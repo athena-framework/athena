@@ -162,6 +162,10 @@ abstract struct Athena::Spec::TestCase
   # Maps to the stdlib's [#pending](https://crystal-lang.org/api/master/Spec/Methods.html#pending%28description=%22assert%22,file=__FILE__,line=__LINE__,end_line=__END_LINE__,focus:Bool=false,tags:String%7CEnumerable%28String%29%7CNil=nil,&%29-instance-method) method.
   annotation Pending; end
 
+  # Can be applied to an `ASPEC::TestCase` type to denote it should be skipped when running tests via `ASPEC.run_all`.
+  # Useful for creating mock types, or to have moer control over when it should be ran.
+  annotation Skip; end
+
   # Tests can be defined with arbitrary arguments.  These arguments are provided by one or more `DataProvider`.
   #
   # A data provider is a method that returns either a `Hash`, `NamedTuple`, `Array`, or `Tuple`.
