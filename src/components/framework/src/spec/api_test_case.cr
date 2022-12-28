@@ -35,6 +35,8 @@ require "./web_test_case"
 # The `#request` method is used to make our requests to the API, then we run are assertions against the resulting `HTTP::Server::Response`.
 # A key thing to point out is that there is no `HTTP::Server` involved, thus resulting in more performant specs.
 #
+# TIP: Checkout the built in [expecations][Athena::Framework::Spec::Expectations::HTTP] to make testing easier.
+#
 # ATTENTION: Be sure to call `Athena::Spec.run_all` to your `spec_helper.cr` to ensure all test case instances are executed.
 #
 # ### Mocking External Dependencies
@@ -70,7 +72,7 @@ require "./web_test_case"
 #   property(api_client) { MockAPIClient.new }
 # end
 #
-# @[ADI::Register(public: true)]
+# @[ADI::Register]
 # class ExampleServiceController < ATH::Controller
 #   def initialize(@api_client : APIClient); end
 #

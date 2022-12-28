@@ -39,6 +39,14 @@ end
 # Add `Athena::Spec` as a development dependency, then run a `shards install`.
 # See the individual types for more information.
 module Athena::Framework::Spec
+  # `ATH::Spec` includes a set of custom spec expectations for making it easier to test certain aspects of the application.
+  # These expectations are exposed via helper methods within the modules defined within this namespace.
+  # See each module for more information.
   module Expectations
+    # :nodoc:
+    module Request; end
+
+    # :nodoc:
+    module Response; end
   end
 end
