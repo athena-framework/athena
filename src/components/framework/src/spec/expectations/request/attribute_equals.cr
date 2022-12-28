@@ -24,7 +24,7 @@ struct Athena::Framework::Spec::Expectations::Request::AttributeEquals(T)
         io << desc << '\n' << '\n'
       end
 
-      io << "Failed asserting that the request has attribute '#{@name}' with value '#{@value}'"
+      io << "Failed asserting that the request has attribute '#{@name}' with value '#{@value}'."
     end
   end
 
@@ -34,7 +34,7 @@ struct Athena::Framework::Spec::Expectations::Request::AttributeEquals(T)
         io << desc << '\n' << '\n'
       end
 
-      io << "Failed asserting that the request does not have attribute '#{@name}' with value '#{@value}'"
+      io << "Failed asserting that the request does not have attribute '#{@name}' with value '#{@value}'."
     end
   end
 end

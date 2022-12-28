@@ -6,10 +6,10 @@ require "./expectations/*"
 abstract struct Athena::Framework::Spec::WebTestCase < ASPEC::TestCase
   include ATH::Spec::Expectations::HTTP
 
-  protected getter client : AbstractBrowser?
+  protected getter client : AbstractBrowser
 
   def initialize
-    @client = self.create_client
+    @client = create_client
   end
 
   # Returns the `AbstractBrowser` instance to which requests should be made against.

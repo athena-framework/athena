@@ -19,24 +19,24 @@ struct AttributeEqualsExpectationTest < ASPEC::TestCase
   def test_failure_message : Nil
     ATH::Spec::Expectations::Request::AttributeEquals.new("foo", "bar")
       .failure_message(new_request)
-      .should contain "Failed asserting that the request has attribute 'foo' with value 'bar'"
+      .should contain "Failed asserting that the request has attribute 'foo' with value 'bar'."
   end
 
   def test_failure_message_with_description : Nil
     ATH::Spec::Expectations::Request::AttributeEquals.new("foo", "bar", description: "Oh noes")
       .failure_message(new_request)
-      .should contain "Oh noes\n\nFailed asserting that the request has attribute 'foo' with value 'bar'"
+      .should contain "Oh noes\n\nFailed asserting that the request has attribute 'foo' with value 'bar'."
   end
 
   def test_negative_failure_message : Nil
     ATH::Spec::Expectations::Request::AttributeEquals.new("foo", "bar")
       .negative_failure_message(new_request)
-      .should contain "Failed asserting that the request does not have attribute 'foo' with value 'bar'"
+      .should contain "Failed asserting that the request does not have attribute 'foo' with value 'bar'."
   end
 
   def test_negative_failure_message_with_description : Nil
     ATH::Spec::Expectations::Request::AttributeEquals.new("foo", "bar", description: "Oh noes")
       .negative_failure_message(new_request)
-      .should contain "Oh noes\n\nFailed asserting that the request does not have attribute 'foo' with value 'bar'"
+      .should contain "Oh noes\n\nFailed asserting that the request does not have attribute 'foo' with value 'bar'."
   end
 end

@@ -24,8 +24,4 @@ struct Athena::Framework::Spec::Expectations::Response::FormatEquals < Athena::F
   private def negated_failure_message : String
     "format is not '#{@format || "null"}'"
   end
-
-  private def type : String
-    "request"
-  end
 end

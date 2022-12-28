@@ -115,8 +115,8 @@ abstract struct Athena::Framework::Spec::APITestCase < ATH::Spec::WebTestCase
   end
 
   # Returns a reference to the `AbstractBrowser` being used for the test.
-  def client : AbstractBrowser
-    @client.not_nil!
+  def client : ATH::Spec::HTTPBrowser
+    @client.as(ATH::Spec::HTTPBrowser).not_nil!
   end
 
   # Makes a `GET` request to the provided *path*, optionally with the provided *headers*.
