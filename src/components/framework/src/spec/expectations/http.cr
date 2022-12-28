@@ -2,7 +2,7 @@ require "./response/*"
 require "./request/*"
 
 # Provides expectation helper method for making assertions about the `ATH::Request` and/or `HTTP::Server::Response` of a controller action.
-# For example asserting the response is successful, has a specific header/cookie (value), and/or if the request has an attribue with a specific value.
+# For example asserting the response is successful, has a specific header/cookie (value), and/or if the request has an attribute with a specific value.
 #
 # ```
 # struct ExampleControllerTest < ATH::Spec::APITestCase
