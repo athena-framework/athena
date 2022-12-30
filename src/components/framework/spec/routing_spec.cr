@@ -74,18 +74,15 @@ struct RoutingTest < ATH::Spec::APITestCase
   end
 
   def test_custom_response_status_get : Nil
-    response = self.get "/custom-status"
-    response.status.should eq HTTP::Status::ACCEPTED
+    self.get "/custom-status"
+
+    self.assert_response_has_status :accepted
   end
 
   def test_custom_response_status_head : Nil
-    response = self.request "HEAD", "/custom-status"
-    response.status.should eq HTTP::Status::ACCEPTED
-  end
+    self.request "HEAD", "/custom-status"
 
-  def test_works_with_param_converters : Nil
-    self.get "/events"
-    self.get "/events?since=2020-04-08T12:34:56Z"
+    self.assert_response_has_status :accepted
   end
 
   def test_uses_default_value_if_no_other_value_provided : Nil
@@ -177,27 +174,27 @@ struct RoutingTest < ATH::Spec::APITestCase
   end
 
   def test_redirect_to_route : Nil
-    response = self.get("/redirect-url")
-    response.status.should eq HTTP::Status::FOUND
-    response.headers["location"].should eq "/art/response"
+    self.get "/redirect-url"
+
+    self.assert_response_redirects "/art/response", :found
   end
 
   def test_redirect_to_route_status : Nil
-    response = self.get("/redirect-url-status")
-    response.status.should eq HTTP::Status::PERMANENT_REDIRECT
-    response.headers["location"].should eq "/art/response"
+    self.get "/redirect-url-status"
+
+    self.assert_response_redirects "/art/response", :permanent_redirect
   end
 
   def test_redirect_to_route_hash : Nil
-    response = self.get("/redirect-url-hash")
-    response.status.should eq HTTP::Status::FOUND
-    response.headers["location"].should eq "/art/response?id=10"
+    self.get "/redirect-url-hash"
+
+    self.assert_response_redirects "/art/response?id=10", :found
   end
 
   def test_redirect_to_route_nt : Nil
-    response = self.get("/redirect-url-nt")
-    response.status.should eq HTTP::Status::FOUND
-    response.headers["location"].should eq "/art/response?id=10"
+    self.get "/redirect-url-nt"
+
+    self.assert_response_redirects "/art/response?id=10", :found
   end
 
   def test_using_route_handler_directly_with_http_request : Nil
@@ -207,8 +204,8 @@ struct RoutingTest < ATH::Spec::APITestCase
   end
 
   def test_applies_cookies_to_actual_response : Nil
-    response = self.get("/cookies")
-    response.cookies.size.should eq 1
-    response.cookies["key"].should eq HTTP::Cookie.new "key", "value"
+    self.get "/cookies"
+
+    self.assert_cookie_has_value "key", "value"
   end
 end

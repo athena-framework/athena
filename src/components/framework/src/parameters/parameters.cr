@@ -29,11 +29,22 @@ struct Athena::Framework::Parameters
       raise ArgumentError.new "The base_uri must include a scheme." if uri.scheme.nil?
     end
   end
+
+  struct Framework
+    def self.configure : self
+      new
+    end
+
+    # Returns `true` if the application was built without the `--release` flag, otherwise `false`.
+    getter debug : Bool = {{!flag? :release}}
+  end
 end
 
 class Athena::Config::Parameters
   getter routing : ATH::Parameters = ATH::Parameters.configure
+  getter framework : ATH::Parameters::Framework = ATH::Parameters::Framework.configure
 end
 
 # Setup bindings for built in parameters.
 ADI.bind base_uri : URI?, "%routing.base_uri%"
+ADI.bind debug : Bool, "%framework.debug%"

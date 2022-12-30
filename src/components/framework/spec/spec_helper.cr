@@ -114,6 +114,17 @@ def new_request_event(& : ATH::Request -> _)
   ATH::Events::Request.new request
 end
 
-def new_response(*, io : IO = IO::Memory.new) : HTTP::Server::Response
-  HTTP::Server::Response.new io
+def new_response(
+  *,
+  io : IO = IO::Memory.new,
+  status : HTTP::Status = :ok,
+  headers : HTTP::Headers = HTTP::Headers.new
+) : HTTP::Server::Response
+  HTTP::Server::Response.new(io).tap do |resp|
+    headers.each do |k, v|
+      resp.headers[k] = v
+    end
+
+    resp.status = status
+  end
 end
