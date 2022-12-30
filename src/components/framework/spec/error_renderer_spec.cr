@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-describe ATH::ErrorRenderer, focus: true do
+describe ATH::ErrorRenderer do
   it ATH::Exceptions::HTTPException do
     exception = ATH::Exceptions::TooManyRequests.new "cool your jets", 42
 
