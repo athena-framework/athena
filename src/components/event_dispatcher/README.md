@@ -14,7 +14,7 @@ A [Mediator](https://en.wikipedia.org/wiki/Mediator_pattern) and [Observer](http
 dependencies:
   athena-event_dispatcher:
     github: athena-framework/event-dispatcher
-    version: ~> 0.1.0
+    version: ~> 0.2.0
 ```
 
 2. Run `shards install`

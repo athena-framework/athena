@@ -79,7 +79,7 @@ alias AEDA = AED::Annotations
 # dependencies:
 #   athena-event_dispatcher:
 #     github: athena-framework/event-dispatcher
-#     version: ~> 0.1.0
+#     version: ~> 0.2.0
 # ```
 #
 # Then run `shards install`, being sure to require it via `require "athena-event_dispatcher"`.
@@ -93,7 +93,7 @@ alias AEDA = AED::Annotations
 # This ensures that one flow will not leak state to any other flow, while still allowing flow specific mutations to be used.
 # Consider pairing this component with the [Athena::DependencyInjection][Athena::DependencyInjection--getting-started] component as a way to handle this.
 module Athena::EventDispatcher
-  VERSION = "0.1.4"
+  VERSION = "0.2.0"
 
   # Contains all the `Athena::EventDispatcher` based annotations.
   module Annotations; end

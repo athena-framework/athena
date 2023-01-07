@@ -4,7 +4,7 @@
 
 ### Changed
 
-- Various internal refactorings (George Dietrich)
+- Refactor various internal logic (George Dietrich)
 
 ## [0.3.3] - 2022-05-14
 
