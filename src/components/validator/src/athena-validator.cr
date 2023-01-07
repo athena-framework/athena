@@ -50,7 +50,7 @@ alias Assert = AVD::Annotations
 # dependencies:
 #   athena-validator:
 #     github: athena-framework/validator
-#     version: ~> 0.2.0
+#     version: ~> 0.3.0
 # ```
 #
 # Then run `shards install`, being sure to require it via `require "athena-validator"`.
@@ -400,7 +400,7 @@ alias Assert = AVD::Annotations
 #
 # NOTE: See the related types for more detailed information.
 module Athena::Validator
-  VERSION = "0.2.1"
+  VERSION = "0.3.0"
 
   # :nodoc:
   #
