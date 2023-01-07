@@ -19,4 +19,4 @@ authors:
 dependencies:
   athena-config:
     github: athena-framework/config
-    version: ~> 0.3.0
+    version: '>=0.3.0, <0.4.0'

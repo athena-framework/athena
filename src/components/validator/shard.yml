@@ -19,4 +19,4 @@ authors:
 dependencies:
   athena-image_size:
     github: athena-framework/image-size
-    version: ~> 0.1.0
+    version: '>=0.1.0, <0.2.0'
