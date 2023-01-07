@@ -91,7 +91,7 @@ alias ACONA = ACON::Annotations
 # From here you can then setup your entry point file talked about earlier, being sure to require the component via `require "athena-console"`.
 # Finally, create/require your `ACON::Command`s, and customize the `ACON::Application` as needed.
 module Athena::Console
-  VERSION = "0.3.0"
+  VERSION = "0.4.0-dev"
 
   # Contains all the `Athena::Console` based annotations.
   module Annotations; end

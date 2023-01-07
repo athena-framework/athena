@@ -25,7 +25,7 @@ require "./test_case"
 #
 # If using the component with the framework, also checkout the [manual](/components/spec) for some additional information on how it is integrated.
 module Athena::Spec
-  VERSION = "0.3.1"
+  VERSION = "0.4.0-dev"
 
   # Runs all `ASPEC::TestCase`s.
   #

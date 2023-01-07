@@ -93,7 +93,7 @@ alias AEDA = AED::Annotations
 # This ensures that one flow will not leak state to any other flow, while still allowing flow specific mutations to be used.
 # Consider pairing this component with the [Athena::DependencyInjection][Athena::DependencyInjection--getting-started] component as a way to handle this.
 module Athena::EventDispatcher
-  VERSION = "0.2.0"
+  VERSION = "0.3.0-dev"
 
   # Contains all the `Athena::EventDispatcher` based annotations.
   module Annotations; end
