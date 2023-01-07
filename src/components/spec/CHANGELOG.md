@@ -1,19 +1,30 @@
 # Changelog
 
+## [0.3.1] - 2023-01-07
+
+### Changed
+
+- Update the docs to clarify the component needs to be manually installed ([#247](https://github.com/athena-framework/athena/pull/247)) (George Dietrich)
+
+### Added
+
+- Add support for *codegen* for the `ASPEC.assert_error` and `ASPEC.assert_success` methods ([#219](https://github.com/athena-framework/athena/pull/219)) (George Dietrich)
+- Add ability to skip running all examples within a test case via the `ASPEC::TestCase::Skip` annotation ([#248](https://github.com/athena-framework/athena/pull/248)) (George Dietrich)
+
 ## [0.3.0] - 2022-05-14
 
 _First release a part of the monorepo._
+
+### Changed
+
+- **Breaking:** change the `assert_error` to no longer be file based. Code should now be provided as a HEREDOC argument to the method ([#173](https://github.com/athena-framework/athena/pull/173)) (George Dietrich)
+- Update minimum `crystal` version to `~> 1.4.0` ([#169](https://github.com/athena-framework/athena/pull/169)) (George Dietrich)
 
 ### Added
 
 - Add `VERSION` constant to `Athena::Spec` namespace ([#166](https://github.com/athena-framework/athena/pull/166)) (George Dietrich)
 - Add getting started documentation to API docs ([#172](https://github.com/athena-framework/athena/pull/172)) (George Dietrich)
 - Add [ASPEC::Methods.assert_success](https://athenaframework.org/Spec/Methods/#Athena::Spec::Methods#assert_success(code,*,line,file)) ([#173](https://github.com/athena-framework/athena/pull/173)) (George Dietrich)
-
-### Changed
-
-- **Breaking:** change the `assert_error` to no longer be file based. Code should now be provided as a HEREDOC argument to the method ([#173](https://github.com/athena-framework/athena/pull/173)) (George Dietrich)
-- Update minimum `crystal` version to `~> 1.4.0` ([#169](https://github.com/athena-framework/athena/pull/169)) (George Dietrich)
 
 ## [0.2.6] - 2021-11-03
 
@@ -62,6 +73,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.3.1]: https://github.com/athena-framework/spec/releases/tag/v0.3.1
 [0.3.0]: https://github.com/athena-framework/spec/releases/tag/v0.3.0
 [0.2.6]: https://github.com/athena-framework/spec/releases/tag/v0.2.6
 [0.2.5]: https://github.com/athena-framework/spec/releases/tag/v0.2.5

@@ -14,7 +14,7 @@ Object/value validation library
 dependencies:
   athena-validator:
     github: athena-framework/validator
-    version: ~> 0.2.0
+    version: ~> 0.3.0
 ```
 
 2. Run `shards install`

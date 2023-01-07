@@ -1,14 +1,26 @@
 # Changelog
 
-## [0.1.3] - 2022-09-05
+## [0.1.4] - 2023-01-07
+
+### Changed
+
+- Change route compilation to be eager ([#207](https://github.com/athena-framework/athena/pull/207)) (George Dietrich)
 
 ### Added
 
-- Add an `HTTP::Handler` to add basic routing support to a `HTTP::Server` ([#189](https://github.com/athena-framework/athena/pull/189)) (George Dietrich)
+- Add ability to bubble up exceptions from `ART::RoutingHandler` ([#206](https://github.com/athena-framework/athena/pull/206)) (George Dietrich)
+- Add `ART::Matcher::TraceableURLMatcher` to help with debugging route matches ([#224](https://github.com/athena-framework/athena/pull/224)) (George Dietrich)
+- Add `ART::Route#has_scheme?` ([#224](https://github.com/athena-framework/athena/pull/224)) (George Dietrich)
+
+## [0.1.3] - 2022-09-05
 
 ### Changed
 
 - **Breaking:** ensure parameter names defined on interfaces match the implementation ([#188](https://github.com/athena-framework/athena/pull/188)) (George Dietrich)
+
+### Added
+
+- Add an `HTTP::Handler` to add basic routing support to a `HTTP::Server` ([#189](https://github.com/athena-framework/athena/pull/189)) (George Dietrich)
 
 ### Fixed
 
@@ -16,15 +28,15 @@
 
 ## [0.1.2] - 2022-05-14
 
+### Changed
+
+- Update minimum `crystal` version to `~> 1.4.0` ([#169](https://github.com/athena-framework/athena/pull/169)) (George Dietrich)
+
 ### Added
 
 - Add getting started documentation to API docs ([#172](https://github.com/athena-framework/athena/pull/172)) (George Dietrich)
 - Add common route requirement constants to the [ART::Requirement](https://athenaframework.org/Routing/Requirement/) namespace ([#173](https://github.com/athena-framework/athena/pull/173)) (George Dietrich)
 - Add [ART::Requirement::Enum](https://athenaframework.org/Routing/Requirement/Enum/) to make creating [Enum](https://crystal-lang.org/api/Enum.html) based route requirements easier ([#173](https://github.com/athena-framework/athena/pull/173)) (George Dietrich)
-
-### Changed
-
-- Update minimum `crystal` version to `~> 1.4.0` ([#169](https://github.com/athena-framework/athena/pull/169)) (George Dietrich)
 
 ## [0.1.1] - 2022-02-05
 
@@ -38,6 +50,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.1.4]: https://github.com/athena-framework/routing/releases/tag/v0.1.4
 [0.1.3]: https://github.com/athena-framework/routing/releases/tag/v0.1.3
 [0.1.2]: https://github.com/athena-framework/routing/releases/tag/v0.1.2
 [0.1.1]: https://github.com/athena-framework/routing/releases/tag/v0.1.1

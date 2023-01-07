@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.2.0] - 2023-01-07
+
+### Changed
+
+- **Breaking:** refactor how listeners are registered to use the new `AEDA::AsEventListener` annotation on the method instead of the `self.subscribed_events` class method ([#236](https://github.com/athena-framework/athena/pull/236)) (George Dietrich)
+- **Breaking:** refactor and rename the majority of `AED::EventDispatcherInterface` API ([#236](https://github.com/athena-framework/athena/pull/236)) (George Dietrich)
+- **Breaking:** change the representation of a listener when returned from a dispatcher to be an `AED::Callable` instance ([#236](https://github.com/athena-framework/athena/pull/236)) (George Dietrich)
+- **Breaking:** refactor `AED::Event` to now be `abstract` ([#236](https://github.com/athena-framework/athena/pull/236)) (George Dietrich)
+
+### Added
+
+- Add `AED::GenericEvent` that can be used for convenience within simple use cases ([#236](https://github.com/athena-framework/athena/pull/236)) (George Dietrich)
+- Add the ability to use a listener method without the `AED::EventDispatcherInterface` parameter ([#236](https://github.com/athena-framework/athena/pull/236)) (George Dietrich)
+
+### Removed
+
+- **Breaking:** remove ability for listeners to automatically be registered with the dispatcher ([#236](https://github.com/athena-framework/athena/pull/236)) (George Dietrich)
+- **Breaking:** remove the `AED::EventDispatcher.new` constructor that accepts an `Array(AED::EventListenerInterface)` ([#236](https://github.com/athena-framework/athena/pull/236)) (George Dietrich)
+- **Breaking:** remove the `AED::EventListenerType` alias ([#236](https://github.com/athena-framework/athena/pull/236)) (George Dietrich)
+- **Breaking:** remove the `AED::SubscribedEvents` alias ([#236](https://github.com/athena-framework/athena/pull/236)) (George Dietrich)
+- **Breaking:** remove the `AED::EventListener` struct ([#236](https://github.com/athena-framework/athena/pull/236)) (George Dietrich)
+- **Breaking:** remove the `AED.create_listener` method ([#236](https://github.com/athena-framework/athena/pull/236)) (George Dietrich)
+- Remove the requirement that listeners methods need to be called `call` ([#236](https://github.com/athena-framework/athena/pull/236)) (George Dietrich)
+
 ## [0.1.4] - 2022-05-14
 
 _First release a part of the monorepo._
@@ -38,6 +62,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.2.0]: https://github.com/athena-framework/event-dispatcher/releases/tag/v0.2.0
 [0.1.4]: https://github.com/athena-framework/event-dispatcher/releases/tag/v0.1.4
 [0.1.3]: https://github.com/athena-framework/event-dispatcher/releases/tag/v0.1.3
 [0.1.2]: https://github.com/athena-framework/event-dispatcher/releases/tag/v0.1.2

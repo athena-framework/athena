@@ -22,7 +22,7 @@ libraries:
 dependencies:
   athena-event_dispatcher:
     github: athena-framework/event-dispatcher
-    version: ~> 0.1.2
+    version: ~> 0.2.0
   athena-config:
     github: athena-framework/config
     version: ~> 0.3.0
@@ -31,16 +31,16 @@ dependencies:
     version: ~> 0.3.0
   athena-dependency_injection:
     github: athena-framework/dependency-injection
-    version: ~> 0.3.0
+    version: ~> 0.3.4
   athena-negotiation:
     github: athena-framework/negotiation
     version: ~> 0.1.0
   athena-routing:
     github: athena-framework/routing
-    version: ~> 0.1.0
+    version: ~> 0.1.4
   athena-serializer:
     github: athena-framework/serializer
     version: ~> 0.3.0
   athena-validator:
     github: athena-framework/validator
-    version: ~> 0.2.0
+    version: ~> 0.3.0

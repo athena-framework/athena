@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.3.0] - 2023-01-07
+
+### Changed
+
+- **Breaking:** update default `AVD::Constraints::Email::Mode` to be `:html5` ([#230](https://github.com/athena-framework/athena/pull/230)) (George Dietrich)
+- Refactor `AVD::Constraints::IP` to use new dedicated `Socket::IPAddress` methods ([#205](https://github.com/athena-framework/athena/pull/205)) (George Dietrich)
+- Update minimum `crystal` version to `~> 1.6` ([#205](https://github.com/athena-framework/athena/pull/205)) (George Dietrich)
+
+### Added
+
+- Add `AVD::Constraints::Collection` ([#229](https://github.com/athena-framework/athena/pull/229)) (George Dietrich)
+- Add `AVD::Constraints::Existence`, `AVD::Constraints::Required`, and `AVD::Constraints::Optional` for use with the collection constraint ([#229](https://github.com/athena-framework/athena/pull/229)) (George Dietrich)
+- Add `AVD::Spec::ConstraintValidatorTestCase#expect_validate_value_at` to more easily handle validation of nested constraints ([#229](https://github.com/athena-framework/athena/pull/229)) (George Dietrich)
+- Add `AVD::Constraints::Email::Mode::HTML5_ALLOW_NO_TLD` that allows matching `HTML` input field validation exactly ([#231](https://github.com/athena-framework/athena/pull/231)) (George Dietrich)
+
+### Removed
+
+- **Breaking:** remove `AVD::Constraints::Email::Mode::Loose` ([#230](https://github.com/athena-framework/athena/pull/230)) (George Dietrich)
+
+### Fixed
+
+- **Breaking:** fix spelling of `AVD::Constraints::ISSN#require_hyphen` parameter ([#222](https://github.com/athena-framework/athena/pull/222)) (George Dietrich)
+- Fix property path display issue with `Enumerable` objects ([#229](https://github.com/athena-framework/athena/pull/229)) (George Dietrich)
+- Fix `AVD::Constraints::Valid` constraints incorrectly being allowed within `AVD::Constraints::Composite` ([#229](https://github.com/athena-framework/athena/pull/229)) (George Dietrich)
+
 ## [0.2.1] - 2022-09-05
 
 ### Added
@@ -99,6 +124,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.3.0]: https://github.com/athena-framework/validator/releases/tag/v0.3.0
 [0.2.1]: https://github.com/athena-framework/validator/releases/tag/v0.2.1
 [0.2.0]: https://github.com/athena-framework/validator/releases/tag/v0.2.0
 [0.1.7]: https://github.com/athena-framework/validator/releases/tag/v0.1.7

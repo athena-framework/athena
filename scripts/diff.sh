@@ -3,12 +3,13 @@
 # Displays the current version and commits since last version
 #
 # $1 - Component name
-# $2 - Git URL
 function diff()
 {
+    URL=https://github.com/athena-framework/$1
+    
     if [ ! -d "../$1" ]
     then
-        git clone --quiet $2 "../$1"
+        git clone --quiet $URL "../$1"
         cd "../$1"
     else
         cd "../$1"
@@ -22,22 +23,28 @@ function diff()
 
     if [ 1 == $? ]
     then
-        echo "============"
-        echo "$1: $LATEST_TAG"
+        printf "============\n$1: \e]8;;%s/compare/%s...master\e\\%s\e]8;;\e\\  \n" $URL $LATEST_TAG $LATEST_TAG
+
         git log --pretty="  %h %s%b" $LATEST_TAG..master | sed "s/)\*/)\n    \*/" | sed 's/^\*/    \*/'
     fi
 
     cd $OLDPWD
 }
 
-diff config https://github.com/athena-framework/config.git
-diff console https://github.com/athena-framework/console.git
-diff dependency-injection https://github.com/athena-framework/dependency-injection.git
-diff event-dispatcher https://github.com/athena-framework/event-dispatcher.git
-diff image-size https://github.com/athena-framework/image-size.git
-diff framework https://github.com/athena-framework/framework.git
-diff negotiation https://github.com/athena-framework/negotiation.git
-diff routing https://github.com/athena-framework/routing.git
-diff serializer https://github.com/athena-framework/serializer.git
-diff spec https://github.com/athena-framework/spec.git
-diff validator https://github.com/athena-framework/validator.git
+if [ -n "$1" ]
+then
+  diff $1
+  exit $?
+fi
+
+diff config
+diff console
+diff dependency-injection
+diff event-dispatcher
+diff image-size
+diff framework
+diff negotiation
+diff routing
+diff serializer
+diff spec
+diff validator

@@ -1,16 +1,22 @@
 # Changelog
 
+## [0.3.4] - 2023-01-07
+
+### Changed
+
+- Refactor various internal logic (George Dietrich)
+
 ## [0.3.3] - 2022-05-14
 
 _First release a part of the monorepo._
 
-### Added
-
-- Add getting started documentation to API docs ([#172](https://github.com/athena-framework/athena/pull/172)) (George Dietrich)
-
 ### Changed
 
 - Update minimum `crystal` version to `~> 1.4.0` ([#169](https://github.com/athena-framework/athena/pull/169)) (George Dietrich)
+
+### Added
+
+- Add getting started documentation to API docs ([#172](https://github.com/athena-framework/athena/pull/172)) (George Dietrich)
 
 ## [0.3.2] - 2021-10-30
 
@@ -126,6 +132,7 @@ _Major refactor of the component._
 
 _Initial release._
 
+[0.3.4]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.4
 [0.3.3]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.3
 [0.3.2]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.2
 [0.3.1]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.1
