@@ -20,7 +20,7 @@ class Athena::Validator::Metadata::GetterMetadata(EntityType, MethodIdx)
         obj.{{EntityType.methods[MethodIdx].name.id}}
       {% else %}
         case @name
-          {% for m in EntityType.methods.reject &.name.ends_with? '=' %}
+          {% for m in EntityType.methods.select &.args.empty? %}
             when {{m.name.stringify}} then obj.{{m.name.id}}
           {% end %}
         else
