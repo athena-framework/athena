@@ -1,4 +1,5 @@
 require "../spec_helper"
+require "./collection_validator_test_case"
 
 private struct HashLikeObject
   include Enumerable({String | Int32, Int32?})
