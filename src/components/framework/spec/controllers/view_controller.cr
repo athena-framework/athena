@@ -64,6 +64,16 @@ class ViewController < ATH::Controller
     {foo: 10, obj: JSONSerializableModel.new(10, "Bob")}
   end
 
+  @[ARTA::Get("/json-nested-hash-array-collection")]
+  def nested_json_hash_array_collection : Hash(String, Int32 | Array(JSONSerializableModel))
+    {"foo" => 10, "objs" => [JSONSerializableModel.new(10, "Bob")]}
+  end
+
+  @[ARTA::Get("/json-nested-nt-array-collection")]
+  def nested_json_nt_array_collection : {foo: Int32, objs: Array(JSONSerializableModel)}
+    {foo: 10, objs: [JSONSerializableModel.new(10, "Bob")]}
+  end
+
   @[ARTA::Post("/status")]
   @[ATHA::View(status: :accepted)]
   def custom_status_code : String
