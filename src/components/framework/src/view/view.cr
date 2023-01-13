@@ -140,8 +140,11 @@ class Athena::Framework::View(T)
     {% if (T <= JSON::Serializable) && !(T <= ASR::Serializable) %}
       # Single JSON::Serializable object
       self.data
-    {% elsif (T <= Enumerable) && T.type_vars.any? { |t| (t <= JSON::Serializable) && !(t <= ASR::Serializable) } %}
-      # Array of JSON::Serializable
+    {% elsif (T <= NamedTuple) && (T.keys.any? { |k| ntt = T[k]; ((ntt <= JSON::Serializable) && !(ntt <= ASR::Serializable)) }) %}
+      # Namedtuple with a value of JSON::Serializable
+      self.data
+    {% elsif (T <= Enumerable) && T.type_vars.any? { |t| ((t <= JSON::Serializable) && !(t <= ASR::Serializable)) || (t.union? && t.union_types.any? { |ut| ((ut <= JSON::Serializable) && !(ut <= ASR::Serializable)) }) } %}
+      # Enumerable (Hash, Array, Set, ...) of JSON::Serializable
       self.data
     {% else %}
       nil
