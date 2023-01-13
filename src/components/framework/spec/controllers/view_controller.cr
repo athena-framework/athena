@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-private record JSONSerializableModel, id : Int32, name : String do
+record JSONSerializableModel, id : Int32, name : String do
   include JSON::Serializable
 end
 
@@ -52,6 +52,26 @@ class ViewController < ATH::Controller
       BothSerializableModel.new(10, "Bob"),
       BothSerializableModel.new(20, "Sally"),
     ]
+  end
+
+  @[ARTA::Get("/json-nested-hash-collection")]
+  def nested_json_hash_collection : Hash(String, Int32 | JSONSerializableModel)
+    {"foo" => 10, "obj" => JSONSerializableModel.new(10, "Bob")}
+  end
+
+  @[ARTA::Get("/json-nested-nt-collection")]
+  def nested_json_nt_collection : {foo: Int32, obj: JSONSerializableModel}
+    {foo: 10, obj: JSONSerializableModel.new(10, "Bob")}
+  end
+
+  @[ARTA::Get("/json-nested-hash-array-collection")]
+  def nested_json_hash_array_collection : Hash(String, Int32 | Array(JSONSerializableModel))
+    {"foo" => 10, "objs" => [JSONSerializableModel.new(10, "Bob")]}
+  end
+
+  @[ARTA::Get("/json-nested-nt-array-collection")]
+  def nested_json_nt_array_collection : {foo: Int32, objs: Array(JSONSerializableModel)}
+    {foo: 10, objs: [JSONSerializableModel.new(10, "Bob")]}
   end
 
   @[ARTA::Post("/status")]

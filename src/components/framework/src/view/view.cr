@@ -140,8 +140,21 @@ class Athena::Framework::View(T)
     {% if (T <= JSON::Serializable) && !(T <= ASR::Serializable) %}
       # Single JSON::Serializable object
       self.data
-    {% elsif (T <= Enumerable) && T.type_vars.any? { |t| (t <= JSON::Serializable) && !(t <= ASR::Serializable) } %}
-      # Array of JSON::Serializable
+    {% elsif (T <= NamedTuple) && (T.keys.any? do |k|
+               ntt = T[k]
+
+               ((ntt <= JSON::Serializable) && !(ntt <= ASR::Serializable)) ||
+                 (ntt.union? && ntt.union_types.any? { |ut| ((ut <= JSON::Serializable) && !(ut <= ASR::Serializable)) }) ||
+                 (ntt.type_vars.any? { |t| ((t <= JSON::Serializable) && !(t <= ASR::Serializable)) })
+             end) %}
+      # Namedtuple with a value of JSON::Serializable
+      self.data
+    {% elsif (T <= Enumerable) && T.type_vars.any? do |t|
+               ((t <= JSON::Serializable) && !(t <= ASR::Serializable)) ||
+                 (t.union? && t.union_types.any? { |ut| ((ut <= JSON::Serializable) && !(ut <= ASR::Serializable)) ||
+                   (ut.type_vars.any? { |utt| ((utt <= JSON::Serializable) && !(utt <= ASR::Serializable)) }) })
+             end %}
+      # Enumerable (Hash, Array, Set, ...) of JSON::Serializable
       self.data
     {% else %}
       nil

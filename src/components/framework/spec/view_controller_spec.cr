@@ -18,6 +18,22 @@ struct ViewControllerTest < ATH::Spec::APITestCase
     self.get("/view/json-array-empty").body.should eq %([])
   end
 
+  def test_json_nested_hash_collection : Nil
+    self.get("/view/json-nested-hash-collection").body.should eq %({"foo":10,"obj":{"id":10,"name":"Bob"}})
+  end
+
+  def test_json_nested_nt_collection : Nil
+    self.get("/view/json-nested-nt-collection").body.should eq %({"foo":10,"obj":{"id":10,"name":"Bob"}})
+  end
+
+  def test_json_nested_hash_array_collection : Nil
+    self.get("/view/json-nested-hash-array-collection").body.should eq %({"foo":10,"objs":[{"id":10,"name":"Bob"}]})
+  end
+
+  def test_json_nested_nt_array_collection : Nil
+    self.get("/view/json-nested-nt-array-collection").body.should eq %({"foo":10,"objs":[{"id":10,"name":"Bob"}]})
+  end
+
   def test_asr_serializable_object : Nil
     self.get("/view/asr").body.should eq %({"id":20})
   end
