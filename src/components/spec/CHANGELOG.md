@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.2] - 2023-01-16
+
+### Added
+
+- Add `ASPEC::TestCase::TestWith` that works similar to the `ASPEC::TestCase::DataProvier` but without needing to create a dedicated method ([#254](https://github.com/athena-framework/athena/pull/254)) (George Dietrich)
+
 ## [0.3.1] - 2023-01-07
 
 ### Changed
@@ -73,6 +79,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.3.2]: https://github.com/athena-framework/spec/releases/tag/v0.3.2
 [0.3.1]: https://github.com/athena-framework/spec/releases/tag/v0.3.1
 [0.3.0]: https://github.com/athena-framework/spec/releases/tag/v0.3.0
 [0.2.6]: https://github.com/athena-framework/spec/releases/tag/v0.2.6
