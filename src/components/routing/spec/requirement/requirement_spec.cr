@@ -193,12 +193,15 @@ struct RequirementsTest < ASPEC::TestCase
 
   @[TestWith(
     {"00000000-0000-1000-8000-000000000000"},
-    {"ffffffff-ffff-6fff-bfff-ffffffffffff"},
+    {"ffffffff-ffff-8fff-bfff-ffffffffffff"},
     {"8c670a1c-bc95-11ec-8422-0242ac120002"},
+    {"21902510-bc96-21ec-8422-0242ac120002"},
     {"61c86569-e477-3ed9-9e3b-1562edb03277"},
     {"e55a29be-ba25-46e0-a5e5-85b78a6f9a11"},
     {"bad98960-f1a1-530e-9a82-07d0b6c4e62f"},
     {"1ecbc9a8-432d-6b14-af93-715adc3b830c"},
+    {"216fff40-98d9-71e3-a5e2-0800200c9a66"},
+    {"216fff40-98d9-81e3-a5e2-0800200c9a66"},
   )]
   def test_uuid_valid(path : String) : Nil
     "/#{path}".should match ART::Route.new("/{path}", requirements: {"path" => ART::Requirement::UUID}).compile.regex
@@ -211,7 +214,6 @@ struct RequirementsTest < ASPEC::TestCase
     {"e55a29be-bb25-46e0-a5e5-85b78a6f9a1"},
     {"e55a29bh-bb25-46e0-a5e5-85b78a6f9a11"},
     {"e55a29beba2546e0a5e585b78a6f9a11"},
-    {"21902510-bc96-21ec-8422-0242ac120002"},
   )]
   def test_uuid_invalid(path : String) : Nil
     "/#{path}".should_not match ART::Route.new("/{path}", requirements: {"path" => ART::Requirement::UUID}).compile.regex
