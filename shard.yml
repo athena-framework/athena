@@ -43,4 +43,4 @@ development_dependencies:
     version: ~> 1.2.0
   athena-spec:
     github: athena-framework/spec
-    version: ~> 0.3.1
+    version: ~> 0.3.2
