@@ -4,9 +4,11 @@ require "json"
 
 require "athena-config"
 require "athena-console"
-require "athena-dependency_injection"
 require "athena-event_dispatcher"
 require "athena-negotiation"
+
+# Require DI component last so it knows what extensions it should load
+require "athena-dependency_injection"
 
 require "./action"
 require "./annotations"
@@ -41,7 +43,6 @@ require "./view/*"
 
 require "./ext/console"
 require "./ext/conversion_types"
-require "./ext/event_dispatcher"
 require "./ext/negotiation"
 require "./ext/routing"
 require "./ext/validator"
@@ -106,10 +107,7 @@ module Athena::Framework
   # The `AED::EventListenerInterface` that act upon `ATH::Events` to handle a request. Custom listeners can also be defined, see `AED::EventListenerInterface`.
   #
   # See each listener and the [external documentation](/components/event_dispatcher/) for more information.
-  module Listeners
-    # The tag name for Athena event listeners.
-    TAG = "athena.event_dispatcher.listener"
-  end
+  module Listeners; end
 
   # Namespace for types related to request parameter processing.
   #
