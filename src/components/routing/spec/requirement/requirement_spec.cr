@@ -6,9 +6,9 @@ struct RequirementsTest < ASPEC::TestCase
     {"foo"},
     {"1987"},
     {"42-42"},
-    {"fo2o-bar"},
+    {"for2o-bar"},
     {"foo-bA198r-Ccc"},
-    {"fo10O-bar-CCc-fooba187rccc"},
+    {"for10O-bar-CCc-fooba187rccc"},
   )]
   def test_ascii_slug_valid(path : String) : Nil
     "/#{path}".should match ART::Route.new("/{path}", requirements: {"path" => ART::Requirement::ASCII_SLUG}).compile.regex
@@ -208,8 +208,8 @@ struct RequirementsTest < ASPEC::TestCase
     {""},
     {"foo"},
     {"01802c74-d78c-b085-0cdf-7cbad87c70a3"},
-    {"e55a29be-ba25-46e0-a5e5-85b78a6f9a1"},
-    {"e55a29bh-ba25-46e0-a5e5-85b78a6f9a11"},
+    {"e55a29be-bb25-46e0-a5e5-85b78a6f9a1"},
+    {"e55a29bh-bb25-46e0-a5e5-85b78a6f9a11"},
     {"e55a29beba2546e0a5e585b78a6f9a11"},
     {"21902510-bc96-21ec-8422-0242ac120002"},
   )]
