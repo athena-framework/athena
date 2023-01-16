@@ -163,7 +163,7 @@ abstract struct Athena::Spec::TestCase
   annotation Pending; end
 
   # Can be applied to an `ASPEC::TestCase` type to denote it should be skipped when running tests via `ASPEC.run_all`.
-  # Useful for creating mock types, or to have moer control over when it should be ran.
+  # Useful for creating mock types, or to have more control over when it should be ran.
   annotation Skip; end
 
   # Tests can be defined with arbitrary arguments.  These arguments are provided by one or more `DataProvider`.
@@ -238,7 +238,7 @@ abstract struct Athena::Spec::TestCase
   #   end
   # end
   #
-  # ASPEC.run_all # =>
+  # DataProviderTest.run # =>
   # # DataProviderTest
   # #   squares two
   # #   squares three
@@ -250,6 +250,49 @@ abstract struct Athena::Spec::TestCase
   # #   cubes 1
   # ```
   annotation DataProvider; end
+
+  # Instead of created a dedicated methods for use with `DataProvider`, you can define a data set using the `TestWith` annotation.
+  # The annotations accepts a variadic amount of `Tuple` positional/named arguments and will create a `it` case for each "set" of data.
+  #
+  # ### Example
+  #
+  # ```
+  # require "athena-spec"
+  #
+  # struct TestWithTest < ASPEC::TestCase
+  #   @[TestWith(
+  #     two: {2, 4},
+  #     three: {3, 9},
+  #     four: {4, 16},
+  #     five: {5, 25},
+  #   )]
+  #   def test_squares(value : Int32, expected : Int32) : Nil
+  #     (value ** 2).should eq expected
+  #   end
+  #
+  #   @[TestWith(
+  #     {2, 8},
+  #     {3, 27},
+  #     {4, 64},
+  #     {5, 125},
+  #   )]
+  #   def test_cubes(value : Int32, expected : Int32) : Nil
+  #     (value ** 3).should eq expected
+  #   end
+  # end
+  #
+  # TestWithTest.run # =>
+  # # TestWithTest
+  # #   squares two
+  # #   squares three
+  # #   squares four
+  # #   squares five
+  # #   cubes 0
+  # #   cubes 1
+  # #   cubes 0
+  # #   cubes 1
+  # ```
+  annotation TestWith; end
 
   # Runs the tests contained within `self`.
   #
@@ -289,7 +332,27 @@ abstract struct Athena::Spec::TestCase
           {% method = (test.name.starts_with?("ptest_") || !!test.annotation Pending) ? "pending" : "it" %}
           {% description = test.name.stringify.gsub(/^(?:f|p)?test_/, "").underscore.gsub(/_/, " ") %}
 
-          {% unless test.annotations(DataProvider).empty? %}
+          {% if test_with = test.annotation(TestWith) %}
+            # Treat args as Array/Tuple data providers
+            {% for args, idx in test_with.args %}
+              {% args.raise "Expected argument ##{idx} of the 'ASPEC::TestCase::TestWith' annotation applied to '#{@type}##{test.name.id}' to be a Tuple, but got '#{args.class_name.id}'." unless args.is_a? TupleLiteral %}
+              {% args.raise "Expected argument ##{idx} of the 'ASPEC::TestCase::TestWith' annotation applied to '#{@type}##{test.name.id}' to contain #{test.args.size} values, but got #{args.size}." if test.args.size != args.size %}
+
+              {{method.id}} "#{{{description}}} #{{{idx}}}", file: {{test.filename}}, line: {{test.line_number}}, end_line: {{test.end_line_number}}, focus: {{focus}}, tags: {{tags}} do
+                instance.{{test.name.id}} *{{args}}
+              end
+            {% end %}
+
+            # Treat named args as Hash/NamedTuple data providers
+            {% for name, args in test_with.named_args %}
+              {% args.raise "Expected the value of argument '#{name.id}' of the 'ASPEC::TestCase::TestWith' annotation applied to '#{@type}##{test.name.id}' to be a Tuple, but got '#{args.class_name.id}'." unless args.is_a? TupleLiteral %}
+              {% args.raise "Expected the value of argument '#{name.id}' of the 'ASPEC::TestCase::TestWith' annotation applied to '#{@type}##{test.name.id}' to contain #{test.args.size} values, but got #{args.size}." if test.args.size != args.size %}
+
+              {{method.id}} "#{{{description}}} #{{{name.stringify}}}", file: {{test.filename}}, line: {{test.line_number}}, end_line: {{test.end_line_number}}, focus: {{focus}}, tags: {{tags}} do
+                instance.{{test.name.id}} *{{args}}
+              end
+            {% end %}
+          {% elsif !test.annotations(DataProvider).empty? %}
             {% for data_provider in test.annotations DataProvider %}
               {% data_provider_method_name = data_provider[0] || data_provider.raise "One or more data provider for test '#{@type}##{test.name.id}' is missing its name." %}
               {% methods = @type.methods %}

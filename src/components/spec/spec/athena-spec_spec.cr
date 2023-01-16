@@ -124,3 +124,22 @@ abstract struct AbstractParent < ASPEC::TestCase
 end
 
 struct Child < AbstractParent; end
+
+struct TestWithTest < ASPEC::TestCase
+  @[TestWith(
+    {4, 64},
+    {5, 125},
+  )]
+  def test_cubes(value : Int32, expected : Int32) : Nil
+    (value ** 3).should eq expected
+  end
+
+  @[TestWith(
+    two: {2, 4},
+    three: {3, 9},
+    "with spaces": {4, 16}
+  )]
+  def test_squares(value : Int32, expected : Int32) : Nil
+    (value ** 2).should eq expected
+  end
+end
