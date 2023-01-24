@@ -150,7 +150,7 @@ class Athena::Routing::RouteCollection
   end
 
   # Yields the name and `ART::Route` object for each registered route.
-  def each : Nil
+  def each(&) : Nil
     self.routes.each do |k, v|
       yield({k, v})
     end
