@@ -184,3 +184,6 @@ module Athena::DependencyInjection
     Fiber.current.container
   end
 end
+
+# Require extension code last so all built-in DI types are available
+require "./ext/*"
