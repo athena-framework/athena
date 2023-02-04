@@ -3,6 +3,7 @@
 
 ADI.auto_configure ACON::Command, {tags: [ADI::Console::Command::TAG]}
 
+# Contains types related to the `Athena::Console` integration.
 module Athena::DependencyInjection::Console
   # :nodoc:
   module Command
@@ -13,9 +14,17 @@ module Athena::DependencyInjection::Console
   # Entrypoint for the `Athena::Console` integration.
   # This service should be fetched via `ADI.container` within your console CLI file.
   #
+  # ```
+  # # Require your code
+  # require "./main"
+  #
+  # # Run the application
+  # ADI.container.athena_console_application.run
+  # ```
+  #
   # Checkout the [external documentation](/components/console/) for more information.
   class Application < ACON::Application
-    def initialize(
+    protected def initialize(
       command_loader : ACON::Loader::Interface? = nil,
       event_dipatcher : AED::EventDispatcherInterface? = nil,
       eager_commands : Enumerable(ACON::Command)? = nil
@@ -63,6 +72,8 @@ module Athena::DependencyInjection::Console
   end
 
   # :nodoc:
+  module CompilerPasses; end
+
   module CompilerPasses::RegisterCommands
     # Post arguments avoid dependency resolution
     include Athena::DependencyInjection::PostArgumentsCompilerPass

@@ -92,6 +92,9 @@ alias AEDA = AED::Annotations
 # WARNING: If using this component within the context of something that handles independent execution flows, such as a web framework, you will want there to be a dedicated dispatcher instance for each path.
 # This ensures that one flow will not leak state to any other flow, while still allowing flow specific mutations to be used.
 # Consider pairing this component with the [Athena::DependencyInjection][Athena::DependencyInjection--getting-started] component as a way to handle this.
+#
+# TIP: If using this component with the `Athena::DependencyInjection` component, `AED::EventListenerInterface` that have the `ADI::Register` annotation will automatically
+# be registered with the default `AED::EventDispatcherInterface`.
 module Athena::EventDispatcher
   VERSION = "0.2.0"
 

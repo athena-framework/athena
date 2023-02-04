@@ -90,6 +90,9 @@ alias ACONA = ACON::Annotations
 #
 # From here you can then setup your entry point file talked about earlier, being sure to require the component via `require "athena-console"`.
 # Finally, create/require your `ACON::Command`s, and customize the `ACON::Application` as needed.
+#
+# TIP: If using this component with the `Athena::DependencyInjection` component, `ACON::Command` that have the `ADI::Register` annotation will automatically
+# be registered as commands when using the `ADI::Console::Application` type.
 module Athena::Console
   VERSION = "0.3.0"
 
