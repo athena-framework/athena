@@ -185,7 +185,7 @@ class Athena::Console::Helper::Question < Athena::Console::Helper
     end
   end
 
-  private def validate_attempts(output : ACON::Output::Interface, question : ACON::Question::Base)
+  private def validate_attempts(output : ACON::Output::Interface, question : ACON::Question::Base, &)
     error = nil
     attempts = question.max_attempts
 
