@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.5] - 2023-02-04
+
+### Added
+
+- Add better integration between `Athena::DependencyInjection` and the `Athena::Console` and `Athena::EventDispatcher` components ([#259](https://github.com/athena-framework/athena/pull/259)) (George Dietrich)
+
 ## [0.3.4] - 2023-01-07
 
 ### Changed
@@ -132,6 +138,7 @@ _Major refactor of the component._
 
 _Initial release._
 
+[0.3.5]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.5
 [0.3.4]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.4
 [0.3.3]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.3
 [0.3.2]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.2

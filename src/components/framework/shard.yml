@@ -31,7 +31,7 @@ dependencies:
     version: ~> 0.3.0
   athena-dependency_injection:
     github: athena-framework/dependency-injection
-    version: ~> 0.3.4
+    version: ~> 0.3.5
   athena-negotiation:
     github: athena-framework/negotiation
     version: ~> 0.1.0
