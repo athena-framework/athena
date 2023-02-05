@@ -8,6 +8,10 @@ arrises = "arises"
 moer = "more"
 annotaiotn = "annotation"
 comonents = "components"
+encapsulte = "encapsulate"
+proivded = "provided"
+beavior = "behavior"
+easisly = "easily"
 
 [files]
 extend-exclude = [
