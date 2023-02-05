@@ -71,7 +71,7 @@ alias AEDA = AED::Annotations
 # ## Getting Started
 #
 # If using this component within the [Athena Framework][Athena::Framework], it is already installed and required for you.
-# Checkout the [manual](/components/event_dispatcher) for some additional information on how to use it within the framework.
+# Checkout the [manual](/architecture/event_dispatcher) for some additional information on how to use it within the framework.
 #
 # If using it outside of the framework, you will first need to add it as a dependency:
 #

@@ -24,7 +24,7 @@
 # # GET /view/Fred # => 418 {"greeting":"Hello Fred"}
 # ```
 #
-# See the [negotiation](/components/negotiation) component for more information.
+# See the [negotiation](/architecture/negotiation) component for more information.
 class Athena::Framework::View(T)
   # The response data.
   property data : T

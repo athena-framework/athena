@@ -4,7 +4,7 @@ require "./view_handler"
 
 # Encompasses all configuration related to the `Athena::Framework` component.
 #
-# For a higher level introduction to configuring Athena components, see the [external documentation](/components/config).
+# For a higher level introduction to configuring Athena components, see the [external documentation](/architecture/config).
 struct Athena::Framework::Config
   # Configuration related to `ATH::Listeners::CORS`.
   #

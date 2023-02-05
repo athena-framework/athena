@@ -22,7 +22,7 @@ dependencies:
 ## Documentation
 
 If using the component on its own, checkout the [API documentation](https://athenaframework.org/Config).
-If using the component as part of Athena, also checkout the [external documentation](https://athenaframework.org/components/config).
+If using the component as part of Athena, also checkout the [external documentation](https://athenaframework.org/architecture/config).
 
 ## Contributing
 

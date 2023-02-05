@@ -273,7 +273,7 @@ module Athena::DependencyInjection
   #
   # ### Parameters
   #
-  # The `Athena::Config` component provides a way to manage `ACF::Parameters` objects used to define reusable [parameters](/components/config#parameters).
+  # The `Athena::Config` component provides a way to manage `ACF::Parameters` objects used to define reusable [parameters](/architecture/config#parameters).
   # It is possible to inject these parameters directly into services in a type safe way.
   #
   # Parameter injection utilizes a specially formatted string, similar to tagged services.
@@ -308,7 +308,7 @@ module Athena::DependencyInjection
   #
   # ### Configuration
   #
-  # The `Athena::Config` component provides a way to manage `ACF::Base` objects used for [configuration](/components/config#configuration).
+  # The `Athena::Config` component provides a way to manage `ACF::Base` objects used for [configuration](/architecture/config#configuration).
   # The `Athena::DependencyInjection` component leverages the `ACFA::Resolvable` annotation to allow injecting entire configuration objects into services
   # in addition to individual [parameters][Athena::DependencyInjection::Register--parameters].
   #

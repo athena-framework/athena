@@ -13,7 +13,7 @@ struct Athena::Framework::Config
 
       # Returns a `Regex` representing the hostname that this rule should be scoped to.
       #
-      # [parameters](/components/config#parameters) may be used to generalize this.
+      # [parameters](/architecture/config#parameters) may be used to generalize this.
       getter host : Regex?
 
       # Returns the formats that should be considered for this set of routes.
@@ -48,7 +48,7 @@ struct Athena::Framework::Config
     end
 
     # This method should be overridden in order to provide the configuration for `ATH::Listeners::Format`.
-    # See the [external documentation](/components/negotiation) for more details.
+    # See the [external documentation](/architecture/negotiation) for more details.
     #
     # By default it returns `nil`, which disables the listener.
     #

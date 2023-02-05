@@ -22,7 +22,7 @@ module Athena::DependencyInjection::Console
   # ADI.container.athena_console_application.run
   # ```
   #
-  # Checkout the [external documentation](/components/console/) for more information.
+  # Checkout the [external documentation](/architecture/console/) for more information.
   class Application < ACON::Application
     protected def initialize(
       command_loader : ACON::Loader::Interface? = nil,

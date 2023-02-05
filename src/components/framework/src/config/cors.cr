@@ -8,7 +8,7 @@ struct Athena::Framework::Config; end
 @[ACFA::Resolvable("routing.cors")]
 struct Athena::Framework::Config::CORS
   # This method should be overridden in order to provide the configuration for `ATH::Listeners::CORS`.
-  # See the [external documentation](/components/config#configuration) for more details.
+  # See the [external documentation](/architecture/config#configuration) for more details.
   #
   # By default it returns `nil`, which disables the listener.
   #

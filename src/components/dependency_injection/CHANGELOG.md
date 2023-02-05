@@ -59,7 +59,7 @@ _First release a part of the monorepo._
 ### Added
 
 - Add dependency on `athena-framework/config` ([#20](https://github.com/athena-framework/dependency-injection/pull/20)) (George Dietrich)
-- Add support for injecting [parameters](https://athenaframework.org/components/config/#parameters) into a service ([#20](https://github.com/athena-framework/dependency-injection/pull/20)) (George Dietrich)
+- Add support for injecting [parameters](https://athenaframework.org/architecture/config/#parameters) into a service ([#20](https://github.com/athena-framework/dependency-injection/pull/20)) (George Dietrich)
 - Add support for [service proxies](https://athenaframework.org/DependencyInjection/Register/#Athena::DependencyInjection::Register--service-proxies) ([#21](https://github.com/athena-framework/dependency-injection/pull/21)) (George Dietrich)
 
 ### Removed
