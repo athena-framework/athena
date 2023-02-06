@@ -37,7 +37,7 @@ module Athena
   #
   # Then run `shards install`, being sure to require it via `require "athena-config"`.
   #
-  # From here, checkout the [manual](/components/config) for some additional information on how to use it both within and outside of the framework.
+  # From here, checkout the [manual](/architecture/config) for some additional information on how to use it both within and outside of the framework.
   #
   # INFO: DI parameter injection requires the [Athena::DependencyInjection][] component as well.
   module Config
@@ -86,14 +86,14 @@ module Athena
     # The instance is a lazily initialized singleton.
     #
     # `ACF.load_configuration` may be redefined to change _how_ the configuration object is provided; e.g. create it from a `YAML` or `JSON` configuration file.
-    # See the [external documentation](https://athenaframework.org/components/config/#configuration) for more information.
+    # See the [external documentation](/architecture/config/#configuration) for more information.
     class_getter config : ACF::Base { ACF.load_configuration }
 
     # Returns the configured `ACF::Parameters` instance.
     # The instance is a lazily initialized singleton.
     #
     # `ACF.load_parameters` may be redefined to change _how_ the parameters object is provided; e.g. create it from a `YAML` or `JSON` configuration file.
-    # See the [external documentation](https://athenaframework.org/components/config/#parameters) for more information.
+    # See the [external documentation](/architecture/config/#parameters) for more information.
     class_getter parameters : ACF::Parameters { ACF.load_parameters }
 
     # By default return an empty configuration type.

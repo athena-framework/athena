@@ -10,7 +10,7 @@ require "./settable_response"
 #
 # NOTE: If your listener logic requires that the the corresponding `ATH::Action` has been resolved, use `ATH::Events::Action` instead.
 #
-# See the [external documentation](/components/#1-request-event) for more information.
+# See the [external documentation](/architecture/#1-request-event) for more information.
 class Athena::Framework::Events::Request < AED::Event
   include Athena::Framework::Events::SettableResponse
   include Athena::Framework::Events::RequestAware
