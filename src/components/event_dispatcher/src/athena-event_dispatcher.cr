@@ -18,7 +18,7 @@ alias AEDA = AED::Annotations
 # The `Athena::EventDispatcher` component is a [Mediator](https://en.wikipedia.org/wiki/Mediator_pattern) and [Observer](https://en.wikipedia.org/wiki/Observer_pattern) pattern event library.
 # This pattern allows creating very flexibly and truly extensible applications.
 #
-# A good example of this is the [architecture](/components) of Athena Framework itself.
+# A good example of this is the [architecture](/architecture) of Athena Framework itself.
 # Once an `ATH::Response` has been created by a controller, it may be useful to allow additional modifications before it is actually returned to the client.
 # Such modifications could include adding additional headers, paginating the data itself, or capturing performance metrics to name a few.
 # To handle this, the framework itself makes use of `Athena::EventDispatcher` to dispatch an event that notifies all registered listeners on that event.

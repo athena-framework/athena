@@ -231,14 +231,14 @@ abstract class Athena::Framework::Controller
 
   # Returns an `ATH::View` that'll redirect to the provided *url*, optionally with the provided *status* and *headers*.
   #
-  # Is essentially the same as `#redirect`, but invokes the [view](/components#4-view-event) layer.
+  # Is essentially the same as `#redirect`, but invokes the [view](/architecture#4-view-event) layer.
   def redirect_view(url : Status, status : HTTP::Status = HTTP::Status::FOUND, headers : HTTP::Headers = HTTP::Headers.new) : ATH::View
     ATH::View.create_redirect url, status, headers
   end
 
   # Returns an `ATH::View` that'll redirect to the provided *route*, optionally with the provided *params*, *status*, and *headers*.
   #
-  # Is essentially the same as `#redirect_to_route`, but invokes the [view](/components#4-view-event) layer.
+  # Is essentially the same as `#redirect_to_route`, but invokes the [view](/architecture#4-view-event) layer.
   def route_redirect_view(route : Status, params : Hash(String, _) = Hash(String, String?).new, status : HTTP::Status = HTTP::Status::CREATED, headers : HTTP::Headers = HTTP::Headers.new) : ATH::View
     ATH::View.create_route_redirect route, params
   end

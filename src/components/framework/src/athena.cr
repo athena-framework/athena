@@ -58,7 +58,7 @@ alias ATHR = ATH::Controller::ValueResolvers
 
 # See the [external documentation](https://athenaframework.org) for an introduction to `Athena`.
 #
-# Also checkout the [Components](/components) for an overview of how `Athena` is designed.
+# Also checkout the [Components](/architecture) for an overview of how `Athena` is designed.
 module Athena::Framework
   VERSION = "0.17.1"
 
