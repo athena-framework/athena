@@ -118,6 +118,13 @@ module Athena::Framework
   module CompilerPasses; end
 
   # Namespace for the built in `Athena::Console` commands that come bundled with the framework.
+  # Currently it provides:
+  #
+  # - `ATH::Commands::DebugEventDispatcher` - Display configured listeners for an application
+  # - `ATH::Commands::DebugRouter` - Display current routes for an application
+  # - `ATH::Commands::DebugRouterMatch` - Simulate a path match to see which route, if any, would handle it
+  #
+  # See each command class for more information.
   module Commands; end
 
   # Runs an `HTTP::Server` listening on the given *port* and *host*.
