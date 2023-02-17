@@ -22,6 +22,11 @@ class RoutingController < ATH::Controller
     "HEAD"
   end
 
+  @[ARTA::Head("/get-head")]
+  def get_head : ATH::View(String)
+    self.view "GET-HEAD", headers: HTTP::Headers{"FOO" => "BAR"}
+  end
+
   get "/cookies", return_type: ATH::Response do
     response = ATH::Response.new "FOO"
     response.headers << HTTP::Cookie.new "key", "value"
