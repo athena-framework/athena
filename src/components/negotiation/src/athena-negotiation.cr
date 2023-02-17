@@ -102,7 +102,7 @@ alias ANG = Athena::Negotiation
 #
 # The `ANG::LanguageNegotiator` type returns an `ANG::AcceptLanguage`, or `nil` if negotiating the best language has failed.
 module Athena::Negotiation
-  VERSION = "0.1.2"
+  VERSION = "0.1.3"
 
   # Returns a lazily initialized `ANG::Negotiator` singleton instance.
   class_getter(negotiator) { ANG::Negotiator.new }
