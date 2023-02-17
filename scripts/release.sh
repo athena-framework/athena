@@ -42,12 +42,17 @@ function tag()
 
 # Helper script to assist in component releases
 #
-# tag - Creates a signed git tag at the latest commit for the provided component.
+# tag - Creates a signed git tag at the latest commit for the provided component(s).
 
 METHOD=$1
 
 case $METHOD in
   tag)
-    tag $2 $3
+    # Support tagging multiple components at once
+    for component in ${@:2}; do
+      IFS=':' read -r name version <<< $component
+
+      tag $name $version
+    done
     ;;
 esac
