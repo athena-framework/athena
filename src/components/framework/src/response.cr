@@ -134,6 +134,9 @@ class Athena::Framework::Response
   #
   # ameba:disable Metrics/CyclomaticComplexity
   def prepare(request : ATH::Request) : Nil
+    # Set the content length if not already manually set
+    @headers["content-length"] = @content.size unless @headers.has_key? "content-length"
+
     if @status.informational? || @status.no_content? || @status.not_modified?
       self.content = nil
       @headers.delete "content-type"

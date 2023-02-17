@@ -13,6 +13,7 @@ struct RoutingTest < ATH::Spec::APITestCase
     response = self.request "HEAD", "/head"
     response.status.should eq HTTP::Status::OK
     response.body.should be_empty
+    response.headers["content-length"].should eq "6" # JSON encoding adds 2 extra `"` chars
   end
 
   def test_does_not_reuse_container_with_keep_alive_connections : Nil

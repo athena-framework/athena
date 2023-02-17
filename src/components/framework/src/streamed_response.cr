@@ -35,7 +35,8 @@ class Athena::Framework::StreamedResponse < Athena::Framework::Response
   #
   # The proc is called when `self` is being written to the response's `IO`.
   def initialize(@callback : Proc(IO, Nil), status : HTTP::Status | Int32 = HTTP::Status::OK, headers : HTTP::Headers | ATH::Response::Headers = ATH::Response::Headers.new)
-    super nil, status, headers
+    # Manually add `transfer-encoding: chunked` so `ART::Response#prepare` knows how to properly handle this type of response.
+    super nil, status, headers.merge!({"transfer-encoding" => "chunked"})
   end
 
   # Updates the callback of `self`.
