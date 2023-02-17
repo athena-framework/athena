@@ -43,7 +43,7 @@ private CONFIG = ATH::Config::CORS.new(
   max_age: 123
 )
 
-describe ATH::Listeners::CORS, focus: true do
+describe ATH::Listeners::CORS do
   describe "#on_request - request" do
     it "without a configuration defined" do
       listener = ATH::Listeners::CORS.new nil
