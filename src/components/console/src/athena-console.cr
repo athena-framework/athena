@@ -94,7 +94,7 @@ alias ACONA = ACON::Annotations
 # TIP: If using this component with the `Athena::DependencyInjection` component, `ACON::Command` that have the `ADI::Register` annotation will automatically
 # be registered as commands when using the `ADI::Console::Application` type.
 module Athena::Console
-  VERSION = "0.3.0"
+  VERSION = "0.3.2"
 
   # Contains all the `Athena::Console` based annotations.
   module Annotations; end
