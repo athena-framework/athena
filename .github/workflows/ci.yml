@@ -62,7 +62,7 @@ jobs:
         with:
           crystal: ${{ matrix.crystal }}
       - name: Install Dependencies
-        run: shards install
+        run: shards install --skip-postinstall --skip-executables
         env:
           SHARDS_OVERRIDE: shard.dev.yml
       - name: Specs
