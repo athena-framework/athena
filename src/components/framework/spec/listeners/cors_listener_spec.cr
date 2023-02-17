@@ -19,7 +19,7 @@ private def assert_headers(response : ATH::Response, origin : String = "https://
 end
 
 private def assert_headers_with_wildcard_config_without_request_headers(response : ATH::Response) : Nil
-  response.headers["access-control-allow-credentials"].should eq "true"
+  response.headers["access-control-allow-credentials"]?.should be_nil
   response.headers["access-control-allow-headers"]?.should be_nil
   response.headers["access-control-allow-methods"].should eq "GET, POST, HEAD"
   response.headers["access-control-allow-origin"].should eq "https://example.com"
@@ -28,7 +28,7 @@ end
 
 private EMPTY_CONFIG    = ATH::Config::CORS.new
 private WILDCARD_CONFIG = ATH::Config::CORS.new(
-  allow_credentials: true,
+  allow_credentials: false,
   allow_headers: %w(*),
   allow_origin: %w(*),
   expose_headers: %w(*),
