@@ -61,6 +61,9 @@ jobs:
         uses: crystal-lang/install-crystal@v1
         with:
           crystal: ${{ matrix.crystal }}
+      - name: Install pkg-config via brew
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: brew install pkg-config
       - name: Install Dependencies
         run: shards install --skip-postinstall --skip-executables
         env:
