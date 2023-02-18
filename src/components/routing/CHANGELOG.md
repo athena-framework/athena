@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.5] - 2023-02-18
+
+### Changed
+
+- Update some links in preparation for Athena Framework `0.18.0` ([#261](https://github.com/athena-framework/athena/pull/261)) (George Dietrich)
+
+### Added
+
+- Add additional `ART::Requirement` constants ([#257](https://github.com/athena-framework/athena/pull/257)) (George Dietrich)
+
+### Fixed
+
+- Fix formatting issue in Crystal `1.8-dev` ([#258](https://github.com/athena-framework/athena/pull/258)) (George Dietrich)
+
 ## [0.1.4] - 2023-01-07
 
 ### Changed
@@ -50,6 +64,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.1.5]: https://github.com/athena-framework/routing/releases/tag/v0.1.5
 [0.1.4]: https://github.com/athena-framework/routing/releases/tag/v0.1.4
 [0.1.3]: https://github.com/athena-framework/routing/releases/tag/v0.1.3
 [0.1.2]: https://github.com/athena-framework/routing/releases/tag/v0.1.2

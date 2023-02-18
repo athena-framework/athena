@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.3] - 2023-02-18
+
+### Changed
+
+- Update some links in preparation for Athena Framework `0.18.0` ([#261](https://github.com/athena-framework/athena/pull/261)) (George Dietrich)
+
 ## [0.3.2] - 2023-01-07
 
 ### Fixed
@@ -127,6 +133,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.3.3]: https://github.com/athena-framework/serializer/releases/tag/v0.3.3
 [0.3.2]: https://github.com/athena-framework/serializer/releases/tag/v0.3.2
 [0.3.1]: https://github.com/athena-framework/serializer/releases/tag/v0.3.1
 [0.3.0]: https://github.com/athena-framework/serializer/releases/tag/v0.3.0

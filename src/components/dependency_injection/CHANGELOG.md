@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.6] - 2023-02-18
+
+### Changed
+
+- Update some links in preparation for Athena Framework `0.18.0` ([#261](https://github.com/athena-framework/athena/pull/261)) (George Dietrich)
+
 ## [0.3.5] - 2023-02-04
 
 ### Added
@@ -138,6 +144,7 @@ _Major refactor of the component._
 
 _Initial release._
 
+[0.3.6]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.6
 [0.3.5]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.5
 [0.3.4]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.4
 [0.3.3]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.3

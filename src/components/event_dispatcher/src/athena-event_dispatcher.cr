@@ -96,7 +96,7 @@ alias AEDA = AED::Annotations
 # TIP: If using this component with the `Athena::DependencyInjection` component, `AED::EventListenerInterface` that have the `ADI::Register` annotation will automatically
 # be registered with the default `AED::EventDispatcherInterface`.
 module Athena::EventDispatcher
-  VERSION = "0.2.0"
+  VERSION = "0.2.2"
 
   # Contains all the `Athena::EventDispatcher` based annotations.
   module Annotations; end

@@ -1,6 +1,6 @@
 name: athena-event_dispatcher
 
-version: 0.2.0
+version: 0.2.2
 
 crystal: ~> 1.4
 

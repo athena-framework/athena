@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.3] - 2023-02-18
+
+### Changed
+
+- Update some links in preparation for Athena Framework `0.18.0` ([#261](https://github.com/athena-framework/athena/pull/261)) (George Dietrich)
+
 ## [0.1.2] - 2022-05-14
 
 _First release a part of the monorepo._
@@ -27,6 +33,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.1.3]: https://github.com/athena-framework/negotiation/releases/tag/v0.1.3
 [0.1.2]: https://github.com/athena-framework/negotiation/releases/tag/v0.1.2
 [0.1.1]: https://github.com/athena-framework/negotiation/releases/tag/v0.1.1
 [0.1.0]: https://github.com/athena-framework/negotiation/releases/tag/v0.1.0

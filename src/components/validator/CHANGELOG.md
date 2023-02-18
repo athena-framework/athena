@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.1] - 2023-02-18
+
+### Changed
+
+- Update some links in preparation for Athena Framework `0.18.0` ([#261](https://github.com/athena-framework/athena/pull/261)) (George Dietrich)
+
+### Fixed
+
+- Fix issue when using `AVD::Metadata::GetterMetadata` with methods that have parameters ([#252](https://github.com/athena-framework/athena/pull/252)) (George Dietrich)
+
 ## [0.3.0] - 2023-01-07
 
 ### Changed
@@ -124,6 +134,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.3.1]: https://github.com/athena-framework/validator/releases/tag/v0.3.1
 [0.3.0]: https://github.com/athena-framework/validator/releases/tag/v0.3.0
 [0.2.1]: https://github.com/athena-framework/validator/releases/tag/v0.2.1
 [0.2.0]: https://github.com/athena-framework/validator/releases/tag/v0.2.0

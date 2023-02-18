@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.2] - 2023-02-18
+
+### Changed
+
+- Update some links in preparation for Athena Framework `0.18.0` ([#261](https://github.com/athena-framework/athena/pull/261)) (George Dietrich)
+
 ## [0.2.1] - 2023-02-04
 
 ### Added
@@ -68,6 +74,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.2.2]: https://github.com/athena-framework/event-dispatcher/releases/tag/v0.2.2
 [0.2.1]: https://github.com/athena-framework/event-dispatcher/releases/tag/v0.2.1
 [0.2.0]: https://github.com/athena-framework/event-dispatcher/releases/tag/v0.2.0
 [0.1.4]: https://github.com/athena-framework/event-dispatcher/releases/tag/v0.1.4
