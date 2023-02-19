@@ -19,8 +19,8 @@
 - Add request/response helper expectation methods to `ATH::Spec::WebTestCase` ([#249](https://github.com/athena-framework/athena/pull/249)) (George Dietrich)
 - Add `#response` and `#request` methods to `ATH::Spec::AbstractBrowser` types ([#249](https://github.com/athena-framework/athena/pull/249)) (George Dietrich)
 - Add [ATHR](https://athenaframework.org/Framework/aliases/#ATHR) alias to make using value resolver annotations easier ([#243](https://github.com/athena-framework/athena/pull/243)) (George Dietrich)
-- Add [ATH::Commands::Commands::DebugEventDispatcher](https://athenaframework.org/Commands/DebugEventDispatcher) framework CLI command to aid in debugging the event dispatcher ([#241](https://github.com/athena-framework/athena/pull/241)) (George Dietrich)
-- Add [ATH::Commands::Commands::DebugRouter](https://athenaframework.org/Commands/DebugRouter) and [ATH::Commands::Commands::DebugRouterMatch](https://athenaframework.org/Commands/DebugRouterMatch) framework CLI commands to aid in debugging the router ([#224](https://github.com/athena-framework/athena/pull/224)) (George Dietrich)
+- Add [ATH::Commands::Commands::DebugEventDispatcher](https://athenaframework.org/Framework/Commands/DebugEventDispatcher) framework CLI command to aid in debugging the event dispatcher ([#241](https://github.com/athena-framework/athena/pull/241)) (George Dietrich)
+- Add [ATH::Commands::Commands::DebugRouter](https://athenaframework.org/Framework/Commands/DebugRouter) and [ATH::Commands::Commands::DebugRouterMatch](https://athenaframework.org/Framework/Commands/DebugRouterMatch) framework CLI commands to aid in debugging the router ([#224](https://github.com/athena-framework/athena/pull/224)) (George Dietrich)
 - Add integration for the [Athena::Console](https://athenaframework.org/Console/) component ([#218](https://github.com/athena-framework/athena/pull/218)) (George Dietrich)
 
 ### Fixed
