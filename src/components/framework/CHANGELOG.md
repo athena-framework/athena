@@ -16,7 +16,7 @@
 
 - Add trace logging to `ATH::Listeners::CORS` to aid in debugging ([#265](https://github.com/athena-framework/athena/pull/265)) (George Dietrich)
 - Introduce new `framework.debug` parameter that is `true` if the binary was _not_ built with the `--release` flag ([#249](https://github.com/athena-framework/athena/pull/249)) (George Dietrich)
-- Add request/response helper expectation methods to `ATH::Spec::WebTestCase` ([#249](https://github.com/athena-framework/athena/pull/249)) (George Dietrich)
+- Add built-in [HTTP Expectation](https://athenaframework.org/Framework/Spec/Expectations/HTTP) methods to `ATH::Spec::WebTestCase` ([#249](https://github.com/athena-framework/athena/pull/249)) (George Dietrich)
 - Add `#response` and `#request` methods to `ATH::Spec::AbstractBrowser` types ([#249](https://github.com/athena-framework/athena/pull/249)) (George Dietrich)
 - Add [ATHR](https://athenaframework.org/Framework/aliases/#ATHR) alias to make using value resolver annotations easier ([#243](https://github.com/athena-framework/athena/pull/243)) (George Dietrich)
 - Add [ATH::Commands::Commands::DebugEventDispatcher](https://athenaframework.org/Framework/Commands/DebugEventDispatcher) framework CLI command to aid in debugging the event dispatcher ([#241](https://github.com/athena-framework/athena/pull/241)) (George Dietrich)
