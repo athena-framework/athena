@@ -289,8 +289,8 @@ abstract struct Athena::Spec::TestCase
   # #   squares five
   # #   cubes 0
   # #   cubes 1
-  # #   cubes 0
-  # #   cubes 1
+  # #   cubes 2
+  # #   cubes 3
   # ```
   annotation TestWith; end
 
