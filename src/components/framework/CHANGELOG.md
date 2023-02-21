@@ -1,8 +1,38 @@
 # Changelog
 
+## [0.18.0] - 2023-02-20
+
+### Changed
+
+- **Breaking:** upgrade [Athena::EventDispatcher](https://athenaframework.org/EventDispatcher/) to [0.2.x](https://github.com/athena-framework/event-dispatcher/blob/master/CHANGELOG.md#020---2023-01-07) ([#205](https://github.com/athena-framework/athena/pull/205)) (George Dietrich)
+- **Breaking:** deprecate the `ATH::ParamConverter` concept in favor of [Value Resolvers](https://athenaframework.org/Framework/Controller/ValueResolvers/Interface) ([#243](https://github.com/athena-framework/athena/pull/243)) (George Dietrich)
+- **Breaking:** rename various types/methods to better adhere to https://github.com/crystal-lang/crystal/issues/10374 ([#243](https://github.com/athena-framework/athena/pull/243)) (George Dietrich)
+- **Breaking:** Change `ATH::Spec::AbstractBrowser` to be a `class` ([#249](https://github.com/athena-framework/athena/pull/249)) (George Dietrich)
+- **Breaking:** upgrade [Athena::Validator](https://athenaframework.org/Validator/) to [0.3.x](https://github.com/athena-framework/validator/blob/master/CHANGELOG.md#030---2023-01-07) ([#250](https://github.com/athena-framework/athena/pull/250)) (George Dietrich)
+- Improve service `ATH::Controller`s to not need the `public: true` `ADI::Register` field ([#213](https://github.com/athena-framework/athena/pull/213)) (George Dietrich)
+- Update minimum `crystal` version to `~> 1.6.0` ([#205](https://github.com/athena-framework/athena/pull/205)) (George Dietrich)
+
+### Added
+
+- Add trace logging to `ATH::Listeners::CORS` to aid in debugging ([#265](https://github.com/athena-framework/athena/pull/265)) (George Dietrich)
+- Introduce new `framework.debug` parameter that is `true` if the binary was _not_ built with the `--release` flag ([#249](https://github.com/athena-framework/athena/pull/249)) (George Dietrich)
+- Add built-in [HTTP Expectation](https://athenaframework.org/Framework/Spec/Expectations/HTTP) methods to `ATH::Spec::WebTestCase` ([#249](https://github.com/athena-framework/athena/pull/249)) (George Dietrich)
+- Add `#response` and `#request` methods to `ATH::Spec::AbstractBrowser` types ([#249](https://github.com/athena-framework/athena/pull/249)) (George Dietrich)
+- Add [ATHR](https://athenaframework.org/Framework/aliases/#ATHR) alias to make using value resolver annotations easier ([#243](https://github.com/athena-framework/athena/pull/243)) (George Dietrich)
+- Add [ATH::Commands::Commands::DebugEventDispatcher](https://athenaframework.org/Framework/Commands/DebugEventDispatcher) framework CLI command to aid in debugging the event dispatcher ([#241](https://github.com/athena-framework/athena/pull/241)) (George Dietrich)
+- Add [ATH::Commands::Commands::DebugRouter](https://athenaframework.org/Framework/Commands/DebugRouter) and [ATH::Commands::Commands::DebugRouterMatch](https://athenaframework.org/Framework/Commands/DebugRouterMatch) framework CLI commands to aid in debugging the router ([#224](https://github.com/athena-framework/athena/pull/224)) (George Dietrich)
+- Add integration for the [Athena::Console](https://athenaframework.org/Console/) component ([#218](https://github.com/athena-framework/athena/pull/218)) (George Dietrich)
+
+### Fixed
+
+- Correctly populate `content-length` based on the response content's size ([#267](https://github.com/athena-framework/athena/pull/267)) (George Dietrich)
+- Prevent wildcard CORS `expose_headers` value when `allow_credentials` is `true` ([#264](https://github.com/athena-framework/athena/pull/264)) (George Dietrich)
+- Correctly handle `JSON::Serializable` values within `Hash`/`NamedTuple` controller action return types ([#253](https://github.com/athena-framework/athena/pull/253)) (George Dietrich)
+- Fix [ATH::ParameterBag#get?](https://athenaframework.org/Framework/ParameterBag/#Athena::Framework::ParameterBag#get?(name,_type)) not returning `nil` if it could not convert the value to the desired type ([#243](https://github.com/athena-framework/athena/pull/243)) (George Dietrich)
+
 ## [0.17.1] - 2022-09-05
 
-## Changed
+### Changed
 
 - **Breaking:** ensure parameter names defined on interfaces match the implementation ([#188](https://github.com/athena-framework/athena/pull/188)) (George Dietrich)
 
@@ -82,6 +112,7 @@ _Last release in the [athena-framework/athena](https://github.com/athena-framewo
 - Fix incorrect ivar type on `AVD::Exceptions::Exceptions::ValidationFailed#violations` ([#116](https://github.com/athena-framework/athena/pull/116)) (George Dietrich)
 - Correctly reject requests with whitespace when converting numeric inputs ([#117](https://github.com/athena-framework/athena/pull/117)) (George Dietrich)
 
+[0.18.0]: https://github.com/athena-framework/athena/releases/tag/v0.18.0
 [0.17.1]: https://github.com/athena-framework/athena/releases/tag/v0.17.1
 [0.17.0]: https://github.com/athena-framework/athena/releases/tag/v0.17.0
 [0.16.0]: https://github.com/athena-framework/athena/releases/tag/v0.16.0

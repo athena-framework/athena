@@ -60,7 +60,7 @@ alias ATHR = ATH::Controller::ValueResolvers
 #
 # Also checkout the [Components](/architecture) for an overview of how `Athena` is designed.
 module Athena::Framework
-  VERSION = "0.17.1"
+  VERSION = "0.18.0"
 
   # This type includes all of the built-in resolvers that Athena uses to try and resolve an argument for a particular controller action parameter.
   # They run in the following order:
