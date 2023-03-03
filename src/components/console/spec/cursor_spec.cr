@@ -100,8 +100,7 @@ struct CursorTest < ASPEC::TestCase
     position.should eq({1, 1})
   end
 
-  # TODO: Figure out a less brittle way of testing this.
-  def ptest_current_position_tty : Nil
+  def test_current_position_tty : Nil
     @cursor = ACON::Cursor.new @output
 
     @cursor.move_to_position 10, 10
