@@ -45,7 +45,7 @@ jobs:
         os:
           - ubuntu-latest
           - macos-latest
-          # - windows-latest
+          - windows-latest
         crystal:
           - latest
           - nightly
