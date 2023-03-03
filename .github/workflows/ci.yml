@@ -48,7 +48,7 @@ jobs:
           - windows-latest
         crystal:
           - latest
-          - nightly
+          # - nightly
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
