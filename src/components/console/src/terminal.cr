@@ -4,6 +4,7 @@ require "./ext/terminal"
 struct Athena::Console::Terminal
   @@width : Int32? = nil
   @@height : Int32? = nil
+  @@stty : Bool = false
 
   def self.has_stty_available? : Bool
     if stty = @@stty
