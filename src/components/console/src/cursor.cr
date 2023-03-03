@@ -130,7 +130,7 @@ struct Athena::Console::Cursor
       return {1, 1} unless STDIN.tty?
 
       LibC.GetConsoleScreenBufferInfo(LibC.GetStdHandle(LibC::STD_INPUT_HANDLE), out csbi)
-      {csbi.dwCursorPosition.x.to_i32, dwCursorPosition.y.to_i32}
+      {csbi.dwCursorPosition.x.to_i32, csbi.dwCursorPosition.y.to_i32}
     {% else %}
       return {1, 1} unless @input.tty?
 
