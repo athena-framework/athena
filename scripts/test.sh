@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 EXIT_CODE=0
-DEFAULT_OPTIONS=(-Dstrict_multi_assign --order=random --error-on-warnings)
+DEFAULT_OPTIONS=(-Dstrict_multi_assign -Dpreview_overload_order --order=random --error-on-warnings)
 CRYSTAL=${CRYSTAL:=crystal}
 
 # Runs the specs for all, or optionally a single component
