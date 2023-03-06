@@ -153,8 +153,6 @@ class Athena::DependencyInjection::ServiceContainer
         {% verbatim do %}
 
           {%
-            pp CONFIG["parameters"]
-
             to_process = (CONFIG["parameters"] || {} of Nil => Nil).to_a
 
             to_process.each do |(k, v)|
@@ -207,10 +205,10 @@ class Athena::DependencyInjection::ServiceContainer
 
                     chars = sv.chars
 
-                    chars.each_with_index do |c, idx|
-                      if c == '%' && chars[idx + 1] == '%'
+                    chars.each_with_index do |c, c_idx|
+                      if c == '%' && chars[c_idx + 1] == '%'
                         # Do nothing as we'll just add the next char
-                      elsif !char_is_part_of_key && c == '%' && (idx == 0 || chars[idx - 1] != '%')
+                      elsif !char_is_part_of_key && c == '%' && (c_idx == 0 || chars[c_idx - 1] != '%')
                         char_is_part_of_key = true
                       elsif char_is_part_of_key && c == '%'
                         resolved_value = CONFIG["parameters"][key]
@@ -234,15 +232,179 @@ class Athena::DependencyInjection::ServiceContainer
                     end
                   end
                 end
-                # elsif v.is_a?(StringLiteral) && v.includes?("%%")
-                # CONFIG["parameters"][k] = v.gsub /%%/, "%"
+              elsif v.is_a?(ArrayLiteral) || v.is_a?(TupleLiteral)
+                # Check the values of the hash to see if they need resolved
+                v.each_with_index do |v, a_idx|
+                  if v.is_a?(StringLiteral) && v =~ /%%|%([^%\s]++)%/
+                    key = ""
+                    char_is_part_of_key = false
+
+                    new_value = ""
+
+                    chars = v.chars
+
+                    chars.each_with_index do |c, c_idx|
+                      if c == '%' && chars[c_idx + 1] == '%'
+                        # Do nothing as we'll just add the next char
+                      elsif !char_is_part_of_key && c == '%' && (c_idx == 0 || chars[c_idx - 1] != '%')
+                        char_is_part_of_key = true
+                      elsif char_is_part_of_key && c == '%'
+                        resolved_value = CONFIG["parameters"][key]
+
+                        new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
+
+                        key = ""
+                        char_is_part_of_key = false
+                      elsif char_is_part_of_key
+                        key += c
+                      else
+                        new_value += c
+                      end
+                    end
+
+                    # If the new value is still not fully resolved, go thru the process again
+                    if !(new_value =~ /%%|%([^%\s]++)%/)
+                      CONFIG["parameters"][k][a_idx] = new_value
+                    else
+                      to_process << {k, CONFIG["parameters"][k]}
+                    end
+                  end
+                end
+              end
+            end
+          %}
+
+          {%
+            values = CONFIG.to_a.reject { |(k, _)| k == "parameters" }.map { |(k, v)| {k, v, CONFIG} }
+
+            values.each do |(k, v, h)|
+              if v.is_a?(NamedTupleLiteral)
+                v.to_a.each do |(sk, sv)|
+                  values << {sk, sv, v}
+                end
+              else
+                # COPY PASTE FROM ABOVE
+                # Update keys to set
+                if v.is_a?(StringLiteral) && v =~ /%%|%([^%\s]++)%/
+                  # We know the value probably needs to be resolved, but we can't simply use a regex to extract the key.
+                  # Let's iterate over its chars to rebuild the new value of the param, taking everything in-between the `%` as the name of key of the param
+
+                  # TODO: Replace this with a block version of `StringLiteral#gsub`.
+                  # TODO: Extract this into a macro def.
+                  key = ""
+                  char_is_part_of_key = false
+
+                  new_value = ""
+
+                  chars = v.chars
+
+                  chars.each_with_index do |c, idx|
+                    if c == '%' && chars[idx + 1] == '%'
+                      # Do nothing as we'll just add the next char
+                    elsif !char_is_part_of_key && c == '%' && (idx == 0 || chars[idx - 1] != '%')
+                      char_is_part_of_key = true
+                    elsif char_is_part_of_key && c == '%'
+                      resolved_value = CONFIG["parameters"][key]
+
+                      new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
+
+                      key = ""
+                      char_is_part_of_key = false
+                    elsif char_is_part_of_key
+                      key += c
+                    else
+                      new_value += c
+                    end
+                  end
+
+                  # If the new value is still not fully resolved, go thru the process again
+                  if !(new_value =~ /%%|%([^%\s]++)%/)
+                    h[k] = new_value
+                  else
+                    to_process << {k, new_value}
+                  end
+                elsif v.is_a?(HashLiteral) || v.is_a?(NamedTupleLiteral)
+                  # Check the values of the hash to see if they need resolved
+                  v.each do |sk, sv|
+                    if sv.is_a?(StringLiteral) && sv =~ /%%|%([^%\s]++)%/
+                      key = ""
+                      char_is_part_of_key = false
+
+                      new_value = ""
+
+                      chars = sv.chars
+
+                      chars.each_with_index do |c, c_idx|
+                        if c == '%' && chars[c_idx + 1] == '%'
+                          # Do nothing as we'll just add the next char
+                        elsif !char_is_part_of_key && c == '%' && (c_idx == 0 || chars[c_idx - 1] != '%')
+                          char_is_part_of_key = true
+                        elsif char_is_part_of_key && c == '%'
+                          resolved_value = CONFIG["parameters"][key]
+
+                          new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
+
+                          key = ""
+                          char_is_part_of_key = false
+                        elsif char_is_part_of_key
+                          key += c
+                        else
+                          new_value += c
+                        end
+                      end
+
+                      # If the new value is still not fully resolved, go thru the process again
+                      if !(new_value =~ /%%|%([^%\s]++)%/)
+                        h[k][sk] = new_value
+                      else
+                        to_process << {k, new_value}
+                      end
+                    end
+                  end
+                elsif v.is_a?(ArrayLiteral) || v.is_a?(TupleLiteral)
+                  # Check the values of the hash to see if they need resolved
+                  v.each_with_index do |v, a_idx|
+                    if v.is_a?(StringLiteral) && v =~ /%%|%([^%\s]++)%/
+                      key = ""
+                      char_is_part_of_key = false
+
+                      new_value = ""
+
+                      chars = v.chars
+
+                      chars.each_with_index do |c, c_idx|
+                        if c == '%' && chars[c_idx + 1] == '%'
+                          # Do nothing as we'll just add the next char
+                        elsif !char_is_part_of_key && c == '%' && (c_idx == 0 || chars[c_idx - 1] != '%')
+                          char_is_part_of_key = true
+                        elsif char_is_part_of_key && c == '%'
+                          resolved_value = CONFIG["parameters"][key]
+
+                          new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
+
+                          key = ""
+                          char_is_part_of_key = false
+                        elsif char_is_part_of_key
+                          key += c
+                        else
+                          new_value += c
+                        end
+                      end
+
+                      # If the new value is still not fully resolved, go thru the process again
+                      if !(new_value =~ /%%|%([^%\s]++)%/)
+                        h[k][a_idx] = new_value
+                      else
+                        to_process << {k, CONFIG["parameters"][k]}
+                      end
+                    end
+                  end
+                end
+                # END COPY PASTE
               end
             end
 
-            puts ""
-            puts ""
-
-            pp CONFIG["parameters"]
+            pp CONFIG
           %}
 
         {% end %}

@@ -225,8 +225,11 @@ ADI.configure({
     cors: {
       defaults: {
         allow_credentials: false,
-        allow_origin:      %w(https://app.example.com),
-        expose_headers:    %w(X-Transaction-ID X-Some-Custom-Header),
+        allow_origin:      "%app.placeholder%",
+        expose_headers:    [
+          "https://%app.domain%/path/to/%app.enable_v2_protocol%",
+          "X-Some-Custom-Header",
+        ],
       },
     },
   },
@@ -235,6 +238,12 @@ ADI.configure({
       10 => "%app.domain%",
       20 => "%app.placeholder%", # Resolves recursively out of order
     },
+    "app.array": [
+      "%app.domain%",
+      "%app.placeholder%",
+      "%app.with_percent%",
+      "%app.with_percent_placeholder%",
+    ],
     "app.domain":                   "google.com",
     "app.with_percent":             "foo%%bar", # Escape `%`
     "app.with_percent_placeholder": "https://%app.domain%/path/t%%o/thing",
