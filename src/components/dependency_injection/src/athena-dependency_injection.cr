@@ -228,6 +228,7 @@ ADI.configure({
         allow_origin:      "%app.placeholder%",
         expose_headers:    [
           "https://%app.domain%/path/to/%app.enable_v2_protocol%",
+          "%app.placeholders%",
           "X-Some-Custom-Header",
         ],
       },

@@ -152,16 +152,57 @@ class Athena::DependencyInjection::ServiceContainer
       macro finished
         {% verbatim do %}
 
+          # I hate how much code it takes to do this, but is quite cool I got it to work.
+          # WTB https://github.com/crystal-lang/crystal/issues/8835 :((
+          #
+          # The purpose of this module is to resolve placeholder values within various parameters.
+          # E.g. `"https://%app.domain%/"` => `"https://example.com/"`.
+          #
+          # It is assumed that any user added parameters via another module have already happened.
+          # Parameters added after this module will not be resolved.
+          #
+          # The macro API is quite limited compared to the normal stdlib API.
+          # As such we do not have access to recursion, nor do we have the ability to use a regex to extract the parameter name from the value.
+          # These together makes this code quite crazy to grok.
+          #
+          # We first use `NamedTupleLiteral#to_a` to get an array that we can iterate over.
+          # This is important since arrays are reference types, we can push more things to it while looping thru it to have somewhat pseudo recursion; this will be impt later.
+          # Next, we iterate over each key/value pair in the array, checking if the value is a supported type:
+          #
+          # * A string literal that has `%%` in it, or any text in between two `%`.
+          # * A hash literal where one of the value of that hash has a `%%` in it, or any text in between two `%`.
+          #   * NOTE: NamedTuple literals are _NOT_ supported as a terminal value, use a HashLiteral instead
+          # * An array/tuple literal whose value has a `%%` in it, or any text in between two `%`.
+          #
+          # In each case, in order to extract the parameter name from the string, we iterate over the characters that make up the string, building out the key based on the chars between the `%`s.
+          # This is done via the following algorithm:
+          #
+          # 1. If the current char is a `%` and next char is a `%` we skip as that implies the `%%` context which is an escaped `%`.
+          # 2. If this is the first time we saw a `%` and the current char is a `%` and we're either at the beginning, or the previous char wasn't a `%`,
+          #    then we know we're not starting to parse the parameter key.
+          # 3. If we're in parameter key parsing mode and the current char is a `%` we know we're done and can resolve this key's placeholder
+          #    by first looking up the parameter's value within `CONFIG["parameters"]`,
+          #    ensuring its a string, resetting the key (since there may be multiple placeholders), finally exiting parameter key parsing mode.
+          # 4. If we're in parameter key parsing mode, but the current character is not `%`, we append this character to the `key` variable
+          # 5. If we're not in parameter key parsing mode, we append this character to the `new_value` variable, which represents the rebuilt value with placeholders resolved.
+          #
+          # After all this we'll either end up with a fully resolved value, denoted by it not longer matching the regex, or a value that needs additional placeholders resolved,
+          # e.g. because the parameters it depends on are not yet resolved, or was resolved to a value that contained other yet to be resolved values.
+          # In either case, if the value is not fully resolved we push the same key, but the new value _BACK_ into the original array we're iterating over.
+          # This will cause it to loop again and start the process all over on the previously resolved value;
+          # this will run until either they're all resolved, or an unknown parameter is encountered.
+          #
+          # The process is also essentially the same for array/hash literals, but operating on the sub-hash's value or the array's elements.
+          # But are two main differences:
+          #
+          # 1.The path to the value we're updating is no longer _just_ `CONFIG["parameters"][k]`, but the key/index of the collection.
+          # 2. In the re-process context, we're pushing the whole collection, as the value, which should match the left hand side of the assignment above it, minus the sub-key/index.
+
           {%
             to_process = (CONFIG["parameters"] || {} of Nil => Nil).to_a
 
             to_process.each do |(k, v)|
               if v.is_a?(StringLiteral) && v =~ /%%|%([^%\s]++)%/
-                # We know the value probably needs to be resolved, but we can't simply use a regex to extract the key.
-                # Let's iterate over its chars to rebuild the new value of the param, taking everything in-between the `%` as the name of key of the param
-
-                # TODO: Replace this with a block version of `StringLiteral#gsub`.
-                # TODO: Extract this into a macro def.
                 key = ""
                 char_is_part_of_key = false
 
@@ -177,6 +218,8 @@ class Athena::DependencyInjection::ServiceContainer
                   elsif char_is_part_of_key && c == '%'
                     resolved_value = CONFIG["parameters"][key]
 
+                    key.raise "Parameter '#{k}' referenced unknown parameter '#{key.id}'." if resolved_value == nil
+
                     new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
 
                     key = ""
@@ -188,14 +231,12 @@ class Athena::DependencyInjection::ServiceContainer
                   end
                 end
 
-                # If the new value is still not fully resolved, go thru the process again
                 if !(new_value =~ /%%|%([^%\s]++)%/)
                   CONFIG["parameters"][k] = new_value
                 else
                   to_process << {k, new_value}
                 end
-              elsif v.is_a?(HashLiteral) || v.is_a?(NamedTupleLiteral)
-                # Check the values of the hash to see if they need resolved
+              elsif v.is_a?(HashLiteral)
                 v.each do |sk, sv|
                   if sv.is_a?(StringLiteral) && sv =~ /%%|%([^%\s]++)%/
                     key = ""
@@ -224,7 +265,6 @@ class Athena::DependencyInjection::ServiceContainer
                       end
                     end
 
-                    # If the new value is still not fully resolved, go thru the process again
                     if !(new_value =~ /%%|%([^%\s]++)%/)
                       CONFIG["parameters"][k][sk] = new_value
                     else
@@ -233,7 +273,6 @@ class Athena::DependencyInjection::ServiceContainer
                   end
                 end
               elsif v.is_a?(ArrayLiteral) || v.is_a?(TupleLiteral)
-                # Check the values of the hash to see if they need resolved
                 v.each_with_index do |v, a_idx|
                   if v.is_a?(StringLiteral) && v =~ /%%|%([^%\s]++)%/
                     key = ""
@@ -262,7 +301,6 @@ class Athena::DependencyInjection::ServiceContainer
                       end
                     end
 
-                    # If the new value is still not fully resolved, go thru the process again
                     if !(new_value =~ /%%|%([^%\s]++)%/)
                       CONFIG["parameters"][k][a_idx] = new_value
                     else
@@ -274,6 +312,10 @@ class Athena::DependencyInjection::ServiceContainer
             end
           %}
 
+          # At this point all parameters are resolved, but we still need to go thru all the configuration values to resolve those references too.
+          # The process is very much the same, but we're using a somewhat custom array structure this time that also holds a reference to the collection the key/value pairs belong to.
+          # This allows the logic to know what collection to update since it's not scoped to `CONFIG["parameters"]` only anymore.
+
           {%
             values = CONFIG.to_a.reject { |(k, _)| k == "parameters" }.map { |(k, v)| {k, v, CONFIG} }
 
@@ -283,14 +325,7 @@ class Athena::DependencyInjection::ServiceContainer
                   values << {sk, sv, v}
                 end
               else
-                # COPY PASTE FROM ABOVE
-                # Update keys to set
                 if v.is_a?(StringLiteral) && v =~ /%%|%([^%\s]++)%/
-                  # We know the value probably needs to be resolved, but we can't simply use a regex to extract the key.
-                  # Let's iterate over its chars to rebuild the new value of the param, taking everything in-between the `%` as the name of key of the param
-
-                  # TODO: Replace this with a block version of `StringLiteral#gsub`.
-                  # TODO: Extract this into a macro def.
                   key = ""
                   char_is_part_of_key = false
 
@@ -317,14 +352,12 @@ class Athena::DependencyInjection::ServiceContainer
                     end
                   end
 
-                  # If the new value is still not fully resolved, go thru the process again
                   if !(new_value =~ /%%|%([^%\s]++)%/)
                     h[k] = new_value
                   else
                     to_process << {k, new_value}
                   end
-                elsif v.is_a?(HashLiteral) || v.is_a?(NamedTupleLiteral)
-                  # Check the values of the hash to see if they need resolved
+                elsif v.is_a?(HashLiteral)
                   v.each do |sk, sv|
                     if sv.is_a?(StringLiteral) && sv =~ /%%|%([^%\s]++)%/
                       key = ""
@@ -353,7 +386,6 @@ class Athena::DependencyInjection::ServiceContainer
                         end
                       end
 
-                      # If the new value is still not fully resolved, go thru the process again
                       if !(new_value =~ /%%|%([^%\s]++)%/)
                         h[k][sk] = new_value
                       else
@@ -362,7 +394,6 @@ class Athena::DependencyInjection::ServiceContainer
                     end
                   end
                 elsif v.is_a?(ArrayLiteral) || v.is_a?(TupleLiteral)
-                  # Check the values of the hash to see if they need resolved
                   v.each_with_index do |v, a_idx|
                     if v.is_a?(StringLiteral) && v =~ /%%|%([^%\s]++)%/
                       key = ""
@@ -391,7 +422,6 @@ class Athena::DependencyInjection::ServiceContainer
                         end
                       end
 
-                      # If the new value is still not fully resolved, go thru the process again
                       if !(new_value =~ /%%|%([^%\s]++)%/)
                         h[k][a_idx] = new_value
                       else
@@ -400,7 +430,6 @@ class Athena::DependencyInjection::ServiceContainer
                     end
                   end
                 end
-                # END COPY PASTE
               end
             end
 
