@@ -147,6 +147,109 @@ class Athena::DependencyInjection::ServiceContainer
     end
   end
 
+  private module ResolveParameterPlaceholders
+    macro included
+      macro finished
+        {% verbatim do %}
+
+          {%
+            pp CONFIG["parameters"]
+
+            to_process = (CONFIG["parameters"] || {} of Nil => Nil).to_a
+
+            to_process.each do |(k, v)|
+              if v.is_a?(StringLiteral) && v =~ /%%|%([^%\s]++)%/
+                # We know the value probably needs to be resolved, but we can't simply use a regex to extract the key.
+                # Let's iterate over its chars to rebuild the new value of the param, taking everything in-between the `%` as the name of key of the param
+
+                # TODO: Replace this with a block version of `StringLiteral#gsub`.
+                # TODO: Extract this into a macro def.
+                key = ""
+                char_is_part_of_key = false
+
+                new_value = ""
+
+                chars = v.chars
+
+                chars.each_with_index do |c, idx|
+                  if c == '%' && chars[idx + 1] == '%'
+                    # Do nothing as we'll just add the next char
+                  elsif !char_is_part_of_key && c == '%' && (idx == 0 || chars[idx - 1] != '%')
+                    char_is_part_of_key = true
+                  elsif char_is_part_of_key && c == '%'
+                    resolved_value = CONFIG["parameters"][key]
+
+                    new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
+
+                    key = ""
+                    char_is_part_of_key = false
+                  elsif char_is_part_of_key
+                    key += c
+                  else
+                    new_value += c
+                  end
+                end
+
+                # If the new value is still not fully resolved, go thru the process again
+                if !(new_value =~ /%%|%([^%\s]++)%/)
+                  CONFIG["parameters"][k] = new_value
+                else
+                  to_process << {k, new_value}
+                end
+              elsif v.is_a?(HashLiteral) || v.is_a?(NamedTupleLiteral)
+                # Check the values of the hash to see if they need resolved
+                v.each do |sk, sv|
+                  if sv.is_a?(StringLiteral) && sv =~ /%%|%([^%\s]++)%/
+                    key = ""
+                    char_is_part_of_key = false
+
+                    new_value = ""
+
+                    chars = sv.chars
+
+                    chars.each_with_index do |c, idx|
+                      if c == '%' && chars[idx + 1] == '%'
+                        # Do nothing as we'll just add the next char
+                      elsif !char_is_part_of_key && c == '%' && (idx == 0 || chars[idx - 1] != '%')
+                        char_is_part_of_key = true
+                      elsif char_is_part_of_key && c == '%'
+                        resolved_value = CONFIG["parameters"][key]
+
+                        new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
+
+                        key = ""
+                        char_is_part_of_key = false
+                      elsif char_is_part_of_key
+                        key += c
+                      else
+                        new_value += c
+                      end
+                    end
+
+                    # If the new value is still not fully resolved, go thru the process again
+                    if !(new_value =~ /%%|%([^%\s]++)%/)
+                      CONFIG["parameters"][k][sk] = new_value
+                    else
+                      to_process << {k, CONFIG["parameters"][k]}
+                    end
+                  end
+                end
+                # elsif v.is_a?(StringLiteral) && v.includes?("%%")
+                # CONFIG["parameters"][k] = v.gsub /%%/, "%"
+              end
+            end
+
+            puts ""
+            puts ""
+
+            pp CONFIG["parameters"]
+          %}
+
+        {% end %}
+      end
+    end
+  end
+
   private module ResolveArguments
     macro included
       macro finished
@@ -442,8 +545,31 @@ class Athena::DependencyInjection::ServiceContainer
     end
   end
 
+  # # Algorithm
+  #
+  # ## PreOptimization
+  # * Run custom modules
+  # * (TODO) Try and support annotation based configurators
+  # * RegisterServices
+  #
+  # ## Optimization
+  # * Resolve parameter placeholders
+  # * Bindings
+  # * Autowire
+  # * Run custom modules
+  #
+  # ## Removing
+  # * Run custom modules
+  # * RemoveUnusedServices
+  #
+  # ## PostRemoving
+  # * DefineGetters
+
+  # TODO: Ability to know if a service's args weren't resolved
+
   macro finished
     include RegisterServices
+    include ResolveParameterPlaceholders
 
     # Hook into container after services are registered, but before arguments are resolved.
     # Can be used to register additional services.

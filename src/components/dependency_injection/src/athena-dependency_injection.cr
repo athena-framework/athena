@@ -56,6 +56,7 @@ module Athena::DependencyInjection
 
   private BINDINGS            = {} of Nil => Nil
   private AUTO_CONFIGURATIONS = {} of Nil => Nil
+  private CONFIG              = {parameters: nil} # Ensure this type is a NamedTupleLiteral
 
   # :nodoc:
   module PreArgumentsCompilerPass; end
@@ -183,7 +184,82 @@ module Athena::DependencyInjection
   def self.container : ADI::ServiceContainer
     Fiber.current.container
   end
+
+  macro configure(config)
+    {%
+      config.each do |k, v|
+        CONFIG[k] = v
+      end
+    %}
+  end
 end
 
 # Require extension code last so all built-in DI types are available
 require "./ext/*"
+
+# New Methods
+
+# StringLiteral#sub(target : StringLiteral, replace : StringLiteral)
+# StringLiteral#gsub(regex : RegexLiteral, & : StringLiteral -> StringLiteral)
+
+# Register an example service that provides a name string.
+@[ADI::Register]
+class NameProvider
+  def name : String
+    "World"
+  end
+end
+
+# Register another service that depends on the previous service and provides a value.
+@[ADI::Register]
+class ValueProvider
+  def initialize(@name_provider : NameProvider); end
+
+  def value : String
+    "Hello " + @name_provider.name
+  end
+end
+
+ADI.configure({
+  framework: {
+    cors: {
+      defaults: {
+        allow_credentials: false,
+        allow_origin:      %w(https://app.example.com),
+        expose_headers:    %w(X-Transaction-ID X-Some-Custom-Header),
+      },
+    },
+  },
+  parameters: {
+    "app.mapping": {
+      10 => "%app.domain%",
+      20 => "%app.placeholder%", # Resolves recursively out of order
+    },
+    "app.domain":                   "google.com",
+    "app.with_percent":             "foo%%bar", # Escape `%`
+    "app.with_percent_placeholder": "https://%app.domain%/path/t%%o/thing",
+    "app.enable_v2_protocol":       false,
+    "app.placeholder":              "https://%app.domain%/path/to/thing",
+    "app.placeholders":             "https://%app.domain%/path/to/%app.enable_v2_protocol%",
+  },
+})
+
+# {% begin %}
+# configure({
+#   deubg: {{ !flag? :release }},
+# })
+# {% end %}
+
+# @[ADI::Register(_enable_v2_protocol: "%app.enable_v2_protocol%")]
+# class ExampleController < ATH::Controller
+#   def initialize(@enable_v2_protocol : Bool); end
+
+#   @[ARTA::Post("/")]
+#   def root : String
+#     pp @enable_v2_protocol
+
+#     ENV["FOO"]? || "N/A"
+#   end
+# end
+
+# ATH.run
