@@ -165,9 +165,11 @@ class Athena::DependencyInjection::ServiceContainer
           # As such we do not have access to recursion, nor do we have the ability to use a regex to extract the parameter name from the value.
           # These together makes this code quite crazy to grok.
           #
-          # We first use `NamedTupleLiteral#to_a` to get an array that we can iterate over.
-          # This is important since arrays are reference types, we can push more things to it while looping thru it to have somewhat pseudo recursion; this will be impt later.
-          # Next, we iterate over each key/value pair in the array, checking if the value is a supported type:
+          # We first create an array that we can iterate over, using a somewhat custom variation of `NamedTupleLiteral#to_a` that also includes the collection the related key/value are located at.
+          # The first tuple in this array is for the configuration parameters are these are most likely going to need to be resolved first anyway.
+          # We then add the rest of the tuples, all using the `CONFIG` hash as the root collection.
+          # Having this array is important since arrays are reference types, we can push more things to it while looping thru it to have somewhat pseudo recursion; this will be important later.
+          # Next, we iterate over each key/value/collection grouping in the array, checking if the value is a supported type:
           #
           # * A string literal that has `%%` in it, or any text in between two `%`.
           # * A hash literal where one of the value of that hash has a `%%` in it, or any text in between two `%`.
@@ -188,7 +190,7 @@ class Athena::DependencyInjection::ServiceContainer
           #
           # After all this we'll either end up with a fully resolved value, denoted by it not longer matching the regex, or a value that needs additional placeholders resolved,
           # e.g. because the parameters it depends on are not yet resolved, or was resolved to a value that contained other yet to be resolved values.
-          # In either case, if the value is not fully resolved we push the same key, but the new value _BACK_ into the original array we're iterating over.
+          # In either case, if the value is not fully resolved we push the same key, but the new value _BACK_ into the original array we're iterating over along with the collection they belong to.
           # This will cause it to loop again and start the process all over on the previously resolved value;
           # this will run until either they're all resolved, or an unknown parameter is encountered.
           #
@@ -199,130 +201,12 @@ class Athena::DependencyInjection::ServiceContainer
           # 2. In the re-process context, we're pushing the whole collection, as the value, which should match the left hand side of the assignment above it, minus the sub-key/index.
 
           {%
-            to_process = (CONFIG["parameters"] || {} of Nil => Nil).to_a
+            to_process = CONFIG.to_a.map { |(k, v)| {k, v, CONFIG, [k]} }
 
-            to_process.each do |(k, v)|
-              if v.is_a?(StringLiteral) && v =~ /%%|%([^%\s]++)%/
-                key = ""
-                char_is_part_of_key = false
-
-                new_value = ""
-
-                chars = v.chars
-
-                chars.each_with_index do |c, idx|
-                  if c == '%' && chars[idx + 1] == '%'
-                    # Do nothing as we'll just add the next char
-                  elsif !char_is_part_of_key && c == '%' && (idx == 0 || chars[idx - 1] != '%')
-                    char_is_part_of_key = true
-                  elsif char_is_part_of_key && c == '%'
-                    resolved_value = CONFIG["parameters"][key]
-
-                    key.raise "Parameter '#{k}' referenced unknown parameter '#{key.id}'." if resolved_value == nil
-
-                    new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
-
-                    key = ""
-                    char_is_part_of_key = false
-                  elsif char_is_part_of_key
-                    key += c
-                  else
-                    new_value += c
-                  end
-                end
-
-                if !(new_value =~ /%%|%([^%\s]++)%/)
-                  CONFIG["parameters"][k] = new_value
-                else
-                  to_process << {k, new_value}
-                end
-              elsif v.is_a?(HashLiteral)
-                v.each do |sk, sv|
-                  if sv.is_a?(StringLiteral) && sv =~ /%%|%([^%\s]++)%/
-                    key = ""
-                    char_is_part_of_key = false
-
-                    new_value = ""
-
-                    chars = sv.chars
-
-                    chars.each_with_index do |c, c_idx|
-                      if c == '%' && chars[c_idx + 1] == '%'
-                        # Do nothing as we'll just add the next char
-                      elsif !char_is_part_of_key && c == '%' && (c_idx == 0 || chars[c_idx - 1] != '%')
-                        char_is_part_of_key = true
-                      elsif char_is_part_of_key && c == '%'
-                        resolved_value = CONFIG["parameters"][key]
-
-                        new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
-
-                        key = ""
-                        char_is_part_of_key = false
-                      elsif char_is_part_of_key
-                        key += c
-                      else
-                        new_value += c
-                      end
-                    end
-
-                    if !(new_value =~ /%%|%([^%\s]++)%/)
-                      CONFIG["parameters"][k][sk] = new_value
-                    else
-                      to_process << {k, CONFIG["parameters"][k]}
-                    end
-                  end
-                end
-              elsif v.is_a?(ArrayLiteral) || v.is_a?(TupleLiteral)
-                v.each_with_index do |v, a_idx|
-                  if v.is_a?(StringLiteral) && v =~ /%%|%([^%\s]++)%/
-                    key = ""
-                    char_is_part_of_key = false
-
-                    new_value = ""
-
-                    chars = v.chars
-
-                    chars.each_with_index do |c, c_idx|
-                      if c == '%' && chars[c_idx + 1] == '%'
-                        # Do nothing as we'll just add the next char
-                      elsif !char_is_part_of_key && c == '%' && (c_idx == 0 || chars[c_idx - 1] != '%')
-                        char_is_part_of_key = true
-                      elsif char_is_part_of_key && c == '%'
-                        resolved_value = CONFIG["parameters"][key]
-
-                        new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
-
-                        key = ""
-                        char_is_part_of_key = false
-                      elsif char_is_part_of_key
-                        key += c
-                      else
-                        new_value += c
-                      end
-                    end
-
-                    if !(new_value =~ /%%|%([^%\s]++)%/)
-                      CONFIG["parameters"][k][a_idx] = new_value
-                    else
-                      to_process << {k, CONFIG["parameters"][k]}
-                    end
-                  end
-                end
-              end
-            end
-          %}
-
-          # At this point all parameters are resolved, but we still need to go thru all the configuration values to resolve those references too.
-          # The process is very much the same, but we're using a somewhat custom array structure this time that also holds a reference to the collection the key/value pairs belong to.
-          # This allows the logic to know what collection to update since it's not scoped to `CONFIG["parameters"]` only anymore.
-
-          {%
-            values = CONFIG.to_a.reject { |(k, _)| k == "parameters" }.map { |(k, v)| {k, v, CONFIG} }
-
-            values.each do |(k, v, h)|
+            to_process.each do |(k, v, h, stack)|
               if v.is_a?(NamedTupleLiteral)
                 v.to_a.each do |(sk, sv)|
-                  values << {sk, sv, v}
+                  to_process << {sk, sv, v, stack + [sk]}
                 end
               else
                 if v.is_a?(StringLiteral) && v =~ /%%|%([^%\s]++)%/
@@ -341,6 +225,16 @@ class Athena::DependencyInjection::ServiceContainer
                     elsif char_is_part_of_key && c == '%'
                       resolved_value = CONFIG["parameters"][key]
 
+                      if resolved_value == nil
+                        path = "#{stack[0]}"
+
+                        stack[1..].each do |p|
+                          path += "[#{p}]"
+                        end
+
+                        key.raise "#{stack[0] == "parameters" ? "Parameter".id : "Configuration value".id} '#{path.id}' referenced unknown parameter '#{key.id}'."
+                      end
+
                       new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
 
                       key = ""
@@ -355,7 +249,7 @@ class Athena::DependencyInjection::ServiceContainer
                   if !(new_value =~ /%%|%([^%\s]++)%/)
                     h[k] = new_value
                   else
-                    to_process << {k, new_value}
+                    to_process << {k, new_value, h, stack}
                   end
                 elsif v.is_a?(HashLiteral)
                   v.each do |sk, sv|
@@ -375,6 +269,16 @@ class Athena::DependencyInjection::ServiceContainer
                         elsif char_is_part_of_key && c == '%'
                           resolved_value = CONFIG["parameters"][key]
 
+                          if resolved_value == nil
+                            path = "#{stack[0]}"
+
+                            stack[1..].each do |p|
+                              path += "[#{p}]"
+                            end
+
+                            h[k][sk].raise "#{stack[0] == "parameters" ? "Parameter".id : "Configuration value".id} '#{path.id}[#{sk}]' referenced unknown parameter '#{key.id}'."
+                          end
+
                           new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
 
                           key = ""
@@ -389,19 +293,19 @@ class Athena::DependencyInjection::ServiceContainer
                       if !(new_value =~ /%%|%([^%\s]++)%/)
                         h[k][sk] = new_value
                       else
-                        to_process << {k, new_value}
+                        to_process << {k, h[k], h, stack}
                       end
                     end
                   end
                 elsif v.is_a?(ArrayLiteral) || v.is_a?(TupleLiteral)
-                  v.each_with_index do |v, a_idx|
-                    if v.is_a?(StringLiteral) && v =~ /%%|%([^%\s]++)%/
+                  v.each_with_index do |av, a_idx|
+                    if av.is_a?(StringLiteral) && av =~ /%%|%([^%\s]++)%/
                       key = ""
                       char_is_part_of_key = false
 
                       new_value = ""
 
-                      chars = v.chars
+                      chars = av.chars
 
                       chars.each_with_index do |c, c_idx|
                         if c == '%' && chars[c_idx + 1] == '%'
@@ -410,6 +314,16 @@ class Athena::DependencyInjection::ServiceContainer
                           char_is_part_of_key = true
                         elsif char_is_part_of_key && c == '%'
                           resolved_value = CONFIG["parameters"][key]
+
+                          if resolved_value == nil
+                            path = "#{stack[0]}"
+
+                            stack[1..].each do |p|
+                              path += "[#{p}]"
+                            end
+
+                            h[k][a_idx].raise "#{stack[0] == "parameters" ? "Parameter".id : "Configuration value".id} '#{path.id}[#{a_idx}]' referenced unknown parameter '#{key.id}'."
+                          end
 
                           new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
 
@@ -425,7 +339,7 @@ class Athena::DependencyInjection::ServiceContainer
                       if !(new_value =~ /%%|%([^%\s]++)%/)
                         h[k][a_idx] = new_value
                       else
-                        to_process << {k, CONFIG["parameters"][k]}
+                        to_process << {k, h[k], h}
                       end
                     end
                   end
@@ -735,6 +649,10 @@ class Athena::DependencyInjection::ServiceContainer
       end
     end
   end
+
+  # Args on annotation are like direct named args that apply to that singular service
+  # Bindings apply to 0..n services
+  # Autowiring apply to 0..n services. Terminal state
 
   # # Algorithm
   #
