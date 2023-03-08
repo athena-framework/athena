@@ -63,7 +63,7 @@ jobs:
           crystal: ${{ matrix.crystal }}
       - name: Install pkg-config via brew
         if: ${{ matrix.os == 'macos-latest' }}
-        run: brew install pkg-config
+        run: brew install pkg-config pcre2
       - name: Install Dependencies
         run: shards install --skip-postinstall --skip-executables
         env:
