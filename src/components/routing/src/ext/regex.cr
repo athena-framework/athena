@@ -60,13 +60,13 @@ class Athena::Routing::FastRegex
 
   def initialize(@source : String)
     # Automatically apply `DOTALL` and `DOLLAR_ENDONLY` options.
-    unless @code = LibPCRE2.compile @source, @source.bytesize, 0x00000010 | 0x00000020, out error_code, out error_offset, nil
+    unless @code = LibPCRE2.compile @source, @source.bytesize, LibPCRE2::DOLLAR_ENDONLY | LibPCRE2::DOTALL, out error_code, out error_offset, nil
       bytes = Bytes.new 128
       LibPCRE2.get_error_message(error_code, bytes, bytes.size)
       raise ArgumentError.new "#{String.new(bytes)} at #{error_offset}"
     end
 
-    LibPCRE2.jit_compile @code, LibPCRE2::JIT_COMPLETE
+    @jit = 0 == LibPCRE2.jit_compile @code, LibPCRE2::JIT_COMPLETE
 
     capture_count = uninitialized UInt32
     LibPCRE2.pattern_info @code, LibPCRE2::INFO_CAPTURECOUNT, pointerof(capture_count)
@@ -112,7 +112,11 @@ class Athena::Routing::FastRegex
   end
 
   private def internal_matches(str, byte_index) : Bool
-    match_count = LibPCRE2.jit_match @code, str, str.bytesize, byte_index, LibPCRE2::NO_UTF_CHECK, @match_data, nil
+    match_count = if @jit
+                    LibPCRE2.jit_match @code, str, str.bytesize, byte_index, LibPCRE2::NO_UTF_CHECK, @match_data, nil
+                  else
+                    LibPCRE2.match @code, str, str.bytesize, byte_index, LibPCRE2::NO_UTF_CHECK, @match_data, nil
+                  end
 
     if match_count < 0
       case error = LibPCRE2::Error.new(match_count)

@@ -9,7 +9,9 @@
   lib LibPCRE2
     alias Int = LibC::Int
 
-    NO_UTF_CHECK = 0x40000000
+    NO_UTF_CHECK   = 0x40000000
+    DOLLAR_ENDONLY = 0x00000010
+    DOTALL         = 0x00000020
 
     enum Error
       NOMATCH = -1
@@ -32,6 +34,7 @@
     fun jit_compile = pcre2_jit_compile_8(code : Code*, options : UInt32) : Int
     fun match_data_create_from_pattern = pcre2_match_data_create_from_pattern_8(code : Code*, gcontext : GeneralContext*) : MatchData*
     fun jit_match = pcre2_jit_match_8(code : Code*, subject : UInt8*, length : LibC::SizeT, startoffset : LibC::SizeT, options : UInt32, match_data : MatchData*, mcontext : MatchContext*) : Int
+    fun match = pcre2_match_8(code : Code*, subject : UInt8*, length : LibC::SizeT, startoffset : LibC::SizeT, options : UInt32, match_data : MatchData*, mcontext : MatchContext*) : Int
     fun get_ovector_pointer = pcre2_get_ovector_pointer_8(match_data : MatchData*) : LibC::SizeT*
 
     fun pattern_info = pcre2_pattern_info_8(code : Code*, what : UInt32, where : Void*) : Int
