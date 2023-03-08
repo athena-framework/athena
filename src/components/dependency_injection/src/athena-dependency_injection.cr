@@ -162,22 +162,7 @@ module Athena::DependencyInjection
   # ADI.container.bool_arr  # => BoolArr(@value_arr=[true, true, false])
   # ```
   macro bind(key, value)
-    {% if key.is_a? TypeDeclaration %}
-      {% name = key.var.id.stringify %}
-      {% type = key.type.resolve %}
-    {% else %}
-      {% name = key.id.stringify %}
-      {% type = Crystal::Macros::Nop %}
-    {% end %}
-
-    # TODO: Refactor this to ||= once https://github.com/crystal-lang/crystal/pull/9409 is released
-    {% BINDINGS[name] = {typed: [] of Nil, untyped: [] of Nil} if BINDINGS[name] == nil %}
-
-    {% if type == Crystal::Macros::Nop %}
-      {% BINDINGS[name][:untyped].unshift({value: value, type: type}) %}
-    {% else %}
-      {% BINDINGS[name][:typed].unshift({value: value, type: type}) %}
-    {% end %}
+    {% BINDINGS[key.id] = value %}
   end
 
   # Returns the `ADI::ServiceContainer` for the current fiber.
@@ -202,21 +187,36 @@ require "./ext/*"
 # StringLiteral#sub(target : StringLiteral, replace : StringLiteral)
 # StringLiteral#gsub(regex : RegexLiteral, & : StringLiteral -> StringLiteral)
 
+@[ADI::Register]
+record SimpleService
+
+ADI.bind untyped_bound_value, "Fred"
+ADI.bind typed_bound_value : Float64, 3.14
+
+annotation TestAnn; end
+
 # Register an example service that provides a name string.
-@[ADI::Register]
-class NameProvider
-  def name : String
-    "World"
-  end
-end
-
-# Register another service that depends on the previous service and provides a value.
-@[ADI::Register]
-class ValueProvider
-  def initialize(@name_provider : NameProvider); end
-
-  def value : String
-    "Hello " + @name_provider.name
+@[ADI::Register(
+  _ann_id: 69,
+  _param_reference: "%app.domain%",
+  _service_reference: "@simple_service",
+  _array_reference: ["@simple_service"],
+  _hash_reference: {
+    10 => "%app.domain%",
+    20 => "%app.placeholder%", # Resolves recursively out of order
+  }
+)]
+class TestService
+  def initialize(
+    @untyped_bound_value : String,
+    @typed_bound_value : Float64,
+    @param_reference : String,
+    @service_reference : SimpleService,
+    @array_reference : Array(SimpleService),
+    @hash_reference : Hash(Int32, String),
+    @ann_id : Int64,
+    @default_value : Bool = false
+  )
   end
 end
 
