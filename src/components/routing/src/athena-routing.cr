@@ -1,4 +1,4 @@
-require "./ext/*"
+require "./ext/regex"
 
 require "http/request"
 
