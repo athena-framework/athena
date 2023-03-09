@@ -4,7 +4,7 @@ struct TableSpec < ASPEC::TestCase
   @output : IO
 
   protected def get_table_contents(table_name : String) : String
-    File.read File.join __DIR__, "..", "fixtures", "helper", "table", "#{table_name}.txt"
+    File.read(File.join __DIR__, "..", "fixtures", "helper", "table", "#{table_name}.txt").gsub(ACON::System::EOL, "\n")
   end
 
   def initialize
