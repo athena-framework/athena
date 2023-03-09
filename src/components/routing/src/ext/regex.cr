@@ -56,19 +56,23 @@ class Athena::Routing::FastRegex
   getter source : String
 
   @mark : UInt8* = Pointer(UInt8).null
+  @capture_count : Int32 = 0
 
   def initialize(@source : String)
     # Automatically apply `DOTALL` and `DOLLAR_ENDONLY` options.
-    unless @code = LibPCRE2.compile @source, @source.bytesize, 0x00000010 | 0x00000020, out error_code, out error_offset, nil
+    unless @code = LibPCRE2.compile @source, @source.bytesize, LibPCRE2::DOLLAR_ENDONLY | LibPCRE2::DOTALL, out error_code, out error_offset, nil
       bytes = Bytes.new 128
       LibPCRE2.get_error_message(error_code, bytes, bytes.size)
       raise ArgumentError.new "#{String.new(bytes)} at #{error_offset}"
     end
 
-    LibPCRE2.jit_compile @code, LibPCRE2::JIT_COMPLETE
-    LibPCRE2.pattern_info @code, LibPCRE2::INFO_CAPTURECOUNT, out @capture_count
+    @jit = 0 == LibPCRE2.jit_compile @code, LibPCRE2::JIT_COMPLETE
 
-    @match_data = LibPCRE2.create_match_data @code, nil
+    capture_count = uninitialized UInt32
+    LibPCRE2.pattern_info @code, LibPCRE2::INFO_CAPTURECOUNT, pointerof(capture_count)
+    @capture_count = capture_count.to_i
+
+    @match_data = LibPCRE2.match_data_create_from_pattern @code, nil
   end
 
   def match(str, pos = 0) : MatchData?
@@ -82,7 +86,7 @@ class Athena::Routing::FastRegex
   def match_at_byte_index(str, byte_index = 0) : MatchData?
     return if byte_index > str.bytesize
     return unless internal_matches(str, byte_index)
-    Athena::Routing::FastRegex::MatchData.new(str, LibPCRE2.get_ovector(@match_data), @capture_count, ((mark = LibPCRE2.get_mark(@match_data)) ? String.new(mark) : nil))
+    Athena::Routing::FastRegex::MatchData.new(str, LibPCRE2.get_ovector_pointer(@match_data), @capture_count, ((mark = LibPCRE2.get_mark(@match_data)) ? String.new(mark) : nil))
   end
 
   def ==(other : FastRegex)
@@ -108,11 +112,19 @@ class Athena::Routing::FastRegex
   end
 
   private def internal_matches(str, byte_index) : Bool
-    unless (match = LibPCRE2.jit_match @code, str, str.bytesize, byte_index, 0, @match_data, nil) > 0
-      return false if match == LibPCRE2::ERROR_NOMATCH
-      bytes = Bytes.new 128
-      LibPCRE2.get_error_message(match, bytes, bytes.size)
-      raise ArgumentError.new String.new bytes
+    match_count = if @jit
+                    LibPCRE2.jit_match @code, str, str.bytesize, byte_index, LibPCRE2::NO_UTF_CHECK, @match_data, nil
+                  else
+                    LibPCRE2.match @code, str, str.bytesize, byte_index, LibPCRE2::NO_UTF_CHECK, @match_data, nil
+                  end
+
+    if match_count < 0
+      case error = LibPCRE2::Error.new(match_count)
+      when .nomatch?
+        return false
+      else
+        raise ::Exception.new("Regex match error: #{error}")
+      end
     end
 
     true
