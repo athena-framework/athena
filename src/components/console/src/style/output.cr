@@ -31,7 +31,7 @@ abstract class Athena::Console::Style::Output
 
   # :inherit:
   def new_line(count : Int32 = 1) : Nil
-    @output.print "\n" * count
+    @output.print System::EOL * count
   end
 
   # See `ACON::Output::Interface#puts`.

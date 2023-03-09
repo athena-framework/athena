@@ -49,7 +49,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
     if @input.interactive?
       self.new_line
-      @buffered_output.print "\n"
+      @buffered_output.print System::EOL
     end
 
     answer
@@ -247,7 +247,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
   # :inherit:
   def new_line(count : Int32 = 1) : Nil
     super
-    @buffered_output.print "\n" * count
+    @buffered_output.print System::EOL * count
   end
 
   # :inherit:
@@ -359,7 +359,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
   # end
 
   private def auto_prepend_block : Nil
-    chars = @buffered_output.fetch
+    chars = @buffered_output.fetch.gsub System::EOL, "\n"
 
     if chars.empty?
       return self.new_line
@@ -390,7 +390,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
       decoration_length = ACON::Helper.width(message) - ACON::Helper.width(ACON::Helper.remove_decoration(self.formatter, message))
       message_line_length = Math.min(@line_length - prefix_length - indent_length + decoration_length, @line_length)
 
-      message.gsub(/(.{1,#{message_line_length}})( +|$\n?)|(.{1,#{message_line_length}})/, "\\0\n").split "\n", remove_empty: true do |match|
+      message.gsub(/(.{1,#{message_line_length}})( +|$#{System::EOL}?)|(.{1,#{message_line_length}})/, "\\0#{System::EOL}").split System::EOL, remove_empty: true do |match|
         lines << match.strip
       end
 

@@ -339,7 +339,7 @@ struct ApplicationTest < ASPEC::TestCase
 
     tester = ACON::Spec::ApplicationTester.new app
     tester.run command: "foos:bar1", decorated: false
-    self.assert_file_equals_string "text/application_alternative_namespace.txt", tester.display
+    self.assert_file_equals_string "text/application_alternative_namespace.txt", tester.display true
   end
 
   def test_run_alternate_command_name : Nil
@@ -524,10 +524,10 @@ struct ApplicationTest < ASPEC::TestCase
 
     app.catch_exceptions = true
     tester.run command: "foo", decorated: false
-    self.assert_file_equals_string "text/application_renderexception1.txt", tester.display
+    self.assert_file_equals_string "text/application_renderexception1.txt", tester.display true
 
     tester.run command: "foo", decorated: false, capture_stderr_separately: true
-    self.assert_file_equals_string "text/application_renderexception1.txt", tester.error_output
+    self.assert_file_equals_string "text/application_renderexception1.txt", tester.error_output true
     tester.display.should be_empty
 
     app.catch_exceptions = false
@@ -544,30 +544,30 @@ struct ApplicationTest < ASPEC::TestCase
     tester = ACON::Spec::ApplicationTester.new app
 
     tester.run command: "foo", decorated: false, capture_stderr_separately: true
-    self.assert_file_equals_string "text/application_renderexception1.txt", tester.error_output
+    self.assert_file_equals_string "text/application_renderexception1.txt", tester.error_output true
 
     tester.run command: "foo", decorated: false, capture_stderr_separately: true, verbosity: :verbose
     tester.error_output.should contain "Exception trace"
 
     tester.run command: "list", "--foo": true, decorated: false, capture_stderr_separately: true
-    self.assert_file_equals_string "text/application_renderexception2.txt", tester.error_output
+    self.assert_file_equals_string "text/application_renderexception2.txt", tester.error_output true
 
     app.add Foo3Command.new
     tester = ACON::Spec::ApplicationTester.new app
 
     tester.run command: "foo3:bar", decorated: false, capture_stderr_separately: true
-    self.assert_file_equals_string "text/application_renderexception3.txt", tester.error_output
+    self.assert_file_equals_string "text/application_renderexception3.txt", tester.error_output true
 
     tester.run({"command" => "foo3:bar"}, decorated: false, verbosity: :verbose)
-    tester.display.should match /\[Exception\]\s*First exception/
-    tester.display.should match /\[Exception\]\s*Second exception/
-    tester.display.should match /\[Exception\]\s*Third exception/
+    tester.display(true).should match /\[Exception\]\s*First exception/
+    tester.display(true).should match /\[Exception\]\s*Second exception/
+    tester.display(true).should match /\[Exception\]\s*Third exception/
 
     tester.run command: "foo3:bar", decorated: true
-    self.assert_file_equals_string "text/application_renderexception3_decorated.txt", tester.display
+    self.assert_file_equals_string "text/application_renderexception3_decorated.txt", tester.display true
 
     tester.run command: "foo3:bar", decorated: true, capture_stderr_separately: true
-    self.assert_file_equals_string "text/application_renderexception3_decorated.txt", tester.error_output
+    self.assert_file_equals_string "text/application_renderexception3_decorated.txt", tester.error_output true
 
     app = ACON::Application.new "foo"
     app.auto_exit = false
@@ -575,7 +575,7 @@ struct ApplicationTest < ASPEC::TestCase
     tester = ACON::Spec::ApplicationTester.new app
 
     tester.run command: "foo", decorated: false, capture_stderr_separately: true
-    self.assert_file_equals_string "text/application_renderexception4.txt", tester.error_output
+    self.assert_file_equals_string "text/application_renderexception4.txt", tester.error_output true
 
     ENV["COLUMNS"] = "120"
   end
@@ -604,7 +604,7 @@ struct ApplicationTest < ASPEC::TestCase
     tester = ACON::Spec::ApplicationTester.new app
 
     tester.run command: "foo", decorated: false
-    self.assert_file_equals_string "text/application_renderexception_escapeslines.txt", tester.display
+    self.assert_file_equals_string "text/application_renderexception_escapeslines.txt", tester.display true
 
     ENV["COLUMNS"] = "120"
   end
@@ -619,7 +619,7 @@ struct ApplicationTest < ASPEC::TestCase
     tester = ACON::Spec::ApplicationTester.new app
 
     tester.run command: "foo", decorated: false
-    self.assert_file_equals_string "text/application_renderexception_linebreaks.txt", tester.display
+    self.assert_file_equals_string "text/application_renderexception_linebreaks.txt", tester.display true
   end
 
   def test_render_exception_escapes_lines_of_synopsis : Nil
@@ -659,7 +659,7 @@ struct ApplicationTest < ASPEC::TestCase
     tester = ACON::Spec::ApplicationTester.new app
 
     tester.run decorated: false
-    self.assert_file_equals_string "text/application_run1.txt", tester.display
+    self.assert_file_equals_string "text/application_run1.txt", tester.display true
   end
 
   def test_run_help_command : Nil
@@ -686,10 +686,10 @@ struct ApplicationTest < ASPEC::TestCase
     tester = ACON::Spec::ApplicationTester.new app
 
     tester.run command: "list", "--help": true, decorated: false
-    self.assert_file_equals_string "text/application_run3.txt", tester.display
+    self.assert_file_equals_string "text/application_run3.txt", tester.display true
 
     tester.run command: "list", "-h": true, decorated: false
-    self.assert_file_equals_string "text/application_run3.txt", tester.display
+    self.assert_file_equals_string "text/application_run3.txt", tester.display true
   end
 
   def test_run_ansi : Nil
@@ -712,10 +712,10 @@ struct ApplicationTest < ASPEC::TestCase
     tester = ACON::Spec::ApplicationTester.new app
 
     tester.run "--version": true, decorated: false
-    self.assert_file_equals_string "text/application_run4.txt", tester.display
+    self.assert_file_equals_string "text/application_run4.txt", tester.display true
 
     tester.run "-V": true, decorated: false
-    self.assert_file_equals_string "text/application_run4.txt", tester.display
+    self.assert_file_equals_string "text/application_run4.txt", tester.display true
   end
 
   def test_run_quest : Nil
@@ -775,10 +775,10 @@ struct ApplicationTest < ASPEC::TestCase
     tester = ACON::Spec::ApplicationTester.new app
 
     tester.run command: "help", "--help": true, decorated: false
-    self.assert_file_equals_string "text/application_run5.txt", tester.display
+    self.assert_file_equals_string "text/application_run5.txt", tester.display true
 
     tester.run command: "help", "-h": true, decorated: false
-    self.assert_file_equals_string "text/application_run5.txt", tester.display
+    self.assert_file_equals_string "text/application_run5.txt", tester.display true
   end
 
   def test_run_no_interaction : Nil
