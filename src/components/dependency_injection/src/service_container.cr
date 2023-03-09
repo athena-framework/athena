@@ -14,27 +14,6 @@ class Athena::DependencyInjection::ServiceContainer
   # # Define a hash to map alias types to a service ID.
   # private ALIAS_HASH = {} of Nil => Nil
 
-  # # Define an array to store the IDs of all used services.
-  # # I.e. that another service depends on, or is public.
-  # private USED_SERVICE_IDS = [] of Nil
-
-  # private enum Visibility
-  #   # Used only via the SC.
-  #   # Protected method accessor.
-  #   # May be removed if unused.
-  #   PRIVATE = 0
-
-  #   # Used internally by additional types
-  #   # Protected method accessor.
-  #   # Never automatically removed.
-  #   INTERNAL = 1
-
-  #   # Used externally via user code.
-  #   # Public method accessor.
-  #   # Never automatically removed.
-  #   PUBLIC = 2
-  # end
-
   private module RegisterServices
     macro included
       macro finished
@@ -88,8 +67,6 @@ class Athena::DependencyInjection::ServiceContainer
                                   klass.methods.find(&.name.==("initialize"))
                                 end
 
-                  pp initializer
-
                   # If no initializer was resolved, assume it's the default argless constructor.
                   initializer_args = (i = initializer) ? i.args : [] of Nil
 
@@ -128,7 +105,7 @@ class Athena::DependencyInjection::ServiceContainer
                         restriction:          initializer_arg.restriction,
                         resolved_restriction: ((r = initializer_arg.restriction).is_a?(Nop) ? nil : r.resolve),
                         default_value:        default_value,
-                        value:                value,
+                        value:                value || default_value,
                       }
                     end,
                   }
@@ -343,21 +320,6 @@ class Athena::DependencyInjection::ServiceContainer
           %}
 
           {%
-            pp CONFIG
-
-            puts ""
-            puts ""
-
-            pp SERVICE_HASH
-
-            puts ""
-            puts ""
-
-            pp TAG_HASH
-
-            puts ""
-            puts ""
-
             pp BINDINGS
 
             puts ""
@@ -368,83 +330,22 @@ class Athena::DependencyInjection::ServiceContainer
     end
   end
 
-  private module AutoWire
+  private module ApplyBindings
     macro included
       macro finished
         {% verbatim do %}
           # Resolve the arguments for each service
           {%
             SERVICE_HASH.each do |service_id, definition|
-              # Use a dedicated array var such that we can use the pseudo recursion trick
-              unresolved_parameters = definition[:parameters].map { |param| {param[:value], param, nil} }
-
-              unresolved_parameters.each do |(unresolved_value, param, reference)|
-                # Determine Value
-                #   * DONE explicit param - _id
-                #   * DONE default value - = 123
-                #   * DONE Binding (Typed and untyped)
-                #   * Alias
-                #   * Autowire
-                #   * Nilable - nil
-
+              definition["parameters"].reject(&.["resolved"]).each do |param|
                 # Typed binding
-                if binding_value = BINDINGS[param[:arg].id]
-                  unresolved_value = binding_value
+                if binding_value = BINDINGS[param["arg"].id]
+                  param["value"] = binding_value
 
                   # Untyped binding
-                elsif binding_value = BINDINGS[param[:arg].name.id]
-                  unresolved_value = binding_value
-
-                  # Default value
-                elsif default_value = param[:default_value]
-                  unresolved_value = default_value
+                elsif binding_value = BINDINGS[param["arg"].name.id]
+                  param["value"] = binding_value
                 end
-
-                # Resolve Value
-                #   * DONE %param%
-                #   * DONE @service_id
-                #   * !tag
-                #   * Proxy
-
-                # Parameter reference
-                if unresolved_value.is_a?(StringLiteral) && unresolved_value.starts_with?('%') && unresolved_value.ends_with?('%')
-                  resolved_value = CONFIG["parameters"][unresolved_value[1..-2]]
-                elsif unresolved_value.is_a?(StringLiteral) && unresolved_value.starts_with?('@')
-                  service_name = unresolved_value[1..-1]
-                  raise "Failed to register service '#{service_id.id}'.  Argument '#{param[:arg]}' references undefined service '#{service_name}'." unless SERVICE_HASH[service_name]
-                  resolved_value = service_name.id
-                elsif unresolved_value.is_a?(ArrayLiteral) || unresolved_value.is_a?(TupleLiteral)
-                  # Pseudo recurse over each array element
-                  resolved_value = unresolved_value
-                  unresolved_value.each do |v|
-                    unresolved_parameters << {v, param, {type: "array", value: resolved_value}}
-                  end
-                elsif unresolved_value.is_a?(HashLiteral)
-                  # Pseudo recurse over each key/value pair
-                  resolved_value = unresolved_value
-                  unresolved_value.each do |k, v|
-                    unresolved_parameters << {v, param, {type: "hash", key: k, value: resolved_value}}
-                  end
-                else
-                  resolved_value = unresolved_value
-                end
-
-                # resolved_value = unresolved_value
-                if reference && "array" == reference["type"]
-                  reference[:value] << resolved_value
-                elsif reference && "hash" == reference["type"]
-                  reference[:value][reference[:key]] = resolved_value
-                else
-                  param[:value] = resolved_value
-                end
-
-                # Clear temp vars to avoid confusion
-                resolved_value = nil
-                unresolved_value = nil
-              end
-
-              definition[:parameters].each do |param|
-                pp param
               end
             end
           %}
@@ -453,75 +354,190 @@ class Athena::DependencyInjection::ServiceContainer
     end
   end
 
-  private module RemoveUnusedServices
+  private module AutoWire
     macro included
       macro finished
         {% verbatim do %}
-      {% SERVICE_HASH.each do |service_id, metadata|
-           # Remove private services that are not used in other dependencies.
-           if metadata[:visibility] != Visibility::PRIVATE || metadata[:alias_visibility] != Visibility::PRIVATE || USED_SERVICE_IDS.includes?(service_id.id)
-           else
-             SERVICE_HASH[service_id] = nil
-           end
-         end %}
+          {%
+            SERVICE_HASH.each do |service_id, definition|
+              definition["parameters"].reject(&.["resolved"]).each do |param|
+                resolved_services = [] of Nil
+
+                # Otherwise resolve possible services based on type
+                SERVICE_HASH.each do |id, s_metadata|
+                  if (type = param["resolved_restriction"]) &&
+                     (
+                       s_metadata["class"] <= type ||
+                       (type < ADI::Proxy && s_metadata["class"] <= type.type_vars.first.resolve)
+                     )
+                    resolved_services << id
+                  end
+                end
+
+                if resolved_services.size == 1
+                  param["value"] = if param["resolved_restriction"] < ADI::Proxy
+                                     "ADI::Proxy.new(#{resolved_services[0]}, ->#{resolved_services[0].id})".id
+                                   else
+                                     resolved_services[0].id
+                                   end
+                elsif resolved_service = resolved_services.find(&.==(param["name"].id))
+                  param["value"] = if param["resolved_restriction"] < ADI::Proxy
+                                     "ADI::Proxy.new(#{resolved_service}, ->#{resolved_service.id})".id
+                                   else
+                                     resolved_service.id
+                                   end
+                end
+              end
+            end
+          %}
         {% end %}
       end
     end
   end
 
-  private module DefineGetters
+  private module ResolveValues
     macro included
       macro finished
         {% verbatim do %}
-          # Define getters for each service, if the service is public, make the getter public and also define a type based getter
-          {% for service_id, metadata in SERVICE_HASH %}
-            {% if metadata != nil %}
-              {% service_name = metadata[:service].is_a?(StringLiteral) ? metadata[:service] : metadata[:service].name(generic_args: false) %}
-              {% generics_type = "#{service_name}(#{metadata[:generics].splat})".id %}
+          # Resolve the arguments for each service
+          {%
+            SERVICE_HASH.each do |service_id, definition|
+              # Use a dedicated array var such that we can use the pseudo recursion trick
+              unresolved_parameters = definition["parameters"].map { |param| {param["value"], param, nil} }
 
-              {% service = metadata[:generics].empty? ? metadata[:service].id : generics_type.id %}
-              {% ivar_type = metadata[:generics].empty? ? metadata[:ivar_type].id : generics_type.id %}
+              unresolved_parameters.each do |(unresolved_value, param, reference)|
+                # Parameter reference
+                if unresolved_value.is_a?(StringLiteral) && unresolved_value.starts_with?('%') && unresolved_value.ends_with?('%')
+                  resolved_value = CONFIG["parameters"][unresolved_value[1..-2]]
 
-              {% constructor_service = service %}
-              {% constructor_method = "new" %}
+                  # Service reference
+                elsif unresolved_value.is_a?(StringLiteral) && unresolved_value.starts_with?('@')
+                  service_name = unresolved_value[1..-1]
+                  raise "Failed to register service '#{service_id.id}'.  Argument '#{param["arg"]}' references undefined service '#{service_name.id}'." unless SERVICE_HASH[service_name]
+                  resolved_value = service_name.id
 
-              {% if factory = metadata[:factory] %}
-                {% constructor_service = factory[0] %}
-                {% constructor_method = factory[1] %}
-              {% end %}
+                  # Array, could contain nested references
+                elsif unresolved_value.is_a?(ArrayLiteral) || unresolved_value.is_a?(TupleLiteral)
+                  # Pseudo recurse over each array element
+                  resolved_value = unresolved_value
 
-              {% if metadata[:visibility] != Visibility::PUBLIC %}protected{% end %} getter {{service_id.id}} : {{ivar_type}} { {{constructor_service}}.{{constructor_method.id}}({{metadata[:arguments].map(&.[:value]).splat}}) }
+                  unresolved_value.each_with_index do |v, idx|
+                    unresolved_parameters << {v, param, {type: "array", key: idx, value: resolved_value}}
+                  end
 
-              {% if metadata[:visibility] == Visibility::PUBLIC %}
-                def get(service : {{service}}.class) : {{service.id}}
-                  {{service_id.id}}
+                  # Hash, could contain nested references
+                elsif unresolved_value.is_a?(HashLiteral)
+                  # Pseudo recurse over each key/value pair
+                  resolved_value = unresolved_value
+
+                  unresolved_value.each do |k, v|
+                    unresolved_parameters << {v, param, {type: "hash", key: k, value: resolved_value}}
+                  end
+
+                  # Scalar value
+                else
+                  resolved_value = unresolved_value
                 end
-              {% end %}
 
-            {% end %}
-          {% end %}
-
-          # Define getters for aliased service, if the alias is public, make the getter public and also define a type based getter
-          {% for service_type, service_id in ALIAS_HASH %}
-            {% metadata = SERVICE_HASH[service_id] %}
-
-            {% if metadata != nil %}
-              {% service_name = metadata[:service].is_a?(StringLiteral) ? metadata[:service] : metadata[:service].name(generic_args: false) %}
-              {% type = metadata[:generics].empty? ? service_name : "#{service_name}(#{metadata[:generics].splat})".id %}
-
-              {% if metadata[:alias_visibility] != Visibility::PUBLIC %}protected{% end %} def {{service_type.name.gsub(/::/, "_").underscore.id}} : {{type}}; {{service_id.id}}; end
-
-              {% if metadata[:alias_visibility] == Visibility::PUBLIC %}
-                def get(service : {{service_type}}.class) : {{service_type}}
-                  {{service_id.id}}
+                if reference && ("array" == reference["type"] || "hash" == reference["type"])
+                  reference["value"][reference[:key]] = resolved_value
+                else
+                  param["value"] = resolved_value
                 end
-              {% end %}
-            {% end %}
-          {% end %}
+
+                # Clear temp vars to avoid confusion
+                resolved_value = nil
+                unresolved_value = nil
+              end
+
+              definition["parameters"].each { |param| pp param }
+            end
+          %}
         {% end %}
       end
     end
   end
+
+  private module ValidateArguments
+    macro included
+      macro finished
+        {% verbatim do %}
+          # Resolve the arguments for each service
+          {%
+            SERVICE_HASH.each do |service_id, definition|
+              definition["parameters"].each do |param|
+                # Type of the param matches param restriction
+                if param["value"] != nil
+                  value = param["value"]
+                  restriction = param["resolved_restriction"]
+
+                  if restriction <= String && !value.is_a? StringLiteral
+                    raise param["arg"].raise "#{definition["class"]} #{param["arg"]} expects a string but got '#{value}'."
+                  end
+                elsif !param["resolved_restriction"].nilable?
+                  raise param["arg"].raise "Failed to resolve value for #{param["class"]} #{param["arg"]}."
+                end
+              end
+            end
+          %}
+        {% end %}
+      end
+    end
+  end
+
+  # private module DefineGetters
+  #   macro included
+  #     macro finished
+  #       {% verbatim do %}
+  #         # Define getters for each service, if the service is public, make the getter public and also define a type based getter
+  #         {% for service_id, metadata in SERVICE_HASH %}
+  #           {% if metadata != nil %}
+  #             {% service_name = metadata[:service].is_a?(StringLiteral) ? metadata[:service] : metadata[:service].name(generic_args: false) %}
+  #             {% generics_type = "#{service_name}(#{metadata[:generics].splat})".id %}
+
+  #             {% service = metadata[:generics].empty? ? metadata[:service].id : generics_type.id %}
+  #             {% ivar_type = metadata[:generics].empty? ? metadata[:ivar_type].id : generics_type.id %}
+
+  #             {% constructor_service = service %}
+  #             {% constructor_method = "new" %}
+
+  #             {% if factory = metadata[:factory] %}
+  #               {% constructor_service = factory[0] %}
+  #               {% constructor_method = factory[1] %}
+  #             {% end %}
+
+  #             {% if metadata[:visibility] != Visibility::PUBLIC %}protected{% end %} getter {{service_id.id}} : {{ivar_type}} { {{constructor_service}}.{{constructor_method.id}}({{metadata["arguments"].map(&.["value"]).splat}}) }
+
+  #             {% if metadata[:visibility] == Visibility::PUBLIC %}
+  #               def get(service : {{service}}.class) : {{service.id}}
+  #                 {{service_id.id}}
+  #               end
+  #             {% end %}
+
+  #           {% end %}
+  #         {% end %}
+
+  #         # Define getters for aliased service, if the alias is public, make the getter public and also define a type based getter
+  #         {% for service_type, service_id in ALIAS_HASH %}
+  #           {% metadata = SERVICE_HASH[service_id] %}
+
+  #           {% if metadata != nil %}
+  #             {% service_name = metadata[:service].is_a?(StringLiteral) ? metadata[:service] : metadata[:service].name(generic_args: false) %}
+  #             {% type = metadata[:generics].empty? ? service_name : "#{service_name}(#{metadata[:generics].splat})".id %}
+
+  #             {% if metadata[:alias_visibility] != Visibility::PUBLIC %}protected{% end %} def {{service_type.name.gsub(/::/, "_").underscore.id}} : {{type}}; {{service_id.id}}; end
+
+  #             {% if metadata[:alias_visibility] == Visibility::PUBLIC %}
+  #               def get(service : {{service_type}}.class) : {{service_type}}
+  #                 {{service_id.id}}
+  #               end
+  #             {% end %}
+  #           {% end %}
+  #         {% end %}
+  #       {% end %}
+  #     end
+  #   end
+  # end
 
   # Args on annotation are like direct named args that apply to that singular service
   # Bindings apply to 0..n services
@@ -549,10 +565,26 @@ class Athena::DependencyInjection::ServiceContainer
 
   # TODO: Ability to know if a service's args weren't resolved
 
+  # Determine Value
+  #   * DONE explicit param - _id
+  #   * DONE default value - = 123
+  #   * DONE Binding (Typed and untyped)
+  #   * Alias
+  #   * Autowire
+  #   * Nilable - nil
+
+  # Resolve Value
+  #   * DONE %param%
+  #   * DONE @service_id
+  #   * !tag
+  #   * Proxy
+
   macro finished
     include RegisterServices
     include ResolveParameterPlaceholders
-
+    include ApplyBindings
     include AutoWire
+    include ResolveValues
+    include ValidateArguments
   end
 end

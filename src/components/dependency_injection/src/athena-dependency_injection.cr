@@ -190,7 +190,7 @@ require "./ext/*"
 @[ADI::Register]
 record SimpleService
 
-ADI.bind untyped_bound_value, "Fred"
+ADI.bind untyped_bound_value, 69
 ADI.bind typed_bound_value : Float64, 3.14
 
 annotation TestAnn; end
@@ -199,8 +199,8 @@ annotation TestAnn; end
 @[ADI::Register(
   _ann_id: 69,
   _param_reference: "%app.domain%",
-  _service_reference: "@simple_service",
-  _array_reference: ["@simple_service"],
+  # _service_reference: "@simple_service",
+  # _array_reference: ["@simple_service"],
   _hash_reference: {
     10 => "%app.domain%",
     20 => "%app.placeholder%", # Resolves recursively out of order
@@ -212,8 +212,9 @@ class TestService
     @typed_bound_value : Float64,
     @param_reference : String,
     @service_reference : SimpleService,
-    @array_reference : Array(SimpleService),
-    @hash_reference : Hash(Int32, String),
+    # @array_reference : Array(SimpleService),
+    # @hash_reference : Hash(Int32, String),
+    @auto_wire : SimpleService,
     @ann_id : Int64,
     @default_value : Bool = false
   )
