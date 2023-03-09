@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Check Spelling
-        uses: crate-ci/typos@v1.13.8
+        uses: crate-ci/typos@v1.13.18
   check_format:
     runs-on: ubuntu-latest
     container:
@@ -29,7 +29,7 @@ jobs:
   coding_standards:
     runs-on: ubuntu-latest
     container:
-      image: crystallang/crystal:latest-alpine
+      image: crystallang/crystal:latest
     steps:
       - uses: actions/checkout@v3
       - name: Install Dependencies
@@ -61,9 +61,6 @@ jobs:
         uses: crystal-lang/install-crystal@v1
         with:
           crystal: ${{ matrix.crystal }}
-      - name: Install pkg-config via brew
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: brew install pkg-config
       - name: Install Dependencies
         run: shards install --skip-postinstall --skip-executables
         env:
