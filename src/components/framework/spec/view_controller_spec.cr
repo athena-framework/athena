@@ -9,9 +9,8 @@ struct ViewControllerTest < ATH::Spec::APITestCase
     self.get("/view/json-array").body.should eq %([{"id":10,"name":"Bob"},{"id":20,"name":"Sally"}])
   end
 
-  @[Pending]
   def test_json_serializable_nested_array : Nil
-    self.get("/view//json-array-nested").body.should eq %([[{"id":10,"name":"Bob"}]])
+    self.get("/view/json-array-nested").body.should eq %([[{"id":10,"name":"Bob"}]])
   end
 
   def test_json_serializable_empty_array : Nil
