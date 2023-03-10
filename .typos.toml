@@ -1,6 +1,8 @@
 [default.extend-words]
 # Remove this once https://github.com/crate-ci/typos/issues/316 is resolved
 referer = "referer"
+recruse = "recurse"
+recruses = "recurses"
 
 [files]
 extend-exclude = [
