@@ -19,7 +19,7 @@ struct ApplicationTest < ASPEC::TestCase
 
   protected def assert_file_equals_string(filepath : String, string : String, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
     normalized_path = File.join __DIR__, "fixtures", filepath
-    string.should match(Regex.new(File.read(normalized_path).gsub System::EOL, "\n")), file: file, line: line
+    string.should match(Regex.new(File.read(normalized_path).gsub ACON::System::EOL, "\n")), file: file, line: line
   end
 
   protected def ensure_static_command_help(application : ACON::Application) : Nil
@@ -671,10 +671,10 @@ struct ApplicationTest < ASPEC::TestCase
     tester = ACON::Spec::ApplicationTester.new app
 
     tester.run "--help": true, decorated: false
-    self.assert_file_equals_string "text/application_run2.txt", tester.display
+    self.assert_file_equals_string "text/application_run2.txt", tester.display true
 
     tester.run "-h": true, decorated: false
-    self.assert_file_equals_string "text/application_run2.txt", tester.display
+    self.assert_file_equals_string "text/application_run2.txt", tester.display true
   end
 
   def test_run_help_list_command : Nil

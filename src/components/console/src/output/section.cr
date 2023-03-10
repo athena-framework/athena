@@ -92,7 +92,7 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
     input.each_line do |line|
       lines = (self.get_display_width(line) // @terminal.width).ceil
       @lines += lines.zero? ? 1 : lines
-      @content.push line, System::EOL
+      @content.push line, "\n"
     end
   end
 

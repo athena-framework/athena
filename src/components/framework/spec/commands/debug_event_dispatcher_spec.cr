@@ -23,7 +23,7 @@ struct DebugEventDispatcherCommandTest < ASPEC::TestCase
 
     ret.should eq ACON::Command::Status::SUCCESS
     tester.display.should be_empty
-    tester.error_output.should contain "[WARNING] The event 'blah' does not have any registered listeners."
+    tester.error_output(true).should contain "[WARNING] The event 'blah' does not have any registered listeners."
   end
 
   def test_specific_event_partial_match_single : Nil

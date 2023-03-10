@@ -41,10 +41,18 @@ struct StringLineTest < ASPEC::TestCase
     input = ACON::Input::StringLine.new "-f foo"
     input.to_s.should eq "-f foo"
 
-    input = ACON::Input::StringLine.new %(-f --bar=foo "a b c d")
-    input.to_s.should eq "-f --bar=foo 'a b c d'"
+    {% if flag? :windows %}
+      input = ACON::Input::StringLine.new %(-f --bar=foo "a b c d")
+      input.to_s.should eq "-f --bar=foo \"a b c d\""
 
-    input = ACON::Input::StringLine.new %(-f --bar=foo 'a b c d' 'A\nB\\'C')
-    input.to_s.should eq "-f --bar=foo 'a b c d' 'A\nB'\"'\"'C'"
+      input = ACON::Input::StringLine.new %(-f --bar=foo 'a b c d' 'A\nB\\'C')
+      input.to_s.should eq "-f --bar=foo \"a b c d\" A\nB'C"
+    {% else %}
+      input = ACON::Input::StringLine.new %(-f --bar=foo "a b c d")
+      input.to_s.should eq "-f --bar=foo 'a b c d'"
+
+      input = ACON::Input::StringLine.new %(-f --bar=foo 'a b c d' 'A\nB\\'C')
+      input.to_s.should eq "-f --bar=foo 'a b c d' 'A\nB'\"'\"'C'"
+    {% end %}
   end
 end

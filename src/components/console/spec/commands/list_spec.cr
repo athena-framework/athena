@@ -1,5 +1,9 @@
 require "../spec_helper"
 
+private def normalize(input : String) : String
+  input.gsub ACON::System::EOL, "\n"
+end
+
 describe ACON::Commands::List do
   describe "#execute" do
     it "executes" do
@@ -35,7 +39,7 @@ describe ACON::Commands::List do
       tester = ACON::Spec::CommandTester.new app.get("list")
       tester.execute command: "list", decorated: false
 
-      tester.display.should eq <<-OUTPUT
+      tester.display(true).should eq normalize <<-OUTPUT
       foo 0.1.0
 
       Usage:

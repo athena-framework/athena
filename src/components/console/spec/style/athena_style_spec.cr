@@ -18,7 +18,7 @@ struct AthenaStyleTest < ASPEC::TestCase
 
   private def assert_file_equals_string(filepath : String, string : String, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
     normalized_path = File.join __DIR__, "..", "fixtures", filepath
-    string.should match(Regex.new(File.read(normalized_path).gsub System::EOL, "\n")), file: file, line: line
+    string.should match(Regex.new(File.read(normalized_path).gsub ACON::System::EOL, "\n")), file: file, line: line
   end
 
   def test_error_style : Nil

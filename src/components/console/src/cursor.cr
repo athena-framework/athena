@@ -127,7 +127,7 @@ struct Athena::Console::Cursor
   # Returns the current column, row position of the cursor.
   def current_position : {Int32, Int32}
     {% if flag? :win32 %}
-      return {1, 1} unless STDIN.tty?
+      return {1, 1} unless @input.tty?
 
       LibC.GetConsoleScreenBufferInfo(LibC.GetStdHandle(LibC::STD_INPUT_HANDLE), out csbi)
       {csbi.dwCursorPosition.x.to_i32, csbi.dwCursorPosition.y.to_i32}
