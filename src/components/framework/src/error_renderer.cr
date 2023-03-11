@@ -27,7 +27,7 @@ struct Athena::Framework::ErrorRenderer
         file = "#{URI.encode_path(match[1])}:#{match[2]}"
 
         if m3 = match[3]?
-          file = "#{file}:#{match[3]}"
+          file = "#{file}:#{m3}"
         end
 
         headers["x-debug-exception-file"] = file
