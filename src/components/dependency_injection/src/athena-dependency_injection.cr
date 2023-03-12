@@ -2,10 +2,6 @@ require "./annotations"
 require "./proxy"
 require "./service_container"
 
-require "athena-config"
-
-require "compiler/crystal/macros"
-
 # :nodoc:
 class Fiber
   property container : ADI::ServiceContainer { ADI::ServiceContainer.new }
@@ -266,99 +262,13 @@ require "./ext/*"
 # ADI.auto_configure ConfigInterface, {tags: ["config"]}
 # ADI.auto_configure ConfigFour, {public: true}
 
-@[ADI::Register]
-record SimpleService
+# @[ADI::Register]
+# record SimpleService
 
 # record SimpleServiceeeee
 
-ADI.bind ann_id, 20
+# ADI.bind ann_id, 20
+# ADI.bind param_reference, "%app.domain%"
 # ADI.bind typed_bound_value : Float64, 3.14
 
 # annotation TestAnn; end
-
-# Register an example service that provides a name string.
-@[ADI::Register(
-  _ann_id: 10,
-  # _param_reference: "%app.domain%",
-  # _service_reference: "@simple_service",
-  # _array_reference: ["@simple_service"],
-  # _hash_reference: {
-  #   10 => "%app.domain%",
-  #   20 => "%app.placeholder%", # Resolves recursively out of order
-  # }
-)]
-class TestService
-  def initialize(
-    # @untyped_bound_value : String,
-    # @typed_bound_value : Float64,
-    # @param_reference : String,
-    @service_reference : SimpleService,
-    # @array_reference : Array(SimpleService),
-    # @hash_reference : Hash(Int32, String),
-    # @auto_wire : SimpleService,
-    @ann_id : Int64
-    # @default_value : Bool = false
-  )
-  end
-end
-
-ADI.auto_configure TestService, {
-  bind: {
-    ann_id: 30,
-  },
-}
-
-# ADI.configure({
-#   framework: {
-#     cors: {
-#       defaults: {
-#         allow_credentials: false,
-#         allow_origin:      "%app.placeholder%",
-#         expose_headers:    [
-#           "https://%app.domain%/path/to/%app.enable_v2_protocol%",
-#           "%app.placeholders%",
-#           "X-Some-Custom-Header",
-#         ],
-#       },
-#     },
-#   },
-#   parameters: {
-#     "app.mapping": {
-#       10 => "%app.domain%",
-#       20 => "%app.placeholder%", # Resolves recursively out of order
-#     },
-#     "app.array": [
-#       "%app.domain%",
-#       "%app.placeholder%",
-#       "%app.with_percent%",
-#       "%app.with_percent_placeholder%",
-#     ],
-#     "app.domain":                   "google.com",
-#     "app.with_percent":             "foo%%bar", # Escape `%`
-#     "app.with_percent_placeholder": "https://%app.domain%/path/t%%o/thing",
-#     "app.enable_v2_protocol":       false,
-#     "app.placeholder":              "https://%app.domain%/path/to/thing",
-#     "app.placeholders":             "https://%app.domain%/path/to/%app.enable_v2_protocol%",
-#   },
-# })
-
-# {% begin %}
-# configure({
-#   deubg: {{ !flag? :release }},
-# })
-# {% end %}
-
-# @[ADI::Register(_enable_v2_protocol: "%app.enable_v2_protocol%")]
-# class ExampleController < ATH::Controller
-#   def initialize(@enable_v2_protocol : Bool); end
-
-#   @[ARTA::Post("/")]
-#   def root : String
-#     pp @enable_v2_protocol
-
-#     ENV["FOO"]? || "N/A"
-#   end
-# end
-
-# ATH.run
-# pp ADI.container.test_service

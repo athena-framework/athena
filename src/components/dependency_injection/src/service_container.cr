@@ -67,10 +67,6 @@ class Athena::DependencyInjection::ServiceContainer
 
                   # If no initializer was resolved, assume it's the default argless constructor.
                   initializer_args = (i = initializer) ? i.args : [] of Nil
-
-                  # Register all named arguments on the annotation as bindings.
-                  # These will later be resolved to their actual value and applied to the related parameter.
-                  bindings = {} of Nil => Nil
                   parameters = {} of Nil => Nil
 
                   initializer_args.each_with_index do |initializer_arg, idx|
@@ -104,7 +100,7 @@ class Athena::DependencyInjection::ServiceContainer
                     tags:              [] of Nil, # TODO: Make this Hash(String, Array(Hash))
                     public:            ann[:public] != nil ? true : false,
                     decorated_service: nil,
-                    bindings:          bindings,
+                    bindings:          {} of Nil => Nil,
                     generics:          [] of Nil,
                     parameters:        parameters,
                   }
@@ -217,7 +213,11 @@ class Athena::DependencyInjection::ServiceContainer
                         key.raise "#{stack[0] == "parameters" ? "Parameter".id : "Configuration value".id} '#{path.id}' referenced unknown parameter '#{key.id}'."
                       end
 
-                      new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
+                      if new_value.empty?
+                        new_value = resolved_value
+                      else
+                        new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
+                      end
 
                       key = ""
                       char_is_part_of_key = false
@@ -228,7 +228,7 @@ class Athena::DependencyInjection::ServiceContainer
                     end
                   end
 
-                  if !(new_value =~ /%%|%([^%\s]++)%/)
+                  if !new_value.is_a?(StringLiteral) || (new_value.is_a?(StringLiteral) && !(new_value =~ /%%|%([^%\s]++)%/))
                     h[k] = new_value
                   else
                     to_process << {k, new_value, h, stack}
@@ -261,7 +261,11 @@ class Athena::DependencyInjection::ServiceContainer
                             h[k][sk].raise "#{stack[0] == "parameters" ? "Parameter".id : "Configuration value".id} '#{path.id}[#{sk}]' referenced unknown parameter '#{key.id}'."
                           end
 
-                          new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
+                          if new_value.empty?
+                            new_value = resolved_value
+                          else
+                            new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
+                          end
 
                           key = ""
                           char_is_part_of_key = false
@@ -272,7 +276,7 @@ class Athena::DependencyInjection::ServiceContainer
                         end
                       end
 
-                      if !(new_value =~ /%%|%([^%\s]++)%/)
+                      if !new_value.is_a?(StringLiteral) || (new_value.is_a?(StringLiteral) && !(new_value =~ /%%|%([^%\s]++)%/))
                         h[k][sk] = new_value
                       else
                         to_process << {k, h[k], h, stack}
@@ -307,7 +311,11 @@ class Athena::DependencyInjection::ServiceContainer
                             h[k][a_idx].raise "#{stack[0] == "parameters" ? "Parameter".id : "Configuration value".id} '#{path.id}[#{a_idx}]' referenced unknown parameter '#{key.id}'."
                           end
 
-                          new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
+                          if new_value.empty?
+                            new_value = resolved_value
+                          else
+                            new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
+                          end
 
                           key = ""
                           char_is_part_of_key = false
@@ -318,7 +326,7 @@ class Athena::DependencyInjection::ServiceContainer
                         end
                       end
 
-                      if !(new_value =~ /%%|%([^%\s]++)%/)
+                      if !new_value.is_a?(StringLiteral) || (new_value.is_a?(StringLiteral) && !(new_value =~ /%%|%([^%\s]++)%/))
                         h[k][a_idx] = new_value
                       else
                         to_process << {k, h[k], h}
@@ -341,10 +349,6 @@ class Athena::DependencyInjection::ServiceContainer
           {%
             SERVICE_HASH.each do |_, definition|
               if (key = AUTO_CONFIGURATIONS.keys.find &.>=(definition["class"])) && (auto_configuration = AUTO_CONFIGURATIONS[key])
-                if (v = auto_configuration["public"]) != nil
-                  definition["public"] = v
-                end
-
                 if (v = auto_configuration["tags"]) != nil
                   definition["tags"] = v
                 end
@@ -354,6 +358,12 @@ class Athena::DependencyInjection::ServiceContainer
                     definition["bindings"][k.id.stringify] = v
                   end
                 end
+
+                if (v = auto_configuration["public"]) != nil
+                  definition["public"] = v
+                end
+
+                # TODO: Configurator?
               end
             end
           %}
@@ -392,9 +402,11 @@ class Athena::DependencyInjection::ServiceContainer
         {% verbatim do %}
           {%
             SERVICE_HASH.each do |_, definition|
-              definition["class_ann"].named_args.each do |k, v|
-                if k.starts_with? '_'
-                  definition["bindings"][k[1..-1].id.stringify] = v
+              if ann = definition["class_ann"]
+                ann.named_args.each do |k, v|
+                  if k.starts_with? '_'
+                    definition["bindings"][k[1..-1].id.stringify] = v
+                  end
                 end
               end
             end
@@ -509,8 +521,6 @@ class Athena::DependencyInjection::ServiceContainer
                 resolved_value = nil
                 unresolved_value = nil
               end
-
-              pp definition
             end
           %}
         {% end %}
@@ -588,11 +598,6 @@ class Athena::DependencyInjection::ServiceContainer
               {% end %}
             {% end %}
           {% end %}
-
-          puts ""
-          puts ""
-
-          {{debug}}
         {% end %}
       end
     end
