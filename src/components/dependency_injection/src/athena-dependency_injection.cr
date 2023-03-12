@@ -56,7 +56,7 @@ module Athena::DependencyInjection
 
   private BINDINGS            = {} of Nil => Nil
   private AUTO_CONFIGURATIONS = {} of Nil => Nil
-  private CONFIG              = {parameters: nil} # Ensure this type is a NamedTupleLiteral
+  private CONFIG              = {parameters: {} of Nil => Nil} # Ensure this type is a NamedTupleLiteral
 
   # :nodoc:
   module PreArgumentsCompilerPass; end
@@ -183,77 +183,164 @@ end
 require "./ext/*"
 
 # New Methods
-
 # StringLiteral#sub(target : StringLiteral, replace : StringLiteral)
 # StringLiteral#gsub(regex : RegexLiteral, & : StringLiteral -> StringLiteral)
+
+#################
+# MULTIPLE TYPE #
+#################
+
+# module TransformerInterface
+#   abstract def transform
+# end
+
+# @[ADI::Register(alias: TransformerInterface, type: TransformerInterface)]
+# struct ReverseTransformer
+#   include TransformerInterface
+
+#   def transform
+#   end
+# end
+
+# @[ADI::Register]
+# struct ShoutTransformer
+#   include TransformerInterface
+
+#   def transform
+#   end
+# end
+
+# @[ADI::Register(public: true)]
+# class TransformerAliasClient
+#   getter service
+
+#   def initialize(transformer : TransformerInterface)
+#     @service = transformer
+#   end
+# end
+
+# @[ADI::Register(public: true)]
+# class TransformerAliasNameClient
+#   getter service
+
+#   def initialize(shout_transformer : TransformerInterface)
+#     @service = shout_transformer
+#   end
+# end
+
+# @[ADI::Register(public: true)]
+# class ProxyTransformerAliasClient
+#   getter service_one, shout_transformer
+
+#   def initialize(
+#     @service_one : ADI::Proxy(TransformerInterface),
+#     @shout_transformer : ADI::Proxy(ShoutTransformer)
+#   )
+#   end
+# end
+
+# module ConfigInterface; end
+
+# @[ADI::Register]
+# record ConfigOne do
+#   include ConfigInterface
+# end
+
+# @[ADI::Register]
+# record ConfigTwo do
+#   include ConfigInterface
+# end
+
+# @[ADI::Register(tags: [] of String)]
+# record ConfigThree do
+#   include ConfigInterface
+# end
+
+# @[ADI::Register]
+# struct ConfigFour
+# end
+
+# @[ADI::Register(_configs: "!config", public: true)]
+# record ConfigClient, configs : Array(ConfigInterface)
+
+# ADI.auto_configure ConfigInterface, {tags: ["config"]}
+# ADI.auto_configure ConfigFour, {public: true}
 
 @[ADI::Register]
 record SimpleService
 
-ADI.bind untyped_bound_value, 69
-ADI.bind typed_bound_value : Float64, 3.14
+# record SimpleServiceeeee
 
-annotation TestAnn; end
+ADI.bind ann_id, 20
+# ADI.bind typed_bound_value : Float64, 3.14
+
+# annotation TestAnn; end
 
 # Register an example service that provides a name string.
 @[ADI::Register(
-  _ann_id: 69,
-  _param_reference: "%app.domain%",
+  _ann_id: 10,
+  # _param_reference: "%app.domain%",
   # _service_reference: "@simple_service",
   # _array_reference: ["@simple_service"],
-  _hash_reference: {
-    10 => "%app.domain%",
-    20 => "%app.placeholder%", # Resolves recursively out of order
-  }
+  # _hash_reference: {
+  #   10 => "%app.domain%",
+  #   20 => "%app.placeholder%", # Resolves recursively out of order
+  # }
 )]
 class TestService
   def initialize(
-    @untyped_bound_value : String,
-    @typed_bound_value : Float64,
-    @param_reference : String,
+    # @untyped_bound_value : String,
+    # @typed_bound_value : Float64,
+    # @param_reference : String,
     @service_reference : SimpleService,
     # @array_reference : Array(SimpleService),
     # @hash_reference : Hash(Int32, String),
-    @auto_wire : SimpleService,
-    @ann_id : Int64,
-    @default_value : Bool = false
+    # @auto_wire : SimpleService,
+    @ann_id : Int64
+    # @default_value : Bool = false
   )
   end
 end
 
-ADI.configure({
-  framework: {
-    cors: {
-      defaults: {
-        allow_credentials: false,
-        allow_origin:      "%app.placeholder%",
-        expose_headers:    [
-          "https://%app.domain%/path/to/%app.enable_v2_protocol%",
-          "%app.placeholders%",
-          "X-Some-Custom-Header",
-        ],
-      },
-    },
+ADI.auto_configure TestService, {
+  bind: {
+    ann_id: 30,
   },
-  parameters: {
-    "app.mapping": {
-      10 => "%app.domain%",
-      20 => "%app.placeholder%", # Resolves recursively out of order
-    },
-    "app.array": [
-      "%app.domain%",
-      "%app.placeholder%",
-      "%app.with_percent%",
-      "%app.with_percent_placeholder%",
-    ],
-    "app.domain":                   "google.com",
-    "app.with_percent":             "foo%%bar", # Escape `%`
-    "app.with_percent_placeholder": "https://%app.domain%/path/t%%o/thing",
-    "app.enable_v2_protocol":       false,
-    "app.placeholder":              "https://%app.domain%/path/to/thing",
-    "app.placeholders":             "https://%app.domain%/path/to/%app.enable_v2_protocol%",
-  },
-})
+}
+
+# ADI.configure({
+#   framework: {
+#     cors: {
+#       defaults: {
+#         allow_credentials: false,
+#         allow_origin:      "%app.placeholder%",
+#         expose_headers:    [
+#           "https://%app.domain%/path/to/%app.enable_v2_protocol%",
+#           "%app.placeholders%",
+#           "X-Some-Custom-Header",
+#         ],
+#       },
+#     },
+#   },
+#   parameters: {
+#     "app.mapping": {
+#       10 => "%app.domain%",
+#       20 => "%app.placeholder%", # Resolves recursively out of order
+#     },
+#     "app.array": [
+#       "%app.domain%",
+#       "%app.placeholder%",
+#       "%app.with_percent%",
+#       "%app.with_percent_placeholder%",
+#     ],
+#     "app.domain":                   "google.com",
+#     "app.with_percent":             "foo%%bar", # Escape `%`
+#     "app.with_percent_placeholder": "https://%app.domain%/path/t%%o/thing",
+#     "app.enable_v2_protocol":       false,
+#     "app.placeholder":              "https://%app.domain%/path/to/thing",
+#     "app.placeholders":             "https://%app.domain%/path/to/%app.enable_v2_protocol%",
+#   },
+# })
 
 # {% begin %}
 # configure({
@@ -274,3 +361,4 @@ ADI.configure({
 # end
 
 # ATH.run
+# pp ADI.container.test_service

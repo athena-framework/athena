@@ -33,7 +33,6 @@ class Athena::DependencyInjection::ServiceContainer
                 {% id_key = ann[:name] || klass.name.gsub(/::/, "_").underscore %}
                 {% service_id = id_key.is_a?(StringLiteral) ? id_key : id_key.stringify %}
 
-
                 {% factory = nil %}
 
                 {% if factory_ann = ann[:factory] %}
@@ -45,11 +44,10 @@ class Athena::DependencyInjection::ServiceContainer
 
                   # Validate the factory method exists and is a class method
                   {% if factory %}
-                    {% factory_klass = factory[0] %}
-                    {% factory_method = factory[1] %}
+                    {% factory_class, factory_method = factory %}
 
-                    {% raise "Failed to register service `#{service_id.id}`.  Factory method `#{method.id}` within `#{factory_class}` is an instance method." if factory_class.instance.has_method? method %}
-                    {% raise "Failed to register service `#{service_id.id}`.  Factory method `#{method.id}` within `#{factory_class}` does not exist." unless factory_class.class.has_method? method %}
+                    {% raise "Failed to register service `#{service_id.id}`.  Factory method `#{method.id}` within `#{factory_class}` is an instance method." if factory_class.instance.has_method? factory_method %}
+                    {% raise "Failed to register service `#{service_id.id}`.  Factory method `#{method.id}` within `#{factory_class}` does not exist." unless factory_class.class.has_method? factory_method %}
                   {% end %}
                 {% end %}
 
@@ -70,6 +68,32 @@ class Athena::DependencyInjection::ServiceContainer
                   # If no initializer was resolved, assume it's the default argless constructor.
                   initializer_args = (i = initializer) ? i.args : [] of Nil
 
+                  # Register all named arguments on the annotation as bindings.
+                  # These will later be resolved to their actual value and applied to the related parameter.
+                  bindings = {} of Nil => Nil
+                  parameters = {} of Nil => Nil
+
+                  initializer_args.each_with_index do |initializer_arg, idx|
+                    default_value = nil
+                    value = nil
+
+                    # Set the value of this parameter, but don't mark it as resolved as it could be overridden.
+                    if !(dv = initializer_arg.default_value).is_a?(Nop)
+                      default_value = value = dv
+                    end
+
+                    parameters[initializer_arg.name.id.stringify] = {
+                      arg:                  initializer_arg,
+                      name:                 initializer_arg.name.stringify,
+                      idx:                  idx,
+                      internal_name:        initializer_arg.internal_name.stringify,
+                      restriction:          initializer_arg.restriction,
+                      resolved_restriction: ((r = initializer_arg.restriction).is_a?(Nop) ? nil : r.resolve),
+                      default_value:        default_value,
+                      value:                value || default_value,
+                    }
+                  end
+
                   SERVICE_HASH[service_id] = {
                     class:             klass.resolve,
                     class_ann:         ann,
@@ -80,35 +104,22 @@ class Athena::DependencyInjection::ServiceContainer
                     tags:              [] of Nil, # TODO: Make this Hash(String, Array(Hash))
                     public:            ann[:public] != nil ? true : false,
                     decorated_service: nil,
-                    bindings:          {} of Nil => Nil,
+                    bindings:          bindings,
                     generics:          [] of Nil,
-                    parameters:        initializer_args.map do |initializer_arg|
-                      default_value = nil
-                      value = nil
-
-                      # Set the value of this parameter, but don't mark it as resolved as it could be overridden.
-                      if !(dv = initializer_arg.default_value).is_a?(Nop)
-                        default_value = value = dv
-                      end
-
-                      # Check for explicit service arguments, and mark parameter as resolved if defined as the service was explicitly configured to use it.
-                      #
-                      # Ideally we'd call into a macro def to resolve the value, because that isn't a thing yet the plan is to resolve all references within the terminal AutoWire pass.
-                      if ann.named_args.keys.includes? "_#{initializer_arg.name.id}".id
-                        value = ann.named_args["_#{initializer_arg.name.id}"]
-                      end
-
-                      {
-                        arg:                  initializer_arg,
-                        name:                 initializer_arg.name.stringify,
-                        internal_name:        initializer_arg.internal_name.stringify,
-                        restriction:          initializer_arg.restriction,
-                        resolved_restriction: ((r = initializer_arg.restriction).is_a?(Nop) ? nil : r.resolve),
-                        default_value:        default_value,
-                        value:                value || default_value,
-                      }
-                    end,
+                    parameters:        parameters,
                   }
+
+                  if a = ann[:alias]
+                    id_key = a.resolve.name.gsub(/::/, "_").underscore
+                    alias_service_id = id_key.is_a?(StringLiteral) ? id_key : id_key.stringify
+
+                    SERVICE_HASH[a.resolve] = {
+                      class:      klass.resolve,
+                      parameters: {} of Nil => Nil,
+                      bindings:   {} of Nil => Nil,
+                      generics:   [] of Nil,
+                    }
+                  end
                 %}
               {% end %}
             {% end %}
@@ -318,33 +329,72 @@ class Athena::DependencyInjection::ServiceContainer
               end
             end
           %}
+        {% end %}
+      end
+    end
+  end
 
+  private module Autoconfigure
+    macro included
+      macro finished
+        {% verbatim do %}
           {%
-            pp BINDINGS
+            SERVICE_HASH.each do |_, definition|
+              if (key = AUTO_CONFIGURATIONS.keys.find &.>=(definition["class"])) && (auto_configuration = AUTO_CONFIGURATIONS[key])
+                if (v = auto_configuration["public"]) != nil
+                  definition["public"] = v
+                end
 
-            puts ""
-            puts ""
+                if (v = auto_configuration["tags"]) != nil
+                  definition["tags"] = v
+                end
+
+                if (v = auto_configuration["bind"]) != nil
+                  v.each do |k, v|
+                    definition["bindings"][k.id.stringify] = v
+                  end
+                end
+              end
+            end
           %}
         {% end %}
       end
     end
   end
 
-  private module ApplyBindings
+  private module ApplyGlobalBindings
     macro included
       macro finished
         {% verbatim do %}
           # Resolve the arguments for each service
           {%
-            SERVICE_HASH.each do |service_id, definition|
-              definition["parameters"].reject(&.["resolved"]).each do |param|
+            SERVICE_HASH.each do |_, definition|
+              definition["parameters"].each do |name, param|
                 # Typed binding
                 if binding_value = BINDINGS[param["arg"].id]
-                  param["value"] = binding_value
+                  definition["bindings"][name] = binding_value
 
                   # Untyped binding
-                elsif binding_value = BINDINGS[param["arg"].name.id]
-                  param["value"] = binding_value
+                elsif binding_value = BINDINGS[param["arg"].name]
+                  definition["bindings"][name] = binding_value
+                end
+              end
+            end
+          %}
+        {% end %}
+      end
+    end
+  end
+
+  private module ApplyServiceBindings
+    macro included
+      macro finished
+        {% verbatim do %}
+          {%
+            SERVICE_HASH.each do |_, definition|
+              definition["class_ann"].named_args.each do |k, v|
+                if k.starts_with? '_'
+                  definition["bindings"][k[1..-1].id.stringify] = v
                 end
               end
             end
@@ -359,13 +409,14 @@ class Athena::DependencyInjection::ServiceContainer
       macro finished
         {% verbatim do %}
           {%
-            SERVICE_HASH.each do |service_id, definition|
-              definition["parameters"].reject(&.["resolved"]).each do |param|
+            SERVICE_HASH.each do |_, definition|
+              definition["parameters"].each do |name, param|
+                param_resolved_restriction = param["resolved_restriction"]
                 resolved_services = [] of Nil
 
                 # Otherwise resolve possible services based on type
                 SERVICE_HASH.each do |id, s_metadata|
-                  if (type = param["resolved_restriction"]) &&
+                  if (type = param_resolved_restriction) &&
                      (
                        s_metadata["class"] <= type ||
                        (type < ADI::Proxy && s_metadata["class"] <= type.type_vars.first.resolve)
@@ -374,13 +425,17 @@ class Athena::DependencyInjection::ServiceContainer
                   end
                 end
 
+                resolved_service = nil
+
                 if resolved_services.size == 1
-                  param["value"] = if param["resolved_restriction"] < ADI::Proxy
-                                     "ADI::Proxy.new(#{resolved_services[0]}, ->#{resolved_services[0].id})".id
-                                   else
-                                     resolved_services[0].id
-                                   end
-                elsif resolved_service = resolved_services.find(&.==(param["name"].id))
+                  resolved_service = resolved_services[0]
+                elsif rs = resolved_services.find(&.==(name.id))
+                  resolved_service = rs
+                elsif (s = SERVICE_HASH[(param_resolved_restriction && param_resolved_restriction < ADI::Proxy ? param_resolved_restriction.type_vars.first.resolve : param_resolved_restriction)])
+                  resolved_service = s["class"].name.gsub(/::/, "_").underscore
+                end
+
+                if resolved_service
                   param["value"] = if param["resolved_restriction"] < ADI::Proxy
                                      "ADI::Proxy.new(#{resolved_service}, ->#{resolved_service.id})".id
                                    else
@@ -403,9 +458,9 @@ class Athena::DependencyInjection::ServiceContainer
           {%
             SERVICE_HASH.each do |service_id, definition|
               # Use a dedicated array var such that we can use the pseudo recursion trick
-              unresolved_parameters = definition["parameters"].map { |param| {param["value"], param, nil} }
+              parameters = definition["parameters"].map { |_, param| {param["value"], param, nil} }
 
-              unresolved_parameters.each do |(unresolved_value, param, reference)|
+              parameters.each do |(unresolved_value, param, reference)|
                 # Parameter reference
                 if unresolved_value.is_a?(StringLiteral) && unresolved_value.starts_with?('%') && unresolved_value.ends_with?('%')
                   resolved_value = CONFIG["parameters"][unresolved_value[1..-2]]
@@ -422,7 +477,7 @@ class Athena::DependencyInjection::ServiceContainer
                   resolved_value = unresolved_value
 
                   unresolved_value.each_with_index do |v, idx|
-                    unresolved_parameters << {v, param, {type: "array", key: idx, value: resolved_value}}
+                    parameters << {v, param, {type: "array", key: idx, value: resolved_value}}
                   end
 
                   # Hash, could contain nested references
@@ -431,8 +486,13 @@ class Athena::DependencyInjection::ServiceContainer
                   resolved_value = unresolved_value
 
                   unresolved_value.each do |k, v|
-                    unresolved_parameters << {v, param, {type: "hash", key: k, value: resolved_value}}
+                    parameters << {v, param, {type: "hash", key: k, value: resolved_value}}
                   end
+                  # Bound value
+                elsif (bv = definition["bindings"][param["name"]]) && (bv != unresolved_value)
+                  resolved_value = nil
+
+                  parameters << {bv, param, {type: "scalar"}}
 
                   # Scalar value
                 else
@@ -450,7 +510,7 @@ class Athena::DependencyInjection::ServiceContainer
                 unresolved_value = nil
               end
 
-              definition["parameters"].each { |param| pp param }
+              pp definition
             end
           %}
         {% end %}
@@ -465,18 +525,27 @@ class Athena::DependencyInjection::ServiceContainer
           # Resolve the arguments for each service
           {%
             SERVICE_HASH.each do |service_id, definition|
-              definition["parameters"].each do |param|
+              definition["parameters"].each do |_, param|
+                error = nil
+
                 # Type of the param matches param restriction
                 if param["value"] != nil
                   value = param["value"]
                   restriction = param["resolved_restriction"]
 
                   if restriction <= String && !value.is_a? StringLiteral
-                    raise param["arg"].raise "#{definition["class"]} #{param["arg"]} expects a string but got '#{value}'."
+                    error = "Parameter '#{param["arg"]}' of service '#{service_id.id}' (#{definition["class"]}) expects a String but got '#{value}'."
+                  end
+
+                  if (s = SERVICE_HASH[value.stringify]) && !(s["class"] <= restriction)
+                    error = "Parameter '#{param["arg"]}' of service '#{service_id.id}' (#{definition["class"]}) expects '#{restriction}' but" \
+                            " the resolved service '#{service_id.id}' is of type '#{s["class"].id}'."
                   end
                 elsif !param["resolved_restriction"].nilable?
-                  raise param["arg"].raise "Failed to resolve value for #{param["class"]} #{param["arg"]}."
+                  error = "Failed to resolve value for parameter '#{param["arg"]}' of service '#{service_id.id}' (#{definition["class"]})."
                 end
+
+                param["arg"].raise error if error
               end
             end
           %}
@@ -485,59 +554,49 @@ class Athena::DependencyInjection::ServiceContainer
     end
   end
 
-  # private module DefineGetters
-  #   macro included
-  #     macro finished
-  #       {% verbatim do %}
-  #         # Define getters for each service, if the service is public, make the getter public and also define a type based getter
-  #         {% for service_id, metadata in SERVICE_HASH %}
-  #           {% if metadata != nil %}
-  #             {% service_name = metadata[:service].is_a?(StringLiteral) ? metadata[:service] : metadata[:service].name(generic_args: false) %}
-  #             {% generics_type = "#{service_name}(#{metadata[:generics].splat})".id %}
+  private module DefineGetters
+    macro included
+      macro finished
+        {% verbatim do %}
+          {% for service_id, metadata in SERVICE_HASH %}
+            {% if metadata != nil && metadata["class_ann"] != nil %}
+              {% service_name = metadata[:class].is_a?(StringLiteral) ? metadata[:class] : metadata[:class].name(generic_args: false) %}
+              {% generics_type = "#{service_name}(#{metadata[:generics].splat})".id %}
 
-  #             {% service = metadata[:generics].empty? ? metadata[:service].id : generics_type.id %}
-  #             {% ivar_type = metadata[:generics].empty? ? metadata[:ivar_type].id : generics_type.id %}
+              {% service = metadata[:generics].empty? ? metadata[:class].id : generics_type.id %}
+              {% ivar_type = metadata[:generics].empty? ? metadata[:class].id : generics_type.id %}
 
-  #             {% constructor_service = service %}
-  #             {% constructor_method = "new" %}
+              {% constructor_service = service %}
+              {% constructor_method = "new" %}
 
-  #             {% if factory = metadata[:factory] %}
-  #               {% constructor_service = factory[0] %}
-  #               {% constructor_method = factory[1] %}
-  #             {% end %}
+              {% if factory = metadata[:factory] %}
+                {% constructor_service, constructor_method = factory %}
+              {% end %}
 
-  #             {% if metadata[:visibility] != Visibility::PUBLIC %}protected{% end %} getter {{service_id.id}} : {{ivar_type}} { {{constructor_service}}.{{constructor_method.id}}({{metadata["arguments"].map(&.["value"]).splat}}) }
+              {% if !metadata[:public] %}protected {% end %}getter {{service_id.id}} : {{ivar_type}} do
+                {{constructor_service}}.{{constructor_method.id}}({{
+                                                                    metadata["parameters"].map do |name, param|
+                                                                      "#{name.id}: #{param["value"]}".id
+                                                                    end.splat
+                                                                  }})
+              end
 
-  #             {% if metadata[:visibility] == Visibility::PUBLIC %}
-  #               def get(service : {{service}}.class) : {{service.id}}
-  #                 {{service_id.id}}
-  #               end
-  #             {% end %}
+              {% if metadata[:public] %}
+                def get(service : {{service}}.class) : {{service.id}}
+                  {{service_id.id}}
+                end
+              {% end %}
+            {% end %}
+          {% end %}
 
-  #           {% end %}
-  #         {% end %}
+          puts ""
+          puts ""
 
-  #         # Define getters for aliased service, if the alias is public, make the getter public and also define a type based getter
-  #         {% for service_type, service_id in ALIAS_HASH %}
-  #           {% metadata = SERVICE_HASH[service_id] %}
-
-  #           {% if metadata != nil %}
-  #             {% service_name = metadata[:service].is_a?(StringLiteral) ? metadata[:service] : metadata[:service].name(generic_args: false) %}
-  #             {% type = metadata[:generics].empty? ? service_name : "#{service_name}(#{metadata[:generics].splat})".id %}
-
-  #             {% if metadata[:alias_visibility] != Visibility::PUBLIC %}protected{% end %} def {{service_type.name.gsub(/::/, "_").underscore.id}} : {{type}}; {{service_id.id}}; end
-
-  #             {% if metadata[:alias_visibility] == Visibility::PUBLIC %}
-  #               def get(service : {{service_type}}.class) : {{service_type}}
-  #                 {{service_id.id}}
-  #               end
-  #             {% end %}
-  #           {% end %}
-  #         {% end %}
-  #       {% end %}
-  #     end
-  #   end
-  # end
+          {{debug}}
+        {% end %}
+      end
+    end
+  end
 
   # Args on annotation are like direct named args that apply to that singular service
   # Bindings apply to 0..n services
@@ -569,6 +628,7 @@ class Athena::DependencyInjection::ServiceContainer
   #   * DONE explicit param - _id
   #   * DONE default value - = 123
   #   * DONE Binding (Typed and untyped)
+  #     * Ann > Global > autoconfigure
   #   * Alias
   #   * Autowire
   #   * Nilable - nil
@@ -582,9 +642,13 @@ class Athena::DependencyInjection::ServiceContainer
   macro finished
     include RegisterServices
     include ResolveParameterPlaceholders
-    include ApplyBindings
+    include Autoconfigure
+    include ApplyGlobalBindings
+    include ApplyServiceBindings
     include AutoWire
     include ResolveValues
     include ValidateArguments
+
+    include DefineGetters
   end
 end
