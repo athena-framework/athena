@@ -12,6 +12,7 @@ encapsulte = "encapsulate"
 proivded = "provided"
 beavior = "behavior"
 easisly = "easily"
+depednecies = "dependencies"
 
 [files]
 extend-exclude = [

@@ -53,7 +53,7 @@ class Athena::DependencyInjection::ServiceContainer
 
                 {%
                   initializer = if f = factory
-                                  klass.class.methods.find(&.name.==(f[1]))
+                                  (f.first).class.methods.find(&.name.==(f[1]))
                                 elsif class_initializer = klass.class.methods.find(&.annotation(ADI::Inject))
                                   # Class methods with ADI::Inject should act as a factory.
                                   factory = {klass, class_initializer.name.stringify}
@@ -120,6 +120,36 @@ class Athena::DependencyInjection::ServiceContainer
               {% end %}
             {% end %}
           {% end %}
+        {% end %}
+      end
+    end
+  end
+
+  private module ResolveGenerics
+    macro included
+      macro finished
+        {% verbatim do %}
+          {%
+            SERVICE_HASH.each do |service_id, definition|
+              ann = definition["class_ann"]
+              generics = ann.args
+              klass = definition["class"]
+
+              if !klass.type_vars.empty? && (ann && !ann[:name])
+                klass.raise "Failed to register services for '#{klass}'.  Generic services must explicitly provide a name."
+              end
+
+              if !klass.type_vars.empty? && generics.empty?
+                klass.raise "Failed to register service '#{service_id.id}'.  Generic services must provide the types to use via the 'generics' field."
+              end
+
+              if klass.type_vars.size != generics.size
+                klass.raise "Failed to register service '#{service_id.id}'.  Expected #{klass.type_vars.size} generics types got #{generics.size}."
+              end
+
+              definition["generics"] = generics
+            end
+          %}
         {% end %}
       end
     end
@@ -466,7 +496,6 @@ class Athena::DependencyInjection::ServiceContainer
     macro included
       macro finished
         {% verbatim do %}
-          # Resolve the arguments for each service
           {%
             SERVICE_HASH.each do |service_id, definition|
               # Use a dedicated array var such that we can use the pseudo recursion trick
@@ -543,7 +572,7 @@ class Athena::DependencyInjection::ServiceContainer
                   value = param["value"]
                   restriction = param["resolved_restriction"]
 
-                  if restriction <= String && !value.is_a? StringLiteral
+                  if restriction && restriction <= String && !value.is_a? StringLiteral
                     error = "Parameter '#{param["arg"]}' of service '#{service_id.id}' (#{definition["class"]}) expects a String but got '#{value}'."
                   end
 
@@ -646,6 +675,7 @@ class Athena::DependencyInjection::ServiceContainer
 
   macro finished
     include RegisterServices
+    include ResolveGenerics
     include ResolveParameterPlaceholders
     include Autoconfigure
     include ApplyGlobalBindings
