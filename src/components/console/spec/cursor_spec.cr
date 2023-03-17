@@ -101,6 +101,8 @@ struct CursorTest < ASPEC::TestCase
   end
 
   def test_current_position_tty : Nil
+    pending! "Cursor input must be a TTY" unless STDIN.tty?
+
     @cursor = ACON::Cursor.new @output
 
     @cursor.move_to_position 10, 10
