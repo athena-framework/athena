@@ -12,39 +12,39 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # check_spelling:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Check Spelling
-  #       uses: crate-ci/typos@v1.13.18
-  # check_format:
-  #   runs-on: ubuntu-latest
-  #   container:
-  #     image: crystallang/crystal:latest-alpine
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Check Format
-  #       run: crystal tool format --check
-  # coding_standards:
-  #   runs-on: ubuntu-latest
-  #   container:
-  #     image: crystallang/crystal:latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Install Dependencies
-  #       run: shards install
-  #       env:
-  #         SHARDS_OVERRIDE: shard.dev.yml
-  #     - name: Ameba
-  #       run: ./bin/ameba
+  check_spelling:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check Spelling
+        uses: crate-ci/typos@v1.13.18
+  check_format:
+    runs-on: ubuntu-latest
+    container:
+      image: crystallang/crystal:latest-alpine
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check Format
+        run: crystal tool format --check
+  coding_standards:
+    runs-on: ubuntu-latest
+    container:
+      image: crystallang/crystal:latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: shards install
+        env:
+          SHARDS_OVERRIDE: shard.dev.yml
+      - name: Ameba
+        run: ./bin/ameba
   test:
     strategy:
       fail-fast: false
       matrix:
         os:
-          # - ubuntu-latest
-          # - macos-latest
+          - ubuntu-latest
+          - macos-latest
           - windows-latest
         crystal:
           - latest
