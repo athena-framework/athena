@@ -5,7 +5,7 @@ on:
     branches:
       - 'master'
   schedule:
-    - cron: '37 0 * * *' # Nightly at 00:37
+    - cron: '15 1 * * *' # Nightly at 01:15
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
