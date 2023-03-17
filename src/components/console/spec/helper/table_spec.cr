@@ -4,7 +4,7 @@ struct TableSpec < ASPEC::TestCase
   @output : IO
 
   protected def get_table_contents(table_name : String) : String
-    File.read(File.join __DIR__, "..", "fixtures", "helper", "table", "#{table_name}.txt")#.gsub(ACON::System::EOL, "\n")
+    File.read(File.join __DIR__, "..", "fixtures", "helper", "table", "#{table_name}.txt") # .gsub(ACON::System::EOL, "\n")
   end
 
   def initialize
@@ -1470,7 +1470,7 @@ struct TableSpec < ASPEC::TestCase
     ACON::Output::IO.new @output, decorated: decorated
   end
 
-  private def normalize(input : String)  : String
+  private def normalize(input : String) : String
     input.gsub ACON::System::EOL, "\n"
   end
 end
