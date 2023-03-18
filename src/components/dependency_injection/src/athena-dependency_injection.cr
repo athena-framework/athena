@@ -181,3 +181,17 @@ require "./ext/*"
 # New Methods
 # StringLiteral#sub(target : StringLiteral, replace : StringLiteral)
 # StringLiteral#gsub(regex : RegexLiteral, & : StringLiteral -> StringLiteral)
+#
+# HashLiteral/NamedTupleLiteral#has_key?(key : ASTNode) : BoolLiteral
+
+OTHER_TAG = "foo.bar"
+
+module Test; end
+
+@[ADI::Register(tags: ["some.tag"])]
+class MyService
+  include Test
+end
+
+ADI.auto_configure MyService, {tags: ["config"]}
+ADI.auto_configure Test, {tags: [OTHER_TAG]}

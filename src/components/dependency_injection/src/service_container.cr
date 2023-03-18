@@ -9,10 +9,10 @@ class Athena::DependencyInjection::ServiceContainer
   private SERVICE_HASH = {} of Nil => Nil
 
   # Define a hash to store the service ids for each tag.
+  #
+  # Tag Name, service_id, array attributes
+  # Hash(String, Hash(String, Array(NamedTuple)))
   private TAG_HASH = {} of Nil => Nil
-
-  # # Define a hash to map alias types to a service ID.
-  # private ALIAS_HASH = {} of Nil => Nil
 
   private module RegisterServices
     macro included
@@ -97,8 +97,8 @@ class Athena::DependencyInjection::ServiceContainer
                     shared:            klass.class?,
                     calls:             [] of Nil,
                     configurator:      nil,
-                    tags:              [] of Nil, # TODO: Make this Hash(String, Array(Hash))
-                    public:            ann[:public] != nil ? true : false,
+                    tags:              {} of Nil => Nil,
+                    public:            ann[:public] == true,
                     decorated_service: nil,
                     bindings:          {} of Nil => Nil,
                     generics:          [] of Nil,
@@ -120,6 +120,88 @@ class Athena::DependencyInjection::ServiceContainer
               {% end %}
             {% end %}
           {% end %}
+        {% end %}
+      end
+    end
+  end
+
+  private module Autoconfigure
+    macro included
+      macro finished
+        {% verbatim do %}
+          {%
+            SERVICE_HASH.each do |service_id, definition|
+              tags = definition["class_ann"]["tags"] || [] of Nil
+
+              if !tags.is_a? ArrayLiteral
+                definition["class_ann"].raise "Tags for '#{service_id.id}' must be an 'ArrayLiteral', got '#{tags.class_name.id}'."
+              end
+
+              auto_configuration_tags = nil
+
+              AUTO_CONFIGURATIONS.keys.select(&.>=(definition["class"])).each do |key|
+                auto_configuration = AUTO_CONFIGURATIONS[key]
+
+                if (v = auto_configuration["bind"]) != nil
+                  v.each do |k, v|
+                    definition["bindings"][k.id.stringify] = v
+                  end
+                end
+
+                if (v = auto_configuration["public"]) != nil
+                  definition["public"] = v
+                end
+
+                if (v = auto_configuration["tags"]) != nil
+                  if !v.is_a? ArrayLiteral
+                    definition["class_ann"].raise "Tags for '#{service_id.id}' must be an 'ArrayLiteral', got '#{tags.class_name.id}'."
+                  end
+
+                  tags += v
+                end
+
+                # TODO: Configurator?
+              end
+
+              # Process both autoconfiguration tags and normal tags here to keep the logic somewhat centralized.
+
+              definition_tags = definition["tags"]
+
+              tags.each do |tag|
+                name, attributes = if tag.is_a?(StringLiteral)
+                                     {tag, {} of Nil => Nil}
+                                   elsif tag.is_a?(Path)
+                                     {tag.resolve.id.stringify, {} of Nil => Nil}
+                                   elsif tag.is_a?(NamedTupleLiteral) || tag.is_a?(HashLiteral)
+                                     tag.raise "Failed to register service `#{service_id.id}`.  All tags must have a name." unless tag[:name]
+
+                                     # Resolve a constant to its value if used as a tag name
+                                     if tag["name"].is_a? Path
+                                       tag["name"] = tag[""].resolve
+                                     end
+
+                                     attributes = {} of Nil => Nil
+
+                                     # TODO: Replace this with `#delete`...
+                                     tag.each do |k, v|
+                                       attributes[k.id.stringify] = v unless k.id.stringify == "name"
+                                     end
+
+                                     {tag["name"], attributes}
+                                   else
+                                     tag.raise "Tag '#{tag}'. A tag must be a StringLiteral or NamedTupleLiteral not #{tag.class_name.id}."
+                                   end
+
+                definition_tags[name] = [] of Nil if definition_tags[name] == nil
+                definition_tags[name] << attributes
+
+                TAG_HASH[name] = [] of Nil if TAG_HASH[name] == nil
+                TAG_HASH[name] << {service_id, definition, attributes}
+              end
+
+              pp definition
+            end
+          %}
         {% end %}
       end
     end
@@ -372,36 +454,6 @@ class Athena::DependencyInjection::ServiceContainer
     end
   end
 
-  private module Autoconfigure
-    macro included
-      macro finished
-        {% verbatim do %}
-          {%
-            SERVICE_HASH.each do |_, definition|
-              if (key = AUTO_CONFIGURATIONS.keys.find &.>=(definition["class"])) && (auto_configuration = AUTO_CONFIGURATIONS[key])
-                if (v = auto_configuration["tags"]) != nil
-                  definition["tags"] = v
-                end
-
-                if (v = auto_configuration["bind"]) != nil
-                  v.each do |k, v|
-                    definition["bindings"][k.id.stringify] = v
-                  end
-                end
-
-                if (v = auto_configuration["public"]) != nil
-                  definition["public"] = v
-                end
-
-                # TODO: Configurator?
-              end
-            end
-          %}
-        {% end %}
-      end
-    end
-  end
-
   private module ApplyGlobalBindings
     macro included
       macro finished
@@ -529,8 +581,8 @@ class Athena::DependencyInjection::ServiceContainer
                   unresolved_value.each do |k, v|
                     parameters << {v, param, {type: "hash", key: k, value: resolved_value}}
                   end
-                  # Bound value
-                elsif (bv = definition["bindings"][param["name"]]) && (bv != unresolved_value)
+                  # Bound value, only apply if no value is already set
+                elsif unresolved_value == nil && (bv = definition["bindings"][param["name"]]) # && (bv != unresolved_value)
                   resolved_value = nil
 
                   parameters << {bv, param, {type: "scalar"}}
@@ -639,9 +691,10 @@ class Athena::DependencyInjection::ServiceContainer
   # # Algorithm
   #
   # ## PreOptimization
+  # * RegisterServices
+  # * ResolveGenerics
   # * Run custom modules
   # * (TODO) Try and support annotation based configurators
-  # * RegisterServices
   #
   # ## Optimization
   # * Resolve parameter placeholders
@@ -671,19 +724,33 @@ class Athena::DependencyInjection::ServiceContainer
   #   * DONE %param%
   #   * DONE @service_id
   #   * !tag
-  #   * Proxy
+  #   * DONE Proxy
 
   macro finished
+    # Global pre-optimization modules
     include RegisterServices
-    include ResolveGenerics
-    include ResolveParameterPlaceholders
     include Autoconfigure
+    include ResolveGenerics
+
+    # Custom modules to register new services, explicitly set arguments, or modify them in some other way
+
+    # Global optimization modules that prepare the services for usage
+    # Resolve arguments, parameters, and ensure validity of each service
+    include ResolveParameterPlaceholders
     include ApplyGlobalBindings
     include ApplyServiceBindings
     include AutoWire
     include ResolveValues
     include ValidateArguments
 
+    # Custom modules to further modify services
+
+    # Global cleanup services
+    # include RemoveUnusedServices
+
+    # Global codegen things that create things within the container instances, such as the getters for each service
     include DefineGetters
+
+    # ?? Custom modules to codegen/cleanup things?
   end
 end
