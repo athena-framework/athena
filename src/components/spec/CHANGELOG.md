@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.4] - 2023-03-19
+
+### Fixed
+
+- Fix exceptions not being counted as errors when raised within the `initialize` method of a test case ([#276](https://github.com/athena-framework/spec/pull/276)) (George Dietrich)
+- Fix a documentation typo in the `TestWith` example ([#269](https://github.com/athena-framework/spec/pull/269)) (George Dietrich)
+
 ## [0.3.3] - 2023-02-18
 
 ### Changed
@@ -42,7 +49,7 @@ _First release a part of the monorepo._
 
 ### Fixed
 
-- Fix `test` helper macro generating invalid method names by replacing all non alphanumeric chars with `_`  ([#12](https://github.com/athena-framework/spec/pull/12)) (George Dietrich
+- Fix `test` helper macro generating invalid method names by replacing all non alphanumeric chars with `_`  ([#12](https://github.com/athena-framework/spec/pull/12)) (George Dietrich)
 
 ## [0.2.5] - 2021-11-03
 
@@ -85,6 +92,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.3.4]: https://github.com/athena-framework/spec/releases/tag/v0.3.4
 [0.3.3]: https://github.com/athena-framework/spec/releases/tag/v0.3.3
 [0.3.2]: https://github.com/athena-framework/spec/releases/tag/v0.3.2
 [0.3.1]: https://github.com/athena-framework/spec/releases/tag/v0.3.1
