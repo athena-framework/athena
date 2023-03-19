@@ -294,17 +294,20 @@ abstract struct Athena::Spec::TestCase
   # ```
   annotation TestWith; end
 
-  private def self.maybe_run(instance : ASPEC::TestCase?, exception : ::Exception?, raise_on_exception : Bool = false, & : self ->) : Nil
-    case {instance, exception, raise_on_exception}
-    when {Nil, ::Exception, true}
-      raise exception
-    when {ASPEC::TestCase, Nil, Bool}
-      yield instance
-    when {Nil, ::Exception, false}
-      # Skip
-    else
-      raise "BUG: Unreachable"
-    end
+  # Use a macro so that the original instance gets closured, not a copy.
+  private macro maybe_run(raise_on_exception = false, &)
+    {% begin %}
+      case { instance, ex, {{raise_on_exception}} }
+      when {Nil, ::Exception, true}
+        raise ex
+      when {ASPEC::TestCase, Nil, Bool}
+        {{yield}}
+      when {Nil, ::Exception, false}
+        # Skip
+      else
+        raise "BUG: Unreachable"
+      end
+    {% end %}
   end
 
   # Runs the tests contained within `self`.
@@ -312,32 +315,32 @@ abstract struct Athena::Spec::TestCase
   # See `Athena::Spec.run_all` to run all test cases.
   def self.run : Nil
     begin
-      i = new
+      instance = new
     rescue ex : ::Exception
     end
 
     {% begin %}
       {{!!@type.annotation(Pending) ? "pending".id : "describe".id}} {{@type.name.stringify}}, focus: {{!!@type.annotation Focus}}{% if (tags = @type.annotation(Tags)) %}, tags: {{tags.args}}{% end %} do
         before_all do
-          self.maybe_run i, ex do |instance|
+          maybe_run do
             instance.before_all
           end
         end
 
         before_each do
-          self.maybe_run i, ex, true do |instance|
+          maybe_run true do
             instance.initialize
           end
         end
 
         after_each do
-          self.maybe_run i, ex do |instance|
+          maybe_run do
             instance.tear_down
           end
         end
 
         after_all do
-          self.maybe_run i, ex do |instance|
+          maybe_run do
             instance.after_all
           end
         end
@@ -363,7 +366,7 @@ abstract struct Athena::Spec::TestCase
               {% args.raise "Expected argument ##{idx} of the 'ASPEC::TestCase::TestWith' annotation applied to '#{@type}##{test.name.id}' to contain #{test.args.size} values, but got #{args.size}." if test.args.size != args.size %}
 
               {{method.id}} "#{{{description}}} #{{{idx}}}", file: {{test.filename}}, line: {{test.line_number}}, end_line: {{test.end_line_number}}, focus: {{focus}}, tags: {{tags}} do
-                self.maybe_run i, ex do |instance|
+                maybe_run do
                   instance.{{test.name.id}} *{{args}}
                 end
               end
@@ -375,7 +378,7 @@ abstract struct Athena::Spec::TestCase
               {% args.raise "Expected the value of argument '#{name.id}' of the 'ASPEC::TestCase::TestWith' annotation applied to '#{@type}##{test.name.id}' to contain #{test.args.size} values, but got #{args.size}." if test.args.size != args.size %}
 
               {{method.id}} "#{{{description}}} #{{{name.stringify}}}", file: {{test.filename}}, line: {{test.line_number}}, end_line: {{test.end_line_number}}, focus: {{focus}}, tags: {{tags}} do
-                self.maybe_run i, ex do |instance|
+                maybe_run do
                   instance.{{test.name.id}} *{{args}}
                 end
               end
@@ -392,7 +395,7 @@ abstract struct Athena::Spec::TestCase
               {% provider_method_return_type = (methods.find(&.name.stringify.==(data_provider_method_name)).return_type || raise "Data provider '#{@type}##{data_provider_method_name.id}' must have a return type of Hash, NamedTuple, Array, or Tuple.").resolve %}
 
               {% if provider_method_return_type == Hash || provider_method_return_type == NamedTuple %}
-                self.maybe_run i, ex do |instance|
+                maybe_run do
                   instance.{{data_provider_method_name.id}}.each do |name, args|
                     {{method.id}} "#{{{description}}} #{name}", file: {{test.filename}}, line: {{test.line_number}}, end_line: {{test.end_line_number}}, focus: {{focus}}, tags: {{tags}} do
                       instance.{{test.name.id}} *args
@@ -400,7 +403,7 @@ abstract struct Athena::Spec::TestCase
                   end
                 end
               {% elsif provider_method_return_type == Array || provider_method_return_type == Tuple %}
-                self.maybe_run i, ex do |instance|
+                maybe_run do
                   instance.{{data_provider_method_name.id}}.each_with_index do |args, idx|
                     {{method.id}} "#{{{description}}} #{idx}", file: {{test.filename}}, line: {{test.line_number}}, end_line: {{test.end_line_number}}, focus: {{focus}}, tags: {{tags}} do
                       instance.{{test.name.id}} *args
@@ -413,7 +416,7 @@ abstract struct Athena::Spec::TestCase
             {% end %}
           {% else %}
             {{method.id}} {{description}}, file: {{test.filename}}, line: {{test.line_number}}, end_line: {{test.end_line_number}}, focus: {{focus}}, tags: {{tags}} do
-              self.maybe_run i, ex do |instance|
+              maybe_run do
                 instance.{{test.name.id}}
               end
             end
