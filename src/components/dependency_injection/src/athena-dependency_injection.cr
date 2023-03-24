@@ -54,12 +54,6 @@ module Athena::DependencyInjection
   private AUTO_CONFIGURATIONS = {} of Nil => Nil
   private CONFIG              = {parameters: {} of Nil => Nil} # Ensure this type is a NamedTupleLiteral
 
-  # :nodoc:
-  module PreArgumentsCompilerPass; end
-
-  # :nodoc:
-  module PostArgumentsCompilerPass; end
-
   # Applies the provided *options* to any registered service of the provided *type*.
   #
   # A common use case of this would be to apply a specific tag to all instances of an interface; thus preventing the need to manually apply the tag for each implementation.
@@ -183,15 +177,3 @@ require "./ext/*"
 # StringLiteral#gsub(regex : RegexLiteral, & : StringLiteral -> StringLiteral)
 #
 # HashLiteral/NamedTupleLiteral#has_key?(key : ASTNode) : BoolLiteral
-
-OTHER_TAG = "foo.bar"
-
-module Test; end
-
-@[ADI::Register(tags: ["some.tag"])]
-class MyService
-  include Test
-end
-
-ADI.auto_configure MyService, {tags: ["config"]}
-ADI.auto_configure Test, {tags: [OTHER_TAG]}

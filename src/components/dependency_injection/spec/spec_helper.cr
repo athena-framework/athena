@@ -1,6 +1,6 @@
 require "spec"
 require "../src/athena-dependency_injection"
-require "./service_mocks"
+# require "./service_mocks"
 
 require "athena-spec"
 require "../src/spec"
