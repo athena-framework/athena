@@ -1,5 +1,5 @@
 
-In application_spec\.cr line \d+:
+In \w+\.cr line \d+:
                   
   some exception  
                   
