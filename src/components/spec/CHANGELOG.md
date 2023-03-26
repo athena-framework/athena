@@ -4,8 +4,8 @@
 
 ### Fixed
 
-- Fix exceptions not being counted as errors when raised within the `initialize` method of a test case ([#276](https://github.com/athena-framework/spec/pull/276)) (George Dietrich)
-- Fix a documentation typo in the `TestWith` example ([#269](https://github.com/athena-framework/spec/pull/269)) (George Dietrich)
+- Fix exceptions not being counted as errors when raised within the `initialize` method of a test case ([#276](https://github.com/athena-framework/athena/pull/276)) (George Dietrich)
+- Fix a documentation typo in the `TestWith` example ([#269](https://github.com/athena-framework/athena/pull/269)) (George Dietrich)
 
 ## [0.3.3] - 2023-02-18
 
