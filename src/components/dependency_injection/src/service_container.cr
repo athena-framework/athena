@@ -65,6 +65,7 @@ class Athena::DependencyInjection::ServiceContainer
     include RegisterServices
     include Autoconfigure
     include ResolveGenerics
+    include RegisterExtensions
 
     # Custom modules to register new services, explicitly set arguments, or modify them in some other way
 

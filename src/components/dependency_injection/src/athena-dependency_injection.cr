@@ -52,6 +52,7 @@ module Athena::DependencyInjection
 
   private BINDINGS            = {} of Nil => Nil
   private AUTO_CONFIGURATIONS = {} of Nil => Nil
+  private EXTENSIONS          = {} of Nil => Nil               # Ensure this type is a NamedTupleLiteral
   private CONFIG              = {parameters: {} of Nil => Nil} # Ensure this type is a NamedTupleLiteral
 
   # Applies the provided *options* to any registered service of the provided *type*.
@@ -167,6 +168,10 @@ module Athena::DependencyInjection
       end
     %}
   end
+
+  macro register_extension(name, schema)
+    {% EXTENSIONS[name.id.stringify] = schema %}
+  end
 end
 
 # Require extension code last so all built-in DI types are available
@@ -177,3 +182,38 @@ require "./ext/*"
 # StringLiteral#gsub(regex : RegexLiteral, & : StringLiteral -> StringLiteral)
 #
 # HashLiteral/NamedTupleLiteral#has_key?(key : ASTNode) : BoolLiteral
+
+# require "uri"
+
+# ADI.configure({
+#   framework: {
+#     router: {
+#       enabled: URI.new(host: "google.com"),
+#     },
+#   },
+# })
+
+# ADI.register_extension "framework", {
+#   router: {
+#     enabled : URI | Bool = true,
+
+#     # Default URI used to generate URLs in non-HTTP contexts
+#     default_uri : String | URI | Nil = nil,
+
+#     http_port : Int32 = 80,
+#     https_port : Int32 = 443,
+#     strict_requirements : Bool? = true,
+#   },
+# }
+
+class Test
+  def initialize(value)
+    value < 0 && throw_error value
+  end
+end
+
+def throw_error(v)
+  raise v.to_s
+end
+
+Test.new 1
