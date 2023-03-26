@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.6] - 2023-03-26
+
+### Fixed
+
+- Fix compatibility with Crystal `1.8.0-dev` ([#272](https://github.com/athena-framework/athena/pull/272)) (George Dietrich)
+
 ## [0.1.5] - 2023-02-18
 
 ### Changed
