@@ -70,6 +70,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.1.6]: https://github.com/athena-framework/routing/releases/tag/v0.1.6
 [0.1.5]: https://github.com/athena-framework/routing/releases/tag/v0.1.5
 [0.1.4]: https://github.com/athena-framework/routing/releases/tag/v0.1.4
 [0.1.3]: https://github.com/athena-framework/routing/releases/tag/v0.1.3
