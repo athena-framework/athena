@@ -43,6 +43,8 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             if (ann_path = controller_ann[:path]) && ann_path.is_a? HashLiteral
               globals[:localized_paths] = ann_path
             elsif ann_path != nil
+              ann_path = ann_path.resolve if ann_path.is_a?(Path)
+
               if !ann_path.is_a?(StringLiteral) && !ann_path.is_a?(HashLiteral)
                 ann_path.raise "Route action '#{klass.name}' expects a 'StringLiteral | HashLiteral(StringLiteral, StringLiteral)' for its 'ARTA::Route#path' field, but got a '#{ann_path.class_name.id}'."
               end
@@ -408,6 +410,8 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             unless (path = route_def[:localized_paths] || route_def[0] || route_def[:path])
               m.raise "Route action '#{klass.name}##{m.name}' is missing its path."
             end
+
+            path = path.resolve if path.is_a?(Path)
 
             if !path.is_a?(StringLiteral) && !path.is_a?(HashLiteral)
               path.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral | HashLiteral(StringLiteral, StringLiteral)' for its '#{route_def.name}#path' field, but got a '#{path.class_name.id}'."
