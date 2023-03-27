@@ -49,7 +49,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
                                         values_to_resolve << {array_type.resolve, v, stack + [v_idx]}
                                       end
 
-                                      nil
+                                      parse_type("Array(#{array_type})").resolve
                                     elsif cfv.is_a?(NumberLiteral)
                                       kind = cfv.kind
 
@@ -84,16 +84,40 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
                                           cfv.raise "Expected configuration value '#{path.id}' to be a '#{prop_type}', but encountered unexpected key '#{k}' with value '#{v}'."
                                         end
 
-                                        values_to_resolve << {prop_type[k].resolve, v, stack + [k]}
+                                        pp! nt_key_type
+
+                                        values_to_resolve << {nt_key_type.resolve, v, stack + [k]}
                                       end
 
+                                      missing_keys = prop_type.keys - cfv.keys
+
+                                      unless missing_keys.empty?
+                                        missing_keys.each do |mk|
+                                          unless prop_type[mk].nilable?
+                                            path = "#{stack[0]}"
+
+                                            stack[1..].each do |p|
+                                              path += if p.is_a?(NumberLiteral)
+                                                        "[#{p}]"
+                                                      else
+                                                        ".#{p}"
+                                                      end
+                                            end
+
+                                            cfv.raise "Configuration value '#{path.id}' is missing required value for '#{mk}' of type '#{prop_type[mk]}'."
+                                          end
+                                        end
+                                      end
+
+                                      # TODO: Figure out if there's a way to get a TypeNode reference to the named tuple instance itself.
                                       nil
                                     end
 
+                    p! prop, prop_type, resolved_type, cfv, stack
+                    puts ""
+
                     unless resolved_type.nil?
                       values_to_resolve[idx][2] = resolved_type
-
-                      p! prop, prop_type, resolved_type, cfv, stack
 
                       # Handles outer most typing issues.
                       unless resolved_type <= prop_type
