@@ -182,37 +182,3 @@ require "./ext/*"
 # StringLiteral#gsub(regex : RegexLiteral, & : StringLiteral -> StringLiteral)
 #
 # HashLiteral/NamedTupleLiteral#has_key?(key : ASTNode) : BoolLiteral
-
-ADI.configure({
-  framework: {
-    router: {
-      enabled: false,
-    },
-    cors: {
-      allow_credentials: true,
-      allow_origin:      [
-        "https://app.example.com",
-      ] of String,
-    },
-  },
-  parameters: {
-    foo: "foo",
-  },
-})
-
-ADI.register_extension "framework", {
-  router: {
-    enabled : Bool = true,
-
-    # Default URI used to generate URLs in non-HTTP contexts
-    default_uri : String | Nil,
-
-    http_port : Int32 = 80,
-    https_port : Int32 = 443,
-    strict_requirements : Bool? = true,
-  },
-  cors: {
-    allow_credentials : Bool = false,
-    allow_origin : Array(String | Regex) = [] of String | Regex,
-  },
-}

@@ -4,7 +4,7 @@ module Athena::DependencyInjection::ServiceContainer::DefineGetters
     macro finished
       {% verbatim do %}
         {% for service_id, metadata in SERVICE_HASH %}
-          {% if metadata != nil && metadata["class_ann"] != nil %}
+          {% if metadata != nil %}
             {% service_name = metadata[:class].is_a?(StringLiteral) ? metadata[:class] : metadata[:class].name(generic_args: false) %}
             {% generics_type = "#{service_name}(#{metadata[:generics].splat})".id %}
 

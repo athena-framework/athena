@@ -1,4 +1,11 @@
 # :nodoc:
+#
+# TODO: Currently extensions are registered via `ADI.register_extension` in which accepts the name of the extension as a string and a named tuple representing its schema.
+# The schema uses TupleLiterals of TypeDeclaration to represent the name, type, and default value of each option.
+# This works fine, but requires the extension creator to manually document the possible configuration options manually in another location.
+# A more robust future approach might be to do something more like `ADI.register_extension ATH::Extension`,
+# where the type's getters/constructor may be used to represent the configuration options' name, type, and default value, and what they are used for.
+# This way things would be automatically documented as new things are added/changed, and this compiler stage could consume the data from the type to do what it is currently doing.
 module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
   macro included
     macro finished
@@ -22,6 +29,8 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
                 pp! prop
 
                 if (config_value = ext_schema_config[prop.var]) != nil
+                  config_value = config_value.is_a?(Path) ? config_value.resolve : config_value
+
                   resolved_type = if config_value.is_a?(BoolLiteral)
                                     Bool
                                   elsif config_value.is_a?(StringLiteral)
@@ -52,23 +61,27 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
                     config_value.raise "Expected configuration value '#{ext_name.id}.#{config_key}.#{prop.var}' to be a '#{prop.type}', but got '#{resolved_type}'."
                   end
 
-                  ext_schema_config[prop.var] = config_value
+                  resolved_value = config_value
                 elsif prop.value.is_a?(Nop) && !prop.type.resolve.nilable?
                   prop.raise "Required configuration value '#{ext_name.id}.#{config_key}.#{prop}' must be provided."
                 else
-                  ext_schema_config[prop.var] = prop.value.is_a?(Nop) ? nil : prop.value
+                  resolved_value = if prop.value.is_a?(Nop)
+                                     nil
+                                   elsif prop.value.is_a?(Path)
+                                     prop.value.resolve
+                                   else
+                                     prop.value
+                                   end
                 end
+
+                ext_schema_config[prop.var] = if resolved_value.is_a?(Nop)
+                                                nil
+                                              else
+                                                resolved_value
+                                              end
               end
             end
           end
-
-          puts ""
-          puts ""
-
-          pp CONFIG
-
-          puts ""
-          puts ""
         %}
       {% end %}
     end
