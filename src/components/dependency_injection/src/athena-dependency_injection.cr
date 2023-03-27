@@ -182,3 +182,59 @@ require "./ext/*"
 # StringLiteral#gsub(regex : RegexLiteral, & : StringLiteral -> StringLiteral)
 #
 # HashLiteral/NamedTupleLiteral#has_key?(key : ASTNode) : BoolLiteral
+alias Rule = NamedTuple(
+  path: String | Regex,
+  host: String,
+  methods: Array(String)?)
+
+ADI.configure({
+  framework: {
+    router: {
+      enabled: false,
+    },
+    cors: {
+      allow_credentials: true,
+      allow_origin:      [
+        "https://app.example.com",
+        10,
+      ] of String | Regex,
+    },
+    format_listener: {
+      rules: [
+        {path: "/foo", methods: [] of Int32},
+        # 10,
+      ] of Rule,
+    },
+  },
+
+  parameters: {
+    foo: "foo",
+  },
+})
+
+SAFELISTED_METHODS = [
+  "GET",
+  "HEAD",
+]
+
+ADI.register_extension "framework", {
+  # router: {
+  #   enabled : Bool = true,
+  #   default_uri : String | Nil,
+  #   http_port : Int32 = 80,
+  #   https_port : Int32 = 443,
+  #   strict_requirements : Bool? = true,
+  # },
+  # cors: {
+  # enabled : Bool = true,
+  # allow_credentials : Bool = false,
+  # allow_origin : Array(String | Regex) = [] of String | Regex,
+  # allow_headers : Array(String) = [] of String,
+  # allow_methods : Array(String) = SAFELISTED_METHODS,
+  # expose_headers : Array(String) = [] of String,
+  # max_age : Int32 = 0,
+  # },
+  format_listener: {
+    rules : Array(Rule) = [] of Rule,
+  },
+}

@@ -57,7 +57,7 @@ class Athena::DependencyInjection::ServiceContainer
   # Resolve Value
   #   * DONE %param%
   #   * DONE @service_id
-  #   * !tag
+  #   * DONE !tag
   #   * DONE Proxy
 
   macro finished
