@@ -183,37 +183,36 @@ require "./ext/*"
 #
 # HashLiteral/NamedTupleLiteral#has_key?(key : ASTNode) : BoolLiteral
 
-# require "uri"
+ADI.configure({
+  framework: {
+    router: {
+      enabled: false,
+    },
+    cors: {
+      allow_credentials: true,
+      allow_origin:      [
+        "https://app.example.com",
+      ] of String,
+    },
+  },
+  parameters: {
+    foo: "foo",
+  },
+})
 
-# ADI.configure({
-#   framework: {
-#     router: {
-#       enabled: URI.new(host: "google.com"),
-#     },
-#   },
-# })
+ADI.register_extension "framework", {
+  router: {
+    enabled : Bool = true,
 
-# ADI.register_extension "framework", {
-#   router: {
-#     enabled : URI | Bool = true,
+    # Default URI used to generate URLs in non-HTTP contexts
+    default_uri : String | Nil,
 
-#     # Default URI used to generate URLs in non-HTTP contexts
-#     default_uri : String | URI | Nil = nil,
-
-#     http_port : Int32 = 80,
-#     https_port : Int32 = 443,
-#     strict_requirements : Bool? = true,
-#   },
-# }
-
-class Test
-  def initialize(value)
-    value < 0 && throw_error value
-  end
-end
-
-def throw_error(v)
-  raise v.to_s
-end
-
-Test.new 1
+    http_port : Int32 = 80,
+    https_port : Int32 = 443,
+    strict_requirements : Bool? = true,
+  },
+  cors: {
+    allow_credentials : Bool = false,
+    allow_origin : Array(String | Regex) = [] of String | Regex,
+  },
+}
