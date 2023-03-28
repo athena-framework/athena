@@ -22,7 +22,15 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
               ext_schema_config = ext_config[config_key]
 
               if ext_schema_config == nil
-                ext_schema_config = ext_config[config_key] = {enabled: true}
+                ext_schema_config = ext_config[config_key] = {} of Nil => Nil
+              end
+
+              extra_keys = ext_schema_config.keys - properties.map(&.var)
+
+              unless extra_keys.empty?
+                extra_key_value = ext_schema_config[extra_keys.first]
+
+                ext_schema_config.raise "Encountered unexpected key '#{extra_keys.first.id}' with value '#{extra_key_value}' within '#{ext_name.id}.#{config_key}'."
               end
 
               properties.each do |prop|
@@ -32,7 +40,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
                   # Tuple of:
                   # 0 - type of the property in the schema
                   # 1 - the value
-                  # 2 - the value's type (resolved from the value/the user defined collection type)
+                  # 2 - stack keeping track of current path to the value
                   values_to_resolve = [{prop.type.resolve, config_value, [ext_name.id, config_key.id, prop.var.id]}]
 
                   values_to_resolve.each_with_index do |(prop_type, cfv, stack), idx|
@@ -65,7 +73,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
                                     elsif cfv.is_a?(TypeNode)
                                       cfv
                                     elsif cfv.is_a?(HashLiteral)
-                                      pp cfv.of_value
+                                      cfv.raise "TODO: Support HashLiterals"
                                     elsif cfv.is_a?(NamedTupleLiteral)
                                       cfv.each do |k, v|
                                         nt_key_type = prop_type[k]
@@ -83,8 +91,6 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
 
                                           cfv.raise "Expected configuration value '#{path.id}' to be a '#{prop_type}', but encountered unexpected key '#{k}' with value '#{v}'."
                                         end
-
-                                        pp! nt_key_type
 
                                         values_to_resolve << {nt_key_type.resolve, v, stack + [k]}
                                       end
@@ -113,9 +119,6 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
                                       nil
                                     end
 
-                    p! prop, prop_type, resolved_type, cfv, stack
-                    puts ""
-
                     unless resolved_type.nil?
                       values_to_resolve[idx][2] = resolved_type
 
@@ -136,10 +139,6 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
                     end
                   end
 
-                  puts ""
-
-                  # pp! values_to_resolve
-
                   resolved_value = config_value
                 elsif prop.value.is_a?(Nop) && !prop.type.resolve.nilable?
                   prop.raise "Required configuration value '#{ext_name.id}.#{config_key}.#{prop}' must be provided."
@@ -157,15 +156,6 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
               end
             end
           end
-          puts ""
-          puts ""
-
-          pp CONFIG
-
-          puts ""
-          puts ""
-
-          pp CONFIG["framework"]["format_listener"]["rules"]
         %}
       {% end %}
     end
