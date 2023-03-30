@@ -1,7 +1,7 @@
 require "./spec_helper"
 
-private def assert_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_error message, <<-CR, line: line
+private def assert_error(message : String, code : String, *, codegen : Bool = false, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_error message, <<-CR, line: line, codegen: codegen
     require "./spec_helper.cr"
     #{code}
     TestTestCase.run
@@ -61,6 +61,36 @@ describe Athena::Spec do
             end
           CODE
         end
+      end
+    end
+
+    describe "exception during initialize" do
+      it "reports the errors once per test case" do
+        assert_error "oh noes", <<-CODE, codegen: true
+          struct TestTestCase < ASPEC::TestCase
+            def initialize
+              raise "oh noes"
+            end
+
+            def test_one
+              1.should eq 1
+            end
+
+            def test_two
+              2.should eq 2
+            end
+          end
+        CODE
+      end
+
+      it "reports actual failing tests" do
+        assert_error " Expected: 2\n            got: 1", <<-CODE, codegen: true
+          struct TestTestCase < ASPEC::TestCase
+            def test_one
+              1.should eq 2
+            end
+          end
+        CODE
       end
     end
   end
