@@ -7,7 +7,24 @@ require "../src/spec"
 
 record DBConfig, username : String, password : String, host : String
 
+ADI.register_extension("example", {
+  root: {
+    id : Int32,
+    name : String = "fred",
+  },
+  sub_config: {
+    values : Array(Int32),
+    names : Array(String) = ["one", "two"] of String,
+  },
+})
+
 ADI.configure({
+  example: {
+    id:         123,
+    sub_config: {
+      values: [1, 2, 3] of Int32,
+    },
+  },
   parameters: {
     "app.mapping": {
       10 => "%app.domain%",

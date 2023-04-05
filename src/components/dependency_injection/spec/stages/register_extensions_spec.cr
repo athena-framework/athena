@@ -10,7 +10,53 @@ end
 
 describe ADI::ServiceContainer::RegisterExtensions do
   describe "compiler errors", tags: "compiler" do
+    describe "root level" do
+      it "populates CONFIG based on defaults/provided values" do
+        ADI::CONFIG["example"][:id].should eq 123
+        ADI::CONFIG["example"][:name].should eq "fred"
+      end
+
+      it "errors if a configuration value not found in the schema is encountered" do
+        assert_error "Required configuration value 'framework.id : Int32' must be provided.", <<-CR
+          ADI.register_extension "framework", {
+            root: {
+              id : Int32,
+              name : String
+            },
+          }
+
+          ADI.configure({
+            framework: {
+              name: "Fred"
+            }
+          })
+        CR
+      end
+
+      it "errors if a configuration value not found in the schema is encountered" do
+        assert_error "Encountered unexpected key 'id' with value '\"Fred\"' within 'framework'.", <<-CR
+          ADI.register_extension "framework", {
+            root: {
+              id : Int32,
+            },
+          }
+
+          ADI.configure({
+            framework: {
+              id: 10,
+              name: "Fred"
+            }
+          })
+        CR
+      end
+    end
+
     describe "top-level values" do
+      it "populates CONFIG based on defaults/provided values" do
+        ADI::CONFIG["example"][:id].should eq 123
+        ADI::CONFIG["example"][:name].should eq "fred"
+      end
+
       it "errors if a non-nilable top-level schema property is not provided" do
         assert_error "Required configuration value 'framework.some_feature.some_key : String' must be provided.", <<-CR
           ADI.register_extension "framework", {

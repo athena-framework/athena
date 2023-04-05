@@ -52,8 +52,10 @@ module Athena::DependencyInjection
 
   private BINDINGS            = {} of Nil => Nil
   private AUTO_CONFIGURATIONS = {} of Nil => Nil
-  private EXTENSIONS          = {} of Nil => Nil               # Ensure this type is a NamedTupleLiteral
-  private CONFIG              = {parameters: {} of Nil => Nil} # Ensure this type is a NamedTupleLiteral
+  private EXTENSIONS          = {} of Nil => Nil # Ensure this type is a NamedTupleLiteral
+
+  # :nodoc:
+  CONFIG = {parameters: {} of Nil => Nil} # Ensure this type is a NamedTupleLiteral
 
   # Applies the provided *options* to any registered service of the provided *type*.
   #
@@ -182,3 +184,14 @@ require "./ext/*"
 # StringLiteral#gsub(regex : RegexLiteral, & : StringLiteral -> StringLiteral)
 #
 # HashLiteral/NamedTupleLiteral#has_key?(key : ASTNode) : BoolLiteral
+
+# ADI.register_extension("example", {
+#   id : Int32,
+#   name : String = "fred",
+# })
+
+# ADI.configure({
+#   example: {
+#     id: 123,
+#   },
+# })

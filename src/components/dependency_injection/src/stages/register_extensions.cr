@@ -19,13 +19,19 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
             end
 
             schema.each do |config_key, properties|
-              ext_schema_config = ext_config[config_key]
+              ext_schema_config = if "root" == config_key
+                                    ext_config
+                                  else
+                                    ext_config[config_key]
+                                  end
 
               if ext_schema_config == nil
                 ext_schema_config = ext_config[config_key] = {} of Nil => Nil
               end
 
               extra_keys = ext_schema_config.keys - properties.map(&.var)
+
+              extra_keys = extra_keys - ext_config.keys.reject(&.==("root")) if "root" == config_key
 
               unless extra_keys.empty?
                 extra_key_value = ext_schema_config[extra_keys.first]
@@ -134,14 +140,19 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
                                   end
                         end
 
-                        config_value.raise "Expected configuration value '#{path.id}' to be a '#{prop_type}', but got '#{resolved_type}'."
+                        cfv.raise "Expected configuration value '#{path.id}' to be a '#{prop_type}', but got '#{resolved_type}'."
                       end
                     end
                   end
 
                   resolved_value = config_value
                 elsif prop.value.is_a?(Nop) && !prop.type.resolve.nilable?
-                  prop.raise "Required configuration value '#{ext_name.id}.#{config_key}.#{prop}' must be provided."
+                  path = ext_name
+
+                  path += ".#{config_key}" unless "root" == config_key
+                  path += ".#{prop}"
+
+                  prop.raise "Required configuration value '#{path.id}' must be provided."
                 else
                   resolved_value = if prop.value.is_a?(Nop)
                                      nil
@@ -156,6 +167,8 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
               end
             end
           end
+
+          pp! CONFIG["example"]
         %}
       {% end %}
     end
