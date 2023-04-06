@@ -6,7 +6,7 @@ false
 }
 ####
 {
-  0 => ART::FastRegex.new "^(?|/rootprefix/([^/]++)(*:27))/?$",
+  0 => ART.create_regex "^(?|/rootprefix/([^/]++)(*:27))/?$",
 }
 ####
 {

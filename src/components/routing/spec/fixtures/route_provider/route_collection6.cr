@@ -12,7 +12,7 @@ false
 }
 ####
 {
-  0 => ART::FastRegex.new "^(?|/trailing/regex/(?|no\\-methods/([^/]++)(*:46)|get\\-method/([^/]++)(*:73)|head\\-method/([^/]++)(*:101)|post\\-method/([^/]++)(*:130))|/not\\-trailing/regex/(?|no\\-methods/([^/]++)(*:183)|get\\-method/([^/]++)(*:211)|head\\-method/([^/]++)(*:240)|post\\-method/([^/]++)(*:269)))/?$",
+  0 => ART.create_regex "^(?|/trailing/regex/(?|no\\-methods/([^/]++)(*:46)|get\\-method/([^/]++)(*:73)|head\\-method/([^/]++)(*:101)|post\\-method/([^/]++)(*:130))|/not\\-trailing/regex/(?|no\\-methods/([^/]++)(*:183)|get\\-method/([^/]++)(*:211)|head\\-method/([^/]++)(*:240)|post\\-method/([^/]++)(*:269)))/?$",
 }
 ####
 {

@@ -15,6 +15,3 @@ description: |
 
 authors:
   - George Dietrich <george@dietrich.app>
-
-libraries:
-  libpcre2: '*'

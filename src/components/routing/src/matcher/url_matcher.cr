@@ -160,7 +160,7 @@ class Athena::Routing::Matcher::URLMatcher
           return data
         end
 
-        regex = ART::FastRegex.new regex.source.sub "(*:#{matched_mark})", "(*F)"
+        regex = ART.create_regex regex.source.sub "(*:#{matched_mark})", "(*F)"
         offset += matched_mark.size
       end
     end
