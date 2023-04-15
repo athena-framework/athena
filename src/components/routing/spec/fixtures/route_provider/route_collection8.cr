@@ -8,7 +8,7 @@ true
   ],
 }
 ####
-Hash(Int32, ART::FastRegex).new
+Hash(Int32, Regex).new
 ####
 Hash(String, Array(ART::RouteProvider::DynamicRouteData)).new
 ####

@@ -93,16 +93,8 @@ class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::
       pos = regex_source.rindex('$').not_nil!
       has_trailing_slash = '/' == regex_source[pos - 1]
 
-      trailing_slash_padding = has_trailing_slash ? 1 : 0
-
-      start_index = pos - trailing_slash_padding
-      end_index = start_index + trailing_slash_padding
-
-      # Use `\z` instead of `$` so that trailing newlines are not matched
-      regex_source = regex_source.sub (start_index..end_index), "/?\\z"
-
       # Enable multiline mode to catch paths with new lines
-      regex = Regex.new(regex_source, Regex::Options::MULTILINE)
+      regex = ART.create_regex regex_source
 
       unless match = regex.match path
         # Does it match w/o any requirements?

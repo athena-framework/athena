@@ -1,132 +1,97 @@
-require "./lib_pcre2"
+@[Link("pcre2-8")]
+lib LibPCRE2
+  fun jit_match = pcre2_jit_match_8(code : Code*, subject : UInt8*, length : LibC::SizeT, startoffset : LibC::SizeT, options : UInt32, match_data : MatchData*, mcontext : MatchContext*) : Int
+  fun get_mark = pcre2_get_mark_8(match_data : MatchData*) : UInt8*
+end
 
-# :nodoc:
-#
-# Specialized re-implementation of stdlib's regex, but with `PCRE2` using the fast track API.
-class Athena::Routing::FastRegex
-  struct MatchData
-    getter group_size : Int32
+# Customizations to stdlib Regex logic to support fast path API and MARK verb
+
+class Regex
+  def self.fast_path(source : String, options : Options = Options::None)
+    new(_source: source, _options: options, _force_jit: true)
+  end
+end
+
+module Regex::PCRE2
+  module MatchData
     getter mark : String?
 
-    # :nodoc:
-    def initialize(@string : String, @ovector : LibC::SizeT*, @group_size : Int32, @mark : String?)
-    end
-
-    def size : Int32
-      group_size + 1
-    end
-
-    def []?(n : Int) : String?
-      return unless valid_group?(n)
-
-      start = @ovector[n * 2]
-      finish = @ovector[n * 2 + 1]
-
-      # TODO: Figure out what this should actually be.
-      return if start > Int32::MAX || finish > Int32::MAX
-      @string.byte_slice(start, finish - start)
-    end
-
-    def [](n : Int) : String
-      check_index_out_of_bounds n
-      n += size if n < 0
-
-      value = self[n]?
-      raise_capture_group_was_not_matched n if value.nil?
-      value
-    end
-
-    private def check_index_out_of_bounds(index)
-      raise_invalid_group_index(index) unless valid_group?(index)
-    end
-
-    private def valid_group?(index)
-      -size <= index < size
-    end
-
-    private def raise_invalid_group_index(index)
-      raise IndexError.new("Invalid capture group index: #{index}")
-    end
-
-    private def raise_capture_group_was_not_matched(index)
-      raise IndexError.new("Capture group #{index} was not matched")
+    def initialize(
+      @regex : Regex,
+      @code : LibPCRE2::Code*,
+      @string : String,
+      @pos : Int32,
+      @ovector : LibC::SizeT*,
+      @group_size : Int32,
+      @mark : String?
+    )
     end
   end
 
-  getter source : String
+  @force_jit : Bool = false
 
-  @mark : UInt8* = Pointer(UInt8).null
-  @capture_count : Int32 = 0
-
-  def initialize(@source : String)
-    # Automatically apply `DOTALL` and `DOLLAR_ENDONLY` options.
-    unless @code = LibPCRE2.compile @source, @source.bytesize, LibPCRE2::DOLLAR_ENDONLY | LibPCRE2::DOTALL, out error_code, out error_offset, nil
-      bytes = Bytes.new 128
-      LibPCRE2.get_error_message(error_code, bytes, bytes.size)
-      raise ArgumentError.new "#{String.new(bytes)} at #{error_offset}"
+  def initialize(*, _source @source : String, _options @options, _force_jit @force_jit : Bool = false)
+    options = pcre2_compile_options(options) | LibPCRE2::UTF | LibPCRE2::DUPNAMES | LibPCRE2::UCP
+    @re = PCRE2.compile(source, options) do |error_message|
+      raise ArgumentError.new(error_message)
     end
 
-    @jit = 0 == LibPCRE2.jit_compile @code, LibPCRE2::JIT_COMPLETE
-
-    capture_count = uninitialized UInt32
-    LibPCRE2.pattern_info @code, LibPCRE2::INFO_CAPTURECOUNT, pointerof(capture_count)
-    @capture_count = capture_count.to_i
-
-    @match_data = LibPCRE2.match_data_create_from_pattern @code, nil
+    @jit = jit_compile
   end
 
-  def match(str, pos = 0) : MatchData?
-    if byte_index = str.char_index_to_byte_index(pos)
-      match_at_byte_index(str, byte_index)
-    else
-      nil
-    end
-  end
+  private def match_data(str, byte_index, options)
+    match_data = self.match_data
 
-  def match_at_byte_index(str, byte_index = 0) : MatchData?
-    return if byte_index > str.bytesize
-    return unless internal_matches(str, byte_index)
-    Athena::Routing::FastRegex::MatchData.new(str, LibPCRE2.get_ovector_pointer(@match_data), @capture_count, ((mark = LibPCRE2.get_mark(@match_data)) ? String.new(mark) : nil))
-  end
-
-  def ==(other : FastRegex)
-    @source == other.@source
-  end
-
-  def inspect(io : IO) : Nil
-    io << '/'
-    reader = Char::Reader.new(@source)
-    while reader.has_next?
-      case char = reader.current_char
-      when '\\'
-        io << '\\'
-        io << reader.next_char
-      when '/'
-        io << "\\/"
-      else
-        io << char
-      end
-      reader.next_char
-    end
-    io << '/'
-  end
-
-  private def internal_matches(str, byte_index) : Bool
-    match_count = if @jit
-                    LibPCRE2.jit_match @code, str, str.bytesize, byte_index, LibPCRE2::NO_UTF_CHECK, @match_data, nil
+    # CUSTOMIZE - Leverage JIT mode if possible
+    match_count = if @force_jit
+                    LibPCRE2.jit_match(@re, str, str.bytesize, byte_index, pcre2_match_options(options), match_data, PCRE2.match_context)
                   else
-                    LibPCRE2.match @code, str, str.bytesize, byte_index, LibPCRE2::NO_UTF_CHECK, @match_data, nil
+                    LibPCRE2.match(@re, str, str.bytesize, byte_index, pcre2_match_options(options), match_data, PCRE2.match_context)
                   end
 
     if match_count < 0
       case error = LibPCRE2::Error.new(match_count)
       when .nomatch?
-        return false
+        return
+      when .badutfoffset?, .utf8_validity?
+        error_message = PCRE2.get_error_message(error)
+        raise ArgumentError.new("Regex match error: #{error_message}")
       else
-        raise ::Exception.new("Regex match error: #{error}")
+        error_message = PCRE2.get_error_message(error)
+        raise Regex::Error.new("Regex match error: #{error_message}")
       end
     end
 
-    true
+    match_data
+  end
+
+  private def match_impl(str, byte_index, options)
+    match_data = match_data(str, byte_index, options) || return
+
+    ovector_count = LibPCRE2.get_ovector_count(match_data)
+    ovector = Slice.new(LibPCRE2.get_ovector_pointer(match_data), ovector_count &* 2)
+
+    # We need to dup the ovector because `match_data` is re-used for subsequent
+    # matches (see `@match_data`).
+    # Dup brings the ovector data into the realm of the GC.
+    ovector = ovector.dup
+
+    ::Regex::MatchData.new(
+      self,
+      @re,
+      str,
+      byte_index,
+      ovector.to_unsafe,
+      ovector_count.to_i32 &- 1,
+
+      # CUSTOMIZE - Get MARK verb
+      ((mark = LibPCRE2.get_mark(match_data)) ? String.new(mark) : nil)
+    )
+  end
+end
+
+module Athena::Routing
+  protected def self.create_regex(source : String) : ::Regex
+    ::Regex.fast_path source, ::Regex::CompileOptions[:dotall, :dollar_endonly, :no_utf8_check]
   end
 end

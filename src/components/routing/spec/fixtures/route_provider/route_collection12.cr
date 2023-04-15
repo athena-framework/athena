@@ -3,7 +3,7 @@ true
 Hash(String, Array(ART::RouteProvider::StaticRouteData)).new
 ####
 {
-  0 => ART::FastRegex.new "^(?|(?i:([^\\.]++)\\.example\\.com)\\.(?|/abc([^/]++)(?|(*:55))))/?$",
+  0 => ART.create_regex "^(?|(?i:([^\\.]++)\\.example\\.com)\\.(?|/abc([^/]++)(?|(*:55))))/?$",
 }
 ####
 {

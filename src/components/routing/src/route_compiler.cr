@@ -133,7 +133,7 @@ module Athena::Routing::RouteCompiler
       route_pattern += self.compute_regex tokens, i, first_optional_index
     end
 
-    route_regex = Regex.new "^#{route_pattern}$", is_host ? Regex::Options::IGNORE_CASE : Regex::Options::None
+    route_regex = Regex.new "^#{route_pattern}$", is_host ? Regex::CompileOptions::IGNORE_CASE : Regex::CompileOptions::None
 
     # Crystal has UTF-8 regex mode enabled by default, so no need to add it.
 
