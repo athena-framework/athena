@@ -28,6 +28,8 @@ module Regex::PCRE2
     end
   end
 
+  @force_jit : Bool = false
+
   def initialize(*, _source @source : String, _options @options, _force_jit @force_jit : Bool = false)
     options = pcre2_compile_options(options) | LibPCRE2::UTF | LibPCRE2::DUPNAMES | LibPCRE2::UCP
     if PCRE2.version_number >= {10, 34}
