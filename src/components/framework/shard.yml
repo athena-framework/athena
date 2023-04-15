@@ -2,7 +2,7 @@ name: athena
 
 version: 0.18.0
 
-crystal: ~> 1.6
+crystal: ~> 1.8
 
 license: MIT
 
@@ -15,9 +15,6 @@ description: |
 
 authors:
   - George Dietrich <george@dietrich.app>
-
-libraries:
-  libpcre2: '*'
 
 dependencies:
   athena-event_dispatcher:

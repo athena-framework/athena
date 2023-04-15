@@ -46,7 +46,7 @@ class Athena::Routing::RouteProvider
 
   class_getter match_host : Bool = false
   class_getter static_routes : Hash(String, Array(StaticRouteData)) = Hash(String, Array(StaticRouteData)).new
-  class_getter route_regexes : Hash(Int32, ART::FastRegex) = Hash(Int32, ART::FastRegex).new
+  class_getter route_regexes : Hash(Int32, Regex) = Hash(Int32, Regex).new
   class_getter dynamic_routes : Hash(String, Array(DynamicRouteData)) = Hash(String, Array(DynamicRouteData)).new
   class_getter conditions : Hash(Int32, Condition) = Hash(Int32, Condition).new
   class_getter route_generation_data : Hash(String, RouteGenerationData) = Hash(String, RouteGenerationData).new
@@ -240,7 +240,7 @@ class Athena::Routing::RouteProvider
       state.regex += ")/?$"
       state.mark_tail = 0
 
-      @@route_regexes[starting_mark] = ART::FastRegex.new state.regex
+      @@route_regexes[starting_mark] = ART.create_regex state.regex
     end
 
     @@dynamic_routes = state.routes
