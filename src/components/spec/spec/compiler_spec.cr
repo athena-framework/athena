@@ -84,7 +84,7 @@ describe Athena::Spec do
       end
 
       it "reports actual failing tests" do
-        assert_error " Expected: 2\n            got: 1", <<-CODE, codegen: true
+        assert_error " Expected: 2#{Athena::Spec::System::EOL}            got: 1", <<-CODE, codegen: true
           struct TestTestCase < ASPEC::TestCase
             def test_one
               1.should eq 2
