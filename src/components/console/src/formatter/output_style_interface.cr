@@ -29,7 +29,7 @@ require "colorize"
 # Custom styles can also be defined/used:
 #
 # ```
-# my_style = ACON::Formatter::OutputStyle.new :red, "#f87b05", Colorize::Mode.flags Bold, Underline
+# my_style = ACON::Formatter::OutputStyle.new :red, "#f87b05", Colorize::Mode[:bold, :underline]
 # output.formatter.set_style "fire", my_style
 #
 # output.puts "<fire>foo</>"
@@ -44,7 +44,7 @@ require "colorize"
 #   protected def configure_io(input : ACON::Input::Interface, output : ACON::Output::Interface) : Nil
 #     super
 #
-#     my_style = ACON::Formatter::OutputStyle.new :red, "#f87b05", Colorize::Mode.flags Bold, Underline
+#     my_style = ACON::Formatter::OutputStyle.new :red, "#f87b05", Colorize::Mode[:bold, :underline]
 #     output.formatter.set_style "fire", my_style
 #   end
 # end

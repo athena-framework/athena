@@ -30,13 +30,13 @@ describe ACON::Input::Argument do
 
     describe "array" do
       it "nil value" do
-        argument = ACON::Input::Argument.new "foo", ACON::Input::Argument::Mode.flags OPTIONAL, IS_ARRAY
+        argument = ACON::Input::Argument.new "foo", ACON::Input::Argument::Mode[:optional, :is_array]
         argument.default = nil
         argument.default.should eq [] of String
       end
 
       it "non array" do
-        argument = ACON::Input::Argument.new "foo", ACON::Input::Argument::Mode.flags OPTIONAL, IS_ARRAY
+        argument = ACON::Input::Argument.new "foo", ACON::Input::Argument::Mode[:optional, :is_array]
 
         expect_raises ACON::Exceptions::Logic, "Default value for an array argument must be an array." do
           argument.default = "bar"

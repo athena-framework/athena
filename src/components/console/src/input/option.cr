@@ -15,8 +15,8 @@ class Athena::Console::Input::Option
   @[Flags]
   # Represents the possible vale types of an `ACON::Input::Option`.
   #
-  # Value modes can also be combined using the [Enum.flags](https://crystal-lang.org/api/master/Enum.html#flags%28%2Avalues%29-macro) macro.
-  # For example, `ACON::Input::Option::Value.flags REQUIRED, IS_ARRAY` which defines a required array option.
+  # Value modes can also be combined using the [Enum.[]](https://crystal-lang.org/api/Enum.html#%5B%5D%28%2Avalues%29-macro) macro.
+  # For example, `ACON::Input::Option::Value[:required, :is_array]` which defines a required array option.
   enum Value
     # Represents a boolean flag option that will be `true` if provided, otherwise `false`.
     # E.g. `--yell`.
