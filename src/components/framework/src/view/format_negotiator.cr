@@ -34,7 +34,7 @@ class Athena::Framework::View::FormatNegotiator < ANG::Negotiator
       raise ATH::Exceptions::StopFormatListener.new "Stopping format listener." if rule.stop?
 
       if priorities.nil? && rule.priorities.nil?
-        if (fallback_format = rule.fallback_format)
+        if fallback_format = rule.fallback_format
           request.mime_type(fallback_format.as(String)).try do |mime_type|
             return ANG::Accept.new mime_type
           end

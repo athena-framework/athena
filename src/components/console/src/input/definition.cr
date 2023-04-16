@@ -30,7 +30,7 @@ class Athena::Console::Input::Definition
   def <<(argument : ACON::Input::Argument) : Nil
     raise ACON::Exceptions::Logic.new "An argument with the name '#{argument.name}' already exists." if @arguments.has_key?(argument.name)
 
-    if (last_array_argument = @last_array_argument)
+    if last_array_argument = @last_array_argument
       raise ACON::Exceptions::Logic.new "Cannot add a required argument '#{argument.name}' after Array argument '#{last_array_argument.name}'."
     end
 

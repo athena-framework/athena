@@ -161,7 +161,7 @@ class Athena::Framework::View(T)
             use_serializer_component = false
 
             # Use the serializer component if the type is `ASR::Serializable`
-          elsif (t <= ASR::Serializable)
+          elsif t <= ASR::Serializable
             use_serializer_component = true
           else
             # Fallback on the serializer component

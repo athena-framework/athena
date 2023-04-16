@@ -12,7 +12,7 @@ struct Athena::Framework::Spec::Expectations::Response::FormatEquals < Athena::F
   end
 
   def match(actual_value : ::HTTP::Server::Response) : Bool
-    return false unless (content_type = actual_value.headers["content-type"]?)
+    return false unless content_type = actual_value.headers["content-type"]?
 
     @format == @request.format(content_type)
   end

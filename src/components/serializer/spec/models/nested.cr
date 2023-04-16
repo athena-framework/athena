@@ -5,5 +5,5 @@ class NestedType
 
   def initialize; end
 
-  getter active : Bool = true
+  getter? active : Bool = true
 end

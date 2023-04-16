@@ -456,7 +456,7 @@ abstract class Athena::Console::Command
   end
 
   protected def merge_application_definition(merge_args : Bool = true) : Nil
-    return unless (application = @application)
+    return unless application = @application
 
     # TODO: Figure out if there is a better way to structure/store
     # the data to remove the .values call.

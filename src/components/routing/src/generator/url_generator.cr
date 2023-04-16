@@ -67,7 +67,7 @@ class Athena::Routing::Generator::URLGenerator
       end
     end
 
-    unless (generation_data = ART::RouteProvider.route_generation_data[route]?)
+    unless generation_data = ART::RouteProvider.route_generation_data[route]?
       raise ART::Exception::RouteNotFound.new "No route with the name '#{route}' exists."
     end
 

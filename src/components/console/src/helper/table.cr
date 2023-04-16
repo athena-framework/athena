@@ -1296,7 +1296,7 @@ class Athena::Console::Helper::Table
 
   # ameba:disable Metrics/CyclomaticComplexity
   private def render_row_separator(type : RowSeparator = :middle, title : String? = nil, title_format : String? = nil) : Nil
-    return unless (count = @number_of_columns)
+    return unless count = @number_of_columns
 
     borders = @style.border_chars
     crossings = @style.crossing_chars

@@ -62,7 +62,7 @@ struct Athena::Validator::Violation::ConstraintViolation
       builder.field "property", @property_path
       builder.field "message", @message
 
-      if (code = @code)
+      if code = @code
         builder.field "code", code
       end
     end
