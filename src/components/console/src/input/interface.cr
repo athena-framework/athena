@@ -45,8 +45,7 @@ require "./definition"
 # E.g. `'123' is not a valid 'Bool'.`.
 #
 # TIP: Argument/option modes can be combined.
-# E.g.`ACON::Input::Argument::Mode.flags(IS_ARRAY, REQUIRED)` for a required array argument.
-# See also: https://github.com/crystal-lang/crystal/issues/10680.
+# E.g.`ACON::Input::Argument::Mode[:required, :is_array]` for a required array argument.
 #
 # There are a lot of possible combinations in regards to what options are defined versus those are provided.
 # To better illustrate how these cases are handled, let's look at an example of a command with three `ACON::Input::Option`s:

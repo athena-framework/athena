@@ -2,7 +2,7 @@ require "../spec_helper"
 
 describe ACON::Formatter::OutputStyle do
   it ".new" do
-    ACON::Formatter::OutputStyle.new(:green, :black, Colorize::Mode.flags Bold, Underline)
+    ACON::Formatter::OutputStyle.new(:green, :black, Colorize::Mode[:bold, :underline])
       .apply("foo").should eq "\e[32;40;1;4mfoo\e[0m"
 
     ACON::Formatter::OutputStyle.new(:red, options: Colorize::Mode::Blink)
@@ -11,7 +11,7 @@ describe ACON::Formatter::OutputStyle do
     ACON::Formatter::OutputStyle.new(background: :white)
       .apply("foo").should eq "\e[107mfoo\e[0m"
 
-    ACON::Formatter::OutputStyle.new("red", "#000000", Colorize::Mode.flags Bold, Underline)
+    ACON::Formatter::OutputStyle.new("red", "#000000", Colorize::Mode[:bold, :underline])
       .apply("foo").should eq "\e[31;48;2;0;0;0;1;4mfoo\e[0m"
   end
 

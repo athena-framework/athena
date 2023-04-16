@@ -16,8 +16,8 @@ class Athena::Console::Input::Argument
   # Represents the possible modes of an `ACON::Input::Argument`,
   # that describe the "type" of the argument.
   #
-  # Modes can also be combined using the [Enum.flags](https://crystal-lang.org/api/master/Enum.html#flags%28%2Avalues%29-macro) macro.
-  # For example, `ACON::Input::Argument::Mode.flags REQUIRED, IS_ARRAY` which defines a required array argument.
+  # Modes can also be combined using the [Enum.[]](https://crystal-lang.org/api/Enum.html#%5B%5D%28%2Avalues%29-macro) macro.
+  # For example, `ACON::Input::Argument::Mode[:required, :is_array]` which defines a required array argument.
   enum Mode
     # Represents a required argument that _MUST_ be provided.
     # Otherwise the command will not run.
