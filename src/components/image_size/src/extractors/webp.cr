@@ -16,7 +16,7 @@ struct Athena::ImageSize::Extractors::WebP < Athena::ImageSize::Extractors::Extr
 
     return unless buffer[0, 3] == SIGNATURE
 
-    return unless (format = Format.from_value? buffer[3])
+    return unless format = Format.from_value? buffer[3]
 
     width, height = case format
                     in .lossless?

@@ -28,7 +28,7 @@ abstract struct Athena::Framework::Params::ScalarParam < Athena::Framework::Para
   def constraints : Array(AVD::Constraint)
     constraints = super
 
-    case (requirements = @requirements)
+    case requirements = @requirements
     when Array(AVD::Constraint) then constraints.concat requirements
     when AVD::Constraint        then constraints << requirements
     when Regex                  then constraints << AVD::Constraints::Regex.new ::Regex.new("^#{requirements}$"), message: "Parameter '#{@name}' value does not match requirements: {{ pattern }}"

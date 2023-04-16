@@ -29,7 +29,7 @@ struct Athena::Framework::Config::CORS
   # Indicates whether the request can be made using credentials.
   #
   # Maps to the `access-control-allow-credentials` header.
-  getter allow_credentials : Bool
+  getter? allow_credentials : Bool
 
   # A white-listed array of valid origins.
   # Each origin may be a static `String`, or a `Regex`.

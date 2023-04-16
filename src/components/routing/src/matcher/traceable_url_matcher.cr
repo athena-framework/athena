@@ -123,11 +123,9 @@ class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::
 
       has_trailing_var = trimmed_path != path && route.path.matches?(/\{[\w\x80-\xFF]+\}\/?$/)
 
-      if (
-           has_trailing_var &&
-           (has_trailing_slash || ((n = match[compiled_route.path_variables.size]?).nil?) || ('/' != (n.try &.[-1]? || '/'))) &&
-           (sub_match = regex.match(trimmed_path))
-         )
+      if has_trailing_var &&
+         (has_trailing_slash || ((n = match[compiled_route.path_variables.size]?).nil?) || ('/' != (n.try &.[-1]? || '/'))) &&
+         (sub_match = regex.match(trimmed_path))
         if has_trailing_slash
           match = sub_match
         else

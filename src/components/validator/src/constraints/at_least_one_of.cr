@@ -92,7 +92,7 @@ class Athena::Validator::Constraints::AtLeastOneOf < Athena::Validator::Constrai
     AT_LEAST_ONE_OF_ERROR => "AT_LEAST_ONE_OF_ERROR",
   }
 
-  getter include_internal_messages : Bool
+  getter? include_internal_messages : Bool
   getter message_collection : String
 
   def initialize(
@@ -118,7 +118,7 @@ class Athena::Validator::Constraints::AtLeastOneOf < Athena::Validator::Constrai
 
         return if violations.empty?
 
-        if constraint.include_internal_messages
+        if constraint.include_internal_messages?
           messages << String.build do |str|
             str << " [#{idx.to_i + 1}] "
 

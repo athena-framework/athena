@@ -102,7 +102,7 @@ struct Athena::Framework::Listeners::CORS
     # TODO: Add a configuration option to allow setting this explicitly
     event.response.headers[ALLOW_ORIGIN_HEADER] = origin
 
-    if self.config.allow_credentials
+    if self.config.allow_credentials?
       Log.trace { "Setting '#{ALLOW_CREDENTIALS_HEADER}' to 'true'." }
 
       event.response.headers[ALLOW_CREDENTIALS_HEADER] = "true"
@@ -122,7 +122,7 @@ struct Athena::Framework::Listeners::CORS
     response = ATH::Response.new
     response.headers["vary"] = "origin"
 
-    if self.config.allow_credentials
+    if self.config.allow_credentials?
       Log.trace { "Setting '#{ALLOW_CREDENTIALS_HEADER}' response header to 'true'." }
 
       response.headers[ALLOW_CREDENTIALS_HEADER] = "true"

@@ -14,7 +14,7 @@ module Athena::Console::Spec
     # Returns the output resulting from running the command.
     # Raises if called before executing the command.
     def display : String
-      raise ACON::Exceptions::Logic.new "Output not initialized. Did you execute the command before requesting the display?" unless (output = @output)
+      raise ACON::Exceptions::Logic.new "Output not initialized. Did you execute the command before requesting the display?" unless output = @output
       output.to_s
     end
 
