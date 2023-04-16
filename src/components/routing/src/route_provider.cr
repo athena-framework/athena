@@ -382,7 +382,7 @@ class Athena::Routing::RouteProvider
       has_trailing_slash = "/" != route.path
 
       if has_trailing_slash
-        pos = regex.source.index('$').not_nil!
+        pos = regex.source.index!('$')
         has_trailing_slash = '/' == regex.source[pos - 1]
         regex = Regex.new regex.source.sub (1 + pos - (has_trailing_slash ? 1 : 0))..-((has_trailing_slash ? 1 : 0)), "/?$"
       end
