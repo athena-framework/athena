@@ -8,6 +8,7 @@ function tag()
   componentNameMap[config]=Config
   componentNameMap[console]=Console
   componentNameMap[dependency-injection]="Dependency Injection"
+  componentNameMap[dotenv]="Dotenv"
   componentNameMap[event-dispatcher]="Event Dispatcher"
   componentNameMap[framework]=Framework
   componentNameMap[image-size]="Image Size"
