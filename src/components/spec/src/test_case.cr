@@ -314,19 +314,19 @@ abstract struct Athena::Spec::TestCase
     {% begin %}
       {{!!@type.annotation(Pending) ? "pending".id : "describe".id}} {{@type.name.stringify}}, focus: {{!!@type.annotation Focus}}{% if (tags = @type.annotation(Tags)) %}, tags: {{tags.args}}{% end %} do
         before_all do
-            instance.before_all
+          instance.before_all
         end
 
         before_each do
-            instance.initialize
+          instance.initialize
         end
 
         after_each do
-            instance.tear_down
+          instance.tear_down
         end
 
         after_all do
-            instance.after_all
+          instance.after_all
         end
 
         {% methods = [] of Nil %}
