@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.5] - 2023-04-26
+
+### Fixed
+
+- Ensure `#before_all` runs exactly once, and before `#initialize` ([#285](https://github.com/athena-framework/athena/pull/285)) (George Dietrich)
+
 ## [0.3.4] - 2023-03-19
 
 ### Fixed
@@ -92,6 +98,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.3.5]: https://github.com/athena-framework/spec/releases/tag/v0.3.5
 [0.3.4]: https://github.com/athena-framework/spec/releases/tag/v0.3.4
 [0.3.3]: https://github.com/athena-framework/spec/releases/tag/v0.3.3
 [0.3.2]: https://github.com/athena-framework/spec/releases/tag/v0.3.2
