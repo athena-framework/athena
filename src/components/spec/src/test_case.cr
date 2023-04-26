@@ -310,12 +310,23 @@ abstract struct Athena::Spec::TestCase
     {% end %}
   end
 
+  # :nodoc:
+  def self.construct
+    instance = allocate
+    instance.initialize __init: nil
+    instance
+  end
+
+  # :nodoc:
+  def initialize(__init init : Nil)
+  end
+
   # Runs the tests contained within `self`.
   #
   # See `Athena::Spec.run_all` to run all test cases.
   def self.run : Nil
     begin
-      instance = new
+      instance = construct
     rescue ex : ::Exception
     end
 

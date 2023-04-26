@@ -143,3 +143,23 @@ struct TestWithTest < ASPEC::TestCase
     (value ** 2).should eq expected
   end
 end
+
+struct BeforeAllTest < ASPEC::TestCase
+  @count : Int32 = 0
+
+  def initialize
+    @count.should eq 1
+  end
+
+  def before_all : Nil
+    @count += 1
+  end
+
+  def test_before_all_runs_before_initialize : Nil
+    # no-op
+  end
+
+  def test_before_all_runs_before_initialize2 : Nil
+    # no-op
+  end
+end
