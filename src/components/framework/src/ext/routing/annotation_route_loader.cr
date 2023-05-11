@@ -483,6 +483,39 @@ module Athena::Framework::Routing::AnnotationRouteLoader
       {% end %}
     {% end %}
 
+    # Manually wire up built-in controllers for now
+@@actions["Athena::Framework::Controller::Redirect#redirect_url"] = ATH::Action.new(
+  action: Proc(Tuple(ATH::Request, String, Bool), ATH::RedirectResponse).new do |arguments|
+    Athena::Framework::Controller::Redirect.new.redirect_url *arguments
+  end,
+  parameters: {ATH::Controller::ParameterMetadata(ATH::Request).new(
+    "request",
+    false,
+    nil,
+    ACF::AnnotationConfigurations.new(
+      {} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)
+    ),
+  ), ATH::Controller::ParameterMetadata(String).new(
+    "path",
+    false,
+    nil,
+    ACF::AnnotationConfigurations.new(
+      {} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)
+    ),
+  ), ATH::Controller::ParameterMetadata(Bool).new(
+    "permanent",
+    true,
+    false,
+    ACF::AnnotationConfigurations.new(
+      {} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)
+    ),
+  )},
+  annotation_configurations: ACF::AnnotationConfigurations.new({} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)),
+  params: ([] of ATH::Params::ParamInterface),
+  _controller: Athena::Framework::Controller::Redirect,
+  _return_type: ATH::RedirectResponse,
+)
+
     ART.compile collection
 
     collection
