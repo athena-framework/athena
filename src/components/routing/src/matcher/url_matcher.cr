@@ -90,7 +90,7 @@ class Athena::Routing::Matcher::URLMatcher
       # Dup the data hash so we don't mutate the original.
       data = data.dup
 
-      required_host.try do |h|
+      if h = required_host
         case h
         in String then next if h != host
         in Regex
@@ -108,7 +108,7 @@ class Athena::Routing::Matcher::URLMatcher
       end
 
       if "/" != path && has_trailing_slash == (trimmed_path == path)
-        if supports_redirect && required_methods && (required_methods.empty? || required_methods.includes? "GET")
+        if supports_redirect && (!required_methods || (required_methods.empty? || required_methods.includes? "GET"))
           allow.clear
           allow_schemes.clear
 
@@ -160,7 +160,7 @@ class Athena::Routing::Matcher::URLMatcher
           end
 
           if "/" != path && !has_trailing_var && has_trailing_slash == (trimmed_path == path)
-            if supports_redirect && required_methods && (required_methods.empty? || required_methods.includes? "GET")
+            if supports_redirect && (!required_methods || (required_methods.empty? || required_methods.includes? "GET"))
               allow.clear
               allow_schemes.clear
 

@@ -143,6 +143,68 @@ struct RedirectableURLMatcherTest < AbstractURLMatcherTestCase
     self.get_matcher(routes).match("/foo").should eq({"_route" => "test"})
   end
 
+  def test_fallback_page1 : Nil
+    routes = self.build_collection do
+      add "foo", ART::Route.new "/foo/"
+      add "bar", ART::Route.new "/{name}"
+    end
+
+    MockRedirectableURLMatcher.expected_path = "/foo/"
+    MockRedirectableURLMatcher.expected_route = "foo"
+
+    self.get_matcher(routes).match("/foo").should eq({"_route" => "foo"})
+  end
+
+  def test_fallback_page2 : Nil
+    routes = self.build_collection do
+      add "foo", ART::Route.new "/foo"
+      add "bar", ART::Route.new "/{name}/"
+    end
+
+    MockRedirectableURLMatcher.expected_path = "/foo"
+    MockRedirectableURLMatcher.expected_route = "foo"
+
+    self.get_matcher(routes).match("/foo/").should eq({"_route" => "foo"})
+  end
+
+  def test_missing_trailing_slash_and_scheme : Nil
+    routes = self.build_collection do
+      add "foo", ART::Route.new "/foo/", schemes: "https"
+    end
+
+    MockRedirectableURLMatcher.expected_path = "/foo/"
+    MockRedirectableURLMatcher.expected_route = "foo"
+    # MockRedirectableURLMatcher.expected_scheme = "https"
+
+    self.get_matcher(routes).match("/foo").should eq({"_route" => "foo"})
+  end
+
+  def test_slash_and_verb_precedence_with_redirection : Nil
+    routes = self.build_collection do
+      add "a", ART::Route.new "/api/customers/{customerId}/contactpersons", methods: "POST"
+      add "b", ART::Route.new "/api/customers/{customerId}/contactpersons/", methods: "GET"
+    end
+
+    matcher = self.get_matcher routes
+    expected = {"_route" => "b", "customerId" => "123"}
+
+    matcher.match("/api/customers/123/contactpersons/").should eq expected
+
+    MockRedirectableURLMatcher.expected_path = "/api/customers/123/contactpersons/"
+
+    matcher.match("/api/customers/123/contactpersons").should eq expected
+  end
+
+  def test_non_greedy_trailing_requirement : Nil
+    routes = self.build_collection do
+      add "a", ART::Route.new "/{a}", requirements: {"a" => /\d+/}
+    end
+
+    MockRedirectableURLMatcher.expected_path = "/123"
+
+    self.get_matcher(routes).match("/123/").should eq({"_route" => "a", "a" => "123"})
+  end
+
   def test_match_greedy_trailing_requirement_default1 : Nil
     routes = self.build_collection do
       add "a", ART::Route.new "/fr-fr/{a}", {"a" => "aaa"}, {"a" => /.+/}
