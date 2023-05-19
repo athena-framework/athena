@@ -441,7 +441,7 @@ class Athena::Routing::Route
   end
 
   private def localized? : Bool
-    return false unless (locale = @defaults["_locale"]?)
+    return false unless locale = @defaults["_locale"]?
     @defaults.has_key?("_canonical_route") && self.requirement("_locale").try &.source == Regex.escape(locale)
   end
 end

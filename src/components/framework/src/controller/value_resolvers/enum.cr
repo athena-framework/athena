@@ -36,12 +36,12 @@ struct Athena::Framework::Controller::ValueResolvers::Enum
   # :inherit:
   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata(T)) : T? forall T
     return unless parameter.instance_of? ::Enum
-    return unless (enum_type = parameter.first_type_of ::Enum)
-    return unless (value = request.attributes.get? parameter.name, String)
+    return unless enum_type = parameter.first_type_of ::Enum
+    return unless value = request.attributes.get? parameter.name, String
 
     member = if (num = value.to_i128?(whitespace: false)) && (m = enum_type.from_value? num)
                m
-             elsif (m = enum_type.parse? value)
+             elsif m = enum_type.parse? value
                m
              end
 

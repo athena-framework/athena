@@ -22,6 +22,8 @@ dependencies:
     github: athena-framework/console
   athena-dependency_injection:
     github: athena-framework/dependency-injection
+  athena-dotenv:
+    github: athena-framework/dotenv
   athena-event_dispatcher:
     github: athena-framework/event-dispatcher
   athena-image_size:
@@ -40,7 +42,7 @@ dependencies:
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
-    version: ~> 1.2.0
+    version: ~> 1.4.0
   athena-spec:
     github: athena-framework/spec
     version: ~> 0.3.2

@@ -173,7 +173,7 @@ class Athena::Routing::RouteCollection
 
           next priority unless priority.zero?
 
-          insert_order.index(n1).not_nil! <=> insert_order.index(n2).not_nil!
+          insert_order.index!(n1) <=> insert_order.index!(n2)
         end
         .tap { @routes.clear }
         .each { |name, route| @routes[name] = route }

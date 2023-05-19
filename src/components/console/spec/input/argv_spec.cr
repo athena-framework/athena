@@ -20,20 +20,20 @@ struct ARGVTest < ASPEC::TestCase
 
   def test_array_option : Nil
     input = ACON::Input::ARGV.new ["--name=foo", "--name=bar", "--name=baz"]
-    input.bind ACON::Input::Definition.new ACON::Input::Option.new "name", value_mode: ACON::Input::Option::Value.flags OPTIONAL, IS_ARRAY
+    input.bind ACON::Input::Definition.new ACON::Input::Option.new "name", value_mode: ACON::Input::Option::Value[:optional, :is_array]
     input.options.should eq({"name" => ["foo", "bar", "baz"]})
 
     input = ACON::Input::ARGV.new ["--name", "foo", "--name", "bar", "--name", "baz"]
-    input.bind ACON::Input::Definition.new ACON::Input::Option.new "name", value_mode: ACON::Input::Option::Value.flags OPTIONAL, IS_ARRAY
+    input.bind ACON::Input::Definition.new ACON::Input::Option.new "name", value_mode: ACON::Input::Option::Value[:optional, :is_array]
     input.options.should eq({"name" => ["foo", "bar", "baz"]})
 
     input = ACON::Input::ARGV.new ["--name=foo", "--name=bar", "--name="]
-    input.bind ACON::Input::Definition.new ACON::Input::Option.new "name", value_mode: ACON::Input::Option::Value.flags OPTIONAL, IS_ARRAY
+    input.bind ACON::Input::Definition.new ACON::Input::Option.new "name", value_mode: ACON::Input::Option::Value[:optional, :is_array]
     input.options.should eq({"name" => ["foo", "bar", ""]})
 
     input = ACON::Input::ARGV.new ["--name=foo", "--name=bar", "--name", "--anotherOption"]
     input.bind ACON::Input::Definition.new(
-      ACON::Input::Option.new("name", value_mode: ACON::Input::Option::Value.flags OPTIONAL, IS_ARRAY),
+      ACON::Input::Option.new("name", value_mode: ACON::Input::Option::Value[:optional, :is_array]),
       ACON::Input::Option.new("anotherOption", value_mode: :none),
     )
     input.options.should eq({"name" => ["foo", "bar", nil], "anotherOption" => true})
@@ -195,7 +195,7 @@ struct ARGVTest < ASPEC::TestCase
       },
       "long options without a value - no value negatable" => {
         ["--foo"],
-        [ACON::Input::Option.new("foo", value_mode: ACON::Input::Option::Value.flags NONE, NEGATABLE)],
+        [ACON::Input::Option.new("foo", value_mode: ACON::Input::Option::Value[:none, :negatable])],
         {"foo" => true},
       },
       "negated long options without a value - negatable" => {
@@ -205,7 +205,7 @@ struct ARGVTest < ASPEC::TestCase
       },
       "negated long options without a value - no value negatable" => {
         ["--no-foo"],
-        [ACON::Input::Option.new("foo", value_mode: ACON::Input::Option::Value.flags NONE, NEGATABLE)],
+        [ACON::Input::Option.new("foo", value_mode: ACON::Input::Option::Value[:none, :negatable])],
         {"foo" => false},
       },
       "missing negated option uses default - negatable" => {
@@ -215,7 +215,7 @@ struct ARGVTest < ASPEC::TestCase
       },
       "missing negated option uses default - no value negatable" => {
         [] of String,
-        [ACON::Input::Option.new("foo", value_mode: ACON::Input::Option::Value.flags NONE, NEGATABLE)],
+        [ACON::Input::Option.new("foo", value_mode: ACON::Input::Option::Value[:none, :negatable])],
         {"foo" => nil},
       },
       "missing negated option uses default - bool default" => {

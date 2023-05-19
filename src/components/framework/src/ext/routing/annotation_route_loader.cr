@@ -407,7 +407,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             condition = route_def[:condition] || globals[:condition]
             priority = route_def[:priority] || globals[:priority]
 
-            unless (path = route_def[:localized_paths] || route_def[0] || route_def[:path])
+            unless path = route_def[:localized_paths] || route_def[0] || route_def[:path]
               m.raise "Route action '#{klass.name}##{m.name}' is missing its path."
             end
 

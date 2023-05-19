@@ -761,7 +761,7 @@ class Athena::Console::Application
         output.puts "", :quiet
       end
 
-      break unless (ex = ex.cause)
+      break unless ex = ex.cause
     end
   end
 

@@ -32,12 +32,10 @@ abstract struct Athena::Framework::Spec::Expectations::Response::Base
 
       io << "Failed asserting that the response #{message}#{self.include_response? ? ":\n#{response}" : "."}"
 
-      if (
-           ("500" == response.headers["x-debug-exception-code"]?.presence) &&
-           (exception_message = response.headers["x-debug-exception-message"]?.presence) &&
-           (exception_file = response.headers["x-debug-exception-file"]?.presence) &&
-           (exception_class = response.headers["x-debug-exception-class"]?.presence)
-         )
+      if ("500" == response.headers["x-debug-exception-code"]?.presence) &&
+         (exception_message = response.headers["x-debug-exception-message"]?.presence) &&
+         (exception_file = response.headers["x-debug-exception-file"]?.presence) &&
+         (exception_class = response.headers["x-debug-exception-class"]?.presence)
         io << '\n' << '\n'
 
         io << "Caused By:\n"

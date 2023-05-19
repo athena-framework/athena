@@ -56,7 +56,7 @@ class Athena::Routing::Matcher::URLMatcher
     trimmed_path = path.rstrip('/').presence || "/"
     request_method = canonical_method = @context.method
 
-    host = @context.host.downcase if ART::RouteProvider.match_host
+    host = @context.host.downcase if ART::RouteProvider.match_host?
 
     canonical_method = "GET" if "HEAD" == request_method
 
@@ -75,7 +75,7 @@ class Athena::Routing::Matcher::URLMatcher
         case h
         in String then next if h != host
         in Regex
-          if (match = host.try &.match h)
+          if match = host.try &.match h
             host_matches = match.named_captures
             host_matches["_route"] = data["_route"]
 
@@ -110,7 +110,7 @@ class Athena::Routing::Matcher::URLMatcher
       return data
     end
 
-    matched_path = ART::RouteProvider.match_host ? "#{host}.#{path}" : path
+    matched_path = ART::RouteProvider.match_host? ? "#{host}.#{path}" : path
 
     ART::RouteProvider.route_regexes.each do |offset, regex|
       while match = regex.match matched_path
@@ -124,11 +124,9 @@ class Athena::Routing::Matcher::URLMatcher
 
           has_trailing_var = trimmed_path != path && has_trailing_var
 
-          if (
-               has_trailing_var &&
-               (has_trailing_slash || (!vars || (n = match[vars.size]?).nil?) || ('/' != (n.try &.[-1]? || '/'))) &&
-               (sub_match = regex.match(ART::RouteProvider.match_host ? "#{host}.#{trimmed_path}" : trimmed_path)) && (matched_mark == sub_match.mark.not_nil!)
-             )
+          if has_trailing_var &&
+             (has_trailing_slash || (!vars || (n = match[vars.size]?).nil?) || ('/' != (n.try &.[-1]? || '/'))) &&
+             (sub_match = regex.match(ART::RouteProvider.match_host? ? "#{host}.#{trimmed_path}" : trimmed_path)) && (matched_mark == sub_match.mark.not_nil!)
             if has_trailing_slash
               match = sub_match
             else

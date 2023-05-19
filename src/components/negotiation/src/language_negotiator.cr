@@ -12,7 +12,7 @@ class Athena::Negotiation::LanguageNegotiator < Athena::Negotiation::AbstractNeg
     base_equal = accept_base.downcase == priority_base.downcase
     sub_equal = accept_sub.try &.downcase == priority_sub.try &.downcase
 
-    if ((accept_base == "*" || base_equal) && (accept_sub.nil? || sub_equal))
+    if (accept_base == "*" || base_equal) && (accept_sub.nil? || sub_equal)
       score = 10 * (base_equal ? 1 : 0) + (sub_equal ? 1 : 0)
 
       return ANG::AcceptMatch.new accept.quality * priority.quality, score, index

@@ -128,7 +128,7 @@ class Athena::Console::Helper::Question < Athena::Console::Helper
       end
 
       if response.nil?
-        raise ACON::Exceptions::MissingInput.new "Aborted." unless (response = self.read_input input_stream, question)
+        raise ACON::Exceptions::MissingInput.new "Aborted." unless response = self.read_input input_stream, question
         response = response.strip if question.trimmable?
       end
     else
