@@ -156,7 +156,7 @@ struct DotEnvTest < ASPEC::TestCase
       {"FOO=\nBAR=${FOO:-a\"a}", "Unclosed braces on variable expansion in '.env' at line 2.\n...FOO=\\nBAR=${FOO:-a\"a}...\n                    ^ line 2 offset 17"},
     ] of {String, String}
 
-    {% if flag? :win32 %}
+    {% if flag? :unix %}
       tests << {"FOO=$((1dd2))", "Issue expanding a command (%s\n) in '.env' at line 1.\n...FOO=$((1dd2))...\n               ^ line 1 offset 13"}
     {% end %}
 
