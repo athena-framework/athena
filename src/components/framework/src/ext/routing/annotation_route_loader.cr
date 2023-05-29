@@ -484,37 +484,26 @@ module Athena::Framework::Routing::AnnotationRouteLoader
     {% end %}
 
     # Manually wire up built-in controllers for now
-@@actions["Athena::Framework::Controller::Redirect#redirect_url"] = ATH::Action.new(
-  action: Proc(Tuple(ATH::Request, String, Bool), ATH::RedirectResponse).new do |arguments|
-    Athena::Framework::Controller::Redirect.new.redirect_url *arguments
-  end,
-  parameters: {ATH::Controller::ParameterMetadata(ATH::Request).new(
-    "request",
-    false,
-    nil,
-    ACF::AnnotationConfigurations.new(
-      {} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)
-    ),
-  ), ATH::Controller::ParameterMetadata(String).new(
-    "path",
-    false,
-    nil,
-    ACF::AnnotationConfigurations.new(
-      {} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)
-    ),
-  ), ATH::Controller::ParameterMetadata(Bool).new(
-    "permanent",
-    true,
-    false,
-    ACF::AnnotationConfigurations.new(
-      {} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)
-    ),
-  )},
-  annotation_configurations: ACF::AnnotationConfigurations.new({} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)),
-  params: ([] of ATH::Params::ParamInterface),
-  _controller: Athena::Framework::Controller::Redirect,
-  _return_type: ATH::RedirectResponse,
-)
+    {% if base == nil %}
+      @@actions["Athena::Framework::Controller::Redirect#redirect_url"] = ATH::Action.new(
+        action: Proc(Tuple(ATH::Request, String, Bool), ATH::RedirectResponse).new do |arguments|
+          Athena::Framework::Controller::Redirect.new.redirect_url *arguments
+        end,
+        parameters: {
+          ATH::Controller::ParameterMetadata(ATH::Request).new("request"),
+          ATH::Controller::ParameterMetadata(String).new("path"),
+          ATH::Controller::ParameterMetadata(Bool).new("permanent", true, false),
+          ATH::Controller::ParameterMetadata(String?).new("scheme", true, nil),
+          ATH::Controller::ParameterMetadata(Int32?).new("http_port", true, nil),
+          ATH::Controller::ParameterMetadata(Int32?).new("https_port", true, nil),
+          ATH::Controller::ParameterMetadata(Bool).new("keep_request_method", true, false),
+        },
+        annotation_configurations: ACF::AnnotationConfigurations.new,
+        params: ([] of ATH::Params::ParamInterface),
+        _controller: Athena::Framework::Controller::Redirect,
+        _return_type: ATH::RedirectResponse,
+      )
+    {% end %}
 
     ART.compile collection
 
