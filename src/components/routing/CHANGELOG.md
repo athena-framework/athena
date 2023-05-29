@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.7] - 2023-05-29
+
+### Changed
+
+- **Breaking:** Update minimum `crystal` version to `~> 1.8.0`. Drop support for `PCRE1`. ([#281](https://github.com/athena-framework/athena/pull/281)) (George Dietrich)
+
 ## [0.1.6] - 2023-03-26
 
 ### Fixed
@@ -70,6 +76,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.1.7]: https://github.com/athena-framework/routing/releases/tag/v0.1.7
 [0.1.6]: https://github.com/athena-framework/routing/releases/tag/v0.1.6
 [0.1.5]: https://github.com/athena-framework/routing/releases/tag/v0.1.5
 [0.1.4]: https://github.com/athena-framework/routing/releases/tag/v0.1.4
