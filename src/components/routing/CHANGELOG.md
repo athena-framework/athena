@@ -4,7 +4,7 @@
 
 ### Changed
 
-- **Breaking:** Update minimum `crystal` version to `~> 1.8.0`. Drop support for `PCRE1`. ([#289](https://github.com/athena-framework/athena/pull/289)) (George Dietrich)
+- **Breaking:** Update minimum `crystal` version to `~> 1.8.0`. Drop support for `PCRE1`. ([#281](https://github.com/athena-framework/athena/pull/281)) (George Dietrich)
 
 ## [0.1.6] - 2023-03-26
 
