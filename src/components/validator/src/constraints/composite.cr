@@ -26,8 +26,15 @@ abstract class Athena::Validator::Constraints::Composite < Athena::Validator::Co
     super message, groups, payload
 
     constraints = case constraints
-                  when AVD::Constraint        then {0 => constraints} of String | Int32 => AVD::Constraint
-                  when Array(AVD::Constraint) then constraints.each_with_index.to_h { |v, k| {k.as(Int32 | String), v} }
+                  when AVD::Constraint then {0 => constraints} of String | Int32 => AVD::Constraint
+                  when Array
+                    hash = Hash(String | Int32, AVD::Constraint).new initial_capacity: constraints.size
+
+                    constraints.each_with_index do |v, k|
+                      hash[k] = v
+                    end
+
+                    hash
                   else
                     constraints.transform_keys(&.as(String | Int32))
                   end

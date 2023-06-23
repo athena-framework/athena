@@ -49,6 +49,15 @@ private class ComparisonConstrained
   getter age : Int32 = 0
 end
 
+private class NestedSingleAnnotationArray
+  include AVD::Validatable
+
+  @[Assert::All([
+    @[Assert::Positive(message: "A example value cannot be negative")],
+  ])]
+  getter values : Array(Int32) = [] of Int32
+end
+
 describe AVD::Validatable do
   describe ".load_metadata" do
     it "should manually add constraints to the metadata object" do
@@ -83,6 +92,14 @@ describe AVD::Validatable do
 
     it "does not duplicate property metadata for generic module constraints" do
       ComparisonConstrained.validation_class_metadata.property_metadata("age").first.constraints.size.should eq 1
+    end
+
+    it "handles a nested array of annotations with only a single element" do
+      constraints = NestedSingleAnnotationArray.validation_class_metadata.property_metadata("values").first.constraints
+      constraints.size.should eq 1
+
+      all_constraint = constraints[0].should be_a AVD::Constraints::All
+      all_constraint.constraints.size.should eq 1
     end
   end
 end
