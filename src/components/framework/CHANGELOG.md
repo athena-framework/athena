@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.18.1] - 2023-05-29
+
+### Added
+
+- Add support for serializing arbitrarily nested controller action return types ([#273](https://github.com/athena-framework/athena/pull/273)) (George Dietrich)
+- Allow using constants for controller action's `path` ([#279](https://github.com/athena-framework/athena/pull/279)) (George Dietrich)
+
+### Fixed
+
+- Fix incorrect `content-length` header value when returning multi-byte strings ([#288](https://github.com/athena-framework/athena/pull/288)) (George Dietrich)
+
 ## [0.18.0] - 2023-02-20
 
 ### Changed
@@ -112,6 +123,7 @@ _Last release in the [athena-framework/athena](https://github.com/athena-framewo
 - Fix incorrect ivar type on `AVD::Exceptions::Exceptions::ValidationFailed#violations` ([#116](https://github.com/athena-framework/athena/pull/116)) (George Dietrich)
 - Correctly reject requests with whitespace when converting numeric inputs ([#117](https://github.com/athena-framework/athena/pull/117)) (George Dietrich)
 
+[0.18.1]: https://github.com/athena-framework/athena/releases/tag/v0.18.1
 [0.18.0]: https://github.com/athena-framework/athena/releases/tag/v0.18.0
 [0.17.1]: https://github.com/athena-framework/athena/releases/tag/v0.17.1
 [0.17.0]: https://github.com/athena-framework/athena/releases/tag/v0.17.0

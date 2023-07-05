@@ -1,16 +1,15 @@
 @[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 105}])]
 # Attempts to resolve the value of any parameter with the `ATHR::RequestBody::Extract` annotation by
-# deserializing the request body of the request into an object of the type of the related parameter.
+# deserializing the request body into an object of the type of the related parameter.
 # Also handles running any validations defined on it, if it is `AVD::Validatable`.
-# Requires the related parameter's be either either the `ASR::Serializable` or `JSON::Serializable` module.
+# Requires the type of the related parameter to include either `ASR::Serializable` or `JSON::Serializable`.
 #
 # ```
 # require "athena"
 #
 # # A type representing the structure of the request body.
 # struct UserCreate
-#   # Include some modules to tell Athena this type can be deserialized
-#   # via the Serializer component and validated via the Valdiator component.
+#   # Include some modules to tell Athena this type can be deserialized and validated
 #   include AVD::Validatable
 #   include JSON::Serializable
 #
@@ -22,7 +21,7 @@
 #   @[Assert::NotBlank]
 #   getter last_name : String
 #
-#   # Assert the user's email is not blank and is valid.
+#   # Assert the user's email is not blank and is a valid HTMl5 email.
 #   @[Assert::NotBlank]
 #   @[Assert::Email(:html5)]
 #   getter email : String
