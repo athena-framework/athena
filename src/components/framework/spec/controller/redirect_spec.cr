@@ -1,6 +1,5 @@
 require "../spec_helper"
 
-@[ASPEC::TestCase::Focus]
 struct RedirectControllerTest < ASPEC::TestCase
   def test_empty_route_permanent : Nil
     request = ATH::Request.new "GET", "/"
