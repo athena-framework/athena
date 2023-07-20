@@ -5,6 +5,7 @@ require "./cursor"
 require "./terminal"
 
 require "./commands/*"
+require "./completion/**"
 require "./descriptor/*"
 require "./exceptions/*"
 require "./formatter/*"

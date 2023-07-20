@@ -1,0 +1,5 @@
+#!/usr/bin/env crystal
+
+require "athena-console"
+
+ACON::Application.new("Athena").run

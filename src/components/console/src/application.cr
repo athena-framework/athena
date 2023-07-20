@@ -680,6 +680,7 @@ class Athena::Console::Application
     [
       Athena::Console::Commands::List.new,
       Athena::Console::Commands::Help.new,
+      Athena::Console::Commands::Complete.new,
     ]
   end
 

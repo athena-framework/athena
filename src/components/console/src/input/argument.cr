@@ -1,5 +1,3 @@
-abstract class Athena::Console::Input; end
-
 # Represents a value (or array of values) provided to a command as a ordered positional argument,
 # that can either be required or optional, optionally with a default value and/or description.
 #
