@@ -4,9 +4,10 @@ require "../input/argv"
 
 class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
   enum Type
+    NONE
     ARGUMENT_VALUE
     OPTION_VALUE
-    ARGUMENT_NAME
+    OPTION_NAME
   end
 
   def self.from_string(input : String, current_index : Int32) : self
@@ -19,7 +20,7 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
     new tokens, current_index
   end
 
-  getter completion_type : ACON::Completion::Input::Type? = nil
+  getter completion_type : ACON::Completion::Input::Type = :none
   getter completion_name : String? = nil
   getter completion_value : String = ""
 

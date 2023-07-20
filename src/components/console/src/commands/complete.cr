@@ -57,6 +57,30 @@ class Athena::Console::Commands::Complete < Athena::Console::Command
     completion_input = self.create_completion_input input
     suggestions = ACON::Completion::Suggestions.new
 
+    self.log({
+      "",
+      "<comment>#{Time.local}</>",
+      "<info>Input:</> <comment>(\"|\" indicates the cursor position)</>",
+      " #{completion_input}",
+      "<info>Command:</>",
+      " #{ARGV.join " "}",
+      "<info>Messages:</>",
+    })
+
+    command = self.find_command completion_input, output
+
+    if command.nil?
+      self.log "  No command found, completing using the Application class."
+
+      self.application.complete completion_input, suggestions
+    end
+
+    completion_output = completion_output.new
+
+    self.log "<info>Suggestions:</>"
+
+    completion_output.write suggestions, output
+
     ACON::Command::Status::SUCCESS
   end
 
@@ -77,11 +101,30 @@ class Athena::Console::Commands::Complete < Athena::Console::Command
     completion_input
   end
 
+  private def find_command(completion_input : ACON::Completion::Input, output : ACON::Output::Interface) : ACON::Command?
+    begin
+      unless input_name = completion_input.first_argument
+        return nil
+      end
+
+      return self.application.find input_name
+    rescue ex : ACON::Exceptions::CommandNotFound
+      # noop
+    end
+
+    nil
+  end
+
   private def log(messages : String | Enumerable(String)) : Nil
     return unless @debug
 
     messages = messages.is_a?(String) ? {messages} : messages
 
-    pp messages
+    command_name = Path.new(PROGRAM_NAME).basename
+    File.write(
+      "#{Dir.tempdir}/athena_#{command_name}.log",
+      "#{messages.join(ACON::System::EOL)}#{ACON::System::EOL}",
+      mode: "a"
+    )
   end
 end

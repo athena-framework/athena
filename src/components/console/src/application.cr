@@ -296,6 +296,28 @@ class Athena::Console::Application
   def definition=(@definition : ACON::Input::Definition)
   end
 
+  def complete(completion_input : ACON::Completion::Input, suggestions : ACON::Completion::Suggestions) : Nil
+    if completion_input.completion_type.argument_value? && "command" == completion_input.completion_name
+      @commands.each do |name, command|
+        next if command.hidden? || command.name != name
+
+        suggestions.suggest_value name, command.description
+
+        command.aliases.each do |a|
+          suggestions.suggest_value a, command.description
+        end
+      end
+
+      return
+    end
+
+    if completion_input.completion_type.option_name?
+      suggestions.suggest_options self.definition.options
+
+      return
+    end
+  end
+
   # Yields each command within `self`, optionally only yields those within the provided *namespace*.
   def each_command(namespace : String? = nil, & : ACON::Command -> Nil) : Nil
     self.commands(namespace).each_value { |c| yield c }
