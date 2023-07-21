@@ -82,6 +82,12 @@ class Athena::Console::Commands::Complete < Athena::Console::Command
     completion_output.write suggestions, output
 
     ACON::Command::Status::SUCCESS
+  rescue ex : ::Exception
+    self.log({"<error>Error!</>", ex.to_s})
+
+    raise ex if output.verbosity.debug?
+
+    return ACON::Command::Status::INVALID
   end
 
   private def create_completion_input(input : ACON::Input::Interface) : ACON::Completion::Input

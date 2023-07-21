@@ -31,7 +31,98 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
     @tokens = tokens
   end
 
+  def bind(definition : ACON::Input::Definition) : Nil
+    super definition
+
+    relevant_token = self.relevant_token
+
+    if '-' == relevant_token[0]
+      split_token = relevant_token.split('=', 2)
+      option_token, option_value = (split_token[0]? || ""), (split_token[1]? || "")
+
+      option = self.option_from_token option_token
+
+      if option.nil? && !self.is_cursor_free?
+        @completion_type = :option_name
+        @completion_value = relevant_token
+
+        return
+      end
+
+      if option && option.accepts_value?
+        @completion_type = :option_value
+        @completion_name = option.name
+        @completion_value = option_value
+
+        return
+      end
+    end
+
+    previous_token = @tokens[@current_index - 1]
+
+    if '-' == previous_token[0] && !previous_token.strip("-").empty?
+    end
+
+    # Complete argument value
+    @completion_type = :argument_value
+
+    @definition.arguments.each do |arg_name, argument|
+      break if !@arguments[arg_name]?
+
+      argument_value = @arguments[arg_name]
+      @completion_name = arg_name
+
+      if argument_value.is_a? Array
+        @completion_value = argument_value.empty? ? "" : argument_value.last.to_s
+      else
+        @completion_value = argument_value.to_s
+      end
+    end
+
+    if @current_index >= @tokens.size
+    end
+  end
+
   def must_suggest_values_for?(option_name : String) : Bool
     @completion_type.option_value? && option_name == @completion_name
+  end
+
+  # The token of the cursor, or last token if the cursor is at the end of the input
+  def relevant_token : String
+    @tokens[self.is_cursor_free? ? @current_index - 1 : @current_index]
+  end
+
+  protected def parse_token(token : String, parse_options : Bool) : Bool
+    begin
+      return super
+    rescue ex : ACON::Exceptions::InvalidArgument
+      # noop, completed input is almost never valid
+    end
+
+    parse_options
+  end
+
+  private def option_from_token(option_token : String) : ACON::Input::Option?
+    option_name = option_token.lstrip '-'
+
+    return nil if option_name.empty?
+
+    if '-' == option_token[1]? || ""
+      # Long option name
+      return @definition.options[option_name]?
+    end
+
+    # Short option name
+    @definition.has_shortcut?(option_name[0]) ? @definition.option_for_shortcut(option_name[0]) : nil
+  end
+
+  private def is_cursor_free? : Bool
+    number_of_tokens = @tokens.size
+
+    if @current_index > number_of_tokens
+      raise ACON::Exceptions::Logic.new "Current index is invalid, it must be the number of input tokens or one more."
+    end
+
+    @current_index >= number_of_tokens
   end
 end

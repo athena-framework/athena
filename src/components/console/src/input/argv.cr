@@ -95,18 +95,24 @@ class Athena::Console::Input::ARGV < Athena::Console::Input
     @parsed = @tokens.dup
 
     while token = @parsed.shift?
-      if parse_options && token.empty?
-        self.parse_argument token
-      elsif parse_options && "--" == token
-        parse_options = false
-      elsif parse_options && token.starts_with? "--"
-        self.parse_long_option token
-      elsif parse_options && token.starts_with?('-') && "-" != token
-        self.parse_short_option token
-      else
-        self.parse_argument token
-      end
+      parse_options = self.parse_token token, parse_options
     end
+  end
+
+  protected def parse_token(token : String, parse_options : Bool) : Bool
+    if parse_options && token.empty?
+      self.parse_argument token
+    elsif parse_options && "--" == token
+      parse_options = false
+    elsif parse_options && token.starts_with? "--"
+      self.parse_long_option token
+    elsif parse_options && token.starts_with?('-') && "-" != token
+      self.parse_short_option token
+    else
+      self.parse_argument token
+    end
+
+    parse_options
   end
 
   private def parse_argument(token : String) : Nil
