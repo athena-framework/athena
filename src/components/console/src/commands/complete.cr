@@ -28,7 +28,6 @@ class Athena::Console::Commands::Complete < Athena::Console::Command
 
   protected def setup(input : ACON::Input::Interface, output : ACON::Output::Interface) : Nil
     @debug = ENV["ATHENA_DEBUG_COMPLETION"]? == "true"
-    @debug = true
   end
 
   protected def execute(input : ACON::Input::Interface, output : ACON::Output::Interface) : ACON::Command::Status

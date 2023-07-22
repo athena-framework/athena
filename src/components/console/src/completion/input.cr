@@ -17,19 +17,19 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
   end
 
   def self.from_tokens(tokens : Array(String), current_index : Int32) : self
-    new tokens, current_index
+    input = new tokens
+    input.current_index = current_index
+    input.tokens = tokens
+
+    input
   end
 
   getter completion_type : ACON::Completion::Input::Type = :none
   getter completion_name : String? = nil
   getter completion_value : String = ""
 
-  @current_index : Int32 = 1
-
-  def initialize(tokens : Array(String), @current_index : Int32)
-    super tokens
-    @tokens = tokens
-  end
+  protected setter current_index : Int32 = 1
+  protected setter tokens : Array(String)
 
   def bind(definition : ACON::Input::Definition) : Nil
     super definition

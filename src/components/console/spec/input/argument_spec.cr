@@ -54,7 +54,7 @@ describe ACON::Input::Argument do
 
       argument.has_completion?.should be_true
 
-      argument.complete ACON::Completion::Input.new([] of String, 1), suggestions
+      argument.complete ACON::Completion::Input.new, suggestions
 
       suggestions.suggested_values.map(&.value).should eq ["foo", "bar"]
     end
@@ -68,7 +68,7 @@ describe ACON::Input::Argument do
 
       argument.has_completion?.should be_true
 
-      argument.complete ACON::Completion::Input.new([] of String, 1), suggestions
+      argument.complete ACON::Completion::Input.new, suggestions
 
       suggestions.suggested_values.map(&.value).should eq ["foo", "bar"]
     end
