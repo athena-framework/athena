@@ -8,6 +8,18 @@ class Athena::Console::Completion::Suggestions
   getter suggested_options = [] of ACON::Input::Option
   getter suggested_values = [] of SuggestedValue
 
+  def suggest_values(*values : String) : self
+    self.suggest_values values
+  end
+
+  def suggest_values(values : Enumerable(String)) : self
+    values.each do |option|
+      self.suggest_value option
+    end
+
+    self
+  end
+
   def suggest_value(value : String, description : String = "") : self
     self.suggest_value SuggestedValue.new value, description
   end

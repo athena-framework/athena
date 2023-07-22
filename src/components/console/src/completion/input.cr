@@ -109,6 +109,10 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
     @completion_type.option_value? && option_name == @completion_name
   end
 
+  def must_suggest_argument_values_for?(argument_name : String) : Bool
+    @completion_type.argument_value? && argument_name == @completion_name
+  end
+
   # The token of the cursor, or last token if the cursor is at the end of the input
   def relevant_token : String
     @tokens[self.is_cursor_free? ? @current_index - 1 : @current_index]? || ""
@@ -142,7 +146,7 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
     number_of_tokens = @tokens.size
 
     if @current_index > number_of_tokens
-      raise ACON::Exceptions::Logic.new "Current index is invalid, it must be the number of input tokens or one more."
+      raise "Current index is invalid, it must be the number of input tokens."
     end
 
     @current_index >= number_of_tokens

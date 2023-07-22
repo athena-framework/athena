@@ -2,7 +2,7 @@ require "semantic_version"
 
 @[Athena::Console::Annotations::AsCommand("|_complete", description: "Internal command to provide shell completion suggestions")]
 class Athena::Console::Commands::Complete < Athena::Console::Command
-  COMPLETION_API_VERSION = 1
+  API_VERSION = 1
 
   @completion_outputs : Hash(String, ACON::Completion::OutputInterface.class)
 
@@ -35,12 +35,12 @@ class Athena::Console::Commands::Complete < Athena::Console::Command
     if (major_version = input.option("api-version"))
       version = SemanticVersion.new major_version.to_i, 0, 0
 
-      if version < SemanticVersion.new(COMPLETION_API_VERSION, 0, 0)
-        message = "Completion script version is not supported ('#{version.major}' given, >=#{COMPLETION_API_VERSION} required)."
+      if version < SemanticVersion.new(API_VERSION, 0, 0)
+        message = "Completion script version is not supported ('#{version.major}' given, >=#{API_VERSION} required)."
 
         self.log message
 
-        output.puts "#{message} Install the Athena completion script again byusing the 'completion' command."
+        output.puts "#{message} Install the Athena completion script again by using the 'completion' command."
 
         return ACON::Command::Status.new 126
       end
@@ -51,7 +51,7 @@ class Athena::Console::Commands::Complete < Athena::Console::Command
     end
 
     unless completion_output = @completion_outputs[shell]?
-      raise ACON::Exceptions::RuntimeError.new %(Shell completion is not supported for your shell: '#{shell}' (supported: '#{@completion_outputs.keys.join "', '"}'))
+      raise ACON::Exceptions::RuntimeError.new %(Shell completion is not supported for your shell: '#{shell}' (supported: '#{@completion_outputs.keys.join "', '"}').)
     end
 
     completion_input = self.create_completion_input input
@@ -73,6 +73,31 @@ class Athena::Console::Commands::Complete < Athena::Console::Command
       self.log "  No command found, completing using the Application class."
 
       self.application.complete completion_input, suggestions
+    elsif (
+            completion_input.must_suggest_argument_values_for?("command") &&
+            command.name != completion_input.completion_value &&
+            !command.aliases.includes?(completion_input.completion_value)
+          )
+      self.log "  Found command, suggesting aliases"
+
+      # expand shortcut names ("foo:ba<TAB>") into their full name ("foo:bar")
+      suggestions.suggest_values [command.name].concat(command.aliases)
+    else
+      command.merge_application_definition
+      completion_input.bind command.definition
+
+      if completion_input.completion_type.option_name?
+        self.log "  Completing option names for the <comment>#{command.is_a?(ACON::Commands::Lazy) ? command.command.class : command.class}</> command."
+
+        suggestions.suggest_options command.definition.options
+      else
+        self.log({
+          "  Completing using the <comment>#{command.is_a?(ACON::Commands::Lazy) ? command.command.class : command.class}</> class.",
+          "  Completing <comment>#{completion_input.completion_type}</> for <comment>#{completion_input.completion_name}</>",
+        })
+
+        command.complete completion_input, suggestions
+      end
     end
 
     completion_output = completion_output.new

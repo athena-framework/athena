@@ -455,6 +455,16 @@ abstract class Athena::Console::Command
     self.execute input, output
   end
 
+  def complete(input : ACON::Completion::Input, suggestions : ACON::Completion::Suggestions) : Nil
+    definition = self.definition
+
+    if input.completion_type.option_value? && (option = definition.options[input.completion_name]?)
+      option.complete input, suggestions
+    elsif input.completion_type.argument_value? && (argument = definition.arguments[input.completion_name]?)
+      argument.complete input, suggestions
+    end
+  end
+
   protected def merge_application_definition(merge_args : Bool = true) : Nil
     return unless application = @application
 

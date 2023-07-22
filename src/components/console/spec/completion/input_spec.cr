@@ -2,7 +2,6 @@ require "../spec_helper"
 
 private alias Input = ACON::Completion::Input
 
-@[ASPEC::TestCase::Focus]
 struct CompletionInputTest < ASPEC::TestCase
   @[DataProvider("bind_data_provider")]
   def test_bind(input : Input, expected_type : Input::Type, expected_name : String?, expected_value : String) : Nil

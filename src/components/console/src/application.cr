@@ -700,8 +700,8 @@ class Athena::Console::Application
 
   protected def default_commands : Array(ACON::Command)
     [
-      Athena::Console::Commands::List.new,
       Athena::Console::Commands::Help.new,
+      Athena::Console::Commands::List.new,
       Athena::Console::Commands::Complete.new,
     ]
   end

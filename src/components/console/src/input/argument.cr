@@ -39,12 +39,14 @@ class Athena::Console::Input::Argument
   getter description : String
 
   @default : ACON::Input::Value? = nil
+  @suggested_values : Array(String) | Proc(ACON::Completion::Input, Array(String)) | Nil
 
   def initialize(
     @name : String,
     @mode : ACON::Input::Argument::Mode = :optional,
     @description : String = "",
-    default = nil
+    default = nil,
+    @suggested_values : Array(String) | Proc(ACON::Completion::Input, Array(String)) | Nil = nil
   )
     raise ACON::Exceptions::InvalidArgument.new "An argument name cannot be blank." if name.blank?
 
@@ -85,6 +87,20 @@ class Athena::Console::Input::Argument
     end
 
     @default = ACON::Input::Value.from_value default
+  end
+
+  def has_completion? : Bool
+    !@suggested_values.nil?
+  end
+
+  def complete(input : ACON::Completion::Input, suggestions : ACON::Completion::Suggestions) : Nil
+    return unless values = @suggested_values
+
+    if values.is_a?(Proc)
+      values = values.call input
+    end
+
+    suggestions.suggest_values values
   end
 
   # Returns `true` if `self` is a required argument, otherwise `false`.
