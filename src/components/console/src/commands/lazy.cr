@@ -82,4 +82,8 @@ class Athena::Console::Commands::Lazy < Athena::Console::Command
 
     command
   end
+
+  def complete(input : ACON::Completion::Input, suggestions : ACON::Completion::Suggestions) : Nil
+    self.command.complete input, suggestions
+  end
 end
