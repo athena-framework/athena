@@ -287,12 +287,38 @@ abstract class Athena::Console::Command
   end
 
   # Adds an `ACON::Input::Argument` to `self` with the provided *name*.
-  # Optionally supports setting its *mode*, *description*, and *default* value.
-  def argument(name : String, mode : ACON::Input::Argument::Mode = :optional, description : String = "", default = nil) : self
-    @definition << ACON::Input::Argument.new name, mode, description, default
+  # Optionally supports setting its *mode*, *description*, *default* value, and *suggested_values*.
+  def argument(
+    name : String,
+    mode : ACON::Input::Argument::Mode = :optional,
+    description : String = "",
+    default = nil,
+    suggested_values : Enumerable(String)? = nil
+  ) : self
+    @definition << ACON::Input::Argument.new name, mode, description, default, suggested_values.try &.to_a
 
     if full_definition = @full_definition
-      full_definition << ACON::Input::Argument.new name, mode, description, default
+      full_definition << ACON::Input::Argument.new name, mode, description, default, suggested_values.try &.to_a
+    end
+
+    self
+  end
+
+  # Adds an `ACON::Input::Argument` to this command with the provided *name*.
+  # Optionally supports setting its *mode*, *description*, *default* value.
+  #
+  # Also accepts a block to use to determine this argument's suggested values.
+  def argument(
+    name : String,
+    mode : ACON::Input::Argument::Mode = :optional,
+    description : String = "",
+    default = nil,
+    &suggested_values : ACON::Completion::Input -> Array(String)
+  ) : self
+    @definition << ACON::Input::Argument.new name, mode, description, default, suggested_values
+
+    if full_definition = @full_definition
+      full_definition << ACON::Input::Argument.new name, mode, description, default, suggested_values
     end
 
     self
@@ -362,11 +388,39 @@ abstract class Athena::Console::Command
 
   # Adds an `ACON::Input::Option` to `self` with the provided *name*.
   # Optionally supports setting its *shortcut*, *value_mode*, *description*, and *default* value.
-  def option(name : String, shortcut : String? = nil, value_mode : ACON::Input::Option::Value = :none, description : String = "", default = nil) : self
-    @definition << ACON::Input::Option.new name, shortcut, value_mode, description, default
+  def option(
+    name : String,
+    shortcut : String? = nil,
+    value_mode : ACON::Input::Option::Value = :none,
+    description : String = "",
+    default = nil,
+    suggested_values : Enumerable(String)? = nil
+  ) : self
+    @definition << ACON::Input::Option.new name, shortcut, value_mode, description, default, suggested_values.try &.to_a
 
     if full_definition = @full_definition
-      full_definition << ACON::Input::Option.new name, shortcut, value_mode, description, default
+      full_definition << ACON::Input::Option.new name, shortcut, value_mode, description, default, suggested_values.try &.to_a
+    end
+
+    self
+  end
+
+  # Adds an `ACON::Input::Option` to `self` with the provided *name*.
+  # Optionally supports setting its *shortcut*, *value_mode*, *description*, and *default* value.
+  #
+  # Also accepts a block to use to determine this argument's suggested values.
+  def option(
+    name : String,
+    shortcut : String? = nil,
+    value_mode : ACON::Input::Option::Value = :none,
+    description : String = "",
+    default = nil,
+    &suggested_values : ACON::Completion::Input -> Array(String)
+  ) : self
+    @definition << ACON::Input::Option.new name, shortcut, value_mode, description, default, suggested_values
+
+    if full_definition = @full_definition
+      full_definition << ACON::Input::Option.new name, shortcut, value_mode, description, default, suggested_values
     end
 
     self
