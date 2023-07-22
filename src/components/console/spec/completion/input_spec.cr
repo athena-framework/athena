@@ -44,7 +44,15 @@ struct CompletionInputTest < ASPEC::TestCase
       "optvalue long space optional" => {Input.from_tokens(["--with-optional-value"], 1), Input::Type::OPTION_VALUE, "with-optional-value", ""},
 
       # Arguments
-      "arg minimal input" => {Input.from_tokens([] of String, 0), Input::Type::ARGUMENT_VALUE, "required-arg", ""},
+      "arg minimal input"         => {Input.from_tokens([] of String, 0), Input::Type::ARGUMENT_VALUE, "required-arg", ""},
+      "arg optional"              => {Input.from_tokens(["athena"], 1), Input::Type::ARGUMENT_VALUE, "optional-arg", ""},
+      "arg partial"               => {Input.from_tokens(["ath"], 0), Input::Type::ARGUMENT_VALUE, "required-arg", "ath"},
+      "arg optional partial"      => {Input.from_tokens(["athena", "cry"], 1), Input::Type::ARGUMENT_VALUE, "optional-arg", "cry"},
+      "arg after option"          => {Input.from_tokens(["--without-value"], 1), Input::Type::ARGUMENT_VALUE, "required-arg", ""},
+      "arg after optional option" => {Input.from_tokens(["--with-optional-value", "--"], 2), Input::Type::ARGUMENT_VALUE, "required-arg", ""},
+
+      # End of definition
+      "end" => {Input.from_tokens(["athena", "crystal"], 2), Input::Type::NONE, nil, ""},
     }
   end
 end
