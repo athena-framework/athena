@@ -89,7 +89,6 @@ class Athena::Console::Input::ARGV < Athena::Console::Input
     end
   end
 
-  # ameba:disable Metrics/CyclomaticComplexity
   protected def parse : Nil
     parse_options = true
     @parsed = @tokens.dup
@@ -103,7 +102,7 @@ class Athena::Console::Input::ARGV < Athena::Console::Input
     if parse_options && token.empty?
       self.parse_argument token
     elsif parse_options && "--" == token
-      parse_options = false
+      return false
     elsif parse_options && token.starts_with? "--"
       self.parse_long_option token
     elsif parse_options && token.starts_with?('-') && "-" != token

@@ -36,7 +36,7 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
 
     relevant_token = self.relevant_token
 
-    if '-' == relevant_token[0]
+    if '-' == relevant_token[0]?
       split_token = relevant_token.split('=', 2)
       option_token, option_value = (split_token[0]? || ""), (split_token[1]? || "")
 
@@ -58,9 +58,9 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
       end
     end
 
-    previous_token = @tokens[@current_index - 1]
+    previous_token = @tokens[@current_index - 1]? || ""
 
-    if '-' == previous_token[0] && !previous_token.strip("-").empty?
+    if '-' == previous_token[0]? && !previous_token.strip("-").empty?
       # Did the previous option accept a value?
       previous_option = self.option_from_token previous_token
 
@@ -76,8 +76,11 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
     # Complete argument value
     @completion_type = :argument_value
 
+    argument_name = nil
     @definition.arguments.each do |arg_name, argument|
-      break if !@arguments[arg_name]?
+      argument_name = arg_name
+
+      break unless @arguments.has_key? arg_name
 
       argument_value = @arguments[arg_name]
       @completion_name = arg_name
@@ -90,6 +93,15 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
     end
 
     if @current_index >= @tokens.size
+      if argument_name && (!@arguments.has_key?(argument_name) || @definition.argument(argument_name).is_array?)
+        @completion_name = argument_name
+        @completion_value = ""
+      else
+        # Reached end of data
+        @completion_type = :none
+        @completion_name = nil
+        @completion_value = ""
+      end
     end
   end
 
@@ -99,7 +111,7 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
 
   # The token of the cursor, or last token if the cursor is at the end of the input
   def relevant_token : String
-    @tokens[self.is_cursor_free? ? @current_index - 1 : @current_index]
+    @tokens[self.is_cursor_free? ? @current_index - 1 : @current_index]? || ""
   end
 
   protected def parse_token(token : String, parse_options : Bool) : Bool

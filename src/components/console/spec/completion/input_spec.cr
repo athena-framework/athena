@@ -24,11 +24,27 @@ struct CompletionInputTest < ASPEC::TestCase
   def bind_data_provider : Hash
     {
       # Option names
-      "optname minimal input" => {Input.from_tokens(["bin/console", "-"], 1), Input::Type::OPTION_NAME, nil, "-"},
-      "optname partial"       => {Input.from_tokens(["bin/console", "--with"], 1), Input::Type::OPTION_NAME, nil, "--with"},
+      "optname minimal input" => {Input.from_tokens(["-"], 0), Input::Type::OPTION_NAME, nil, "-"},
+      "optname partial"       => {Input.from_tokens(["--with"], 0), Input::Type::OPTION_NAME, nil, "--with"},
 
       # Option values
-      "optvalue short" => {Input.from_tokens(["bin/console", "-r"], 1), Input::Type::OPTION_VALUE, "with-required-value", ""},
+      "optvalue short"                => {Input.from_tokens(["-r"], 0), Input::Type::OPTION_VALUE, "with-required-value", ""},
+      "optvalue short partial"        => {Input.from_tokens(["-rathe"], 0), Input::Type::OPTION_VALUE, "with-required-value", "athe"},
+      "optvalue short space"          => {Input.from_tokens(["-r"], 1), Input::Type::OPTION_VALUE, "with-required-value", ""},
+      "optvalue short space partial"  => {Input.from_tokens(["-r", "athe"], 1), Input::Type::OPTION_VALUE, "with-required-value", "athe"},
+      "optvalue short before arg"     => {Input.from_tokens(["-r", "athena"], 0), Input::Type::OPTION_VALUE, "with-required-value", ""},
+      "optvalue short optional"       => {Input.from_tokens(["-o"], 0), Input::Type::OPTION_VALUE, "with-optional-value", ""},
+      "optvalue short space optional" => {Input.from_tokens(["-o"], 1), Input::Type::OPTION_VALUE, "with-optional-value", ""},
+
+      "optvalue long"                => {Input.from_tokens(["--with-required-value="], 0), Input::Type::OPTION_VALUE, "with-required-value", ""},
+      "optvalue long partial"        => {Input.from_tokens(["--with-required-value=ath"], 0), Input::Type::OPTION_VALUE, "with-required-value", "ath"},
+      "optvalue long space"          => {Input.from_tokens(["--with-required-value"], 1), Input::Type::OPTION_VALUE, "with-required-value", ""},
+      "optvalue long space partial"  => {Input.from_tokens(["--with-required-value", "ath"], 1), Input::Type::OPTION_VALUE, "with-required-value", "ath"},
+      "optvalue long optional"       => {Input.from_tokens(["--with-optional-value="], 0), Input::Type::OPTION_VALUE, "with-optional-value", ""},
+      "optvalue long space optional" => {Input.from_tokens(["--with-optional-value"], 1), Input::Type::OPTION_VALUE, "with-optional-value", ""},
+
+      # Arguments
+      "arg minimal input" => {Input.from_tokens([] of String, 0), Input::Type::ARGUMENT_VALUE, "required-arg", ""},
     }
   end
 end
