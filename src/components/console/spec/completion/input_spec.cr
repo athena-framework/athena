@@ -55,4 +55,56 @@ struct CompletionInputTest < ASPEC::TestCase
       "end" => {Input.from_tokens(["athena", "crystal"], 2), Input::Type::NONE, nil, ""},
     }
   end
+
+  @[DataProvider("last_array_argument_provider")]
+  def tets_bind_with_last_array_argument(input : Input, expected_value : String?) : Nil
+    definition = ACON::Input::Definition.new(
+      ACON::Input::Argument.new("list-arg", Input::Type[:required, :is_array]),
+    )
+
+    input.bind definition
+
+    input.completion_type.should eq Input::Type::ARGUMENT_VALUE
+    input.completion_name.should eq "list-arg"
+    input.completion_value.should eq expected_value
+  end
+
+  def last_array_argument_provider : Tuple
+    {
+      {Input.from_tokens([] of String, 0), nil},
+      {Input.from_tokens(["athena", "crystal"], 2), nil},
+      {Input.from_tokens(["athena", "cry"], 1), "cry"},
+    }
+  end
+
+  def test_bind_argument_with_default : Nil
+    definition = ACON::Input::Definition.new(
+      ACON::Input::Argument.new("arg-with-default", :optional, default: "default"),
+    )
+
+    input = Input.from_tokens [] of String, 0
+    input.bind definition
+
+    input.completion_type.should eq Input::Type::ARGUMENT_VALUE
+    input.completion_name.should eq "arg-with-default"
+    input.completion_value.should eq ""
+  end
+
+  @[DataProvider("from_string_provider")]
+  def test_from_string(input_string : String, expected_tokens : Array(String)) : Nil
+    input = Input.from_string input_string, 1
+
+    input.@tokens.should eq expected_tokens
+  end
+
+  def from_string_provider : Tuple
+    {
+      {"do:thing", ["do:thing"]},
+      {"--env prod", ["--env", "prod"]},
+      {"--env=prod", ["--env=prod"]},
+      {"-eprod", ["-eprod"]},
+      { %(do:thing "multi word string"), ["do:thing", %("multi word string")] },
+      {"do:thing 'multi word string'", ["do:thing", "'multi word string'"]},
+    }
+  end
 end

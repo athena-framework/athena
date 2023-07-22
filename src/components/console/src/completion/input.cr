@@ -11,9 +11,9 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
   end
 
   def self.from_string(input : String, current_index : Int32) : self
-    tokens = input.match!(/(?<=^|\s)(['"]?)(.+?)(?<!\\\\)\1(?=$|\s)/)
+    tokens = input.scan(/(?<=^|\s)(['"]?)(.+?)(?<!\\\\)\1(?=$|\s)/).map &.[0]
 
-    self.from_tokens tokens[0], current_index
+    self.from_tokens tokens, current_index
   end
 
   def self.from_tokens(tokens : Array(String), current_index : Int32) : self
