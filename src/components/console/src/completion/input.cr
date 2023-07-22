@@ -52,7 +52,7 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
       if option && option.accepts_value?
         @completion_type = :option_value
         @completion_name = option.name
-        @completion_value = option_value
+        @completion_value = option_value.presence || (!option_token.starts_with?("--") ? option_token[2..] : "")
 
         return
       end
@@ -61,6 +61,16 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
     previous_token = @tokens[@current_index - 1]
 
     if '-' == previous_token[0] && !previous_token.strip("-").empty?
+      # Did the previous option accept a value?
+      previous_option = self.option_from_token previous_token
+
+      if previous_option && previous_option.accepts_value?
+        @completion_type = :option_value
+        @completion_name = previous_option.name
+        @completion_value = relevant_token
+
+        return
+      end
     end
 
     # Complete argument value
@@ -107,7 +117,7 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
 
     return nil if option_name.empty?
 
-    if '-' == option_token[1]? || ""
+    if '-' == (option_token[1]? || " ")
       # Long option name
       return @definition.options[option_name]?
     end
