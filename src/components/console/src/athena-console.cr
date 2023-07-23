@@ -1,3 +1,5 @@
+require "ecr"
+
 require "./annotations"
 require "./application"
 require "./command"
