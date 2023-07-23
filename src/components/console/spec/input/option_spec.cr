@@ -129,7 +129,7 @@ describe ACON::Input::Option do
 
     it "when option accepts no value" do
       expect_raises ACON::Exceptions::InvalidArgument, "Cannot set suggested values if the option does not accept a value." do
-        argument = ACON::Input::Option.new "foo", suggested_values: ["foo"]
+        ACON::Input::Option.new "foo", suggested_values: ["foo"]
       end
     end
   end

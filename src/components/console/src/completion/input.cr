@@ -31,6 +31,7 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
   protected setter current_index : Int32 = 1
   protected setter tokens : Array(String)
 
+  # ameba:disable Metrics/CyclomaticComplexity
   def bind(definition : ACON::Input::Definition) : Nil
     super definition
 
@@ -42,7 +43,7 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
 
       option = self.option_from_token option_token
 
-      if option.nil? && !self.is_cursor_free?
+      if option.nil? && !self.free_cursor?
         @completion_type = :option_name
         @completion_value = relevant_token
 
@@ -77,7 +78,7 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
     @completion_type = :argument_value
 
     argument_name = nil
-    @definition.arguments.each do |arg_name, argument|
+    @definition.arguments.each do |arg_name, _|
       argument_name = arg_name
 
       break unless @arguments.has_key? arg_name
@@ -115,7 +116,21 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
 
   # The token of the cursor, or last token if the cursor is at the end of the input
   def relevant_token : String
-    @tokens[self.is_cursor_free? ? @current_index - 1 : @current_index]? || ""
+    @tokens[self.free_cursor? ? @current_index - 1 : @current_index]? || ""
+  end
+
+  def to_s(io : IO) : Nil
+    i = 0
+    @tokens.each_with_index do |token, idx|
+      io << token
+      io << '|' if idx == @current_index
+      io << ' ' unless @tokens.size == (idx + 1)
+      i = idx
+    end
+
+    if @current_index > i
+      io << '|'
+    end
   end
 
   protected def parse_token(token : String, parse_options : Bool) : Bool
@@ -142,7 +157,7 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
     @definition.has_shortcut?(option_name[0]) ? @definition.option_for_shortcut(option_name[0]) : nil
   end
 
-  private def is_cursor_free? : Bool
+  private def free_cursor? : Bool
     number_of_tokens = @tokens.size
 
     if @current_index > number_of_tokens

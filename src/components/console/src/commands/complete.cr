@@ -30,8 +30,9 @@ class Athena::Console::Commands::Complete < Athena::Console::Command
     @debug = ENV["ATHENA_DEBUG_COMPLETION"]? == "true"
   end
 
+  # ameba:disable Metrics/CyclomaticComplexity
   protected def execute(input : ACON::Input::Interface, output : ACON::Output::Interface) : ACON::Command::Status
-    if (major_version = input.option("api-version"))
+    if major_version = input.option("api-version")
       version = SemanticVersion.new major_version.to_i, 0, 0
 
       if version < SemanticVersion.new(API_VERSION, 0, 0)
@@ -72,14 +73,12 @@ class Athena::Console::Commands::Complete < Athena::Console::Command
       self.log "  No command found, completing using the Application class."
 
       self.application.complete completion_input, suggestions
-    elsif (
-            completion_input.must_suggest_argument_values_for?("command") &&
-            command.name != completion_input.completion_value &&
-            !command.aliases.includes?(completion_input.completion_value)
-          )
+    elsif completion_input.must_suggest_argument_values_for?("command") &&
+          command.name != completion_input.completion_value &&
+          !command.aliases.includes?(completion_input.completion_value)
       self.log "  Found command, suggesting aliases"
 
-      # expand shortcut names ("foo:ba<TAB>") into their full name ("foo:bar")
+      # expand shortcut names ("foo:f<TAB>") into their full name ("foo:foo")
       suggestions.suggest_values [command.name].concat(command.aliases)
     else
       command.merge_application_definition
@@ -103,6 +102,14 @@ class Athena::Console::Commands::Complete < Athena::Console::Command
 
     self.log "<info>Suggestions:</>"
 
+    if (options = suggestions.suggested_options) && !options.empty?
+      self.log %(  --#{options.map(&.name).join(" --")})
+    elsif (values = suggestions.suggested_values) && !values.empty?
+      self.log %(  #{values.join(" ")})
+    else
+      self.log "  <comment>No suggestions were provided</>"
+    end
+
     completion_output.write suggestions, output
 
     ACON::Command::Status::SUCCESS
@@ -111,7 +118,7 @@ class Athena::Console::Commands::Complete < Athena::Console::Command
 
     raise ex if output.verbosity.debug?
 
-    return ACON::Command::Status::INVALID
+    ACON::Command::Status::INVALID
   end
 
   private def create_completion_input(input : ACON::Input::Interface) : ACON::Completion::Input

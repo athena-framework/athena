@@ -1,6 +1,6 @@
 @[Athena::Console::Annotations::AsCommand("completion", description: "Dump the shell completion script")]
 class Athena::Console::Commands::DumpCompletion < Athena::Console::Command
-  private SUPPORTED_SHELLS = {{ Athena::Console::Completion::OutputInterface.subclasses.map { |s| s.name.split("::").last.downcase } }}
+  private SUPPORTED_SHELLS = {{ Athena::Console::Completion::OutputInterface.subclasses.map(&.name.split("::").last.downcase) }}
 
   protected def self.guess_shell : String
     File.basename ENV["SHELL"]? || ""
@@ -65,23 +65,23 @@ TEXT
 
     shell = input.argument("shell") || self.class.guess_shell
 
-    complection_script = case shell
-                         when "bash" then ACON::Completion::Output::Bash::Script.new command_name, ACON::Commands::Complete::API_VERSION
-                         else
-                           if output.is_a? ACON::Output::ConsoleOutputInterface
-                             output = output.error_output
-                           end
+    completion_script = case shell
+                        when "bash" then ACON::Completion::Output::Bash::Script.new command_name, ACON::Commands::Complete::API_VERSION
+                        else
+                          if output.is_a? ACON::Output::ConsoleOutputInterface
+                            output = output.error_output
+                          end
 
-                           if shell
-                             output.puts %(<error>Detected shell '#{shell}', which is not supported by Athena shell completion (supported shells: '#{SUPPORTED_SHELLS.join("', '")}'.))
-                           else
-                             output.puts %(<error>Shell not detected, Athena shell completion only supports '#{SUPPORTED_SHELLS.join("', '")}'.)
-                           end
+                          if shell
+                            output.puts %(<error>Detected shell '#{shell}', which is not supported by Athena shell completion (supported shells: '#{SUPPORTED_SHELLS.join("', '")}'.))
+                          else
+                            output.puts %(<error>Shell not detected, Athena shell completion only supports '#{SUPPORTED_SHELLS.join("', '")}'.)
+                          end
 
-                           return ACON::Command::Status::INVALID
-                         end
+                          return ACON::Command::Status::INVALID
+                        end
 
-    output.print complection_script
+    output.print completion_script
 
     ACON::Command::Status::SUCCESS
   end
