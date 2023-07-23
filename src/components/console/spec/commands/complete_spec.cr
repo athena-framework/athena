@@ -1,12 +1,9 @@
 require "../spec_helper"
 
-# @[ACONA::AsCommand("hello", description: "Hello test command")]
+@[ACONA::AsCommand("hello|ahoy", description: "Hello test command")]
 private class HelloCommand < ACON::Command
   protected def configure : Nil
     self
-      .name("hello")
-      .description("Hello test command")
-      .aliases("ahoy")
       .argument("name", :required)
   end
 
@@ -21,7 +18,6 @@ private class HelloCommand < ACON::Command
   end
 end
 
-# @[ASPEC::TestCase::Focus]
 struct CompleteCommandTest < ASPEC::TestCase
   @command : ACON::Commands::Complete
   @application : ACON::Application
