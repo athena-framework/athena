@@ -702,8 +702,8 @@ class Athena::Console::Application
     [
       Athena::Console::Commands::Help.new,
       Athena::Console::Commands::List.new,
-      Athena::Console::Commands::Complete.new,
       Athena::Console::Commands::DumpCompletion.new,
+      Athena::Console::Commands::Complete.new,
     ]
   end
 

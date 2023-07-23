@@ -96,8 +96,8 @@ struct CompleteCommandTest < ASPEC::TestCase
 
   def provide_complete_command_name_inputs : Hash
     {
-      "empty"                  => {[] of String, ["help", "list", "hello", "ahoy"]},
-      "partial"                => {["he"], ["help", "list", "hello", "ahoy"]},
+      "empty"                  => {[] of String, ["help", "list", "completion", "hello", "ahoy"]},
+      "partial"                => {["he"], ["help", "list", "completion", "hello", "ahoy"]},
       "complete shortcut name" => {["hell"], ["hello", "ahoy"]},
       "complete alias"         => {["ah"], ["hello", "ahoy"]},
     }
