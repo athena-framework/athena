@@ -1,17 +1,18 @@
 require "semantic_version"
 
 @[Athena::Console::Annotations::AsCommand("|_complete", description: "Internal command to provide shell completion suggestions")]
+# :nodoc:
 class Athena::Console::Commands::Complete < Athena::Console::Command
   API_VERSION = 1
 
-  @completion_outputs : Hash(String, ACON::Completion::OutputInterface.class)
+  @completion_outputs : Hash(String, ACON::Completion::Output::Interface.class)
 
   @debug : Bool = false
 
-  def initialize(completion_outputs : Hash(String, ACON::Completion::OutputInterface.class) = Hash(String, ACON::Completion::OutputInterface.class).new)
+  def initialize(completion_outputs : Hash(String, ACON::Completion::Output::Interface.class) = Hash(String, ACON::Completion::Output::Interface.class).new)
     @completion_outputs = completion_outputs.merge!({
       "bash" => ACON::Completion::Output::Bash,
-    } of String => ACON::Completion::OutputInterface.class)
+    } of String => ACON::Completion::Output::Interface.class)
 
     super()
   end

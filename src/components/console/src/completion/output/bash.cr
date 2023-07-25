@@ -1,4 +1,7 @@
-struct Athena::Console::Completion::Output::Bash < Athena::Console::Completion::OutputInterface
+require "./interface"
+
+# :nodoc:
+struct Athena::Console::Completion::Output::Bash < Athena::Console::Completion::Output::Interface
   # :nodoc:
   record Script, command_name : String, version : Int32 do
     ECR.def_to_s "#{__DIR__}/completion.bash"

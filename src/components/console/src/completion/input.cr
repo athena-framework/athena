@@ -2,11 +2,20 @@ abstract class Athena::Console::Input; end
 
 require "../input/argv"
 
+# A specialization of `ACON::Input::ARGV` that allows for unfinished name/values.
+# Exposes information about the name, type, and value of the value/name being completed.
 class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
   enum Type
+    # Nothing should be completed.
     NONE
+
+    # Completing the value of an argument.
     ARGUMENT_VALUE
+
+    # Completing the value of an option.
     OPTION_VALUE
+
+    # Completing the name of an option.
     OPTION_NAME
   end
 
@@ -24,13 +33,20 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
     input
   end
 
+  # Returns which [type][ACON::Completion::Input::Type] of completion is required.
   getter completion_type : ACON::Completion::Input::Type = :none
+
+  # Returns the name of the argument/option when completing a value.
   getter completion_name : String? = nil
+
+  # Returns the value typed by the user, or empty string.
   getter completion_value : String = ""
 
   protected setter current_index : Int32 = 1
   protected setter tokens : Array(String)
 
+  # :inherit:
+  #
   # ameba:disable Metrics/CyclomaticComplexity
   def bind(definition : ACON::Input::Definition) : Nil
     super definition
@@ -106,19 +122,22 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
     end
   end
 
+  # Returns `true` if this input is able to suggest values for the provided *option_name*.
   def must_suggest_values_for?(option_name : String) : Bool
     @completion_type.option_value? && option_name == @completion_name
   end
 
+  # Returns `true` if this input is able to suggest values for the provided *argument_name*.
   def must_suggest_argument_values_for?(argument_name : String) : Bool
     @completion_type.argument_value? && argument_name == @completion_name
   end
 
-  # The token of the cursor, or last token if the cursor is at the end of the input
+  # Returns the current token of the cursor, or last token if the cursor is at the end of the input.
   def relevant_token : String
     @tokens[self.free_cursor? ? @current_index - 1 : @current_index]? || ""
   end
 
+  # :nodoc:
   def to_s(io : IO) : Nil
     i = 0
     @tokens.each_with_index do |token, idx|

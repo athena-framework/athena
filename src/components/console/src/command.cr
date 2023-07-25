@@ -288,6 +288,8 @@ abstract class Athena::Console::Command
 
   # Adds an `ACON::Input::Argument` to `self` with the provided *name*.
   # Optionally supports setting its *mode*, *description*, *default* value, and *suggested_values*.
+  #
+  # Also checkout the [value completion][Athena::Console::Input::Interface--argumentoption-value-completion] for how argument values can be auto completed.
   def argument(
     name : String,
     mode : ACON::Input::Argument::Mode = :optional,
@@ -307,7 +309,8 @@ abstract class Athena::Console::Command
   # Adds an `ACON::Input::Argument` to this command with the provided *name*.
   # Optionally supports setting its *mode*, *description*, *default* value.
   #
-  # Also accepts a block to use to determine this argument's suggested values.
+  # Accepts a block to use to determine this argument's suggested values.
+  # Also checkout the [value completion][Athena::Console::Input::Interface--argumentoption-value-completion] for how argument values can be auto completed.
   def argument(
     name : String,
     mode : ACON::Input::Argument::Mode = :optional,
@@ -388,6 +391,8 @@ abstract class Athena::Console::Command
 
   # Adds an `ACON::Input::Option` to `self` with the provided *name*.
   # Optionally supports setting its *shortcut*, *value_mode*, *description*, and *default* value.
+  #
+  # Also checkout the [value completion][Athena::Console::Input::Interface--argumentoption-value-completion] for how option values can be auto completed.
   def option(
     name : String,
     shortcut : String? = nil,
@@ -408,7 +413,8 @@ abstract class Athena::Console::Command
   # Adds an `ACON::Input::Option` to `self` with the provided *name*.
   # Optionally supports setting its *shortcut*, *value_mode*, *description*, and *default* value.
   #
-  # Also accepts a block to use to determine this argument's suggested values.
+  # Accepts a block to use to determine this argument's suggested values.
+  # Also checkout the [value completion][Athena::Console::Input::Interface--argumentoption-value-completion] for how option values can be auto completed.
   def option(
     name : String,
     shortcut : String? = nil,

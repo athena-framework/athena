@@ -47,7 +47,7 @@ struct CompleteCommandTest < ASPEC::TestCase
   end
 
   def test_additional_shell_support : Nil
-    @command = ACON::Commands::Complete.new({"supported" => ACON::Completion::Output::Bash} of String => ACON::Completion::OutputInterface.class)
+    @command = ACON::Commands::Complete.new({"supported" => ACON::Completion::Output::Bash} of String => ACON::Completion::Output::Interface.class)
     @command.application = @application
     @tester = ACON::Spec::CommandTester.new @command
 

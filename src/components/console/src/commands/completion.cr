@@ -1,6 +1,9 @@
 @[Athena::Console::Annotations::AsCommand("completion", description: "Dump the shell completion script")]
+# Can be used to generate the [completion script][Athena::Console--console-completion] to enable [argument/option value completion][Athena::Console::Input::Interface--argumentoption-value-completion].
+#
+# See the related docs for more information.
 class Athena::Console::Commands::DumpCompletion < Athena::Console::Command
-  private SUPPORTED_SHELLS = {{ Athena::Console::Completion::OutputInterface.subclasses.map(&.name.split("::").last.downcase) }}
+  private SUPPORTED_SHELLS = {{ Athena::Console::Completion::Output::Interface.subclasses.map(&.name.split("::").last.downcase) }}
 
   protected def self.guess_shell : String
     File.basename ENV["SHELL"]? || ""
