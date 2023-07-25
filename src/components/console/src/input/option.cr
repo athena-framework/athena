@@ -151,10 +151,12 @@ class Athena::Console::Input::Option
     @default = ACON::Input::Value.from_value (@value_mode.accepts_value? || @value_mode.negatable?) ? default : false
   end
 
+  # Returns `true` if this option is able to suggest values, otherwise `false`
   def has_completion? : Bool
     !@suggested_values.nil?
   end
 
+  # Determines what values should be added to the possible *suggestions* based on the provided *input*.
   def complete(input : ACON::Completion::Input, suggestions : ACON::Completion::Suggestions) : Nil
     return unless values = @suggested_values
 

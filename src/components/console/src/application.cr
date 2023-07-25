@@ -296,8 +296,11 @@ class Athena::Console::Application
   def definition=(@definition : ACON::Input::Definition)
   end
 
-  def complete(completion_input : ACON::Completion::Input, suggestions : ACON::Completion::Suggestions) : Nil
-    if completion_input.completion_type.argument_value? && "command" == completion_input.completion_name
+  # Determines what values should be added to the possible *suggestions* based on the provided *input*.
+  #
+  # By default this handles completing commands and options, but can be overridden if needed.
+  def complete(input : ACON::Completion::Input, suggestions : ACON::Completion::Suggestions) : Nil
+    if input.completion_type.argument_value? && "command" == input.completion_name
       @commands.each do |name, command|
         next if command.hidden? || command.name != name
 
@@ -311,7 +314,7 @@ class Athena::Console::Application
       return
     end
 
-    if completion_input.completion_type.option_name?
+    if input.completion_type.option_name?
       suggestions.suggest_options self.definition.options
 
       return

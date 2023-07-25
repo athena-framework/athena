@@ -89,10 +89,12 @@ class Athena::Console::Input::Argument
     @default = ACON::Input::Value.from_value default
   end
 
+  # Returns `true` if this argument is able to suggest values, otherwise `false`
   def has_completion? : Bool
     !@suggested_values.nil?
   end
 
+  # Determines what values should be added to the possible *suggestions* based on the provided *input*.
   def complete(input : ACON::Completion::Input, suggestions : ACON::Completion::Suggestions) : Nil
     return unless values = @suggested_values
 

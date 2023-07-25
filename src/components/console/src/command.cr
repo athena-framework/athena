@@ -515,6 +515,9 @@ abstract class Athena::Console::Command
     self.execute input, output
   end
 
+  # Determines what values should be added to the possible *suggestions* based on the provided *input*.
+  #
+  # By default this will fall back on completion of the related input argument/option, but can be overridden if needed.
   def complete(input : ACON::Completion::Input, suggestions : ACON::Completion::Suggestions) : Nil
     definition = self.definition
 

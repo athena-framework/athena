@@ -35,8 +35,9 @@ module Athena::Console::Spec
 
     abstract def status : ACON::Command::Status?
 
+    # Asserts that the return `#status` is successful.
     def assert_command_is_successful(message : String = "", *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
-      self.status.should ACON::Spec::Expectations::CommandIsSuccessful.new, file: file, line: line
+      self.status.should ACON::Spec::Expectations::CommandIsSuccessful.new, file: file, line: line, failure_message: message.presence
     end
 
     protected def init_output(
