@@ -296,6 +296,31 @@ class Athena::Console::Application
   def definition=(@definition : ACON::Input::Definition)
   end
 
+  # Determines what values should be added to the possible *suggestions* based on the provided *input*.
+  #
+  # By default this handles completing commands and options, but can be overridden if needed.
+  def complete(input : ACON::Completion::Input, suggestions : ACON::Completion::Suggestions) : Nil
+    if input.completion_type.argument_value? && "command" == input.completion_name
+      @commands.each do |name, command|
+        next if command.hidden? || command.name != name
+
+        suggestions.suggest_value name, command.description
+
+        command.aliases.each do |a|
+          suggestions.suggest_value a, command.description
+        end
+      end
+
+      return
+    end
+
+    if input.completion_type.option_name?
+      suggestions.suggest_options self.definition.options
+
+      return
+    end
+  end
+
   # Yields each command within `self`, optionally only yields those within the provided *namespace*.
   def each_command(namespace : String? = nil, & : ACON::Command -> Nil) : Nil
     self.commands(namespace).each_value { |c| yield c }
@@ -678,8 +703,10 @@ class Athena::Console::Application
 
   protected def default_commands : Array(ACON::Command)
     [
-      Athena::Console::Commands::List.new,
       Athena::Console::Commands::Help.new,
+      Athena::Console::Commands::List.new,
+      Athena::Console::Commands::DumpCompletion.new,
+      Athena::Console::Commands::Complete.new,
     ]
   end
 

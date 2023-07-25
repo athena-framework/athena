@@ -63,13 +63,15 @@ class Athena::Console::Input::Option
   getter description : String
 
   @default : ACON::Input::Value? = nil
+  @suggested_values : Array(String) | Proc(ACON::Completion::Input, Array(String)) | Nil
 
   def initialize(
     name : String,
     shortcut : String | Enumerable(String) | Nil = nil,
     @value_mode : ACON::Input::Option::Value = :none,
     @description : String = "",
-    default = nil
+    default = nil,
+    @suggested_values : Array(String) | Proc(ACON::Completion::Input, Array(String)) | Nil = nil
   )
     @name = name.lchop "--"
 
@@ -95,6 +97,10 @@ class Athena::Console::Input::Option
     end
 
     @shortcut = shortcut
+
+    if @suggested_values && !self.accepts_value?
+      raise ACON::Exceptions::InvalidArgument.new "Cannot set suggested values if the option does not accept a value."
+    end
 
     if @value_mode.is_array? && !self.accepts_value?
       raise ACON::Exceptions::InvalidArgument.new " Cannot have VALUE::IS_ARRAY option mode when the option does not accept a value."
@@ -143,6 +149,22 @@ class Athena::Console::Input::Option
     end
 
     @default = ACON::Input::Value.from_value (@value_mode.accepts_value? || @value_mode.negatable?) ? default : false
+  end
+
+  # Returns `true` if this option is able to suggest values, otherwise `false`
+  def has_completion? : Bool
+    !@suggested_values.nil?
+  end
+
+  # Determines what values should be added to the possible *suggestions* based on the provided *input*.
+  def complete(input : ACON::Completion::Input, suggestions : ACON::Completion::Suggestions) : Nil
+    return unless values = @suggested_values
+
+    if values.is_a?(Proc)
+      values = values.call input
+    end
+
+    suggestions.suggest_values values
   end
 
   # Returns `true` if `self` is able to accept a value, otherwise `false`.

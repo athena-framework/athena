@@ -44,4 +44,33 @@ describe ACON::Input::Argument do
       end
     end
   end
+
+  describe "#complete" do
+    it "with an array" do
+      values = ["foo", "bar"]
+      suggestions = ACON::Completion::Suggestions.new
+
+      argument = ACON::Input::Argument.new "foo", suggested_values: values
+
+      argument.has_completion?.should be_true
+
+      argument.complete ACON::Completion::Input.new, suggestions
+
+      suggestions.suggested_values.map(&.value).should eq ["foo", "bar"]
+    end
+
+    it "with an block" do
+      values = ["foo", "bar"]
+      suggestions = ACON::Completion::Suggestions.new
+      callback = Proc(ACON::Completion::Input, Array(String)).new { values }
+
+      argument = ACON::Input::Argument.new "foo", suggested_values: callback
+
+      argument.has_completion?.should be_true
+
+      argument.complete ACON::Completion::Input.new, suggestions
+
+      suggestions.suggested_values.map(&.value).should eq ["foo", "bar"]
+    end
+  end
 end

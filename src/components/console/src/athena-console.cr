@@ -1,3 +1,5 @@
+require "ecr"
+
 require "./annotations"
 require "./application"
 require "./command"
@@ -5,6 +7,7 @@ require "./cursor"
 require "./terminal"
 
 require "./commands/*"
+require "./completion/**"
 require "./descriptor/*"
 require "./exceptions/*"
 require "./formatter/*"
@@ -31,6 +34,7 @@ alias ACONA = ACON::Annotations
 # * Reusable output [styles][Athena::Console::Formatter::OutputStyleInterface]
 # * High level reusable formatting [styles][Athena::Console::Style::Interface]
 # * [Testing abstractions][Athena::Console::Spec]
+# * [Tab Completion][Athena::Console::Input::Interface--argumentoption-value-completion]
 #
 # The console component best works in conjunction with a dedicated Crystal file that'll be used as the entry point.
 # Ideally this file is compiled into a dedicated binary for use in production, but is invoked directly while developing.
@@ -93,6 +97,20 @@ alias ACONA = ACON::Annotations
 #
 # TIP: If using this component with the `Athena::DependencyInjection` component, `ACON::Command` that have the `ADI::Register` annotation will automatically
 # be registered as commands when using the `ADI::Console::Application` type.
+#
+# ### Console Completion
+#
+# Athena's completion script can be installed to provide auto tab completion out of the box for command and option names, and values in some cases.
+# The script currently supports the shells: `bash` (also requires the `bash-completion` package).
+# Run `./console completion --help` for installation instructions based on your shell.
+#
+# NOTE: The completion script only needs to be installed _once_, but is specific to the binary used to generate it.
+# E.g. `./console completion` would be scoped to the `console` binary, while `./myapp completion` would be scoped to `myapp`.
+#
+# Once installed, restart your terminal, and you should be good to go!
+#
+# WARNING: The completion script may only be used with real built binaries, not temporary ones such as `crystal run src/console.cr -- completion`.
+# This is to ensure the performance of the script is sufficient, and to avoid any issues with the naming of the temporary binary.
 module Athena::Console
   VERSION = "0.3.2"
 
@@ -102,9 +120,23 @@ module Athena::Console
   # Includes the commands that come bundled with `Athena::Console`.
   module Commands; end
 
+  # Includes types related to Athena's [tab completion][Athena::Console::Input::Interface--argumentoption-value-completion] features.
+  module Completion; end
+
   # Contains all custom exceptions defined within `Athena::Console`.
   module Exceptions; end
 
   # Contains types related to lazily loading commands.
   module Loader; end
+
+  # :nodoc:
+  #
+  # TODO: Remove this in favor of `::System::EOL` when/if https://github.com/crystal-lang/crystal/pull/11303 is released.
+  module System
+    EOL = {% if flag? :windows %}
+            "\r\n"
+          {% else %}
+            "\n"
+          {% end %}
+  end
 end

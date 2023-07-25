@@ -15,7 +15,7 @@ describe ACON::Commands::List do
       tester = ACON::Spec::CommandTester.new app.get("list")
       tester.execute command: "list", "--raw": true
 
-      tester.display.should eq "help   Display help for a command\nlist   List commands\n"
+      tester.display.should eq "completion   Dump the shell completion script\nhelp         Display help for a command\nlist         List commands\n"
     end
 
     it "with namespace argument" do
@@ -50,10 +50,11 @@ describe ACON::Commands::List do
         -v|vv|vvv, --verbose  Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
 
       Available commands:
-        help      Display help for a command
-        list      List commands
+        completion  Dump the shell completion script
+        help        Display help for a command
+        list        List commands
        0foo
-        0foo:bar  0foo:bar command\n
+        0foo:bar    0foo:bar command\n
       OUTPUT
     end
 
@@ -64,7 +65,7 @@ describe ACON::Commands::List do
       tester = ACON::Spec::CommandTester.new app.get("list")
       tester.execute command: "list", "--raw": true
 
-      tester.display.should eq "help       Display help for a command\nlist       List commands\n0foo:bar   0foo:bar command\n"
+      tester.display.should eq "completion   Dump the shell completion script\nhelp         Display help for a command\nlist         List commands\n0foo:bar     0foo:bar command\n"
     end
   end
 end
