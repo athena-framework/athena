@@ -295,4 +295,28 @@ module Athena::Console::Spec
       @status = @command.run self.input, self.output
     end
   end
+
+  struct CommandCompletionTester
+    def initialize(@command : ACON::Command); end
+
+    def complete(*input : String) : Array(String)
+      self.complete input
+    end
+
+    def complete(input : Enumerable(String)) : Array(String)
+      completion_input = ACON::Completion::Input.from_tokens input, (input.size - 1).clamp(0, nil)
+      completion_input.bind @command.definition
+      suggestions = ACON::Completion::Suggestions.new
+
+      @command.complete completion_input, suggestions
+
+      options = [] of String
+
+      suggestions.suggested_options.each do |option|
+        options << "--#{option.name}"
+      end
+
+      options.concat suggestions.suggested_values.map(&.to_s)
+    end
+  end
 end
