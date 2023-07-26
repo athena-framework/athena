@@ -14,4 +14,4 @@ foo <info>0.1.0</info>
 <comment>Available commands:</comment>
   <info>completion</info>  Dump the shell completion script
   <info>help</info>        Display help for a command
-  <info>list</info>        List commands
+  <info>list</info>        List available commands

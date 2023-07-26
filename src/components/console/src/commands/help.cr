@@ -1,4 +1,5 @@
 # Displays information for a given command.
+@[Athena::Console::Annotations::AsCommand("help", description: "Display help for a command")]
 class Athena::Console::Commands::Help < Athena::Console::Command
   # :nodoc:
   setter command : ACON::Command? = nil
@@ -8,12 +9,9 @@ class Athena::Console::Commands::Help < Athena::Console::Command
 
     self
       .name("help")
-      .definition(
-        ACON::Input::Argument.new("command_name", :optional, "The command name", "help"),
-        ACON::Input::Option.new("format", nil, :required, "The output format (txt)", "txt"),
-        ACON::Input::Option.new("raw", nil, :none, "To output raw command help"),
-      )
-      .description("Display help for a command")
+      .argument("command_name", description: "The command name", default: "help") { ACON::Descriptor::Application.new(self.application).commands.keys }
+      .option("format", value_mode: :required, description: "The output format (txt)", default: "txt") { ACON::Helper::Descriptor.new.formats }
+      .option("raw", value_mode: :none, description: "To output raw command help")
       .help(
         <<-HELP
         The <info>%command.name%</info> command displays help for a given command:

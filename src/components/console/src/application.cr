@@ -301,7 +301,7 @@ class Athena::Console::Application
   # By default this handles completing commands and options, but can be overridden if needed.
   def complete(input : ACON::Completion::Input, suggestions : ACON::Completion::Suggestions) : Nil
     if input.completion_type.argument_value? && "command" == input.completion_name
-      @commands.each do |name, command|
+      self.commands.each do |name, command|
         next if command.hidden? || command.name != name
 
         suggestions.suggest_value name, command.description

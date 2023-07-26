@@ -17,4 +17,8 @@ class Athena::Console::Helper::Descriptor < Athena::Console::Helper
 
     self
   end
+
+  def formats : Array(String)
+    @descriptors.keys
+  end
 end
