@@ -18,7 +18,8 @@ class Athena::Console::Commands::DumpCompletion < Athena::Console::Command
     shell = self.class.guess_shell
 
     rc_file, completion_file = case shell
-                               when "zsh" then {"~/.zshrc", "$fpath[1]/_#{command_name}"}
+                               when "fish" then {"~/.config/fish/config.fish", "/etc/fish/completions/#{command_name}.fish"}
+                               when "zsh"  then {"~/.zshrc", "$fpath[1]/_#{command_name}"}
                                else
                                  {"~/.bashrc", "/etc/bash_completion.d/#{command_name}"}
                                end
@@ -71,6 +72,7 @@ TEXT
 
     completion_script = case shell
                         when "bash" then ACON::Completion::Output::Bash::Script.new command_name, ACON::Commands::Complete::API_VERSION
+                        when "fish" then ACON::Completion::Output::Fish::Script.new command_name, ACON::Commands::Complete::API_VERSION
                         when "zsh"  then ACON::Completion::Output::Zsh::Script.new command_name, ACON::Commands::Complete::API_VERSION
                         else
                           if output.is_a? ACON::Output::ConsoleOutputInterface

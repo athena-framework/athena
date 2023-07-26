@@ -4,7 +4,7 @@
 # zsh completions for <%= @command_name %>
 #
 # References:
-#   - https://github.com/symfony/symfony/blob/503a7b3cb62fb6de70176b07bd1c4242e3addc5b/src/Symfony/Component/Console/Resources/completion.bash
+#   - https://github.com/symfony/symfony/blob/503a7b3cb62fb6de70176b07bd1c4242e3addc5b/src/Symfony/Component/Console/Resources/completion.zsh
 
 _athena_<%= @command_name %>() {
     local lastParam flagPrefix requestComp out comp
