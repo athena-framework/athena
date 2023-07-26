@@ -1,12 +1,13 @@
 # Adapted from https://github.com/symfony/symfony/blob/503a7b3cb62fb6de70176b07bd1c4242e3addc5b/src/Symfony/Component/Console/Resources/completion.fish
+# Crystal doesn\'t get the script as the first arg, so remove it and decrement c by 1 to compensate
 
-function _athena_{{ COMMAND_NAME }}
+function _athena_<%= @command_name %>
     set athena_cmd (commandline -o)
-    set c (count (commandline -oc))
+    set c (math (count (commandline -oc)) - 1)
 
-    set completecmd "$athena_cmd[1]" "_complete" "--no-interaction" "-sfish" "-a{{ VERSION }}"
+    set completecmd "$athena_cmd[1]" "_complete" "--no-interaction" "-sfish" "-a<%= @version %>"
 
-    for i in $athena_cmd
+    for i in $athena_cmd[2..]
         if [ $i != "" ]
             set completecmd $completecmd "-i$i"
         end
@@ -21,4 +22,4 @@ function _athena_{{ COMMAND_NAME }}
     end
 end
 
-complete -c '{{ COMMAND_NAME }}' -a '(_athena_{{ COMMAND_NAME }})' -f
+complete -c '<%= @command_name %>' -a '(_athena_<%= @command_name %>)' -f
