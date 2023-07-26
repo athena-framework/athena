@@ -46,6 +46,15 @@ struct CompleteCommandTest < ASPEC::TestCase
     end
   end
 
+  def test_completes_command_name_with_loader : Nil
+    @application.command_loader = ACON::Loader::Factory.new({
+      "foo:bar1" => ->{ Foo1Command.new.as ACON::Command },
+    })
+
+    self.execute({"--current" => "0", "--input" => [] of String})
+    @tester.display.should eq "#{["help", "list", "completion", "hello", "ahoy", "foo:bar1", "afoobar1"].join("\n")}#{ACON::System::EOL}"
+  end
+
   def test_additional_shell_support : Nil
     @command = ACON::Commands::Complete.new({"supported" => ACON::Completion::Output::Bash} of String => ACON::Completion::Output::Interface.class)
     @command.application = @application
