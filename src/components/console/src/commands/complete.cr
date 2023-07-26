@@ -12,6 +12,7 @@ class Athena::Console::Commands::Complete < Athena::Console::Command
   def initialize(completion_outputs : Hash(String, ACON::Completion::Output::Interface.class) = Hash(String, ACON::Completion::Output::Interface.class).new)
     @completion_outputs = completion_outputs.merge!({
       "bash" => ACON::Completion::Output::Bash,
+      "fish" => ACON::Completion::Output::Fish,
       "zsh"  => ACON::Completion::Output::Zsh,
     } of String => ACON::Completion::Output::Interface.class)
 
