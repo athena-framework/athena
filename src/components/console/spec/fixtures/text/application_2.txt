@@ -14,7 +14,7 @@ My Athena application <info>1.0.0</info>
 <comment>Available commands:</comment>
   <info>completion</info>           Dump the shell completion script
   <info>help</info>                 Display help for a command
-  <info>list</info>                 List commands
+  <info>list</info>                 List available commands
  <comment>descriptor</comment>
   <info>descriptor:command1</info>  [alias1|alias2] command 1 description
   <info>descriptor:command2</info>  command 2 description

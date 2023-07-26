@@ -14,4 +14,4 @@ Options:
 Available commands:
   completion  Dump the shell completion script
   help        Display help for a command
-  list        List commands
+  list        List available commands
