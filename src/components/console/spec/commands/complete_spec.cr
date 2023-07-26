@@ -41,7 +41,7 @@ struct CompleteCommandTest < ASPEC::TestCase
   end
 
   def test_unsupported_shell_option : Nil
-    expect_raises ACON::Exceptions::RuntimeError, "Shell completion is not supported for your shell: 'unsupported' (supported: 'bash')." do
+    expect_raises ACON::Exceptions::RuntimeError, "Shell completion is not supported for your shell: 'unsupported' (supported: 'bash', 'zsh')." do
       self.execute({"--shell" => "unsupported"})
     end
   end

@@ -11,7 +11,7 @@ struct DumpCompletionCommandTest < ASPEC::TestCase
 
   def complete_provider : Hash
     {
-      "shell" => {[] of String, ["bash"]},
+      "shell" => {[] of String, ["bash", "zsh"]},
     }
   end
 end
