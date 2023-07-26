@@ -29,7 +29,7 @@ _athena_<%= @command_name %>() {
     local cur prev words cword
     _get_comp_words_by_ref -n := cur prev words cword
 
-    # Crystal doesn't get the script as the first arg, so remove it and decrement cword by 1 to compensate
+    # Crystal doesn\'t get the script as the first arg, so remove it and decrement cword by 1 to compensate
     cword=$(expr $cword - 1)
     words=("${words[@]:1}")
 

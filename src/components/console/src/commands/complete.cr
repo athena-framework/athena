@@ -12,6 +12,7 @@ class Athena::Console::Commands::Complete < Athena::Console::Command
   def initialize(completion_outputs : Hash(String, ACON::Completion::Output::Interface.class) = Hash(String, ACON::Completion::Output::Interface.class).new)
     @completion_outputs = completion_outputs.merge!({
       "bash" => ACON::Completion::Output::Bash,
+      "zsh"  => ACON::Completion::Output::Zsh,
     } of String => ACON::Completion::Output::Interface.class)
 
     super()
@@ -88,7 +89,7 @@ class Athena::Console::Commands::Complete < Athena::Console::Command
       if completion_input.completion_type.option_name?
         self.log "  Completing option names for the <comment>#{command.is_a?(ACON::Commands::Lazy) ? command.command.class : command.class}</> command."
 
-        suggestions.suggest_options command.definition.options
+        suggestions.suggest_options command.definition.options.values
       else
         self.log({
           "  Completing using the <comment>#{command.is_a?(ACON::Commands::Lazy) ? command.command.class : command.class}</> class.",

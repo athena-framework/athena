@@ -40,8 +40,8 @@ class Athena::Console::Completion::Suggestions
   end
 
   # Adds each of the provided *options* to `#suggested_options`.
-  def suggest_options(options : ::Hash(String, ACON::Input::Option)) : self
-    options.each_value do |option|
+  def suggest_options(options : ::Enumerable(ACON::Input::Option)) : self
+    options.each do |option|
       self.suggest_option option
     end
 

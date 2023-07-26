@@ -315,7 +315,7 @@ class Athena::Console::Application
     end
 
     if input.completion_type.option_name?
-      suggestions.suggest_options self.definition.options
+      suggestions.suggest_options self.definition.options.values
 
       return
     end
