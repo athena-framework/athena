@@ -45,6 +45,7 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
   @content = [] of String
   @sections : Array(self)
   @terminal : ACON::Terminal
+  @max_height : Int32? = nil
 
   def initialize(
     io : ::IO,
@@ -79,31 +80,72 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
 
     @lines -= lines
 
-    @io.print self.pop_stream_content_until_current_section(lines)
+    self.io_do_write self.pop_stream_content_until_current_section((mh = @max_height) ? Math.min(mh, @lines) : @lines), false
+  end
+
+  # Overrides the current content of `self` with the provided *messages*.
+  def overwrite(*messages : String) : Nil
+    self.overwrite messages
   end
 
   # Overrides the current content of `self` with the provided *message*.
-  def overwrite(message : String) : Nil
+  def overwrite(message : String | Enumerable(String)) : Nil
     self.clear
     self.puts message
   end
 
-  protected def add_content(input : String) : Nil
+  def max_height=(max_height : Int32) : Nil
+    # Clear output of current section and redraw again with new height
+    existing_content = self.pop_stream_content_until_current_section (mh = @max_height) ? Math.min(mh, @lines) : @lines
+
+    @max_height = max_height
+
+    self.io_do_write self.visible_content, false
+    self.io_do_write existing_content, false
+  end
+
+  protected def add_content(input : String, new_line : Bool = true) : Int32
+    added_lines = 0
+
     input.each_line do |line|
       lines = (self.get_display_width(line) // @terminal.width).ceil
-      @lines += lines.zero? ? 1 : lines
+
+      added_lines += lines.zero? ? 1 : lines
       @content.push line, "\n"
     end
+
+    @lines += added_lines
+
+    added_lines
   end
 
   protected def do_write(message : String, new_line : Bool) : Nil
     return super unless self.decorated?
 
-    erased_content = self.pop_stream_content_until_current_section
+    # Check if the previous line (last entry of @content) needs to be continued
+    # i.e. does not end with a line break. In which case, it needs to be erased first
+    lines_to_clear = delete_last_line = (last_line = @content[-1]? || "") && !last_line.ends_with?(ACON::System::EOL) ? 1 : 0
 
-    self.add_content message
-    super message, true
-    super erased_content, false
+    lines_added = self.add_content message, new_line
+
+    max_height = @max_height || 0
+
+    if line_overflow = (max_height > 0 && @lines > max_height)
+      # on overflow, clear the whole section and redraw again (to remove the first lines)
+      lines_to_clear = max_height
+    end
+
+    erased_content = self.pop_stream_content_until_current_section lines_to_clear
+
+    if line_overflow
+      previous_lines_of_section = @content[@lines - max_height, max_height - lines_added]
+      self.io_do_write previous_lines_of_section.join(""), false
+    end
+
+    # if the last line was removed, re-print its content together with the new content
+    # otherwise, just print the new content
+    self.io_do_write delete_last_line ? "#{last_line}#{message}" : message, true
+    self.io_do_write erased_content, false
   end
 
   private def get_display_width(input : String) : Int32
@@ -130,5 +172,12 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
     end
 
     erased_content.reverse.join
+  end
+
+  private def visible_content : String
+    return self.content unless max_height = @max_height
+    return @content.join "" if @content.size < max_height
+
+    @content.reverse[max_height..].join ""
   end
 end
