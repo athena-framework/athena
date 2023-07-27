@@ -1274,7 +1274,7 @@ struct TableSpec < ASPEC::TestCase
         |-------------------------|
         |   ISBN: 9971-5-0210-0   |
         |  Title: A Tale          |
-        | of Two Cities           |
+        |         of Two Cities   |
         | Author: Charles Dickens |
         |  Price: 139.25          |
         +-------------------------+

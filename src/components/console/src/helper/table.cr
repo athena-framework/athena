@@ -1003,16 +1003,29 @@ class Athena::Console::Helper::Table
         max_rows.times do |idx|
           cell = (row[idx]? || "").to_s
 
-          if !headers.empty? && !contains_colspan
-            rows << Row.new([
-              sprintf(
-                "<comment>%s</>: %s",
-                headers[idx]?.to_s.rjust(max_header_length, ' '),
-                cell
-              ),
-            ])
-          elsif !cell.empty?
-            rows << Row.new [cell]
+          cell.split("\n").each_with_index do |part, part_idx|
+            if !headers.empty? && !contains_colspan
+              if part_idx.zero?
+                rows << Row.new([
+                  sprintf(
+                    "<comment>%s</>: %s",
+                    headers[idx]?.to_s.rjust(max_header_length, ' '),
+                    part
+                  ),
+                ])
+              else
+                rows << Row.new([
+                  sprintf(
+                    "%s  %s",
+                    "".rjust(max_header_length, ' '),
+                    part
+                  ),
+
+                ])
+              end
+            elsif !cell.empty?
+              rows << Row.new [part]
+            end
           end
         end
       end
