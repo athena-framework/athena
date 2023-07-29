@@ -88,25 +88,55 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
     self.puts message
   end
 
-  protected def add_content(input : String) : Nil
-    input.each_line do |line|
-      lines = (self.get_display_width(line) // @terminal.width).ceil
-      @lines += lines.zero? ? 1 : lines
-      @content.push line, "\n"
+  protected def add_content(input : String, new_line : Bool = true) : Nil
+    width = @terminal.width
+    count = input.lines.size - 1
+    lines_added = 0
+
+    input.split(ACON::System::EOL).each_with_index do |line, idx|
+      if idx < count || new_line || input.ends_with?(ACON::System::EOL)
+        line += ACON::System::EOL
+      end
+
+      if line.empty?
+        next
+      end
+
+      if idx.zero? && (last_line = @content.last?) && !last_line.ends_with? ACON::System::EOL
+        n = (self.get_display_length(last_line) / width).ceil
+
+        @lines -= n.zero? ? 1 : n.to_i
+
+        line = "#{last_line}#{line}"
+
+        @content[-1, 1] = line
+      else
+        @content << line
+      end
+
+      n = (self.get_display_length(line) / width).ceil
+
+      lines_added += n.zero? ? 1 : n.to_i
     end
   end
 
   protected def do_write(message : String, new_line : Bool) : Nil
     return super unless self.decorated?
 
-    erased_content = self.pop_stream_content_until_current_section
+    # Check if the previous line (last entry of @content) needs to be continued
+    # i.e. does not end with a line break. In which case, it needs to be erased first
+    delete_last_line = ((last_line = (@content.last? || "")) && !last_line.ends_with? ACON::System::EOL)
+    erased_content = self.pop_stream_content_until_current_section delete_last_line ? 1 : 0
 
-    self.add_content message
-    super message, true
-    super erased_content, false
+    self.add_content message, new_line
+
+    # if the last line was removed, re-print its content together with the new content
+    # otherwise, just print the new content
+    self.io_do_write delete_last_line ? "#{last_line}#{message}" : message, true
+    self.io_do_write erased_content, false
   end
 
-  private def get_display_width(input : String) : Int32
+  private def get_display_length(input : String) : Int32
     ACON::Helper.width ACON::Helper.remove_decoration(self.formatter, input.gsub("\t", "        "))
   end
 
@@ -118,7 +148,14 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
       break if self == section
 
       number_of_lines_to_clear += section.lines
-      erased_content << section.content
+
+      if section_content = section.content.presence
+        if !section_content.ends_with? ACON::System::EOL
+          section_content += ACON::System::EOL
+        end
+
+        erased_content << section_content
+      end
     end
 
     if number_of_lines_to_clear > 0

@@ -102,6 +102,37 @@ struct ConsoleSectionOutputTest < ASPEC::TestCase
     output.io.to_s.should eq "Foo\nBar\n\e[2A\e[0JBar\n\e[1A\e[0JBaz\nBar\n\e[1A\e[0JFoobar\n"
   end
 
+  @[Focus]
+  def test_multiple_sections_output_without_new_line : Nil
+    expected = IO::Memory.new
+    output = ACON::Output::IO.new @io
+
+    sections = Array(ACON::Output::Section).new
+    output1 = ACON::Output::Section.new output.io, sections, :normal, true, ACON::Formatter::Output.new
+    output2 = ACON::Output::Section.new output.io, sections, :normal, true, ACON::Formatter::Output.new
+
+    output1.print "Foo"
+    expected << "Foo" << ACON::System::EOL
+    output2.puts "Bar"
+    expected << "Bar" << ACON::System::EOL
+
+    output1.puts " is not foo."
+    expected << "\e[2A\e[0JFoo is not foo." << ACON::System::EOL << "Bar" << ACON::System::EOL
+
+    output2.print "Baz"
+    expected << "Baz" << ACON::System::EOL
+    output2.print "bar"
+    expected << "\e[1A\e[0JBazbar" << ACON::System::EOL
+    output2.puts ""
+    expected << "\e[1A\e[0JBazbar" << ACON::System::EOL
+    output2.puts ""
+    expected << ACON::System::EOL
+    output2.puts "Done."
+    expected << "Done." << ACON::System::EOL
+
+    output.io.to_s.should eq expected.to_s
+  end
+
   def test_clear_with_question : Nil
     input = ACON::Input::Hash.new
     input.stream = IO::Memory.new "Batman & Robin\n"
