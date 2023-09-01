@@ -50,6 +50,7 @@ struct ConsoleSectionOutputTest < ASPEC::TestCase
     output1.puts "Baz"
 
     output.io.to_s.should eq "Foo\nBar\n\e[1A\e[0J\e[1A\e[0JBaz\nFoo\n"
+    sections.size.should eq 2
   end
 
   def test_clear_number_of_lines_multiple_sections_preserves_empty_lines : Nil
@@ -64,6 +65,20 @@ struct ConsoleSectionOutputTest < ASPEC::TestCase
     output1.puts "bar"
 
     output.io.to_s.should eq "\nfoo\n\e[1A\e[0J\e[1A\e[0Jbar\n\n"
+  end
+
+  def test_clear_with_question : Nil
+    input = ACON::Input::Hash.new
+    input.stream = IO::Memory.new "Batman & Robin\n"
+    input.interactive = true
+
+    sections = Array(ACON::Output::Section).new
+    output = ACON::Output::Section.new @io, sections, :normal, true, ACON::Formatter::Output.new
+
+    ACON::Helper::Question.new.ask input, output, ACON::Question(String?).new("What's your favorite superhero?", nil)
+    output.clear
+
+    output.io.to_s.should eq "What's your favorite superhero?\n\e[2A\e[0J"
   end
 
   def test_overwrite : Nil
@@ -102,17 +117,15 @@ struct ConsoleSectionOutputTest < ASPEC::TestCase
     output.io.to_s.should eq "Foo\nBar\n\e[2A\e[0JBar\n\e[1A\e[0JBaz\nBar\n\e[1A\e[0JFoobar\n"
   end
 
-  def test_clear_with_question : Nil
-    input = ACON::Input::Hash.new
-    input.stream = IO::Memory.new "Batman & Robin\n"
-    input.interactive = true
+  def test_write_without_new_line : Nil
+    output = ACON::Output::IO.new @io
 
     sections = Array(ACON::Output::Section).new
-    output = ACON::Output::Section.new @io, sections, :normal, true, ACON::Formatter::Output.new
+    output = ACON::Output::Section.new output.io, sections, :normal, true, ACON::Formatter::Output.new
 
-    ACON::Helper::Question.new.ask input, output, ACON::Question(String?).new("What's your favorite superhero?", nil)
-    output.clear
+    output.print "Foo#{ACON::System::EOL}"
+    output.print "Bar"
 
-    output.io.to_s.should eq "What's your favorite superhero?\n\e[2A\e[0J"
+    output.io.to_s.should eq "Foo#{ACON::System::EOL}Bar#{ACON::System::EOL}"
   end
 end

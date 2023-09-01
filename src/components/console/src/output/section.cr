@@ -41,11 +41,11 @@ require "./io"
 # ```
 class Athena::Console::Output::Section < Athena::Console::Output::IO
   protected getter lines = 0
+  protected getter max_height : Int32? = nil
 
   @content = [] of String
   @sections : Array(self)
   @terminal : ACON::Terminal
-  @max_height : Int32? = nil
 
   def initialize(
     io : ::IO,
@@ -70,9 +70,8 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
   def clear(lines : Int32? = nil) : Nil
     return if @content.empty? || !self.decorated?
 
-    if lines && @lines >= lines
-      # Double the lines to account for each new line added between content
-      @content.delete_at (-lines * 2)..-1
+    if lines && lines > 0
+      @content.delete_at -lines..
     else
       lines = @lines
       @content.clear
@@ -80,7 +79,7 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
 
     @lines -= lines
 
-    self.io_do_write self.pop_stream_content_until_current_section((mh = @max_height) ? Math.min(mh, @lines) : @lines), false
+    self.io_do_write self.pop_stream_content_until_current_section((mh = @max_height) ? Math.min(mh, lines) : lines), false
   end
 
   # Overrides the current content of `self` with the provided *messages*.
@@ -105,26 +104,59 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
   end
 
   protected def add_content(input : String, new_line : Bool = true) : Int32
-    added_lines = 0
+    width = @terminal.width
+    lines = input.lines
+    lines_added = 0
+    count = lines.size - 1
 
-    input.each_line do |line|
-      lines = (self.get_display_width(line) // @terminal.width).ceil
+    lines.each_with_index do |line, idx|
+      # re-add the line break that has been removed in `#lines` for:
+      # - every line that is not the last line
+      # - if new_line is required, also add it to the last line
+      if idx < count || new_line
+        line += ACON::System::EOL
+      end
 
-      added_lines += lines.zero? ? 1 : lines
-      @content.push line, "\n"
+      # Skip line if there is no text (or new line)
+      next if line.empty?
+
+      # For the first line, check if the previous line (last entry of @content) needs to be continued
+      # I.e. does not end with a line break
+      if idx == 0 && @content[-1]?.try { |l| !l.ends_with? ACON::System::EOL }
+        # Deduct the line count of the previous line
+        w = (self.get_display_width(@content[-1]) / width).ceil.to_i
+        @lines -= w.zero? ? 1 : w
+
+        # Concat previous and new line
+        line = "#{@content[-1]}#{line}"
+
+        # Replace last entry of @content with the new expanded line
+        @content[-1] = line
+      else
+        @content << line
+      end
+
+      w = (self.get_display_width(line) / width).ceil.to_i
+      lines_added += w.zero? ? 1 : w
     end
 
-    @lines += added_lines
+    @lines += lines_added
 
-    added_lines
+    lines_added
   end
 
   protected def do_write(message : String, new_line : Bool) : Nil
+    if !new_line && message.ends_with? ACON::System::EOL
+      message = message.chomp
+      new_line = true
+    end
+
     return super unless self.decorated?
 
     # Check if the previous line (last entry of @content) needs to be continued
     # i.e. does not end with a line break. In which case, it needs to be erased first
-    lines_to_clear = delete_last_line = (last_line = @content[-1]? || "") && !last_line.ends_with?(ACON::System::EOL) ? 1 : 0
+    lines_to_clear = @content[-1]?.try { |l| !l.ends_with? ACON::System::EOL } ? 1 : 0
+    delete_last_line = lines_to_clear == 1
 
     lines_added = self.add_content message, new_line
 
@@ -144,7 +176,7 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
 
     # if the last line was removed, re-print its content together with the new content
     # otherwise, just print the new content
-    self.io_do_write delete_last_line ? "#{last_line}#{message}" : message, true
+    self.io_do_write delete_last_line ? "#{@content[-1]}#{message}" : message, true
     self.io_do_write erased_content, false
   end
 
@@ -159,25 +191,31 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
     @sections.each do |section|
       break if self == section
 
-      number_of_lines_to_clear += section.lines
-      erased_content << section.content
+      number_of_lines_to_clear += (max_height = section.max_height) ? Math.min(section.lines, max_height) : section.lines
+
+      unless (section_content = section.visible_content).blank?
+        unless section_content.ends_with? ACON::System::EOL
+          section_content = "#{section_content}#{ACON::System::EOL}"
+        end
+
+        erased_content << section_content
+      end
     end
 
     if number_of_lines_to_clear > 0
       # Move cursor up n lines
-      @io.print "\e[#{number_of_lines_to_clear}A"
+      self.io_do_write "\e[#{number_of_lines_to_clear}A", false
 
       # Erase to end of screen
-      @io.print "\e[0J"
+      self.io_do_write "\e[0J", false
     end
 
     erased_content.reverse.join
   end
 
-  private def visible_content : String
+  protected def visible_content : String
     return self.content unless max_height = @max_height
-    return @content.join "" if @content.size < max_height
 
-    @content.reverse[max_height..].join ""
+    @content[-max_height..].join ""
   end
 end
