@@ -5,7 +5,7 @@ require "./io"
 # Output sections can be used for advanced console outputs, such as displaying multiple progress bars which are updated independently,
 # or appending additional rows to tables.
 #
-# TODO: Implement progress bars and tables.
+# TODO: Implement progress bars.
 #
 # ```
 # protected def execute(input : ACON::Input::Interface, output : ACON::Output::Interface) : ACON::Command::Status
@@ -41,6 +41,7 @@ require "./io"
 # ```
 class Athena::Console::Output::Section < Athena::Console::Output::IO
   protected getter lines = 0
+  protected getter max_height : Int32? = nil
 
   @content = [] of String
   @sections : Array(self)
@@ -69,9 +70,8 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
   def clear(lines : Int32? = nil) : Nil
     return if @content.empty? || !self.decorated?
 
-    if lines && @lines >= lines
-      # Double the lines to account for each new line added between content
-      @content.delete_at (-lines * 2)..-1
+    if lines && lines > 0
+      @content.delete_at -Math.min(lines, @content.size)..
     else
       lines = @lines
       @content.clear
@@ -79,31 +79,105 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
 
     @lines -= lines
 
-    @io.print self.pop_stream_content_until_current_section(lines)
+    self.io_do_write self.pop_stream_content_until_current_section((mh = @max_height) ? Math.min(mh, lines) : lines), false
+  end
+
+  # Overrides the current content of `self` with the provided *messages*.
+  def overwrite(*messages : String) : Nil
+    self.overwrite messages
   end
 
   # Overrides the current content of `self` with the provided *message*.
-  def overwrite(message : String) : Nil
+  def overwrite(message : String | Enumerable(String)) : Nil
     self.clear
     self.puts message
   end
 
-  protected def add_content(input : String) : Nil
-    input.each_line do |line|
-      lines = (self.get_display_width(line) // @terminal.width).ceil
-      @lines += lines.zero? ? 1 : lines
-      @content.push line, "\n"
+  def max_height=(max_height : Int32?) : Nil
+    # Clear output of current section and redraw again with new height
+    existing_content = self.pop_stream_content_until_current_section (mh = @max_height) ? Math.min(mh, @lines) : @lines
+
+    @max_height = max_height
+
+    self.io_do_write self.visible_content, false
+    self.io_do_write existing_content, false
+  end
+
+  protected def add_content(input : String, new_line : Bool = true) : Int32
+    width = @terminal.width
+    lines = input.split ACON::System::EOL, remove_empty: false
+    lines_added = 0
+    count = lines.size - 1
+
+    lines.each_with_index do |line, idx|
+      # re-add the line break that has been removed in `#lines` for:
+      # - every line that is not the last line
+      # - if new_line is required, also add it to the last line
+      if idx < count || new_line
+        line += ACON::System::EOL
+      end
+
+      # Skip line if there is no text (or new line)
+      next if line.empty?
+
+      # For the first line, check if the previous line (last entry of @content) needs to be continued
+      # I.e. does not end with a line break
+      if idx == 0 && @content[-1]?.try { |l| !l.ends_with? ACON::System::EOL }
+        # Deduct the line count of the previous line
+        w = (self.get_display_width(@content[-1]) / width).ceil.to_i
+        @lines -= w.zero? ? 1 : w
+
+        # Concat previous and new line
+        line = "#{@content[-1]}#{line}"
+
+        # Replace last entry of @content with the new expanded line
+        @content[-1] = line
+      else
+        @content << line
+      end
+
+      w = (self.get_display_width(line) / width).ceil.to_i
+      lines_added += w.zero? ? 1 : w
     end
+
+    @lines += lines_added
+
+    lines_added
   end
 
   protected def do_write(message : String, new_line : Bool) : Nil
+    if !new_line && message.ends_with? ACON::System::EOL
+      message = message.chomp
+      new_line = true
+    end
+
     return super unless self.decorated?
 
-    erased_content = self.pop_stream_content_until_current_section
+    # Check if the previous line (last entry of @content) needs to be continued
+    # i.e. does not end with a line break. In which case, it needs to be erased first
+    lines_to_clear = (last_line = @content[-1]? || "").presence.try { |l| !l.ends_with?(ACON::System::EOL) } ? 1 : 0
+    delete_last_line = lines_to_clear == 1
 
-    self.add_content message
-    super message, true
-    super erased_content, false
+    lines_added = self.add_content message, new_line
+
+    max_height = @max_height || 0
+
+    if line_overflow = (max_height > 0 && @lines > max_height)
+      # on overflow, clear the whole section and redraw again (to remove the first lines)
+      lines_to_clear = max_height
+    end
+
+    erased_content = self.pop_stream_content_until_current_section lines_to_clear
+
+    if line_overflow
+      previous_lines_of_section = @content[@lines - max_height, max_height - lines_added]
+      self.io_do_write previous_lines_of_section.join(""), false
+    end
+
+    # if the last line was removed, re-print its content together with the new content
+    # otherwise, just print the new content
+    self.io_do_write delete_last_line ? "#{last_line}#{message}" : message, true
+    self.io_do_write erased_content, false
   end
 
   private def get_display_width(input : String) : Int32
@@ -117,18 +191,33 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
     @sections.each do |section|
       break if self == section
 
-      number_of_lines_to_clear += section.lines
-      erased_content << section.content
+      number_of_lines_to_clear += (max_height = section.max_height) ? Math.min(section.lines, max_height) : section.lines
+
+      unless (section_content = section.visible_content).empty?
+        unless section_content.ends_with? ACON::System::EOL
+          section_content = "#{section_content}#{ACON::System::EOL}"
+        end
+
+        erased_content << section_content
+      end
     end
 
     if number_of_lines_to_clear > 0
       # Move cursor up n lines
-      @io.print "\e[#{number_of_lines_to_clear}A"
+      self.io_do_write "\e[#{number_of_lines_to_clear}A", false
 
       # Erase to end of screen
-      @io.print "\e[0J"
+      self.io_do_write "\e[0J", false
     end
 
     erased_content.reverse.join
+  end
+
+  protected def visible_content : String
+    return self.content unless max_height = @max_height
+
+    @content.replace @content[-Math.min(max_height, @content.size)..]
+
+    @content.join
   end
 end
