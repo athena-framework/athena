@@ -71,7 +71,7 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
     return if @content.empty? || !self.decorated?
 
     if lines && lines > 0
-      @content.delete_at -lines..
+      @content.delete_at -Math.min(lines, @content.size)..
     else
       lines = @lines
       @content.clear
@@ -105,7 +105,7 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
 
   protected def add_content(input : String, new_line : Bool = true) : Int32
     width = @terminal.width
-    lines = input.lines
+    lines = input.split ACON::System::EOL, remove_empty: false
     lines_added = 0
     count = lines.size - 1
 
@@ -193,7 +193,7 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
 
       number_of_lines_to_clear += (max_height = section.max_height) ? Math.min(section.lines, max_height) : section.lines
 
-      unless (section_content = section.visible_content).blank?
+      unless (section_content = section.visible_content).empty?
         unless section_content.ends_with? ACON::System::EOL
           section_content = "#{section_content}#{ACON::System::EOL}"
         end
@@ -216,6 +216,8 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
   protected def visible_content : String
     return self.content unless max_height = @max_height
 
-    @content[-max_height..].join ""
+    @content.delete_at -max_height..
+
+    @content.join
   end
 end
