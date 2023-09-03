@@ -1,6 +1,5 @@
 require "../spec_helper"
 
-@[ASPEC::TestCase::Focus]
 struct ConsoleSectionOutputTest < ASPEC::TestCase
   @io : IO::Memory
 
