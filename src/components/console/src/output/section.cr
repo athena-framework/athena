@@ -5,7 +5,7 @@ require "./io"
 # Output sections can be used for advanced console outputs, such as displaying multiple progress bars which are updated independently,
 # or appending additional rows to tables.
 #
-# TODO: Implement progress bars and tables.
+# TODO: Implement progress bars.
 #
 # ```
 # protected def execute(input : ACON::Input::Interface, output : ACON::Output::Interface) : ACON::Command::Status
@@ -93,7 +93,7 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
     self.puts message
   end
 
-  def max_height=(max_height : Int32) : Nil
+  def max_height=(max_height : Int32?) : Nil
     # Clear output of current section and redraw again with new height
     existing_content = self.pop_stream_content_until_current_section (mh = @max_height) ? Math.min(mh, @lines) : @lines
 
@@ -155,7 +155,7 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
 
     # Check if the previous line (last entry of @content) needs to be continued
     # i.e. does not end with a line break. In which case, it needs to be erased first
-    lines_to_clear = @content[-1]?.try { |l| !l.ends_with? ACON::System::EOL } ? 1 : 0
+    lines_to_clear = (last_line = @content[-1]? || "").presence.try { |l| !l.ends_with?(ACON::System::EOL) } ? 1 : 0
     delete_last_line = lines_to_clear == 1
 
     lines_added = self.add_content message, new_line
@@ -176,7 +176,7 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
 
     # if the last line was removed, re-print its content together with the new content
     # otherwise, just print the new content
-    self.io_do_write delete_last_line ? "#{@content[-1]}#{message}" : message, true
+    self.io_do_write delete_last_line ? "#{last_line}#{message}" : message, true
     self.io_do_write erased_content, false
   end
 
@@ -216,7 +216,7 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
   protected def visible_content : String
     return self.content unless max_height = @max_height
 
-    @content.delete_at -max_height..
+    @content.replace @content[-Math.min(max_height, @content.size)..]
 
     @content.join
   end
