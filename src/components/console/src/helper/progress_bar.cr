@@ -91,7 +91,7 @@ class Athena::Console::Helper::ProgressBar
       end,
 
       "memory"  => PlaceholderFormatter.new { |bar| (GC.stats.heap_size - GC.stats.free_bytes).humanize_bytes },
-      "elapsed" => PlaceholderFormatter.new { |bar| ACON::Helper.format_time Time.monotonic - bar.start_time },
+      "elapsed" => PlaceholderFormatter.new { |bar| ACON::Helper.format_time Time.utc.to_unix - bar.start_time },
       "current" => PlaceholderFormatter.new { |bar| bar.progress.to_s.rjust bar.step_width, ' ' },
       "max"     => PlaceholderFormatter.new { |bar| bar.max_steps.to_s },
       "percent" => PlaceholderFormatter.new { |bar| (bar.progress_percent * 100).floor.to_i.to_s },
@@ -100,7 +100,7 @@ class Athena::Console::Helper::ProgressBar
 
   @output : ACON::Output::Interface
   @terminal : ACON::Terminal
-  getter start_time : Time::Span
+  getter start_time : Int64
   @cursor : ACON::Cursor
 
   getter bar_width : Int32 = 28
@@ -148,10 +148,19 @@ class Athena::Console::Helper::ProgressBar
       @redraw_frequency = nil
     end
 
-    @start_time = Time.monotonic
+    @start_time = Time.utc.to_unix
     @cursor = ACON::Cursor.new @output
 
     self.max_steps = max || 0
+  end
+
+  def format=(format : ACON::Helper::ProgressBar::Format)
+    self.format = format.to_s.downcase
+  end
+
+  def format=(format : String)
+    @format = nil
+    @internal_format = format
   end
 
   def progress : Int32
@@ -185,13 +194,13 @@ class Athena::Console::Helper::ProgressBar
   def estimated : Float64
     return 0.0 if @step.zero? || @step == @starting_step
 
-    (((Time.monotonic - @start_time).total_seconds) / (@step - @starting_step) * @max).round
+    ((Time.utc.to_unix - @start_time) / (@step - @starting_step) * @max).round
   end
 
   def remaining : Float64
     return 0.0 if @step.zero?
 
-    (((Time.monotonic - @start_time).total_seconds) / (@step - @starting_step) * (@max - @step)).round
+    ((Time.utc.to_unix - @start_time) / (@step - @starting_step) * (@max - @step)).round 0
   end
 
   def placeholder_formatter(name : String) : ACON::Helper::ProgressBar::PlaceholderFormatter?
@@ -212,8 +221,8 @@ class Athena::Console::Helper::ProgressBar
     @step_width = @max > 0 ? ACON::Helper.width(@max.to_s) : 4
   end
 
-  def start(max : Int32? = nil, start_at : Int32 = 0) : Nil
-    @start_time = Time.monotonic
+  def start(max : Int32? = nil, at start_at : Int32 = 0) : Nil
+    @start_time = Time.utc.to_unix
     @step = start_at
     @starting_step = start_at
 
@@ -278,6 +287,16 @@ class Athena::Console::Helper::ProgressBar
   end
 
   def finish
+    if @max.zero?
+      @max = @step
+    end
+
+    if @step == @max && !@overwrite
+      # Prevent double 100% output
+      return
+    end
+
+    self.progress = @max
   end
 
   private def overwrite(message : String) : Nil
@@ -287,8 +306,7 @@ class Athena::Console::Helper::ProgressBar
 
     if @overwrite
       if previous_message = @previous_message
-        case output = @output
-        when ACON::Output::Section
+        if (output = @output).is_a? ACON::Output::Section
           message_lines = previous_message.lines
           line_count = message_lines.size
 
@@ -296,7 +314,7 @@ class Athena::Console::Helper::ProgressBar
             message_line_length = ACON::Helper.width ACON::Helper.remove_decoration output.formatter, line
 
             if message_line_length > @terminal.width
-              line_count = (message_line_length / @terminal.width).floor.to_i
+              line_count += message_line_length // @terminal.width
             end
           end
 
@@ -362,7 +380,7 @@ class Athena::Console::Helper::ProgressBar
 
   private def set_real_format(format : String) : Nil
     # Try to use the _NOMAX variant if available
-    @format = if @max > 0 && (resolved_format = self.class.format_definition "#{format}_nomax")
+    @format = if @max.zero? && (resolved_format = self.class.format_definition "#{format}_nomax")
                 resolved_format
               elsif resolved_format = self.class.format_definition format
                 resolved_format
