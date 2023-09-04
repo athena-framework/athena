@@ -5,8 +5,6 @@ require "./io"
 # Output sections can be used for advanced console outputs, such as displaying multiple progress bars which are updated independently,
 # or appending additional rows to tables.
 #
-# TODO: Implement progress bars.
-#
 # ```
 # protected def execute(input : ACON::Input::Interface, output : ACON::Output::Interface) : ACON::Command::Status
 #   raise ArgumentError.new "This command may only be used with `ACON::Output::ConsoleOutputInterface`." unless output.is_a? ACON::Output::ConsoleOutputInterface

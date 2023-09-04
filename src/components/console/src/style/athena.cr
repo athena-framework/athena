@@ -349,14 +349,14 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
     self.block messages, "WARNING", "fg=black;bg=yellow", padding: true
   end
 
-  # def progress_start(max : Int32 = 0) : Nil
-  # end
+  def progress_start(max : Int32 = 0) : Nil
+  end
 
-  # def progress_advance(step : Int32 = 1) : Nil
-  # end
+  def progress_advance(step by : Int32 = 1) : Nil
+  end
 
-  # def progress_finish : Nil
-  # end
+  def progress_finish : Nil
+  end
 
   private def auto_prepend_block : Nil
     chars = @buffered_output.fetch
