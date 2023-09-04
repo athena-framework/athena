@@ -63,6 +63,7 @@ class Athena::Console::Helper::ProgressBar
     {
       "bar" => PlaceholderFormatter.new do |bar, output|
         complete_bars = bar.bar_offset
+
         display = bar.bar_character * complete_bars
 
         if complete_bars < bar.bar_width
@@ -86,7 +87,7 @@ class Athena::Console::Helper::ProgressBar
   @start_time = Time::Span
   @cursor : ACON::Cursor
 
-  property bar_width : Int32 = 28
+  getter bar_width : Int32 = 28
   property bar_character : String { @max ? "=" : @empty_bar_character }
   property empty_bar_character : String = "-"
   property progress_character : String = ">"
@@ -149,6 +150,10 @@ class Athena::Console::Helper::ProgressBar
     @percent
   end
 
+  def bar_width=(size : Int32) : Nil
+    @bar_width = Math.max 1, size
+  end
+
   def bar_offset : Int32
     if @max
       return (@percent * @bar_width).floor.to_i
@@ -204,7 +209,7 @@ class Athena::Console::Helper::ProgressBar
   def progress=(step : Int32) : Nil
     if (ms = @max) && (step > ms)
       @max = step
-    else
+    elsif step < 0
       step = 0
     end
 
@@ -214,6 +219,7 @@ class Athena::Console::Helper::ProgressBar
     previous_period = @step // redraw_frequency
     current_period = step // redraw_frequency
     @step = step
+
     @percent = max > 0 ? @step / max : 0.0
     time_interval = Time.monotonic - @last_write_time
 
@@ -254,10 +260,10 @@ class Athena::Console::Helper::ProgressBar
     original_message = message
 
     if @overwrite
-      if prev_message = @previous_message
+      if previous_message = @previous_message
         case output = @output
         when ACON::Output::Section
-          message_lines = prev_message.lines
+          message_lines = previous_message.lines
           line_count = message_lines.size
 
           message_lines.each do |line|
@@ -270,6 +276,13 @@ class Athena::Console::Helper::ProgressBar
 
           output.clear line_count
         else
+          previous_message.count('\n').times do |t|
+            @cursor.move_to_column 1
+            @cursor.clear_line
+            @cursor.move_up
+          end
+          @cursor.move_to_column 1
+          @cursor.clear_line
         end
       end
     elsif @step > 0
@@ -289,8 +302,6 @@ class Athena::Console::Helper::ProgressBar
     regex = /%([a-z\-_]+)(?::([^%]+))?%/i
 
     callback = Proc(String, Regex::MatchData, String).new do |string, match|
-      text = nil
-
       if formatter = self.placeholder_formatter match[1]
         text = formatter.call self, @output
       elsif message = @messages[match[1]]?
@@ -308,7 +319,19 @@ class Athena::Console::Helper::ProgressBar
 
     line = format.gsub regex, &callback
 
-    line
+    # Gets string length for each sub-line with multiline format
+    lines_length = line.split("\n").map { |sub_line| ACON::Helper.width ACON::Helper.remove_decoration @output.formatter, sub_line.rstrip "\r" }
+    lines_width = lines_length.max
+
+    terminal_width = @terminal.width
+
+    if lines_width <= terminal_width
+      return line
+    end
+
+    self.bar_width = @bar_width - lines_width + terminal_width
+
+    format.gsub regex, &callback
   end
 
   private def set_real_format(format : String) : Nil
