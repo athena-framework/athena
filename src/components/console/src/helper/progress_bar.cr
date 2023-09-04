@@ -62,38 +62,54 @@ class Athena::Console::Helper::ProgressBar
   private def self.init_placeholder_formatters : Hash(String, PlaceholderFormatter)
     {
       "bar" => PlaceholderFormatter.new do |bar, output|
-        complete_bars = bar.bar_offset
+        completed_bars = bar.bar_offset
 
-        display = bar.bar_character * complete_bars
+        display = bar.bar_character * completed_bars
 
-        if complete_bars < bar.bar_width
-          empty_bars = bar.bar_width - complete_bars - ACON::Helper.width(ACON::Helper.remove_decoration(output.formatter, bar.progress_character))
+        if completed_bars < bar.bar_width
+          empty_bars = bar.bar_width - completed_bars - ACON::Helper.width(ACON::Helper.remove_decoration(output.formatter, bar.progress_character))
 
-          display += bar.progress_character
-          display += bar.empty_bar_character * empty_bars
+          display += "#{bar.progress_character}#{bar.empty_bar_character * empty_bars}"
         end
 
         display
       end,
 
+      "remaining" => PlaceholderFormatter.new do |bar, output|
+        if bar.max_steps.zero?
+          raise ACON::Exceptions::Logic.new "Unable to display the remaining time if the maximum number of steps is not set."
+        end
+
+        ACON::Helper.format_time bar.remaining
+      end,
+      "estimated" => PlaceholderFormatter.new do |bar, output|
+        if bar.max_steps.zero?
+          raise ACON::Exceptions::Logic.new "Unable to display the remaining time if the maximum number of steps is not set."
+        end
+
+        ACON::Helper.format_time bar.estimated
+      end,
+
+      "memory"  => PlaceholderFormatter.new { |bar| (GC.stats.heap_size - GC.stats.free_bytes).humanize_bytes },
+      "elapsed" => PlaceholderFormatter.new { |bar| ACON::Helper.format_time Time.monotonic - bar.start_time },
       "current" => PlaceholderFormatter.new { |bar| bar.progress.to_s.rjust bar.step_width, ' ' },
       "max"     => PlaceholderFormatter.new { |bar| bar.max_steps.to_s },
-      "percent" => PlaceholderFormatter.new { |bar| (bar.progress_percent * 100).to_s },
+      "percent" => PlaceholderFormatter.new { |bar| (bar.progress_percent * 100).floor.to_i.to_s },
     }
   end
 
   @output : ACON::Output::Interface
   @terminal : ACON::Terminal
-  @start_time = Time::Span
+  getter start_time : Time::Span
   @cursor : ACON::Cursor
 
   getter bar_width : Int32 = 28
-  property bar_character : String { @max ? "=" : @empty_bar_character }
+  property bar_character : String { @max > 0 ? "=" : @empty_bar_character }
   property empty_bar_character : String = "-"
   property progress_character : String = ">"
 
-  @overwrite : Bool = false
-  @max : Int32? = nil
+  @overwrite : Bool = true
+  @max : Int32 = 0
   getter! step_width : Int32
 
   @redraw_frequency : Int32? = 1
@@ -111,7 +127,7 @@ class Athena::Console::Helper::ProgressBar
 
   @placeholder_formatters : Hash(String, PlaceholderFormatter) = Hash(String, PlaceholderFormatter).new
 
-  def initialize(output : ACON::Output::Interface, max : Int32 = 0, minimum_seconds_between_redraws : Float64 = 0.04)
+  def initialize(output : ACON::Output::Interface, max : Int32? = nil, minimum_seconds_between_redraws : Float64 = 0.04)
     if output.is_a? ACON::Output::ConsoleOutputInterface
       output = output.error_output
     end
@@ -135,7 +151,7 @@ class Athena::Console::Helper::ProgressBar
     @start_time = Time.monotonic
     @cursor = ACON::Cursor.new @output
 
-    self.max_steps = max
+    self.max_steps = max || 0
   end
 
   def progress : Int32
@@ -143,7 +159,7 @@ class Athena::Console::Helper::ProgressBar
   end
 
   def max_steps : Int32
-    @max.not_nil!
+    @max
   end
 
   def progress_percent : Float64
@@ -155,7 +171,7 @@ class Athena::Console::Helper::ProgressBar
   end
 
   def bar_offset : Int32
-    if @max
+    if @max > 0
       return (@percent * @bar_width).floor.to_i
     end
 
@@ -164,6 +180,18 @@ class Athena::Console::Helper::ProgressBar
     end
 
     (@step % @bar_width).floor.to_i
+  end
+
+  def estimated : Float64
+    return 0.0 if @step.zero? || @step == @starting_step
+
+    (((Time.monotonic - @start_time).total_seconds) / (@step - @starting_step) * @max).round
+  end
+
+  def remaining : Float64
+    return 0.0 if @step.zero?
+
+    (((Time.monotonic - @start_time).total_seconds) / (@step - @starting_step) * (@max - @step)).round
   end
 
   def placeholder_formatter(name : String) : ACON::Helper::ProgressBar::PlaceholderFormatter?
@@ -181,7 +209,7 @@ class Athena::Console::Helper::ProgressBar
   def max_steps=(max : Int32) : Nil
     @format = nil
     @max = Math.max 0, max
-    @step_width = self.max_steps.zero? ? ACON::Helper.width(self.max_steps.to_s) : 4
+    @step_width = @max > 0 ? ACON::Helper.width(@max.to_s) : 4
   end
 
   def start(max : Int32? = nil, start_at : Int32 = 0) : Nil
@@ -207,20 +235,18 @@ class Athena::Console::Helper::ProgressBar
   end
 
   def progress=(step : Int32) : Nil
-    if (ms = @max) && (step > ms)
+    if @max > 0 && (step > @max)
       @max = step
     elsif step < 0
       step = 0
     end
 
-    max = self.max_steps
-
-    redraw_frequency = @redraw_frequency || ((max > 0 ? max : 10) / 10)
+    redraw_frequency = @redraw_frequency || ((@max > 0 ? @max : 10) / 10)
     previous_period = @step // redraw_frequency
     current_period = step // redraw_frequency
     @step = step
 
-    @percent = max > 0 ? @step / max : 0.0
+    @percent = @max > 0 ? @step / @max : 0.0
     time_interval = Time.monotonic - @last_write_time
 
     # Draw regardless of other limits
@@ -336,7 +362,7 @@ class Athena::Console::Helper::ProgressBar
 
   private def set_real_format(format : String) : Nil
     # Try to use the _NOMAX variant if available
-    @format = if @max.nil? && (resolved_format = self.class.format_definition "#{format}_nomax")
+    @format = if @max > 0 && (resolved_format = self.class.format_definition "#{format}_nomax")
                 resolved_format
               elsif resolved_format = self.class.format_definition format
                 resolved_format
@@ -347,11 +373,11 @@ class Athena::Console::Helper::ProgressBar
 
   private def determine_base_format : Format
     case @output.verbosity
-    when .debug?        then @max ? Format::DEBUG : Format::DEBUG_NOMAX
-    when .very_verbose? then @max ? Format::VERY_VERBOSE : Format::VERY_VERBOSE_NOMAX
-    when .verbose?      then @max ? Format::VERBOSE : Format::VERBOSE_NOMAX
+    when .debug?        then @max > 0 ? Format::DEBUG : Format::DEBUG_NOMAX
+    when .very_verbose? then @max > 0 ? Format::VERY_VERBOSE : Format::VERY_VERBOSE_NOMAX
+    when .verbose?      then @max > 0 ? Format::VERBOSE : Format::VERBOSE_NOMAX
     else
-      @max ? Format::NORMAL : Format::NORMAL_NOMAX
+      @max > 0 ? Format::NORMAL : Format::NORMAL_NOMAX
     end
   end
 end
