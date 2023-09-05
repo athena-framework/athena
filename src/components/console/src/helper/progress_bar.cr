@@ -24,7 +24,7 @@ class Athena::Console::Helper::ProgressBar
   protected class_getter placeholder_formatters : Hash(String, PlaceholderFormatter) { self.init_placeholder_formatters }
 
   def self.set_format_definition(name : String, format : String) : Nil
-    self.formats[name] = style
+    self.formats[name] = format
   end
 
   def self.format_definition(name : String) : String?
@@ -219,6 +219,14 @@ class Athena::Console::Helper::ProgressBar
     @format = nil
     @max = Math.max 0, max
     @step_width = @max > 0 ? ACON::Helper.width(@max.to_s) : 4
+  end
+
+  def set_message(message : String, name : String = "message") : Nil
+    @messages[name] = message
+  end
+
+  def message(name : String = "message") : String?
+    @messages[name]?
   end
 
   def start(max : Int32? = nil, at start_at : Int32 = 0) : Nil

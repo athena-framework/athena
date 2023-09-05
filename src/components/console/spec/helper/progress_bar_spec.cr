@@ -337,6 +337,104 @@ struct ProgressBarTest < ASPEC::TestCase
     )
   end
 
+  def test_overwrite_with_ansi_section_output : Nil
+    ENV["COLUMNS"] = "43"
+
+    sections = Array(ACON::Output::Section).new
+    acon_output = self.output
+
+    output = ACON::Output::Section.new acon_output.io, sections, verbosity: acon_output.verbosity, decorated: acon_output.decorated?, formatter: ACON::Formatter::Output.new
+
+    bar = ACON::Helper::ProgressBar.new output, 50, 0
+    bar.format = " \033[44;37m%current%/%max%\033[0m [%bar%] %percent:3s%%"
+    bar.start
+    bar.display
+    bar.advance
+    bar.advance
+
+    self.assert_output(
+      output,
+      " \033[44;37m 0/50\033[0m [>---------------------------]   0%#{ACON::System::EOL}",
+      "\e[1A\e[0J \033[44;37m 1/50\033[0m [>---------------------------]   2%#{ACON::System::EOL}",
+      "\e[1A\e[0J \033[44;37m 2/50\033[0m [=>--------------------------]   4%#{ACON::System::EOL}",
+      raw: true
+    )
+  end
+
+  def test_overwrite_multiple_progress_bars_with_section_output : Nil
+    sections = Array(ACON::Output::Section).new
+    acon_output = self.output
+
+    output1 = ACON::Output::Section.new acon_output.io, sections, verbosity: acon_output.verbosity, decorated: acon_output.decorated?, formatter: ACON::Formatter::Output.new
+    output2 = ACON::Output::Section.new acon_output.io, sections, verbosity: acon_output.verbosity, decorated: acon_output.decorated?, formatter: ACON::Formatter::Output.new
+
+    bar1 = ACON::Helper::ProgressBar.new output1, 50, 0
+    bar2 = ACON::Helper::ProgressBar.new output2, 50, 0
+
+    bar1.start
+    bar2.start
+
+    bar2.advance
+    bar1.advance
+
+    self.assert_output(
+      acon_output,
+      "  0/50 [>---------------------------]   0%#{ACON::System::EOL}",
+      "  0/50 [>---------------------------]   0%#{ACON::System::EOL}",
+      "\e[1A\e[0J  1/50 [>---------------------------]   2%#{ACON::System::EOL}",
+      "\e[2A\e[0J  1/50 [>---------------------------]   2%#{ACON::System::EOL}",
+      "\e[1A\e[0J  1/50 [>---------------------------]   2%#{ACON::System::EOL}",
+      "  1/50 [>---------------------------]   2%#{ACON::System::EOL}",
+      raw: true
+    )
+  end
+
+  def test_overwrite_with_new_lines_in_message : Nil
+    ACON::Helper::ProgressBar.set_format_definition "test", "%current%/%max% [%bar%] %percent:3s%% %message% EXISTING TEXT."
+
+    bar = ACON::Helper::ProgressBar.new output = self.output, 50, 0
+    bar.format = "test"
+    bar.start
+    bar.display
+    bar.set_message "MESSAGE\nTEXT!"
+    bar.advance
+    bar.set_message "OTHER\nTEXT!"
+    bar.advance
+
+    self.assert_output(
+      output,
+      " 0/50 [>---------------------------]   0% %message% EXISTING TEXT.",
+      "\e[1G\e[2K 1/50 [>---------------------------]   2% MESSAGE\nTEXT! EXISTING TEXT.",
+      "\e[1G\e[2K\e[1A\e[1G\e[2K 2/50 [=>--------------------------]   4% OTHER\nTEXT! EXISTING TEXT.",
+      raw: true
+    )
+  end
+
+  def test_overwrite_with_section_output_with_newlines_in_message : Nil
+    sections = Array(ACON::Output::Section).new
+    acon_output = self.output
+
+    output = ACON::Output::Section.new acon_output.io, sections, verbosity: acon_output.verbosity, decorated: acon_output.decorated?, formatter: ACON::Formatter::Output.new
+    ACON::Helper::ProgressBar.set_format_definition "test", "%current%/%max% [%bar%] %percent:3s%% %message% EXISTING TEXT."
+
+    bar = ACON::Helper::ProgressBar.new output, 50, 0
+    bar.format = "test"
+    bar.start
+    bar.display
+    bar.set_message "MESSAGE\nTEXT!"
+    bar.advance
+    bar.set_message "OTHER\nTEXT!"
+    bar.advance
+
+    self.assert_output(
+      output,
+      " 0/50 [>---------------------------]   0% %message% EXISTING TEXT.#{ACON::System::EOL}",
+      "\e[1A\e[0J 1/50 [>---------------------------]   2% MESSAGE\nTEXT! EXISTING TEXT.#{ACON::System::EOL}",
+      "\e[2A\e[0J 2/50 [=>--------------------------]   4% OTHER\nTEXT! EXISTING TEXT.#{ACON::System::EOL}",
+      raw: true
+    )
+  end
+
   private def generate_output(expected : String) : String
     count = expected.count '\n'
 

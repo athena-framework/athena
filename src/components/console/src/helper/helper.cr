@@ -27,7 +27,7 @@ abstract class Athena::Console::Helper
     TIME_FORMATS.each_with_index do |format, idx|
       min_seconds, label, max_seconds = format
 
-      next if seconds >= min_seconds
+      next unless seconds >= min_seconds
 
       if ((next_format = TIME_FORMATS[idx + 1]?) && (seconds < next_format[0])) || idx == TIME_FORMATS.size - 1
         return label if max_seconds.nil?
