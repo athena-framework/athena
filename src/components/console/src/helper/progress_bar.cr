@@ -104,7 +104,7 @@ class Athena::Console::Helper::ProgressBar
   @cursor : ACON::Cursor
 
   getter bar_width : Int32 = 28
-  property bar_character : String { @max > 0 ? "=" : @empty_bar_character }
+  @bar_character : String? = nil
   property empty_bar_character : String = "-"
   property progress_character : String = ">"
 
@@ -175,6 +175,14 @@ class Athena::Console::Helper::ProgressBar
     @percent
   end
 
+  def bar_character : String
+    @bar_character || (@max > 0 ? "=" : @empty_bar_character)
+  end
+
+  def bar_character=(char : String) : Nil
+    @bar_character = char
+  end
+
   def bar_width=(size : Int32) : Nil
     @bar_width = Math.max 1, size
   end
@@ -227,6 +235,20 @@ class Athena::Console::Helper::ProgressBar
 
   def message(name : String = "message") : String?
     @messages[name]?
+  end
+
+  def redraw_frequency=(steps : Int32?) : Nil
+    @redraw_frequency = steps.try { |s| Math.max 1, s }
+  end
+
+  def clear : Nil
+    return unless @overwrite
+
+    if @format.nil?
+      self.set_real_format @internal_format || self.determine_best_format.to_s.downcase
+    end
+
+    self.overwrite ""
   end
 
   def start(max : Int32? = nil, at start_at : Int32 = 0) : Nil
@@ -288,7 +310,7 @@ class Athena::Console::Helper::ProgressBar
     return if @output.verbosity.quiet?
 
     if @format.nil?
-      self.set_real_format @internal_format || self.determine_base_format.to_s.downcase
+      self.set_real_format @internal_format || self.determine_best_format.to_s.downcase
     end
 
     self.overwrite self.build_line
@@ -397,7 +419,7 @@ class Athena::Console::Helper::ProgressBar
               end
   end
 
-  private def determine_base_format : Format
+  private def determine_best_format : Format
     case @output.verbosity
     when .debug?        then @max > 0 ? Format::DEBUG : Format::DEBUG_NOMAX
     when .very_verbose? then @max > 0 ? Format::VERY_VERBOSE : Format::VERY_VERBOSE_NOMAX
