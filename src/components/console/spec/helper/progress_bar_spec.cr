@@ -25,8 +25,8 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "    0 [>---------------------------]",
-      "    1 [->--------------------------]",
-      "    0 [>---------------------------]",
+      self.generate_output("    1 [->--------------------------]"),
+      self.generate_output("    0 [>---------------------------]"),
     )
   end
 
@@ -38,7 +38,7 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "   15 [--------------->------------]",
-      "   16 [---------------->-----------]",
+      self.generate_output("   16 [---------------->-----------]"),
     )
   end
 
@@ -86,7 +86,7 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "    0 [>---------------------------]",
-      "    5 [----->----------------------]",
+      self.generate_output("    5 [----->----------------------]"),
     )
   end
 
@@ -99,8 +99,8 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "    0 [>---------------------------]",
-      "    3 [--->------------------------]",
-      "    5 [----->----------------------]",
+      self.generate_output("    3 [--->------------------------]"),
+      self.generate_output("    5 [----->----------------------]"),
     )
   end
 
@@ -113,8 +113,8 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "  9/10 [=========================>--]  90%",
-      " 10/10 [============================] 100%",
-      " 11/11 [============================] 100%",
+      self.generate_output(" 10/10 [============================] 100%"),
+      self.generate_output(" 11/11 [============================] 100%"),
     )
   end
 
@@ -128,9 +128,9 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "    0 [>---------------------------]",
-      "    1 [->--------------------------]",
-      "    2 [-->-------------------------]",
-      "    1 [->--------------------------]"
+      self.generate_output("    1 [->--------------------------]"),
+      self.generate_output("    2 [-->-------------------------]"),
+      self.generate_output("    1 [->--------------------------]"),
     )
   end
 
@@ -145,10 +145,10 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "    0 [>---------------------------]",
-      "    3 [--->------------------------]",
-      "    6 [------>---------------------]",
-      "    5 [----->----------------------]",
-      "    3 [--->------------------------]",
+      self.generate_output("    3 [--->------------------------]"),
+      self.generate_output("    6 [------>---------------------]"),
+      self.generate_output("    5 [----->----------------------]"),
+      self.generate_output("    3 [--->------------------------]"),
     )
   end
 
@@ -162,9 +162,9 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "    0 [>---------------------------]",
-      "    4 [---->-----------------------]",
-      "    8 [-------->-------------------]",
-      "    6 [------>---------------------]"
+      self.generate_output("    4 [---->-----------------------]"),
+      self.generate_output("    8 [-------->-------------------]"),
+      self.generate_output("    6 [------>---------------------]"),
     )
   end
 
@@ -177,7 +177,7 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "  1/10 [==>-------------------------]  10%",
-      "  0/10 [>---------------------------]   0%",
+      self.generate_output("  0/10 [>---------------------------]   0%"),
     )
   end
 
@@ -190,7 +190,7 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "  0/10 [>---------------------------]   0%",
-      " 10/10 [============================] 100%"
+      self.generate_output(" 10/10 [============================] 100%"),
     )
   end
 
@@ -203,7 +203,7 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "  0/10 [>---------------------------]   0%",
-      " 10/10 [============================] 100%"
+      self.generate_output(" 10/10 [============================] 100%"),
     )
   end
 
@@ -217,7 +217,7 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "  0/10 [>---------------------------]   0%",
-      " 10/10 [============================] 100%"
+      self.generate_output(" 10/10 [============================] 100%"),
     )
   end
 
@@ -231,7 +231,7 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "  0/10 [>---------------------------]   0%",
-      " 10/10 [============================] 100%"
+      self.generate_output(" 10/10 [============================] 100%")
     )
   end
 
@@ -248,7 +248,7 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "  0/10 [/         ]   0%",
-      "  1/10 [_/        ]  10%"
+      self.generate_output("  1/10 [_/        ]  10%"),
     )
   end
 
@@ -292,8 +292,8 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "  0/50 [>---------------------------]   0%",
-      "  1/50 [>---------------------------]   2%",
-      "  2/50 [=>--------------------------]   4%"
+      self.generate_output("  1/50 [>---------------------------]   2%"),
+      self.generate_output("  2/50 [=>--------------------------]   4%"),
     )
   end
 
@@ -311,8 +311,8 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "  0/50 [>---------------------------]   0%",
-      "  1/50 [>---------------------------]   2%",
-      "  2/50 [=>--------------------------]"
+      self.generate_output("  1/50 [>---------------------------]   2%"),
+      self.generate_output("  2/50 [=>--------------------------]"),
     )
   end
 
@@ -333,7 +333,6 @@ struct ProgressBarTest < ASPEC::TestCase
       "  0/50 [>---------------------------]   0%#{ACON::System::EOL}",
       "\e[1A\e[0J  1/50 [>---------------------------]   2%#{ACON::System::EOL}",
       "\e[1A\e[0J  2/50 [=>--------------------------]   4%#{ACON::System::EOL}",
-      raw: true
     )
   end
 
@@ -357,7 +356,6 @@ struct ProgressBarTest < ASPEC::TestCase
       " \033[44;37m 0/50\033[0m [>---------------------------]   0%#{ACON::System::EOL}",
       "\e[1A\e[0J \033[44;37m 1/50\033[0m [>---------------------------]   2%#{ACON::System::EOL}",
       "\e[1A\e[0J \033[44;37m 2/50\033[0m [=>--------------------------]   4%#{ACON::System::EOL}",
-      raw: true
     )
   end
 
@@ -385,7 +383,6 @@ struct ProgressBarTest < ASPEC::TestCase
       "\e[2A\e[0J  1/50 [>---------------------------]   2%#{ACON::System::EOL}",
       "\e[1A\e[0J  1/50 [>---------------------------]   2%#{ACON::System::EOL}",
       "  1/50 [>---------------------------]   2%#{ACON::System::EOL}",
-      raw: true
     )
   end
 
@@ -406,7 +403,6 @@ struct ProgressBarTest < ASPEC::TestCase
       " 0/50 [>---------------------------]   0% %message% EXISTING TEXT.",
       "\e[1G\e[2K 1/50 [>---------------------------]   2% MESSAGE\nTEXT! EXISTING TEXT.",
       "\e[1G\e[2K\e[1A\e[1G\e[2K 2/50 [=>--------------------------]   4% OTHER\nTEXT! EXISTING TEXT.",
-      raw: true
     )
   end
 
@@ -431,7 +427,6 @@ struct ProgressBarTest < ASPEC::TestCase
       " 0/50 [>---------------------------]   0% %message% EXISTING TEXT.#{ACON::System::EOL}",
       "\e[1A\e[0J 1/50 [>---------------------------]   2% MESSAGE\nTEXT! EXISTING TEXT.#{ACON::System::EOL}",
       "\e[2A\e[0J 2/50 [=>--------------------------]   4% OTHER\nTEXT! EXISTING TEXT.#{ACON::System::EOL}",
-      raw: true
     )
   end
 
@@ -462,7 +457,6 @@ struct ProgressBarTest < ASPEC::TestCase
       "\e[3A\e[0J  1/50 [>---------------------------]   2%#{ACON::System::EOL}",
       " 0/50 [>]   0% Fruitcake marzipan toffee. Cupcake gummi bears tart dessert ice cream chupa chups cupcake chocolate bar sesame snaps. Croissant halvah cookie jujubes powder macaroon. Fruitcake bear claw bonbon jelly beans oat cake pie muffin Fruitcake marzipan toffee.#{ACON::System::EOL}",
       "\e[3A\e[0J 1/50 [>]   2% Fruitcake marzipan toffee. Cupcake gummi bears tart dessert ice cream chupa chups cupcake chocolate bar sesame snaps. Croissant halvah cookie jujubes powder macaroon. Fruitcake bear claw bonbon jelly beans oat cake pie muffin Fruitcake marzipan toffee.#{ACON::System::EOL}",
-      raw: true
     )
   end
 
@@ -475,7 +469,7 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       " 0/50 [>---------------------------]",
-      " 1/50 [>---------------------------]",
+      self.generate_output(" 1/50 [>---------------------------]"),
     )
   end
 
@@ -490,9 +484,9 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "  0/50 [>---------------------------]   0%",
-      "  1/50 [>---------------------------]   2%",
-      " 15/50 [========>-------------------]  30%",
-      " 25/50 [==============>-------------]  50%",
+      self.generate_output("  1/50 [>---------------------------]   2%"),
+      self.generate_output(" 15/50 [========>-------------------]  30%"),
+      self.generate_output(" 25/50 [==============>-------------]  50%"),
     )
   end
 
@@ -514,9 +508,9 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       " 0/6 [>---------------------------]   0%",
-      " 3/6 [==============>-------------]  50%",
-      " 5/6 [=======================>----]  83%",
-      " 6/6 [============================] 100%",
+      self.generate_output(" 3/6 [==============>-------------]  50%"),
+      self.generate_output(" 5/6 [=======================>----]  83%"),
+      self.generate_output(" 6/6 [============================] 100%"),
     )
   end
 
@@ -529,7 +523,7 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "    0 [>---------------------------]",
-      "    1 [->--------------------------]",
+      self.generate_output("    1 [->--------------------------]"),
     )
   end
 
@@ -542,7 +536,7 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "    0 [>---------------------------]",
-      "    1 [->--------------------------]",
+      self.generate_output("    1 [->--------------------------]"),
     )
   end
 
@@ -555,7 +549,7 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "    0 [>---------------------------]",
-      "    3 [■■■>------------------------]",
+      self.generate_output("    3 [■■■>------------------------]"),
     )
   end
 
@@ -568,8 +562,8 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "  0/50 [>---------------------------]   0%",
-      " 25/50 [==============>-------------]  50%",
-      ""
+      self.generate_output(" 25/50 [==============>-------------]  50%"),
+      self.generate_output(""),
     )
   end
 
@@ -583,8 +577,8 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "   0/200 [>---------------------------]   0%",
-      " 199/200 [===========================>]  99%",
-      " 200/200 [============================] 100%"
+      self.generate_output(" 199/200 [===========================>]  99%"),
+      self.generate_output(" 200/200 [============================] 100%"),
     )
   end
 
@@ -611,7 +605,6 @@ struct ProgressBarTest < ASPEC::TestCase
       " 160/200 [======================>-----]  80%#{ACON::System::EOL}",
       " 180/200 [=========================>--]  90%#{ACON::System::EOL}",
       " 200/200 [============================] 100%",
-      raw: true
     )
   end
 
@@ -628,7 +621,6 @@ struct ProgressBarTest < ASPEC::TestCase
       "  0/50 [>---------------------------]   0%#{ACON::System::EOL}",
       " 25/50 [==============>-------------]  50%#{ACON::System::EOL}",
       " 50/50 [============================] 100%",
-      raw: true
     )
   end
 
@@ -641,7 +633,6 @@ struct ProgressBarTest < ASPEC::TestCase
       output,
       "    0 [>---------------------------]#{ACON::System::EOL}",
       "    1 [->--------------------------]",
-      raw: true
     )
   end
 
@@ -682,17 +673,31 @@ struct ProgressBarTest < ASPEC::TestCase
       " 0/2 [>---------------------------]   0%\n",
       " 0/3 [#---------------------------]   0%\n",
       "    0 [>---------------------------]",
-      "\e[2A\e[1G\e[2K 1/2 [==============>-------------]  50%\n",
-      "\e[1G\e[2K 1/3 [=========#------------------]  33%\n",
-      "\e[1G\e[2K    1 [->--------------------------]",
-      "\e[2A\e[1G\e[2K 2/2 [============================] 100%\n",
-      "\e[1G\e[2K 2/3 [==================#---------]  66%\n",
-      "\e[1G\e[2K    2 [-->-------------------------]\e[2A\n",
-      "\e[1G\e[2K 3/3 [============================] 100%\n",
-      "\e[1G\e[2K    3 [--->------------------------]\e[2A\n",
+
+      "\033[2A",
+      self.generate_output(" 1/2 [==============>-------------]  50%"),
       "\n",
-      "\e[1G\e[2K    3 [============================]",
-      raw: true
+      self.generate_output(" 1/3 [=========#------------------]  33%"),
+      "\n",
+      self.generate_output("    1 [->--------------------------]").rstrip,
+
+      "\033[2A",
+      self.generate_output(" 2/2 [============================] 100%"),
+      "\n",
+      self.generate_output(" 2/3 [==================#---------]  66%"),
+      "\n",
+      self.generate_output("    2 [-->-------------------------]").rstrip,
+
+      "\033[2A",
+      "\n",
+      self.generate_output(" 3/3 [============================] 100%"),
+      "\n",
+      self.generate_output("    3 [--->------------------------]").rstrip,
+
+      "\033[2A",
+      "\n",
+      "\n",
+      self.generate_output("    3 [============================]").rstrip,
     )
   end
 
@@ -707,10 +712,10 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "    0 [>---------------------------]",
-      "    1 [->--------------------------]",
-      "    2 [-->-------------------------]",
-      "    3 [--->------------------------]",
-      "    3 [============================]",
+      self.generate_output("    1 [->--------------------------]"),
+      self.generate_output("    2 [-->-------------------------]"),
+      self.generate_output("    3 [--->------------------------]"),
+      self.generate_output("    3 [============================]"),
     )
   end
 
@@ -727,10 +732,10 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "    0 [>---------------------------]",
-      "    2 [-->-------------------------]",
-      "  5/10 [==============>-------------]  50%",
-      "  10/100 [==>-------------------------]  10%",
-      " 100/100 [============================] 100%",
+      self.generate_output("    2 [-->-------------------------]"),
+      self.generate_output("  5/10 [==============>-------------]  50%"),
+      self.generate_output("  10/100 [==>-------------------------]  10%"),
+      self.generate_output(" 100/100 [============================] 100%"),
     )
   end
 
@@ -745,7 +750,7 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       "    0 [>---]",
-      "    1 [->--]",
+      self.generate_output("    1 [->--]"),
     )
   end
 
@@ -764,8 +769,8 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       " 3 [>---------------------------]",
-      " 2 [=========>------------------]",
-      " 0 [============================]",
+      self.generate_output(" 2 [=========>------------------]"),
+      self.generate_output(" 0 [============================]"),
     )
   end
 
@@ -783,8 +788,8 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       " 3 [>---------------------------]",
-      " 2 [=========>------------------]",
-      " 0 [============================]",
+      self.generate_output(" 2 [=========>------------------]"),
+      self.generate_output(" 0 [============================]"),
     )
   end
 
@@ -805,7 +810,6 @@ struct ProgressBarTest < ASPEC::TestCase
       self.generate_output(""),
       self.generate_output("============================"),
       "\nfoobar",
-      raw: true
     )
   end
 
@@ -825,18 +829,15 @@ struct ProgressBarTest < ASPEC::TestCase
     ACON::Output::IO.new IO::Memory.new, decorated: decorated, verbosity: verbosity
   end
 
-  private def assert_output(output : ACON::Output::Interface, start : String, *frames : String, raw : Bool = false) : Nil
-    self.assert_output output, start, frames, raw: raw
+  private def assert_output(output : ACON::Output::Interface, start : String, *frames : String) : Nil
+    self.assert_output output, start, frames
   end
 
-  private def assert_output(output : ACON::Output::Interface, start : String, frames : Enumerable(String) = [] of String, *, raw : Bool = false) : Nil
+  private def assert_output(output : ACON::Output::Interface, start : String, frames : Enumerable(String) = [] of String) : Nil
     expected = String.build do |io|
       io << start
 
-      # frames.join io
-      frames.each do |frame|
-        io << (raw ? frame : self.generate_output(frame))
-      end
+      frames.join io
     end
 
     output.io.to_s.should eq expected
