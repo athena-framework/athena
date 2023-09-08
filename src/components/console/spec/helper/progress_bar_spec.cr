@@ -993,6 +993,86 @@ struct ProgressBarTest < ASPEC::TestCase
     )
   end
 
+  def test_iterate : Nil
+    bar = ACON::Helper::ProgressBar.new output = self.output, minimum_seconds_between_redraws: 0
+
+    result = [] of Int32
+
+    bar.iterate [1, 2] do |value|
+      result << value
+    end
+
+    result.should eq [1, 2]
+
+    self.assert_output(
+      output,
+      "    0 [>---------------------------]",
+      self.generate_output("    1 [->--------------------------]"),
+      self.generate_output("    2 [-->-------------------------]"),
+      self.generate_output("    2 [============================]"),
+    )
+  end
+
+  def test_ansi_colors_and_emojis : Nil
+    ENV["COLUMNS"] = "156"
+    idx = 0
+
+    ACON::Helper::ProgressBar.set_placeholder_formatter "memory" do
+      mem = 100_000 * idx
+
+      colors = idx.zero? ? "44;37" : "41;37"
+      idx += 1
+
+      "\033[#{colors}m #{mem.humanize_bytes} \033[0m"
+    end
+
+    bar = ACON::Helper::ProgressBar.new output = self.output, 15, 0
+    bar.format = " \033[44;37m %title:-37s% \033[0m\n %current%/%max% %bar% %percent:3s%%\n 🏁  %remaining:-10s% %memory:37s%"
+    bar.bar_character = done = "\033[32m●\033[0m"
+    bar.empty_bar_character = empty = "\033[31m●\033[0m"
+    bar.progress_character = progress = "\033[32m➤ \033[0m"
+
+    bar.set_message "Starting the demo... fingers crossed", "title"
+    bar.start
+
+    self.assert_output(
+      output,
+      " \033[44;37m Starting the demo... fingers crossed  \033[0m\n",
+      "  0/15 #{progress}#{empty * 26}   0%\n",
+      " \xf0\x9f\x8f\x81  < 1 sec                         \033[44;37m 0B \033[0m",
+    )
+
+    output.io.as(IO::Memory).clear
+
+    bar.set_message "Looks good to me...", "title"
+    bar.advance 4
+
+    self.assert_output(
+      output,
+      self.generate_output(
+        " \033[44;37m Looks good to me...                   \033[0m\n",
+        "  4/15 #{done * 7}#{progress}#{empty * 19}  26%\n",
+        " \xf0\x9f\x8f\x81  < 1 sec                      \033[41;37m 98kiB \033[0m",
+      )
+    )
+
+    output.io.as(IO::Memory).clear
+
+    bar.set_message "Thanks, bye", "title"
+    bar.finish
+
+    self.assert_output(
+      output,
+      self.generate_output(
+        " \033[44;37m Thanks, bye                           \033[0m\n",
+        " 15/15 #{done * 28} 100%\n",
+        " \xf0\x9f\x8f\x81  < 1 sec                     \033[41;37m 195kiB \033[0m",
+      )
+    )
+
+    ENV["COLUMNS"] = "120"
+  end
+
   def test_multiline_format_is_fully_cleared : Nil
     bar = ACON::Helper::ProgressBar.new output = self.output, 3
     bar.format = "%current%/%max%\n%message%\nFoo"
@@ -1043,6 +1123,10 @@ struct ProgressBarTest < ASPEC::TestCase
       "\nProcessing \"foobar\"...",
       self.generate_output("[----->----------------------]\nProcessing \"foobar\"..."),
     )
+  end
+
+  private def generate_output(*expected : String) : String
+    self.generate_output expected.join
   end
 
   private def generate_output(expected : String) : String

@@ -120,11 +120,11 @@ class Athena::Console::Helper::ProgressBar
   @cursor : ACON::Cursor
 
   getter bar_width : Int32 = 28
-  @bar_character : String? = nil
+  setter bar_character : String? = nil
   property empty_bar_character : String = "-"
   property progress_character : String = ">"
 
-  @overwrite : Bool = true
+  setter overwrite : Bool = true
   @max : Int32 = 0
   getter! step_width : Int32
 
@@ -189,16 +189,18 @@ class Athena::Console::Helper::ProgressBar
     @max
   end
 
+  def max_steps=(max : Int32) : Nil
+    @format = nil
+    @max = Math.max 0, max
+    @step_width = @max > 0 ? ACON::Helper.width(@max.to_s) : 4
+  end
+
   def progress_percent : Float64
     @percent
   end
 
   def bar_character : String
     @bar_character || (@max > 0 ? "=" : @empty_bar_character)
-  end
-
-  def bar_character=(char : String) : Nil
-    @bar_character = char
   end
 
   def bar_width=(size : Int32) : Nil
@@ -239,12 +241,6 @@ class Athena::Console::Helper::ProgressBar
 
   def set_placeholder_formatter(name : String, callable : ACON::Helper::ProgressBar::PlaceholderFormatter) : Nil
     @placeholder_formatters[name] = callable
-  end
-
-  def max_steps=(max : Int32) : Nil
-    @format = nil
-    @max = Math.max 0, max
-    @step_width = @max > 0 ? ACON::Helper.width(@max.to_s) : 4
   end
 
   def set_message(message : String, name : String = "message") : Nil
@@ -345,6 +341,18 @@ class Athena::Console::Helper::ProgressBar
     end
 
     self.progress = @max
+  end
+
+  def iterate(iterator : Enumerable, max : Int32? = nil) : Nil
+    self.start max || 0
+
+    iterator.each do |value|
+      yield value
+
+      self.advance
+    end
+
+    self.finish
   end
 
   private def overwrite(message : String) : Nil
