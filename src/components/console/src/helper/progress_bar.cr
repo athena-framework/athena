@@ -2,7 +2,23 @@ abstract class Athena::Console::Output; end
 
 require "../output/interface"
 
+# :nodoc:
+#
+# TODO: Consider including this in `athena/contracts`?
+module Athena::Console::ClockInterface
+  abstract def now : Time
+end
+
 class Athena::Console::Helper::ProgressBar
+  # :nodoc:
+  class Clock
+    include Athena::Console::ClockInterface
+
+    def now : Time
+      Time.utc
+    end
+  end
+
   enum Format
     DEBUG
     VERY_VERBOSE
@@ -91,7 +107,7 @@ class Athena::Console::Helper::ProgressBar
       end,
 
       "memory"  => PlaceholderFormatter.new { |bar| (GC.stats.heap_size - GC.stats.free_bytes).humanize_bytes },
-      "elapsed" => PlaceholderFormatter.new { |bar| ACON::Helper.format_time Time.utc.to_unix - bar.start_time },
+      "elapsed" => PlaceholderFormatter.new { |bar| ACON::Helper.format_time bar.clock.now.to_unix - bar.start_time },
       "current" => PlaceholderFormatter.new { |bar| bar.progress.to_s.rjust bar.step_width, ' ' },
       "max"     => PlaceholderFormatter.new { |bar| bar.max_steps.to_s },
       "percent" => PlaceholderFormatter.new { |bar| (bar.progress_percent * 100).floor.to_i.to_s },
@@ -113,19 +129,21 @@ class Athena::Console::Helper::ProgressBar
   getter! step_width : Int32
 
   @redraw_frequency : Int32? = 1
-  @minimum_seconds_between_redraws : Float64 = 0
-  @maximum_seconds_between_redraws : Float64 = 1
+  setter minimum_seconds_between_redraws : Float64 = 0
+  setter maximum_seconds_between_redraws : Float64 = 1
   @format : String? = nil
   @internal_format : String? = nil
   @step : Int32 = 0
   @starting_step : Int32 = 0
   @percent : Float64 = 0.0
-  @last_write_time : Time::Span = Time::Span.zero
+  @last_write_time : Time = Time::UNIX_EPOCH
   @previous_message : String? = nil
   @write_count : Int32 = 0
   @messages : Hash(String, String) = Hash(String, String).new
 
   @placeholder_formatters : Hash(String, PlaceholderFormatter) = Hash(String, PlaceholderFormatter).new
+
+  protected property clock : Athena::Console::ClockInterface = Clock.new
 
   def initialize(output : ACON::Output::Interface, max : Int32? = nil, minimum_seconds_between_redraws : Float64 = 0.04)
     if output.is_a? ACON::Output::ConsoleOutputInterface
@@ -148,7 +166,7 @@ class Athena::Console::Helper::ProgressBar
       @redraw_frequency = nil
     end
 
-    @start_time = Time.utc.to_unix
+    @start_time = @clock.now.to_unix
     @cursor = ACON::Cursor.new @output
 
     self.max_steps = max || 0
@@ -202,13 +220,13 @@ class Athena::Console::Helper::ProgressBar
   def estimated : Float64
     return 0.0 if @step.zero? || @step == @starting_step
 
-    ((Time.utc.to_unix - @start_time) / (@step - @starting_step) * @max).round
+    ((@clock.now.to_unix - @start_time) / (@step - @starting_step) * @max).round
   end
 
   def remaining : Float64
     return 0.0 if @step.zero?
 
-    ((Time.utc.to_unix - @start_time) / (@step - @starting_step) * (@max - @step)).round 0
+    ((@clock.now.to_unix - @start_time) / (@step - @starting_step) * (@max - @step)).round 0
   end
 
   def placeholder_formatter(name : String) : ACON::Helper::ProgressBar::PlaceholderFormatter?
@@ -252,7 +270,7 @@ class Athena::Console::Helper::ProgressBar
   end
 
   def start(max : Int32? = nil, at start_at : Int32 = 0) : Nil
-    @start_time = Time.utc.to_unix
+    @start_time = @clock.now.to_unix
     @step = start_at
     @starting_step = start_at
 
@@ -286,7 +304,7 @@ class Athena::Console::Helper::ProgressBar
     @step = step
 
     @percent = @max > 0 ? @step / @max : 0.0
-    time_interval = Time.monotonic - @last_write_time
+    time_interval = @clock.now - @last_write_time
 
     # Draw regardless of other limits
     if @max == step
@@ -364,7 +382,7 @@ class Athena::Console::Helper::ProgressBar
     end
 
     @previous_message = original_message
-    @last_write_time = Time.monotonic
+    @last_write_time = @clock.now
 
     @output.print message
     @write_count += 1

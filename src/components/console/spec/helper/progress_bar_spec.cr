@@ -1,11 +1,27 @@
 require "../spec_helper"
 
+private class MockClock
+  include Athena::Console::ClockInterface
+
+  def initialize(@now : Time); end
+
+  def now : Time
+    @now
+  end
+
+  def sleep(seconds : Int32) : Nil
+    @now += seconds.seconds
+  end
+end
+
 @[ASPEC::TestCase::Focus]
 struct ProgressBarTest < ASPEC::TestCase
   @col_size : String?
+  @clock : MockClock
 
   def initialize
     @col_size = ENV["COLUMNS"]?
+    @clock = MockClock.new Time.utc
   end
 
   protected def tear_down : Nil
@@ -52,27 +68,27 @@ struct ProgressBarTest < ASPEC::TestCase
     )
   end
 
-  @[Pending]
   def test_regular_time_estimation : Nil
     bar = ACON::Helper::ProgressBar.new output = self.output, 1_200, 0
+    bar.clock = @clock
+
     bar.start
-
     bar.advance
     bar.advance
 
-    sleep 1
+    @clock.sleep 1
 
     bar.estimated.should eq 600
   end
 
-  @[Pending]
   def test_resumed_time_estimation : Nil
     bar = ACON::Helper::ProgressBar.new output = self.output, 1_200, 0
-    bar.start at: 599
+    bar.clock = @clock
 
+    bar.start at: 599
     bar.advance
 
-    sleep 1
+    @clock.sleep 1
 
     bar.estimated.should eq 1_200
     bar.remaining.should eq 600
@@ -810,6 +826,222 @@ struct ProgressBarTest < ASPEC::TestCase
       self.generate_output(""),
       self.generate_output("============================"),
       "\nfoobar",
+    )
+  end
+
+  @[Pending]
+  def test_ansi_colors_and_emojis : Nil
+  end
+
+  def test_set_format_no_max : Nil
+    bar = ACON::Helper::ProgressBar.new output = self.output, minimum_seconds_between_redraws: 0
+    bar.format = :normal
+    bar.start
+
+    self.assert_output(
+      output,
+      "    0 [>---------------------------]",
+    )
+  end
+
+  def test_set_format_with_max : Nil
+    bar = ACON::Helper::ProgressBar.new output = self.output, 10, 0
+    bar.format = :normal
+    bar.start
+
+    self.assert_output(
+      output,
+      "  0/10 [>---------------------------]   0%",
+    )
+  end
+
+  def test_unicode : Nil
+    ACON::Helper::ProgressBar.set_format_definition(
+      "test",
+      "%current%/%max% [%bar%] %percent:3s%% %message% Fruitcake marzipan toffee. Cupcake gummi bears tart dessert ice cream chupa chups cupcake chocolate bar sesame snaps. Croissant halvah cookie jujubes powder macaroon. Fruitcake bear claw bonbon jelly beans oat cake pie muffin Fruitcake marzipan toffee."
+    )
+
+    bar = ACON::Helper::ProgressBar.new output = self.output, 10, 0
+    bar.format = "test"
+    bar.progress_character = "💧"
+    bar.start
+
+    output.io.to_s.should contain " 0/10 [💧]   0%"
+  end
+
+  @[TestWith(
+    {"debug"},
+    {"very_verbose"},
+    {"verbose"},
+    {"normal"},
+  )]
+  def test_formats_without_max(format : String) : Nil
+    bar = ACON::Helper::ProgressBar.new output = self.output, minimum_seconds_between_redraws: 0
+    bar.format = format
+    bar.start
+
+    output.io.to_s.should_not be_empty
+  end
+
+  @[Pending]
+  def test_iterate : Nil
+  end
+
+  def test_bar_width_with_multiline_format : Nil
+    ENV["COLUMNS"] = "10"
+
+    bar = ACON::Helper::ProgressBar.new output = self.output, minimum_seconds_between_redraws: 0
+    bar.format = "%bar%\n0123456789"
+
+    # Before starting
+    bar.bar_width = 5
+    bar.bar_width.should eq 5
+
+    # After starting
+    bar.start
+    bar.bar_width.should eq 5
+
+    ENV["COLUMNS"] = "120"
+  end
+
+  def test_min_and_max_seconds_between_redraws : Nil
+    bar = ACON::Helper::ProgressBar.new output = self.output
+    bar.clock = @clock
+    bar.redraw_frequency = 1
+    bar.minimum_seconds_between_redraws = 5
+    bar.maximum_seconds_between_redraws = 10
+
+    bar.start
+    bar.progress = 1
+    @clock.sleep 10
+    bar.progress = 2
+    @clock.sleep 20
+    bar.progress = 3
+
+    self.assert_output(
+      output,
+      "    0 [>---------------------------]",
+      self.generate_output("    2 [-->-------------------------]"),
+      self.generate_output("    3 [--->------------------------]"),
+    )
+  end
+
+  def test_max_seconds_between_redraws : Nil
+    bar = ACON::Helper::ProgressBar.new output = self.output, minimum_seconds_between_redraws: 0
+    bar.clock = @clock
+    bar.redraw_frequency = 4 # Disable step based redraw
+    bar.start
+
+    bar.progress = 1 # No threshold hit, no redraw
+    bar.maximum_seconds_between_redraws = 2
+    @clock.sleep 1
+    bar.progress = 2 # Still no redraw because it takes 2 seconds for a redraw
+    @clock.sleep 1
+    bar.progress = 3 # 1 + 1 = 2 -> redraw
+    bar.progress = 4 # step based redraw freq hit, redraw even without sleep
+    bar.progress = 5 # No threshold hit, no redraw
+    bar.maximum_seconds_between_redraws = 3
+    @clock.sleep 2
+    bar.progress = 6 # No redraw even though 2 seconds passed. Throttling has priority
+    bar.maximum_seconds_between_redraws = 2
+    bar.progress = 7 # Throttling relaxed, draw
+
+    self.assert_output(
+      output,
+      "    0 [>---------------------------]",
+      self.generate_output("    3 [--->------------------------]"),
+      self.generate_output("    4 [---->-----------------------]"),
+      self.generate_output("    7 [------->--------------------]"),
+    )
+  end
+
+  def test_min_seconds_between_redraws : Nil
+    bar = ACON::Helper::ProgressBar.new output = self.output, minimum_seconds_between_redraws: 0
+    bar.clock = @clock
+    bar.redraw_frequency = 1
+    bar.minimum_seconds_between_redraws = 1
+    bar.start
+
+    bar.progress = 1 # Too fast, should not draw
+    @clock.sleep 1
+    bar.progress = 2 # 1 second passed, draw
+    bar.minimum_seconds_between_redraws = 2
+    @clock.sleep 1
+    bar.progress = 3 # 1 second passed, but the threshold was changed, should not draw
+    @clock.sleep 1
+    bar.progress = 4 # 1 + 1 seconds = 2 seconds passed, draw
+    bar.progress = 5 # No threshold hit, should not draw
+
+    self.assert_output(
+      output,
+      "    0 [>---------------------------]",
+      self.generate_output("    2 [-->-------------------------]"),
+      self.generate_output("    4 [---->-----------------------]"),
+    )
+  end
+
+  def test_no_write_when_message_is_same : Nil
+    bar = ACON::Helper::ProgressBar.new output = self.output, 2
+    bar.start
+    bar.advance
+    bar.display
+
+    self.assert_output(
+      output,
+      " 0/2 [>---------------------------]   0%",
+      self.generate_output(" 1/2 [==============>-------------]  50%"),
+    )
+  end
+
+  def test_multiline_format_is_fully_cleared : Nil
+    bar = ACON::Helper::ProgressBar.new output = self.output, 3
+    bar.format = "%current%/%max%\n%message%\nFoo"
+
+    bar.set_message "1234567890"
+    bar.start
+    bar.display
+
+    bar.set_message "ABC"
+    bar.advance
+    bar.display
+
+    bar.set_message "A"
+    bar.advance
+    bar.display
+
+    bar.finish
+
+    self.assert_output(
+      output,
+      "0/3\n1234567890\nFoo",
+      self.generate_output("1/3\nABC\nFoo"),
+      self.generate_output("2/3\nA\nFoo"),
+      self.generate_output("3/3\nA\nFoo"),
+    )
+  end
+
+  def test_multiline_format_is_fully_correct_with_manual_cleanup : Nil
+    ACON::Helper::ProgressBar.set_format_definition "normal_nomax", "[%bar%]\n%message%"
+
+    bar = ACON::Helper::ProgressBar.new output = self.output
+    bar.set_message %(Processing "foobar"...)
+
+    bar.start
+    bar.clear
+    output.puts "Foo!"
+    bar.display
+    bar.finish
+
+    self.assert_output(
+      output,
+      "[>---------------------------]\n",
+      "Processing \"foobar\"...",
+      "\x1B[1G\x1B[2K\x1B[1A",
+      self.generate_output(""),
+      "Foo!#{ACON::System::EOL}",
+      self.generate_output("[--->------------------------]"),
+      "\nProcessing \"foobar\"...",
+      self.generate_output("[----->----------------------]\nProcessing \"foobar\"..."),
     )
   end
 
