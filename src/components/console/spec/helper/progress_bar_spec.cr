@@ -68,7 +68,7 @@ struct ProgressBarTest < ASPEC::TestCase
   end
 
   def test_regular_time_estimation : Nil
-    bar = ACON::Helper::ProgressBar.new output = self.output, 1_200, 0
+    bar = ACON::Helper::ProgressBar.new self.output, 1_200, 0
     bar.clock = @clock
 
     bar.start
@@ -81,7 +81,7 @@ struct ProgressBarTest < ASPEC::TestCase
   end
 
   def test_resumed_time_estimation : Nil
-    bar = ACON::Helper::ProgressBar.new output = self.output, 1_200, 0
+    bar = ACON::Helper::ProgressBar.new self.output, 1_200, 0
     bar.clock = @clock
 
     bar.start at: 599
@@ -506,7 +506,7 @@ struct ProgressBarTest < ASPEC::TestCase
   end
 
   def test_set_current_progress_before_start : Nil
-    bar = ACON::Helper::ProgressBar.new output = self.output, minimum_seconds_between_redraws: 0
+    bar = ACON::Helper::ProgressBar.new self.output, minimum_seconds_between_redraws: 0
     bar.progress = 15
     bar.start_time.should_not be_nil
   end
@@ -582,7 +582,7 @@ struct ProgressBarTest < ASPEC::TestCase
     )
   end
 
-  def test_percent_not_hundread_before_complete : Nil
+  def test_percent_not_hundred_before_complete : Nil
     bar = ACON::Helper::ProgressBar.new output = self.output, 200, 0
     bar.start
     bar.display
@@ -792,7 +792,7 @@ struct ProgressBarTest < ASPEC::TestCase
   def test_adding_instance_placeholder_formatter : Nil
     bar = ACON::Helper::ProgressBar.new output = self.output, 3, 0
     bar.format = " %countdown% [%bar%]"
-    bar.set_placeholder_formatter "countdown" do |bar|
+    bar.set_placeholder_formatter "countdown" do
       "#{bar.max_steps - bar.progress}"
     end
 
@@ -889,7 +889,7 @@ struct ProgressBarTest < ASPEC::TestCase
   def test_bar_width_with_multiline_format : Nil
     ENV["COLUMNS"] = "10"
 
-    bar = ACON::Helper::ProgressBar.new output = self.output, minimum_seconds_between_redraws: 0
+    bar = ACON::Helper::ProgressBar.new self.output, minimum_seconds_between_redraws: 0
     bar.format = "%bar%\n0123456789"
 
     # Before starting

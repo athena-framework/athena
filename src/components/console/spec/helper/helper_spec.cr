@@ -25,9 +25,9 @@ struct HelperTest < ASPEC::TestCase
       {86399, "23 hrs"},
       {86400, "1 day"},
       {86401, "1 day"},
-      {172799, "1 day"},
-      {172800, "2 days"},
-      {172801, "2 days"},
+      {172_799, "1 day"},
+      {172_800, "2 days"},
+      {172_801, "2 days"},
     }
   end
 end

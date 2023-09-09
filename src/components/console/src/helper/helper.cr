@@ -32,7 +32,7 @@ abstract class Athena::Console::Helper
       if ((next_format = TIME_FORMATS[idx + 1]?) && (seconds < next_format[0])) || idx == TIME_FORMATS.size - 1
         return label if max_seconds.nil?
 
-        return "#{(seconds // max_seconds).to_i} #{label}"
+        return "#{seconds // max_seconds} #{label}"
       end
     end
 

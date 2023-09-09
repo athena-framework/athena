@@ -91,14 +91,14 @@ class Athena::Console::Helper::ProgressBar
         display
       end,
 
-      "remaining" => PlaceholderFormatter.new do |bar, output|
+      "remaining" => PlaceholderFormatter.new do |bar, _|
         if bar.max_steps.zero?
           raise ACON::Exceptions::Logic.new "Unable to display the remaining time if the maximum number of steps is not set."
         end
 
         ACON::Helper.format_time bar.remaining
       end,
-      "estimated" => PlaceholderFormatter.new do |bar, output|
+      "estimated" => PlaceholderFormatter.new do |bar, _|
         if bar.max_steps.zero?
           raise ACON::Exceptions::Logic.new "Unable to display the remaining time if the maximum number of steps is not set."
         end
@@ -106,10 +106,10 @@ class Athena::Console::Helper::ProgressBar
         ACON::Helper.format_time bar.estimated
       end,
 
-      "memory"  => PlaceholderFormatter.new { |bar| (GC.stats.heap_size - GC.stats.free_bytes).humanize_bytes },
+      "memory"  => PlaceholderFormatter.new { |_| (GC.stats.heap_size - GC.stats.free_bytes).humanize_bytes },
       "elapsed" => PlaceholderFormatter.new { |bar| ACON::Helper.format_time bar.clock.now.to_unix - bar.start_time },
       "current" => PlaceholderFormatter.new { |bar| bar.progress.to_s.rjust bar.step_width, ' ' },
-      "max"     => PlaceholderFormatter.new { |bar| bar.max_steps.to_s },
+      "max"     => PlaceholderFormatter.new(&.max_steps.to_s),
       "percent" => PlaceholderFormatter.new { |bar| (bar.progress_percent * 100).floor.to_i.to_s },
     }
   end
@@ -287,6 +287,7 @@ class Athena::Console::Helper::ProgressBar
     self.progress = @step + step
   end
 
+  # ameba:disable Metrics/CyclomaticComplexity:
   def progress=(step : Int32) : Nil
     if @max > 0 && (step > @max)
       @max = step
@@ -376,7 +377,7 @@ class Athena::Console::Helper::ProgressBar
 
           output.clear line_count
         else
-          previous_message.count('\n').times do |t|
+          previous_message.count('\n').times do |_|
             @cursor.move_to_column 1
             @cursor.clear_line
             @cursor.move_up
@@ -401,7 +402,7 @@ class Athena::Console::Helper::ProgressBar
 
     regex = /%([a-z\-_]+)(?::([^%]+))?%/i
 
-    callback = Proc(String, Regex::MatchData, String).new do |string, match|
+    callback = Proc(String, Regex::MatchData, String).new do |_, match|
       if formatter = self.placeholder_formatter match[1]
         text = formatter.call self, @output
       elsif message = @messages[match[1]]?

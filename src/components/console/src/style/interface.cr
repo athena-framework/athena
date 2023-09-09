@@ -58,7 +58,7 @@ module Athena::Console::Style::Interface
   abstract def table(headers : Enumerable, rows : Enumerable) : Nil
 
   abstract def progress_start(max : Int32? = nil) : Nil
-  abstract def progress_advance(step : Int32 = 1) : Nil
+  abstract def progress_advance(by step : Int32 = 1) : Nil
   abstract def progress_finish : Nil
 
   # Formats and prints the provided *messages* within a warning block.
