@@ -14,7 +14,6 @@ private class MockClock
   end
 end
 
-@[ASPEC::TestCase::Focus]
 struct ProgressBarTest < ASPEC::TestCase
   @col_size : String?
   @clock : MockClock

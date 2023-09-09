@@ -343,10 +343,10 @@ class Athena::Console::Helper::ProgressBar
     self.progress = @max
   end
 
-  def iterate(iterator : Enumerable, max : Int32? = nil) : Nil
+  def iterate(enumerable : Enumerable(T), max : Int32? = nil, & : T -> Nil) : Nil forall T
     self.start max || 0
 
-    iterator.each do |value|
+    enumerable.each do |value|
       yield value
 
       self.advance

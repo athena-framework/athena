@@ -57,7 +57,7 @@ module Athena::Console::Style::Interface
   # Formats and prints a table based on the provided *headers* and *rows*, followed by a new line.
   abstract def table(headers : Enumerable, rows : Enumerable) : Nil
 
-  abstract def progress_start(max : Int32 = 0) : Nil
+  abstract def progress_start(max : Int32? = nil) : Nil
   abstract def progress_advance(step : Int32 = 1) : Nil
   abstract def progress_finish : Nil
 
