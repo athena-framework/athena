@@ -57,8 +57,13 @@ module Athena::Console::Style::Interface
   # Formats and prints a table based on the provided *headers* and *rows*, followed by a new line.
   abstract def table(headers : Enumerable, rows : Enumerable) : Nil
 
+  # Starts an internal `ACON::Helper::ProgressBar`, optionally with the provided *max* amount of steps.
   abstract def progress_start(max : Int32? = nil) : Nil
+
+  # Advances the internal `ACON::Helper::ProgressBar` *by* the provided amount of steps.
   abstract def progress_advance(by step : Int32 = 1) : Nil
+
+  # Completes the internal `ACON::Helper::ProgressBar`.
   abstract def progress_finish : Nil
 
   # Formats and prints the provided *messages* within a warning block.

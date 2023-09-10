@@ -350,15 +350,18 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
     self.block messages, "WARNING", "fg=black;bg=yellow", padding: true
   end
 
+  # :inherit:
   def progress_start(max : Int32? = nil) : Nil
     @progress_bar = self.create_progress_bar max
     self.progress_bar.start
   end
 
+  # :inherit:
   def progress_advance(by step : Int32 = 1) : Nil
     self.progress_bar.advance step
   end
 
+  # :inherit:
   def progress_finish : Nil
     self.progress_bar.finish
     self.new_line 2

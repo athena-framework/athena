@@ -4,7 +4,7 @@ require "../output/interface"
 
 # :nodoc:
 #
-# TODO: Consider including this in `athena/contracts`?
+# TODO: Consider creating a `Clock` component.
 module Athena::Console::ClockInterface
   abstract def now : Time
 end
@@ -14,6 +14,8 @@ end
 # ![Progress Bar](../../../img/progress_bar.gif)
 #
 # TIP: Consider using `ACON::Style::Athena` to display a progress bar.
+#
+# The ProgressBar helper can be used to progress information to any `ACON::Output::Interface`:
 #
 # ```
 # # Create a new progress bar with 50 required units for completion.
@@ -623,7 +625,7 @@ class Athena::Console::Helper::ProgressBar
   # Can be used in conjunction with `#display` to allow outputting something while a progress bar is running.
   # Call `#clear`, write the content, then call `#display` to show the progress bar again.
   #
-  # NOTE: Requires that `#overwrite` = `true`.
+  # NOTE: Requires that `#overwrite=` be set to `true`.
   def clear : Nil
     return unless @overwrite
 
@@ -697,7 +699,7 @@ class Athena::Console::Helper::ProgressBar
     end
   end
 
-  # Displays the progress bar's current state to the output.
+  # Displays the progress bar's current state.
   def display : Nil
     return if @output.verbosity.quiet?
 
