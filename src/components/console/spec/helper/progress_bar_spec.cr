@@ -1016,7 +1016,7 @@ struct ProgressBarTest < ASPEC::TestCase
     ENV["COLUMNS"] = "156"
     idx = 0
 
-    ACON::Helper::ProgressBar.set_placeholder_formatter "memory" do
+    ACON::Helper::ProgressBar.set_placeholder_formatter "custom_memory" do
       mem = 100_000 * idx
 
       colors = idx.zero? ? "44;37" : "41;37"
@@ -1026,7 +1026,7 @@ struct ProgressBarTest < ASPEC::TestCase
     end
 
     bar = ACON::Helper::ProgressBar.new output = self.output, 15, 0
-    bar.format = " \033[44;37m %title:-37s% \033[0m\n %current%/%max% %bar% %percent:3s%%\n 🏁  %remaining:-10s% %memory:37s%"
+    bar.format = " \033[44;37m %title:-37s% \033[0m\n %current%/%max% %bar% %percent:3s%%\n 🏁  %remaining:-10s% %custom_memory:37s%"
     bar.bar_character = done = "\033[32m●\033[0m"
     bar.empty_bar_character = empty = "\033[31m●\033[0m"
     bar.progress_character = progress = "\033[32m➤ \033[0m"
@@ -1100,10 +1100,9 @@ struct ProgressBarTest < ASPEC::TestCase
   end
 
   def test_multiline_format_is_fully_correct_with_manual_cleanup : Nil
-    ACON::Helper::ProgressBar.set_format_definition "normal_nomax", "[%bar%]\n%message%"
-
     bar = ACON::Helper::ProgressBar.new output = self.output
     bar.set_message %(Processing "foobar"...)
+    bar.format = "[%bar%]\n%message%"
 
     bar.start
     bar.clear
@@ -1148,13 +1147,13 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output output, start, frames
   end
 
-  private def assert_output(output : ACON::Output::Interface, start : String, frames : Enumerable(String) = [] of String) : Nil
+  private def assert_output(output : ACON::Output::Interface, start : String, frames : Enumerable(String) = [] of String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
     expected = String.build do |io|
       io << start
 
       frames.join io
     end
 
-    output.io.to_s.should eq expected
+    output.io.to_s.should eq(expected), line: line, file: file
   end
 end

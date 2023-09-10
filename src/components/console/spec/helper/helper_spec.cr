@@ -2,7 +2,7 @@ require "../spec_helper"
 
 struct HelperTest < ASPEC::TestCase
   @[DataProvider("time_provider")]
-  def test_format_time(seconds : Int32, expected : String) : Nil
+  def test_format_time(seconds : Int32 | Time::Span, expected : String) : Nil
     ACON::Helper.format_time(seconds).should eq expected
   end
 
@@ -17,6 +17,7 @@ struct HelperTest < ASPEC::TestCase
       {119, "1 min"},
       {120, "2 mins"},
       {121, "2 mins"},
+      {4.minutes, "4 mins"},
       {3599, "59 mins"},
       {3600, "1 hr"},
       {7199, "1 hr"},

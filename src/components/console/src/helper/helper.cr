@@ -19,10 +19,24 @@ abstract class Athena::Console::Helper
     {172_800, "days", 86_400},
   }
 
+  # Formats the provided *span* of time as a human readable string.
+  #
+  # ```
+  # ACON::Helper.format_time 10.seconds # => "10 secs"
+  # ACON::Helper.format_time 4.minutes  # => "4 mins"
+  # ACON::Helper.format_time 74.minutes # => "1 hr"
+  # ```
   def self.format_time(span : Time::Span) : String
     self.format_time span.total_seconds
   end
 
+  # Formats the provided *seconds* as a human readable string.
+  #
+  # ```
+  # ACON::Helper.format_time 10   # => "10 secs"
+  # ACON::Helper.format_time 240  # => "4 mins"
+  # ACON::Helper.format_time 4400 # => "1 hr"
+  # ```
   def self.format_time(seconds : Number) : String
     TIME_FORMATS.each_with_index do |format, idx|
       min_seconds, label, max_seconds = format
@@ -32,7 +46,7 @@ abstract class Athena::Console::Helper
       if ((next_format = TIME_FORMATS[idx + 1]?) && (seconds < next_format[0])) || idx == TIME_FORMATS.size - 1
         return label if max_seconds.nil?
 
-        return "#{seconds // max_seconds} #{label}"
+        return "#{(seconds // max_seconds).to_i} #{label}"
       end
     end
 
