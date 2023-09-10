@@ -20,6 +20,7 @@ struct ProgressBarTest < ASPEC::TestCase
 
   def initialize
     @col_size = ENV["COLUMNS"]?
+    ENV["COLUMNS"] = "120"
     @clock = MockClock.new Time.utc
   end
 
