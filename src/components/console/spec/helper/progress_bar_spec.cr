@@ -1143,8 +1143,8 @@ struct ProgressBarTest < ASPEC::TestCase
     ACON::Output::IO.new IO::Memory.new, decorated: decorated, verbosity: verbosity
   end
 
-  private def assert_output(output : ACON::Output::Interface, start : String, *frames : String) : Nil
-    self.assert_output output, start, frames
+  private def assert_output(output : ACON::Output::Interface, start : String, *frames : String, line : Int32 = __LINE__, file : String = __FILE__) : Nil
+    self.assert_output output, start, frames, line: line, file: file
   end
 
   private def assert_output(output : ACON::Output::Interface, start : String, frames : Enumerable(String) = [] of String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
