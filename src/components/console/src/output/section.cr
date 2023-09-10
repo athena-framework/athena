@@ -93,9 +93,9 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
 
   def max_height=(max_height : Int32?) : Nil
     # Clear output of current section and redraw again with new height
-    existing_content = self.pop_stream_content_until_current_section (mh = @max_height) ? Math.min(mh, @lines) : @lines
-
+    previous_max_height = @max_height
     @max_height = max_height
+    existing_content = self.pop_stream_content_until_current_section previous_max_height ? Math.min(previous_max_height, @lines) : @lines
 
     self.io_do_write self.visible_content, false
     self.io_do_write existing_content, false
