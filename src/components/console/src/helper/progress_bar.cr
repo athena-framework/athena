@@ -9,6 +9,284 @@ module Athena::Console::ClockInterface
   abstract def now : Time
 end
 
+# When executing longer-running commands, it can be helpful to show progress information that updates as the command runs:
+#
+# ![Progress Bar](../../../img/progress_bar.gif)
+#
+# TIP: Consider using `ACON::Style::Athena` to display a progress bar.
+#
+# ```
+# # Create a new progress bar with 50 required units for completion.
+# progress_bar = ACON::Helper::ProgressBar.new output, 50
+#
+# # Start and display the progress bar.
+# progress_bar.start
+#
+# 50.times do
+#   # Do work
+#
+#   # Advance the progress bar by 1 unit.
+#   progress_bar.advance
+#
+#   # Or advance by more than a single unit.
+#   # progress_bar.advance 3
+# end
+#
+# # Ensure progress bar is at 100%.
+# progress_bar.finish
+# ```
+#
+# A progress bar can also be created without a required number of units, in which case it will just act as a [throbber](https://en.wikipedia.org/wiki/Throbber).
+# However, `#max_steps=` can be called at any point to either set, or increase the required number of units.
+# E.g. if its only known after performing some calculations, or additional work is needed such that the original value is not invalid.
+#
+# TODO: Implement `ProgressIndicator`
+#
+# Be sure to call `#finish` when the task completes to ensure the progress bar is refreshed with a 100% completion.
+#
+# NOTE: By default the progress bar will write its output to `STDERR`, however this can be customized by using an `ACON::Output::IO` explicitly.
+#
+# If the progress information is stored within an [Enumerable](https://crystal-lang.org/api/Enumerable.html) type, the `#iterate` method
+# can be used to start, advance, and finish the progress bar automatically, yielding each item in the collection:
+#
+# ```
+# bar = ACON::Helper::ProgressBar.new output
+# arr = [1, 2, 3]
+#
+# bar.iterate(arr) do |item|
+#   # Do something
+# end
+# ```
+#
+# Which would output:
+# ```
+# 0/2 [>---------------------------]   0%
+# 1/2 [==============>-------------]  50%
+# 2/2 [============================] 100%
+# ```
+#
+# NOTE: `Iterator` types are also supported, but need the max value provided explicitly via the second argument to `#iterate`.
+#
+# ### Progressing
+#
+# While the `#advance` method can be used to move the progress bar ahead by a specific number of steps,
+# the current step can be set explicitly via `#progress=`.
+#
+# It is also possible to start the progress bar at a specific step, which is useful when resuming some long-standing task:
+#
+# ```
+# # Create a 100 unit progress bar
+# progress_bar = ACON::Helper::ProgressBar.new output, 100
+#
+# # Display the progress bar starting at already 25% complete.
+# progress_bar.start at: 25
+# ```
+#
+# TIP: The progress can also be regressed (stepped backwards) by providing `#advance` a negative value.
+#
+# ### Controlling Rendering
+#
+# If available, [ANCI Escape Codes](https://en.wikipedia.org/wiki/ANSI_escape_code) are used to handle the rendering of the progress bar,
+# otherwise updates are added as new lines. `#minimum_seconds_between_redraws=` can be used to prevent the output being flooded.
+# `#redraw_frequency=` can be used to to redraw every _N_ iterations. By default, redraw frequency is **100ms** or **10%** of your `#max_steps`.
+#
+# ## Customizing
+#
+# ### Built-in Formats
+#
+# The progress bar comes with a few built-in formats based on the `ACON::Output::Verbosity` the command was executed with:
+#
+# ```
+# # Verbosity::NORMAL (CLI with no verbosity flag)
+#  0/3 [>---------------------------]   0%
+#  1/3 [=========>------------------]  33%
+#  3/3 [============================] 100%
+#
+# # Verbosity::VERBOSE (-v)
+#  0/3 [>---------------------------]   0%  1 sec
+#  1/3 [=========>------------------]  33%  1 sec
+#  3/3 [============================] 100%  1 sec
+#
+# # Verbosity::VERY_VERBOSE (-vv)
+#  0/3 [>---------------------------]   0%  1 sec/1 sec
+#  1/3 [=========>------------------]  33%  1 sec/1 sec
+#  3/3 [============================] 100%  1 sec/1 sec
+#
+# # Verbosity::DEBUG (-vvv)
+#  0/3 [>---------------------------]   0%  1 sec/1 sec  1kiB
+#  1/3 [=========>------------------]  33%  1 sec/1 sec  1kiB
+#  3/3 [============================] 100%  1 sec/1 sec  1kiB
+# ```
+#
+# NOTE: If a command called with `ACON::Output::Verbosity::QUIET`, the progress bar will not be displayed.
+#
+# The format may also be set explicitly in code via:
+#
+# ```
+# # If the progress bar has a maximum number of steps.
+# bar.format = :very_verbose
+#
+# # Without a maximum
+# bar.format = :very_verbose_nomax
+# ```
+#
+# ### Custom Formats
+#
+# While the built-in formats are sufficient for most use cases, custom ones may also be defined:
+#
+# ```
+# bar.format = "%bar%"
+# ```
+#
+# Which would set the format to only display the progress bar itself:
+#
+# ```
+# >---------------------------
+# =========>------------------
+# ============================
+# ```
+#
+# A progress bar format is a string that contains specific placeholders (a name enclosed with the `%` character);
+# the placeholders are replaced based on the current progress of the bar. The built-in placeholders include:
+#
+# * `current` - The current step
+# * `max` - The maximum number of steps (or zero if there is not one)
+# * `bar` - The progress bar itself
+# * `percent` - The percentage of completion (not available if no max is defined)
+# * `elapsed` - The time elapsed since the start of the progress bar
+# * `remaining` - The remaining time to complete the task (not available if no max is defined)
+# * `estimated` - The estimated time to complete the task (not available if no max is defined)
+# * `memory` - The current memory usage
+# * `message` - Used to display arbitrary messages, more on this later
+#
+# For example, the format string for `ACON::Helper::ProgressBar::Format::NORMAL` is `" %current% [%bar%] %elapsed:6s%"`.
+# Individual placeholders can have their formatting tweaked by anything that [sprintf](https://crystal-lang.org/api/toplevel.html#sprintf(format_string,args:Array|Tuple):String-class-method).
+# by separating the name of the placeholder with a `:`.
+# The part after the colon will be passed to `sprintf`.
+#
+# If a format should be used across an entire application, they can be registered globally via `.set_format_definition`:
+#
+# ```
+# ACON::Helper::ProgressBar.set_format_definition "minimal", "Progress: %percent%%"
+#
+# bar = ACON::Helper::ProgressBar.new output, 3
+# bar.format = "minimal"
+# ```
+#
+# Which would output:
+#
+# ```
+# Progress: 0%
+# Progress: 33%
+# Progress: 100%
+# ```
+#
+# TIP: It is almost always better to override the built-in formats in order to automatically vary the display based on the verbosity the command is being ran with.
+#
+# When creating a custom format, be sure to also define a `_nomax` variant if it is using a placeholder that is only available if `#max_steps` is defined.
+#
+# ```
+# ACON::Helper::ProgressBar.set_format_definition "minimal", "%current%/%remaining%"
+# ACON::Helper::ProgressBar.set_format_definition "minimal_nomax", "%current%"
+#
+# bar = ACON::Helper::ProgressBar.new output, 3
+# bar.format = "minimal"
+# ```
+#
+# The format will automatically be set to `minimal_nomax` if the bar does not have a maximum number of steps.
+#
+# TIP: A format can contain any valid ANSI codes, or any `ACON::Formatter::OutputStyleInterface` markup.
+#
+# TIP: A format may also span multiple lines, which can be useful to also display contextual information (like the first example).
+#
+# ### Bar Settings
+#
+# The `bar` placeholder is a bit special in that all of the characters used to display it can be customized:
+#
+# ```
+# # The Finished part of the bar
+# bar.bar_character = "<comment>=</comment>"
+#
+# # The unfinished part of the bar
+# bar.empty_bar_character = " "
+#
+# # The progress character
+# bar.progress_character = "|"
+#
+# # The width of the bar
+# bar.bar_width = 50
+# ```
+#
+# ### Custom Placeholders
+#
+# Just like the format, custom placeholders may also be defined.
+# This can be useful to have a common way of displaying some sort of application specific information between multiple progress bars:
+#
+# ```
+# ACON::Helper::ProgressBar.set_placeholder_formatter "remaining_steps" do |bar|
+#   "#{bar.max_steps - bar.progress}"
+# end
+# ```
+#
+# From here it could then be used in a format string as `%remaining_steps%` just like any other placeholder.
+# `.set_placeholder_formatter` registers the format globally, while `#set_placeholder_formatter` would set it on a specific progress bar.
+#
+# ### Custom Messages
+#
+# While there is a built-in `message` placeholder that can be set via `#set_message`, none of the built-in formats include it.
+# As such, before displaying these messages, a custom format needs to be defined:
+#
+# ```
+# bar = ACON::Helper::ProgressBar.new output, 100
+# bar.format = " %current%/%max% -- %message%"
+#
+# bar.set_message "Start"
+# bar.start # 0/100 -- Start
+#
+# bar.set_message "Task is in progress..."
+# bar.start # 1/100 -- Task is in progress...
+# ```
+#
+# `#set_message` also allows or an optional second argument, which can be used to have multiple independent messages within the same format string:
+#
+# ```
+# files.each do |file_name|
+#   bar.set_message "Importing files..."
+#   bar.set_message file_name, "filename"
+#   bar.advance # => 2/100 -- Importing files... (foo/bar.txt)
+# end
+# ```
+#
+# ## Multiple Progress Bars
+#
+# When using `ACON::Output::Section`s, multiple progress bars can be displayed at the same time and updated independently:
+#
+# ```
+# output = output.as ACON::Output::ConsoleOutputInterface
+#
+# section1 = output.section
+# section2 = output.section
+#
+# bar1 = ACON::Helper::ProgressBar.new section1
+# bar2 = ACON::Helper::ProgressBar.new section2
+#
+# bar1.start 100
+# bar2.start 100
+#
+# 100.times do |idx|
+#   bar1.advance
+#   bar2.advance(4) if idx.divisible_by? 2
+#
+#   sleep 0.05
+# end
+# ```
+#
+# Which would ultimately look something like:
+#
+# ```
+# 34/100 [=========>------------------]  34%
+# 68/100 [===================>--------]  68%
+# ```
 class Athena::Console::Helper::ProgressBar
   # :nodoc:
   class Clock
@@ -19,15 +297,32 @@ class Athena::Console::Helper::ProgressBar
     end
   end
 
+  # Represents the built in progress bar formats.
+  #
+  # These can also be overridden by using the same name via `ACON::Helper::ProgressBar.set_format_definition`.
   enum Format
+    # ` %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%`
     DEBUG
+
+    # ` %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s%`
     VERY_VERBOSE
+
+    # ` %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%`
     VERBOSE
+
+    # ` %current%/%max% [%bar%] %percent:3s%%`
     NORMAL
 
+    # ` %current% [%bar%] %elapsed:6s% %memory:6s%`
     DEBUG_NOMAX
+
+    # ` %current% [%bar%] %elapsed:6s%`
     VERBOSE_NOMAX
+
+    # ` %current% [%bar%] %elapsed:6s%`
     VERY_VERBOSE_NOMAX
+
+    # ` %current% [%bar%]`
     NORMAL_NOMAX
   end
 
@@ -345,7 +640,7 @@ class Athena::Console::Helper::ProgressBar
   end
 
   def iterate(enumerable : Enumerable(T), max : Int32? = nil, & : T -> Nil) : Nil forall T
-    self.start max || 0
+    self.start(enumerable.is_a?(Indexable) ? enumerable.size : 0)
 
     enumerable.each do |value|
       yield value
