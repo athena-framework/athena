@@ -65,7 +65,7 @@ end
 # 2/2 [============================] 100%
 # ```
 #
-# NOTE: `Iterator` types are also supported, but need the max value provided explicitly via the second argument to `#iterate`.
+# NOTE: `Iterator` types are also supported, but need the max value provided explicitly via the second argument to `#iterate` if known.
 #
 # ### Progressing
 #
@@ -75,7 +75,7 @@ end
 # It is also possible to start the progress bar at a specific step, which is useful when resuming some long-standing task:
 #
 # ```
-# # Create a 100 unit progress bar
+# # Create a 100 unit progress bar.
 # progress_bar = ACON::Helper::ProgressBar.new output, 100
 #
 # # Display the progress bar starting at already 25% complete.
@@ -149,18 +149,18 @@ end
 # A progress bar format is a string that contains specific placeholders (a name enclosed with the `%` character);
 # the placeholders are replaced based on the current progress of the bar. The built-in placeholders include:
 #
-# * `current` - The current step
-# * `max` - The maximum number of steps (or zero if there is not one)
-# * `bar` - The progress bar itself
-# * `percent` - The percentage of completion (not available if no max is defined)
-# * `elapsed` - The time elapsed since the start of the progress bar
-# * `remaining` - The remaining time to complete the task (not available if no max is defined)
-# * `estimated` - The estimated time to complete the task (not available if no max is defined)
-# * `memory` - The current memory usage
-# * `message` - Used to display arbitrary messages, more on this later
+# * `%current%` - The current step
+# * `%max%` - The maximum number of steps (or zero if there is not one)
+# * `%bar%` - The progress bar itself
+# * `%percent%` - The percentage of completion (not available if no max is defined)
+# * `%elapsed%` - The time elapsed since the start of the progress bar
+# * `%remaining%` - The remaining time to complete the task (not available if no max is defined)
+# * `%estimated%` - The estimated time to complete the task (not available if no max is defined)
+# * `%memory%` - The current memory usage
+# * `%message%` - Used to display arbitrary messages, more on this later
 #
 # For example, the format string for `ACON::Helper::ProgressBar::Format::NORMAL` is `" %current% [%bar%] %elapsed:6s%"`.
-# Individual placeholders can have their formatting tweaked by anything that [sprintf](https://crystal-lang.org/api/toplevel.html#sprintf(format_string,args:Array|Tuple):String-class-method).
+# Individual placeholders can have their formatting tweaked by anything that [sprintf](https://crystal-lang.org/api/toplevel.html#sprintf(format_string,args:Array|Tuple):String-class-method) supports
 # by separating the name of the placeholder with a `:`.
 # The part after the colon will be passed to `sprintf`.
 #
@@ -204,16 +204,16 @@ end
 # The `bar` placeholder is a bit special in that all of the characters used to display it can be customized:
 #
 # ```
-# # The Finished part of the bar
+# # The Finished part of the bar.
 # bar.bar_character = "<comment>=</comment>"
 #
-# # The unfinished part of the bar
+# # The unfinished part of the bar.
 # bar.empty_bar_character = " "
 #
-# # The progress character
+# # The progress character.
 # bar.progress_character = "|"
 #
-# # The width of the bar
+# # The width of the bar.
 # bar.bar_width = 50
 # ```
 #
@@ -244,7 +244,7 @@ end
 # bar.start # 0/100 -- Start
 #
 # bar.set_message "Task is in progress..."
-# bar.start # 1/100 -- Task is in progress...
+# bar.advance # 1/100 -- Task is in progress...
 # ```
 #
 # `#set_message` also allows or an optional second argument, which can be used to have multiple independent messages within the same format string:
@@ -299,33 +299,34 @@ class Athena::Console::Helper::ProgressBar
 
   # Represents the built in progress bar formats.
   #
-  # These can also be overridden by using the same name via `ACON::Helper::ProgressBar.set_format_definition`.
+  # See [Built-In Formats][Athena::Console::Helper::ProgressBar--built-in-formats] for more information.
   enum Format
-    # ` %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%`
+    # `" %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%"`
     DEBUG
 
-    # ` %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s%`
+    # `" %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s%"`
     VERY_VERBOSE
 
-    # ` %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%`
+    # `" %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%"`
     VERBOSE
 
-    # ` %current%/%max% [%bar%] %percent:3s%%`
+    # `" %current%/%max% [%bar%] %percent:3s%%"`
     NORMAL
 
-    # ` %current% [%bar%] %elapsed:6s% %memory:6s%`
+    # `" %current% [%bar%] %elapsed:6s% %memory:6s%"`
     DEBUG_NOMAX
 
-    # ` %current% [%bar%] %elapsed:6s%`
+    # `" %current% [%bar%] %elapsed:6s%"`
     VERBOSE_NOMAX
 
-    # ` %current% [%bar%] %elapsed:6s%`
+    # `" %current% [%bar%] %elapsed:6s%"`
     VERY_VERBOSE_NOMAX
 
-    # ` %current% [%bar%]`
+    # `" %current% [%bar%]"`
     NORMAL_NOMAX
   end
 
+  # Represents the expected type of a [Placeholder Formatter][Athena::Console::Helper::ProgressBar--custom-placeholders].
   alias PlaceholderFormatter = Proc(Athena::Console::Helper::ProgressBar, Athena::Console::Output::Interface, String)
 
   # INTERNAL
@@ -334,10 +335,12 @@ class Athena::Console::Helper::ProgressBar
   # INTERNAL
   protected class_getter placeholder_formatters : Hash(String, PlaceholderFormatter) { self.init_placeholder_formatters }
 
+  # Registers the *format* globally with the provided *name*.
   def self.set_format_definition(name : String, format : String) : Nil
     self.formats[name] = format
   end
 
+  # Returns the global format string for the provided *name* if it exists, otherwise `nil`.
   def self.format_definition(name : String) : String?
     self.formats[name]?
   end
@@ -358,14 +361,17 @@ class Athena::Console::Helper::ProgressBar
     }
   end
 
+  # Registers a custom placeholder with the provided *name* with the block being the formatter.
   def self.set_placeholder_formatter(name : String, &block : self, ACON::Output::Interface -> String) : Nil
     self.set_placeholder_formatter name, block
   end
 
+  # Registers a custom placeholder with the provided *name*, using the provided *callable* as the formatter.
   def self.set_placeholder_formatter(name : String, callable : ACON::Helper::ProgressBar::PlaceholderFormatter) : Nil
     self.placeholder_formatters[name] = callable
   end
 
+  # Returns the global formatter for the provided *name* if it exists, otherwise `nil`.
   def self.placeholder_formatter(name : String) : ACON::Helper::ProgressBar::PlaceholderFormatter?
     self.placeholder_formatters[name]?
   end
@@ -411,21 +417,10 @@ class Athena::Console::Helper::ProgressBar
 
   @output : ACON::Output::Interface
   @terminal : ACON::Terminal
-  getter start_time : Int64
   @cursor : ACON::Cursor
 
-  getter bar_width : Int32 = 28
-  setter bar_character : String? = nil
-  property empty_bar_character : String = "-"
-  property progress_character : String = ">"
-
-  setter overwrite : Bool = true
   @max : Int32 = 0
-  getter! step_width : Int32
-
   @redraw_frequency : Int32? = 1
-  setter minimum_seconds_between_redraws : Float64 = 0
-  setter maximum_seconds_between_redraws : Float64 = 1
   @format : String? = nil
   @internal_format : String? = nil
   @step : Int32 = 0
@@ -435,10 +430,61 @@ class Athena::Console::Helper::ProgressBar
   @previous_message : String? = nil
   @write_count : Int32 = 0
   @messages : Hash(String, String) = Hash(String, String).new
-
   @placeholder_formatters : Hash(String, PlaceholderFormatter) = Hash(String, PlaceholderFormatter).new
 
   protected property clock : Athena::Console::ClockInterface = Clock.new
+
+  # Returns the time the progress bar was started as a Unix epoch.
+  #
+  # TODO: Make this return `Time`.
+  getter start_time : Int64
+
+  # Returns the width of the progress bar in pixels.
+  #
+  # ```
+  # bar1 = ...
+  # bar1.bar_width = 50
+  # bar1.start 10
+  #
+  # bar2 = ...
+  # bar2.bar_width = 10
+  # bar2.start 20
+  #
+  # bar1.finish
+  # bar2.finish
+  # ```
+  #
+  # ```
+  # 10/10 [==================================================] 100%
+  # 20/20 [==========] 100%
+  # ```
+  getter bar_width : Int32 = 28
+
+  # Explicitly sets the character to use for the finished part of the bar.
+  setter bar_character : String? = nil
+
+  # Represents the character used for the unfinished part of the bar.
+  property empty_bar_character : String = "-"
+
+  # Represents the character used for the current progress of the bar.
+  property progress_character : String = ">"
+
+  # Sets if the progress bar should overwrite the progress bar.
+  # Set to `false` in order to print the progress bar on a new line for each update.
+  setter overwrite : Bool = true
+
+  # Returns the width in pixels that the current `#progress` takes up when displayed.
+  getter! step_width : Int32
+
+  # Sets the minimum amount of time between redraws.
+  #
+  # See [Controlling Rendering][Athena::Console::Helper::ProgressBar--controlling-rendering] for more information.
+  setter minimum_seconds_between_redraws : Float64 = 0
+
+  # Sets the maximum amount of time between redraws.
+  #
+  # See [Controlling Rendering][Athena::Console::Helper::ProgressBar--controlling-rendering] for more information.
+  setter maximum_seconds_between_redraws : Float64 = 1
 
   def initialize(output : ACON::Output::Interface, max : Int32? = nil, minimum_seconds_between_redraws : Float64 = 0.04)
     if output.is_a? ACON::Output::ConsoleOutputInterface
@@ -467,41 +513,54 @@ class Athena::Console::Helper::ProgressBar
     self.max_steps = max || 0
   end
 
+  # Sets what built in *format* to use.
+  # See [Built-in Formats][Athena::Console::Helper::ProgressBar--built-in-formats] for more information.
   def format=(format : ACON::Helper::ProgressBar::Format)
     self.format = format.to_s.downcase
   end
 
+  # Sets the format string used to determine how to display the progress bar.
+  # See [Custom Formats][Athena::Console::Helper::ProgressBar--custom-formats] for more information.
   def format=(format : String)
     @format = nil
     @internal_format = format
   end
 
+  # Returns the current step of the progress bar
   def progress : Int32
     @step
   end
 
+  # Returns the maximum number of possible steps, or `0` if it is unknown.
   def max_steps : Int32
     @max
   end
 
+  # Sets the maximum possible steps to the provided *max*.
   def max_steps=(max : Int32) : Nil
     @format = nil
     @max = Math.max 0, max
     @step_width = @max > 0 ? ACON::Helper.width(@max.to_s) : 4
   end
 
+  # Returns the a percent of progress of `#progress` versus `#max_steps`.
+  # Returns zero if there is no max defined.
   def progress_percent : Float64
     @percent
   end
 
+  # Returns the character to use for the finished part of the bar.
   def bar_character : String
     @bar_character || (@max > 0 ? "=" : @empty_bar_character)
   end
 
+  # Sets the width of the bar in pixels to the provided *size*.
+  # See `#bar_width`.
   def bar_width=(size : Int32) : Nil
     @bar_width = Math.max 1, size
   end
 
+  # Returns the amount of `#bar_character` representing the current `#progress`.
   def bar_offset : Int32
     if @max > 0
       return (@percent * @bar_width).floor.to_i
@@ -514,42 +573,57 @@ class Athena::Console::Helper::ProgressBar
     (@step % @bar_width).floor.to_i
   end
 
+  # Returns an estimated amount of time in seconds until the progress bar is completed.
   def estimated : Float64
     return 0.0 if @step.zero? || @step == @starting_step
 
     ((@clock.now.to_unix - @start_time) / (@step - @starting_step) * @max).round
   end
 
+  # Returns an estimated total amount of time in seconds needed for the progress bar to complete.
   def remaining : Float64
     return 0.0 if @step.zero?
 
     ((@clock.now.to_unix - @start_time) / (@step - @starting_step) * (@max - @step)).round 0
   end
 
+  # Returns the amount of time in seconds until the progress bar is completed.
   def placeholder_formatter(name : String) : ACON::Helper::ProgressBar::PlaceholderFormatter?
     @placeholder_formatters[name]? || self.class.placeholder_formatter name
   end
 
+  # Same as `.set_placeholder_formatter`, but scoped to this particular progress bar.
   def set_placeholder_formatter(name : String, &block : self, ACON::Output::Interface -> String) : Nil
     self.set_placeholder_formatter name, block
   end
 
+  # Same as `.set_placeholder_formatter`, but scoped to this particular progress bar.
   def set_placeholder_formatter(name : String, callable : ACON::Helper::ProgressBar::PlaceholderFormatter) : Nil
     @placeholder_formatters[name] = callable
   end
 
+  # Sets the message with the provided *name* to that of the provided *message*.
   def set_message(message : String, name : String = "message") : Nil
     @messages[name] = message
   end
 
+  # Returns the message associated with the provided *name* if defined, otherwise `nil`.
   def message(name : String = "message") : String?
     @messages[name]?
   end
 
+  # Redraw the progress bar every after advancing the provided amount of *steps*.
+  #
+  #  See [Controlling Rendering][Athena::Console::Helper::ProgressBar--controlling-rendering] for more information.
   def redraw_frequency=(steps : Int32?) : Nil
     @redraw_frequency = steps.try { |s| Math.max 1, s }
   end
 
+  # Clears the progress bar from the output.
+  # Can be used in conjunction with `#display` to allow outputting something while a progress bar is running.
+  # Call `#clear`, write the content, then call `#display` to show the progress bar again.
+  #
+  # NOTE: Requires that `#overwrite` = `true`.
   def clear : Nil
     return unless @overwrite
 
@@ -560,6 +634,10 @@ class Athena::Console::Helper::ProgressBar
     self.overwrite ""
   end
 
+  # Starts the progress bar.
+  #
+  # Optionally sets the maximum number of steps to *max*, or `nil` to leave unchanged.
+  # Optionally starts the progress bar *at* the provided step.
   def start(max : Int32? = nil, at start_at : Int32 = 0) : Nil
     @start_time = @clock.now.to_unix
     @step = start_at
@@ -578,11 +656,14 @@ class Athena::Console::Helper::ProgressBar
     self.display
   end
 
-  def advance(step : Int32 = 1) : Nil
+  # Advanced the progress bar *by* the provided number of steps.
+  def advance(by step : Int32 = 1) : Nil
     self.progress = @step + step
   end
 
-  # ameba:disable Metrics/CyclomaticComplexity:
+  # Explicitly sets the current step number of the progress bar.
+  #
+  # ameba:disable Metrics/CyclomaticComplexity
   def progress=(step : Int32) : Nil
     if @max > 0 && (step > @max)
       @max = step
@@ -616,6 +697,7 @@ class Athena::Console::Helper::ProgressBar
     end
   end
 
+  # Displays the progress bar's current state to the output.
   def display : Nil
     return if @output.verbosity.quiet?
 
@@ -626,6 +708,7 @@ class Athena::Console::Helper::ProgressBar
     self.overwrite self.build_line
   end
 
+  # Finishes the progress output, making it 100% complete.
   def finish
     if @max.zero?
       @max = @step
@@ -639,6 +722,25 @@ class Athena::Console::Helper::ProgressBar
     self.progress = @max
   end
 
+  # Start, advance, and finish the progress bar automatically, yielding each item in the provided *enumerable*.
+  #
+  # ```
+  # bar = ACON::Helper::ProgressBar.new output
+  # arr = [1, 2, 3]
+  #
+  # bar.iterate(arr) do |item|
+  #   # Do something
+  # end
+  # ```
+  #
+  # Which would output:
+  # ```
+  # 0/2 [>---------------------------]   0%
+  # 1/2 [==============>-------------]  50%
+  # 2/2 [============================] 100%
+  # ```
+  #
+  # NOTE: `Iterator` types are also supported, but need the max value provided explicitly via the second argument to `#iterate` if known.
   def iterate(enumerable : Enumerable(T), max : Int32? = nil, & : T -> Nil) : Nil forall T
     self.start(enumerable.is_a?(Indexable) ? enumerable.size : 0)
 
