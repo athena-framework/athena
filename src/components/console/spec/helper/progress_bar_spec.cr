@@ -829,10 +829,6 @@ struct ProgressBarTest < ASPEC::TestCase
     )
   end
 
-  @[Pending]
-  def test_ansi_colors_and_emojis : Nil
-  end
-
   def test_set_format_no_max : Nil
     bar = ACON::Helper::ProgressBar.new output = self.output, minimum_seconds_between_redraws: 0
     bar.format = :normal
@@ -881,10 +877,6 @@ struct ProgressBarTest < ASPEC::TestCase
     bar.start
 
     output.io.to_s.should_not be_empty
-  end
-
-  @[Pending]
-  def test_iterate : Nil
   end
 
   def test_bar_width_with_multiline_format : Nil
@@ -999,6 +991,25 @@ struct ProgressBarTest < ASPEC::TestCase
     result = [] of Int32
 
     bar.iterate [1, 2] do |value|
+      result << value
+    end
+
+    result.should eq [1, 2]
+
+    self.assert_output(
+      output,
+      " 0/2 [>---------------------------]   0%",
+      self.generate_output(" 1/2 [==============>-------------]  50%"),
+      self.generate_output(" 2/2 [============================] 100%"),
+    )
+  end
+
+  def test_iterate_iterator : Nil
+    bar = ACON::Helper::ProgressBar.new output = self.output, minimum_seconds_between_redraws: 0
+
+    result = [] of Int32
+
+    bar.iterate [1, 2].each do |value|
       result << value
     end
 
