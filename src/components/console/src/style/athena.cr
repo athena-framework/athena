@@ -24,6 +24,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
   @buffered_output : ACON::Output::SizedBuffer
 
   @line_length : Int32
+  @progress_bar : ACON::Helper::ProgressBar? = nil
 
   def initialize(@input : ACON::Input::Interface, output : ACON::Output::Interface)
     width = ACON::Terminal.new.width || MAX_LINE_LENGTH
@@ -349,14 +350,43 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
     self.block messages, "WARNING", "fg=black;bg=yellow", padding: true
   end
 
-  # def progress_start(max : Int32 = 0) : Nil
-  # end
+  # :inherit:
+  def progress_start(max : Int32? = nil) : Nil
+    @progress_bar = self.create_progress_bar max
+    self.progress_bar.start
+  end
 
-  # def progress_advance(step : Int32 = 1) : Nil
-  # end
+  # :inherit:
+  def progress_advance(by step : Int32 = 1) : Nil
+    self.progress_bar.advance step
+  end
 
-  # def progress_finish : Nil
-  # end
+  # :inherit:
+  def progress_finish : Nil
+    self.progress_bar.finish
+    self.new_line 2
+    @progress_bar = nil
+  end
+
+  def create_progress_bar(max : Int32? = nil) : ACON::Helper::ProgressBar
+    bar = super(max)
+
+    {% if !flag?(:windows) || env("TERM_PROGRAM") == "Hyper" %}
+      bar.empty_bar_character = "░" # light shade character \u2591
+      bar.progress_character = ""
+      bar.bar_character = "▓" # dark shade character \u2593
+    {% end %}
+
+    bar
+  end
+
+  def progress_iterate(enumerable : Enumerable(T), max : Int32? = nil, & : T -> Nil) : Nil forall T
+    self.create_progress_bar.iterate(enumerable) do |value|
+      yield value
+    end
+
+    self.new_line 2
+  end
 
   private def auto_prepend_block : Nil
     chars = @buffered_output.fetch
@@ -422,5 +452,9 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   private def write_buffer(message : String | Enumerable(String), new_line : Bool, verbosity : ACON::Output::Verbosity = :normal, output_type : ACON::Output::Type = :normal) : Nil
     @buffered_output.write message, new_line, verbosity, output_type
+  end
+
+  private def progress_bar : ACON::Helper::ProgressBar
+    @progress_bar || raise ACON::Exceptions::RuntimeError.new "The ProgressBar is not started."
   end
 end

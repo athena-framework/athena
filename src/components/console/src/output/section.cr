@@ -5,8 +5,6 @@ require "./io"
 # Output sections can be used for advanced console outputs, such as displaying multiple progress bars which are updated independently,
 # or appending additional rows to tables.
 #
-# TODO: Implement progress bars.
-#
 # ```
 # protected def execute(input : ACON::Input::Interface, output : ACON::Output::Interface) : ACON::Command::Status
 #   raise ArgumentError.new "This command may only be used with `ACON::Output::ConsoleOutputInterface`." unless output.is_a? ACON::Output::ConsoleOutputInterface
@@ -95,9 +93,9 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
 
   def max_height=(max_height : Int32?) : Nil
     # Clear output of current section and redraw again with new height
-    existing_content = self.pop_stream_content_until_current_section (mh = @max_height) ? Math.min(mh, @lines) : @lines
-
+    previous_max_height = @max_height
     @max_height = max_height
+    existing_content = self.pop_stream_content_until_current_section previous_max_height ? Math.min(previous_max_height, @lines) : @lines
 
     self.io_do_write self.visible_content, false
     self.io_do_write existing_content, false
