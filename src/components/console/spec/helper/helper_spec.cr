@@ -27,4 +27,14 @@ struct HelperTest < ASPEC::TestCase
   def test_format_time(seconds : Int32 | Time::Span, expected : String) : Nil
     ACON::Helper.format_time(seconds).should eq expected
   end
+
+  @[TestWith(
+    {"abc", "abc"},
+    {"abc<fg=default;bg=default>", "abc"},
+    {"a\033[1;36mbc", "abc"},
+    {"a\033]8;;http://url\033\\b\033]8;;\033\\c", "abc"},
+  )]
+  def test_remove_docoration(decorated_text : String, expected : String) : Nil
+    ACON::Helper.remove_decoration(ACON::Formatter::Output.new, decorated_text).should eq expected
+  end
 end
