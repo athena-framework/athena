@@ -787,6 +787,28 @@ struct TableSpec < ASPEC::TestCase
     TABLE
   end
 
+  def test_hyperlink_and_max_width : Nil
+    table = ACON::Helper::Table.new output = self.io_output true
+
+    table
+      .rows([
+        ["<href=Lorem>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</>"],
+      ])
+      .column_max_width(0, 17)
+      .render
+
+    self.output_content(output).should eq <<-TABLE
+    +-------------------+
+    | \e]8;;Lorem\e\\Lorem ipsum dolor\e]8;;\e\\ |
+    | \e]8;;Lorem\e\\sit amet, consect\e]8;;\e\\ |
+    | \e]8;;Lorem\e\\etur adipiscing e\e]8;;\e\\ |
+    | \e]8;;Lorem\e\\lit, sed do eiusm\e]8;;\e\\ |
+    | \e]8;;Lorem\e\\od tempor\e]8;;\e\\         |
+    +-------------------+
+
+    TABLE
+  end
+
   def test_append_row : Nil
     sections = [] of ACON::Output::Section
 

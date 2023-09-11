@@ -57,8 +57,16 @@ abstract class Athena::Console::Helper
   def self.remove_decoration(formatter : ACON::Formatter::Interface, string : String) : String
     is_decorated = formatter.decorated?
     formatter.decorated = false
+
+    # Remove <...> formatting
     string = formatter.format string
+
+    # Remove already formatted characters
     string = string.gsub /\033\[[^m]*m/, ""
+
+    # Remove terminal hyperlinks
+    string = string.gsub /\033]8;[^;]*;[^\033]*\033\\/, ""
+
     formatter.decorated = is_decorated
 
     string
