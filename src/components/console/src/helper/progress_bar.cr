@@ -42,7 +42,7 @@ end
 # However, `#max_steps=` can be called at any point to either set, or increase the required number of units.
 # E.g. if its only known after performing some calculations, or additional work is needed such that the original value is not invalid.
 #
-# TODO: Implement `ProgressIndicator`
+# TIP: Consider using an `ACON::Helper::ProgressIndicator` instead of a progress bar for this use case.
 #
 # Be sure to call `#finish` when the task completes to ensure the progress bar is refreshed with a 100% completion.
 #
@@ -61,7 +61,7 @@ end
 # ```
 #
 # Which would output:
-# ```
+# ```text
 # 0/2 [>---------------------------]   0%
 # 1/2 [==============>-------------]  50%
 # 2/2 [============================] 100%
@@ -98,7 +98,7 @@ end
 #
 # The progress bar comes with a few built-in formats based on the `ACON::Output::Verbosity` the command was executed with:
 #
-# ```
+# ```text
 # # Verbosity::NORMAL (CLI with no verbosity flag)
 #  0/3 [>---------------------------]   0%
 #  1/3 [=========>------------------]  33%
@@ -142,7 +142,7 @@ end
 #
 # Which would set the format to only display the progress bar itself:
 #
-# ```
+# ```text
 # >---------------------------
 # =========>------------------
 # ============================
@@ -177,7 +177,7 @@ end
 #
 # Which would output:
 #
-# ```
+# ```text
 # Progress: 0%
 # Progress: 33%
 # Progress: 100%
@@ -285,7 +285,7 @@ end
 #
 # Which would ultimately look something like:
 #
-# ```
+# ```text
 # 34/100 [=========>------------------]  34%
 # 68/100 [===================>--------]  68%
 # ```

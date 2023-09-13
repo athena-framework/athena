@@ -35,7 +35,7 @@ alias ACONA = ACON::Annotations
 # * High level reusable formatting [styles][Athena::Console::Style::Interface]
 # * [Testing abstractions][Athena::Console::Spec]
 # * [Tab Completion][Athena::Console::Input::Interface--argumentoption-value-completion]
-# * Rendering `ACON::Helper::Table`s or `ACON::Helper::ProgressBar`s.
+# * Rendering `ACON::Helper::Table`s, `ACON::Helper::ProgressBar`s, or `ACON::Helper::ProgressIndicator`s.
 #
 # The console component best works in conjunction with a dedicated Crystal file that'll be used as the entry point.
 # Ideally this file is compiled into a dedicated binary for use in production, but is invoked directly while developing.
