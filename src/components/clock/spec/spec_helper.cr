@@ -1,2 +1,2 @@
 require "spec"
-require "../src/athena-COMPONENT_NAME"
+require "../src/athena-clock"
