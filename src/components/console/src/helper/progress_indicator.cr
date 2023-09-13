@@ -1,3 +1,99 @@
+# Progress indicators are useful to let users know that a command isn't stalled.
+# However, unlike `ACON::Helper::ProgressBar`s, these indicators are used when the command's duration is indeterminate,
+# such as long-running commands or tasks that are quantifiable.
+#
+# ![Progress Indicator](../../../img/progress_indicator.gif)
+#
+# ```
+# # Create a new progress indicator.
+# indicator = ACON::Helper::ProgressIndicator.new output
+#
+# # Start and display the progress indicator with a custom message.
+# indicator.start "Processing..."
+#
+# 50.times do
+#   # Do work
+#
+#   # Advance the progress indicator.
+#   indicator.advance
+# end
+#
+# # Ensure the progress indicator shows a final completion message
+# indicator.finish "Finished!"
+# ```
+#
+# ## Customizing
+#
+# ### Built-in Formats
+#
+# The progress indicator comes with a few built-in formats based on the `ACON::Output::Verbosity` the command was executed with:
+#
+# ```text
+# # Verbosity::NORMAL (CLI with no verbosity flag)
+#  \ Processing...
+#  | Processing...
+#  / Processing...
+#  - Processing...
+#
+# # Verbosity::VERBOSE (-v)
+#  \ Processing... (1 sec)
+#  | Processing... (1 sec)
+#  / Processing... (1 sec)
+#  - Processing... (1 sec)
+#
+# # Verbosity::VERY_VERBOSE (-vv) and Verbosity::DEBUG (-vvv)
+#  \ Processing... (1 sec, 1kiB)
+#  | Processing... (1 sec, 1kiB)
+#  / Processing... (1 sec, 1kiB)
+#  - Processing... (1 sec, 1kiB)
+# ```
+#
+# NOTE: If a command called with `ACON::Output::Verbosity::QUIET`, the progress bar will not be displayed.
+#
+# The format may also be set explicitly in code within the constructor:
+#
+# ```
+# # If the progress bar has a maximum number of steps.
+# ACON::Helper::ProgressIndicator.new output, format: :very_verbose
+# ```
+#
+# ### Custom Indicator Values
+#
+# Custom indicator values may also be used:
+#
+# ```
+# indicator = ACON::Helper::ProgressIndicator.new output, indicator_values: %w(⠏ ⠛ ⠹ ⢸ ⣰ ⣤ ⣆ ⡇)
+# ```
+#
+# The progress indicator would now look like:
+#
+# ```text
+# ⠏ Processing...
+# ⠛ Processing...
+# ⠹ Processing...
+# ⢸ Processing...
+# ```
+#
+# ### Custom Placeholders
+#
+# A progress indicator uses placeholders (a name enclosed with the `%` character) to determine the output format.
+# The built-in placeholders include:
+#
+# * `%indicator%` - The current indicator
+# * `%elapsed%` - The time elapsed since the start of the progress indicator
+# * `%memory%` - The current memory usage
+# * `%message%` - Used to display arbitrary messages
+#
+# These can be customized via `.set_placeholder_formatter`.
+#
+# ```
+# ACON::Helper::ProgressIndicator.set_placeholder_formatter "message" do
+#   # Return any arbitrary string
+#   "My Custom Message"
+# end
+# ```
+#
+# NOTE: Placeholder customization is global and would affect any indicator used after calling `.set_placeholder_formatter`.
 class Athena::Console::Helper::ProgressIndicator
   # :nodoc:
   class Clock
@@ -8,17 +104,32 @@ class Athena::Console::Helper::ProgressIndicator
     end
   end
 
+  # Represents the built in progress indicator formats.
+  #
+  # See [Built-In Formats][Athena::Console::Helper::ProgressIndicator--built-in-formats] for more information.
   enum Format
+    # `" %indicator% %message%"`
     NORMAL
+
+    # `" %message%"`
     NORMAL_NO_ANSI
 
+    # `" %indicator% %message% (%elapsed:6s%)"`
     VERBOSE
+
+    # `" %message% (%elapsed:6s%)"`
     VERBOSE_NO_ANSI
 
+    # `" %indicator% %message% (%elapsed:6s%, %memory:6s%)"`
     VERY_VERBOSE
+
+    # `" %message% (%elapsed:6s%, %memory:6s%)"`
     VERY_VERBOSE_NO_ANSI
 
+    # `" %indicator% %message% (%elapsed:6s%, %memory:6s%)"`
     DEBUG
+
+    # `" %message% (%elapsed:6s%, %memory:6s%)"`
     DEBUG_NO_ANSI
 
     def format : String
@@ -33,6 +144,7 @@ class Athena::Console::Helper::ProgressIndicator
     end
   end
 
+  # Represents the expected type of a [Placeholder Formatter][Athena::Console::Helper::ProgressIndicator--custom-placeholders].
   alias PlaceholderFormatter = Proc(Athena::Console::Helper::ProgressIndicator, String)
 
   # INTERNAL
@@ -78,7 +190,7 @@ class Athena::Console::Helper::ProgressIndicator
   def initialize(
     @output : ACON::Output::Interface,
     format : ACON::Helper::ProgressIndicator::Format? = nil,
-    @indicator_change_interval : Int32 = 100,
+    indicator_change_interval_milliseconds : Int32 = 100,
     indicator_values : Indexable(String)? = nil
   )
     indicator_values ||= ["-", "\\", "|", "/"]
@@ -90,12 +202,15 @@ class Athena::Console::Helper::ProgressIndicator
     @format = format || determine_best_format
     @indicator_values = indicator_values
     @start_time = @clock.now.to_unix
+    @indicator_change_interval = indicator_change_interval_milliseconds
   end
 
+  # Sets the *message* to display alongside the indicator.
   def message=(@message : String?) : Nil
     self.display
   end
 
+  # Starts and displays the indicator with the provided *message*.
   def start(message : String) : Nil
     raise ACON::Exceptions::Logic.new "Progress indicator is already started." if @started
 
@@ -108,6 +223,7 @@ class Athena::Console::Helper::ProgressIndicator
     self.display
   end
 
+  # Advance the indicator to display the next indicator character.
   def advance : Nil
     raise ACON::Exceptions::Logic.new "Progress indicator has not yet been started." unless @started
 
@@ -123,6 +239,7 @@ class Athena::Console::Helper::ProgressIndicator
     self.display
   end
 
+  # Display the current state of the indicator.
   def display : Nil
     return if @output.verbosity.quiet?
 
@@ -137,6 +254,7 @@ class Athena::Console::Helper::ProgressIndicator
     )
   end
 
+  # Completes the indicator with the provided *message*.
   def finish(@message : String) : Nil
     raise ACON::Exceptions::Logic.new "Progress indicator has not yet been started." unless @started
 
