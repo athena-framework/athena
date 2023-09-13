@@ -5,6 +5,7 @@
 function tag()
 {
   declare -A componentNameMap
+  componentNameMap[clock]=Clock
   componentNameMap[config]=Config
   componentNameMap[console]=Console
   componentNameMap[dependency-injection]="Dependency Injection"
