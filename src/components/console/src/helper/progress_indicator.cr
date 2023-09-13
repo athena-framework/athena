@@ -170,7 +170,7 @@ class Athena::Console::Helper::ProgressIndicator
       "elapsed"   => PlaceholderFormatter.new { |indicator| ACON::Helper.format_time indicator.clock.now.to_unix - indicator.start_time },
       "indicator" => PlaceholderFormatter.new { |indicator| indicator.indicator_values[indicator.indicator_index % indicator.indicator_values.size] },
       "memory"    => PlaceholderFormatter.new { (GC.stats.heap_size - GC.stats.free_bytes).humanize_bytes },
-      "message"   => PlaceholderFormatter.new { |indicator| indicator.message.to_s },
+      "message"   => PlaceholderFormatter.new(&.message.to_s),
     }
   end
 
