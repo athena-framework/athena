@@ -40,6 +40,7 @@ struct ApplicationTest < ASPEC::TestCase
     app = ACON::Application.new "foo"
     commands = app.commands
 
+    commands.keys.should eq ["help", "list", "completion", "_complete"]
     commands["help"].should be_a ACON::Commands::Help
     commands["list"].should be_a ACON::Commands::List
 

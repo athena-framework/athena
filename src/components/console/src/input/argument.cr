@@ -1,5 +1,3 @@
-abstract class Athena::Console::Input; end
-
 # Represents a value (or array of values) provided to a command as a ordered positional argument,
 # that can either be required or optional, optionally with a default value and/or description.
 #
@@ -41,12 +39,14 @@ class Athena::Console::Input::Argument
   getter description : String
 
   @default : ACON::Input::Value? = nil
+  @suggested_values : Array(String) | Proc(ACON::Completion::Input, Array(String)) | Nil
 
   def initialize(
     @name : String,
     @mode : ACON::Input::Argument::Mode = :optional,
     @description : String = "",
-    default = nil
+    default = nil,
+    @suggested_values : Array(String) | Proc(ACON::Completion::Input, Array(String)) | Nil = nil
   )
     raise ACON::Exceptions::InvalidArgument.new "An argument name cannot be blank." if name.blank?
 
@@ -87,6 +87,22 @@ class Athena::Console::Input::Argument
     end
 
     @default = ACON::Input::Value.from_value default
+  end
+
+  # Returns `true` if this argument is able to suggest values, otherwise `false`
+  def has_completion? : Bool
+    !@suggested_values.nil?
+  end
+
+  # Determines what values should be added to the possible *suggestions* based on the provided *input*.
+  def complete(input : ACON::Completion::Input, suggestions : ACON::Completion::Suggestions) : Nil
+    return unless values = @suggested_values
+
+    if values.is_a?(Proc)
+      values = values.call input
+    end
+
+    suggestions.suggest_values values
   end
 
   # Returns `true` if `self` is a required argument, otherwise `false`.

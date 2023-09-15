@@ -90,7 +90,7 @@ class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::
       regex_source = compiled_route.regex.source
 
       # Use rindex since we want the right most ending `$`
-      pos = regex_source.rindex('$').not_nil!
+      pos = regex_source.rindex!('$')
       has_trailing_slash = '/' == regex_source[pos - 1]
 
       # Enable multiline mode to catch paths with new lines

@@ -1,15 +1,12 @@
 # Lists the available commands, optionally only including those in a specific namespace.
+@[Athena::Console::Annotations::AsCommand("list", description: "List available commands")]
 class Athena::Console::Commands::List < Athena::Console::Command
   protected def configure : Nil
     self
-      .name("list")
-      .description("List commands")
-      .definition(
-        ACON::Input::Argument.new("namespace", :optional, "Only list commands in this namespace"),
-        ACON::Input::Option.new("raw", nil, :none, "To output raw command list"),
-        ACON::Input::Option.new("format", nil, :required, "The output format (txt)", "txt"),
-        ACON::Input::Option.new("short", nil, :none, "To skip describing command's arguments"),
-      )
+      .argument("namespace", description: "Only list commands in this namespace") { ACON::Descriptor::Application.new(self.application).namespaces.keys }
+      .option("raw", value_mode: :none, description: "To output raw command list")
+      .option("format", value_mode: :required, description: "The output format (txt)", default: "txt") { ACON::Helper::Descriptor.new.formats }
+      .option("short", value_mode: :none, description: "To skip describing command's arguments")
       .help(
         <<-HELP
         The <info>%command.name%</info> command lists all commands:

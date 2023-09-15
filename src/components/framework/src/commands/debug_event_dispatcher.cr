@@ -51,8 +51,8 @@ class Athena::Framework::Commands::DebugEventDispatcher < ACON::Command
 
   protected def configure : Nil
     self
-      .argument("event", :optional, "An event name or a part of the event name")
-      .option("format", nil, :required, "The output format (txt)", "txt")
+      .argument("event", description: "An event name or a part of the event name") { @dispatcher.listeners.keys.map &.to_s }
+      .option("format", value_mode: :required, description: "The output format (txt)", default: "txt") { ACON::Helper::Descriptor.new.formats }
       .option("raw", nil, :none, "To output raw command help")
   end
 

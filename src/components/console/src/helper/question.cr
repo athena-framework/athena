@@ -137,6 +137,7 @@ class Athena::Console::Helper::Question < Athena::Console::Helper
     end
 
     if output.is_a? ACON::Output::Section
+      output.add_content "" # add EOL to the question
       output.add_content response
     end
 

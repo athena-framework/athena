@@ -98,4 +98,39 @@ describe ACON::Input::Option do
       end
     end
   end
+
+  describe "#complete" do
+    it "with an array" do
+      values = ["foo", "bar"]
+      suggestions = ACON::Completion::Suggestions.new
+
+      argument = ACON::Input::Option.new "foo", value_mode: :required, suggested_values: values
+
+      argument.has_completion?.should be_true
+
+      argument.complete ACON::Completion::Input.new, suggestions
+
+      suggestions.suggested_values.map(&.value).should eq ["foo", "bar"]
+    end
+
+    it "with an block" do
+      values = ["foo", "bar"]
+      suggestions = ACON::Completion::Suggestions.new
+      callback = Proc(ACON::Completion::Input, Array(String)).new { values }
+
+      argument = ACON::Input::Option.new "foo", value_mode: :required, suggested_values: callback
+
+      argument.has_completion?.should be_true
+
+      argument.complete ACON::Completion::Input.new, suggestions
+
+      suggestions.suggested_values.map(&.value).should eq ["foo", "bar"]
+    end
+
+    it "when option accepts no value" do
+      expect_raises ACON::Exceptions::InvalidArgument, "Cannot set suggested values if the option does not accept a value." do
+        ACON::Input::Option.new "foo", suggested_values: ["foo"]
+      end
+    end
+  end
 end

@@ -287,12 +287,41 @@ abstract class Athena::Console::Command
   end
 
   # Adds an `ACON::Input::Argument` to `self` with the provided *name*.
-  # Optionally supports setting its *mode*, *description*, and *default* value.
-  def argument(name : String, mode : ACON::Input::Argument::Mode = :optional, description : String = "", default = nil) : self
-    @definition << ACON::Input::Argument.new name, mode, description, default
+  # Optionally supports setting its *mode*, *description*, *default* value, and *suggested_values*.
+  #
+  # Also checkout the [value completion][Athena::Console::Input::Interface--argumentoption-value-completion] for how argument values can be auto completed.
+  def argument(
+    name : String,
+    mode : ACON::Input::Argument::Mode = :optional,
+    description : String = "",
+    default = nil,
+    suggested_values : Enumerable(String)? = nil
+  ) : self
+    @definition << ACON::Input::Argument.new name, mode, description, default, suggested_values.try &.to_a
 
     if full_definition = @full_definition
-      full_definition << ACON::Input::Argument.new name, mode, description, default
+      full_definition << ACON::Input::Argument.new name, mode, description, default, suggested_values.try &.to_a
+    end
+
+    self
+  end
+
+  # Adds an `ACON::Input::Argument` to this command with the provided *name*.
+  # Optionally supports setting its *mode*, *description*, *default* value.
+  #
+  # Accepts a block to use to determine this argument's suggested values.
+  # Also checkout the [value completion][Athena::Console::Input::Interface--argumentoption-value-completion] for how argument values can be auto completed.
+  def argument(
+    name : String,
+    mode : ACON::Input::Argument::Mode = :optional,
+    description : String = "",
+    default = nil,
+    &suggested_values : ACON::Completion::Input -> Array(String)
+  ) : self
+    @definition << ACON::Input::Argument.new name, mode, description, default, suggested_values
+
+    if full_definition = @full_definition
+      full_definition << ACON::Input::Argument.new name, mode, description, default, suggested_values
     end
 
     self
@@ -362,11 +391,42 @@ abstract class Athena::Console::Command
 
   # Adds an `ACON::Input::Option` to `self` with the provided *name*.
   # Optionally supports setting its *shortcut*, *value_mode*, *description*, and *default* value.
-  def option(name : String, shortcut : String? = nil, value_mode : ACON::Input::Option::Value = :none, description : String = "", default = nil) : self
-    @definition << ACON::Input::Option.new name, shortcut, value_mode, description, default
+  #
+  # Also checkout the [value completion][Athena::Console::Input::Interface--argumentoption-value-completion] for how option values can be auto completed.
+  def option(
+    name : String,
+    shortcut : String? = nil,
+    value_mode : ACON::Input::Option::Value = :none,
+    description : String = "",
+    default = nil,
+    suggested_values : Enumerable(String)? = nil
+  ) : self
+    @definition << ACON::Input::Option.new name, shortcut, value_mode, description, default, suggested_values.try &.to_a
 
     if full_definition = @full_definition
-      full_definition << ACON::Input::Option.new name, shortcut, value_mode, description, default
+      full_definition << ACON::Input::Option.new name, shortcut, value_mode, description, default, suggested_values.try &.to_a
+    end
+
+    self
+  end
+
+  # Adds an `ACON::Input::Option` to `self` with the provided *name*.
+  # Optionally supports setting its *shortcut*, *value_mode*, *description*, and *default* value.
+  #
+  # Accepts a block to use to determine this argument's suggested values.
+  # Also checkout the [value completion][Athena::Console::Input::Interface--argumentoption-value-completion] for how option values can be auto completed.
+  def option(
+    name : String,
+    shortcut : String? = nil,
+    value_mode : ACON::Input::Option::Value = :none,
+    description : String = "",
+    default = nil,
+    &suggested_values : ACON::Completion::Input -> Array(String)
+  ) : self
+    @definition << ACON::Input::Option.new name, shortcut, value_mode, description, default, suggested_values
+
+    if full_definition = @full_definition
+      full_definition << ACON::Input::Option.new name, shortcut, value_mode, description, default, suggested_values
     end
 
     self
@@ -453,6 +513,19 @@ abstract class Athena::Console::Command
     input.validate
 
     self.execute input, output
+  end
+
+  # Determines what values should be added to the possible *suggestions* based on the provided *input*.
+  #
+  # By default this will fall back on completion of the related input argument/option, but can be overridden if needed.
+  def complete(input : ACON::Completion::Input, suggestions : ACON::Completion::Suggestions) : Nil
+    definition = self.definition
+
+    if input.completion_type.option_value? && (option = definition.options[input.completion_name]?)
+      option.complete input, suggestions
+    elsif input.completion_type.argument_value? && (argument = definition.arguments[input.completion_name]?)
+      argument.complete input, suggestions
+    end
   end
 
   protected def merge_application_definition(merge_args : Bool = true) : Nil
