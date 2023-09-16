@@ -28,7 +28,7 @@ struct ClockTest < ASPEC::TestCase
     ACLK.clock.now.to_s("%F").should eq "2023-09-16"
     ACLK.clock.now.shift(days: 1).to_s("%F").should eq "2023-09-17"
 
-    self.mock_time days: 1
+    self.shift days: 1
     ACLK.clock.now.to_s("%F").should eq "2023-09-17"
   end
 end

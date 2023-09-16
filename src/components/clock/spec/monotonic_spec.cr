@@ -32,7 +32,7 @@ struct MonotonicClockTest < ASPEC::TestCase
     sleep 10.milliseconds
     after = Time.local.to_unix_ms
 
-    now.should be >= (before + 1.499999)
+    now.should be >= (before + 1.499_999)
     now.should be < after
     clock.now.location.should eq location
   end
