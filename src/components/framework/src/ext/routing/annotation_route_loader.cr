@@ -504,6 +504,28 @@ module Athena::Framework::Routing::AnnotationRouteLoader
       {% end %}
     {% end %}
 
+    # Manually wire up built-in controllers for now
+    {% if base == nil %}
+      @@actions["Athena::Framework::Controller::Redirect#redirect_url"] = ATH::Action.new(
+        action: Proc(Tuple(ATH::Request, String, Bool, String?, Int32?, Int32?, Bool), ATH::RedirectResponse).new do |arguments|
+          Athena::Framework::Controller::Redirect.new.redirect_url *arguments
+        end,
+        parameters: {
+          ATH::Controller::ParameterMetadata(ATH::Request).new("request"),
+          ATH::Controller::ParameterMetadata(String).new("path"),
+          ATH::Controller::ParameterMetadata(Bool).new("permanent", true, false),
+          ATH::Controller::ParameterMetadata(String?).new("scheme", true, nil),
+          ATH::Controller::ParameterMetadata(Int32?).new("http_port", true, nil),
+          ATH::Controller::ParameterMetadata(Int32?).new("https_port", true, nil),
+          ATH::Controller::ParameterMetadata(Bool).new("keep_request_method", true, false),
+        },
+        annotation_configurations: ACF::AnnotationConfigurations.new,
+        params: ([] of ATH::Params::ParamInterface),
+        _controller: Athena::Framework::Controller::Redirect,
+        _return_type: ATH::RedirectResponse,
+      )
+    {% end %}
+
     ART.compile collection
 
     collection

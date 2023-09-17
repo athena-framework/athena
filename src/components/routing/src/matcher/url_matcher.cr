@@ -38,6 +38,26 @@ class Athena::Routing::Matcher::URLMatcher
       raise ART::Exception::MethodNotAllowed.new allow
     end
 
+    unless self.is_a? ART::Matcher::RedirectableURLMatcherInterface
+      raise ART::Exception::ResourceNotFound.new "No routes found for '#{path}'."
+    end
+
+    if !@context.method.in? "GET", "HEAD"
+      # no-op
+    elsif !allow_schemes.empty?
+      redirect_schema
+    elsif "/" != (trimmed_path = (path.rstrip('/').presence || "/"))
+      path = trimmed_path == path ? "#{path}/" : trimmed_path
+
+      if match = self.do_match path, allow, allow_schemes
+        return match.merge! self.redirect(path, match["_route"].not_nil!("BUG: match does not have a '_route'."))
+      end
+
+      unless allow_schemes.empty?
+        redirect_schema
+      end
+    end
+
     raise ART::Exception::ResourceNotFound.new "No routes found for '#{path}'."
   end
 
@@ -47,7 +67,7 @@ class Athena::Routing::Matcher::URLMatcher
   end
 
   # ameba:disable Metrics/CyclomaticComplexity
-  private def do_match(path : String, allow : Array(String), allow_schemes : Array(String)) : Hash(String, String?)?
+  private def do_match(path : String, allow : Array(String) = [] of String, allow_schemes : Array(String) = [] of String) : Hash(String, String?)?
     allow.clear
     allow_schemes.clear
 
@@ -60,8 +80,7 @@ class Athena::Routing::Matcher::URLMatcher
 
     canonical_method = "GET" if "HEAD" == request_method
 
-    # ameba:disable Lint/UselessAssign
-    supports_redirect = false # TODO: Support this
+    supports_redirect = "GET" == canonical_method && self.is_a? ART::Matcher::RedirectableURLMatcherInterface
 
     ART::RouteProvider.static_routes[trimmed_path]?.try &.each do |data, required_host, required_methods, required_schemes, has_trailing_slash, _, condition|
       if condition && !(ART::RouteProvider.conditions[condition].call(@context, @request || self.build_request(path)))
@@ -71,7 +90,7 @@ class Athena::Routing::Matcher::URLMatcher
       # Dup the data hash so we don't mutate the original.
       data = data.dup
 
-      required_host.try do |h|
+      if h = required_host
         case h
         in String then next if h != host
         in Regex
@@ -89,7 +108,13 @@ class Athena::Routing::Matcher::URLMatcher
       end
 
       if "/" != path && has_trailing_slash == (trimmed_path == path)
-        # TODO: Support redirects
+        if supports_redirect && (!required_methods || (required_methods.empty? || required_methods.includes? "GET"))
+          allow.clear
+          allow_schemes.clear
+
+          return
+        end
+
         next
       end
 
@@ -135,7 +160,13 @@ class Athena::Routing::Matcher::URLMatcher
           end
 
           if "/" != path && !has_trailing_var && has_trailing_slash == (trimmed_path == path)
-            # TODO: Support redirections
+            if supports_redirect && (!required_methods || (required_methods.empty? || required_methods.includes? "GET"))
+              allow.clear
+              allow_schemes.clear
+
+              return
+            end
+
             next
           end
 
@@ -184,5 +215,18 @@ class Athena::Routing::Matcher::URLMatcher
     {% end %}
 
     request
+  end
+
+  private macro redirect_schema
+    scheme = @context.scheme
+    @context.scheme = allow_schemes.last? || ""
+
+    begin
+      if match = self.do_match path
+        return match.merge! self.redirect(path, match["_route"].not_nil!("BUG: match does not have a '_route'."), @context.scheme)
+      end
+    ensure
+      @context.scheme = scheme
+    end
   end
 end
