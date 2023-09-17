@@ -16,6 +16,8 @@ authors:
 dependencies:
   athena:
     github: athena-framework/athena
+  athena-clock:
+    github: athena-framework/clock
   athena-config:
     github: athena-framework/config
   athena-console:

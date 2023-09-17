@@ -1,6 +1,10 @@
 # :nodoc:
 @[ADI::Register(_default_uri: "%routing.base_uri%", name: "router", public: true, alias: ART::Generator::Interface)]
 class Athena::Framework::Routing::Router < Athena::Routing::Router
+  getter matcher : ART::Matcher::URLMatcherInterface do
+    ATH::Routing::RedirectableURLMatcher.new(@context)
+  end
+
   def initialize(
     default_locale : String? = nil,
     strict_requirements : Bool = true,

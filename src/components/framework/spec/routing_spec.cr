@@ -217,4 +217,34 @@ struct RoutingTest < ATH::Spec::APITestCase
 
     self.assert_cookie_has_value "key", "value"
   end
+
+  def test_redirects_get_request_to_route_without_trailing_slash : Nil
+    self.get "/macro/get-nil/"
+
+    self.assert_response_redirects "/macro/get-nil"
+  end
+
+  def test_redirects_head_request_to_route_without_trailing_slash : Nil
+    self.request "HEAD", "/head/"
+
+    self.assert_response_redirects "/head"
+  end
+
+  def test_redirects_get_request_to_route_with_trailing_slash : Nil
+    self.get "/head-get"
+
+    self.assert_response_redirects "/head-get/"
+  end
+
+  def test_redirects_head_request_to_route_with_trailing_slash : Nil
+    self.request "HEAD", "/head-get"
+
+    self.assert_response_redirects "/head-get/"
+  end
+
+  def test_does_not_redirect_post_requests : Nil
+    self.post "/art/response/"
+
+    self.assert_response_has_status :not_found
+  end
 end

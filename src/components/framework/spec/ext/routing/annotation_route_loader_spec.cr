@@ -2,11 +2,13 @@ require "../../spec_helper"
 
 private def assert_route(
   route_collection : ART::RouteCollection,
+  file : String = __FILE__,
+  line : Int32 = __LINE__,
   **args
 )
   route_collection.size.should eq 1
 
-  self.assert_route route_collection.first, **args
+  self.assert_route route_collection.first, **args, file: file, line: line
 end
 
 private def assert_route(
@@ -19,27 +21,29 @@ private def assert_route(
   host : String? = nil,
   schemes : Set(String)? = nil,
   condition : ART::Route::Condition? = nil,
-  name : String? = nil
+  name : String? = nil,
+  file : String = __FILE__,
+  line : Int32 = __LINE__
 ) : Nil
   route_name, route = route
 
-  route_name.should eq name if name
+  route_name.should eq(name), line: line, file: file if name
 
-  route.path.should eq path
-  route.methods.should eq methods
-  route.schemes.should eq schemes
-  route.host.should eq host
-  route.requirements.should eq requirements
+  route.path.should eq(path), line: line, file: file
+  route.methods.should eq(methods), line: line, file: file
+  route.schemes.should eq(schemes), line: line, file: file
+  route.host.should eq(host), line: line, file: file
+  route.requirements.should eq(requirements), line: line, file: file
 
   route_defaults = route.defaults.dup
   route_defaults.delete "_controller" unless defaults.has_key?("_controller")
 
-  route_defaults.should eq defaults
+  route_defaults.should eq(defaults), line: line, file: file
 
   if condition
-    route.condition.should_not be_nil
+    route.condition.should_not be_nil, line: line, file: file
   else
-    route.condition.should be_nil
+    route.condition.should be_nil, line: line, file: file
   end
 end
 
@@ -69,6 +73,23 @@ end
 class GlobalsController < ATH::Controller
   @[ARTA::Route("/child")]
   def action : Nil; end
+end
+
+@[ARTA::Route(
+  path: "prefix",
+)]
+class PrefixedController < ATH::Controller
+  @[ARTA::Post("")]
+  def empty : Nil; end
+
+  @[ARTA::Post("/")]
+  def slash : Nil; end
+
+  @[ARTA::Get("{id}")]
+  def empty_param(id : String) : Nil; end
+
+  @[ARTA::Get("/{id}")]
+  def slash_param(id : String) : Nil; end
 end
 
 @[ARTA::Route(
@@ -104,16 +125,31 @@ class LocalizedAction < ATH::Controller
   def action : Nil; end
 end
 
+@[ARTA::Route(path: "prefix")]
+class LocalizedPrefixedAction < ATH::Controller
+  @[ARTA::Get({"en" => "/USA", "de" => "/Germany"})]
+  def action : Nil; end
+
+  @[ARTA::Get(path: {"en" => "{id}/USA", "de" => "/{id}/Germany"})]
+  def index(id : String) : Nil; end
+end
+
 @[ARTA::Route(path: {"en" => "/USA", "de" => "/Germany"})]
 class LocalizedClass < ATH::Controller
   @[ARTA::Get("")]
   def action : Nil; end
+
+  @[ARTA::Get("{id}")]
+  def index(id : String) : Nil; end
 end
 
 @[ARTA::Route(path: {"en" => "/parent", "de" => "/parent"})]
 class LocalizedClassAction < ATH::Controller
   @[ARTA::Get(path: {"en" => "/USA", "de" => "/Germany"})]
   def action : Nil; end
+
+  @[ARTA::Get(path: {"en" => "{id}/USA", "de" => "/{id}/Germany"})]
+  def index(id : String) : Nil; end
 end
 
 class DefaultArgs < ATH::Controller
@@ -197,36 +233,84 @@ describe ATH::Routing::AnnotationRouteLoader do
     end
 
     describe "localized routes" do
-      it "only on a method" do
-        routes = ATH::Routing::AnnotationRouteLoader.populate_collection(LocalizedAction).routes.to_a
+      describe "only on a method" do
+        it "without a prefix" do
+          routes = ATH::Routing::AnnotationRouteLoader.populate_collection(LocalizedAction).routes.to_a
 
-        routes.size.should eq 2
+          routes.size.should eq 2
 
-        route = routes[0]
+          route = routes[0]
 
-        assert_route(
-          route,
-          name: "localized_action_action.en",
-          path: "/USA",
-          defaults: {"_locale" => "en", "_canonical_route" => "localized_action_action"},
-          requirements: {"_locale" => /en/}
-        )
+          assert_route(
+            route,
+            name: "localized_action_action.en",
+            path: "/USA",
+            defaults: {"_locale" => "en", "_canonical_route" => "localized_action_action"},
+            requirements: {"_locale" => /en/}
+          )
 
-        route = routes[1]
+          route = routes[1]
 
-        assert_route(
-          route,
-          name: "localized_action_action.de",
-          path: "/Germany",
-          defaults: {"_locale" => "de", "_canonical_route" => "localized_action_action"},
-          requirements: {"_locale" => /de/}
-        )
+          assert_route(
+            route,
+            name: "localized_action_action.de",
+            path: "/Germany",
+            defaults: {"_locale" => "de", "_canonical_route" => "localized_action_action"},
+            requirements: {"_locale" => /de/}
+          )
+        end
+
+        it "with prefix" do
+          routes = ATH::Routing::AnnotationRouteLoader.populate_collection(LocalizedPrefixedAction).routes.to_a
+
+          routes.size.should eq 4
+
+          route = routes[0]
+
+          assert_route(
+            route,
+            name: "localized_prefixed_action_action.en",
+            path: "/prefix/USA",
+            defaults: {"_locale" => "en", "_canonical_route" => "localized_prefixed_action_action"},
+            requirements: {"_locale" => /en/}
+          )
+
+          route = routes[1]
+
+          assert_route(
+            route,
+            name: "localized_prefixed_action_action.de",
+            path: "/prefix/Germany",
+            defaults: {"_locale" => "de", "_canonical_route" => "localized_prefixed_action_action"},
+            requirements: {"_locale" => /de/}
+          )
+
+          route = routes[2]
+
+          assert_route(
+            route,
+            name: "localized_prefixed_action_index.en",
+            path: "/prefix/{id}/USA",
+            defaults: {"_locale" => "en", "_canonical_route" => "localized_prefixed_action_index"},
+            requirements: {"_locale" => /en/}
+          )
+
+          route = routes[3]
+
+          assert_route(
+            route,
+            name: "localized_prefixed_action_index.de",
+            path: "/prefix/{id}/Germany",
+            defaults: {"_locale" => "de", "_canonical_route" => "localized_prefixed_action_index"},
+            requirements: {"_locale" => /de/}
+          )
+        end
       end
 
       it "only on the class" do
         routes = ATH::Routing::AnnotationRouteLoader.populate_collection(LocalizedClass).routes.to_a
 
-        routes.size.should eq 2
+        routes.size.should eq 4
 
         route = routes[0]
 
@@ -247,12 +331,32 @@ describe ATH::Routing::AnnotationRouteLoader do
           defaults: {"_locale" => "de", "_canonical_route" => "localized_class_action"},
           requirements: {"_locale" => /de/}
         )
+
+        route = routes[2]
+
+        assert_route(
+          route,
+          name: "localized_class_index.en",
+          path: "/USA/{id}",
+          defaults: {"_locale" => "en", "_canonical_route" => "localized_class_index"},
+          requirements: {"_locale" => /en/}
+        )
+
+        route = routes[3]
+
+        assert_route(
+          route,
+          name: "localized_class_index.de",
+          path: "/Germany/{id}",
+          defaults: {"_locale" => "de", "_canonical_route" => "localized_class_index"},
+          requirements: {"_locale" => /de/}
+        )
       end
 
       it "on both class and action" do
         routes = ATH::Routing::AnnotationRouteLoader.populate_collection(LocalizedClassAction).routes.to_a
 
-        routes.size.should eq 2
+        routes.size.should eq 4
 
         route = routes[0]
 
@@ -271,6 +375,26 @@ describe ATH::Routing::AnnotationRouteLoader do
           name: "localized_class_action_action.de",
           path: "/parent/Germany",
           defaults: {"_locale" => "de", "_canonical_route" => "localized_class_action_action"},
+          requirements: {"_locale" => /de/}
+        )
+
+        route = routes[2]
+
+        assert_route(
+          route,
+          name: "localized_class_action_index.en",
+          path: "/parent/{id}/USA",
+          defaults: {"_locale" => "en", "_canonical_route" => "localized_class_action_index"},
+          requirements: {"_locale" => /en/}
+        )
+
+        route = routes[3]
+
+        assert_route(
+          route,
+          name: "localized_class_action_index.de",
+          path: "/parent/{id}/Germany",
+          defaults: {"_locale" => "de", "_canonical_route" => "localized_class_action_index"},
           requirements: {"_locale" => /de/}
         )
       end
@@ -298,6 +422,46 @@ describe ATH::Routing::AnnotationRouteLoader do
           methods: Set{"FOO", "BAZ", "BAR", "BIZ"},
           requirements: {"foo" => /bar/, "biz" => /baz/},
           defaults: {"foo" => "bar", "biz" => "baz", "_stateless" => "false"}
+        )
+      end
+
+      it "normalizes prefixed route paths" do
+        routes = ATH::Routing::AnnotationRouteLoader.populate_collection(PrefixedController).routes.to_a
+
+        routes.size.should eq 4
+
+        route = routes[0]
+
+        assert_route(
+          route,
+          name: "prefixed_controller_empty",
+          path: "/prefix",
+          methods: Set{"POST"}
+        )
+
+        route = routes[1]
+
+        assert_route(
+          route,
+          name: "prefixed_controller_slash",
+          path: "/prefix/",
+          methods: Set{"POST"}
+        )
+
+        route = routes[2]
+
+        assert_route(
+          route,
+          name: "prefixed_controller_empty_param",
+          path: "/prefix/{id}",
+        )
+
+        route = routes[3]
+
+        assert_route(
+          route,
+          name: "prefixed_controller_slash_param",
+          path: "/prefix/{id}",
         )
       end
     end

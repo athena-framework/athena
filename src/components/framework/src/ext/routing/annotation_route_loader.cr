@@ -303,7 +303,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                            value
                          else
                            # MyApp::UserController#new_user # => my_app_user_controller_new_user
-                           "#{klass.name.stringify.split("::").join("_").underscore.downcase.id}_#{m.name.id}"
+                           "#{klass.name.stringify.split("::").join('_').underscore.downcase.id}_#{m.name.id}"
                          end
 
             if globals_name = globals[:name]
@@ -422,7 +422,13 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             # Process path/prefix values to a hash of paths that should be created.
             if path.is_a? HashLiteral
               if !prefix.is_a? HashLiteral
-                path.each { |locale, locale_path| paths[locale] = "#{prefix.id}#{locale_path.id}" }
+                path.each do |locale, locale_path|
+                  paths[locale] = if !locale_path.empty? && !locale_path.starts_with?('/')
+                                    "#{prefix.id}/#{locale_path.id}"
+                                  else
+                                    "#{prefix.id}#{locale_path.id}"
+                                  end
+                end
               elsif !(missing = prefix.keys.reject { |k| path[k] }).empty?
                 m.raise "Route action '#{klass.name}##{m.name}' is missing paths for locale(s) '#{missing.join(",").id}'."
               else
@@ -431,13 +437,28 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                     m.raise "Route action '#{klass.name}##{m.name}' is missing a corresponding route prefix for the '#{locale.id}' locale."
                   end
 
-                  paths[locale] = "#{prefix[locale].id}#{locale_path.id}"
+                  paths[locale] = if !locale_path.empty? && !locale_path.starts_with?('/')
+                                    "#{prefix[locale].id}/#{locale_path.id}"
+                                  else
+                                    "#{prefix[locale].id}#{locale_path.id}"
+                                  end
                 end
               end
             elsif prefix.is_a? HashLiteral
-              prefix.each { |locale, locale_prefix| paths[locale] = "#{locale_prefix.id}#{path.id}" }
+              prefix.each do |locale, locale_prefix|
+                paths[locale] = if !path.empty? && !path.starts_with?('/')
+                                  "#{locale_prefix.id}/#{path.id}"
+                                else
+                                  "#{locale_prefix.id}#{path.id}"
+                                end
+              end
             else
-              paths["_default"] = "#{prefix.id}#{path.id}"
+              # Normalize non empty route specific paths so they always start with `/`.
+              paths["_default"] = if !path.empty? && !path.starts_with?('/')
+                                    "#{prefix.id}/#{path.id}"
+                                  else
+                                    "#{prefix.id}#{path.id}"
+                                  end
             end
 
             m.args.each do |arg|
@@ -481,6 +502,28 @@ module Athena::Framework::Routing::AnnotationRouteLoader
 
         collection.add %collection{c_idx}
       {% end %}
+    {% end %}
+
+    # Manually wire up built-in controllers for now
+    {% if base == nil %}
+      @@actions["Athena::Framework::Controller::Redirect#redirect_url"] = ATH::Action.new(
+        action: Proc(Tuple(ATH::Request, String, Bool, String?, Int32?, Int32?, Bool), ATH::RedirectResponse).new do |arguments|
+          Athena::Framework::Controller::Redirect.new.redirect_url *arguments
+        end,
+        parameters: {
+          ATH::Controller::ParameterMetadata(ATH::Request).new("request"),
+          ATH::Controller::ParameterMetadata(String).new("path"),
+          ATH::Controller::ParameterMetadata(Bool).new("permanent", true, false),
+          ATH::Controller::ParameterMetadata(String?).new("scheme", true, nil),
+          ATH::Controller::ParameterMetadata(Int32?).new("http_port", true, nil),
+          ATH::Controller::ParameterMetadata(Int32?).new("https_port", true, nil),
+          ATH::Controller::ParameterMetadata(Bool).new("keep_request_method", true, false),
+        },
+        annotation_configurations: ACF::AnnotationConfigurations.new,
+        params: ([] of ATH::Params::ParamInterface),
+        _controller: Athena::Framework::Controller::Redirect,
+        _return_type: ATH::RedirectResponse,
+      )
     {% end %}
 
     ART.compile collection

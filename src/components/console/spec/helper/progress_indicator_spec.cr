@@ -14,7 +14,6 @@ private class MockClock
   end
 end
 
-@[ASPEC::TestCase::Focus]
 struct ProgressIndicatorTest < ASPEC::TestCase
   @clock : MockClock
 
