@@ -1,3 +1,5 @@
+require "./spec/expectations/*"
+
 # Provides helper types for testing `ACON::Command` and `ACON::Application`s.
 module Athena::Console::Spec
   # Contains common logic shared by both `ACON::Spec::CommandTester` and `ACON::Spec::ApplicationTester`.
@@ -29,6 +31,13 @@ module Athena::Console::Spec
     # Helper method to setting the `#inputs=` property.
     def inputs(*args : String) : Nil
       @inputs = args.to_a
+    end
+
+    abstract def status : ACON::Command::Status?
+
+    # Asserts that the return `#status` is successful.
+    def assert_command_is_successful(message : String = "", *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
+      self.status.should ACON::Spec::Expectations::CommandIsSuccessful.new, file: file, line: line, failure_message: message.presence
     end
 
     protected def init_output(
@@ -284,6 +293,30 @@ module Athena::Console::Spec
       )
 
       @status = @command.run self.input, self.output
+    end
+  end
+
+  struct CommandCompletionTester
+    def initialize(@command : ACON::Command); end
+
+    def complete(*input : String) : Array(String)
+      self.complete input
+    end
+
+    def complete(input : Enumerable(String)) : Array(String)
+      completion_input = ACON::Completion::Input.from_tokens input, (input.size - 1).clamp(0, nil)
+      completion_input.bind @command.definition
+      suggestions = ACON::Completion::Suggestions.new
+
+      @command.complete completion_input, suggestions
+
+      options = [] of String
+
+      suggestions.suggested_options.each do |option|
+        options << "--#{option.name}"
+      end
+
+      options.concat suggestions.suggested_values.map(&.to_s)
     end
   end
 end

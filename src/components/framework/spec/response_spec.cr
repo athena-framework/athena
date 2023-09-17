@@ -198,6 +198,20 @@ describe ATH::Response do
       response.headers.has_key?("content-length").should be_false
     end
 
+    it "handles multi-byte characters" do
+      request = ATH::Request.new "GET", "/"
+      response = ATH::Response.new str = "Añasco"
+
+      # Emulate sending the data over the wire
+      mem = IO::Memory.new
+      mem.print str
+      mem.rewind
+
+      response.prepare request
+
+      response.headers["content-length"].should eq mem.size.to_s
+    end
+
     it "removes content and preserves content-length for head requests" do
       response = ATH::Response.new "CONTENT"
       request = ATH::Request.new "HEAD", "/"

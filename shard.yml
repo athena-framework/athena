@@ -16,6 +16,8 @@ authors:
 dependencies:
   athena:
     github: athena-framework/athena
+  athena-clock:
+    github: athena-framework/clock
   athena-config:
     github: athena-framework/config
   athena-console:
@@ -42,7 +44,7 @@ dependencies:
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
-    version: ~> 1.4.0
+    version: ~> 1.5.0
   athena-spec:
     github: athena-framework/spec
     version: ~> 0.3.2

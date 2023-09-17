@@ -1,0 +1,17 @@
+name: athena-clock
+
+version: 0.1.0
+
+crystal: '>= 0.36.0'
+
+license: MIT
+
+repository: https://github.com/athena-framework/clock
+
+documentation: https://athenaframework.org/Clock
+
+Decouples applications from the system clock: |
+  Decouples applications from the system clock.
+
+authors:
+  - George Dietrich <george@dietrich.app>

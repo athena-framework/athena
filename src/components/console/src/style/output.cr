@@ -34,6 +34,11 @@ abstract class Athena::Console::Style::Output
     @output.print "\n" * count
   end
 
+  # Creates and returns an `ACON::Helper::ProgressBar`, optionally with the provided *max* amount of steps.
+  def create_progress_bar(max : Int32? = nil) : ACON::Helper::ProgressBar
+    ACON::Helper::ProgressBar.new @output, max
+  end
+
   # See `ACON::Output::Interface#puts`.
   def puts(message, verbosity : ACON::Output::Verbosity = :normal, output_type : ACON::Output::Type = :normal) : Nil
     @output.puts message, verbosity, output_type

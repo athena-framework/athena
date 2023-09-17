@@ -99,6 +99,55 @@ require "./definition"
 # |  `--bar Hello --baz World`   |    `"Hello"`    | `"World"` |   `nil`   |
 # | `--bar Hello --baz -- World` |    `"Hello"`    |   `nil`   | `"World"` |
 # |     `-b Hello -z World`      |    `"Hello"`    | `"World"` |   `nil`   |
+#
+# ## Argument/Option Value Completion
+#
+# If the [completion script][Athena::Console--console-completion] is installed, command and option names will be auto completed by the shell.
+# However, value completion may also be implemented in custom commands by providing the suggested values for a particular option/argument.
+#
+# ```
+# @[ACONA::AsCommand("greet")]
+# class GreetCommand < ACON::Command
+#   protected def configure : Nil
+#     # The suggested values do not need to be a static array,
+#     # they could be sourced via a class/instance method, a constant, etc.
+#     self
+#       .argument("name", suggested_values: ["Jim", "Bob", "Sally"])
+#   end
+#
+#   # ...
+# end
+# ```
+#
+# Additionally, a block version of `ACON::Command#argument(name,mode,description,default,&)` and `ACON::Command#option(name,shortcut,value_mode,description,default,&)` may be used if more complex logic is required.
+#
+# ```
+# @[ACONA::AsCommand("greet")]
+# class GreetCommand < ACON::Command
+#   protected def configure : Nil
+#     self
+#       .argument("name") do |input|
+#         # The value the user already typed, e.g. the value the user already typed,
+#         # e.g. when typing "greet Ge" before pressing Tab, this will contain "Ge".
+#         current_value = input.completion_value
+#
+#         # Get the list of username names from somewhere (e.g. the database)
+#         # you may use current_value to filter down the names
+#         available_usernames = ...
+#
+#         # then suggested the usernames as values
+#         return available_usernames
+#       end
+#   end
+#
+#   # ...
+# end
+# ```
+#
+# TIP: The shell completion script is able to handle huge amounts of suggestions and will automatically filter
+# the values based on existing input from the user.
+# You do not have to implement any filter logic in the command.
+# `input.completion_value` can still be used to filter if it helps with performance, such as reducing amount of rows the DB returns.
 module Athena::Console::Input::Interface
   # Returns the first argument from the raw un-parsed input.
   # Mainly used to get the command that should be executed.

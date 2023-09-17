@@ -73,8 +73,27 @@ struct DebugEventDispatcherCommandTest < ASPEC::TestCase
     tester.display.should contain "#1      generic-event   0"
   end
 
+  @[DataProvider("complete_provider")]
+  def test_complete(input : Array(String), expected_suggestions : Array(String)) : Nil
+    tester = ACON::Spec::CommandCompletionTester.new self.command
+    suggestions = tester.complete input
+
+    suggestions.should eq expected_suggestions
+  end
+
+  def complete_provider : Hash
+    {
+      "nothing" => {[] of String, ["Athena::EventDispatcher::GenericEvent(String, String)", "MyEvent", "MyOtherEvent"]},
+      "format"  => {["--format"], ["txt"]},
+    }
+  end
+
+  private def command : ATH::Commands::DebugEventDispatcher
+    ATH::Commands::DebugEventDispatcher.new self.dispatcher
+  end
+
   private def command_tester : ACON::Spec::CommandTester
-    ACON::Spec::CommandTester.new ATH::Commands::DebugEventDispatcher.new self.dispatcher
+    ACON::Spec::CommandTester.new self.command
   end
 
   private def dispatcher : AED::EventDispatcherInterface

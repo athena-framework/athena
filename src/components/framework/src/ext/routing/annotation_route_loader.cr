@@ -303,7 +303,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                            value
                          else
                            # MyApp::UserController#new_user # => my_app_user_controller_new_user
-                           "#{klass.name.stringify.split("::").join("_").underscore.downcase.id}_#{m.name.id}"
+                           "#{klass.name.stringify.split("::").join('_').underscore.downcase.id}_#{m.name.id}"
                          end
 
             if globals_name = globals[:name]
@@ -422,7 +422,13 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             # Process path/prefix values to a hash of paths that should be created.
             if path.is_a? HashLiteral
               if !prefix.is_a? HashLiteral
-                path.each { |locale, locale_path| paths[locale] = "#{prefix.id}#{locale_path.id}" }
+                path.each do |locale, locale_path|
+                  paths[locale] = if !locale_path.empty? && !locale_path.starts_with?('/')
+                                    "#{prefix.id}/#{locale_path.id}"
+                                  else
+                                    "#{prefix.id}#{locale_path.id}"
+                                  end
+                end
               elsif !(missing = prefix.keys.reject { |k| path[k] }).empty?
                 m.raise "Route action '#{klass.name}##{m.name}' is missing paths for locale(s) '#{missing.join(",").id}'."
               else
@@ -431,13 +437,28 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                     m.raise "Route action '#{klass.name}##{m.name}' is missing a corresponding route prefix for the '#{locale.id}' locale."
                   end
 
-                  paths[locale] = "#{prefix[locale].id}#{locale_path.id}"
+                  paths[locale] = if !locale_path.empty? && !locale_path.starts_with?('/')
+                                    "#{prefix[locale].id}/#{locale_path.id}"
+                                  else
+                                    "#{prefix[locale].id}#{locale_path.id}"
+                                  end
                 end
               end
             elsif prefix.is_a? HashLiteral
-              prefix.each { |locale, locale_prefix| paths[locale] = "#{locale_prefix.id}#{path.id}" }
+              prefix.each do |locale, locale_prefix|
+                paths[locale] = if !path.empty? && !path.starts_with?('/')
+                                  "#{locale_prefix.id}/#{path.id}"
+                                else
+                                  "#{locale_prefix.id}#{path.id}"
+                                end
+              end
             else
-              paths["_default"] = "#{prefix.id}#{path.id}"
+              # Normalize non empty route specific paths so they always start with `/`.
+              paths["_default"] = if !path.empty? && !path.starts_with?('/')
+                                    "#{prefix.id}/#{path.id}"
+                                  else
+                                    "#{prefix.id}#{path.id}"
+                                  end
             end
 
             m.args.each do |arg|
