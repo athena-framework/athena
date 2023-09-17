@@ -1,6 +1,5 @@
 require "./spec_helper"
 
-@[ASPEC::TestCase::Focus]
 struct RoutingTest < ATH::Spec::APITestCase
   def test_is_concurrently_safe : Nil
     spawn do
