@@ -17,6 +17,11 @@ class RoutingController < ATH::Controller
     ADI.container.object_id
   end
 
+  @[ARTA::Route(path: "/head-get/", methods: {"HEAD", "GET"})]
+  def head_get_trailing_slash : String
+    "HEAD-GET/"
+  end
+
   @[ARTA::Head("/head")]
   def head : String
     "HEAD"

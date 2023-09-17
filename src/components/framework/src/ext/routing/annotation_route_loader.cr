@@ -507,7 +507,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
     # Manually wire up built-in controllers for now
     {% if base == nil %}
       @@actions["Athena::Framework::Controller::Redirect#redirect_url"] = ATH::Action.new(
-        action: Proc(Tuple(ATH::Request, String, Bool), ATH::RedirectResponse).new do |arguments|
+        action: Proc(Tuple(ATH::Request, String, Bool, String?, Int32?, Int32?, Bool), ATH::RedirectResponse).new do |arguments|
           Athena::Framework::Controller::Redirect.new.redirect_url *arguments
         end,
         parameters: {
