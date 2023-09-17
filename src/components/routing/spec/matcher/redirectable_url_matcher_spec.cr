@@ -18,7 +18,7 @@ private class MockRedirectableURLMatcher < ART::Matcher::URLMatcher
     end
 
     if er = @@expected_route
-      route.should eq route
+      route.should eq er
     end
 
     if es = @@expected_scheme
