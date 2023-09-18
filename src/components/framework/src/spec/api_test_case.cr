@@ -156,7 +156,7 @@ abstract struct Athena::Framework::Spec::APITestCase < ATH::Spec::WebTestCase
     self.request "PUT", path, body, headers
   end
 
-  # Makes a `PATCH` request to the provided *path*, optionally with the provided *headers*.
+  # Makes a `UNLINK` request to the provided *path*, optionally with the provided *headers*.
   def unlink(path : String, headers : HTTP::Headers = HTTP::Headers.new) : HTTP::Server::Response
     self.request "UNLINK", path, body, headers
   end
