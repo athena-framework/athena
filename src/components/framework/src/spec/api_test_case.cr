@@ -121,9 +121,29 @@ abstract struct Athena::Framework::Spec::APITestCase < ATH::Spec::WebTestCase
     @client.as(ATH::Spec::HTTPBrowser).not_nil!
   end
 
+  # Makes a `DELETE` request to the provided *path*, optionally with the provided *headers*.
+  def delete(path : String, headers : HTTP::Headers = HTTP::Headers.new) : HTTP::Server::Response
+    self.request "DELETE", path, headers: headers
+  end
+
   # Makes a `GET` request to the provided *path*, optionally with the provided *headers*.
   def get(path : String, headers : HTTP::Headers = HTTP::Headers.new) : HTTP::Server::Response
     self.request "GET", path, headers: headers
+  end
+
+  # Makes a `HEAD` request to the provided *path*, optionally with the provided *headers*.
+  def head(path : String, headers : HTTP::Headers = HTTP::Headers.new) : HTTP::Server::Response
+    self.request "HEAD", path, headers: headers
+  end
+
+  # Makes a `LINK` request to the provided *path*, optionally with the provided *headers*.
+  def link(path : String, headers : HTTP::Headers = HTTP::Headers.new) : HTTP::Server::Response
+    self.request "LINK", path, headers: headers
+  end
+
+  # Makes a `PATCH` request to the provided *path*, optionally with the provided *headers*.
+  def patch(path : String, headers : HTTP::Headers = HTTP::Headers.new) : HTTP::Server::Response
+    self.request "PATCH", path, headers: headers
   end
 
   # Makes a `POST` request to the provided *path*, optionally with the provided *body* and *headers*.
@@ -136,9 +156,9 @@ abstract struct Athena::Framework::Spec::APITestCase < ATH::Spec::WebTestCase
     self.request "PUT", path, body, headers
   end
 
-  # Makes a `DELETE` request to the provided *path*, optionally with the provided *headers*.
-  def delete(path : String, headers : HTTP::Headers = HTTP::Headers.new) : HTTP::Server::Response
-    self.request "DELETE", path, headers: headers
+  # Makes a `UNLINK` request to the provided *path*, optionally with the provided *body* and *headers*.
+  def unlink(path : String, body : String | Bytes | IO | Nil = nil, headers : HTTP::Headers = HTTP::Headers.new) : HTTP::Server::Response
+    self.request "UNLINK", path, body, headers
   end
 
   # See `AbstractBrowser#request`.
