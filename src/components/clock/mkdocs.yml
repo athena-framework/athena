@@ -17,11 +17,18 @@ theme:
       toggle:
         icon: material/weather-night
         name: Switch to light theme
+  features:
+    - navigation.indexes
+
+nav:
+  - Clock:
+    - index.md
+    - Aliases: aliases.md
+    - './*'
 
 plugins:
-  - section-index
-  - literate-nav:
-      nav_file: SUMMARY.md
+  - search
+  - literate-nav
   - gen-files:
       scripts:
         - ./gen_doc_stubs.py
@@ -34,3 +41,14 @@ plugins:
             - ./src/components/clock/src/spec.cr
           source_locations:
             src/components/clock: https://github.com/athena-framework/clock/blob/v{shard_version}/{file}#L{line}
+
+markdown_extensions:
+  - admonition
+  - callouts
+  - pymdownx.highlight
+  - pymdownx.magiclink
+  - pymdownx.saneheaders
+  - pymdownx.superfences
+  - deduplicate-toc
+  - toc:
+      permalink: "#"
