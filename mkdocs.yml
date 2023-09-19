@@ -1,4 +1,6 @@
 site_name: Athena
+use_directory_urls: true
+site_url: https://athenaframework.org
 
 theme:
   name: material

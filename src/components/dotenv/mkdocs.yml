@@ -1,4 +1,5 @@
 site_name: Dotenv
+use_directory_urls: true
 
 theme:
   name: material
@@ -30,7 +31,7 @@ plugins:
   - literate-nav
   - gen-files:
       scripts:
-        - ./gen_doc_stubs.py
+        - ../../../gen_doc_stubs.py
   - mkdocstrings:
       default_handler: crystal
       handlers:

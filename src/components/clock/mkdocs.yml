@@ -1,4 +1,6 @@
 site_name: Clock
+use_directory_urls: true
+site_url: https://athenaframework.org
 
 theme:
   name: material
@@ -31,7 +33,7 @@ plugins:
   - literate-nav
   - gen-files:
       scripts:
-        - ./gen_doc_stubs.py
+        - ../../../gen_doc_stubs.py
   - mkdocstrings:
       default_handler: crystal
       handlers:
