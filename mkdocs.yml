@@ -1,0 +1,42 @@
+site_name: Athena
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: red
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark theme
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: red
+      toggle:
+        icon: material/weather-night
+        name: Switch to light theme
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+
+plugins:
+  - section-index
+  - projects:
+      projects_dir: src/components
+
+nav:
+  - Manual: index.md
+  - Components:
+    - components.md
+    - project://clock
+    - project://dotenv
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/athena-framework
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/TmDVPb3dmr
+  homepage: /

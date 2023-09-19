@@ -1,0 +1,7 @@
+# 4.41.0 / 9.3.1
+mkdocs-material @ git+ssh://git@github.com/squidfunk/mkdocs-material-insiders.git@7d352d54ed9f2962e7841207576b7d1f5324688f
+
+mkdocstrings-crystal ~= 0.3.5
+mkdocs-gen-files ~= 0.3.2
+mkdocs-section-index ~= 0.3.7
+mkdocs-literate-nav ~= 0.6.1
