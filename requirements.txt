@@ -59,7 +59,7 @@ mkdocs-gen-files==0.5.0
     # via -r requirements.in
 mkdocs-literate-nav==0.6.1
     # via -r requirements.in
-mkdocs-material @ git+ssh://git@github.com/squidfunk/mkdocs-material-insiders.git@7d352d54ed9f2962e7841207576b7d1f5324688f
+mkdocs-material @ git+ssh://git@github.com/squidfunk/mkdocs-material-insiders.git@36aeb00dc420f9f5a241018af92c86ca2e9fe069
     # via -r requirements.in
 mkdocs-material-extensions==1.1.1
     # via mkdocs-material
@@ -90,7 +90,7 @@ pyyaml==6.0.1
     #   pyyaml-env-tag
 pyyaml-env-tag==0.1
     # via mkdocs
-regex==2023.8.8
+regex==2022.10.31
     # via mkdocs-material
 requests==2.31.0
     # via mkdocs-material
