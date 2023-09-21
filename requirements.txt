@@ -50,6 +50,7 @@ mkdocs==1.5.3
     #   mkdocs-gen-files
     #   mkdocs-literate-nav
     #   mkdocs-material
+    #   mkdocs-section-index
     #   mkdocstrings
 mkdocs-autorefs==0.5.0
     # via
@@ -59,10 +60,12 @@ mkdocs-gen-files==0.5.0
     # via -r requirements.in
 mkdocs-literate-nav==0.6.1
     # via -r requirements.in
-mkdocs-material @ git+ssh://git@github.com/squidfunk/mkdocs-material-insiders.git@36aeb00dc420f9f5a241018af92c86ca2e9fe069
+mkdocs-material @ git+ssh://git@github.com/squidfunk/mkdocs-material-insiders.git@91c0e6685244ec2844bb0b7fd16ae886b39ea57a
     # via -r requirements.in
-mkdocs-material-extensions==1.1.1
+mkdocs-material-extensions==1.2
     # via mkdocs-material
+mkdocs-section-index==0.3.7
+    # via -r requirements.in
 mkdocstrings==0.23.0
     # via mkdocstrings-crystal
 mkdocstrings-crystal==0.3.6
@@ -96,7 +99,7 @@ requests==2.31.0
     # via mkdocs-material
 six==1.16.0
     # via python-dateutil
-urllib3==2.0.4
+urllib3==2.0.5
     # via requests
 watchdog==3.0.0
     # via mkdocs

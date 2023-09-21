@@ -1,39 +1,20 @@
+INHERIT: ./mkdocs-common.yml
+
 site_name: Athena
 use_directory_urls: true
-site_url: https://athenaframework.org
-
-theme:
-  name: material
-  palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: black
-      accent: red
-      toggle:
-        icon: material/weather-sunny
-        name: Switch to dark theme
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      primary: black
-      accent: red
-      toggle:
-        icon: material/weather-night
-        name: Switch to light theme
-  features:
-    - navigation.tabs
-    - navigation.tabs.sticky
 
 plugins:
   - section-index
   - projects:
       projects_dir: src/components
+      cache: false
 
 nav:
   - Manual: index.md
   - Components:
     - components.md
     - project://clock
-    - project://dotenv
+    # - project://dotenv
 
 extra:
   social:

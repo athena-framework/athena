@@ -1,26 +1,7 @@
+INHERIT: ../../../mkdocs-common.yml
+
 site_name: Clock
 use_directory_urls: true
-site_url: https://athenaframework.org
-
-theme:
-  name: material
-  palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: black
-      accent: red
-      toggle:
-        icon: material/weather-sunny
-        name: Switch to dark theme
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      primary: black
-      accent: red
-      toggle:
-        icon: material/weather-night
-        name: Switch to light theme
-  features:
-    - navigation.indexes
 
 nav:
   - Clock:
@@ -31,6 +12,7 @@ nav:
 plugins:
   - search
   - literate-nav
+  - section-index
   - gen-files:
       scripts:
         - ../../../gen_doc_stubs.py
@@ -41,16 +23,3 @@ plugins:
           crystal_docs_flags:
             - ./src/components/clock/src/athena-clock.cr
             - ./src/components/clock/src/spec.cr
-          source_locations:
-            src/components/clock: https://github.com/athena-framework/clock/blob/v{shard_version}/{file}#L{line}
-
-markdown_extensions:
-  - admonition
-  - callouts
-  - pymdownx.highlight
-  - pymdownx.magiclink
-  - pymdownx.saneheaders
-  - pymdownx.superfences
-  - deduplicate-toc
-  - toc:
-      permalink: "#"

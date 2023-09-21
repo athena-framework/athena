@@ -1,0 +1,40 @@
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: red
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark theme
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: red
+      toggle:
+        icon: material/weather-night
+        name: Switch to light theme
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+
+strict: true
+
+markdown_extensions:
+  - admonition
+  - callouts
+  - pymdownx.highlight
+  - pymdownx.magiclink
+  - pymdownx.saneheaders
+  - pymdownx.superfences
+  - deduplicate-toc
+  - toc:
+      permalink: "#"
+
+# plugins:
+#   - gen-files:
+#       scripts:
+#         - ../../../gen_doc_stubs.py
