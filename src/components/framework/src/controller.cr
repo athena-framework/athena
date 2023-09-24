@@ -66,8 +66,9 @@
 #   # A GET endpoint with a required trailing slash, a `String` route param,
 #   # and a required string query param that must match the given pattern; returning a `String`.
 #   #
-#   # Athena treats `/foo/bar/` as a unique route as compared to `/foo/bar`.
-#   # Be sure to keep you routes consistent.
+#   # Athena treats non `GET`/`HEAD` routes with a trailing slash as unique
+#   # E.g. `POST /foo/bar/` versus `POST /foo/bar`.
+#   # Be sure to keep you routes consistent!
 #   #
 #   # A non-nilable type denotes it as required. If the parameter is not supplied,
 #   # and no default value is assigned, an `ATH::Exceptions::BadRequest` exception is raised.
@@ -107,23 +108,36 @@
 #   def post_body(expected : String, request : ATH::Request) : Bool
 #     expected == request.body.try &.gets_to_end
 #   end
+#
+#   # An endpoint may also have more than one route annotation applied to it.
+#   # This can be useful in allowing for a route to support multiple aliases.
+#   @[ARTA::Get("/users/{id}")]
+#   @[ARTA::Get("/people/{id}")]
+#   def get_user(id : Int64) : User
+#     # Fetch the user
+#     user = ...
+#
+#     user
+#   end
 # end
 #
 # ATH.run
 #
-# # GET /athena/index"                    # => <h1>Welcome to my website!</h1>
-# # GET /athena/users"                    # => [{"id":1,...},...]
-# # GET /athena/wakeup/17"                # => Morning, Allison it is currently 2020-02-01 18:38:12 UTC.
-# # GET /athena/me"                       # => "Jim"
-# # GET /athena/add/50/25"                # => 75
-# # GET /athena/event/foobar?time=1:1:1"  # => 404 not found
-# # GET /athena/event/foobar/?time=1:1:1" # => "foobar occurred at 1:1:1"
-# # GET /athena/events"                   # => {"user_id":null,"page":1}
-# # GET /athena/events/17?user_id=19"     # => {"user_id":19,"page":17}
-# # GET /athena/time/12:45:30"            # => "12:45:30"
-# # GET /athena/time/12:aa:30"            # => 404 not found
-# # GET /athena/no_content"               # => 204 no content
-# # POST /athena/test/foo", body: "foo"   # => true
+# # GET /athena/index                    # => <h1>Welcome to my website!</h1>
+# # GET /athena/users                    # => [{"id":1,...},...]
+# # GET /athena/wakeup/17                # => Morning, Allison it is currently 2020-02-01 18:38:12 UTC.
+# # GET /athena/me                       # => "Jim"
+# # GET /athena/add/50/25                # => 75
+# # GET /athena/event/foobar?time=1:1:1  # => "foobar occurred at 1:1:1"
+# # GET /athena/event/foobar/?time=1:1:1 # => "foobar occurred at 1:1:1"
+# # GET /athena/events                   # => {"user_id":null,"page":1}
+# # GET /athena/events/17?user_id=19     # => {"user_id":19,"page":17}
+# # GET /athena/time/12:45:30            # => "12:45:30"
+# # GET /athena/time/12:aa:30            # => 404 not found
+# # GET /athena/no_content               # => 204 no content
+# # GET /athena/users/19                 # => {"user_id":19}
+# # GET /athena/people/19                # => {"user_id":19}
+# # POST /athena/test/foo, body: "foo"   # => true
 # ```
 abstract class Athena::Framework::Controller
   macro inherited
