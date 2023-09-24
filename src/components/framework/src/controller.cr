@@ -66,8 +66,9 @@
 #   # A GET endpoint with a required trailing slash, a `String` route param,
 #   # and a required string query param that must match the given pattern; returning a `String`.
 #   #
-#   # Athena treats `/foo/bar/` as a unique route as compared to `/foo/bar`.
-#   # Be sure to keep you routes consistent.
+#   # Athena treats non `GET`/`HEAD` routes with a trailing slash as unique
+#   # E.g. `POST /foo/bar/` versus `POST /foo/bar`.
+#   # Be sure to keep you routes consistent!
 #   #
 #   # A non-nilable type denotes it as required. If the parameter is not supplied,
 #   # and no default value is assigned, an `ATH::Exceptions::BadRequest` exception is raised.
@@ -127,7 +128,7 @@
 # # GET /athena/wakeup/17                # => Morning, Allison it is currently 2020-02-01 18:38:12 UTC.
 # # GET /athena/me                       # => "Jim"
 # # GET /athena/add/50/25                # => 75
-# # GET /athena/event/foobar?time=1:1:1  # => 404 not found
+# # GET /athena/event/foobar?time=1:1:1  # => "foobar occurred at 1:1:1"
 # # GET /athena/event/foobar/?time=1:1:1 # => "foobar occurred at 1:1:1"
 # # GET /athena/events                   # => {"user_id":null,"page":1}
 # # GET /athena/events/17?user_id=19     # => {"user_id":19,"page":17}
