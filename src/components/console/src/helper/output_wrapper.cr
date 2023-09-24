@@ -7,11 +7,11 @@ struct Athena::Console::Helper::OutputWrapper
   def wrap(text : String, width : Int32, separator : String = "\n") : String
     return text if width.zero?
 
-    row_pattern = unless @allow_cut_urls
-      %r((?:<(?:(?:[a-z](?:[^\\<>]*+ | \\.)*)|/(?:[a-z][^<>]*+)?)>|.|https?://\S+){1,#{width}})
-    else
-      %r((?:<(?:(?:[a-z](?:[^\\<>]*+ | \\.)*)|/(?:[a-z][^<>]*+)?)>|.){1,#{width}})
-    end
+    row_pattern = if @allow_cut_urls
+                    %r((?:<(?:(?:[a-z](?:[^\\<>]*+ | \\.)*)|/(?:[a-z][^<>]*+)?)>|.){1,#{width}})
+                  else
+                    %r((?:<(?:(?:[a-z](?:[^\\<>]*+ | \\.)*)|/(?:[a-z][^<>]*+)?)>|.|https?://\S+){1,#{width}})
+                  end
 
     pattern = %r((?:((?>(#{row_pattern.source})((?<=[^\S\r\n])[^\S\r\n]?|(?=\r?\n)|$|[^\S\r\n]))|(#{row_pattern.source}))(?:\r?\n)?|(?:\r?\n|$)))imx
 
