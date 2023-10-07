@@ -2,13 +2,6 @@ abstract class Athena::Console::Output; end
 
 require "../output/interface"
 
-# :nodoc:
-#
-# TODO: Consider creating a `Clock` component.
-module Athena::Console::ClockInterface
-  abstract def now : Time
-end
-
 # When executing longer-running commands, it can be helpful to show progress information that updates as the command runs:
 #
 # ![Progress Bar](../../../img/progress_bar.gif)
@@ -290,15 +283,6 @@ end
 # 68/100 [===================>--------]  68%
 # ```
 class Athena::Console::Helper::ProgressBar
-  # :nodoc:
-  class Clock
-    include Athena::Console::ClockInterface
-
-    def now : Time
-      Time.utc
-    end
-  end
-
   # Represents the built in progress bar formats.
   #
   # See [Built-In Formats][Athena::Console::Helper::ProgressBar--built-in-formats] for more information.
@@ -410,7 +394,7 @@ class Athena::Console::Helper::ProgressBar
       end,
 
       "memory"  => PlaceholderFormatter.new { |_| (GC.stats.heap_size - GC.stats.free_bytes).humanize_bytes },
-      "elapsed" => PlaceholderFormatter.new { |bar| ACON::Helper.format_time bar.clock.now.to_unix - bar.start_time },
+      "elapsed" => PlaceholderFormatter.new { |bar| ACON::Helper.format_time bar.clock.now - bar.start_time },
       "current" => PlaceholderFormatter.new { |bar| bar.progress.to_s.rjust bar.step_width, ' ' },
       "max"     => PlaceholderFormatter.new(&.max_steps.to_s),
       "percent" => PlaceholderFormatter.new { |bar| (bar.progress_percent * 100).floor.to_i.to_s },
@@ -434,12 +418,10 @@ class Athena::Console::Helper::ProgressBar
   @messages : Hash(String, String) = Hash(String, String).new
   @placeholder_formatters : Hash(String, PlaceholderFormatter) = Hash(String, PlaceholderFormatter).new
 
-  protected property clock : Athena::Console::ClockInterface = Clock.new
+  protected getter clock : ACLK::Interface
 
   # Returns the time the progress bar was started as a Unix epoch.
-  #
-  # TODO: Make this return `Time`.
-  getter start_time : Int64
+  getter start_time : Time
 
   # Returns the width of the progress bar in pixels.
   #
@@ -488,7 +470,14 @@ class Athena::Console::Helper::ProgressBar
   # See [Controlling Rendering][Athena::Console::Helper::ProgressBar--controlling-rendering] for more information.
   setter maximum_seconds_between_redraws : Float64 = 1
 
-  def initialize(output : ACON::Output::Interface, max : Int32? = nil, minimum_seconds_between_redraws : Float64 = 0.04)
+  def initialize(
+    output : ACON::Output::Interface,
+    max : Int32? = nil,
+    minimum_seconds_between_redraws : Float64 = 0.04,
+
+    # Use a monotonic clock by default since its better for measuring time
+    @clock : ACLK::Interface = ACLK::Monotonic.new
+  )
     if output.is_a? ACON::Output::ConsoleOutputInterface
       output = output.error_output
     end
@@ -509,7 +498,7 @@ class Athena::Console::Helper::ProgressBar
       @redraw_frequency = nil
     end
 
-    @start_time = @clock.now.to_unix
+    @start_time = @clock.now
     @cursor = ACON::Cursor.new @output
 
     self.max_steps = max || 0
@@ -579,14 +568,14 @@ class Athena::Console::Helper::ProgressBar
   def estimated : Float64
     return 0.0 if @step.zero? || @step == @starting_step
 
-    ((@clock.now.to_unix - @start_time) / (@step - @starting_step) * @max).round
+    ((@clock.now - @start_time).total_seconds / (@step - @starting_step) * @max).round
   end
 
   # Returns an estimated total amount of time in seconds needed for the progress bar to complete.
   def remaining : Float64
     return 0.0 if @step.zero?
 
-    ((@clock.now.to_unix - @start_time) / (@step - @starting_step) * (@max - @step)).round 0
+    ((@clock.now - @start_time).total_seconds / (@step - @starting_step) * (@max - @step)).round 0
   end
 
   # Returns the amount of time in seconds until the progress bar is completed.
@@ -641,7 +630,7 @@ class Athena::Console::Helper::ProgressBar
   # Optionally sets the maximum number of steps to *max*, or `nil` to leave unchanged.
   # Optionally starts the progress bar *at* the provided step.
   def start(max : Int32? = nil, at start_at : Int32 = 0) : Nil
-    @start_time = @clock.now.to_unix
+    @start_time = @clock.now
     @step = start_at
     @starting_step = start_at
 
