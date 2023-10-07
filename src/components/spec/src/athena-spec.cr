@@ -23,7 +23,7 @@ require "./test_case"
 # Then run `shards install`, being sure to require it via `require "athena-spec"` within your `spec/spec_helper.cr` file.
 # From here you can create some `ASPEC::TestCase`s, or make use of the provided `ASPEC::Methods`.
 #
-# If using the component with the framework, also checkout the [manual](/architecture/spec) for some additional information on how it is integrated.
+# If using the component with the framework, also checkout the [manual](../architecture/spec.md) for some additional information on how it is integrated.
 module Athena::Spec
   VERSION = "0.3.5"
 

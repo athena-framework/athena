@@ -71,7 +71,7 @@
 # ```
 #
 # TIP: The suggested way of setting the name and description of the command is via the `ACONA::AsCommand` annotation.
-# This enables lazy command instantiation when used within the Athena framework. Checkout the [external documentation](/architecture/console/) for more information.
+# This enables lazy command instantiation when used within the Athena framework. Checkout the [external documentation](../../architecture/console.md) for more information.
 #
 # The `#configure` command is called automatically at the end of the constructor method.
 # If your command defines its own, be sure to call `super()` to also run the parent constructor.
