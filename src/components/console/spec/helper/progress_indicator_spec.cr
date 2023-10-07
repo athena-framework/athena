@@ -1,29 +1,14 @@
 require "../spec_helper"
 
-private class MockClock
-  include Athena::Console::ClockInterface
-
-  def initialize(@now : Time); end
-
-  def now : Time
-    @now
-  end
-
-  def sleep(seconds : Time::Span) : Nil
-    @now += seconds
-  end
-end
-
 struct ProgressIndicatorTest < ASPEC::TestCase
-  @clock : MockClock
+  @clock : ACLK::Spec::MockClock
 
   def initialize
-    @clock = MockClock.new Time.utc
+    @clock = ACLK::Spec::MockClock.new
   end
 
   def test_default_indicator : Nil
-    indicator = ACON::Helper::ProgressIndicator.new output = self.output
-    indicator.clock = @clock
+    indicator = ACON::Helper::ProgressIndicator.new output = self.output, clock: @clock
 
     indicator.start "Starting..."
     @clock.sleep 101.milliseconds
@@ -65,7 +50,7 @@ struct ProgressIndicatorTest < ASPEC::TestCase
   end
 
   def test_non_decorated : Nil
-    indicator = ACON::Helper::ProgressIndicator.new output = self.output decorated: false
+    indicator = ACON::Helper::ProgressIndicator.new output = self.output(decorated: false)
 
     indicator.start "Starting..."
     indicator.advance
@@ -84,8 +69,7 @@ struct ProgressIndicatorTest < ASPEC::TestCase
   end
 
   def test_custom_indicator_values : Nil
-    indicator = ACON::Helper::ProgressIndicator.new output = self.output, indicator_values: %w(a b c)
-    indicator.clock = @clock
+    indicator = ACON::Helper::ProgressIndicator.new output = self.output, indicator_values: %w(a b c), clock: @clock
 
     indicator.start "Starting..."
     @clock.sleep 101.milliseconds

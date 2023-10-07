@@ -15,3 +15,8 @@ description: |
 
 authors:
   - George Dietrich <george@dietrich.app>
+
+dependencies:
+  athena-clock:
+    github: athena-framework/clock
+    version: ~> 0.1.0

@@ -1,5 +1,7 @@
 require "ecr"
 
+require "athena-clock"
+
 require "./annotations"
 require "./application"
 require "./command"

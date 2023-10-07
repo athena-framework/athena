@@ -1,27 +1,13 @@
 require "../spec_helper"
 
-private class MockClock
-  include Athena::Console::ClockInterface
-
-  def initialize(@now : Time); end
-
-  def now : Time
-    @now
-  end
-
-  def sleep(seconds : Int32) : Nil
-    @now += seconds.seconds
-  end
-end
-
 struct ProgressBarTest < ASPEC::TestCase
   @col_size : String?
-  @clock : MockClock
+  @clock : ACLK::Spec::MockClock
 
   def initialize
     @col_size = ENV["COLUMNS"]?
     ENV["COLUMNS"] = "120"
-    @clock = MockClock.new Time.utc
+    @clock = ACLK::Spec::MockClock.new
   end
 
   protected def tear_down : Nil
@@ -69,8 +55,7 @@ struct ProgressBarTest < ASPEC::TestCase
   end
 
   def test_regular_time_estimation : Nil
-    bar = ACON::Helper::ProgressBar.new self.output, 1_200, 0
-    bar.clock = @clock
+    bar = ACON::Helper::ProgressBar.new self.output, 1_200, 0, clock: @clock
 
     bar.start
     bar.advance
@@ -82,8 +67,7 @@ struct ProgressBarTest < ASPEC::TestCase
   end
 
   def test_resumed_time_estimation : Nil
-    bar = ACON::Helper::ProgressBar.new self.output, 1_200, 0
-    bar.clock = @clock
+    bar = ACON::Helper::ProgressBar.new self.output, 1_200, 0, clock: @clock
 
     bar.start at: 599
     bar.advance
@@ -897,8 +881,7 @@ struct ProgressBarTest < ASPEC::TestCase
   end
 
   def test_min_and_max_seconds_between_redraws : Nil
-    bar = ACON::Helper::ProgressBar.new output = self.output
-    bar.clock = @clock
+    bar = ACON::Helper::ProgressBar.new output = self.output, clock: @clock
     bar.redraw_frequency = 1
     bar.minimum_seconds_between_redraws = 5
     bar.maximum_seconds_between_redraws = 10
@@ -919,8 +902,7 @@ struct ProgressBarTest < ASPEC::TestCase
   end
 
   def test_max_seconds_between_redraws : Nil
-    bar = ACON::Helper::ProgressBar.new output = self.output, minimum_seconds_between_redraws: 0
-    bar.clock = @clock
+    bar = ACON::Helper::ProgressBar.new output = self.output, minimum_seconds_between_redraws: 0, clock: @clock
     bar.redraw_frequency = 4 # Disable step based redraw
     bar.start
 
@@ -948,8 +930,7 @@ struct ProgressBarTest < ASPEC::TestCase
   end
 
   def test_min_seconds_between_redraws : Nil
-    bar = ACON::Helper::ProgressBar.new output = self.output, minimum_seconds_between_redraws: 0
-    bar.clock = @clock
+    bar = ACON::Helper::ProgressBar.new output = self.output, minimum_seconds_between_redraws: 0, clock: @clock
     bar.redraw_frequency = 1
     bar.minimum_seconds_between_redraws = 1
     bar.start
