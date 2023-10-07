@@ -54,7 +54,7 @@
 #
 # If you're using `Athena::Validator` within the Athena ecosystem,
 # constraint validators can also be defined as services if they require external dependencies.
-# See `AVD::ServiceConstraintValidator` and the [validator](/architecture/validator) component documentation in the external documentation for more information.
+# See `AVD::ServiceConstraintValidator` and the [validator](../../architecture/validator.md) component documentation in the external documentation for more information.
 module Athena::Validator::ConstraintValidatorInterface
   # Validate the provided *value* against the provided *constraint*.
   #
