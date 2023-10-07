@@ -6,7 +6,7 @@ require "mime"
 #
 # `ATH::Request::FORMATS` is used to determine the related format from the request's `MIME` type.
 #
-# See the [negotiation](/architecture/negotiation) component for more information.
+# See the [negotiation](../../../architecture/negotiation.md) component for more information.
 struct Athena::Framework::Listeners::Format
   include AED::EventListenerInterface
 

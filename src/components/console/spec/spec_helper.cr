@@ -1,8 +1,10 @@
 require "spec"
 
-require "athena-spec"
 require "../src/athena-console"
 require "../src/spec"
+
+require "athena-spec"
+require "athena-clock/spec"
 
 require "./fixtures/commands/io"
 require "./fixtures/**"

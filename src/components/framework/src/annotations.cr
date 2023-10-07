@@ -217,7 +217,7 @@ module Athena::Framework::Annotations
   # # }
   # ```
   #
-  # See the [external documentation](/architecture/validator/) for more information.
+  # See the [external documentation](../../../architecture/validator.md) for more information.
   #
   # ### Map
   #
@@ -347,6 +347,6 @@ module Athena::Framework::Annotations
   # end
   # ```
   #
-  # See the [external documentation](/architecture/serializer/) for more information.
+  # See the [external documentation](../../../architecture/serializer.md) for more information.
   annotation View; end
 end
