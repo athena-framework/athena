@@ -1,5 +1,11 @@
 require "athena-spec"
+
+require "athena-clock/spec"
+require "athena-console/spec"
+require "athena-event_dispatcher/spec"
 require "athena-dependency_injection/spec"
+require "athena-validator/spec"
+
 require "./spec/*"
 
 # :nodoc:
