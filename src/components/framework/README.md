@@ -26,4 +26,4 @@ dependencies:
 
 ## Contributing
 
-[Report issues](https://github.com/athena-framework/athena/issues) and send [Pull Requests](https://github.com/athena-framework/athena/pulls) in the [main Athena repository](https://github.com/athena-framework/athena).
+Read the general [Contributing Guide](./CONTRIBUTING.md) for information on how to get started.
