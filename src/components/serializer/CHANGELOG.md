@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.4] - 2023-10-10
+
+_Administrative release, no functional changes_
+
 ## [0.3.3] - 2023-02-18
 
 ### Changed
@@ -133,6 +137,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.3.4]: https://github.com/athena-framework/serializer/releases/tag/v0.3.4
 [0.3.3]: https://github.com/athena-framework/serializer/releases/tag/v0.3.3
 [0.3.2]: https://github.com/athena-framework/serializer/releases/tag/v0.3.2
 [0.3.1]: https://github.com/athena-framework/serializer/releases/tag/v0.3.1

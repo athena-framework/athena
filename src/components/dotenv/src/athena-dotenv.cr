@@ -166,7 +166,7 @@ require "./exceptions/*"
 # They can of course continue to be used in production by distributing the base `.env` file along with the binary, then creating a `.env.local` on the production server and including production values within it.
 # This can work quite well for simple applications, but ultimately a more robust solution that best leverages the features of the server the application is running on is best.
 class Athena::Dotenv
-  VERSION = "0.1.0"
+  VERSION = "0.1.1"
 
   private VARNAME_REGEX = /(?i:[A-Z][A-Z0-9_]*+)/
 
