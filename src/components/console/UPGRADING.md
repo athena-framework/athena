@@ -2,7 +2,7 @@
 
 Documents the changes that may be required when upgrading to a newer component version.
 
-## Upgrade to x.x.x
+## Upgrade to 0.3.3
 
 ### New `ACON::Style::Interface` methods
 
