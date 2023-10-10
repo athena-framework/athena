@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.18.2] - 2023-10-09
+
+### Changed
+
+- Change routing logic to redirect `GET` and `HEAD` requests with a trailing slash to the route without one if it exists, and vice versa ([#307](https://github.com/athena-framework/athena/pull/307)) (George Dietrich)
+
+### Added
+
+- Add native tab completion support to the built-in `ATH::Commands` ([#296](https://github.com/athena-framework/athena/pull/296)) (George Dietrich)
+- Add support for defining multiple route annotations on a single controller action method ([#315](https://github.com/athena-framework/athena/pull/315)) (George Dietrich)
+- Require the new `Athena::Clock` component ([#318](https://github.com/athena-framework/athena/pull/318)) (George Dietrich)
+- Add additional `ATH::Spec::APITestCase` request helper methods ([#312](https://github.com/athena-framework/athena/pull/312), [#313](https://github.com/athena-framework/athena/pull/313)) (George Dietrich)
+
+### Fixed
+
+- Fix incorrectly generated route paths with a controller level prefix and no action level `/` prefix ([#308](https://github.com/athena-framework/athena/pull/308)) (George Dietrich)
+
 ## [0.18.1] - 2023-05-29
 
 ### Added
@@ -123,6 +140,7 @@ _Last release in the [athena-framework/athena](https://github.com/athena-framewo
 - Fix incorrect ivar type on `AVD::Exceptions::Exceptions::ValidationFailed#violations` ([#116](https://github.com/athena-framework/athena/pull/116)) (George Dietrich)
 - Correctly reject requests with whitespace when converting numeric inputs ([#117](https://github.com/athena-framework/athena/pull/117)) (George Dietrich)
 
+[0.18.2]: https://github.com/athena-framework/athena/releases/tag/v0.18.2
 [0.18.1]: https://github.com/athena-framework/athena/releases/tag/v0.18.1
 [0.18.0]: https://github.com/athena-framework/athena/releases/tag/v0.18.0
 [0.17.1]: https://github.com/athena-framework/athena/releases/tag/v0.17.1

@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.8] - 2023-10-09
+
+### Added
+
+- Internal support for redirecting within an `ART::Matcher::*` ([#307](https://github.com/athena-framework/athena/pull/307)) (George Dietrich)
+
 ## [0.1.7] - 2023-05-29
 
 ### Changed
@@ -76,6 +82,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.1.8]: https://github.com/athena-framework/routing/releases/tag/v0.1.8
 [0.1.7]: https://github.com/athena-framework/routing/releases/tag/v0.1.7
 [0.1.6]: https://github.com/athena-framework/routing/releases/tag/v0.1.6
 [0.1.5]: https://github.com/athena-framework/routing/releases/tag/v0.1.5

@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.3.3] - 2023-10-09
+
+### Changed
+
+- Update minimum `crystal` version to `~> 1.8.0` ([#282](https://github.com/athena-framework/athena/pull/282)) (George Dietrich)
+
+### Added
+
+- **Breaking:** Add `ACON::Helper::ProgressBar` to enable rendering progress bars ([#304](https://github.com/athena-framework/athena/pull/304)) (George Dietrich)
+- Add native shell tab completion support for `bash`, `zsh`, and `fish` for both built-in and custom commands ([#294](https://github.com/athena-framework/athena/pull/294),[#296](https://github.com/athena-framework/athena/pull/296), [#297](https://github.com/athena-framework/athena/pull/297), [#299](https://github.com/athena-framework/athena/pull/299)) (George Dietrich)
+- Add `ACON::Helper::ProgressIndicator` to enable rendering spinners ([#314](https://github.com/athena-framework/athena/pull/314)) (George Dietrich)
+- Add support for defining a max height for an `ACON::Output::Section` ([#303](https://github.com/athena-framework/athena/pull/303)) (George Dietrich)
+- Add `ACON::Helper.format_time` to format a duration as a human readable string ([#304](https://github.com/athena-framework/athena/pull/304)) (George Dietrich)
+- Add `#assert_command_is_successful` helper method to `ACON::Spec::CommandTester` and `ACON::Spec::ApplicationTester` ([#294](https://github.com/athena-framework/athena/pull/294)) (George Dietrich)
+
+### Fixed
+
+- Ensure long lines with URLs are not cut when wrapped ([#314](https://github.com/athena-framework/athena/pull/314)) (George Dietrich)
+- Do not emit erroneous newline from `ACON::Style::Athena` when it's the first thing being written ([#314](https://github.com/athena-framework/athena/pull/314)) (George Dietrich)
+- Fix misalignment when word wrapping a hyperlink ([#305](https://github.com/athena-framework/athena/pull/305)) (George Dietrich)
+- Do not emit erroneous extra newlines from an `ACON::Output::Section` ([#303](https://github.com/athena-framework/athena/pull/303)) (George Dietrich)
+- Fix misalignment within a vertical table with multi-line cell ([#300](https://github.com/athena-framework/athena/pull/300)) (George Dietrich)
+
 ## [0.3.2] - 2023-02-18
 
 ### Changed
@@ -77,6 +100,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.3.3]: https://github.com/athena-framework/console/releases/tag/v0.3.3
 [0.3.2]: https://github.com/athena-framework/console/releases/tag/v0.3.2
 [0.3.1]: https://github.com/athena-framework/console/releases/tag/v0.3.1
 [0.3.0]: https://github.com/athena-framework/console/releases/tag/v0.3.0
