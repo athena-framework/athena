@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.4] - 2023-10-10
+
+### Added
+
+- Add support for tab completion to the `bash` shell when binary is in the `bin/` directory and referenced with `./` ([#323](https://github.com/athena-framework/athena/pull/323)) (George Dietrich)
+
 ## [0.3.3] - 2023-10-09
 
 ### Changed
@@ -100,6 +106,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.3.4]: https://github.com/athena-framework/console/releases/tag/v0.3.4
 [0.3.3]: https://github.com/athena-framework/console/releases/tag/v0.3.3
 [0.3.2]: https://github.com/athena-framework/console/releases/tag/v0.3.2
 [0.3.1]: https://github.com/athena-framework/console/releases/tag/v0.3.1
