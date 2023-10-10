@@ -115,7 +115,7 @@ alias ACONA = ACON::Annotations
 # WARNING: The completion script may only be used with real built binaries, not temporary ones such as `crystal run src/console.cr -- completion`.
 # This is to ensure the performance of the script is sufficient, and to avoid any issues with the naming of the temporary binary.
 module Athena::Console
-  VERSION = "0.3.2"
+  VERSION = "0.3.3"
 
   # Contains all the `Athena::Console` based annotations.
   module Annotations; end
