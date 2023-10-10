@@ -4,7 +4,7 @@
 
 ### Added
 
-- Add integration between `Athena::DependencyInjection` and the `Athena::Clock` components ([#318](https://github.com/athena-framework/athena/pull/318)) (George Dietrich)
+- Add integration between `Athena::DependencyInjection` and the `Athena::Clock` component ([#318](https://github.com/athena-framework/athena/pull/318)) (George Dietrich)
 
 ## [0.3.6] - 2023-02-18
 
