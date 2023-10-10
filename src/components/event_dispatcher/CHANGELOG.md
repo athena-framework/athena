@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.2.3] - 2023-10-10
+## [0.2.3] - 2023-10-09
 
 _Administrative release, no functional changes_
 
