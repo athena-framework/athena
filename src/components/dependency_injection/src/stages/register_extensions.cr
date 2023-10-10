@@ -168,7 +168,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
             end
           end
 
-          pp! CONFIG["example"]
+          pp CONFIG
         %}
       {% end %}
     end
