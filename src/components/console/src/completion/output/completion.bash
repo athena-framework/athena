@@ -89,4 +89,4 @@ _athena_<%= @command_name %>() {
     fi
 }
 
-complete -F _athena_<%= @command_name %> <%= @command_name %> ./<%= @command_name %>
+complete -F _athena_<%= @command_name %> <%= @command_name %> ./<%= @command_name %> ./bin/<%= @command_name %>
