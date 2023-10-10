@@ -4,7 +4,7 @@
 
 ### Added
 
-- Add support for `bin/console` and `./bin/console` to the completion scripts ([#323](https://github.com/athena-framework/athena/pull/323)) (George Dietrich)
+- Add support for tab completion to the `bash` shell when binary is in the `bin/` directory and referenced with `./` ([#323](https://github.com/athena-framework/athena/pull/323)) (George Dietrich)
 
 ## [0.3.3] - 2023-10-09
 
