@@ -1,10 +1,10 @@
 version: 2
 
 updates:
-- package-ecosystem: "github-actions"
-  directory: "/"
-  schedule:
-    interval: "weekly"
-  labels:
-    - "kind:infrastructure"
-    - "kind:enhancement"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "kind:infrastructure"
+      - "kind:enhancement"
