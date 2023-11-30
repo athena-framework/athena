@@ -75,7 +75,7 @@ module Athena
       annotation {{name.id}}; end
 
       # :nodoc:
-      record {{name.id}}Configuration < ACF::AnnotationConfigurations::ConfigurationBase{% unless args.empty? %}, {{*args}}{% end %} do
+      record {{name.id}}Configuration < ACF::AnnotationConfigurations::ConfigurationBase{% unless args.empty? %}, {{args.splat}}{% end %} do
         {{yield}}
       end
 

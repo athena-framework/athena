@@ -295,7 +295,7 @@ abstract class Athena::Framework::Controller
       # ```
       macro {{method.downcase.id}}(path, *args, **named_args, &)
         @[ARTA::{{method.capitalize.id}}(path: \{{path}})]
-        def {{method.downcase.id}}_\{{path.gsub(/\W/, "_").id}}(\{{*args}}) : \{{named_args[:return_type] || String}}
+        def {{method.downcase.id}}_\{{path.gsub(/\W/, "_").id}}(\{{args.splat}}) : \{{named_args[:return_type] || String}}
           \{{yield}}
         end
       end
