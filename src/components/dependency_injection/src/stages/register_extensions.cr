@@ -11,163 +11,46 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
     macro finished
       {% verbatim do %}
         {%
-          EXTENSIONS.each do |ext_name, schema|
-            ext_config = CONFIG[ext_name]
+          extensions_to_register = [] of Nil # 0: ext name, 1: ext type
 
-            if ext_config == nil
-              ext_config = CONFIG[ext_name] = {} of Nil => Nil
-            end
+          # Tuple of:
+          # 0 - extension type option is defined in
+          # 1 - the option itself
+          #
+          # keyed by the name of the extension
+          to_process = {} of Nil => Nil
 
-            schema.each do |config_key, properties|
-              ext_schema_config = if "root" == config_key
-                                    ext_config
-                                  else
-                                    ext_config[config_key]
-                                  end
+          # For each extension type, register its base type
+          Object.all_subclasses.select(&.annotation(ADI::RegisterExtension)).each do |ext|
+            ext_ann = ext.annotation ADI::RegisterExtension
 
-              if ext_schema_config == nil
-                ext_schema_config = ext_config[config_key] = {} of Nil => Nil
-              end
+            extensions_to_register << {ext_ann[0], ext}
+          end
 
-              extra_keys = ext_schema_config.keys - properties.map(&.var)
-
-              extra_keys = extra_keys - ext_config.keys.reject(&.==("root")) if "root" == config_key
-
-              unless extra_keys.empty?
-                extra_key_value = ext_schema_config[extra_keys.first]
-
-                ext_schema_config.raise "Encountered unexpected key '#{extra_keys.first.id}' with value '#{extra_key_value}' within '#{ext_name.id}.#{config_key}'."
-              end
-
-              properties.each do |prop|
-                if (config_value = ext_schema_config[prop.var]) != nil
-                  config_value = config_value.is_a?(Path) ? config_value.resolve : config_value
-
-                  # Tuple of:
-                  # 0 - type of the property in the schema
-                  # 1 - the value
-                  # 2 - stack keeping track of current path to the value
-                  values_to_resolve = [{prop.type.resolve, config_value, [ext_name.id, config_key.id, prop.var.id]}]
-
-                  values_to_resolve.each_with_index do |(prop_type, cfv, stack), idx|
-                    resolved_type = if cfv.is_a?(BoolLiteral)
-                                      Bool
-                                    elsif cfv.is_a?(StringLiteral)
-                                      String
-                                    elsif cfv.is_a?(ArrayLiteral)
-                                      if (array_type = (cfv.of || cfv.type)).is_a? Nop
-                                        cfv.raise "Array configuration value '#{ext_name.id}.#{config_key}.#{prop.var}' must specify its type."
-                                      end
-
-                                      cfv.each_with_index do |v, v_idx|
-                                        values_to_resolve << {array_type.resolve, v, stack + [v_idx]}
-                                      end
-
-                                      parse_type("Array(#{array_type})").resolve
-                                    elsif cfv.is_a?(NumberLiteral)
-                                      kind = cfv.kind
-
-                                      if kind.starts_with? 'i'
-                                        parse_type("Int#{kind[1..].id}").resolve
-                                      elsif kind.starts_with? 'u'
-                                        parse_type("UInt#{kind[1..].id}").resolve
-                                      elsif kind.starts_with? 'f'
-                                        parse_type("Float#{kind[1..].id}").resolve
-                                      else
-                                        cfv.raise "BUG: Unexpected number literal value"
-                                      end
-                                    elsif cfv.is_a?(TypeNode)
-                                      cfv
-                                    elsif cfv.is_a?(HashLiteral)
-                                      cfv.raise "TODO: Support HashLiterals"
-                                    elsif cfv.is_a?(NamedTupleLiteral)
-                                      cfv.each do |k, v|
-                                        nt_key_type = prop_type[k]
-
-                                        if nt_key_type == nil
-                                          path = "#{stack[0]}"
-
-                                          stack[1..].each do |p|
-                                            path += if p.is_a?(NumberLiteral)
-                                                      "[#{p}]"
-                                                    else
-                                                      ".#{p}"
-                                                    end
-                                          end
-
-                                          cfv.raise "Expected configuration value '#{path.id}' to be a '#{prop_type}', but encountered unexpected key '#{k}' with value '#{v}'."
-                                        end
-
-                                        values_to_resolve << {nt_key_type.resolve, v, stack + [k]}
-                                      end
-
-                                      missing_keys = prop_type.keys - cfv.keys
-
-                                      unless missing_keys.empty?
-                                        missing_keys.each do |mk|
-                                          unless prop_type[mk].nilable?
-                                            path = "#{stack[0]}"
-
-                                            stack[1..].each do |p|
-                                              path += if p.is_a?(NumberLiteral)
-                                                        "[#{p}]"
-                                                      else
-                                                        ".#{p}"
-                                                      end
-                                            end
-
-                                            cfv.raise "Configuration value '#{path.id}' is missing required value for '#{mk}' of type '#{prop_type[mk]}'."
-                                          end
-                                        end
-                                      end
-
-                                      # TODO: Figure out if there's a way to get a TypeNode reference to the named tuple instance itself.
-                                      nil
-                                    end
-
-                    unless resolved_type.nil?
-                      values_to_resolve[idx][2] = resolved_type
-
-                      # Handles outer most typing issues.
-                      unless resolved_type <= prop_type
-                        path = "#{stack[0]}"
-
-                        stack[1..].each do |p|
-                          path += if p.is_a?(NumberLiteral)
-                                    "[#{p}]"
-                                  else
-                                    ".#{p}"
-                                  end
-                        end
-
-                        cfv.raise "Expected configuration value '#{path.id}' to be a '#{prop_type}', but got '#{resolved_type}'."
-                      end
-                    end
-                  end
-
-                  resolved_value = config_value
-                elsif prop.value.is_a?(Nop) && !prop.type.resolve.nilable?
-                  path = ext_name
-
-                  path += ".#{config_key}" unless "root" == config_key
-                  path += ".#{prop}"
-
-                  prop.raise "Required configuration value '#{path.id}' must be provided."
-                else
-                  resolved_value = if prop.value.is_a?(Nop)
-                                     nil
-                                   elsif prop.value.is_a?(Path)
-                                     prop.value.resolve
-                                   else
-                                     prop.value
-                                   end
-                end
-
-                ext_schema_config[prop.var] = resolved_value
-              end
+          # For each base type, determine all child extension types
+          extensions_to_register.each do |(ext_name, ext)|
+            ext.constants.reject(&.==("OPTIONS")).each do |sub_ext|
+              extensions_to_register << {ext_name, parse_type("::#{ext}::#{sub_ext}").resolve}
             end
           end
 
+          p! extensions_to_register
+
+          # For each extension to register, build out an 1 dimensional array
+          extensions_to_register.each do |(ext_name, ext)|
+            if to_process[ext_name] == nil
+              ext_options = to_process[ext_name] = [] of Nil
+            end
+
+            ext.constant("OPTIONS").each do |o|
+              ext_options << {ext_name, ext, o}
+            end
+          end
+
+          p! to_process
+
+          puts ""
+          puts ""
           pp CONFIG
         %}
       {% end %}

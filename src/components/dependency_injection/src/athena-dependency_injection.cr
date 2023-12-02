@@ -1,4 +1,5 @@
 require "./annotations"
+require "./extension"
 require "./proxy"
 require "./service_container"
 
@@ -179,28 +180,43 @@ end
 # Require extension code last so all built-in DI types are available
 require "./ext/*"
 
-ADI.register_extension "framework", {
-  cors: {
-    defaults: {
-      allow_credentials : Bool = false,
-    },
-  },
-}
+@[ADI::RegisterExtension("framework")]
+struct Extension
+  include ADI::Extension
 
-ADI.configure({
-  framework: {
-    cors: {
-      defaults: {
-        allow_credentials: true,
-        #   allow_origin:      ["https://app.example.com"] of String,
-        #   expose_headers:    ["X-Transaction-ID", "X-Some-Custom-Header"] of String,
-      },
-    },
-  },
-  parameters: {
-    "app.enable_v2_protocol": false,
-  },
-})
+  module Cors
+    include ADI::Extension
+
+    module Defaults
+      include ADI::Extension
+
+      option allow_credentials : Bool = false
+    end
+  end
+end
+
+# ADI.register_extension "framework", {
+#   cors: {
+#     defaults: {
+#       allow_credentials : Bool = false,
+#     },
+#   },
+# }
+
+# ADI.configure({
+#   framework: {
+#     cors: {
+#       defaults: {
+#         allow_credentials: true,
+#         #   allow_origin:      ["https://app.example.com"] of String,
+#         #   expose_headers:    ["X-Transaction-ID", "X-Some-Custom-Header"] of String,
+#       },
+#     },
+#   },
+#   parameters: {
+#     "app.enable_v2_protocol": false,
+#   },
+# })
 # New Methods
 # StringLiteral#sub(target : StringLiteral, replace : StringLiteral)
 # StringLiteral#gsub(regex : RegexLiteral, & : StringLiteral -> StringLiteral)

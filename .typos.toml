@@ -3,6 +3,7 @@
 referer = "referer"
 recruse = "recurse"
 recruses = "recurses"
+dimenstional = "dimensional"
 
 [files]
 extend-exclude = [
