@@ -33,7 +33,7 @@
 # By default, requests that result in an exception, either from `Athena::Routing` or the callback block itself,
 # are gracefully handled by returning a proper error response to the client via [HTTP::Server::Response#respond_with_status](https://crystal-lang.org/api/HTTP/Server/Response.html#respond_with_status%28status%3AHTTP%3A%3AStatus%2Cmessage%3AString%3F%3Dnil%29%3ANil-instance-method).
 #
-# You can set `bubble_exceptions: true` when instantaintg the routing handler to have full control over the returned response.
+# You can set `bubble_exceptions: true` when instantiating the routing handler to have full control over the returned response.
 # This would allow you to define your own [HTTP::Handler](https://crystal-lang.org/api/HTTP/Handler.html) that can rescue the exceptions and apply your custom logic for how to handle the error.
 #
 # ```

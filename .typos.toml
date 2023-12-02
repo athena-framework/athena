@@ -3,6 +3,7 @@
 referer = "referer"
 recruse = "recurse"
 recruses = "recurses"
+instantaintg = "instantiating"
 
 [files]
 extend-exclude = [
