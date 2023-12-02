@@ -294,11 +294,22 @@ abstract struct Athena::Spec::TestCase
   # ```
   annotation TestWith; end
 
+  # :nodoc:
+  def self.construct
+    instance = allocate
+    instance.initialize __init: nil
+    instance
+  end
+
+  # :nodoc:
+  def initialize(__init init : Nil)
+  end
+
   # Runs the tests contained within `self`.
   #
   # See `Athena::Spec.run_all` to run all test cases.
   def self.run : Nil
-    instance = new
+    instance = construct
 
     {% begin %}
       {{!!@type.annotation(Pending) ? "pending".id : "describe".id}} {{@type.name.stringify}}, focus: {{!!@type.annotation Focus}}{% if (tags = @type.annotation(Tags)) %}, tags: {{tags.args}}{% end %} do

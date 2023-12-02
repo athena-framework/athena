@@ -30,18 +30,47 @@ describe ACON::Input::Argument do
 
     describe "array" do
       it "nil value" do
-        argument = ACON::Input::Argument.new "foo", ACON::Input::Argument::Mode.flags OPTIONAL, IS_ARRAY
+        argument = ACON::Input::Argument.new "foo", ACON::Input::Argument::Mode[:optional, :is_array]
         argument.default = nil
         argument.default.should eq [] of String
       end
 
       it "non array" do
-        argument = ACON::Input::Argument.new "foo", ACON::Input::Argument::Mode.flags OPTIONAL, IS_ARRAY
+        argument = ACON::Input::Argument.new "foo", ACON::Input::Argument::Mode[:optional, :is_array]
 
         expect_raises ACON::Exceptions::Logic, "Default value for an array argument must be an array." do
           argument.default = "bar"
         end
       end
+    end
+  end
+
+  describe "#complete" do
+    it "with an array" do
+      values = ["foo", "bar"]
+      suggestions = ACON::Completion::Suggestions.new
+
+      argument = ACON::Input::Argument.new "foo", suggested_values: values
+
+      argument.has_completion?.should be_true
+
+      argument.complete ACON::Completion::Input.new, suggestions
+
+      suggestions.suggested_values.map(&.value).should eq ["foo", "bar"]
+    end
+
+    it "with an block" do
+      values = ["foo", "bar"]
+      suggestions = ACON::Completion::Suggestions.new
+      callback = Proc(ACON::Completion::Input, Array(String)).new { values }
+
+      argument = ACON::Input::Argument.new "foo", suggested_values: callback
+
+      argument.has_completion?.should be_true
+
+      argument.complete ACON::Completion::Input.new, suggestions
+
+      suggestions.suggested_values.map(&.value).should eq ["foo", "bar"]
     end
   end
 end

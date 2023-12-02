@@ -4,7 +4,7 @@ require "./config"
 @[ACFA::Resolvable("routing.view_handler")]
 struct Athena::Framework::Config::ViewHandler
   # This method should be overridden in order to provide configuration overrides for `ATH::View::ViewHandlerInterface`.
-  # See the [external documentation](/architecture/negotiation) for more details.
+  # See the [external documentation](../../../architecture/negotiation.md) for more details.
   #
   # NOTE: The `#failed_validation_status` is currently not used. Included for future work.
   #

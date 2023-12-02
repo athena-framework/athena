@@ -17,7 +17,7 @@ private def assert_success(code : String, *, line : Int32 = __LINE__) : Nil
 end
 
 describe ATH do
-  describe "Console" do
+  describe "Console", tags: "compiler" do
     it "errors if no name is provided" do
       assert_error "Console command 'TestCommand' has an 'ACONA::AsCommand' annotation but is missing the commands's name. It was not provided as the first positional argument nor via the 'name' field.", <<-CR
         require "../../spec_helper.cr"

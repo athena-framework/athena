@@ -87,16 +87,55 @@ describe ACON::Command do
     command.definition.has_option?("bar").should be_true
   end
 
-  it "#argument" do
-    command = TestCommand.new
-    command.argument "foo"
-    command.definition.has_argument?("foo").should be_true
+  describe "#argument" do
+    it "basic form" do
+      command = TestCommand.new
+      command.argument "foo"
+      command.definition.has_argument?("foo").should be_true
+    end
+    describe "suggested values" do
+      it "array" do
+        command = TestCommand.new
+        command.argument "foo", suggested_values: {"a", "b", "c"}
+        command.definition.has_argument?("foo").should be_true
+        command.definition.argument("foo").has_completion?.should be_true
+      end
+
+      it "block" do
+        command = TestCommand.new
+        command.argument "foo" do
+          ["a", "b"]
+        end
+        command.definition.has_argument?("foo").should be_true
+        command.definition.argument("foo").has_completion?.should be_true
+      end
+    end
   end
 
-  it "#option" do
-    command = TestCommand.new
-    command.option "bar"
-    command.definition.has_option?("bar").should be_true
+  describe "#option" do
+    it "basic form" do
+      command = TestCommand.new
+      command.option "bar"
+      command.definition.has_option?("bar").should be_true
+    end
+
+    describe "suggested values" do
+      it "array" do
+        command = TestCommand.new
+        command.option "foo", value_mode: :required, suggested_values: {"a", "b", "c"}
+        command.definition.has_option?("foo").should be_true
+        command.definition.option("foo").has_completion?.should be_true
+      end
+
+      it "block" do
+        command = TestCommand.new
+        command.option "foo", value_mode: :required do
+          ["a", "b"]
+        end
+        command.definition.has_option?("foo").should be_true
+        command.definition.option("foo").has_completion?.should be_true
+      end
+    end
   end
 
   describe "#processed_help" do

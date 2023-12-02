@@ -223,7 +223,7 @@ struct AthenaStyleTest < ASPEC::TestCase
         (ACON::Commands::Generic::Proc.new do |input, output|
           output.decorated = true
           ACON::Style::Athena.new(input, output).comment(
-            "Lorem ipsum dolor sit <comment>amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</comment> Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
+            "Árvíztűrőtükörfúrógép 🎼 Lorem ipsum dolor sit <comment>💕 amet, consectetur adipisicing elit, sed do eiusmod tempor incididu labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</comment> Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
           )
 
           ACON::Command::Status::SUCCESS
@@ -335,6 +335,15 @@ struct AthenaStyleTest < ASPEC::TestCase
           ACON::Command::Status::SUCCESS
         end),
         "style/nested_tag_prefix.txt",
+      },
+      "Do not prepend empty line if the buffer is empty" => {
+        (ACON::Commands::Generic::Proc.new do |input, output|
+          style = ACON::Style::Athena.new input, output
+          style.text "Hello"
+
+          ACON::Command::Status::SUCCESS
+        end),
+        "style/empty_buffer.txt",
       },
     }
   end

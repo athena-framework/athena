@@ -147,7 +147,7 @@ class Athena::EventDispatcher::EventDispatcher
 
   # :inherit:
   def remove_listener(callable : AED::Callable) : Nil
-    return unless (listeners = @listeners[callable.event_class]?)
+    return unless listeners = @listeners[callable.event_class]?
 
     listeners.reject! { |c| c == callable }
 

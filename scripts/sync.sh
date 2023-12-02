@@ -21,9 +21,11 @@ function maybeSync()
   fi
 }
 
+maybeSync "src/components/clock" clock https://github.com/athena-framework/clock.git
 maybeSync "src/components/config" config https://github.com/athena-framework/config.git
 maybeSync "src/components/console" console https://github.com/athena-framework/console.git
 maybeSync "src/components/dependency_injection" dependency-injection https://github.com/athena-framework/dependency-injection.git
+maybeSync "src/components/dotenv" dotenv https://github.com/athena-framework/dotenv.git
 maybeSync "src/components/event_dispatcher" event-dispatcher https://github.com/athena-framework/event-dispatcher.git
 maybeSync "src/components/image_size" image-size https://github.com/athena-framework/image-size.git
 maybeSync "src/components/framework" framework https://github.com/athena-framework/framework.git

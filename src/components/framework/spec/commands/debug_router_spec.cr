@@ -79,7 +79,26 @@ struct DebugRouterCommandTest < ASPEC::TestCase
     end
   end
 
+  @[DataProvider("complete_provider")]
+  def test_complete(input : Array(String), expected_suggestions : Array(String)) : Nil
+    tester = ACON::Spec::CommandCompletionTester.new self.command
+    suggestions = tester.complete input
+
+    suggestions.should eq expected_suggestions
+  end
+
+  def complete_provider : Hash
+    {
+      "nothing" => {[] of String, ["routerdebug_session_welcome", "routerdebug_session_welcome_name", "routerdebug_session_logout", "routerdebug_test"]},
+      "format"  => {["--format"], ["txt"]},
+    }
+  end
+
+  private def command : ATH::Commands::DebugRouter
+    ATH::Commands::DebugRouter.new(@router)
+  end
+
   private def command_tester
-    ACON::Spec::CommandTester.new ATH::Commands::DebugRouter.new(@router)
+    ACON::Spec::CommandTester.new self.command
   end
 end

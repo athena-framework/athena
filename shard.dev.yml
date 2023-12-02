@@ -2,12 +2,16 @@
 dependencies:
   athena:
     path: ./src/components/framework
+  athena-clock:
+    path: ./src/components/clock
   athena-config:
     path: ./src/components/config
   athena-console:
     path: ./src/components/console
   athena-dependency_injection:
     path: ./src/components/dependency_injection
+  athena-dotenv:
+    path: ./src/components/dotenv
   athena-event_dispatcher:
     path: ./src/components/event_dispatcher
   athena-image_size:

@@ -14,7 +14,7 @@ struct Athena::Framework::Spec::Expectations::Response::HasCookie < Athena::Fram
   end
 
   def match(actual_value : ::HTTP::Server::Response) : Bool
-    return false unless (cookie = actual_value.cookies[@name]?)
+    return false unless cookie = actual_value.cookies[@name]?
 
     @path == cookie.path && @domain == cookie.domain
   end

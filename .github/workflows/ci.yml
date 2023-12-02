@@ -5,7 +5,7 @@ on:
     branches:
       - 'master'
   schedule:
-    - cron: '37 0 * * *' # Nightly at 00:37
+    - cron: '15 1 * * *' # Nightly at 01:15
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -15,23 +15,23 @@ jobs:
   check_spelling:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Check Spelling
-        uses: crate-ci/typos@v1.13.8
+        uses: crate-ci/typos@v1.16.23
   check_format:
     runs-on: ubuntu-latest
     container:
       image: crystallang/crystal:latest-alpine
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Check Format
         run: crystal tool format --check
   coding_standards:
     runs-on: ubuntu-latest
     container:
-      image: crystallang/crystal:latest-alpine
+      image: crystallang/crystal:latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Dependencies
         run: shards install
         env:
@@ -51,9 +51,9 @@ jobs:
           - nightly
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         if: github.event_name != 'pull_request'
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         if: github.event_name == 'pull_request'
         with:
           fetch-depth: 0
@@ -61,9 +61,6 @@ jobs:
         uses: crystal-lang/install-crystal@v1
         with:
           crystal: ${{ matrix.crystal }}
-      - name: Install pkg-config via brew
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: brew install pkg-config
       - name: Install Dependencies
         run: shards install --skip-postinstall --skip-executables
         env:

@@ -313,7 +313,7 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
     constraints : Array(AVD::Constraint) | AVD::Constraint,
     groups : Array(String) | String | AVD::Constraints::GroupSequence | Nil = nil
   )
-    raise "BUG: Null context" unless (c = @context)
+    raise "BUG: Null context" unless c = @context
 
     contextual_validator = c.validator.in_context(c).as AssertingContextualValidator
     contextual_validator.expect_validation idx, property_path, value, groups do |passed_constraints|

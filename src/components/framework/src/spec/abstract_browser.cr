@@ -11,7 +11,7 @@ abstract class Athena::Framework::Spec::AbstractBrowser
   abstract def do_request(request : ATH::Request) : HTTP::Server::Response
 
   def request : ATH::Request
-    if (request = @request)
+    if request = @request
       return request
     end
 
@@ -19,7 +19,7 @@ abstract class Athena::Framework::Spec::AbstractBrowser
   end
 
   def response : HTTP::Server::Response
-    if (response = @response)
+    if response = @response
       return response
     end
 

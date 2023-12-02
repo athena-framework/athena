@@ -24,7 +24,7 @@
 # # GET /view/Fred # => 418 {"greeting":"Hello Fred"}
 # ```
 #
-# See the [negotiation](/architecture/negotiation) component for more information.
+# See the [negotiation](../../architecture/negotiation.md) component for more information.
 class Athena::Framework::View(T)
   # The response data.
   property data : T
@@ -50,7 +50,7 @@ class Athena::Framework::View(T)
 
   # Returns the name of the route the current request should be redirected to.
   #
-  # See the [URL Generation](/getting_started/#url-generation) documentation.
+  # See the [URL Generation](../../getting_started/README.md#url-generation) documentation.
   getter route : String? = nil
 
   # The wrapped `ATH::Response` instance.
@@ -134,30 +134,43 @@ class Athena::Framework::View(T)
     self.response.headers.merge! headers
   end
 
-  # Does type reduction logic to determine what serializer the data should use.
-  # `nil` for `ASR::Serializable`, otherwise `JSON::Serializable`.
+  # Recurses over all the types within `T` to determine what serializer the data should use.
   protected def serializable_data : T?
-    {% if (T <= JSON::Serializable) && !(T <= ASR::Serializable) %}
-      # Single JSON::Serializable object
-      self.data
-    {% elsif (T <= NamedTuple) && (T.keys.any? do |k|
-               ntt = T[k]
+    {% begin %}
+      {%
+        types_to_recurse = [T]
 
-               ((ntt <= JSON::Serializable) && !(ntt <= ASR::Serializable)) ||
-                 (ntt.union? && ntt.union_types.any? { |ut| ((ut <= JSON::Serializable) && !(ut <= ASR::Serializable)) }) ||
-                 (ntt.type_vars.any? { |t| ((t <= JSON::Serializable) && !(t <= ASR::Serializable)) })
-             end) %}
-      # Namedtuple with a value of JSON::Serializable
-      self.data
-    {% elsif (T <= Enumerable) && T.type_vars.any? do |t|
-               ((t <= JSON::Serializable) && !(t <= ASR::Serializable)) ||
-                 (t.union? && t.union_types.any? { |ut| ((ut <= JSON::Serializable) && !(ut <= ASR::Serializable)) ||
-                   (ut.type_vars.any? { |utt| ((utt <= JSON::Serializable) && !(utt <= ASR::Serializable)) }) })
-             end %}
-      # Enumerable (Hash, Array, Set, ...) of JSON::Serializable
-      self.data
-    {% else %}
-      nil
+        types_to_recurse.each do |t|
+          t = t.resolve
+
+          if t.union?
+            t.union_types.each do |ut|
+              types_to_recurse << ut
+            end
+          elsif t <= NamedTuple
+            t.keys.each do |k|
+              types_to_recurse << t[k].resolve
+            end
+          elsif t <= Enumerable
+            t.type_vars.each do |ut|
+              types_to_recurse << ut
+            end
+
+            # Use `to_json` if a type includes `JSON::Serializable` but not `ASR::Serializable`
+          elsif (t <= JSON::Serializable) && !(t <= ASR::Serializable)
+            use_serializer_component = false
+
+            # Use the serializer component if the type is `ASR::Serializable`
+          elsif t <= ASR::Serializable
+            use_serializer_component = true
+          else
+            # Fallback on the serializer component
+            use_serializer_component = true
+          end
+        end
+      %}
+
+      {{ use_serializer_component == true ? nil : "self.data".id }}
     {% end %}
   end
 end

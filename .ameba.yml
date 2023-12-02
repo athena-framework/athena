@@ -1,2 +1,4 @@
+Lint/NotNil:
+  Enabled: false
 Style/LargeNumbers:
   Enabled: true

@@ -25,7 +25,7 @@ class Athena::Framework::RedirectResponse < Athena::Framework::Response
   # Creates a response that should redirect to the provided *url* with the provided *status*, defaults to 302.
   #
   # An ArgumentError is raised if *url* is blank, or if *status* is not a valid redirection status code.
-  def initialize(url : String | Path, status : HTTP::Status | Int32 = HTTP::Status::FOUND, headers : HTTP::Headers | ATH::Response::Headers = ATH::Response::Headers.new)
+  def initialize(url : String | Path | URI, status : HTTP::Status | Int32 = HTTP::Status::FOUND, headers : HTTP::Headers | ATH::Response::Headers = ATH::Response::Headers.new)
     @url = url.to_s
 
     raise ArgumentError.new "Cannot redirect to an empty URL." if @url.blank?

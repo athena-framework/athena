@@ -26,7 +26,7 @@ struct RouteProviderTest < ASPEC::TestCase
 
           \{% data = read_file("#{__DIR__}/fixtures/route_provider/route_collection{{test_case}}.cr").split("####") %}
 
-          ART::RouteProvider.match_host.should eq (\{{data[0].id}})
+          ART::RouteProvider.match_host?.should eq (\{{data[0].id}})
           ART::RouteProvider.static_routes.should eq (\{{data[1].id}})
           ART::RouteProvider.route_regexes.should eq (\{{data[2].id}})
           ART::RouteProvider.dynamic_routes.should eq (\{{data[3].id}})

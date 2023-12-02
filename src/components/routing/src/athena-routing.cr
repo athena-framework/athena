@@ -1,4 +1,4 @@
-require "./ext/*"
+require "./ext/regex"
 
 require "http/request"
 
@@ -75,7 +75,7 @@ alias ARTA = ART::Annotations
 # ## Getting Started
 #
 # If using this component within the [Athena Framework][Athena::Framework], it is already installed and required for you.
-# Checkout the [manual](/architecture/routing) for some additional information on how to use it within the framework.
+# Checkout the [manual](../architecture/routing.md) for some additional information on how to use it within the framework.
 #
 # If using it outside of the framework, you will first need to add it as a dependency:
 #
@@ -93,7 +93,7 @@ alias ARTA = ART::Annotations
 #
 # TIP: Consider using the annotations provided by the component within `ART::Annotations` to handle route registration.
 module Athena::Routing
-  VERSION = "0.1.5"
+  VERSION = "0.1.8"
 
   {% if @top_level.has_constant?("Athena") && Athena.has_constant?("Framework") && Athena::Framework.has_constant?("Request") %}
     # Represents the type of the *request* parameter within an `ART::Route::Condition`.

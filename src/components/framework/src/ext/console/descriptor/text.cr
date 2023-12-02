@@ -90,7 +90,7 @@ class Athena::Framework::Console::Descriptor::Text < Athena::Framework::Console:
       listeners = event_dispatcher.listeners event
     else
       title = "#{title} Grouped by Event"
-      listeners = if (events = context.event_classes)
+      listeners = if events = context.event_classes
                     events.each_with_object({} of AED::Event.class => Array(AED::Callable)) do |ec, map|
                       map[ec] = event_dispatcher.listeners ec
                     end

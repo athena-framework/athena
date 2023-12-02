@@ -128,7 +128,7 @@ class Athena::Console::Helper::Question < Athena::Console::Helper
       end
 
       if response.nil?
-        raise ACON::Exceptions::MissingInput.new "Aborted." unless (response = self.read_input input_stream, question)
+        raise ACON::Exceptions::MissingInput.new "Aborted." unless response = self.read_input input_stream, question
         response = response.strip if question.trimmable?
       end
     else
@@ -137,6 +137,7 @@ class Athena::Console::Helper::Question < Athena::Console::Helper
     end
 
     if output.is_a? ACON::Output::Section
+      output.add_content "" # add EOL to the question
       output.add_content response
     end
 

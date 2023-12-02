@@ -39,7 +39,7 @@ module YAML; end
 # ## Getting Started
 #
 # If using this component within the [Athena Framework][Athena::Framework], it is already installed and required for you.
-# Checkout the [manual](/architecture/serializer) for some additional information on how to use it within the framework.
+# Checkout the [manual](../architecture/serializer.md) for some additional information on how to use it within the framework.
 #
 # If using it outside of the framework, you will first need to add it as a dependency:
 #
@@ -120,7 +120,7 @@ module YAML; end
 # ASR.serializer.serialize obj, :json, ASR::SerializationContext.new.groups = ["details"] # => {"name":"FIRST LAST","title":"title"}
 # ```
 module Athena::Serializer
-  VERSION = "0.3.3"
+  VERSION = "0.3.4"
 
   # Returns an `ASR::SerializerInterface` instance for ad-hoc (de)serialization.
   #

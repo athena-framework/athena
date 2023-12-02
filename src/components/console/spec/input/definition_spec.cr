@@ -151,13 +151,13 @@ struct InputDefinitionTest < ASPEC::TestCase
     definition = ACON::Input::Definition.new(
       ACON::Input::Argument.new("foo1", :optional),
       ACON::Input::Argument.new("foo2", :optional, "", "default"),
-      ACON::Input::Argument.new("foo3", ACON::Input::Argument::Mode.flags OPTIONAL, IS_ARRAY),
+      ACON::Input::Argument.new("foo3", ACON::Input::Argument::Mode[:optional, :is_array]),
     )
 
     definition.argument_defaults.should eq({"foo1" => nil, "foo2" => "default", "foo3" => [] of String})
 
     definition = ACON::Input::Definition.new(
-      ACON::Input::Argument.new("foo4", ACON::Input::Argument::Mode.flags(OPTIONAL, IS_ARRAY), default: ["1", "2"]),
+      ACON::Input::Argument.new("foo4", ACON::Input::Argument::Mode[:optional, :is_array], default: ["1", "2"]),
     )
 
     definition.argument_defaults.should eq({"foo4" => ["1", "2"]})
@@ -293,8 +293,8 @@ struct InputDefinitionTest < ASPEC::TestCase
       ACON::Input::Option.new("foo3", value_mode: :required, default: "default"),
       ACON::Input::Option.new("foo4", value_mode: :optional),
       ACON::Input::Option.new("foo5", value_mode: :optional, default: "default"),
-      ACON::Input::Option.new("foo6", value_mode: ACON::Input::Option::Value.flags OPTIONAL, IS_ARRAY),
-      ACON::Input::Option.new("foo7", value_mode: ACON::Input::Option::Value.flags(OPTIONAL, IS_ARRAY), default: ["1", "2"]),
+      ACON::Input::Option.new("foo6", value_mode: ACON::Input::Option::Value[:optional, :is_array]),
+      ACON::Input::Option.new("foo7", value_mode: ACON::Input::Option::Value[:optional, :is_array], default: ["1", "2"]),
     )
 
     definition.option_defaults.should eq({
@@ -337,7 +337,7 @@ struct InputDefinitionTest < ASPEC::TestCase
       "puts optional arguments square brackets"       => {ACON::Input::Definition.new(ACON::Input::Argument.new("foo", :optional)), "[<foo>]"},
       "chains optional arguments inside brackets"     => {ACON::Input::Definition.new(ACON::Input::Argument.new("foo"), ACON::Input::Argument.new("bar")), "[<foo> [<bar>]]"},
       "uses an ellipsis for array arguments"          => {ACON::Input::Definition.new(ACON::Input::Argument.new("foo", :is_array)), "[<foo>...]"},
-      "uses an ellipsis for required array arguments" => {ACON::Input::Definition.new(ACON::Input::Argument.new("foo", ACON::Input::Argument::Mode.flags(REQUIRED, IS_ARRAY))), "<foo>..."},
+      "uses an ellipsis for required array arguments" => {ACON::Input::Definition.new(ACON::Input::Argument.new("foo", ACON::Input::Argument::Mode[:required, :is_array])), "<foo>..."},
 
       "puts [--] between options and arguments" => {ACON::Input::Definition.new(ACON::Input::Option.new("foo"), ACON::Input::Argument.new("foo", :required)), "[--foo] [--] <foo>"},
     }

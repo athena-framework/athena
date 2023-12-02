@@ -83,7 +83,7 @@ class Athena::Framework::Params::ParamFetcher
 
   private def check_not_incompatible_params(param : ATH::Params::ParamInterface) : Nil
     return if param.extract_value(self.request, nil).nil?
-    return unless (incompatibles = param.incompatibles)
+    return unless incompatibles = param.incompatibles
 
     incompatibles.each do |incompatible_param_name|
       incompatible_param = self.params.fetch(incompatible_param_name) { raise KeyError.new "Unknown parameter '#{incompatible_param_name}'." }

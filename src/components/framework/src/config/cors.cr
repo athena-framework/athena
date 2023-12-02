@@ -8,7 +8,7 @@ struct Athena::Framework::Config; end
 @[ACFA::Resolvable("routing.cors")]
 struct Athena::Framework::Config::CORS
   # This method should be overridden in order to provide the configuration for `ATH::Listeners::CORS`.
-  # See the [external documentation](/architecture/config#configuration) for more details.
+  # See the [external documentation](../../../architecture/config.md#configuration) for more details.
   #
   # By default it returns `nil`, which disables the listener.
   #
@@ -29,7 +29,7 @@ struct Athena::Framework::Config::CORS
   # Indicates whether the request can be made using credentials.
   #
   # Maps to the `access-control-allow-credentials` header.
-  getter allow_credentials : Bool
+  getter? allow_credentials : Bool
 
   # A white-listed array of valid origins.
   # Each origin may be a static `String`, or a `Regex`.

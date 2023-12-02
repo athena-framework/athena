@@ -46,10 +46,10 @@ class Athena::Framework::Commands::DebugRouter < ACON::Command
 
   protected def configure : Nil
     self
-      .argument("name", :optional, "A route name")
-      .option("show-controllers", nil, :none, "Show assigned controllers in overview")
-      .option("format", nil, :required, "The output format (txt)", "txt")
-      .option("raw", nil, :none, "To output raw command help")
+      .argument("name", description: "A route name") { @router.route_collection.routes.keys }
+      .option("show-controllers", value_mode: :none, description: "Show assigned controllers in overview")
+      .option("format", value_mode: :required, description: "The output format (txt)", default: "txt") { ACON::Helper::Descriptor.new.formats }
+      .option("raw", value_mode: :none, description: "To output raw command help")
   end
 
   protected def execute(input : ACON::Input::Interface, output : ACON::Output::Interface) : ACON::Command::Status

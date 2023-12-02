@@ -7,7 +7,7 @@ class Athena::Console::Helper::Descriptor < Athena::Console::Helper
   end
 
   def describe(output : ACON::Output::Interface, object : _, context : ACON::Descriptor::Context) : Nil
-    raise "Unsupported format #{context.format}." unless (descriptor = @descriptors[context.format]?)
+    raise "Unsupported format #{context.format}." unless descriptor = @descriptors[context.format]?
 
     descriptor.describe output, object, context
   end
@@ -16,5 +16,9 @@ class Athena::Console::Helper::Descriptor < Athena::Console::Helper
     @descriptors[format] = descriptor
 
     self
+  end
+
+  def formats : Array(String)
+    @descriptors.keys
   end
 end

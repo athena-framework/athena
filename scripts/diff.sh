@@ -6,7 +6,7 @@
 function diff()
 {
     URL=https://github.com/athena-framework/$1
-    
+
     if [ ! -d "../$1" ]
     then
         git clone --quiet $URL "../$1"
@@ -37,9 +37,11 @@ then
   exit $?
 fi
 
+diff clock
 diff config
 diff console
 diff dependency-injection
+diff dotenv
 diff event-dispatcher
 diff image-size
 diff framework

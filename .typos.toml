@@ -1,18 +1,8 @@
 [default.extend-words]
 # Remove this once https://github.com/crate-ci/typos/issues/316 is resolved
 referer = "referer"
-copuling = "coupling"
-tigher = "tighter"
-neccessarly = "necessarily"
-arrises = "arises"
-moer = "more"
-annotaiotn = "annotation"
-comonents = "components"
-encapsulte = "encapsulate"
-proivded = "provided"
-beavior = "behavior"
-easisly = "easily"
-depednecies = "dependencies"
+recruse = "recurse"
+recruses = "recurses"
 
 [files]
 extend-exclude = [

@@ -86,4 +86,13 @@ struct CompositeTest < ASPEC::TestCase
       ] of AVD::Constraint)
     end
   end
+
+  def test_single_element_inferred_type_array : Nil
+    constraint = ConcreteComposite.new([
+      AVD::Constraints::Positive.new,
+    ])
+
+    constraint.constraints.size.should eq 1
+    constraint.groups.should eq ["default"]
+  end
 end

@@ -1,5 +1,6 @@
 # :nodoc:
 struct Athena::Console::Input::Value::Bool < Athena::Console::Input::Value
+  # ameba:disable Style/QueryBoolMethods
   getter value : ::Bool
 
   def initialize(@value : ::Bool); end

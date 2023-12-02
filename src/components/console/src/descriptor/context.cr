@@ -1,10 +1,10 @@
 class Athena::Console::Descriptor::Context
   property format : String
-  property raw_text : Bool
-  property raw_output : Bool?
+  property? raw_text : Bool
+  property? raw_output : Bool?
   property namespace : String?
   property total_width : Int32?
-  property short : Bool
+  property? short : Bool
 
   def initialize(
     @format : String = "txt",
@@ -17,16 +17,4 @@ class Athena::Console::Descriptor::Context
   end
 
   def_clone
-
-  def raw_text? : Bool
-    @raw_text
-  end
-
-  def raw_output? : Bool?
-    @raw_output
-  end
-
-  def short? : Bool
-    @short
-  end
 end

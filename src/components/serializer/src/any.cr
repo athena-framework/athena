@@ -13,6 +13,8 @@ module Athena::Serializer::Any
   abstract def as_s? : String?
   abstract def as_a
   abstract def as_a?
+
+  # ameba:disable Style/PredicateName
   abstract def is_nil? : Bool
   abstract def dig(index_or_key : String | Int, *keys)
 
@@ -23,6 +25,7 @@ end
 struct JSON::Any
   include Athena::Serializer::Any
 
+  # ameba:disable Style/PredicateName
   def is_nil? : Bool
     @raw.nil?
   end
@@ -32,6 +35,7 @@ end
 struct YAML::Any
   include Athena::Serializer::Any
 
+  # ameba:disable Style/PredicateName
   def is_nil? : Bool
     @raw.nil?
   end

@@ -1,8 +1,8 @@
 name: athena-routing
 
-version: 0.1.5
+version: 0.1.8
 
-crystal: ~> 1.4
+crystal: ~> 1.8
 
 license: MIT
 
@@ -15,6 +15,3 @@ description: |
 
 authors:
   - George Dietrich <george@dietrich.app>
-
-libraries:
-  libpcre2: '*'

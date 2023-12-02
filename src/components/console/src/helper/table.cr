@@ -1003,16 +1003,29 @@ class Athena::Console::Helper::Table
         max_rows.times do |idx|
           cell = (row[idx]? || "").to_s
 
-          if !headers.empty? && !contains_colspan
-            rows << Row.new([
-              sprintf(
-                "<comment>%s</>: %s",
-                headers[idx]?.to_s.rjust(max_header_length, ' '),
-                cell
-              ),
-            ])
-          elsif !cell.empty?
-            rows << Row.new [cell]
+          cell.split("\n").each_with_index do |part, part_idx|
+            if !headers.empty? && !contains_colspan
+              if part_idx.zero?
+                rows << Row.new([
+                  sprintf(
+                    "<comment>%s</>: %s",
+                    headers[idx]?.to_s.rjust(max_header_length, ' '),
+                    part
+                  ),
+                ])
+              else
+                rows << Row.new([
+                  sprintf(
+                    "%s  %s",
+                    "".rjust(max_header_length, ' '),
+                    part
+                  ),
+
+                ])
+              end
+            elsif !cell.empty?
+              rows << Row.new [part]
+            end
           end
         end
       end
@@ -1296,7 +1309,7 @@ class Athena::Console::Helper::Table
 
   # ameba:disable Metrics/CyclomaticComplexity
   private def render_row_separator(type : RowSeparator = :middle, title : String? = nil, title_format : String? = nil) : Nil
-    return unless (count = @number_of_columns)
+    return unless count = @number_of_columns
 
     borders = @style.border_chars
     crossings = @style.crossing_chars

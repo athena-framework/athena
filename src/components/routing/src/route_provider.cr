@@ -44,9 +44,9 @@ class Athena::Routing::RouteProvider
     end
   end
 
-  class_getter match_host : Bool = false
+  class_getter? match_host : Bool = false
   class_getter static_routes : Hash(String, Array(StaticRouteData)) = Hash(String, Array(StaticRouteData)).new
-  class_getter route_regexes : Hash(Int32, ART::FastRegex) = Hash(Int32, ART::FastRegex).new
+  class_getter route_regexes : Hash(Int32, Regex) = Hash(Int32, Regex).new
   class_getter dynamic_routes : Hash(String, Array(DynamicRouteData)) = Hash(String, Array(DynamicRouteData)).new
   class_getter conditions : Hash(Int32, Condition) = Hash(Int32, Condition).new
   class_getter route_generation_data : Hash(String, RouteGenerationData) = Hash(String, RouteGenerationData).new
@@ -240,7 +240,7 @@ class Athena::Routing::RouteProvider
       state.regex += ")/?$"
       state.mark_tail = 0
 
-      @@route_regexes[starting_mark] = ART::FastRegex.new state.regex
+      @@route_regexes[starting_mark] = ART.create_regex state.regex
     end
 
     @@dynamic_routes = state.routes
@@ -382,7 +382,7 @@ class Athena::Routing::RouteProvider
       has_trailing_slash = "/" != route.path
 
       if has_trailing_slash
-        pos = regex.source.index('$').not_nil!
+        pos = regex.source.index!('$')
         has_trailing_slash = '/' == regex.source[pos - 1]
         regex = Regex.new regex.source.sub (1 + pos - (has_trailing_slash ? 1 : 0))..-((has_trailing_slash ? 1 : 0)), "/?$"
       end
@@ -398,11 +398,9 @@ class Athena::Routing::RouteProvider
         should_next = dynamic_regex.each do |dr|
           host_regex_matches = host ? dr.host_regex.try &.matches?(host) : false
 
-          if (
-               (dr.static_prefix.empty? || url.starts_with?(dr.static_prefix)) &&
-               (dr.regex.matches?(url) || dr.regex.matches?("#{url}/")) &&
-               (host.presence.nil? || host_regex.nil? || host_regex_matches)
-             )
+          if (dr.static_prefix.empty? || url.starts_with?(dr.static_prefix)) &&
+             (dr.regex.matches?(url) || dr.regex.matches?("#{url}/")) &&
+             (host.presence.nil? || host_regex.nil? || host_regex_matches)
             dynamic_regex << PreCompiledDynamicRegex.new host_regex, regex, static_prefix
             dynamic_routes.add name, route
             break true

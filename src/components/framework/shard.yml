@@ -1,8 +1,8 @@
 name: athena
 
-version: 0.18.0
+version: 0.18.2
 
-crystal: ~> 1.6
+crystal: ~> 1.8
 
 license: MIT
 
@@ -16,13 +16,10 @@ description: |
 authors:
   - George Dietrich <george@dietrich.app>
 
-libraries:
-  libpcre2: '*'
-
 dependencies:
-  athena-event_dispatcher:
-    github: athena-framework/event-dispatcher
-    version: ~> 0.2.0
+  athena-clock:
+    github: athena-framework/clock
+    version: ~> 0.1.0
   athena-config:
     github: athena-framework/config
     version: ~> 0.3.0
@@ -32,6 +29,9 @@ dependencies:
   athena-dependency_injection:
     github: athena-framework/dependency-injection
     version: ~> 0.3.5
+  athena-event_dispatcher:
+    github: athena-framework/event-dispatcher
+    version: ~> 0.2.0
   athena-negotiation:
     github: athena-framework/negotiation
     version: ~> 0.1.0

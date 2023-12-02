@@ -5,9 +5,11 @@
 function tag()
 {
   declare -A componentNameMap
+  componentNameMap[clock]=Clock
   componentNameMap[config]=Config
   componentNameMap[console]=Console
   componentNameMap[dependency-injection]="Dependency Injection"
+  componentNameMap[dotenv]="Dotenv"
   componentNameMap[event-dispatcher]="Event Dispatcher"
   componentNameMap[framework]=Framework
   componentNameMap[image-size]="Image Size"
@@ -17,7 +19,7 @@ function tag()
   componentNameMap[spec]=Spec
   componentNameMap[validator]=Validator
 
-  URL=https://github.com/athena-framework/$1
+  URL="git@github.com:athena-framework/$1.git"
   TAG="v$2"
   MESSAGE="Athena ${componentNameMap[$1]} $2"
 
@@ -42,7 +44,7 @@ function tag()
 
 # Helper script to assist in component releases
 #
-# tag - Creates a signed git tag at the latest commit for the provided component(s).
+# tag - Creates a signed git tag at the latest commit for the provided component(s). ./scripts/release.sh clock:0.1.0 console:0.4.0
 
 METHOD=$1
 

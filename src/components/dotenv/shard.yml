@@ -1,0 +1,17 @@
+name: athena-dotenv
+
+version: 0.1.1
+
+crystal: '>= 0.36.0'
+
+license: MIT
+
+repository: https://github.com/athena-framework/dotenv
+
+documentation: https://athenaframework.org/Dotenv
+
+description: |
+  Registers environment variables from a .env file.
+
+authors:
+  - George Dietrich <george@dietrich.app>

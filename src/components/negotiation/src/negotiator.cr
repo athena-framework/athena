@@ -21,11 +21,9 @@ class Athena::Negotiation::Negotiator < Athena::Negotiation::AbstractNegotiator(
     type_equals = accept_type.downcase == priority_type.downcase
     sub_type_equals = accept_sub_type.downcase == priority_sub_type.downcase
 
-    if (
-         (accept_type == "*" || type_equals) &&
-         (accept_sub_type == "*" || sub_type_equals) &&
-         intersection.size == accept.parameters.size
-       )
+    if (accept_type == "*" || type_equals) &&
+       (accept_sub_type == "*" || sub_type_equals) &&
+       intersection.size == accept.parameters.size
       score = 100 * (type_equals ? 1 : 0) + 10 * (sub_type_equals ? 1 : 0) + intersection.size
 
       return ANG::AcceptMatch.new accept.quality * priority.quality, score, index
@@ -36,21 +34,17 @@ class Athena::Negotiation::Negotiator < Athena::Negotiation::AbstractNegotiator(
     accept_sub_type, accept_plus = self.split_sub_type accept_sub_type
     priority_sub_type, priority_plus = self.split_sub_type priority_sub_type
 
-    if (
-         !(accept_type == "*" || type_equals) ||
-         !(accept_sub_type == "*" || priority_sub_type == "*" || accept_plus == "*" || priority_plus == "*")
-       )
+    if !(accept_type == "*" || type_equals) ||
+       !(accept_sub_type == "*" || priority_sub_type == "*" || accept_plus == "*" || priority_plus == "*")
       return nil
     end
 
     sub_type_equals = accept_sub_type.downcase == priority_sub_type.downcase
     plus_equals = accept_plus.downcase == priority_plus.downcase
 
-    if (
-         (accept_sub_type == "*" || priority_sub_type == "*" || sub_type_equals) &&
-         (accept_plus == "*" || priority_plus == '*' || plus_equals) &&
-         intersection.size == accept.parameters.size
-       )
+    if (accept_sub_type == "*" || priority_sub_type == "*" || sub_type_equals) &&
+       (accept_plus == "*" || priority_plus == '*' || plus_equals) &&
+       intersection.size == accept.parameters.size
       score = 100 * (type_equals ? 1 : 0) + 10 * (sub_type_equals ? 1 : 0) + (plus_equals ? 1 : 0) + intersection.size
       return ANG::AcceptMatch.new accept.quality * priority.quality, score, index
     end

@@ -27,7 +27,7 @@ alias ADI = Athena::DependencyInjection
 # ## Getting Started
 #
 # If using this component within the [Athena Framework][Athena::Framework], it is already installed and required for you.
-# Checkout the [manual](/architecture/dependency_injection) for some additional information on how to use it within the framework.
+# Checkout the [manual](../architecture/dependency_injection.md) for some additional information on how to use it within the framework.
 #
 # If using it outside of the framework, you will first need to add it as a dependency:
 #
@@ -48,7 +48,7 @@ alias ADI = Athena::DependencyInjection
 # fiber is truly independent from one another, with them not being reused or sharing state external to the container. An example of this is how `HTTP::Server` reuses fibers
 # for `connection: keep-alive` requests. Because of this, or in cases similar to, you may want to manually reset the container via `Fiber.current.container = ADI::ServiceContainer.new`.
 module Athena::DependencyInjection
-  VERSION = "0.3.6"
+  VERSION = "0.3.7"
 
   private BINDINGS            = {} of Nil => Nil
   private AUTO_CONFIGURATIONS = {} of Nil => Nil

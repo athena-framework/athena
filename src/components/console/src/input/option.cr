@@ -15,8 +15,8 @@ class Athena::Console::Input::Option
   @[Flags]
   # Represents the possible vale types of an `ACON::Input::Option`.
   #
-  # Value modes can also be combined using the [Enum.flags](https://crystal-lang.org/api/master/Enum.html#flags%28%2Avalues%29-macro) macro.
-  # For example, `ACON::Input::Option::Value.flags REQUIRED, IS_ARRAY` which defines a required array option.
+  # Value modes can also be combined using the [Enum.[]](https://crystal-lang.org/api/Enum.html#%5B%5D%28%2Avalues%29-macro) macro.
+  # For example, `ACON::Input::Option::Value[:required, :is_array]` which defines a required array option.
   enum Value
     # Represents a boolean flag option that will be `true` if provided, otherwise `false`.
     # E.g. `--yell`.
@@ -63,13 +63,15 @@ class Athena::Console::Input::Option
   getter description : String
 
   @default : ACON::Input::Value? = nil
+  @suggested_values : Array(String) | Proc(ACON::Completion::Input, Array(String)) | Nil
 
   def initialize(
     name : String,
     shortcut : String | Enumerable(String) | Nil = nil,
     @value_mode : ACON::Input::Option::Value = :none,
     @description : String = "",
-    default = nil
+    default = nil,
+    @suggested_values : Array(String) | Proc(ACON::Completion::Input, Array(String)) | Nil = nil
   )
     @name = name.lchop "--"
 
@@ -95,6 +97,10 @@ class Athena::Console::Input::Option
     end
 
     @shortcut = shortcut
+
+    if @suggested_values && !self.accepts_value?
+      raise ACON::Exceptions::InvalidArgument.new "Cannot set suggested values if the option does not accept a value."
+    end
 
     if @value_mode.is_array? && !self.accepts_value?
       raise ACON::Exceptions::InvalidArgument.new " Cannot have VALUE::IS_ARRAY option mode when the option does not accept a value."
@@ -145,12 +151,29 @@ class Athena::Console::Input::Option
     @default = ACON::Input::Value.from_value (@value_mode.accepts_value? || @value_mode.negatable?) ? default : false
   end
 
+  # Returns `true` if this option is able to suggest values, otherwise `false`
+  def has_completion? : Bool
+    !@suggested_values.nil?
+  end
+
+  # Determines what values should be added to the possible *suggestions* based on the provided *input*.
+  def complete(input : ACON::Completion::Input, suggestions : ACON::Completion::Suggestions) : Nil
+    return unless values = @suggested_values
+
+    if values.is_a?(Proc)
+      values = values.call input
+    end
+
+    suggestions.suggest_values values
+  end
+
   # Returns `true` if `self` is able to accept a value, otherwise `false`.
   def accepts_value? : Bool
     @value_mode.accepts_value?
   end
 
   # Returns `true` if `self` is a required argument, otherwise `false`.
+  # ameba:disable Style/PredicateName
   def is_array? : Bool
     @value_mode.is_array?
   end
