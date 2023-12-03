@@ -187,13 +187,16 @@ struct Extension
   module Cors
     include ADI::Extension
 
-    # option thing : Int32 = 1
-
     module Defaults
       include ADI::Extension
 
-      option allow_credentials : Bool = false
-      option allow_origin : Array(String) = [] of String
+      # Stuff and things.
+      property allow_origin : Array(String) = [] of String
+      property allow_credentials : Bool = false
+      property allow_headers : Array(String) = [] of String
+      property allow_methods : Array(String) = [] of String
+      property expose_headers : Array(String) = [] of String
+      property max_age : Int32 = 0
     end
   end
 end
@@ -204,8 +207,8 @@ ADI.configure({
       defaults: {
         # foo:               "bar",
         allow_credentials: true,
-        #   allow_origin:      ["https://app.example.com"] of String,
-        #   expose_headers:    ["X-Transaction-ID", "X-Some-Custom-Header"] of String,
+        allow_origin:      ["https://app.example.com"] of String,
+        expose_headers:    ["X-Transaction-ID", "X-Some-Custom-Header"] of String,
       },
     },
   },
@@ -213,20 +216,3 @@ ADI.configure({
     "app.enable_v2_protocol": false,
   },
 })
-
-# New Methods
-# StringLiteral#sub(target : StringLiteral, replace : StringLiteral)
-# StringLiteral#gsub(regex : RegexLiteral, & : StringLiteral -> StringLiteral)
-#
-# HashLiteral/NamedTupleLiteral#has_key?(key : ASTNode) : BoolLiteral
-
-# ADI.register_extension("example", {
-#   id : Int32,
-#   name : String = "fred",
-# })
-
-# ADI.configure({
-#   example: {
-#     id: 123,
-#   },
-# })
