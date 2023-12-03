@@ -187,6 +187,8 @@ struct Extension
   module Cors
     include ADI::Extension
 
+    # option thing : Int32 = 1
+
     module Defaults
       include ADI::Extension
 
@@ -200,7 +202,7 @@ ADI.configure({
   framework: {
     cors: {
       defaults: {
-        foo:               "bar",
+        # foo:               "bar",
         allow_credentials: true,
         #   allow_origin:      ["https://app.example.com"] of String,
         #   expose_headers:    ["X-Transaction-ID", "X-Some-Custom-Header"] of String,

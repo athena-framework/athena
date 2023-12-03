@@ -1,11 +1,4 @@
 # :nodoc:
-#
-# TODO: Currently extensions are registered via `ADI.register_extension` in which accepts the name of the extension as a string and a named tuple representing its schema.
-# The schema uses TupleLiterals of TypeDeclaration to represent the name, type, and default value of each option.
-# This works fine, but requires the extension creator to manually document the possible configuration options manually in another location.
-# A more robust future approach might be to do something more like `ADI.register_extension ATH::Extension`,
-# where the type's getters/constructor may be used to represent the configuration options' name, type, and default value, and what they are used for.
-# This way things would be automatically documented as new things are added/changed, and this compiler stage could consume the data from the type to do what it is currently doing.
 module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
   macro included
     macro finished
@@ -26,7 +19,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
           Object.all_subclasses.select(&.annotation(ADI::RegisterExtension)).each do |ext|
             ext_ann = ext.annotation ADI::RegisterExtension
 
-            extensions_to_process << {ext_ann[0], [] of Nil, ext}
+            extensions_to_process << {ext_ann[0].id, [] of Nil, ext}
           end
 
           # For each base type, determine all child extension types
@@ -43,11 +36,12 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
           # For each extension to register, build out a schema hash
           extensions_to_process.each do |(ext_name, ext_path, ext)|
             if extension_schema_map[ext_name] == nil
-              ext_options = extension_schema_map[ext_name.id] = {} of Nil => Nil
-              extension_schema_properties_map[ext_name.id] = [] of Nil
+              ext_options = extension_schema_map[ext_name] = {} of Nil => Nil
+              extension_schema_properties_map[ext_name] = [] of Nil
             end
 
             ext.constant("OPTIONS").each do |o|
+              # pp! o, ext_path
               obj = ext_options
 
               ext_path.each_with_index do |k, idx|
@@ -56,14 +50,27 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
 
                 if idx == ext_path.size - 1
                   obj[o.var.id] = o
-                  extension_schema_properties_map[ext_name.id] << {o, ext_path}
+                  pp! o
+                  extension_schema_properties_map[ext_name] << {o, ext_path}
+                else
                 end
               end
             end
+
+            # Insert placeholder property to ensure empty namespaces get checked for extraneous keys
+            extension_schema_properties_map[ext_name] << {nil, ext_path}
           end
 
+          puts ""
           p! extension_schema_map, extension_schema_properties_map
           puts ""
+
+          # Validate there is no configuration for un-registerd extensions
+          extra_keys = CONFIG.keys.reject(&.==("parameters".id)) - extension_schema_map.keys
+
+          unless extra_keys.empty?
+            CONFIG[extra_keys.first].raise "Extension '#{extra_keys.first.id}' is configured, but no extension with that name has been registered."
+          end
 
           extension_schema_properties_map.each do |ext_name, schema_properties|
             user_provided_extension_config = CONFIG[ext_name]
@@ -72,11 +79,12 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
               user_provided_extension_config = CONFIG[ext_name] = {} of Nil => Nil
             end
 
-            p! user_provided_extension_config
+            # p! user_provided_extension_config
             puts ""
 
             schema_properties.each do |(prop, ext_path)|
-              pp! ext_path
+              # pp! ext_path, prop
+              puts ""
 
               extension_schema_for_current_property = extension_schema_map[ext_name]
               user_provided_extension_config_for_current_property = user_provided_extension_config
@@ -86,7 +94,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
                 user_provided_extension_config_for_current_property = user_provided_extension_config_for_current_property[p]
               end
 
-              pp! extension_schema_for_current_property, user_provided_extension_config_for_current_property
+              # pp! extension_schema_for_current_property, user_provided_extension_config_for_current_property
 
               extra_keys = user_provided_extension_config_for_current_property.keys - extension_schema_for_current_property.keys
 
@@ -95,6 +103,8 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
 
                 extra_key_value.raise "Encountered unexpected key '#{extra_keys.first.id}' with value '#{extra_key_value}' within '#{ext_name.id}.#{ext_path.join('.').id}'."
               end
+
+              puts ""
             end
           end
 

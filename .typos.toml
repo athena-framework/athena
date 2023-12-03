@@ -4,6 +4,7 @@ referer = "referer"
 recruse = "recurse"
 recruses = "recurses"
 dimenstional = "dimensional"
+extreanous = "extraneous"
 
 [files]
 extend-exclude = [
