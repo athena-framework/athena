@@ -65,6 +65,8 @@ class Athena::DependencyInjection::ServiceContainer
     include RegisterServices
     include Autoconfigure
     include ResolveGenerics
+
+    # Extensions should be able to define their own parameters, so it needs to be _BEFORE_ they are resolved.
     include RegisterExtensions
 
     # Custom modules to register new services, explicitly set arguments, or modify them in some other way

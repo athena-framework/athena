@@ -192,11 +192,11 @@ struct Extension
 
       # Stuff and things.
       property allow_origin : Array(String) = [] of String
-      property allow_credentials : Bool = false
+      property? allow_credentials : Bool = false
       property allow_headers : Array(String) = [] of String
       property allow_methods : Array(String) = [] of String
       property expose_headers : Array(String) = [] of String
-      property max_age : Int32 = 0
+      property max_age : Int32
     end
   end
 end
@@ -205,8 +205,7 @@ ADI.configure({
   framework: {
     cors: {
       defaults: {
-        # foo:               "bar",
-        allow_credentials: true,
+        allow_credentials: "%app.enable_v2_protocol%",
         allow_origin:      ["https://app.example.com"] of String,
         expose_headers:    ["X-Transaction-ID", "X-Some-Custom-Header"] of String,
       },

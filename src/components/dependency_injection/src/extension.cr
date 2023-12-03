@@ -14,4 +14,9 @@ module Athena::DependencyInjection::Extension
     # Default value of: '{{decl.type}}'
     abstract def {{decl.var.id}} : {{decl.type.id}}
   end
+
+  # Alias to `.property` for handling Bool properties.
+  macro property?(decl)
+    property {{decl}}
+  end
 end
