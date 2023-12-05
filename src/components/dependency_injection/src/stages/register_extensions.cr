@@ -88,7 +88,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
               unless extra_keys.empty?
                 extra_key_value = user_provided_extension_config_for_current_property[extra_keys.first]
 
-                extra_key_value.raise "Encountered unexpected key '#{extra_keys.first.id}' with value '#{extra_key_value}' within '#{ext_name.id}.#{ext_path.join('.').id}'."
+                extra_key_value.raise "Encountered unexpected property '#{([ext_name] + ext_path).join('.').id}.#{extra_keys.first.id}' with value '#{extra_key_value}'."
               end
 
               if prop
