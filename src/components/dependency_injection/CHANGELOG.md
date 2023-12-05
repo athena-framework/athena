@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.7] - 2023-10-09
+
+### Added
+
+- Add integration between `Athena::DependencyInjection` and the `Athena::Clock` component ([#318](https://github.com/athena-framework/athena/pull/318)) (George Dietrich)
+
 ## [0.3.6] - 2023-02-18
 
 ### Changed
@@ -144,6 +150,7 @@ _Major refactor of the component._
 
 _Initial release._
 
+[0.3.7]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.7
 [0.3.6]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.6
 [0.3.5]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.5
 [0.3.4]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.4

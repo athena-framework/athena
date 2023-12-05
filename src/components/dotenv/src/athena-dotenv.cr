@@ -13,8 +13,6 @@ require "./exceptions/*"
 # ## Getting Started
 #
 # If using this component within the [Athena Framework][Athena::Framework], it is already installed and required for you.
-# Checkout the [manual](/architecture/dotenv) for some additional information on how to use it within the framework.
-#
 # If using it outside of the framework, you will first need to add it as a dependency:
 #
 # ```yaml
@@ -168,7 +166,7 @@ require "./exceptions/*"
 # They can of course continue to be used in production by distributing the base `.env` file along with the binary, then creating a `.env.local` on the production server and including production values within it.
 # This can work quite well for simple applications, but ultimately a more robust solution that best leverages the features of the server the application is running on is best.
 class Athena::Dotenv
-  VERSION = "0.1.0"
+  VERSION = "0.1.1"
 
   private VARNAME_REGEX = /(?i:[A-Z][A-Z0-9_]*+)/
 

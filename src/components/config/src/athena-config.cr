@@ -37,11 +37,11 @@ module Athena
   #
   # Then run `shards install`, being sure to require it via `require "athena-config"`.
   #
-  # From here, checkout the [manual](/architecture/config) for some additional information on how to use it both within and outside of the framework.
+  # From here, checkout the [manual](../architecture/config.md) for some additional information on how to use it both within and outside of the framework.
   #
   # INFO: DI parameter injection requires the [Athena::DependencyInjection][] component as well.
   module Config
-    VERSION = "0.3.2"
+    VERSION = "0.3.3"
 
     # :nodoc:
     CUSTOM_ANNOTATIONS = [] of Nil
@@ -75,7 +75,7 @@ module Athena
       annotation {{name.id}}; end
 
       # :nodoc:
-      record {{name.id}}Configuration < ACF::AnnotationConfigurations::ConfigurationBase{% unless args.empty? %}, {{*args}}{% end %} do
+      record {{name.id}}Configuration < ACF::AnnotationConfigurations::ConfigurationBase{% unless args.empty? %}, {{args.splat}}{% end %} do
         {{yield}}
       end
 
@@ -86,14 +86,14 @@ module Athena
     # The instance is a lazily initialized singleton.
     #
     # `ACF.load_configuration` may be redefined to change _how_ the configuration object is provided; e.g. create it from a `YAML` or `JSON` configuration file.
-    # See the [external documentation](/architecture/config/#configuration) for more information.
+    # See the [external documentation](../architecture/config.md#configuration) for more information.
     class_getter config : ACF::Base { ACF.load_configuration }
 
     # Returns the configured `ACF::Parameters` instance.
     # The instance is a lazily initialized singleton.
     #
     # `ACF.load_parameters` may be redefined to change _how_ the parameters object is provided; e.g. create it from a `YAML` or `JSON` configuration file.
-    # See the [external documentation](/architecture/config/#parameters) for more information.
+    # See the [external documentation](../architecture/config.md#parameters) for more information.
     class_getter parameters : ACF::Parameters { ACF.load_parameters }
 
     # By default return an empty configuration type.

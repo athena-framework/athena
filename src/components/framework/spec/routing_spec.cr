@@ -10,14 +10,14 @@ struct RoutingTest < ATH::Spec::APITestCase
   end
 
   def test_head_request : Nil
-    response = self.request "HEAD", "/head"
+    response = self.head "/head"
     response.status.should eq HTTP::Status::OK
     response.body.should be_empty
     response.headers["content-length"].should eq "6" # JSON encoding adds 2 extra `"` chars
   end
 
   def test_head_request_on_get_endpoint : Nil
-    response = self.request "HEAD", "/get-head"
+    response = self.head "/get-head"
     response.status.should eq HTTP::Status::OK
     response.body.should be_empty
     response.headers["FOO"].should eq "BAR"           # Actually runs the controller action code
@@ -89,7 +89,7 @@ struct RoutingTest < ATH::Spec::APITestCase
   end
 
   def test_custom_response_status_head : Nil
-    self.request "HEAD", "/custom-status"
+    self.head "/custom-status"
 
     self.assert_response_has_status :accepted
   end
@@ -119,7 +119,7 @@ struct RoutingTest < ATH::Spec::APITestCase
   end
 
   def test_macro_dsl_head : Nil
-    response = self.request "HEAD", "/macro"
+    response = self.head "/macro"
     response.status.should eq HTTP::Status::OK
     response.body.should be_empty
   end
@@ -225,7 +225,7 @@ struct RoutingTest < ATH::Spec::APITestCase
   end
 
   def test_redirects_head_request_to_route_without_trailing_slash : Nil
-    self.request "HEAD", "/head/"
+    self.head "/head/"
 
     self.assert_response_redirects "/head"
   end
@@ -237,7 +237,7 @@ struct RoutingTest < ATH::Spec::APITestCase
   end
 
   def test_redirects_head_request_to_route_with_trailing_slash : Nil
-    self.request "HEAD", "/head-get"
+    self.head "/head-get"
 
     self.assert_response_redirects "/head-get/"
   end

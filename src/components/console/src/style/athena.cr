@@ -400,7 +400,10 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
   private def auto_prepend_text : Nil
     fetched = @buffered_output.fetch
-    self.new_line unless fetched.ends_with? "\n"
+
+    if !fetched.empty? && !fetched.ends_with? "\n"
+      self.new_line
+    end
   end
 
   private def create_block(messages : Enumerable(String), type : String? = nil, style : String? = nil, prefix : String = " ", padding : Bool = false, escape : Bool = true) : Array(String)
@@ -410,19 +413,16 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
     unless type.nil?
       type = "[#{type}] "
-      indent_length = type.size
+      indent_length = ACON::Helper.width type
       line_indentation = " " * indent_length
     end
+
+    output_wrapper = ACON::Helper::OutputWrapper.new
 
     messages.each_with_index do |message, idx|
       message = ACON::Formatter::Output.escape message if escape
 
-      decoration_length = ACON::Helper.width(message) - ACON::Helper.width(ACON::Helper.remove_decoration(self.formatter, message))
-      message_line_length = Math.min(@line_length - prefix_length - indent_length + decoration_length, @line_length)
-
-      message.gsub(/(.{1,#{message_line_length}})( +|$\n?)|(.{1,#{message_line_length}})/, "\\0\n").split "\n", remove_empty: true do |match|
-        lines << match.strip
-      end
+      lines.concat output_wrapper.wrap(message, @line_length - prefix_length - indent_length, ACON::System::EOL).split ACON::System::EOL
 
       lines << "" if messages.size > 1 && idx < (messages.size - 1)
     end

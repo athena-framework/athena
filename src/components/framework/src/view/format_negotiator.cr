@@ -1,7 +1,7 @@
 @[ADI::Register]
 # An extension of `ANG::Negotiator` that supports resolving the format based on an applications `ATH::Config::ContentNegotiation` rules.
 #
-# See the [negotiation](/architecture/negotiation) component for more information.
+# See the [negotiation](../../../architecture/negotiation.md) component for more information.
 class Athena::Framework::View::FormatNegotiator < ANG::Negotiator
   private getter! config : ATH::Config::ContentNegotiation?
 

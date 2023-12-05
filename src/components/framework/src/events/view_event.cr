@@ -5,7 +5,7 @@ require "./settable_response"
 #
 # This event can be listened on to handle converting a non `ATH::Response` into an `ATH::Response`.
 #
-# See `ATH::Listeners::View` and the [external documentation](/architecture/#4-view-event) for more information.
+# See `ATH::Listeners::View` and the [external documentation](../../../architecture/README.md#4-view-event) for more information.
 class Athena::Framework::Events::View < AED::Event
   include Athena::Framework::Events::SettableResponse
   include Athena::Framework::Events::RequestAware
