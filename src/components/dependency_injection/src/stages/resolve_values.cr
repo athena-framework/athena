@@ -6,7 +6,7 @@ module Athena::DependencyInjection::ServiceContainer::ResolveValues
         {%
           SERVICE_HASH.each do |service_id, definition|
             # Use a dedicated array var such that we can use the pseudo recursion trick
-            parameters = definition["parameters"].map { |_, param| {param["value"], param, nil} }
+            parameters = definition["parameters"].map { |_tmp, param| {param["value"], param, nil} }
 
             parameters.each do |(unresolved_value, param, reference)|
               # Parameter reference
@@ -25,7 +25,7 @@ module Athena::DependencyInjection::ServiceContainer::ResolveValues
                 raise "Failed to register service '#{service_id.id}'.  Argument '#{param["arg"]}' references undefined tag '#{tag_name.id}'." unless TAG_HASH[tag_name]
 
                 # Sort based on tag priority.  Services without a priority will be last in order of definition
-                tagged_services = TAG_HASH[tag_name].sort_by { |(_, attributes)| -(attributes["priority"] || 0) }
+                tagged_services = TAG_HASH[tag_name].sort_by { |(_tmp, attributes)| -(attributes["priority"] || 0) }
 
                 if param["resolved_restriction"].type_vars.first.resolve < ADI::Proxy
                   tagged_services = tagged_services.map do |(id, attributes)|

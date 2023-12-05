@@ -17,7 +17,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
           extension_schema_map = {} of Nil => Nil
 
           # For each extension type, register its base type
-          Object.all_subclasses.select(&.annotation(ADI::RegisterExtension)).each do |ext|
+          ADI::Extension.includers.select(&.annotation(ADI::RegisterExtension)).each do |ext|
             ext_ann = ext.annotation ADI::RegisterExtension
 
             extensions_to_process << {ext_ann[0].id, [] of Nil, ext}
@@ -26,13 +26,9 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
           # For each base type, determine all child extension types
           extensions_to_process.each do |(ext_name, ext_path, ext)|
             ext.constants.reject(&.==("OPTIONS")).each do |sub_ext|
-              extensions_to_process << {ext_name, ext_path + [sub_ext.stringify.downcase.id], parse_type("::#{ext}::#{sub_ext}").resolve}
+              extensions_to_process << {ext_name, ext_path + [sub_ext.stringify.underscore.downcase.id], parse_type("::#{ext}::#{sub_ext}").resolve}
             end
           end
-
-          # p! extensions_to_process
-          # puts ""
-          # puts ""
 
           # For each extension to register, build out a schema hash
           extensions_to_process.each do |(ext_name, ext_path, ext)|
@@ -44,13 +40,18 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
             ext.constant("OPTIONS").each do |o|
               obj = ext_options
 
-              ext_path.each_with_index do |k, idx|
-                obj[k] = {} of Nil => Nil if obj[k] == nil
-                obj = obj[k]
+              if ext_path.empty?
+                obj[o.var.id] = o
+                EXTENSION_SCHEMA_PROPERTIES_MAP[ext_name] << {o, ext_path}
+              else
+                ext_path.each_with_index do |k, idx|
+                  obj[k] = {} of Nil => Nil if obj[k] == nil
+                  obj = obj[k]
 
-                if idx == ext_path.size - 1
-                  obj[o.var.id] = o
-                  EXTENSION_SCHEMA_PROPERTIES_MAP[ext_name] << {o, ext_path}
+                  if idx == ext_path.size - 1
+                    obj[o.var.id] = o
+                    EXTENSION_SCHEMA_PROPERTIES_MAP[ext_name] << {o, ext_path}
+                  end
                 end
               end
             end

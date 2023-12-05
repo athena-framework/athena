@@ -180,38 +180,47 @@ end
 # Require extension code last so all built-in DI types are available
 require "./ext/*"
 
-@[ADI::RegisterExtension("framework")]
-struct Extension
-  include ADI::Extension
+# @[ADI::RegisterExtension("framework")]
+# struct Extension
+#   include ADI::Extension
 
-  module Cors
-    include ADI::Extension
+#   module Cors
+#     include ADI::Extension
 
-    module Defaults
-      include ADI::Extension
+#     module Defaults
+#       include ADI::Extension
 
-      # Stuff and things.
-      property allow_origin : Array(String) = [] of String
-      property? allow_credentials : Bool = false
-      property allow_headers : Array(String) = [] of String
-      property allow_methods : Array(String) = [] of String
-      property expose_headers : Array(String) = [] of String
-      property max_age : Int32
-    end
-  end
-end
+#       # Stuff and things.
+#       property allow_origin : Array(String) = [] of String
+#       property? allow_credentials : Bool = false
+#       property allow_headers : Array(String) = [] of String
+#       property allow_methods : Array(String) = [] of String
+#       property expose_headers : Array(String) = [] of String
+#       property max_age : Int32
+#     end
+#   end
+# end
 
-ADI.configure({
-  framework: {
-    cors: {
-      defaults: {
-        allow_credentials: "%app.enable_v2_protocol%",
-        allow_origin:      ["https://app.example.com"] of String,
-        expose_headers:    ["X-Transaction-ID", "X-Some-Custom-Header"] of String,
-      },
-    },
-  },
-  parameters: {
-    "app.enable_v2_protocol": false,
-  },
-})
+# @[ADI::RegisterExtension("example")]
+# module ExampleExtension
+#   include ADI::Extension
+
+#   property id : Int32
+#   property name : String = "fred"
+
+#   module SubConfig
+#     include ADI::Extension
+
+#     property values : Array(Int32)
+#     property names : Array(String) = ["one", "two"] of String
+#   end
+# end
+
+# ADI.configure({
+#   example: {
+#     id:         123,
+#     sub_config: {
+#       values: [1, 2, 3] of Int32,
+#     },
+#   },
+# })

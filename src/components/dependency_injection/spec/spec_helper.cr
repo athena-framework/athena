@@ -7,16 +7,20 @@ require "../src/spec"
 
 record DBConfig, username : String, password : String, host : String
 
-ADI.register_extension("example", {
-  root: {
-    id : Int32,
-    name : String = "fred",
-  },
-  sub_config: {
-    values : Array(Int32),
-    names : Array(String) = ["one", "two"] of String,
-  },
-})
+@[ADI::RegisterExtension("example")]
+module ExampleExtension
+  include ADI::Extension
+
+  property id : Int32
+  property name : String = "fred"
+
+  module SubConfig
+    include ADI::Extension
+
+    property values : Array(Int32)
+    property names : Array(String) = ["one", "two"] of String
+  end
+end
 
 ADI.configure({
   example: {

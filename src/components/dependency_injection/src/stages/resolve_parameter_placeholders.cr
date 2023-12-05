@@ -53,9 +53,14 @@ module Athena::DependencyInjection::ServiceContainer::ResolveParameterPlaceholde
         # 2. In the re-process context, we're pushing the whole collection, as the value, which should match the left hand side of the assignment above it, minus the sub-key/index.
 
         {%
-          to_process = CONFIG.to_a.map { |(k, v)| {k, v, CONFIG, [k]} }
+          to_process = CONFIG.to_a.map { |tup| {tup[0], tup[1], CONFIG, [tup[0]]} }
 
-          to_process.each do |(k, v, h, stack)|
+          to_process.each do |tup|
+            k = tup[0]
+            v = tup[1]
+            h = tup[2]
+            stack = tup[3]
+
             if v.is_a?(NamedTupleLiteral)
               v.to_a.each do |(sk, sv)|
                 to_process << {sk, sv, v, stack + [sk]}

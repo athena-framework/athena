@@ -57,7 +57,6 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                   # 0 - type of the property in the schema
                   # 1 - the value
                   # 2 - an array representing the path to this property in the schema
-                  pp! prop, prop.var.id
                   values_to_resolve = [{prop.type.resolve, config_value, ext_path + [prop.var.id]}]
 
                   values_to_resolve.each_with_index do |(prop_type, cfv, stack), idx|
@@ -67,7 +66,7 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                       String
                                     elsif cfv.is_a?(ArrayLiteral)
                                       if (array_type = (cfv.of || cfv.type)).is_a? Nop
-                                        cfv.raise "Array configuration value '#{ext_name.id}.#{ext_name.id}.#{config_key}.#{pv.var}' must specify its type."
+                                        cfv.raise "Array configuration value '#{ext_name.id}.#{stack.join('.').id}' must specify its type: #{cfv.id} of #{prop.type.type_vars.join(" | ").id}"
                                       end
 
                                       cfv.each_with_index do |v, v_idx|
