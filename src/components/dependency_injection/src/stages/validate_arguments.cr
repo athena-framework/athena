@@ -155,29 +155,23 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                     end
                   end
                 elsif prop.value.is_a?(Nop) && !prop.type.resolve.nilable?
-                  path = "#{ext_path[0]}"
+                  path = [ext_name]
 
-                  ext_path[1..].each do |p|
-                    path += if p.is_a?(NumberLiteral)
-                              "[#{p}]"
-                            else
-                              ".#{p}"
-                            end
+                  unless ext_path.empty?
+                    ext_path.each do |p|
+                      path += if p.is_a?(NumberLiteral)
+                                "[#{p}]"
+                              else
+                                ".#{p}"
+                              end
+                    end
                   end
 
-                  prop.raise "Required configuration property '#{ext_name.id}.#{path.id}.#{prop.var.id}' must be provided."
+                  prop.raise "Required configuration property '#{path.join('.').id}.#{prop}' must be provided."
                 end
               end
             end
           end
-        %}
-
-        {%
-          _nil = nil
-          puts ""
-          puts ""
-          puts ""
-          pp CONFIG
         %}
       {% end %}
     end
