@@ -50,5 +50,8 @@ ADI.configure({
     "app.enable_v2_protocol":       false,
     "app.placeholder":              "https://%app.domain%/path/to/thing",
     "app.placeholders":             "https://%app.domain%/path/to/%app.enable_v2_protocol%",
+    "app.empty":                    "",
+    "app.empty.reference":          "%app.empty%",
+    "app.empty.reference.nested":   "%app.empty.reference%",
   },
 })

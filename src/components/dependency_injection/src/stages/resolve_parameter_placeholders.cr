@@ -55,12 +55,7 @@ module Athena::DependencyInjection::ServiceContainer::ResolveParameterPlaceholde
         {%
           to_process = CONFIG.to_a.map { |tup| {tup[0], tup[1], CONFIG, [tup[0]]} }
 
-          to_process.each do |tup|
-            k = tup[0]
-            v = tup[1]
-            h = tup[2]
-            stack = tup[3]
-
+          to_process.each do |(k, v, h, stack)|
             if v.is_a?(NamedTupleLiteral)
               v.to_a.each do |(sk, sv)|
                 to_process << {sk, sv, v, stack + [sk]}
@@ -208,7 +203,7 @@ module Athena::DependencyInjection::ServiceContainer::ResolveParameterPlaceholde
                     if !new_value.is_a?(StringLiteral) || (new_value.is_a?(StringLiteral) && !(new_value =~ /%%|%([^%\s]++)%/))
                       h[k][a_idx] = new_value
                     else
-                      to_process << {k, h[k], h}
+                      to_process << {k, h[k], h, [] of Nil}
                     end
                   end
                 end

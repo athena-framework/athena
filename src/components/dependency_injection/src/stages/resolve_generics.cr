@@ -10,15 +10,15 @@ module Athena::DependencyInjection::ServiceContainer::ResolveGenerics
             klass = definition["class"]
 
             if !klass.type_vars.empty? && (ann && !ann[:name])
-              klass.raise "Failed to register services for '#{klass}'.  Generic services must explicitly provide a name."
+              klass.raise "Failed to register services for '#{klass}'. Generic services must explicitly provide a name."
             end
 
             if !klass.type_vars.empty? && generics.empty?
-              klass.raise "Failed to register service '#{service_id.id}'.  Generic services must provide the types to use via the 'generics' field."
+              klass.raise "Failed to register service '#{service_id.id}'. Generic services must provide the types to use via the 'generics' field."
             end
 
             if klass.type_vars.size != generics.size
-              klass.raise "Failed to register service '#{service_id.id}'.  Expected #{klass.type_vars.size} generics types got #{generics.size}."
+              klass.raise "Failed to register service '#{service_id.id}'. Expected #{klass.type_vars.size} generics types got #{generics.size}."
             end
 
             definition["generics"] = generics

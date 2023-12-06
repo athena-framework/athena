@@ -171,10 +171,6 @@ module Athena::DependencyInjection
       end
     %}
   end
-
-  macro register_extension(name, schema)
-    {% EXTENSIONS[name.id.stringify] = schema %}
-  end
 end
 
 # Require extension code last so all built-in DI types are available
