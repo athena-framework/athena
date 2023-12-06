@@ -8,7 +8,7 @@ private def assert_error(message : String, code : String, *, line : Int32 = __LI
   CR
 end
 
-describe ADI::ServiceContainer::RegisterExtensions, focus: true do
+describe ADI::ServiceContainer::RegisterExtensions do
   describe "compiler errors", tags: "compiler" do
     describe "root level" do
       it "populates CONFIG based on defaults/provided values" do

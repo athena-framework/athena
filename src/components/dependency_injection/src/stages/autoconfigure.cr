@@ -7,7 +7,7 @@ module Athena::DependencyInjection::ServiceContainer::Autoconfigure
           SERVICE_HASH.each do |service_id, definition|
             tags = definition["class_ann"]["tags"] || [] of Nil
 
-            if !tags.is_a? ArrayLiteral
+            unless tags.is_a? ArrayLiteral
               definition["class_ann"].raise "Tags for '#{service_id.id}' must be an 'ArrayLiteral', got '#{tags.class_name.id}'."
             end
 
@@ -27,8 +27,8 @@ module Athena::DependencyInjection::ServiceContainer::Autoconfigure
               end
 
               if (v = auto_configuration["tags"]) != nil
-                if !v.is_a? ArrayLiteral
-                  definition["class_ann"].raise "Tags for '#{service_id.id}' must be an 'ArrayLiteral', got '#{tags.class_name.id}'."
+                unless v.is_a? ArrayLiteral
+                  definition["class_ann"].raise "Tags for '#{service_id.id}' must be an 'ArrayLiteral', got '#{v.class_name.id}'."
                 end
 
                 tags += v
@@ -47,7 +47,7 @@ module Athena::DependencyInjection::ServiceContainer::Autoconfigure
                                  elsif tag.is_a?(Path)
                                    {tag.resolve.id.stringify, {} of Nil => Nil}
                                  elsif tag.is_a?(NamedTupleLiteral) || tag.is_a?(HashLiteral)
-                                   tag.raise "Failed to register service `#{service_id.id}`.  All tags must have a name." unless tag[:name]
+                                   tag.raise "Failed to register service '#{service_id.id}'.  All tags must have a name." unless tag[:name]
 
                                    # Resolve a constant to its value if used as a tag name
                                    if tag["name"].is_a? Path
@@ -63,7 +63,7 @@ module Athena::DependencyInjection::ServiceContainer::Autoconfigure
 
                                    {tag["name"], attributes}
                                  else
-                                   tag.raise "Tag '#{tag}'. A tag must be a StringLiteral or NamedTupleLiteral not #{tag.class_name.id}."
+                                   tag.raise "Tag '#{tag}' must be a 'StringLiteral' or 'NamedTupleLiteral', got '#{tag.class_name.id}'."
                                  end
 
               definition_tags[name] = [] of Nil if definition_tags[name] == nil

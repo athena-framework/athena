@@ -1,22 +1,26 @@
-# require "./spec_helper"
+require "./spec_helper"
 
-# class FakeTransformer
-#   include TransformerInterface
+module TransformerInterface
+  abstract def transform
+end
 
-#   def transform
-#   end
-# end
+class FakeTransformer
+  include TransformerInterface
 
-# class ADI::Spec::MockableServiceContainer
-#   setter reverse_transformer : TransformerInterface?
-# end
+  def transform
+  end
+end
 
-# describe ADI::Spec::MockableServiceContainer do
-#   it "allows mocking services" do
-#     mock_container = ADI::Spec::MockableServiceContainer.new
+class ADI::Spec::MockableServiceContainer
+  property reverse_transformer : TransformerInterface?
+end
 
-#     mock_container.reverse_transformer = FakeTransformer.new
+describe ADI::Spec::MockableServiceContainer do
+  it "allows mocking services" do
+    mock_container = ADI::Spec::MockableServiceContainer.new
 
-#     mock_container.reverse_transformer.should be_a FakeTransformer
-#   end
-# end
+    mock_container.reverse_transformer = FakeTransformer.new
+
+    mock_container.reverse_transformer.should be_a FakeTransformer
+  end
+end

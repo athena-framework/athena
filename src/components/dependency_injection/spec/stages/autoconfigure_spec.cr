@@ -1,5 +1,13 @@
 require "../spec_helper"
 
+private def assert_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_error message, <<-CR, line: line
+    require "../spec_helper.cr"
+    #{code}
+    ADI::ServiceContainer.new
+  CR
+end
+
 private PARTNER_TAG = "partner"
 
 enum Status
@@ -44,6 +52,8 @@ OTHER_TAG = "foo.bar"
 
 module Test; end
 
+module PublicService; end
+
 @[ADI::Register]
 class MultipleTags
   include Test
@@ -56,6 +66,7 @@ end
 
 ADI.auto_configure MultipleTags, {tags: ["config"]}
 ADI.auto_configure Test, {tags: [OTHER_TAG]}
+ADI.auto_configure PublicService, {public: true}
 
 @[ADI::Register(_services: "!foo.bar", public: true)]
 record OtherTagClient, services : Array(Test)
@@ -63,7 +74,48 @@ record OtherTagClient, services : Array(Test)
 @[ADI::Register(_services: "!config", public: true)]
 record ConfigTagClient, services : Array(MultipleTags)
 
-describe ADI::ServiceContainer do
+@[ADI::Register]
+record AutoConfiguredPublicService do
+  include PublicService
+end
+
+describe ADI::ServiceContainer, focus: true do
+  describe "compiler errors", tags: "compiler" do
+    it "errors if the `tags` field is not of a valid type" do
+      assert_error "Tags for 'foo' must be an 'ArrayLiteral', got 'NumberLiteral'.", <<-CR
+        @[ADI::Register(tags: 123)]
+        record Foo
+      CR
+    end
+
+    it "errors if the `tags` field on the auto configuration is not of a valid type" do
+      assert_error "Tags for 'foo' must be an 'ArrayLiteral', got 'NumberLiteral'.", <<-CR
+        module Test; end
+
+        ADI.auto_configure Test, {tags: 123}
+
+        @[ADI::Register]
+        record Foo do
+          include Test
+        end
+      CR
+    end
+
+    it "errors if not all tags have a `name` field" do
+      assert_error "Failed to register service 'foo'.  All tags must have a name.", <<-CR
+        @[ADI::Register(tags: [{priority: 100}])]
+        record Foo
+      CR
+    end
+
+    it "errors if not all tags are of the proper type" do
+      assert_error "Tag '100' must be a 'StringLiteral' or 'NamedTupleLiteral', got 'NumberLiteral'.", <<-CR
+        @[ADI::Register(tags: [100])]
+        record Foo
+      CR
+    end
+  end
+
   it "injects all services with that tag, ordering based on priority" do
     services = ADI.container.partner_client.services
     services[0].id.should eq 3
@@ -89,5 +141,9 @@ describe ADI::ServiceContainer do
   it "applies tags from auto_configure" do
     ADI.container.other_tag_client.services.size.should eq 2
     ADI.container.config_tag_client.services.size.should eq 1
+  end
+
+  it "allows making a service public" do
+    ADI.container.auto_configured_public_service.should be_a AutoConfiguredPublicService
   end
 end
