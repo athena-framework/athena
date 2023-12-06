@@ -104,6 +104,155 @@ describe ADI::ServiceContainer::RegisterExtensions, focus: true do
       end
     end
 
+    describe "nested level" do
+      it "errors if a configuration value has the incorrect type" do
+        assert_error "Required configuration property 'test.sub_config.defaults.id : Int32' must be provided.", <<-CR
+          @[ADI::RegisterExtension("test")]
+          module FrameworkExtension
+            include ADI::Extension
+
+            module SubConfig
+              include ADI::Extension
+
+              module Defaults
+                include ADI::Extension
+
+                property name : String
+                property id : Int32
+              end
+            end
+          end
+
+          ADI.configure({
+            test: {
+              sub_config: {
+                defaults: {
+                  name: "Fred"
+                }
+              }
+            }
+          })
+        CR
+      end
+
+      it "errors if there is a collection type mismatch" do
+        assert_error "Expected configuration value 'test.sub_config.defaults.foo' to be a 'Array(Int32)', but got 'Array(String)'.", <<-CR
+          @[ADI::RegisterExtension("test")]
+          module FrameworkExtension
+            include ADI::Extension
+
+            module SubConfig
+              include ADI::Extension
+
+              module Defaults
+                include ADI::Extension
+
+                property foo : Array(Int32)
+              end
+            end
+          end
+
+          ADI.configure({
+            test: {
+              sub_config: {
+                defaults: {
+                  foo: [] of String
+                }
+              }
+            }
+          })
+        CR
+      end
+
+      it "errors if there is a type mismatch within an array" do
+        assert_error "Expected configuration value 'test.sub_config.defaults.foo[1]' to be a 'Int32', but got 'UInt64'.", <<-CR
+          @[ADI::RegisterExtension("test")]
+          module FrameworkExtension
+            include ADI::Extension
+
+            module SubConfig
+              include ADI::Extension
+
+              module Defaults
+                include ADI::Extension
+
+                property foo : Array(Int32)
+              end
+            end
+          end
+
+          ADI.configure({
+            test: {
+              sub_config: {
+                defaults: {
+                  foo: [1, 10_u64] of Int32
+                }
+              }
+            }
+          })
+        CR
+      end
+
+      it "errors if a configuration value not found in the schema is encountered" do
+        assert_error "Encountered unexpected property 'test.sub_config.defaults.name' with value '\"Fred\"'.", <<-CR
+          @[ADI::RegisterExtension("test")]
+          module FrameworkExtension
+            include ADI::Extension
+
+            module SubConfig
+              include ADI::Extension
+
+              module Defaults
+                include ADI::Extension
+
+                property id : Int32
+              end
+            end
+          end
+
+          ADI.configure({
+            test: {
+              sub_config: {
+                defaults: {
+                  id: 10,
+                  name: "Fred"
+                }
+              }
+            }
+          })
+        CR
+      end
+
+      it "errors if an array does not specify its type" do
+        assert_error "Array configuration value 'test.sub_config.defaults.foo' must specify its type: [10_u64] of Int32", <<-CR
+          @[ADI::RegisterExtension("test")]
+          module FrameworkExtension
+            include ADI::Extension
+
+            module SubConfig
+              include ADI::Extension
+
+              module Defaults
+                include ADI::Extension
+
+                property foo : Array(Int32)
+              end
+            end
+          end
+
+          ADI.configure({
+            test: {
+              sub_config: {
+                defaults: {
+                  foo: [10_u64]
+                }
+              }
+            }
+          })
+        CR
+      end
+    end
+
     # describe "named tuple configuration value" do
     #   it "errors if a non-nilable property is not provided" do
     #     assert_error "Configuration value 'framework.some_feature.some_thing' is missing required value for 'some_key' of type 'String'.", <<-CR

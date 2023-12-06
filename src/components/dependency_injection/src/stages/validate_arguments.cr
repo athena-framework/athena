@@ -159,11 +159,11 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
 
                   unless ext_path.empty?
                     ext_path.each do |p|
-                      path += if p.is_a?(NumberLiteral)
-                                "[#{p}]"
-                              else
-                                ".#{p}"
-                              end
+                      path << if p.is_a?(NumberLiteral)
+                        "[#{p}]"
+                      else
+                        "#{p}"
+                      end
                     end
                   end
 
