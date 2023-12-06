@@ -18,7 +18,7 @@ module Athena::DependencyInjection::ServiceContainer::DefineGetters
               {% constructor_service, constructor_method = factory %}
             {% end %}
 
-            {% if !metadata[:public] %}protected {% end %}getter {{service_id.id}} : {{ivar_type}} do
+            {% if !metadata[:public] %}protected {% end %}getter {{metadata[:alias] ? metadata[:alias_service_id].id : service_id.id}} : {{ivar_type}} do
               {{constructor_service}}.{{constructor_method.id}}({{
                                                                   metadata["parameters"].map do |name, param|
                                                                     "#{name.id}: #{param["value"]}".id

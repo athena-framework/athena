@@ -8,7 +8,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
           {% if (annotations = klass.annotations(ADI::Register)) && !annotations.empty? && !klass.abstract? %}
             # Raise a compile time exception if multiple services are based on this type, and not all of them specify a `name`.
             {% if annotations.size > 1 && !annotations.all? &.[:name] %}
-              {% klass.raise "Failed to register services for '#{klass}'.  Services based on this type must each explicitly provide a name." %}
+              {% klass.raise "Failed to register services for '#{klass}'. Services based on this type must each explicitly provide a name." %}
             {% end %}
 
             {% for ann in annotations %}
@@ -31,8 +31,8 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
                 {% if factory %}
                   {% factory_class, factory_method = factory %}
 
-                  {% raise "Failed to register service `#{service_id.id}`.  Factory method `#{method.id}` within `#{factory_class}` is an instance method." if factory_class.instance.has_method? factory_method %}
-                  {% raise "Failed to register service `#{service_id.id}`.  Factory method `#{method.id}` within `#{factory_class}` does not exist." unless factory_class.class.has_method? factory_method %}
+                  {% raise "Failed to register service '#{service_id.id}'. Factory method '#{factory_method.id}' within '#{factory_class}' is an instance method." if factory_class.instance.has_method? factory_method %}
+                  {% raise "Failed to register service '#{service_id.id}'. Factory method '#{factory_method.id}' within '#{factory_class}' does not exist." unless factory_class.class.has_method? factory_method %}
                 {% end %}
               {% end %}
 
@@ -44,8 +44,8 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
                                 factory = {klass, class_initializer.name.stringify}
 
                                 class_initializer
-                              elsif instance_initializer = klass.methods.find(&.annotation(ADI::Inject))
-                                instance_initializer
+                              elsif specific_initializer = klass.methods.find(&.annotation(ADI::Inject))
+                                specific_initializer
                               else
                                 klass.methods.find(&.name.==("initialize"))
                               end
@@ -96,9 +96,13 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
 
                   SERVICE_HASH[a.resolve] = {
                     class:      klass.resolve,
+                    class_ann:  ann,
                     parameters: {} of Nil => Nil,
                     bindings:   {} of Nil => Nil,
                     generics:   [] of Nil,
+
+                    alias_service_id: alias_service_id,
+                    alias:            true,
                   }
                 end
               %}

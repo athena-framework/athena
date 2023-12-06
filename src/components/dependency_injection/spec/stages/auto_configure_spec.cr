@@ -79,7 +79,7 @@ record AutoConfiguredPublicService do
   include PublicService
 end
 
-describe ADI::ServiceContainer, focus: true do
+describe ADI::ServiceContainer::AutoConfigure do
   describe "compiler errors", tags: "compiler" do
     it "errors if the `tags` field is not of a valid type" do
       assert_error "Tags for 'foo' must be an 'ArrayLiteral', got 'NumberLiteral'.", <<-CR

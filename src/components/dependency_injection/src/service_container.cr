@@ -63,7 +63,7 @@ class Athena::DependencyInjection::ServiceContainer
   macro finished
     # Global pre-optimization modules
     include RegisterServices
-    include Autoconfigure
+    include AutoConfigure
     include ResolveGenerics
 
     # Extensions should be able to define their own parameters, so it needs to be _BEFORE_ they are resolved.

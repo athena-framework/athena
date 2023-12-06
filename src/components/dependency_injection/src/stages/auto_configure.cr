@@ -1,5 +1,5 @@
 # :nodoc:
-module Athena::DependencyInjection::ServiceContainer::Autoconfigure
+module Athena::DependencyInjection::ServiceContainer::AutoConfigure
   macro included
     macro finished
       {% verbatim do %}
