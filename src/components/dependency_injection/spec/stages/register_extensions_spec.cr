@@ -253,6 +253,20 @@ describe ADI::ServiceContainer::RegisterExtensions, focus: true do
       end
     end
 
+    it "errors if a configuration value has the incorrect type" do
+      assert_error "Extension 'foo' is configured, but no extension with that name has been registered.", <<-CR
+        ADI.configure({
+          foo: {
+            id: 1
+          }
+        })
+      CR
+    end
+
+    it "resolves configuration values that point to constants" do
+      ADI::CONFIG["blah"][:float].should eq Math::PI
+    end
+
     # describe "named tuple configuration value" do
     #   it "errors if a non-nilable property is not provided" do
     #     assert_error "Configuration value 'framework.some_feature.some_thing' is missing required value for 'some_key' of type 'String'.", <<-CR

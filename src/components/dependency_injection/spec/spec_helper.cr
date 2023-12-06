@@ -12,6 +12,7 @@ module ExampleExtension
   include ADI::Extension
 
   property id : Int32
+  property float : Float64 = Math::PI
   property name : String = "fred"
 end
 
