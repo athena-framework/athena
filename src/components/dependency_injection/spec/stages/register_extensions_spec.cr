@@ -264,7 +264,11 @@ describe ADI::ServiceContainer::RegisterExtensions, focus: true do
     end
 
     it "resolves configuration values that point to constants" do
-      ADI::CONFIG["blah"][:float].should eq Math::PI
+      ADI::CONFIG["blah"][:float].should eq 10
+    end
+
+    it "resolves configuration values that have nilable types to nil" do
+      ADI::CONFIG["blah"][:nilable].should be_nil
     end
 
     # describe "named tuple configuration value" do

@@ -26,7 +26,12 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
           # For each base type, determine all child extension types
           extensions_to_process.each do |(ext_name, ext_path, ext)|
             ext.constants.reject(&.==("OPTIONS")).each do |sub_ext|
-              extensions_to_process << {ext_name, ext_path + [sub_ext.stringify.underscore.downcase.id], parse_type("::#{ext}::#{sub_ext}").resolve}
+              t = parse_type("::#{ext}::#{sub_ext}").resolve
+
+              # We only want to process sub extension modules, not just any primitive constant defined within these types
+              if t.is_a? TypeNode
+                extensions_to_process << {ext_name, ext_path + [sub_ext.stringify.underscore.downcase.id], t}
+              end
             end
           end
 
@@ -94,18 +99,14 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
               if prop
                 if (config_value = user_provided_extension_config_for_current_property[prop.var.id]) != nil
                   config_value = config_value.is_a?(Path) ? config_value.resolve : config_value
-                  pp! "Config: #{config_value}"
 
                   resolved_value = config_value
                 else
                   resolved_value = if prop.value.is_a?(Nop)
-                                     pp! "Config: #{nil}"
                                      nil
                                    elsif prop.value.is_a?(Path)
-                                     pp! "Config: resolve"
                                      prop.value.resolve
                                    else
-                                     pp! "Config: value"
                                      prop.value
                                    end
                 end

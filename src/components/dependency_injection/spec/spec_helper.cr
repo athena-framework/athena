@@ -11,9 +11,12 @@ record DBConfig, username : String, password : String, host : String
 module ExampleExtension
   include ADI::Extension
 
+  ID = 10.0
+
   property id : Int32
-  property float : Float64 = Math::PI
+  property float : Float64 = ExampleExtension::ID
   property name : String = "fred"
+  property nilable : String?
 end
 
 ADI.configure({
