@@ -175,3 +175,17 @@ end
 
 # Require extension code last so all built-in DI types are available
 require "./ext/*"
+
+@[ADI::Register]
+record Bar
+
+@[ADI::Register(_value: "%value%", public: true)]
+record Foo, value : Int32
+
+ADI.configure({
+  parameters: {
+    value: "@barr",
+  },
+})
+
+pp ADI.container.foo

@@ -3,6 +3,17 @@ module Athena::DependencyInjection::ServiceContainer::ResolveValues
   macro included
     macro finished
       {% verbatim do %}
+
+          # Resolves the constructor arguments for each service in the container.
+          # The values should be provided in priority order:
+          #
+          # 1. Explicit value on annotation => _id
+          # 2. Bindings (typed and untyped) => ADI.bind > ADI.auto_configure
+          # 3. Autowire => By direct type, or parameter name
+          # 4. Service Alias => Service registered with `alias` of a specific interface
+          # 5. Default value => some_value : Int32 = 123
+          # 6. Nilable Type => nil
+
         {%
           SERVICE_HASH.each do |service_id, definition|
             # Use a dedicated array var such that we can use the pseudo recursion trick
@@ -10,19 +21,22 @@ module Athena::DependencyInjection::ServiceContainer::ResolveValues
 
             parameters.each do |(unresolved_value, param, reference)|
               # Parameter reference
-              if unresolved_value.is_a?(StringLiteral) && unresolved_value.starts_with?('%') && unresolved_value.ends_with?('%')
-                resolved_value = CONFIG["parameters"][unresolved_value[1..-2]]
+              # Value is re-processed to resolve the underlying value, e.g. it could point to a service ID
+              if unresolved_value.is_a?(StringLiteral) && unresolved_value.starts_with?('%') && unresolved_value.ends_with?('%') && (pv = CONFIG["parameters"][unresolved_value[1..-2]])
+                resolved_value = nil
+
+                parameters << {pv, param, {type: "scalar"}}
 
                 # Service reference
               elsif unresolved_value.is_a?(StringLiteral) && unresolved_value.starts_with?('@')
                 service_name = unresolved_value[1..-1]
-                raise "Failed to register service '#{service_id.id}'.  Argument '#{param["arg"]}' references undefined service '#{service_name.id}'." unless SERVICE_HASH[service_name]
+                raise "Failed to register service '#{service_id.id}'. Argument '#{param["arg"]}' references undefined service '#{service_name.id}'." unless SERVICE_HASH[service_name]
                 resolved_value = service_name.id
 
                 # Tagged services
               elsif unresolved_value.is_a?(StringLiteral) && unresolved_value.starts_with?('!')
                 tag_name = unresolved_value[1..]
-                raise "Failed to register service '#{service_id.id}'.  Argument '#{param["arg"]}' references undefined tag '#{tag_name.id}'." unless TAG_HASH[tag_name]
+                raise "Failed to register service '#{service_id.id}'. Argument '#{param["arg"]}' references undefined tag '#{tag_name.id}'." unless TAG_HASH[tag_name]
 
                 # Sort based on tag priority.  Services without a priority will be last in order of definition
                 tagged_services = TAG_HASH[tag_name].sort_by { |(_tmp, attributes)| -(attributes["priority"] || 0) }
@@ -52,8 +66,9 @@ module Athena::DependencyInjection::ServiceContainer::ResolveValues
                 unresolved_value.each do |k, v|
                   parameters << {v, param, {type: "hash", key: k, value: resolved_value}}
                 end
-                # Bound value, only apply if no value is already set
-              elsif unresolved_value == nil && (bv = definition["bindings"][param["name"]]) # && (bv != unresolved_value)
+                # Bound value, only apply if value was not already resolved
+                # Value is re-processed to resolve the underlying value, use the reference value to know not to do it again
+              elsif (bv = definition["bindings"][param["name"].id]) && !reference
                 resolved_value = nil
 
                 parameters << {bv, param, {type: "scalar"}}

@@ -18,7 +18,7 @@ module Athena::DependencyInjection::ServiceContainer::AutoConfigure
 
               if (v = auto_configuration["bind"]) != nil
                 v.each do |k, v|
-                  definition["bindings"][k.id.stringify] = v
+                  definition["bindings"][k.id] = v
                 end
               end
 

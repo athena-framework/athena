@@ -9,7 +9,7 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
             definition["parameters"].each do |_, param|
               error = nil
 
-              # Type of the param matches param restriction
+              # Type of the resolved argument matches the method param restriction
               if param["value"] != nil
                 value = param["value"]
                 restriction = param["resolved_restriction"]
@@ -20,7 +20,7 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
 
                 if (s = SERVICE_HASH[value.stringify]) && !(s["class"] <= restriction)
                   error = "Parameter '#{param["arg"]}' of service '#{service_id.id}' (#{definition["class"]}) expects '#{restriction}' but" \
-                          " the resolved service '#{service_id.id}' is of type '#{s["class"].id}'."
+                          " the resolved service '#{value.id}' is of type '#{s["class"].id}'."
                 end
               elsif !param["resolved_restriction"].nilable?
                 error = "Failed to resolve value for parameter '#{param["arg"]}' of service '#{service_id.id}' (#{definition["class"]})."
@@ -31,7 +31,7 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
           end
         %}
 
-        # Validate
+        # Validate the user provided configuration against the defined schema
         {%
           _nil = nil
 

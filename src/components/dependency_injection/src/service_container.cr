@@ -43,23 +43,6 @@ class Athena::DependencyInjection::ServiceContainer
   # ## PostRemoving
   # * DefineGetters
 
-  # TODO: Ability to know if a service's args weren't resolved
-
-  # Determine Value
-  #   * DONE explicit param - _id
-  #   * DONE default value - = 123
-  #   * DONE Binding (Typed and untyped)
-  #     * Ann > Global > autoconfigure
-  #   * Alias
-  #   * Autowire
-  #   * Nilable - nil
-
-  # Resolve Value
-  #   * DONE %param%
-  #   * DONE @service_id
-  #   * DONE !tag
-  #   * DONE Proxy
-
   macro finished
     # Global pre-optimization modules
     include RegisterServices
