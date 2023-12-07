@@ -21,11 +21,8 @@ module Athena::DependencyInjection::ServiceContainer::ResolveValues
 
             parameters.each do |(unresolved_value, param, reference)|
               # Parameter reference
-              # Value is re-processed to resolve the underlying value, e.g. it could point to a service ID
-              if unresolved_value.is_a?(StringLiteral) && unresolved_value.starts_with?('%') && unresolved_value.ends_with?('%') && (pv = CONFIG["parameters"][unresolved_value[1..-2]])
-                resolved_value = nil
-
-                parameters << {pv, param, {type: "scalar"}}
+              if unresolved_value.is_a?(StringLiteral) && unresolved_value.starts_with?('%') && unresolved_value.ends_with?('%')
+                resolved_value = CONFIG["parameters"][unresolved_value[1..-2]]
 
                 # Service reference
               elsif unresolved_value.is_a?(StringLiteral) && unresolved_value.starts_with?('@')

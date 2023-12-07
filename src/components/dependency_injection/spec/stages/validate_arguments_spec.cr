@@ -24,15 +24,12 @@ describe ADI::ServiceContainer::ValidateArguments do
     end
 
     it "errors if a parameter resolves to a service of the incorrect type" do
-      assert_error "Parameter 'value : Int32' of service 'foo' (Foo) expects a Int32 but got 'false'.", <<-CR
-        @[ADI::Register(_value: "%value%")]
-        record Foo, value : Int32
+      assert_error "Parameter 'value : Int32' of service 'foo' (Foo) expects 'Int32' but the resolved service 'bar' is of type 'Bar'.", <<-CR
+        @[ADI::Register]
+        record Bar
 
-        ADI.configure({
-          parameters: {
-            value: false
-          }
-        })
+        @[ADI::Register(_value: "@bar", public: true)]
+        record Foo, value : Int32
       CR
     end
   end
