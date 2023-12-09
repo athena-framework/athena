@@ -9,13 +9,8 @@ private def assert_error(message : String, code : String, *, line : Int32 = __LI
 end
 
 describe ADI::ServiceContainer::RegisterExtensions do
-  describe "compiler errors", tags: "compiler" do
+  describe "compiler errors" do
     describe "root level" do
-      it "populates CONFIG based on defaults/provided values" do
-        ADI::CONFIG["blah"][:id].should eq 123
-        ADI::CONFIG["blah"][:name].should eq "fred"
-      end
-
       it "errors if a configuration value has the incorrect type" do
         assert_error "Required configuration property 'test.id : Int32' must be provided.", <<-CR
           @[ADI::RegisterExtension("test")]
@@ -262,69 +257,50 @@ describe ADI::ServiceContainer::RegisterExtensions do
         })
       CR
     end
+  end
 
-    it "resolves configuration values that point to constants" do
-      ADI::CONFIG["blah"][:float].should eq 10
-    end
+  it "extension configuration value resolution", tags: "compiler" do
+    ASPEC::Methods.assert_success <<-CR
+      require "../spec_helper"
 
-    it "resolves configuration values that have nilable types to nil" do
-      ADI::CONFIG["blah"][:nilable].should be_nil
-    end
+      enum Color
+        Red
+        Green
+        Blue
+      end
 
-    # describe "named tuple configuration value" do
-    #   it "errors if a non-nilable property is not provided" do
-    #     assert_error "Configuration value 'framework.some_feature.some_thing' is missing required value for 'some_key' of type 'String'.", <<-CR
-    #       ADI.register_extension "framework", {
-    #         some_feature: {
-    #           some_thing : NamedTuple(some_key: String, foo: Int32),
-    #         },
-    #       }
+      @[ADI::RegisterExtension("blah")]
+      module ExampleExtension
+        include ADI::Extension
 
-    #       ADI.configure({
-    #         framework: {
-    #           some_feature: {
-    #             some_thing: {foo: 10}
-    #           }
-    #         }
-    #       })
-    #     CR
-    #   end
+        ID = 10.0
 
-    #   it "errors if there is a type mismatch" do
-    #     assert_error "Expected configuration value 'framework.some_feature.some_thing.foo' to be a 'Int32', but got 'String'.", <<-CR
-    #       ADI.register_extension "framework", {
-    #         some_feature: {
-    #           some_thing : NamedTuple(foo: Int32),
-    #         },
-    #       }
+        property id : Int32
+        property float : Float64 = ExampleExtension::ID
+        property name : String = "fred"
+        property nilable : String?
+        property color_type : Color
+        property color_sym : Color
+                  property value : Hash(String, String)
 
-    #       ADI.configure({
-    #         framework: {
-    #           some_feature: {
-    #             some_thing: {foo: "foo"}
-    #           }
-    #         }
-    #       })
-    #     CR
-    #   end
+      end
 
-    #   it "errors on unexpected key" do
-    #     assert_error "Expected configuration value 'framework.some_feature.some_thing' to be a 'NamedTuple(foo: Int32)', but encountered unexpected key 'bar' with value '\"foo\"'.", <<-CR
-    #       ADI.register_extension "framework", {
-    #         some_feature: {
-    #           some_thing : NamedTuple(foo: Int32),
-    #         },
-    #       }
+      ADI.configure({
+        blah: {
+          id:    123,
+          color_type: Color::Red,
+          color_sym: :blue,
+          value: {"id" => "10", "name" => "fred"}
+        },
+      })
 
-    #       ADI.configure({
-    #         framework: {
-    #           some_feature: {
-    #             some_thing: {foo: 10, bar: "foo"}
-    #           }
-    #         }
-    #       })
-    #     CR
-    #   end
-    # end
+      it { {{ADI::CONFIG["blah"]["id"]}}.should eq 123 }
+      it { {{ADI::CONFIG["blah"]["name"]}}.should eq "fred" }
+      it { {{ADI::CONFIG["blah"]["float"]}}.should eq 10 }
+      it { {{ADI::CONFIG["blah"]["nilable"]}}.should be_nil }
+      it { {{ADI::CONFIG["blah"]["color_type"]}}.should eq Color::Red }
+      it { {{ADI::CONFIG["blah"]["color_sym"]}}.should eq Color::Blue }
+      it { {{ADI::CONFIG["test"]["value"]}}.should eq({"id" => "10", "name" => "fred"}) }
+    CR
   end
 end

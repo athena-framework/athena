@@ -64,6 +64,8 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                       Bool
                                     elsif cfv.is_a?(StringLiteral)
                                       String
+                                    elsif cfv.is_a?(SymbolLiteral)
+                                      Symbol
                                     elsif cfv.is_a?(ArrayLiteral)
                                       if (array_type = (cfv.of || cfv.type)).is_a? Nop
                                         cfv.raise "Array configuration value '#{ext_name.id}.#{stack.join('.').id}' must specify its type: #{cfv.id} of #{prop.type.type_vars.join(" | ").id}"
@@ -86,10 +88,8 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                       else
                                         cfv.raise "BUG: Unexpected number literal value"
                                       end
-                                    elsif cfv.is_a?(TypeNode)
+                                    elsif cfv.is_a?(TypeNode) || cfv.is_a?(HashLiteral)
                                       cfv
-                                    elsif cfv.is_a?(HashLiteral)
-                                      cfv.raise "TODO: Support HashLiterals"
                                     elsif cfv.is_a?(NamedTupleLiteral)
                                       cfv.each do |k, v|
                                         nt_key_type = prop_type[k]
@@ -139,7 +139,7 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                       values_to_resolve[idx][2] = resolved_type
 
                       # Handles outer most typing issues.
-                      unless resolved_type <= prop_type
+                      if resolved_type.is_a?(TypeNode) && !(resolved_type <= prop_type)
                         path = "#{stack[0]}"
 
                         stack[1..].each do |p|

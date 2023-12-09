@@ -1,28 +1,10 @@
 require "spec"
 require "../src/athena-dependency_injection"
-# require "./service_mocks"
 
 require "athena-spec"
 require "../src/spec"
 
-record DBConfig, username : String, password : String, host : String
-
-@[ADI::RegisterExtension("blah")]
-module ExampleExtension
-  include ADI::Extension
-
-  ID = 10.0
-
-  property id : Int32
-  property float : Float64 = ExampleExtension::ID
-  property name : String = "fred"
-  property nilable : String?
-end
-
 ADI.configure({
-  blah: {
-    id: 123,
-  },
   parameters: {
     "app.mapping": {
       10 => "%app.domain%",
