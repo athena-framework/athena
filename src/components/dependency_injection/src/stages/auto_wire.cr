@@ -26,7 +26,7 @@ module Athena::DependencyInjection::ServiceContainer::AutoWire
                 resolved_service = resolved_services[0]
               elsif rs = resolved_services.find(&.==(name.id))
                 resolved_service = rs
-              elsif (s = SERVICE_HASH[(param_resolved_restriction && param_resolved_restriction < ADI::Proxy ? param_resolved_restriction.type_vars.first.resolve : param_resolved_restriction)])
+              elsif s = SERVICE_HASH[(param_resolved_restriction && param_resolved_restriction < ADI::Proxy ? param_resolved_restriction.type_vars.first.resolve : param_resolved_restriction)]
                 resolved_service = s["class"].name.gsub(/::/, "_").underscore
               end
 

@@ -18,33 +18,9 @@ class Athena::DependencyInjection::ServiceContainer
   # Hash(String, Hash(String, Array(NamedTuple)))
   private TAG_HASH = {} of Nil => Nil
 
-  # Args on annotation are like direct named args that apply to that singular service
-  # Bindings apply to 0..n services
-  # Autowiring apply to 0..n services. Terminal state
-
-  # # Algorithm
-  #
-  # ## PreOptimization
-  # * RegisterServices
-  # * ResolveGenerics
-  # * Run custom modules
-  # * (TODO) Try and support annotation based configurators
-  #
-  # ## Optimization
-  # * Resolve parameter placeholders
-  # * Bindings
-  # * Autowire
-  # * Run custom modules
-  #
-  # ## Removing
-  # * Run custom modules
-  # * RemoveUnusedServices
-  #
-  # ## PostRemoving
-  # * DefineGetters
-
   macro finished
     # Global pre-optimization modules
+    include MergeConfigs
     include RegisterServices
     include AutoConfigure
     include ResolveGenerics

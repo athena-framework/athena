@@ -281,8 +281,7 @@ describe ADI::ServiceContainer::RegisterExtensions do
         property nilable : String?
         property color_type : Color
         property color_sym : Color
-                  property value : Hash(String, String)
-
+        property value : Hash(String, String)
       end
 
       ADI.configure({
@@ -294,13 +293,17 @@ describe ADI::ServiceContainer::RegisterExtensions do
         },
       })
 
-      it { {{ADI::CONFIG["blah"]["id"]}}.should eq 123 }
-      it { {{ADI::CONFIG["blah"]["name"]}}.should eq "fred" }
-      it { {{ADI::CONFIG["blah"]["float"]}}.should eq 10 }
-      it { {{ADI::CONFIG["blah"]["nilable"]}}.should be_nil }
-      it { {{ADI::CONFIG["blah"]["color_type"]}}.should eq Color::Red }
-      it { {{ADI::CONFIG["blah"]["color_sym"]}}.should eq Color::Blue }
-      it { {{ADI::CONFIG["test"]["value"]}}.should eq({"id" => "10", "name" => "fred"}) }
+      macro finished
+        macro finished
+          it { \\{{ADI::CONFIG["blah"]["id"]}}.should eq 123 }
+          it { \\{{ADI::CONFIG["blah"]["name"]}}.should eq "fred" }
+          it { \\{{ADI::CONFIG["blah"]["float"]}}.should eq 10 }
+          it { \\{{ADI::CONFIG["blah"]["nilable"]}}.should be_nil }
+          it { \\{{ADI::CONFIG["blah"]["color_type"]}}.should eq Color::Red }
+          it { \\{{ADI::CONFIG["blah"]["color_sym"]}}.should eq Color::Blue }
+          it { \\{{ADI::CONFIG["blah"]["value"]}}.should eq({"id" => "10", "name" => "fred"}) }
+        end
+      end
     CR
   end
 end

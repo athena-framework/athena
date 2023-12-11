@@ -58,6 +58,8 @@ module Athena::DependencyInjection
   # :nodoc:
   CONFIG = {parameters: {} of Nil => Nil} # Ensure this type is a NamedTupleLiteral
 
+  private CONFIGS = [] of Nil
+
   # Applies the provided *options* to any registered service of the provided *type*.
   #
   # A common use case of this would be to apply a specific tag to all instances of an interface; thus preventing the need to manually apply the tag for each implementation.
@@ -166,9 +168,7 @@ module Athena::DependencyInjection
 
   macro configure(config)
     {%
-      config.each do |k, v|
-        CONFIG[k] = v
-      end
+      CONFIGS << config
     %}
   end
 end
