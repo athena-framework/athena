@@ -8,11 +8,9 @@ module Athena::DependencyInjection::ServiceContainer::MergeConfigs
         {%
           to_process = [] of Nil
 
-          cfg = {parameters: {} of Nil => Nil} # Ensure this type is a NamedTupleLiteral
-
-          CONFIGS.each do |cfg|
-            cfg.to_a.each do |tup|
-              to_process << {tup[0], tup[1], cfg, [tup[0]], cfg}
+          CONFIGS.each do |c|
+            c.to_a.each do |tup|
+              to_process << {tup[0], tup[1], c, [tup[0]], CONFIG}
             end
           end
 
@@ -24,7 +22,7 @@ module Athena::DependencyInjection::ServiceContainer::MergeConfigs
             else
               stack[..-2].each_with_index do |sk, idx|
                 if root[sk] == nil
-                  root[sk] = {} of Nil => Nil
+                  root[sk] = {__nil: nil} # Ensure this is a NamedTupleLiteral
                 end
 
                 root = root[sk]
@@ -32,10 +30,6 @@ module Athena::DependencyInjection::ServiceContainer::MergeConfigs
 
               root[k] = v
             end
-          end
-
-          cfg.each do |ck, cv|
-            ADI::CONFIG[ck] = cv
           end
         %}
       {% end %}

@@ -38,7 +38,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
           # For each extension to register, build out a schema hash
           extensions_to_process.each do |(ext_name, ext_path, ext)|
             if extension_schema_map[ext_name] == nil
-              ext_options = extension_schema_map[ext_name] = {} of Nil => Nil
+              ext_options = extension_schema_map[ext_name] = {__nil: nil} # Ensure this is a NamedTupleLiteral
               EXTENSION_SCHEMA_PROPERTIES_MAP[ext_name] = [] of Nil
             end
 
@@ -66,7 +66,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
           end
 
           # Validate there is no configuration for un-registered extensions
-          extra_keys = CONFIG.keys.reject(&.==("parameters".id)) - extension_schema_map.keys
+          extra_keys = CONFIG.keys.reject { |k| k == "parameters".id || k == "__nil".id } - extension_schema_map.keys
 
           unless extra_keys.empty?
             CONFIG[extra_keys.first].raise "Extension '#{extra_keys.first.id}' is configured, but no extension with that name has been registered."
@@ -76,7 +76,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
             user_provided_extension_config = CONFIG[ext_name]
 
             if user_provided_extension_config == nil
-              user_provided_extension_config = CONFIG[ext_name] = {} of Nil => Nil
+              user_provided_extension_config = CONFIG[ext_name] = {__nil: nil} # Ensure this is a NamedTupleLiteral
             end
 
             schema_properties.each do |(prop, ext_path)|
@@ -88,7 +88,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
                 user_provided_extension_config_for_current_property = user_provided_extension_config_for_current_property[p]
               end
 
-              extra_keys = user_provided_extension_config_for_current_property.keys - extension_schema_for_current_property.keys
+              extra_keys = user_provided_extension_config_for_current_property.keys.reject { |k| k == "__nil".id } - extension_schema_for_current_property.keys
 
               unless extra_keys.empty?
                 extra_key_value = user_provided_extension_config_for_current_property[extra_keys.first]
