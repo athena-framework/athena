@@ -4,8 +4,6 @@ require "./service_container"
 
 require "athena-config"
 
-require "compiler/crystal/macros"
-
 # :nodoc:
 class Fiber
   property container : ADI::ServiceContainer { ADI::ServiceContainer.new }
@@ -166,14 +164,14 @@ module Athena::DependencyInjection
       {% type = key.type.resolve %}
     {% else %}
       {% name = key.id.stringify %}
-      {% type = Crystal::Macros::Nop %}
+      {% type = nil %}
     {% end %}
 
     # TODO: Refactor this to ||= once https://github.com/crystal-lang/crystal/pull/9409 is released
     {% BINDINGS[name] = {typed: [] of Nil, untyped: [] of Nil} if BINDINGS[name] == nil %}
 
-    {% if type == Crystal::Macros::Nop %}
-      {% BINDINGS[name][:untyped].unshift({value: value, type: type}) %}
+    {% if type == nil %}
+      {% BINDINGS[name][:untyped].unshift({value: value}) %}
     {% else %}
       {% BINDINGS[name][:typed].unshift({value: value, type: type}) %}
     {% end %}
