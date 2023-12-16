@@ -94,7 +94,7 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                       cfv.each do |k, v|
                                         nt_key_type = prop_type[k]
 
-                                        if nt_key_type == nil
+                                        if nt_key_type == nil && k != "__nil"
                                           path = "#{stack[0]}"
 
                                           stack[1..].each do |p|
@@ -106,9 +106,11 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                           end
 
                                           cfv.raise "Expected configuration value '#{ext_name.id}.#{path.id}' to be a '#{prop_type}', but encountered unexpected key '#{k}' with value '#{v}'."
+                                        elsif k == "__nil"
+                                          # no-op
+                                        else
+                                          values_to_resolve << {nt_key_type.resolve, v, stack + [k]}
                                         end
-
-                                        values_to_resolve << {nt_key_type.resolve, v, stack + [k]}
                                       end
 
                                       missing_keys = prop_type.keys - cfv.keys

@@ -32,5 +32,57 @@ describe ADI::ServiceContainer::ValidateArguments do
         record Foo, value : Int32
       CR
     end
+
+    describe NamedTuple do
+      it "errors if configuration is missing a non-nilable property" do
+        assert_error "Configuration value 'test.connection' is missing required value for 'port' of type 'Int32'.", <<-CR
+          @[ADI::RegisterExtension("test")]
+          module TestExtension
+            include ADI::Extension
+
+            property connection : NamedTuple(hostname: String, username: String, password: String, port: Int32)
+          end
+
+          ADI.configure({
+            test: {
+              connection: {
+                hostname: "my-db",
+                username: "user",
+                password: "pass",
+              },
+            },
+          })
+        CR
+      end
+    end
+  end
+
+  it "sets missing NT keys to `nil` if the type is nilable" do
+    ASPEC::Methods.assert_success <<-CR
+      require "../spec_helper"
+
+      @[ADI::RegisterExtension("test")]
+      module TestExtension
+        include ADI::Extension
+
+        property connection : NamedTuple(hostname: String, username: String, password: String, port: Int32?)
+      end
+
+      ADI.configure({
+        test: {
+          connection: {
+            hostname: "my-db",
+            username: "user",
+            password: "pass",
+          },
+        },
+      })
+
+      macro finished
+        macro finished
+          it { \\{{ADI::CONFIG["test"]["connection"]["port"]}}.should be_nil }
+        end
+      end
+    CR
   end
 end

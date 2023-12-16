@@ -100,13 +100,27 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
                 if (config_value = user_provided_extension_config_for_current_property[prop.var.id]) != nil
                   config_value = config_value.is_a?(Path) ? config_value.resolve : config_value
 
-                  # Resolve symbol literals to enum members
                   resolved_value = if config_value.is_a?(SymbolLiteral) && (type = prop.type.resolve) <= ::Enum
                                      config_value.raise "Unknown '#{type}' enum member '#{config_value}' for property '#{([ext_name] + ext_path).join('.').id}.#{prop.var.id}'." unless type.constants.any?(&.downcase.id.==(config_value.id))
 
+                                     # Resolve symbol literals to enum members
                                      config_value = "#{type}.new(#{config_value})".id
                                    elsif config_value.is_a?(NumberLiteral) && (type = prop.type.resolve) <= ::Enum
+                                     # Resolve enum value to enum members
                                      config_value = "#{type}.new(#{config_value})".id
+                                   elsif config_value.is_a?(NamedTupleLiteral)
+                                     p = prop.type.resolve
+
+                                     # Fill in `nil` values to missing nilable NT keys
+                                     p.keys.each do |k|
+                                       t = p[k]
+
+                                       if config_value[k] == nil && t.nilable?
+                                         config_value[k] = nil
+                                       end
+                                     end
+
+                                     config_value
                                    else
                                      config_value
                                    end
