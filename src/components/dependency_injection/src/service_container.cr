@@ -1,6 +1,6 @@
 class Athena::DependencyInjection::ServiceContainer; end
 
-require "./stages/*"
+require "./compiler_passes/*"
 
 # Where the instantiated services live.
 #
@@ -26,7 +26,7 @@ class Athena::DependencyInjection::ServiceContainer
   # Holds the compiler pass configuration, including the type of each pass, and the default order the built-in ones execute in.
   PASS_CONFIG = {
     # Global pre-optimization modules
-    # Sets up common concepts so that future stages can leverage them
+    # Sets up common concepts so that future passes can leverage them
     before_optimization: {
       100 => [
         MergeConfigs,
