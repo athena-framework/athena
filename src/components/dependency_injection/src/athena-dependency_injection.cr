@@ -171,6 +171,31 @@ module Athena::DependencyInjection
       CONFIGS << config
     %}
   end
+
+  # :nodoc:
+  macro add_compiler_pass(pass, type = nil, priority = nil)
+    {%
+      pass_type = pass.resolve
+
+      pass.raise "Pass type must be a module." unless pass_type.module?
+
+      type = type || :before_optimization
+      priority = priority || 0
+
+      if hash = ADI::ServiceContainer::PASS_CONFIG[type]
+        hash[priority] = [] of Nil if hash[priority] == nil
+
+        hash[priority] << pass_type.id
+      else
+        type.raise "Invalid compiler pass type: '#{type}'."
+      end
+    %}
+  end
+
+  # :nodoc:
+  macro register_extension(name, schema)
+    {% ADI::ServiceContainer::EXTENSIONS[name.id.stringify] = schema %}
+  end
 end
 
 # Require extension code last so all built-in DI types are available

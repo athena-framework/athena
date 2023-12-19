@@ -5,6 +5,12 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
   macro included
     macro finished
       {% verbatim do %}
+
+        # In order to keep extensions local to the DI component, they must be registered via a dedicated macro call.
+        # This includes the name of the extension and its schema.
+        # If the extension has any compiler passes (including the extension itself), those must be registered via a dedicated macro call as well.
+        # This setup keeps things pretty de-coupled; allowing use of extensions/compiler passes if used outside of the Framework.
+
         {%
           _nil = nil
 
@@ -17,10 +23,8 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
           extension_schema_map = {} of Nil => Nil
 
           # For each extension type, register its base type
-          ADI::Extension.includers.select(&.annotation(ADI::RegisterExtension)).each do |ext|
-            ext_ann = ext.annotation ADI::RegisterExtension
-
-            extensions_to_process << {ext_ann[0].id, [] of Nil, ext}
+          ADI::ServiceContainer::EXTENSIONS.each do |name, ext|
+            extensions_to_process << {name.id, [] of Nil, ext.resolve}
           end
 
           # For each base type, determine all child extension types

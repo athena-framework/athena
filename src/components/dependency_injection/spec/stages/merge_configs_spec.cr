@@ -5,8 +5,7 @@ describe ADI::ServiceContainer::MergeConfigs do
     ASPEC::Methods.assert_success <<-CR
       require "../spec_helper"
 
-      @[ADI::RegisterExtension("test")]
-      module FrameworkExtension
+      module Schema
         include ADI::Extension
 
         property default_locale : String
@@ -22,6 +21,8 @@ describe ADI::ServiceContainer::MergeConfigs do
           end
         end
       end
+
+      ADI.register_extension "test", Schema
 
       ADI.configure({
         test: {

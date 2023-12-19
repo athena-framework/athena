@@ -18,34 +18,74 @@ class Athena::DependencyInjection::ServiceContainer
   # Hash(String, Hash(String, Array(NamedTuple)))
   private TAG_HASH = {} of Nil => Nil
 
-  macro finished
+  # :nodoc:
+  EXTENSIONS = {} of Nil => Nil
+
+  # :nodoc:
+  #
+  # Holds the compiler pass configuration, including the type of each pass, and the default order the built-in ones execute in.
+  PASS_CONFIG = {
     # Global pre-optimization modules
-    include MergeConfigs
-    include RegisterServices
-    include AutoConfigure
-    include ResolveGenerics
+    # Sets up common concepts so that future stages can leverage them
+    before_optimization: {
+      100 => [
+        MergeConfigs,
+        RegisterServices,
+        AutoConfigure,
+        ResolveGenerics,
 
-    # Extensions should be able to define their own parameters, so it needs to be _BEFORE_ they are resolved.
-    include RegisterExtensions
+        # Extensions should be able to define their own parameters, so it needs to be _BEFORE_ they are resolved.
+        RegisterExtensions,
+      ],
+    },
 
-    # Custom modules to register new services, explicitly set arguments, or modify them in some other way
+    # Prepare the services for usage by resolving arguments, parameters, and ensure validity of each service
+    optimization: {
+      100 => [
+        ResolveParameterPlaceholders,
+      ],
 
-    # Global optimization modules that prepare the services for usage
-    # Resolve arguments, parameters, and ensure validity of each service
-    include ResolveParameterPlaceholders
-    include ApplyBindings
-    include AutoWire
-    include ResolveValues
-    include ValidateArguments
+      0 => [
+        ApplyBindings,
+        AutoWire,
+        ResolveValues,
+        ValidateArguments,
+      ],
+    },
 
-    # Custom modules to further modify services
+    # Determine what could be removed?
+    before_removing: {
+      0 => [] of Nil,
+    },
 
-    # Global cleanup services
-    # include RemoveUnusedServices
+    # Cleanup the container, removing unused services and such
+    removing: {
+      0 => [] of Nil,
+    },
 
-    # Global codegen things that create things within the container instances, such as the getters for each service
-    include DefineGetters
+    # Codegen things that create types/methods within the container instance, such as the getters for each service
+    after_removing: {
+      -100 => [
+        DefineGetters,
+      ],
+    },
+  }
 
-    # ?? Custom modules to codegen/cleanup things?
+  macro finished
+    {%
+      passes = [] of Nil
+
+      PASS_CONFIG.keys.each do |type|
+        (p = PASS_CONFIG[type]).keys.sort_by { |tk| -tk }.each do |k|
+          p[k].each do |pass|
+            passes << pass
+          end
+        end
+      end
+    %}
+
+    {% for pass in passes %}
+      include {{pass.id}}
+    {% end %}
   end
 end
