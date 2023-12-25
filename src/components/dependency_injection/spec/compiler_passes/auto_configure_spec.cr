@@ -79,6 +79,13 @@ record AutoConfiguredPublicService do
   include PublicService
 end
 
+module UnusedInterface; end
+
+ADI.auto_configure UnusedInterface, {tags: ["unused_tag"]}
+
+@[ADI::Register(_services: "!unused_tag", public: true)]
+record UnusedTagClient, services : Array(UnusedInterface)
+
 describe ADI::ServiceContainer::AutoConfigure do
   describe "compiler errors", tags: "compiler" do
     it "errors if the `tags` field is not of a valid type" do
@@ -89,7 +96,7 @@ describe ADI::ServiceContainer::AutoConfigure do
     end
 
     it "errors if the `tags` field on the auto configuration is not of a valid type" do
-      assert_error "Tags for 'foo' must be an 'ArrayLiteral', got 'NumberLiteral'.", <<-CR
+      assert_error "Tags for auto configuration of 'Test' must be an 'ArrayLiteral', got 'NumberLiteral'.", <<-CR
         module Test; end
 
         ADI.auto_configure Test, {tags: 123}
@@ -141,6 +148,10 @@ describe ADI::ServiceContainer::AutoConfigure do
   it "applies tags from auto_configure" do
     ADI.container.other_tag_client.services.size.should eq 2
     ADI.container.config_tag_client.services.size.should eq 1
+  end
+
+  it "provides an empty array if there were no services configured with the desired tag" do
+    ADI.container.unused_tag_client.services.should be_empty
   end
 
   it "allows making a service public" do

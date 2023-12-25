@@ -4,6 +4,20 @@ module Athena::DependencyInjection::ServiceContainer::AutoConfigure
     macro finished
       {% verbatim do %}
         {%
+          AUTO_CONFIGURATIONS.keys.each do |key|
+            auto_configuration = AUTO_CONFIGURATIONS[key]
+
+            if (v = auto_configuration["tags"]) != nil
+              unless v.is_a? ArrayLiteral
+                auto_configuration.raise "Tags for auto configuration of '#{key.id}' must be an 'ArrayLiteral', got '#{v.class_name.id}'."
+              end
+
+              v.each do |t|
+                TAG_HASH[t] = [] of Nil if TAG_HASH[t] == nil
+              end
+            end
+          end
+
           SERVICE_HASH.each do |service_id, definition|
             tags = definition["class_ann"]["tags"] || [] of Nil
 
@@ -27,10 +41,6 @@ module Athena::DependencyInjection::ServiceContainer::AutoConfigure
               end
 
               if (v = auto_configuration["tags"]) != nil
-                unless v.is_a? ArrayLiteral
-                  definition["class_ann"].raise "Tags for '#{service_id.id}' must be an 'ArrayLiteral', got '#{v.class_name.id}'."
-                end
-
                 tags += v
               end
 
