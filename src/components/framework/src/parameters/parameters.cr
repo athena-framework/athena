@@ -36,7 +36,6 @@ struct Athena::Framework::Parameters
     end
 
     # Returns `true` if the application was built without the `--release` flag, otherwise `false`.
-    # ameba:disable Style/QueryBoolMethods
     getter debug : Bool = {{!flag? :release}}
   end
 end
