@@ -72,12 +72,12 @@ class Athena::Validator::Constraints::ISIN < Athena::Validator::Constraint
         return self.context.add_violation constraint.message, INVALID_PATTERN_ERROR, value
       end
 
-      return if self.is_correct_checksum value
+      return if self.correct_checksum? value
 
       self.context.add_violation constraint.message, INVALID_CHECKSUM_ERROR, value
     end
 
-    private def is_correct_checksum(isin : String) : Bool
+    private def correct_checksum?(isin : String) : Bool
       number = isin.chars.join &.to_i 36
       self.context.validator.validate(number, AVD::Constraints::Luhn.new).empty?
     end

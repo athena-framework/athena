@@ -216,7 +216,7 @@ class Athena::Routing::RouteProvider
         tree = ART::RouteProvider::StaticPrefixCollection.new
 
         sub_routes.each do |name, route|
-          matched_regex = route.compile.regex.source.match(/\^(.*)\$$/).not_nil!
+          matched_regex = route.compile.regex.source.match!(/\^(.*)\$$/)
 
           state.vars = Set(String).new
           pattern = state.vars matched_regex[1], /\?P<([^>]++)>/
