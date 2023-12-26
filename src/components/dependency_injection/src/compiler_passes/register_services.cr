@@ -97,6 +97,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
                   SERVICE_HASH[a.resolve] = {
                     class:      klass.resolve,
                     class_ann:  ann,
+                    tags:       {} of Nil => Nil,
                     parameters: {} of Nil => Nil,
                     bindings:   {} of Nil => Nil,
                     generics:   [] of Nil,

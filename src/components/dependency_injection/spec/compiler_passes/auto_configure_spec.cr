@@ -79,9 +79,25 @@ record AutoConfiguredPublicService do
   include PublicService
 end
 
+STRING_UNUSED_TAG2 = "string_unused_tag2"
+STRING_UNUSED_TAG3 = "string_unused_tag3"
+STRING_UNUSED_TAG4 = "string_unused_tag4"
+
 module UnusedInterface; end
 
+module UnusedInterface2; end
+
+module UnusedInterface3; end
+
+module UnusedInterface4; end
+
+module UnusedInterface5; end
+
 ADI.auto_configure UnusedInterface, {tags: ["unused_tag"]}
+ADI.auto_configure UnusedInterface2, {tags: [STRING_UNUSED_TAG2]}
+ADI.auto_configure UnusedInterface3, {tags: STRING_UNUSED_TAG3}
+ADI.auto_configure UnusedInterface4, {tags: [{name: STRING_UNUSED_TAG4}]}
+ADI.auto_configure UnusedInterface5, {tags: [{name: "string_unused_tag5"}]}
 
 @[ADI::Register(_services: "!unused_tag", public: true)]
 record UnusedTagClient, services : Array(UnusedInterface)

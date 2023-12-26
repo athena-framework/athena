@@ -8,12 +8,28 @@ module Athena::DependencyInjection::ServiceContainer::AutoConfigure
             auto_configuration = AUTO_CONFIGURATIONS[key]
 
             if (v = auto_configuration["tags"]) != nil
-              unless v.is_a? ArrayLiteral
+              if !v.is_a?(ArrayLiteral) && !v.is_a?(StringLiteral) && !v.is_a?(Path)
                 auto_configuration.raise "Tags for auto configuration of '#{key.id}' must be an 'ArrayLiteral', got '#{v.class_name.id}'."
               end
 
+              v = v.is_a?(ArrayLiteral) ? v : [v]
+
               v.each do |t|
-                TAG_HASH[t] = [] of Nil if TAG_HASH[t] == nil
+                name = if t.is_a?(StringLiteral)
+                         t
+                       elsif t.is_a?(Path)
+                         t.resolve.id.stringify
+                       elsif t.is_a?(NamedTupleLiteral) || t.is_a?(HashLiteral)
+                         if t["name"].is_a? Path
+                           t["name"] = t["name"].resolve
+                         end
+
+                         t["name"]
+                       else
+                         t.raise "Tag '#{t}' must be a 'StringLiteral' or 'NamedTupleLiteral', got '#{t.class_name.id}'."
+                       end
+
+                TAG_HASH[name] = [] of Nil if TAG_HASH[name] == nil
               end
             end
           end
