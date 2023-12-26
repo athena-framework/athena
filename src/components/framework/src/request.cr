@@ -60,7 +60,7 @@ class Athena::Framework::Request
   forward_missing_to @request
 
   def self.new(method : String, path : String, headers : HTTP::Headers? = nil, body : String | Bytes | IO | Nil = nil, version : String = "HTTP/1.1") : self
-    new HTTP::Request.new method, path, headers, body, version
+    new HTTP::Request.new method.upcase, path, headers, body, version
   end
 
   def self.new(request : self) : self

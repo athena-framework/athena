@@ -9,7 +9,7 @@ class SerializedName
   @[ASRA::Name(deserialize: "some_key", serialize: "a_value")]
   property value : String = "str"
 
-  # ameba:disable Style/VariableNames
+  # ameba:disable Naming/VariableNames
   property myZipCode : Int32 = 90210
 end
 
@@ -24,7 +24,7 @@ class SerializedNameKey
   @[ASRA::Name(key: "some_key")]
   property value : String = "str"
 
-  # ameba:disable Style/VariableNames
+  # ameba:disable Naming/VariableNames
   property myZipCode : Int32 = 90210
 end
 
@@ -38,10 +38,10 @@ class SerializedNameCamelcaseSerializationStrategy
   @[ASRA::Name(serialize: "myAdd_ress")]
   property my_home_address : String = "123 Fake Street"
 
-  # ameba:disable Style/VariableNames
+  # ameba:disable Naming/VariableNames
   property two_wOrds : String = "two words"
 
-  # ameba:disable Style/VariableNames
+  # ameba:disable Naming/VariableNames
   property myZipCode : Int32 = 90210
 end
 
@@ -55,10 +55,10 @@ class SerializedNameUnderscoreSerializationStrategy
   @[ASRA::Name(serialize: "myAdd_ress")]
   property my_home_address : String = "123 Fake Street"
 
-  # ameba:disable Style/VariableNames
+  # ameba:disable Naming/VariableNames
   property two_wOrds : String = "two words"
 
-  # ameba:disable Style/VariableNames
+  # ameba:disable Naming/VariableNames
   property myZipCode : Int32 = 90210
 end
 
@@ -72,10 +72,10 @@ class SerializedNameIdenticalSerializationStrategy
   @[ASRA::Name(serialize: "myAdd_ress")]
   property my_home_address : String = "123 Fake Street"
 
-  # ameba:disable Style/VariableNames
+  # ameba:disable Naming/VariableNames
   property two_wOrds : String = "two words"
 
-  # ameba:disable Style/VariableNames
+  # ameba:disable Naming/VariableNames
   property myZipCode : Int32 = 90210
 end
 
@@ -89,10 +89,10 @@ class DeserializedNameCamelcaseDeserializationStrategy
   @[ASRA::Name(deserialize: "myAdd_ress")]
   property my_home_address : String = "123 Fake Street"
 
-  # ameba:disable Style/VariableNames
+  # ameba:disable Naming/VariableNames
   property two_wOrds : String = "two words"
 
-  # ameba:disable Style/VariableNames
+  # ameba:disable Naming/VariableNames
   property myZipCode : Int32 = 90210
 end
 
@@ -106,10 +106,10 @@ class DeserializedNameUnderscoreDeserializationStrategy
   @[ASRA::Name(deserialize: "myAdd_ress")]
   property my_home_address : String = "123 Fake Street"
 
-  # ameba:disable Style/VariableNames
+  # ameba:disable Naming/VariableNames
   property two_wOrds : String = "two words"
 
-  # ameba:disable Style/VariableNames
+  # ameba:disable Naming/VariableNames
   property myZipCode : Int32 = 90210
 end
 
@@ -123,10 +123,10 @@ class DeserializedNameIdenticalDeserializationStrategy
   @[ASRA::Name(deserialize: "myAdd_ress")]
   property my_home_address : String = "123 Fake Street"
 
-  # ameba:disable Style/VariableNames
+  # ameba:disable Naming/VariableNames
   property two_wOrds : String = "two words"
 
-  # ameba:disable Style/VariableNames
+  # ameba:disable Naming/VariableNames
   property myZipCode : Int32 = 90210
 end
 
@@ -140,10 +140,10 @@ class SerializedNameCamelcaseStrategy
   @[ASRA::Name(key: "myAdd_ress")]
   property my_home_address : String = "123 Fake Street"
 
-  # ameba:disable Style/VariableNames
+  # ameba:disable Naming/VariableNames
   property two_wOrds : String = "two words"
 
-  # ameba:disable Style/VariableNames
+  # ameba:disable Naming/VariableNames
   property myZipCode : Int32 = 90210
 end
 
@@ -157,10 +157,10 @@ class SerializedNameUnderscoreStrategy
   @[ASRA::Name(key: "myAdd_ress")]
   property my_home_address : String = "123 Fake Street"
 
-  # ameba:disable Style/VariableNames
+  # ameba:disable Naming/VariableNames
   property two_wOrds : String = "two words"
 
-  # ameba:disable Style/VariableNames
+  # ameba:disable Naming/VariableNames
   property myZipCode : Int32 = 90210
 end
 
@@ -174,10 +174,10 @@ class SerializedNameIdenticalStrategy
   @[ASRA::Name(key: "myAdd_ress")]
   property my_home_address : String = "123 Fake Street"
 
-  # ameba:disable Style/VariableNames
+  # ameba:disable Naming/VariableNames
   property two_wOrds : String = "two words"
 
-  # ameba:disable Style/VariableNames
+  # ameba:disable Naming/VariableNames
   property myZipCode : Int32 = 90210
 end
 
