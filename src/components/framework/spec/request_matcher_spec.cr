@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-describe ATH::RequestMatcher, focus: true do
+describe ATH::RequestMatcher do
   it "matches" do
     matcher = ATH::RequestMatcher.new(
       ATH::RequestMatcher::Path.new(%r(/admin/foo)),

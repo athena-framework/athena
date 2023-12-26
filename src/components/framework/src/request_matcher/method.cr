@@ -1,3 +1,4 @@
+# Checks if the `ATH::Request#method` is allowed.
 struct Athena::Framework::RequestMatcher::Method
   include Interface
 

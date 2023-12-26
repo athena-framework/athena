@@ -1,3 +1,4 @@
+# Checks if the `ATH::Request#hostname` matches the allowed pattern.
 struct Athena::Framework::RequestMatcher::Hostname
   include Interface
 

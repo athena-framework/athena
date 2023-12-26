@@ -1,3 +1,4 @@
+# Checks if the `ATH::Request#path` matches the allowed pattern.
 struct Athena::Framework::RequestMatcher::Path
   include Interface
 

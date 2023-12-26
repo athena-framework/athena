@@ -1,3 +1,4 @@
+# Checks if all of the `ATH::Request#attributes` match the provided patterns.
 struct Athena::Framework::RequestMatcher::Attributes
   include Interface
 
