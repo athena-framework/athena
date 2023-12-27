@@ -44,7 +44,8 @@ end
 record MultipleAliasService,
   one : MultipleAliasOne,
   two : MultipleAliasTwo,
-  three : MultipleAliasThree
+  three : MultipleAliasThree,
+  four : MultipleAliasOne | MultipleAliasTwo
 
 describe ADI::ServiceContainer::RegisterServices do
   describe "compiler errors", tags: "compiler" do
@@ -66,5 +67,6 @@ describe ADI::ServiceContainer::RegisterServices do
     service.one.should be_a TheService
     service.two.should be_a TheService
     service.three.should be_a OtherService
+    service.four.should be_a TheService
   end
 end
