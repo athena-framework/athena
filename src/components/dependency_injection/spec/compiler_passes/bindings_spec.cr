@@ -92,6 +92,14 @@ class Bindings2Client
   end
 end
 
+alias MyCustomInt = Int32
+
+ADI.bind aliased_number : Int32, 123
+ADI.bind aliased_number, 456
+
+@[ADI::Register(public: true)]
+record AliasedBindingClient, aliased_number : MyCustomInt
+
 describe ADI::ServiceContainer do
   it "resolves bindings in proper order Annotation > Global > AutoConfigure" do
     ADI.container.bindings_priority_client
@@ -100,5 +108,9 @@ describe ADI::ServiceContainer do
   it "resolves parameter and service references" do
     ADI.container.bindings_client
     ADI.container.bindings2_client
+  end
+
+  it "resolves typed bindings when types differ" do
+    ADI.container.aliased_binding_client.aliased_number.should eq 123
   end
 end

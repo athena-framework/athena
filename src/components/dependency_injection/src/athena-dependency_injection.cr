@@ -158,7 +158,7 @@ module Athena::DependencyInjection
   # ADI.container.bool_arr  # => BoolArr(@value_arr=[true, true, false])
   # ```
   macro bind(key, value)
-    {% BINDINGS[key.id] = value %}
+    {% BINDINGS[key] = value %}
   end
 
   # Returns the `ADI::ServiceContainer` for the current fiber.
