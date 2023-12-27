@@ -90,21 +90,25 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
                   parameters:        parameters,
                 }
 
-                if a = ann[:alias]
-                  id_key = a.resolve.name.gsub(/::/, "_").underscore
-                  alias_service_id = id_key.is_a?(StringLiteral) ? id_key : id_key.stringify
+                if al = ann[:alias]
+                  aliases = al.is_a?(ArrayLiteral) ? al : [al]
 
-                  SERVICE_HASH[a.resolve] = {
-                    class:      klass.resolve,
-                    class_ann:  ann,
-                    tags:       {} of Nil => Nil,
-                    parameters: {} of Nil => Nil,
-                    bindings:   {} of Nil => Nil,
-                    generics:   [] of Nil,
+                  aliases.each do |a|
+                    id_key = a.resolve.name.gsub(/::/, "_").underscore
+                    alias_service_id = id_key.is_a?(StringLiteral) ? id_key : id_key.stringify
 
-                    alias_service_id: alias_service_id,
-                    alias:            true,
-                  }
+                    SERVICE_HASH[a.resolve] = {
+                      class:      klass.resolve,
+                      class_ann:  ann,
+                      tags:       {} of Nil => Nil,
+                      parameters: {} of Nil => Nil,
+                      bindings:   {} of Nil => Nil,
+                      generics:   [] of Nil,
+
+                      alias_service_id: alias_service_id,
+                      alias:            true,
+                    }
+                  end
                 end
               %}
             {% end %}

@@ -12,7 +12,7 @@ module Athena::DependencyInjection::ServiceContainer::ApplyBindings
 
               # Typed binding
               BINDINGS.keys.select(&.is_a?(TypeDeclaration)).each do |key|
-                if key.var.id == param["arg"].name.id && key.type.resolve >= param["resolved_restriction"]
+                if key.var.id == param["arg"].name.id && (type = param["resolved_restriction"]) && key.type.resolve >= type
                   set_value = true
                   definition["bindings"][name.id] = BINDINGS[key]
                 end

@@ -37,9 +37,6 @@ ADI.auto_configure BindingsPriorityClient, {
   },
 }
 
-ADI.bind proxy_service : ADI::Proxy(ValueService), "@some_struct_service"
-ADI.bind proxy_service : ValueService, "@some_struct_service"
-
 @[ADI::Register]
 class SomeClassService
   getter value : Int32 = 123
