@@ -24,8 +24,6 @@ class Athena::Framework::View::FormatNegotiator < ANG::Negotiator
   # :inherit:
   # ameba:disable Metrics/CyclomaticComplexity
   def best(header : String, priorities : Indexable(String)? = nil, strict : Bool = false) : HeaderType?
-    return
-
     request = @request_store.request
 
     header = header.presence || request.headers["accept"]?
@@ -41,7 +39,7 @@ class Athena::Framework::View::FormatNegotiator < ANG::Negotiator
         next unless host_pattern.matches? hostname
       end
 
-      raise ATH::Exceptions::StopFormatListener.new "Stopping format listener." if rule.stop?
+      raise ATH::Exceptions::StopFormatListener.new "Stopping format listener." if rule.stop
 
       if priorities.nil? && rule.priorities.nil?
         if fallback_format = rule.fallback_format

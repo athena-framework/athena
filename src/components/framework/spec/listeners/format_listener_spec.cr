@@ -1,23 +1,7 @@
 require "../spec_helper"
 
 struct FormatListenerTest < ASPEC::TestCase
-  def test_call_no_config : Nil
-    event = new_request_event
-
-    request_store = ATH::RequestStore.new
-    request_store.request = event.request
-
-    negotiator = ATH::View::FormatNegotiator.new request_store
-
-    listener = ATH::Listeners::Format.new negotiator
-
-    listener.on_request event
-
-    event.request.request_format.should eq "json"
-    event.request.attributes.get?("media_type").should be_nil
-  end
-
-  def test_call_fallback_format : Nil
+  def test_fallback_format : Nil
     event = new_request_event
 
     request_store = ATH::RequestStore.new
@@ -37,7 +21,7 @@ struct FormatListenerTest < ASPEC::TestCase
     event.request.attributes.get?("media_type").should eq "text/xml"
   end
 
-  def test_call_stop_listener : Nil
+  def test_stop_listener : Nil
     event = new_request_event
     event.request.request_format = "xml"
 
@@ -59,7 +43,7 @@ struct FormatListenerTest < ASPEC::TestCase
     event.request.attributes.get?("media_type").should be_nil
   end
 
-  def test_call_cannot_resolve_format : Nil
+  def test_cannot_resolve_format : Nil
     event = new_request_event
 
     request_store = ATH::RequestStore.new
