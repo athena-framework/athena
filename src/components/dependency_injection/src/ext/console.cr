@@ -76,7 +76,7 @@ module Athena::DependencyInjection::Console
 
   module CompilerPasses::RegisterCommands
     # Post arguments avoid dependency resolution
-    include Athena::DependencyInjection::PostArgumentsCompilerPass
+    # include Athena::DependencyInjection::PostArgumentsCompilerPass
 
     macro included
       macro finished

@@ -1,9 +1,7 @@
-module Athena::DependencyInjection::Extension
+module Athena::DependencyInjection::Extension::Schema
   macro included
     # :nodoc:
     OPTIONS = [] of Nil
-
-    private def initialize; end
   end
 
   macro property(decl)

@@ -1,5 +1,5 @@
 # :nodoc:
-@[ADI::Register(_default_uri: "%routing.base_uri%", name: "router", public: true, alias: ART::Generator::Interface)]
+@[ADI::Register(_default_uri: "%routing.base_uri%", name: "router", public: true, alias: [ART::Generator::Interface, ART::Matcher::URLMatcherInterface, ART::RouterInterface])]
 class Athena::Framework::Routing::Router < Athena::Routing::Router
   getter matcher : ART::Matcher::URLMatcherInterface do
     ATH::Routing::RedirectableURLMatcher.new(@context)

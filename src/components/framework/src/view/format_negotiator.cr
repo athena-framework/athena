@@ -3,18 +3,18 @@
 #
 # See the [negotiation](../../../architecture/negotiation.md) component for more information.
 class Athena::Framework::View::FormatNegotiator < ANG::Negotiator
-  private getter! config : ATH::Config::ContentNegotiation?
+  # private getter! config : ATH::Config::ContentNegotiation?
 
   def initialize(
     @request_store : ATH::RequestStore,
-    @config : ATH::Config::ContentNegotiation?,
+    # @config : ATH::Config::ContentNegotiation?,
     @mime_types : Hash(String, Array(String)) = Hash(String, Array(String)).new
   ); end
 
   # :inherit:
   # ameba:disable Metrics/CyclomaticComplexity
   def best(header : String, priorities : Indexable(String)? = nil, strict : Bool = false) : HeaderType?
-    return if @config.nil?
+    return
 
     request = @request_store.request
 

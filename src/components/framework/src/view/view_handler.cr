@@ -17,15 +17,15 @@ class Athena::Framework::View::ViewHandler
   @emit_nil : Bool
 
   def initialize(
-    config : ATH::Config::ViewHandler,
+    # config : ATH::Config::ViewHandler,
     @url_generator : ART::Generator::Interface,
     @serializer : ASR::SerializerInterface,
     @request_store : ATH::RequestStore,
     format_handlers : Array(Athena::Framework::View::FormatHandlerInterface)
   )
-    @empty_content_status = config.empty_content_status
-    @failed_validation_status = config.failed_validation_status
-    @emit_nil = config.emit_nil?
+    @empty_content_status = :not_found     # config.empty_content_status
+    @failed_validation_status = :not_found # config.failed_validation_status
+    @emit_nil = false                      # config.emit_nil?
 
     format_handlers.each do |format_handler|
       self.register_handler format_handler.format, format_handler

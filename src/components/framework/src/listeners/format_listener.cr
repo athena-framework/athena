@@ -11,7 +11,7 @@ struct Athena::Framework::Listeners::Format
   include AED::EventListenerInterface
 
   def initialize(
-    @config : ATH::Config::ContentNegotiation?,
+    # @config : ATH::Config::ContentNegotiation?,
     @format_negotiator : ATH::View::FormatNegotiator
   ); end
 
@@ -20,7 +20,7 @@ struct Athena::Framework::Listeners::Format
     request = event.request
 
     # Return early if there is no content_negotiation configuration.
-    return unless @config
+    return
 
     format = request.request_format nil
 

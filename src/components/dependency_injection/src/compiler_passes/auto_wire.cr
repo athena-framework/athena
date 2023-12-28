@@ -4,6 +4,8 @@ module Athena::DependencyInjection::ServiceContainer::AutoWire
     macro finished
       {% verbatim do %}
         {%
+          printed = false
+
           SERVICE_HASH.each do |_, definition|
             definition["parameters"].each do |name, param|
               param_resolved_restriction = param["resolved_restriction"]

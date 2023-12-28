@@ -53,7 +53,7 @@ module Athena::DependencyInjection
 
   private BINDINGS            = {} of Nil => Nil
   private AUTO_CONFIGURATIONS = {} of Nil => Nil
-  private EXTENSIONS          = {} of Nil => Nil # Ensure this type is a NamedTupleLiteral
+  private EXTENSIONS          = {} of Nil => Nil
 
   # :nodoc:
   CONFIG = {__nil: nil} # Ensure this type is a NamedTupleLiteral

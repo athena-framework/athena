@@ -13,6 +13,7 @@ require "athena-dependency_injection"
 
 require "./action"
 require "./annotations"
+require "./bundle"
 require "./binary_file_response"
 require "./controller"
 require "./controller_resolver"
@@ -223,3 +224,19 @@ module Athena::Framework
     end
   end
 end
+
+class ExampleController < ATH::Controller
+  @[ARTA::Get("/")]
+  def root : String
+    "At the index"
+  end
+end
+
+ATH.configure({
+  parameters: {
+    "framework.debug":  true,
+    "routing.base_uri": "google.com",
+  },
+})
+
+ATH.run

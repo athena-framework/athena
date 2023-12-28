@@ -41,11 +41,8 @@ class Athena::DependencyInjection::ServiceContainer
 
     # Prepare the services for usage by resolving arguments, parameters, and ensure validity of each service
     optimization: {
-      100 => [
-        ResolveParameterPlaceholders,
-      ],
-
       0 => [
+        ResolveParameterPlaceholders,
         ApplyBindings,
         AutoWire,
         ResolveValues,

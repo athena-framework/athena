@@ -27,13 +27,14 @@ module Athena::DependencyInjection::ServiceContainer::ResolveValues
                 # Service reference
               elsif unresolved_value.is_a?(StringLiteral) && unresolved_value.starts_with?('@')
                 service_name = unresolved_value[1..-1]
-                raise "Failed to register service '#{service_id.id}'. Argument '#{param["arg"]}' references undefined service '#{service_name.id}'." unless SERVICE_HASH[service_name]
+                unresolved_value.raise "Failed to register service '#{service_id.id}'. Argument '#{param["arg"]}' references undefined service '#{service_name.id}'." unless SERVICE_HASH[service_name]
                 resolved_value = service_name.id
 
                 # Tagged services
               elsif unresolved_value.is_a?(StringLiteral) && unresolved_value.starts_with?('!')
                 tag_name = unresolved_value[1..]
-                raise "Failed to register service '#{service_id.id}'. Argument '#{param["arg"]}' references undefined tag '#{tag_name.id}'." unless TAG_HASH[tag_name]
+
+                unresolved_value.raise "Failed to register service '#{service_id.id}'. Argument '#{param["arg"]}' references undefined tag '#{tag_name.id}'." unless TAG_HASH[tag_name]
 
                 # Sort based on tag priority.  Services without a priority will be last in order of definition
                 tagged_services = TAG_HASH[tag_name].sort_by { |(_tmp, attributes)| -(attributes["priority"] || 0) }

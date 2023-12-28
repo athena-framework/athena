@@ -1,6 +1,4 @@
 module Athena::Framework::CompilerPasses::MakeControllerServicesPublicPass
-  include Athena::DependencyInjection::PreArgumentsCompilerPass
-
   macro included
     macro finished
       {% verbatim do %}

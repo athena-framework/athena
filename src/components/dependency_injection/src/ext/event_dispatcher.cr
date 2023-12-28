@@ -14,7 +14,7 @@ module Athena::DependencyInjection::EventDispatcher
   end
 
   module CompilerPasses::RegisterEventListenersPass
-    include Athena::DependencyInjection::PreArgumentsCompilerPass
+    # include Athena::DependencyInjection::PreArgumentsCompilerPass
 
     macro included
       macro finished

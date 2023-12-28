@@ -349,4 +349,7 @@ module Athena::Framework::Annotations
   #
   # See the [external documentation](../../../architecture/serializer.md) for more information.
   annotation View; end
+
+  # :nodoc:
+  annotation Bundle; end
 end
