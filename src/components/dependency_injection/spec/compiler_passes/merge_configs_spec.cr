@@ -6,15 +6,15 @@ describe ADI::ServiceContainer::MergeConfigs do
       require "../spec_helper"
 
       module Schema
-        include ADI::Extension
+        include ADI::Extension::Schema
 
         property default_locale : String
 
         module Cors
-          include ADI::Extension
+          include ADI::Extension::Schema
 
           module Defaults
-            include ADI::Extension
+            include ADI::Extension::Schema
 
             property? allow_credentials : Bool = false
             property allow_origin : Array(String) = [] of String

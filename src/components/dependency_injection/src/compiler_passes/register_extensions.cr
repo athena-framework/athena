@@ -88,57 +88,60 @@ module Athena::DependencyInjection::ServiceContainer::RegisterExtensions
               user_provided_extension_config_for_current_property = user_provided_extension_config
 
               ext_path.each do |p|
-                extension_schema_for_current_property = extension_schema_for_current_property[p]
-                user_provided_extension_config_for_current_property = user_provided_extension_config_for_current_property[p]
+                extension_schema_for_current_property = extension_schema_for_current_property[p] if extension_schema_for_current_property
+                user_provided_extension_config_for_current_property = user_provided_extension_config_for_current_property[p] if user_provided_extension_config_for_current_property
               end
 
-              extra_keys = user_provided_extension_config_for_current_property.keys.reject { |k| k == "__nil".id } - extension_schema_for_current_property.keys
+              # If the user provided no configuration
+              if user_provided_extension_config_for_current_property
+                extra_keys = user_provided_extension_config_for_current_property.keys.reject { |k| k == "__nil".id } - extension_schema_for_current_property.keys
 
-              unless extra_keys.empty?
-                extra_key_value = user_provided_extension_config_for_current_property[extra_keys.first]
+                unless extra_keys.empty?
+                  extra_key_value = user_provided_extension_config_for_current_property[extra_keys.first]
 
-                extra_key_value.raise "Encountered unexpected property '#{([ext_name] + ext_path).join('.').id}.#{extra_keys.first.id}' with value '#{extra_key_value}'."
-              end
-
-              if prop
-                if (config_value = user_provided_extension_config_for_current_property[prop.var.id]) != nil
-                  config_value = config_value.is_a?(Path) ? config_value.resolve : config_value
-
-                  resolved_value = if config_value.is_a?(SymbolLiteral) && (type = prop.type.resolve) <= ::Enum
-                                     config_value.raise "Unknown '#{type}' enum member '#{config_value}' for property '#{([ext_name] + ext_path).join('.').id}.#{prop.var.id}'." unless type.constants.any?(&.downcase.id.==(config_value.id))
-
-                                     # Resolve symbol literals to enum members
-                                     config_value = "#{type}.new(#{config_value})".id
-                                   elsif config_value.is_a?(NumberLiteral) && (type = prop.type.resolve) <= ::Enum
-                                     # Resolve enum value to enum members
-                                     config_value = "#{type}.new(#{config_value})".id
-                                   elsif config_value.is_a?(NamedTupleLiteral)
-                                     p = prop.type.resolve
-
-                                     # Fill in `nil` values to missing nilable NT keys
-                                     p.keys.each do |k|
-                                       t = p[k]
-
-                                       if config_value[k] == nil && t.nilable?
-                                         config_value[k] = nil
-                                       end
-                                     end
-
-                                     config_value
-                                   else
-                                     config_value
-                                   end
-                else
-                  resolved_value = if prop.value.is_a?(Nop)
-                                     nil
-                                   elsif prop.value.is_a?(Path)
-                                     prop.value.resolve
-                                   else
-                                     prop.value
-                                   end
+                  extra_key_value.raise "Encountered unexpected property '#{([ext_name] + ext_path).join('.').id}.#{extra_keys.first.id}' with value '#{extra_key_value}'."
                 end
 
-                user_provided_extension_config_for_current_property[prop.var] = resolved_value
+                if prop
+                  if (config_value = user_provided_extension_config_for_current_property[prop.var.id]) != nil
+                    config_value = config_value.is_a?(Path) ? config_value.resolve : config_value
+
+                    resolved_value = if config_value.is_a?(SymbolLiteral) && (type = prop.type.resolve) <= ::Enum
+                                       config_value.raise "Unknown '#{type}' enum member '#{config_value}' for property '#{([ext_name] + ext_path).join('.').id}.#{prop.var.id}'." unless type.constants.any?(&.downcase.id.==(config_value.id))
+
+                                       # Resolve symbol literals to enum members
+                                       config_value = "#{type}.new(#{config_value})".id
+                                     elsif config_value.is_a?(NumberLiteral) && (type = prop.type.resolve) <= ::Enum
+                                       # Resolve enum value to enum members
+                                       config_value = "#{type}.new(#{config_value})".id
+                                     elsif config_value.is_a?(NamedTupleLiteral)
+                                       p = prop.type.resolve
+
+                                       # Fill in `nil` values to missing nilable NT keys
+                                       p.keys.each do |k|
+                                         t = p[k]
+
+                                         if config_value[k] == nil && t.nilable?
+                                           config_value[k] = nil
+                                         end
+                                       end
+
+                                       config_value
+                                     else
+                                       config_value
+                                     end
+                  else
+                    resolved_value = if prop.value.is_a?(Nop)
+                                       nil
+                                     elsif prop.value.is_a?(Path)
+                                       prop.value.resolve
+                                     else
+                                       prop.value
+                                     end
+                  end
+
+                  user_provided_extension_config_for_current_property[prop.var] = resolved_value
+                end
               end
             end
           end

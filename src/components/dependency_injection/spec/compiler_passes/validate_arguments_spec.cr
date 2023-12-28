@@ -37,7 +37,7 @@ describe ADI::ServiceContainer::ValidateArguments do
       it "errors if configuration is missing a non-nilable property" do
         assert_error "Configuration value 'test.connection' is missing required value for 'port' of type 'Int32'.", <<-CR
           module Schema
-            include ADI::Extension
+            include ADI::Extension::Schema
 
             property connection : NamedTuple(hostname: String, username: String, password: String, port: Int32)
           end
@@ -63,7 +63,7 @@ describe ADI::ServiceContainer::ValidateArguments do
       require "../spec_helper"
 
       module Schema
-        include ADI::Extension
+        include ADI::Extension::Schema
 
         property connection : NamedTuple(hostname: String, username: String, password: String, port: Int32?)
       end

@@ -46,78 +46,76 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
               user_provided_extension_config_for_current_property = user_provided_extension_config
 
               ext_path.each do |p|
-                user_provided_extension_config_for_current_property = user_provided_extension_config_for_current_property[p]
+                user_provided_extension_config_for_current_property = user_provided_extension_config_for_current_property[p] if user_provided_extension_config_for_current_property
               end
 
+              # If this schema property maps to an actual property, and the user provided some configuration value for that property, move onto validating the provided value's validity.
+              # Otherwise, if that property was not provided, and is required, raise an exception.
+
               if prop
-                if (config_value = user_provided_extension_config_for_current_property[prop.var.id]) != nil
-                  config_value = config_value.is_a?(Path) ? config_value.resolve : config_value
+                # If the configuration property was not provided and is required, throw an error
+                if !user_provided_extension_config_for_current_property
+                  if prop.value.is_a?(Nop) && !prop.type.resolve.nilable?
+                    path = [ext_name]
 
-                  # Tuple of:
-                  # 0 - type of the property in the schema
-                  # 1 - the value
-                  # 2 - an array representing the path to this property in the schema
-                  values_to_resolve = [{prop.type.resolve, config_value, ext_path + [prop.var.id]}]
+                    unless ext_path.empty?
+                      ext_path.each do |p|
+                        path << if p.is_a?(NumberLiteral)
+                          "[#{p}]"
+                        else
+                          "#{p}"
+                        end
+                      end
+                    end
 
-                  values_to_resolve.each_with_index do |(prop_type, cfv, stack), idx|
-                    resolved_type = if cfv.is_a?(BoolLiteral)
-                                      Bool
-                                    elsif cfv.is_a?(StringLiteral)
-                                      String
-                                    elsif cfv.is_a?(SymbolLiteral)
-                                      Symbol
-                                    elsif cfv.is_a?(ArrayLiteral)
-                                      if (array_type = (cfv.of || cfv.type)).is_a? Nop
-                                        cfv.raise "Array configuration value '#{ext_name.id}.#{stack.join('.').id}' must specify its type: #{cfv.id} of #{prop.type.type_vars.join(" | ").id}"
-                                      end
+                    prop.raise "Required configuration property '#{path.join('.').id}.#{prop}' must be provided."
+                  end
+                else
+                  if (config_value = user_provided_extension_config_for_current_property[prop.var.id]) != nil
+                    config_value = config_value.is_a?(Path) ? config_value.resolve : config_value
 
-                                      cfv.each_with_index do |v, v_idx|
-                                        values_to_resolve << {array_type.resolve, v, stack + [v_idx]}
-                                      end
+                    # Tuple of:
+                    # 0 - type of the property in the schema
+                    # 1 - the value
+                    # 2 - an array representing the path to this property in the schema
+                    values_to_resolve = [{prop.type.resolve, config_value, ext_path + [prop.var.id]}]
 
-                                      parse_type("Array(#{array_type})").resolve
-                                    elsif cfv.is_a?(NumberLiteral)
-                                      kind = cfv.kind
-
-                                      if kind.starts_with? 'i'
-                                        parse_type("Int#{kind[1..].id}").resolve
-                                      elsif kind.starts_with? 'u'
-                                        parse_type("UInt#{kind[1..].id}").resolve
-                                      elsif kind.starts_with? 'f'
-                                        parse_type("Float#{kind[1..].id}").resolve
-                                      else
-                                        cfv.raise "BUG: Unexpected number literal value"
-                                      end
-                                    elsif cfv.is_a?(TypeNode) || cfv.is_a?(HashLiteral)
-                                      cfv
-                                    elsif cfv.is_a?(NamedTupleLiteral)
-                                      cfv.each do |k, v|
-                                        nt_key_type = prop_type[k]
-
-                                        if nt_key_type == nil && k != "__nil"
-                                          path = "#{stack[0]}"
-
-                                          stack[1..].each do |p|
-                                            path += if p.is_a?(NumberLiteral)
-                                                      "[#{p}]"
-                                                    else
-                                                      ".#{p}"
-                                                    end
-                                          end
-
-                                          cfv.raise "Expected configuration value '#{ext_name.id}.#{path.id}' to be a '#{prop_type}', but encountered unexpected key '#{k}' with value '#{v}'."
-                                        elsif k == "__nil"
-                                          # no-op
-                                        else
-                                          values_to_resolve << {nt_key_type.resolve, v, stack + [k]}
+                    values_to_resolve.each_with_index do |(prop_type, cfv, stack), idx|
+                      resolved_type = if cfv.is_a?(BoolLiteral)
+                                        Bool
+                                      elsif cfv.is_a?(StringLiteral)
+                                        String
+                                      elsif cfv.is_a?(SymbolLiteral)
+                                        Symbol
+                                      elsif cfv.is_a?(ArrayLiteral)
+                                        if (array_type = (cfv.of || cfv.type)).is_a? Nop
+                                          cfv.raise "Array configuration value '#{ext_name.id}.#{stack.join('.').id}' must specify its type: #{cfv.id} of #{prop.type.type_vars.join(" | ").id}"
                                         end
-                                      end
 
-                                      missing_keys = prop_type.keys - cfv.keys
+                                        cfv.each_with_index do |v, v_idx|
+                                          values_to_resolve << {array_type.resolve, v, stack + [v_idx]}
+                                        end
 
-                                      unless missing_keys.empty?
-                                        missing_keys.each do |mk|
-                                          unless prop_type[mk].nilable?
+                                        parse_type("Array(#{array_type})").resolve
+                                      elsif cfv.is_a?(NumberLiteral)
+                                        kind = cfv.kind
+
+                                        if kind.starts_with? 'i'
+                                          parse_type("Int#{kind[1..].id}").resolve
+                                        elsif kind.starts_with? 'u'
+                                          parse_type("UInt#{kind[1..].id}").resolve
+                                        elsif kind.starts_with? 'f'
+                                          parse_type("Float#{kind[1..].id}").resolve
+                                        else
+                                          cfv.raise "BUG: Unexpected number literal value"
+                                        end
+                                      elsif cfv.is_a?(TypeNode) || cfv.is_a?(HashLiteral)
+                                        cfv
+                                      elsif cfv.is_a?(NamedTupleLiteral)
+                                        cfv.each do |k, v|
+                                          nt_key_type = prop_type[k]
+
+                                          if nt_key_type == nil && k != "__nil"
                                             path = "#{stack[0]}"
 
                                             stack[1..].each do |p|
@@ -128,48 +126,72 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                                       end
                                             end
 
-                                            cfv.raise "Configuration value '#{ext_name.id}.#{path.id}' is missing required value for '#{mk}' of type '#{prop_type[mk]}'."
+                                            cfv.raise "Expected configuration value '#{ext_name.id}.#{path.id}' to be a '#{prop_type}', but encountered unexpected key '#{k}' with value '#{v}'."
+                                          elsif k == "__nil"
+                                            # no-op
+                                          else
+                                            values_to_resolve << {nt_key_type.resolve, v, stack + [k]}
                                           end
                                         end
+
+                                        missing_keys = prop_type.keys - cfv.keys
+
+                                        unless missing_keys.empty?
+                                          missing_keys.each do |mk|
+                                            unless prop_type[mk].nilable?
+                                              path = "#{stack[0]}"
+
+                                              stack[1..].each do |p|
+                                                path += if p.is_a?(NumberLiteral)
+                                                          "[#{p}]"
+                                                        else
+                                                          ".#{p}"
+                                                        end
+                                              end
+
+                                              cfv.raise "Configuration value '#{ext_name.id}.#{path.id}' is missing required value for '#{mk}' of type '#{prop_type[mk]}'."
+                                            end
+                                          end
+                                        end
+
+                                        # TODO: Figure out if there's a way to get a TypeNode reference to the named tuple instance itself.
+                                        nil
                                       end
 
-                                      # TODO: Figure out if there's a way to get a TypeNode reference to the named tuple instance itself.
-                                      nil
+                      unless resolved_type.nil?
+                        values_to_resolve[idx][2] = resolved_type
+
+                        # Handles outer most typing issues.
+                        if resolved_type.is_a?(TypeNode) && !(resolved_type <= prop_type)
+                          path = "#{stack[0]}"
+
+                          stack[1..].each do |p|
+                            path += if p.is_a?(NumberLiteral)
+                                      "[#{p}]"
+                                    else
+                                      ".#{p}"
                                     end
+                          end
 
-                    unless resolved_type.nil?
-                      values_to_resolve[idx][2] = resolved_type
-
-                      # Handles outer most typing issues.
-                      if resolved_type.is_a?(TypeNode) && !(resolved_type <= prop_type)
-                        path = "#{stack[0]}"
-
-                        stack[1..].each do |p|
-                          path += if p.is_a?(NumberLiteral)
-                                    "[#{p}]"
-                                  else
-                                    ".#{p}"
-                                  end
+                          cfv.raise "Expected configuration value '#{ext_name.id}.#{path.id}' to be a '#{prop_type}', but got '#{resolved_type}'."
                         end
-
-                        cfv.raise "Expected configuration value '#{ext_name.id}.#{path.id}' to be a '#{prop_type}', but got '#{resolved_type}'."
                       end
                     end
-                  end
-                elsif prop.value.is_a?(Nop) && !prop.type.resolve.nilable?
-                  path = [ext_name]
+                  elsif prop.value.is_a?(Nop) && !prop.type.resolve.nilable?
+                    path = [ext_name]
 
-                  unless ext_path.empty?
-                    ext_path.each do |p|
-                      path << if p.is_a?(NumberLiteral)
-                        "[#{p}]"
-                      else
-                        "#{p}"
+                    unless ext_path.empty?
+                      ext_path.each do |p|
+                        path << if p.is_a?(NumberLiteral)
+                          "[#{p}]"
+                        else
+                          "#{p}"
+                        end
                       end
                     end
-                  end
 
-                  prop.raise "Required configuration property '#{path.join('.').id}.#{prop}' must be provided."
+                    prop.raise "Required configuration property '#{path.join('.').id}.#{prop}' must be provided."
+                  end
                 end
               end
             end

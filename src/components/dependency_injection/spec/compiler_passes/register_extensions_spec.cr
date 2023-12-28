@@ -14,7 +14,7 @@ describe ADI::ServiceContainer::RegisterExtensions do
       it "errors if a configuration value has the incorrect type" do
         assert_error "Required configuration property 'test.id : Int32' must be provided.", <<-CR
           module Schema
-            include ADI::Extension
+            include ADI::Extension::Schema
 
             property id : Int32
             property name : String
@@ -33,7 +33,7 @@ describe ADI::ServiceContainer::RegisterExtensions do
       it "errors if there is a collection type mismatch" do
         assert_error "Expected configuration value 'test.foo' to be a 'Array(Int32)', but got 'Array(String)'.", <<-CR
           module Schema
-            include ADI::Extension
+            include ADI::Extension::Schema
 
             property foo : Array(Int32)
           end
@@ -51,7 +51,7 @@ describe ADI::ServiceContainer::RegisterExtensions do
       it "errors if there is a type mismatch within an array" do
         assert_error "Expected configuration value 'test.foo[0]' to be a 'Int32', but got 'UInt64'.", <<-CR
           module Schema
-            include ADI::Extension
+            include ADI::Extension::Schema
 
             property foo : Array(Int32)
           end
@@ -69,7 +69,7 @@ describe ADI::ServiceContainer::RegisterExtensions do
       it "errors if a configuration value not found in the schema is encountered" do
         assert_error "Encountered unexpected property 'test.name' with value '\"Fred\"'.", <<-CR
           module Schema
-            include ADI::Extension
+            include ADI::Extension::Schema
 
             property id : Int32
           end
@@ -88,7 +88,7 @@ describe ADI::ServiceContainer::RegisterExtensions do
       it "errors if an array does not specify its type" do
         assert_error "Array configuration value 'test.foo' must specify its type: [10_u64] of Int32", <<-CR
           module Schema
-            include ADI::Extension
+            include ADI::Extension::Schema
 
             property foo : Array(Int32)
           end
@@ -108,13 +108,13 @@ describe ADI::ServiceContainer::RegisterExtensions do
       it "errors if a configuration value has the incorrect type" do
         assert_error "Required configuration property 'test.sub_config.defaults.id : Int32' must be provided.", <<-CR
           module Schema
-            include ADI::Extension
+            include ADI::Extension::Schema
 
             module SubConfig
-              include ADI::Extension
+              include ADI::Extension::Schema
 
               module Defaults
-                include ADI::Extension
+                include ADI::Extension::Schema
 
                 property name : String
                 property id : Int32
@@ -139,13 +139,13 @@ describe ADI::ServiceContainer::RegisterExtensions do
       it "errors if there is a collection type mismatch" do
         assert_error "Expected configuration value 'test.sub_config.defaults.foo' to be a 'Array(Int32)', but got 'Array(String)'.", <<-CR
           module Schema
-            include ADI::Extension
+            include ADI::Extension::Schema
 
             module SubConfig
-              include ADI::Extension
+              include ADI::Extension::Schema
 
               module Defaults
-                include ADI::Extension
+                include ADI::Extension::Schema
 
                 property foo : Array(Int32)
               end
@@ -169,13 +169,13 @@ describe ADI::ServiceContainer::RegisterExtensions do
       it "errors if there is a type mismatch within an array" do
         assert_error "Expected configuration value 'test.sub_config.defaults.foo[1]' to be a 'Int32', but got 'UInt64'.", <<-CR
           module Schema
-            include ADI::Extension
+            include ADI::Extension::Schema
 
             module SubConfig
-              include ADI::Extension
+              include ADI::Extension::Schema
 
               module Defaults
-                include ADI::Extension
+                include ADI::Extension::Schema
 
                 property foo : Array(Int32)
               end
@@ -199,13 +199,13 @@ describe ADI::ServiceContainer::RegisterExtensions do
       it "errors if a configuration value not found in the schema is encountered" do
         assert_error "Encountered unexpected property 'test.sub_config.defaults.name' with value '\"Fred\"'.", <<-CR
           module Schema
-            include ADI::Extension
+            include ADI::Extension::Schema
 
             module SubConfig
-              include ADI::Extension
+              include ADI::Extension::Schema
 
               module Defaults
-                include ADI::Extension
+                include ADI::Extension::Schema
 
                 property id : Int32
               end
@@ -230,13 +230,13 @@ describe ADI::ServiceContainer::RegisterExtensions do
       it "errors if an array does not specify its type" do
         assert_error "Array configuration value 'test.sub_config.defaults.foo' must specify its type: [10_u64] of Int32", <<-CR
           module Schema
-            include ADI::Extension
+            include ADI::Extension::Schema
 
             module SubConfig
-              include ADI::Extension
+              include ADI::Extension::Schema
 
               module Defaults
-                include ADI::Extension
+                include ADI::Extension::Schema
 
                 property foo : Array(Int32)
               end
@@ -267,6 +267,20 @@ describe ADI::ServiceContainer::RegisterExtensions do
         })
       CR
     end
+
+    it "errors if nothing is configured, but a property is required", tags: "compiler" do
+      assert_error "Required configuration property 'test.id : Int32' must be provided.", <<-CR
+        require "../spec_helper"
+
+        module Schema
+          include ADI::Extension::Schema
+
+          property id : Int32
+        end
+
+        ADI.register_extension "test", Schema
+      CR
+    end
   end
 
   it "extension configuration value resolution", tags: "compiler" do
@@ -280,7 +294,7 @@ describe ADI::ServiceContainer::RegisterExtensions do
       end
 
       module Schema
-        include ADI::Extension
+        include ADI::Extension::Schema
 
         ID = 10.0
 
@@ -313,6 +327,26 @@ describe ADI::ServiceContainer::RegisterExtensions do
           it { \\{{ADI::CONFIG["blah"]["color_type"]}}.should eq Color::Red }
           it { \\{{ADI::CONFIG["blah"]["color_sym"]}}.should eq Color::Blue }
           it { \\{{ADI::CONFIG["blah"]["value"]}}.should eq({"id" => "10", "name" => "fred"}) }
+        end
+      end
+    CR
+  end
+
+  it "does not error if nothing is configured, but all properties have defaults or are nilable", tags: "compiler" do
+    ASPEC::Methods.assert_success <<-CR
+      require "../spec_helper"
+
+      module Schema
+        include ADI::Extension::Schema
+
+        property id : Int32 = 123
+      end
+
+      ADI.register_extension "blah", Schema
+
+      macro finished
+        macro finished
+          it { \\{{ADI::CONFIG["blah"]["id"]}}.should eq 123 }
         end
       end
     CR
