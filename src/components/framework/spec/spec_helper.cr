@@ -10,6 +10,13 @@ require "athena-console/spec"
 require "athena-validator/spec"
 require "../src/spec"
 
+ATH.configure({
+  parameters: {
+    "framework.debug":  true,
+    "routing.base_uri": "google.com",
+  },
+})
+
 Spec.before_each do
   ART.compile ATH::Routing::AnnotationRouteLoader.route_collection
 end

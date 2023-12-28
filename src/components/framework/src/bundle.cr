@@ -2,6 +2,7 @@
 # :nodoc:
 struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
   PASSES = [
+    {Athena::Framework::CompilerPasses::MakeControllerServicesPublicPass, nil, nil},
     {Athena::Framework::Console::CompilerPasses::RegisterCommands, :before_removing, nil},
     {Athena::Framework::EventDispatcher::CompilerPasses::RegisterEventListenersPass, :before_removing, nil},
   ]

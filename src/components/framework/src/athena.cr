@@ -227,22 +227,3 @@ module Athena::Framework
 end
 
 ATH.register_bundle ATH::Bundle
-
-class ExampleController < ATH::Controller
-  @[ARTA::Get("/")]
-  def root : String
-    "At the index"
-  end
-end
-
-ATH.configure({
-  framework: {
-    default_locale: "de",
-  },
-  parameters: {
-    "framework.debug":  true,
-    "routing.base_uri": "google.com",
-  },
-})
-
-ATH.run

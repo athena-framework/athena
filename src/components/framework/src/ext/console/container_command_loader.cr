@@ -6,7 +6,7 @@ class Athena::Framework::Console::ContainerCommandLoader
 
   def initialize(
     @command_map : Hash(String, ACON::Command.class),
-    @loader : ADI::Console::ContainerCommandLoaderLocator
+    @loader : ATH::Console::ContainerCommandLoaderLocator
   ); end
 
   # :inherit:

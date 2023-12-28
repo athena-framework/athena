@@ -63,9 +63,7 @@ struct Athena::Framework::Listeners::CORS
   private EXPOSE_HEADERS_HEADER    = "access-control-expose-headers"
   private MAX_AGE_HEADER           = "access-control-max-age"
 
-  def initialize
-    @config = Config.new
-  end
+  def initialize(@config : ATH::Listeners::CORS::Config = ATH::Listeners::CORS::Config.new); end
 
   @[AEDA::AsEventListener(priority: 250)]
   def on_request(event : ATH::Events::Request) : Nil
