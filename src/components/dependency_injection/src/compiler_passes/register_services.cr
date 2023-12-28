@@ -101,7 +101,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
                       class:      klass.resolve,
                       class_ann:  ann,
                       tags:       {} of Nil => Nil,
-                      parameters: {} of Nil => Nil,
+                      parameters: parameters,
                       bindings:   {} of Nil => Nil,
                       generics:   [] of Nil,
 
