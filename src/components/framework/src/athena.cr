@@ -5,12 +5,11 @@ require "json"
 require "athena-clock"
 require "athena-config"
 require "athena-console"
+require "athena-dependency_injection"
 require "athena-event_dispatcher"
 require "athena-negotiation"
 
-# Require DI component last so it knows what extensions it should load
-require "athena-dependency_injection"
-
+require "./abstract_bundle"
 require "./action"
 require "./annotations"
 require "./bundle"
@@ -45,8 +44,10 @@ require "./params/*"
 require "./request_matcher/*"
 require "./view/*"
 
+require "./ext/clock"
 require "./ext/console"
 require "./ext/conversion_types"
+require "./ext/event_dispatcher"
 require "./ext/negotiation"
 require "./ext/routing"
 require "./ext/validator"
@@ -225,6 +226,8 @@ module Athena::Framework
   end
 end
 
+ATH.register_bundle ATH::Bundle
+
 class ExampleController < ATH::Controller
   @[ARTA::Get("/")]
   def root : String
@@ -233,6 +236,9 @@ class ExampleController < ATH::Controller
 end
 
 ATH.configure({
+  framework: {
+    default_locale: "de",
+  },
   parameters: {
     "framework.debug":  true,
     "routing.base_uri": "google.com",

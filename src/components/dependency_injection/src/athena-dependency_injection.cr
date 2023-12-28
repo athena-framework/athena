@@ -197,6 +197,3 @@ module Athena::DependencyInjection
     {% ADI::ServiceContainer::EXTENSIONS[name.id.stringify] = schema %}
   end
 end
-
-# Require extension code last so all built-in DI types are available
-require "./ext/*"
