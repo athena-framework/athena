@@ -11,12 +11,20 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
   module Schema
     include ADI::Extension::Schema
 
-    property default_locale : String = "en"
+    module FormatListener
+      include ADI::Extension::Schema
+
+      property? enabled : Bool = false
+
+      property rules : Array({path: String}) = [] of NoReturn
+    end
 
     # Configured how `ATH::Listeners::CORS` functions.
     # If no configuration is provided, that listener is disabled and will not be invoked at all.
     module Cors
       include ADI::Extension::Schema
+
+      property? enabled : Bool = false
 
       # CORS defaults that affect all routes globally.
       module Defaults
@@ -36,6 +44,25 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
         #
         # Maps to the access-control-expose-headers header.
         property expose_headers : Array(String) = [] of String
+      end
+    end
+  end
+
+  module Extension
+    macro included
+      macro finished
+        {% verbatim do %}
+
+          # Format Listener
+          {%
+            cfg = CONFIG["framework"]["format_listener"]
+            pp! cfg
+
+            if cfg["enabled"] && !cfg["rules"].empty?
+              pp "Yup"
+            end
+          %}
+        {% end %}
       end
     end
   end

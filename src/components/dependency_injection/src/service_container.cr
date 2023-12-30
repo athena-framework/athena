@@ -29,13 +29,15 @@ class Athena::DependencyInjection::ServiceContainer
     # Sets up common concepts so that future passes can leverage them
     before_optimization: {
       100 => [
-        MergeConfigs,
         RegisterServices,
         AutoConfigure,
         ResolveGenerics,
+      ],
 
-        # Extensions should be able to define their own parameters, so it needs to be _BEFORE_ they are resolved.
-        RegisterExtensions,
+      1028 => [
+        # Ensure merged configuration is available
+        MergeConfigs,
+        MergeExtensionConfig,
       ],
     },
 

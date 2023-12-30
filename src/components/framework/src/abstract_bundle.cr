@@ -15,7 +15,8 @@ module Athena::Framework
       bundle.raise "Unable to determine extension name." unless (name = ann[0] || ann["name"])
     %}
 
-    ADI.register_extension {{name}}, {{"::#{bundle.id}::Schema".id}}
+    ADI.register_extension {{name}}, {{"#{bundle.resolve.id}::Schema".id}}
+    ADI.add_compiler_pass {{"#{bundle.resolve.id}::Extension".id}}, :before_optimization, 1028
 
     {% for pass in resolved_bundle.constant("PASSES") %}
       ADI.add_compiler_pass {{pass.splat}}
@@ -23,6 +24,7 @@ module Athena::Framework
   end
 
   macro configure(config)
+    {% pp "CONFIGURE" %}
     ADI.configure({{config}})
   end
 end

@@ -88,8 +88,12 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                       elsif cfv.is_a?(SymbolLiteral)
                                         Symbol
                                       elsif cfv.is_a?(ArrayLiteral)
-                                        if (array_type = (cfv.of || cfv.type)).is_a? Nop
-                                          cfv.raise "Array configuration value '#{ext_name.id}.#{stack.join('.').id}' must specify its type: #{cfv.id} of #{prop.type.type_vars.join(" | ").id}"
+                                        # Fallback on the type of the property if no type was specified
+                                        array_type = (cfv.of || cfv.type) || prop_type.type_vars.first
+
+                                        # Special case: Allow using NoReturn to "inherit" type from the TypeDeclaration
+                                        if array_type.resolve == NoReturn.resolve
+                                          array_type = prop_type.type_vars.first
                                         end
 
                                         cfv.each_with_index do |v, v_idx|
