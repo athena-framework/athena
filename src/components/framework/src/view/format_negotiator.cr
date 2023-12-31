@@ -8,7 +8,7 @@ class Athena::Framework::View::FormatNegotiator < ANG::Negotiator
     host : Regex? = nil,
     methods : Array(String)? = nil,
     priorities : Array(String)? = nil,
-    fallback_format : String? = "json",
+    fallback_format : String | Bool | Nil = false,
     stop : Bool = false,
     prefer_extension : Bool = true
 
