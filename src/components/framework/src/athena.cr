@@ -227,23 +227,3 @@ module Athena::Framework
 end
 
 ATH.register_bundle ATH::Bundle
-
-# ATH.configure({
-#   framework: {
-#     cors: {
-#       defaults: {
-#         allow_credentials: true,
-#       },
-#     },
-#     # format_listener: {
-#     #   enabled: true,
-#     #   rules:   [
-#     #     {path: /^\\/},
-#     #   ],
-#     # },
-#   },
-#   parameters: {
-#     "framework.debug":  true,
-#     "routing.base_uri": "google.com",
-#   },
-# })

@@ -83,7 +83,6 @@ module Athena::Framework::Console::CompilerPasses::RegisterCommands
           }
 
           SERVICE_HASH[command_loader_service_id = "athena_console_command_loader"] = {
-            alias:      ACON::Loader::Interface,
             class:      Athena::Framework::Console::ContainerCommandLoader,
             ivar_type:  Athena::Framework::Console::ContainerCommandLoader,
             tags:       [] of Nil,

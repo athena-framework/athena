@@ -19,11 +19,15 @@ module Athena::DependencyInjection::ServiceContainer::DefineGetters
             {% end %}
 
             {% if !metadata[:public] %}protected {% end %}getter {{metadata[:alias] ? (metadata[:alias_service_id] || service_id).id : service_id.id}} : {{ivar_type}} do
-              {{constructor_service}}.{{constructor_method.id}}({{
-                                                                  metadata["parameters"].map do |name, param|
-                                                                    "#{name.id}: #{param["value"]}".id
-                                                                  end.splat
-                                                                }})
+              {% if metadata[:alias] %}
+                {{metadata[:aliased_service_id].id}}
+              {% else %}
+                {{constructor_service}}.{{constructor_method.id}}({{
+                                                                    metadata["parameters"].map do |name, param|
+                                                                      "#{name.id}: #{param["value"]}".id
+                                                                    end.splat
+                                                                  }})
+              {% end %}
             end
 
             {% if metadata[:public] %}

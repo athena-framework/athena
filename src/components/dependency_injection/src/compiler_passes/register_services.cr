@@ -105,8 +105,9 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
                       bindings:   {} of Nil => Nil,
                       generics:   [] of Nil,
 
-                      alias_service_id: alias_service_id,
-                      alias:            true,
+                      alias_service_id:   alias_service_id,
+                      aliased_service_id: service_id,
+                      alias:              true,
                     }
                   end
                 end

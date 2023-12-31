@@ -37,8 +37,8 @@ module Athena::DependencyInjection::ServiceContainer::AutoWire
                 resolved_service = rs
               elsif s = SERVICE_HASH[(param_resolved_restriction && param_resolved_restriction < ADI::Proxy ? param_resolved_restriction.type_vars.first.resolve : param_resolved_restriction)]
                 resolved_service = s["alias_service_id"]
-              elsif (rs = resolved_services.find { |s| s.is_a?(TypeNode) && s <= param_resolved_restriction }) && (s = SERVICE_HASH[rs])
-                resolved_service = s["alias_service_id"]
+              else
+                resolved_service = resolved_services.first
               end
 
               if resolved_service
