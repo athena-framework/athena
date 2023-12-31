@@ -20,12 +20,9 @@ module Athena::Framework::Console::CompilerPasses::RegisterCommands
             ann = metadata["class"].annotation ACONA::AsCommand
 
             if ann == nil
-              # if metadata[:visibility] == Visibility::PRIVATE
-              #   SERVICE_HASH[public_service_id = "_#{service_id.id}_public"] = metadata
-              #   service_id = public_service_id
-              # end
-              # eager_service_ids << service_id.id
-              metadata["class"].raise "FIXME: Missing annotation"
+              SERVICE_HASH[public_service_id = "_#{service_id.id}_public"] = metadata
+              service_id = public_service_id
+              eager_service_ids << service_id.id
             else
               name = ann[0] || ann[:name]
 
@@ -93,8 +90,8 @@ module Athena::Framework::Console::CompilerPasses::RegisterCommands
             generics:   [] of Nil,
             public:     false,
             parameters: {
-              command_loader: {value: "#{command_map} of String => ACON::Command.class".id},
-              loader:         {value: loader_id.id},
+              command_map: {value: "#{command_map} of String => ACON::Command.class".id},
+              loader:      {value: loader_id.id},
             },
           }
 

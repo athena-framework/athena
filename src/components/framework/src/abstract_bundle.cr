@@ -24,7 +24,6 @@ module Athena::Framework
   end
 
   macro configure(config)
-    {% pp "CONFIGURE" %}
     ADI.configure({{config}})
   end
 end

@@ -16,7 +16,7 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
 
       property? enabled : Bool = false
 
-      property rules : Array({path: String}) = [] of NoReturn
+      property rules : Array({path: Regex}) = [] of NoReturn
     end
 
     # Configured how `ATH::Listeners::CORS` functions.
@@ -56,10 +56,9 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
           # Format Listener
           {%
             cfg = CONFIG["framework"]["format_listener"]
-            pp! cfg
 
             if cfg["enabled"] && !cfg["rules"].empty?
-              pp "Yup"
+              # pp "Yup"
             end
           %}
         {% end %}

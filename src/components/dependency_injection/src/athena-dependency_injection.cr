@@ -56,7 +56,7 @@ module Athena::DependencyInjection
   private EXTENSIONS          = {} of Nil => Nil
 
   # :nodoc:
-  CONFIG = {__nil: nil} # Ensure this type is a NamedTupleLiteral
+  CONFIG = {parameters: {__nil: nil}} # Ensure this type is a NamedTupleLiteral
 
   private CONFIGS = [] of Nil
 

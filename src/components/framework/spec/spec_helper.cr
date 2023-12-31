@@ -12,8 +12,7 @@ require "../src/spec"
 
 ATH.configure({
   parameters: {
-    "framework.debug":  true,
-    "routing.base_uri": "google.com",
+    "framework.debug": true,
   },
 })
 

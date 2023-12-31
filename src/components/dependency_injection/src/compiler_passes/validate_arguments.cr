@@ -3,7 +3,7 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
   macro included
     macro finished
       {% verbatim do %}
-        # Resolve the arguments for each service
+        # Validate the arguments for each service
         {%
           SERVICE_HASH.each do |service_id, definition|
             definition["parameters"].each do |_, param|
