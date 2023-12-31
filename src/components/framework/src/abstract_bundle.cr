@@ -12,7 +12,7 @@ module Athena::Framework
 
       ann = resolved_bundle.annotation Athena::Framework::Annotations::Bundle
 
-      bundle.raise "Unable to determine extension name." unless (name = ann[0] || ann["name"])
+      bundle.raise "Unable to determine extension name." unless name = ann[0] || ann["name"]
     %}
 
     ADI.register_extension {{name}}, {{"#{bundle.resolve.id}::Schema".id}}

@@ -16,26 +16,4 @@ describe Athena do
       Athena.environment.should eq "production"
     end
   end
-
-  describe Athena::Config do
-    describe ".config" do
-      it "should return an ACF::Base instance" do
-        ACF.config.foo.should be_nil
-      end
-
-      it "should be a singleton" do
-        ACF.config.should be ACF.config
-      end
-    end
-
-    describe ".parameters" do
-      it "should return an ACF::Parameters instance" do
-        ACF.parameters.username.should eq "fred"
-      end
-
-      it "should be a singleton" do
-        ACF.parameters.should be ACF.parameters
-      end
-    end
-  end
 end

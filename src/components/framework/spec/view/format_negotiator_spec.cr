@@ -1,6 +1,5 @@
 require "../spec_helper"
 
-@[ASPEC::TestCase::Focus]
 struct FormatNegotiatorTest < ASPEC::TestCase
   @request_store : ATH::RequestStore
   @request : ATH::Request
