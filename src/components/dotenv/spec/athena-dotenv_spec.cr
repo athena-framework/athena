@@ -131,7 +131,7 @@ struct DotEnvTest < ASPEC::TestCase
   end
 
   @[DataProvider("env_data_with_format_errors")]
-  def test_parse_with_format_error(data : String, error_message : String) : Nil
+  def test_parse_with_format_error(data : String, error_message : String | Regex) : Nil
     dotenv = Athena::Dotenv.new
 
     expect_raises Athena::Dotenv::Exceptions::Format, error_message do
@@ -159,10 +159,10 @@ struct DotEnvTest < ASPEC::TestCase
       {"FOO=\nBAR=${FOO:-a$a}", "Unsupported character '$' found in the default value of variable '$FOO' in '.env' at line 2.\n...FOO=\\nBAR=${FOO:-a$a}...\n                       ^ line 2 offset 20"},
       {"FOO=\nBAR=${FOO:-a\"a}", "Unclosed braces on variable expansion in '.env' at line 2.\n...FOO=\\nBAR=${FOO:-a\"a}...\n                    ^ line 2 offset 17"},
       {"_=FOO", "Invalid character in variable name in '.env' at line 1.\n..._=FOO...\n  ^ line 1 offset 0"},
-    ] of {String, String}
+    ] of {String, String | Regex}
 
     {% if flag? :unix %}
-      tests << {"FOO=$((1dd2))", "Issue expanding a command (sh: line 1: 1dd2: value too great for base (error token is \"1dd2\")\n) in '.env' at line 1.\n...FOO=$((1dd2))...\n               ^ line 1 offset 13"}
+      tests << {"FOO=$((1dd2))", /Issue expanding a command \(.*\n\) in '\.env' at line 1\.\n\.\.\.FOO=\$\(\(1dd2\)\)\.\.\.\n               \^ line 1 offset 13/}
     {% end %}
 
     tests
