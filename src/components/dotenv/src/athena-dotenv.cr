@@ -12,8 +12,9 @@ require "./exceptions/*"
 #
 # ## Getting Started
 #
-# If using this component within the [Athena Framework][Athena::Framework], it is already installed and required for you.
-# If using it outside of the framework, you will first need to add it as a dependency:
+# Unlike the other components, this one requires being manually installed, even if it is being used within the framework.
+# This is primarily because it is not strictly required, and its use is completely optional.
+# As such, you will first need to add it as a dependency:
 #
 # ```yaml
 # dependencies:
