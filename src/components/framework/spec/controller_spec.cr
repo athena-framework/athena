@@ -3,7 +3,6 @@ require "./spec_helper"
 describe ATH::Controller do
   describe ".render" do
     it "creates a proper response for the template" do
-      # ameba:disable Lint/UselessAssign
       name = "TEST"
       response = ATH::Controller.render "#{__DIR__}/assets/greeting.ecr"
 
@@ -13,7 +12,6 @@ describe ATH::Controller do
     end
 
     it "creates a proper response for the template with a layout" do
-      # ameba:disable Lint/UselessAssign
       name = "TEST"
       response = ATH::Controller.render "#{__DIR__}/assets/greeting.ecr", "#{__DIR__}/assets/layout.ecr"
 
