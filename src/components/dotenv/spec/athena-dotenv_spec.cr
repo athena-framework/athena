@@ -110,6 +110,10 @@ struct DotEnvTest < ASPEC::TestCase
       {"FOO=\nBAR=${FOO:=TEST}", {"FOO" => "TEST", "BAR" => "TEST"}},
       {"FOO=\nBAR=$FOO:=TEST}", {"FOO" => "TEST", "BAR" => "TEST}"}},
       {"FOO=foo\nFOOBAR=${FOO}${BAR}", {"FOO" => "foo", "FOOBAR" => "foo"}},
+
+      # Underscores
+      {"_FOO=BAR", {"_FOO" => "BAR"}},
+      {"_FOO_BAR=FOOBAR", {"_FOO_BAR" => "FOOBAR"}},
     ] of {String, Hash(String, String)}
 
     {% if flag? :unix %}
@@ -154,10 +158,11 @@ struct DotEnvTest < ASPEC::TestCase
       {"FOO=\nBAR=${FOO:-\\'a{a}a}", "Unsupported character ''' found in the default value of variable '$FOO' in '.env' at line 2.\n...\\nBAR=${FOO:-\\'a{a}a}...\n                       ^ line 2 offset 24"},
       {"FOO=\nBAR=${FOO:-a$a}", "Unsupported character '$' found in the default value of variable '$FOO' in '.env' at line 2.\n...FOO=\\nBAR=${FOO:-a$a}...\n                       ^ line 2 offset 20"},
       {"FOO=\nBAR=${FOO:-a\"a}", "Unclosed braces on variable expansion in '.env' at line 2.\n...FOO=\\nBAR=${FOO:-a\"a}...\n                    ^ line 2 offset 17"},
+      {"_=FOO", "Invalid character in variable name in '.env' at line 1.\n..._=FOO...\n  ^ line 1 offset 0"},
     ] of {String, String}
 
-    {% if flag? :win32 %}
-      tests << {"FOO=$((1dd2))", "Issue expanding a command (%s\n) in '.env' at line 1.\n...FOO=$((1dd2))...\n               ^ line 1 offset 13"}
+    {% if flag? :unix %}
+      tests << {"FOO=$((1dd2))", "Issue expanding a command (sh: line 1: 1dd2: value too great for base (error token is \"1dd2\")\n) in '.env' at line 1.\n...FOO=$((1dd2))...\n               ^ line 1 offset 13"}
     {% end %}
 
     tests

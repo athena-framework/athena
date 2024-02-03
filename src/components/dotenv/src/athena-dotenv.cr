@@ -169,7 +169,7 @@ require "./exceptions/*"
 class Athena::Dotenv
   VERSION = "0.1.1"
 
-  private VARNAME_REGEX = /(?i:[A-Z][A-Z0-9_]*+)/
+  private VARNAME_REGEX = /(?i:_?[A-Z][A-Z0-9_]*+)/
 
   private enum State
     VARNAME
@@ -472,8 +472,8 @@ class Athena::Dotenv
         @reader.next_char
         value = value.gsub(%(\\"), '"').gsub("\\r", "\r").gsub("\\n", "\n")
         resolved_value = value
-        resolved_value = self.resolve_variables resolved_value, loaded_vars
         resolved_value = self.resolve_commands resolved_value, loaded_vars
+        resolved_value = self.resolve_variables resolved_value, loaded_vars
         resolved_value = resolved_value.gsub "\\\\", "\\"
 
         v += resolved_value
@@ -499,8 +499,8 @@ class Athena::Dotenv
         value = value.strip
 
         resolved_value = value
-        resolved_value = self.resolve_variables resolved_value, loaded_vars
         resolved_value = self.resolve_commands resolved_value, loaded_vars
+        resolved_value = self.resolve_variables resolved_value, loaded_vars
         resolved_value = resolved_value.gsub "\\\\", "\\"
 
         if resolved_value == value && value.each_char.any? &.whitespace?
