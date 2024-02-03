@@ -26,6 +26,6 @@ abstract struct AbstractQuestionHelperTest < ASPEC::TestCase
       output = output.gsub ACON::System::EOL, "\n"
     end
 
-    output.should contain string.gsub ACON::System::EOL, "\n"
+    output.should contain string
   end
 end

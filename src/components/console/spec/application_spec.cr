@@ -633,7 +633,7 @@ struct ApplicationTest < ASPEC::TestCase
 
     tester = ACON::Spec::ApplicationTester.new app
     tester.run command: "foo", decorated: false
-    self.assert_file_equals_string "text/application_renderexception_synopsis_escapeslines.txt", tester.display
+    self.assert_file_equals_string "text/application_renderexception_synopsis_escapeslines.txt", tester.display true
   end
 
   def test_run_passes_io_thru : Nil
@@ -792,10 +792,10 @@ struct ApplicationTest < ASPEC::TestCase
     tester = ACON::Spec::ApplicationTester.new app
 
     tester.run command: "foo:bar", "--no-interaction": true, decorated: false
-    tester.display.should eq "execute called\n"
+    tester.display.should eq "execute called#{ACON::System::EOL}"
 
     tester.run command: "foo:bar", "-n": true, decorated: false
-    tester.display.should eq "execute called\n"
+    tester.display.should eq "execute called#{ACON::System::EOL}"
   end
 
   def test_run_global_option_and_no_command : Nil
@@ -974,7 +974,7 @@ struct ApplicationTest < ASPEC::TestCase
 
     tester = ACON::Spec::ApplicationTester.new app
     tester.run interactive: false
-    tester.display.should eq "execute called\n"
+    tester.display.should eq "execute called#{ACON::System::EOL}"
 
     # TODO: Test custom application default.
   end
@@ -987,7 +987,7 @@ struct ApplicationTest < ASPEC::TestCase
 
     tester = ACON::Spec::ApplicationTester.new app
     tester.run "--fooopt": "opt", interactive: false
-    tester.display.should eq "execute called\nopt\n"
+    tester.display.should eq "execute called#{ACON::System::EOL}opt#{ACON::System::EOL}"
   end
 
   def test_run_custom_single_default_command : Nil

@@ -152,7 +152,7 @@ struct AthenaQuestionTest < AbstractQuestionHelperTest
       @helper.ask input, @output, question
     end
 
-    self.assert_output_contains <<-OUT
+    self.assert_output_contains <<-OUT, true
      qqq:
       [0] foo
      >ccc>

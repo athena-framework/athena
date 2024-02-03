@@ -29,7 +29,7 @@ struct AthenaStyleTest < ASPEC::TestCase
     style = ACON::Style::Athena.new ACON::Input::Hash.new({} of String => String), output
     style.error_style.puts "foo"
 
-    io.to_s.should eq "foo\n"
+    io.to_s.should eq "foo#{ACON::System::EOL}"
   end
 
   def test_error_style_non_console_output : Nil
@@ -38,7 +38,7 @@ struct AthenaStyleTest < ASPEC::TestCase
     style = ACON::Style::Athena.new ACON::Input::Hash.new({} of String => String), output
     style.error_style.puts "foo"
 
-    io.to_s.should eq "foo\n"
+    io.to_s.should eq "foo#{ACON::System::EOL}"
   end
 
   @[DataProvider("output_provider")]
