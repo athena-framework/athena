@@ -149,7 +149,11 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
       new_line = true
     end
 
-    return super unless self.decorated?
+    unless self.decorated?
+      super message, new_line
+
+      return
+    end
 
     # Check if the previous line (last entry of @content) needs to be continued
     # i.e. does not end with a line break. In which case, it needs to be erased first

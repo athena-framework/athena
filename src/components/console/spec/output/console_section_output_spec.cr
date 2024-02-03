@@ -99,10 +99,7 @@ struct ConsoleSectionOutputTest < ASPEC::TestCase
     @io.to_s.should eq expected.to_s
   end
 
-  @[Focus]
   def test_overwrite : Nil
-    pp ENV
-
     sections = Array(ACON::Output::Section).new
     output = ACON::Output::Section.new @io, sections, :normal, true, ACON::Formatter::Output.new
 
