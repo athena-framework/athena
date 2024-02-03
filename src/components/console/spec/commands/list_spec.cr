@@ -37,7 +37,7 @@ struct ListCommandTest < ASPEC::TestCase
 
     tester = ACON::Spec::CommandTester.new app.get("list")
     tester.execute command: "list", decorated: false
-      
+
     tester.display(true).should eq normalize <<-OUTPUT
       foo 0.1.0
 
