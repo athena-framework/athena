@@ -1,3 +1,5 @@
+require "../../spec_helper"
+
 abstract struct CompletionOutputTestCase < ASPEC::TestCase
   abstract def completion_output : ACON::Completion::Output::Interface
   abstract def expected_options_output : String

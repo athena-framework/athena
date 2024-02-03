@@ -1,4 +1,16 @@
+Documentation/DocumentationAdmonition:
+  Enabled: false
+Lint/ComparisonToBoolean:
+  Enabled: false # TODO: Enable once https://github.com/crystal-ameba/ameba/issues/432 is resolved
 Lint/NotNil:
+  Enabled: false
+Lint/UselessAssign:
+  Enabled: false # TODO: Enable once https://github.com/crystal-ameba/ameba/issues/447 is resolved
+Naming/AccessorMethodName:
+  Enabled: false
+Naming/BlockParameterName:
+  Enabled: false
+Naming/QueryBoolMethods:
   Enabled: false
 Style/LargeNumbers:
   Enabled: true

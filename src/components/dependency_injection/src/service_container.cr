@@ -245,8 +245,8 @@ class Athena::DependencyInjection::ServiceContainer
                                         end
                                       elsif (bindings = BINDINGS[arg_name]) && # Check if there are any bindings defined for this argument
                                             (
-                                              (binding = bindings[:typed].find &.[:type].<=(arg_resolved_restriction)) || # First try resolving it via a typed bindings since they are more specific
-                                              (binding = bindings[:untyped].first)                                        # Otherwise fallback on last defined untyped binding (they're pushed in reverse order)
+                                              (binding = bindings[:typed].find { |b| (t = b[:type]) && t <= arg_resolved_restriction }) || # First try resolving it via a typed bindings since they are more specific
+                                              (binding = bindings[:untyped].first)                                                         # Otherwise fallback on last defined untyped binding (they're pushed in reverse order)
                                             )
                                         binding_value = binding[:value]
 

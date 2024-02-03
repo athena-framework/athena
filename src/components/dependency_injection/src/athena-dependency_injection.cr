@@ -4,8 +4,6 @@ require "./service_container"
 
 require "athena-config"
 
-require "compiler/crystal/macros"
-
 # :nodoc:
 class Fiber
   property container : ADI::ServiceContainer { ADI::ServiceContainer.new }
@@ -52,7 +50,7 @@ alias ADI = Athena::DependencyInjection
 # fiber is truly independent from one another, with them not being reused or sharing state external to the container. An example of this is how `HTTP::Server` reuses fibers
 # for `connection: keep-alive` requests. Because of this, or in cases similar to, you may want to manually reset the container via `Fiber.current.container = ADI::ServiceContainer.new`.
 module Athena::DependencyInjection
-  VERSION = "0.3.7"
+  VERSION = "0.3.8"
 
   private BINDINGS            = {} of Nil => Nil
   private AUTO_CONFIGURATIONS = {} of Nil => Nil
@@ -166,14 +164,14 @@ module Athena::DependencyInjection
       {% type = key.type.resolve %}
     {% else %}
       {% name = key.id.stringify %}
-      {% type = Crystal::Macros::Nop %}
+      {% type = nil %}
     {% end %}
 
     # TODO: Refactor this to ||= once https://github.com/crystal-lang/crystal/pull/9409 is released
     {% BINDINGS[name] = {typed: [] of Nil, untyped: [] of Nil} if BINDINGS[name] == nil %}
 
-    {% if type == Crystal::Macros::Nop %}
-      {% BINDINGS[name][:untyped].unshift({value: value, type: type}) %}
+    {% if type == nil %}
+      {% BINDINGS[name][:untyped].unshift({value: value}) %}
     {% else %}
       {% BINDINGS[name][:typed].unshift({value: value, type: type}) %}
     {% end %}

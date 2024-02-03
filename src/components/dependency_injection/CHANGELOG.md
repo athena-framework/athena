@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.8] - 2023-12-16
+
+### Fixed
+
+- Avoid depending directly on Crystal macro types ([#335](https://github.com/athena-framework/athena/pull/335)) (George Dietrich)
+
 ## [0.3.7] - 2023-10-09
 
 ### Added
@@ -150,6 +156,7 @@ _Major refactor of the component._
 
 _Initial release._
 
+[0.3.8]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.8
 [0.3.7]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.7
 [0.3.6]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.6
 [0.3.5]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.5
