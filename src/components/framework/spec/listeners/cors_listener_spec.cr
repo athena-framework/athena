@@ -43,7 +43,7 @@ private CONFIG = ATH::Listeners::CORS::Config.new(
   max_age: 123
 )
 
-describe ATH::Listeners::CORS, focus: true do
+describe ATH::Listeners::CORS do
   describe ".new" do
     it "errors if a wildcard is used with allow_credentials enabled" do
       expect_raises ArgumentError, "expose_headers cannot contain a wildcard ('*') when allow_credentials is 'true'." do
