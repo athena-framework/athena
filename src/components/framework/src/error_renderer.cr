@@ -18,11 +18,20 @@ struct Athena::Framework::ErrorRenderer
     headers["content-type"] = "application/json; charset=UTF-8"
 
     # TODO: Use a better API to get the file/line/column info.
-    if @debug && (match = exception.backtrace?.try(&.first).to_s.match(/(.*):(\d+):(\d+)/))
-      headers["x-debug-exception-message"] = URI.encode_path exception.message.to_s
-      headers["x-debug-exception-class"] = exception.class.to_s
-      headers["x-debug-exception-code"] = status.value.to_s
-      headers["x-debug-exception-file"] = "#{URI.encode_path(match[1])}:#{match[2]}:#{match[3]}"
+    if @debug && (backtrace = exception.backtrace?.try(&.first).to_s.presence)
+      if (match = backtrace.match(/(.*):(\d+):(\d+)/)) || (match = backtrace.match(/(.*):(\d+)/))
+        headers["x-debug-exception-message"] = URI.encode_path exception.message.to_s
+        headers["x-debug-exception-class"] = exception.class.to_s
+        headers["x-debug-exception-code"] = status.value.to_s
+
+        file = "#{URI.encode_path(match[1])}:#{match[2]}"
+
+        if m3 = match[3]?
+          file = "#{file}:#{m3}"
+        end
+
+        headers["x-debug-exception-file"] = file
+      end
     end
 
     ATH::Response.new exception.to_json, status, headers

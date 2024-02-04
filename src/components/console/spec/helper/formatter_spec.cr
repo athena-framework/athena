@@ -1,5 +1,9 @@
 require "../spec_helper"
 
+private def normalize(input : String) : String
+  input.gsub ACON::System::EOL, "\n"
+end
+
 describe ACON::Helper::Formatter do
   it "#format_section" do
     ACON::Helper::Formatter.new.format_section("cli", "some text to display").should eq "<info>[cli]</info> some text to display"
@@ -11,7 +15,7 @@ describe ACON::Helper::Formatter do
 
       formatter.format_block("Some text to display", "error").should eq "<error> Some text to display </error>"
       formatter.format_block({"Some text to display", "foo bar"}, "error").should eq "<error> Some text to display </error>\n<error> foo bar              </error>"
-      formatter.format_block("Some text to display", "error", true).should eq <<-BLOCK
+      formatter.format_block("Some text to display", "error", true).should eq normalize <<-BLOCK
       <error>                        </error>
       <error>  Some text to display  </error>
       <error>                        </error>
@@ -21,7 +25,7 @@ describe ACON::Helper::Formatter do
     it "formats with diacritic letters" do
       formatter = ACON::Helper::Formatter.new
 
-      formatter.format_block("Du texte à afficher", "error", true).should eq <<-BLOCK
+      formatter.format_block("Du texte à afficher", "error", true).should eq normalize <<-BLOCK
       <error>                       </error>
       <error>  Du texte à afficher  </error>
       <error>                       </error>
@@ -32,7 +36,7 @@ describe ACON::Helper::Formatter do
     end
 
     it "escapes < within the block" do
-      ACON::Helper::Formatter.new.format_block("<info>some info</info>", "error", true).should eq <<-BLOCK
+      ACON::Helper::Formatter.new.format_block("<info>some info</info>", "error", true).should eq normalize <<-BLOCK
       <error>                            </error>
       <error>  \\<info>some info\\</info>  </error>
       <error>                            </error>

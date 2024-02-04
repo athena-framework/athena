@@ -14,7 +14,7 @@ struct DebugRouterMatchCommandTest < ASPEC::TestCase
     ret = tester.execute path_info: "/test", decorated: false
 
     ret.should eq ACON::Command::Status::FAILURE
-    tester.display.should contain "None of the routes match the path '/test'"
+    tester.display(true).should contain "None of the routes match the path '/test'"
   end
 
   def test_partial : Nil

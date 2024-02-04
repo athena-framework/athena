@@ -130,6 +130,17 @@ module Athena::Framework
   # See each command class for more information.
   module Commands; end
 
+  # :nodoc:
+  #
+  # TODO: Remove this in favor of `::System::EOL` when/if https://github.com/crystal-lang/crystal/pull/11303 is released.
+  module System
+    EOL = {% if flag? :windows %}
+            "\r\n"
+          {% else %}
+            "\n"
+          {% end %}
+  end
+
   # Runs an `HTTP::Server` listening on the given *port* and *host*.
   #
   # ```
@@ -213,9 +224,8 @@ module Athena::Framework
         end
       {% end %}
 
-      # Handle exiting correctly on stop/kill signals
-      Signal::INT.trap { self.stop }
-      Signal::TERM.trap { self.stop }
+      # Handle exiting correctly on interrupt signals
+      Process.on_interrupt { self.stop }
 
       Log.info { %(Server has started and is listening at #{@ssl_context ? "https" : "http"}://#{@server.addresses.first}) }
 

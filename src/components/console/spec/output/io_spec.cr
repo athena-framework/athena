@@ -14,6 +14,6 @@ struct IOTest < ASPEC::TestCase
   def test_do_write : Nil
     output = ACON::Output::IO.new @io
     output.puts "foo"
-    output.to_s.should eq "foo\n"
+    output.to_s.should eq "foo#{ACON::System::EOL}"
   end
 end

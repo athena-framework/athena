@@ -24,9 +24,7 @@ struct Athena::Console::Cursor
   @output : ACON::Output::Interface
   @input : IO
 
-  def initialize(@output : ACON::Output::Interface, input : IO? = nil)
-    @input = input || STDIN
-  end
+  def initialize(@output : ACON::Output::Interface, @input : IO = STDIN); end
 
   # Moves the cursor up *lines* lines.
   def move_up(lines : Int32 = 1) : self
@@ -128,19 +126,26 @@ struct Athena::Console::Cursor
 
   # Returns the current column, row position of the cursor.
   def current_position : {Int32, Int32}
-    return {1, 1} unless @input.tty?
+    {% if flag? :win32 %}
+      return {1, 1} unless @input.tty?
 
-    stty_mode = `stty -g`
-    system "stty -icanon -echo"
+      LibC.GetConsoleScreenBufferInfo(LibC.GetStdHandle(LibC::STDOUT_HANDLE), out csbi)
+      {csbi.dwCursorPosition.x.to_i32, csbi.dwCursorPosition.y.to_i32}
+    {% else %}
+      return {1, 1} unless @input.tty?
 
-    @input.print "\033[6n"
+      stty_mode = `stty -g`
+      system "stty -icanon -echo"
 
-    bytes = @input.peek
+      @input.print "\033[6n"
 
-    system "stty #{stty_mode}"
+      bytes = @input.peek
 
-    String.new(bytes.not_nil!).match /\e\[(\d+);(\d+)R/
+      system "stty #{stty_mode}"
 
-    {$2.to_i, $1.to_i}
+      String.new(bytes.not_nil!).match /\e\[(\d+);(\d+)R/
+
+      {$2.to_i, $1.to_i}
+    {% end %}
   end
 end

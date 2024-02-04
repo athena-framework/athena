@@ -233,6 +233,11 @@ struct ARGVTest < ASPEC::TestCase
 
   def test_to_s_complex : Nil
     input = ACON::Input::ARGV.new "-f", "--bar=foo", "a b c d", "A\nB'C"
-    input.to_s.should eq "-f --bar=foo 'a b c d' 'A\nB'\"'\"'C'"
+
+    {% if flag? :windows %}
+      input.to_s.should eq "-f --bar=foo \"a b c d\" A\nB'C"
+    {% else %}
+      input.to_s.should eq "-f --bar=foo 'a b c d' 'A\nB'\"'\"'C'"
+    {% end %}
   end
 end
