@@ -55,7 +55,7 @@ struct Athena::Console::Terminal
 
   {% if flag?(:win32) %}
     protected def self.init_dimensions : Nil
-      # return if check_size(size_from_screen_buffer)
+      return if check_size(size_from_screen_buffer)
       return if check_size(size_from_ansicon)
     end
 
