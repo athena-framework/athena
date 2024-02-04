@@ -103,7 +103,7 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
 
   protected def add_content(input : String, new_line : Bool = true) : Int32
     width = @terminal.width
-    lines = input.split ACON::System::EOL, remove_empty: false
+    lines = input.split EOL, remove_empty: false
     lines_added = 0
     count = lines.size - 1
 
@@ -112,7 +112,7 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
       # - every line that is not the last line
       # - if new_line is required, also add it to the last line
       if idx < count || new_line
-        line += ACON::System::EOL
+        line += EOL
       end
 
       # Skip line if there is no text (or new line)
@@ -120,7 +120,7 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
 
       # For the first line, check if the previous line (last entry of @content) needs to be continued
       # I.e. does not end with a line break
-      if idx == 0 && @content[-1]?.try { |l| !l.ends_with? ACON::System::EOL }
+      if idx == 0 && @content[-1]?.try { |l| !l.ends_with? EOL }
         # Deduct the line count of the previous line
         w = (self.get_display_width(@content[-1]) / width).ceil.to_i
         @lines -= w.zero? ? 1 : w
@@ -144,7 +144,7 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
   end
 
   protected def do_write(message : String, new_line : Bool) : Nil
-    if !new_line && message.ends_with? ACON::System::EOL
+    if !new_line && message.ends_with? EOL
       message = message.chomp
       new_line = true
     end
@@ -157,7 +157,7 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
 
     # Check if the previous line (last entry of @content) needs to be continued
     # i.e. does not end with a line break. In which case, it needs to be erased first
-    lines_to_clear = (last_line = @content[-1]? || "").presence.try { |l| !l.ends_with?(ACON::System::EOL) } ? 1 : 0
+    lines_to_clear = (last_line = @content[-1]? || "").presence.try { |l| !l.ends_with?(EOL) } ? 1 : 0
     delete_last_line = lines_to_clear == 1
 
     lines_added = self.add_content message, new_line
@@ -196,8 +196,8 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
       number_of_lines_to_clear += (max_height = section.max_height) ? Math.min(section.lines, max_height) : section.lines
 
       unless (section_content = section.visible_content).empty?
-        unless section_content.ends_with? ACON::System::EOL
-          section_content = "#{section_content}#{ACON::System::EOL}"
+        unless section_content.ends_with? EOL
+          section_content = "#{section_content}#{EOL}"
         end
 
         erased_content << section_content

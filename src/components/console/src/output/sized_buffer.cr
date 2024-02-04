@@ -23,7 +23,7 @@ class Athena::Console::Output::SizedBuffer < Athena::Console::Output
   protected def do_write(message : String, new_line : Bool) : Nil
     @buffer += message
 
-    @buffer += System::EOL if new_line
+    @buffer += EOL if new_line
 
     @buffer = @buffer.chars.last(@max_length).join
   end

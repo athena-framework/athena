@@ -19,7 +19,7 @@ struct ApplicationTest < ASPEC::TestCase
 
   protected def assert_file_equals_string(filepath : String, string : String, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
     normalized_path = File.join __DIR__, "fixtures", filepath
-    string.should match(Regex.new(File.read(normalized_path).gsub ACON::System::EOL, "\n")), file: file, line: line
+    string.should match(Regex.new(File.read(normalized_path).gsub EOL, "\n")), file: file, line: line
   end
 
   protected def ensure_static_command_help(application : ACON::Application) : Nil
@@ -792,10 +792,10 @@ struct ApplicationTest < ASPEC::TestCase
     tester = ACON::Spec::ApplicationTester.new app
 
     tester.run command: "foo:bar", "--no-interaction": true, decorated: false
-    tester.display.should eq "execute called#{ACON::System::EOL}"
+    tester.display.should eq "execute called#{EOL}"
 
     tester.run command: "foo:bar", "-n": true, decorated: false
-    tester.display.should eq "execute called#{ACON::System::EOL}"
+    tester.display.should eq "execute called#{EOL}"
   end
 
   def test_run_global_option_and_no_command : Nil
@@ -974,7 +974,7 @@ struct ApplicationTest < ASPEC::TestCase
 
     tester = ACON::Spec::ApplicationTester.new app
     tester.run interactive: false
-    tester.display.should eq "execute called#{ACON::System::EOL}"
+    tester.display.should eq "execute called#{EOL}"
 
     # TODO: Test custom application default.
   end
@@ -987,7 +987,7 @@ struct ApplicationTest < ASPEC::TestCase
 
     tester = ACON::Spec::ApplicationTester.new app
     tester.run "--fooopt": "opt", interactive: false
-    tester.display.should eq "execute called#{ACON::System::EOL}opt#{ACON::System::EOL}"
+    tester.display.should eq "execute called#{EOL}opt#{EOL}"
   end
 
   def test_run_custom_single_default_command : Nil

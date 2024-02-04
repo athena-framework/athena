@@ -41,11 +41,11 @@ struct ProgressIndicatorTest < ASPEC::TestCase
       self.generate_output(" \\ Advancing..."),
       self.generate_output(" | Advancing..."),
       self.generate_output(" | Done..."),
-      ACON::System::EOL,
+      EOL,
       self.generate_output(" - Starting Again..."),
       self.generate_output(" \\ Starting Again..."),
       self.generate_output(" \\ Done Again..."),
-      ACON::System::EOL,
+      EOL,
     )
   end
 
@@ -62,9 +62,9 @@ struct ProgressIndicatorTest < ASPEC::TestCase
 
     self.assert_output(
       output,
-      " Starting...#{ACON::System::EOL}",
-      " Midway...#{ACON::System::EOL}",
-      " Done...#{ACON::System::EOL}#{ACON::System::EOL}",
+      " Starting...#{EOL}",
+      " Midway...#{EOL}",
+      " Done...#{EOL}#{EOL}",
     )
   end
 

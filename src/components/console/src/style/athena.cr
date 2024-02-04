@@ -50,7 +50,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
 
     if @input.interactive?
       self.new_line
-      @buffered_output.print System::EOL
+      @buffered_output.print EOL
     end
 
     answer
@@ -248,7 +248,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
   # :inherit:
   def new_line(count : Int32 = 1) : Nil
     super
-    @buffered_output.print System::EOL * count
+    @buffered_output.print EOL * count
   end
 
   # :inherit:
@@ -389,7 +389,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
   end
 
   private def auto_prepend_block : Nil
-    chars = @buffered_output.fetch.gsub System::EOL, "\n"
+    chars = @buffered_output.fetch.gsub EOL, "\n"
 
     if chars.empty?
       return self.new_line
@@ -422,7 +422,7 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
     messages.each_with_index do |message, idx|
       message = ACON::Formatter::Output.escape message if escape
 
-      lines.concat output_wrapper.wrap(message, @line_length - prefix_length - indent_length, ACON::System::EOL).split ACON::System::EOL
+      lines.concat output_wrapper.wrap(message, @line_length - prefix_length - indent_length, EOL).split EOL
 
       lines << "" if messages.size > 1 && idx < (messages.size - 1)
     end

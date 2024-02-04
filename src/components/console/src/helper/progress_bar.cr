@@ -775,7 +775,7 @@ class Athena::Console::Helper::ProgressBar
         end
       end
     elsif @step > 0
-      message = "#{ACON::System::EOL}#{message}"
+      message = "#{EOL}#{message}"
     end
 
     @previous_message = original_message

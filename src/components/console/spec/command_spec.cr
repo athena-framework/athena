@@ -179,13 +179,13 @@ describe ACON::Command do
     it "interactive" do
       tester = ACON::Spec::CommandTester.new TestCommand.new
       tester.execute interactive: true
-      tester.display.should eq "interact called#{ACON::System::EOL}execute called#{ACON::System::EOL}"
+      tester.display.should eq "interact called#{EOL}execute called#{EOL}"
     end
 
     it "non-interactive" do
       tester = ACON::Spec::CommandTester.new TestCommand.new
       tester.execute interactive: false
-      tester.display.should eq "execute called#{ACON::System::EOL}"
+      tester.display.should eq "execute called#{EOL}"
     end
 
     it "invalid option" do
