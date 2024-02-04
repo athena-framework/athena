@@ -66,4 +66,5 @@ jobs:
         env:
           SHARDS_OVERRIDE: shard.dev.yml
       - name: Specs
-        run: crystal spec --order=random src/components/console
+        run: ./scripts/test.sh
+        shell: bash
