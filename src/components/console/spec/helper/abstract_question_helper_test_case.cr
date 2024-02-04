@@ -23,7 +23,7 @@ abstract struct AbstractQuestionHelperTest < ASPEC::TestCase
     output = stream.to_s
 
     if normalize
-      output = output.gsub ACON::System::EOL, "\n"
+      output = output.gsub EOL, "\n"
     end
 
     output.should contain string

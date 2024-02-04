@@ -8,7 +8,7 @@ describe ATH::Controller do
 
       response.status.should eq HTTP::Status::OK
       response.headers["content-type"].should eq "text/html"
-      response.content.should eq "Greetings, TEST!#{ATH::System::EOL}"
+      response.content.should eq "Greetings, TEST!#{EOL}"
     end
 
     it "creates a proper response for the template with a layout" do
@@ -17,7 +17,7 @@ describe ATH::Controller do
 
       response.status.should eq HTTP::Status::OK
       response.headers["content-type"].should eq "text/html"
-      response.content.should eq "<h1>Content:</h1> Greetings, TEST!#{ATH::System::EOL}"
+      response.content.should eq "<h1>Content:</h1> Greetings, TEST!#{EOL}"
     end
   end
 

@@ -66,6 +66,6 @@ abstract struct AbstractDescriptorTestCase < ASPEC::TestCase
   end
 
   private def normalize_output(output : String) : String
-    output.gsub(ACON::System::EOL, "\n").strip
+    output.gsub(EOL, "\n").strip
   end
 end

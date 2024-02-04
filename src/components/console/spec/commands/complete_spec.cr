@@ -52,7 +52,7 @@ struct CompleteCommandTest < ASPEC::TestCase
     })
 
     self.execute({"--current" => "0", "--input" => [] of String})
-    @tester.display.should eq "#{["help", "list", "completion", "hello", "ahoy", "foo:bar1", "afoobar1"].join("\n")}#{ACON::System::EOL}"
+    @tester.display.should eq "#{["help", "list", "completion", "hello", "ahoy", "foo:bar1", "afoobar1"].join("\n")}#{EOL}"
   end
 
   def test_additional_shell_support : Nil
@@ -96,7 +96,7 @@ struct CompleteCommandTest < ASPEC::TestCase
   @[DataProvider("provide_complete_command_name_inputs")]
   def test_completion_command_name(input : Array(String), suggestions : Array(String)) : Nil
     self.execute({"--current" => "0", "--input" => input})
-    @tester.display.should eq "#{suggestions.join("\n")}#{ACON::System::EOL}"
+    @tester.display.should eq "#{suggestions.join("\n")}#{EOL}"
   end
 
   def provide_complete_command_name_inputs : Hash
@@ -111,7 +111,7 @@ struct CompleteCommandTest < ASPEC::TestCase
   @[DataProvider("provide_input_definition_inputs")]
   def test_completion_command_input_definitions(input : Array(String), suggestions : Array(String)) : Nil
     self.execute({"--current" => "1", "--input" => input})
-    @tester.display.should eq "#{suggestions.join("\n")}#{ACON::System::EOL}"
+    @tester.display.should eq "#{suggestions.join("\n")}#{EOL}"
   end
 
   def provide_input_definition_inputs : Hash

@@ -18,7 +18,7 @@ struct AthenaStyleTest < ASPEC::TestCase
 
   private def assert_file_equals_string(filepath : String, string : String, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
     normalized_path = File.join __DIR__, "..", "fixtures", filepath
-    string.should match(Regex.new(File.read(normalized_path).gsub ACON::System::EOL, "\n")), file: file, line: line
+    string.should match(Regex.new(File.read(normalized_path).gsub EOL, "\n")), file: file, line: line
   end
 
   def test_error_style : Nil
@@ -29,7 +29,7 @@ struct AthenaStyleTest < ASPEC::TestCase
     style = ACON::Style::Athena.new ACON::Input::Hash.new({} of String => String), output
     style.error_style.puts "foo"
 
-    io.to_s.should eq "foo#{ACON::System::EOL}"
+    io.to_s.should eq "foo#{EOL}"
   end
 
   def test_error_style_non_console_output : Nil
@@ -38,7 +38,7 @@ struct AthenaStyleTest < ASPEC::TestCase
     style = ACON::Style::Athena.new ACON::Input::Hash.new({} of String => String), output
     style.error_style.puts "foo"
 
-    io.to_s.should eq "foo#{ACON::System::EOL}"
+    io.to_s.should eq "foo#{EOL}"
   end
 
   @[DataProvider("output_provider")]

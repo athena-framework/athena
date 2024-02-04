@@ -20,7 +20,7 @@ module Athena::Console::Spec
       output = output.to_s
 
       if normalize
-        output = output.gsub System::EOL, "\n"
+        output = output.gsub EOL, "\n"
       end
 
       output
@@ -34,7 +34,7 @@ module Athena::Console::Spec
       output = self.output.as(ACON::Output::ConsoleOutput).error_output.to_s
 
       if normalize
-        output = output.gsub System::EOL, "\n"
+        output = output.gsub EOL, "\n"
       end
 
       output
@@ -88,7 +88,7 @@ module Athena::Console::Spec
       input_stream = IO::Memory.new
 
       inputs.each do |input|
-        input_stream << "#{input}#{System::EOL}"
+        input_stream << "#{input}#{EOL}"
       end
 
       input_stream.rewind
