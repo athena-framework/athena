@@ -55,7 +55,7 @@ class Athena::EventDispatcher::EventDispatcher
     {% begin %}
       {% listeners = [] of Nil %}
 
-      # Changes made here should also be reflected within `ADI::EventDispatcher::CompilerPasses::RegisterEventListenersPass`.
+      # Changes made here should also be reflected within `ATH::EventDispatcher::CompilerPasses::RegisterEventListenersPass`.
       {%
         class_listeners = T.class.methods.select &.annotation(AEDA::AsEventListener)
 

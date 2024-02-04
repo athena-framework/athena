@@ -15,8 +15,3 @@ description: |
 
 authors:
   - George Dietrich <george@dietrich.app>
-
-dependencies:
-  athena-config:
-    github: athena-framework/config
-    version: ~> 0.3.0

@@ -1,26 +1,34 @@
-@[ADI::Register]
+# @[ADI::Register]
 # An extension of `ANG::Negotiator` that supports resolving the format based on an applications `ATH::Config::ContentNegotiation` rules.
 #
 # See the [negotiation](../../../architecture/negotiation.md) component for more information.
 class Athena::Framework::View::FormatNegotiator < ANG::Negotiator
-  private getter! config : ATH::Config::ContentNegotiation?
+  record Rule,
+    path : Regex = /^\//,
+    host : Regex? = nil,
+    methods : Array(String)? = nil,
+    priorities : Array(String)? = nil,
+    fallback_format : String | Bool | Nil = false,
+    stop : Bool = false,
+    prefer_extension : Bool = true
+
+  @options : Array(ATH::View::FormatNegotiator::Rule)
 
   def initialize(
     @request_store : ATH::RequestStore,
-    @config : ATH::Config::ContentNegotiation?,
+    @options : Array(ATH::View::FormatNegotiator::Rule) = [] of ATH::View::FormatNegotiator::Rule,
     @mime_types : Hash(String, Array(String)) = Hash(String, Array(String)).new
-  ); end
+  )
+  end
 
   # :inherit:
   # ameba:disable Metrics/CyclomaticComplexity
   def best(header : String, priorities : Indexable(String)? = nil, strict : Bool = false) : HeaderType?
-    return if @config.nil?
-
     request = @request_store.request
 
     header = header.presence || request.headers["accept"]?
 
-    self.config.rules.each do |rule|
+    @options.each do |rule|
       # TODO: Abstract request matching logic into a dedicated service.
       next unless request.path.matches? rule.path
       if methods = rule.methods
@@ -31,7 +39,7 @@ class Athena::Framework::View::FormatNegotiator < ANG::Negotiator
         next unless host_pattern.matches? hostname
       end
 
-      raise ATH::Exceptions::StopFormatListener.new "Stopping format listener." if rule.stop?
+      raise ATH::Exceptions::StopFormatListener.new "Stopping format listener." if rule.stop
 
       if priorities.nil? && rule.priorities.nil?
         if fallback_format = rule.fallback_format

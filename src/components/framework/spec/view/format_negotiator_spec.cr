@@ -4,17 +4,17 @@ struct FormatNegotiatorTest < ASPEC::TestCase
   @request_store : ATH::RequestStore
   @request : ATH::Request
   @negotiator : ATH::View::FormatNegotiator
-  @config : ATH::Config::ContentNegotiation
+  @rules : Array(ATH::View::FormatNegotiator::Rule)
 
   def initialize
     @request_store = ATH::RequestStore.new
     @request = ATH::Request.new "GET", "/"
     @request_store.request = @request
-    @config = ATH::Config::ContentNegotiation.new [] of ATH::Config::ContentNegotiation::Rule
+    @rules = [] of ATH::View::FormatNegotiator::Rule
 
     @negotiator = ATH::View::FormatNegotiator.new(
       @request_store,
-      @config,
+      @rules,
       {"json" => ["application/json;version=1.0"]}
     )
   end
@@ -99,6 +99,6 @@ struct FormatNegotiatorTest < ASPEC::TestCase
   end
 
   private def add_rule(**args)
-    @config.rules << ATH::Config::ContentNegotiation::Rule.new **args
+    @rules << ATH::View::FormatNegotiator::Rule.new **args
   end
 end

@@ -1,13 +1,7 @@
 # Convenience alias to make referencing `Athena::Config` types easier.
 alias ACF = Athena::Config
 
-# Convenience alias to make referencing `ACF::Annotations` types easier.
-alias ACFA = ACF::Annotations
-
 require "./annotation_configurations"
-require "./annotations"
-require "./base"
-require "./parameters"
 
 # A web framework comprised of reusable, independent components.
 #
@@ -46,6 +40,9 @@ module Athena
     # :nodoc:
     CUSTOM_ANNOTATIONS = [] of Nil
 
+    # :nodoc:
+    CONFIG = {parameters: {} of Nil => Nil} # Ensure this type is a NamedTupleLiteral
+
     # Registers a configuration annotation with the provided *name*.
     # Defines a configuration record with the provided *args*, if any, that represents the possible arguments that the annotation accepts.
     # May also be used with a block to add custom methods to the configuration record.
@@ -80,30 +77,6 @@ module Athena
       end
 
       {% CUSTOM_ANNOTATIONS << name %}
-    end
-
-    # Returns the configured `ACF::Base` instance.
-    # The instance is a lazily initialized singleton.
-    #
-    # `ACF.load_configuration` may be redefined to change _how_ the configuration object is provided; e.g. create it from a `YAML` or `JSON` configuration file.
-    # See the [external documentation](../architecture/config.md#configuration) for more information.
-    class_getter config : ACF::Base { ACF.load_configuration }
-
-    # Returns the configured `ACF::Parameters` instance.
-    # The instance is a lazily initialized singleton.
-    #
-    # `ACF.load_parameters` may be redefined to change _how_ the parameters object is provided; e.g. create it from a `YAML` or `JSON` configuration file.
-    # See the [external documentation](../architecture/config.md#parameters) for more information.
-    class_getter parameters : ACF::Parameters { ACF.load_parameters }
-
-    # By default return an empty configuration type.
-    protected def self.load_configuration : ACF::Base
-      ACF::Base.new
-    end
-
-    # By default return an empty parameters type.
-    protected def self.load_parameters : ACF::Parameters
-      ACF::Parameters.new
     end
   end
 end

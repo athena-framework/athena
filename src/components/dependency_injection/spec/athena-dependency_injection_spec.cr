@@ -1,5 +1,10 @@
 require "./spec_helper"
 
+@[ADI::Register(public: true)]
+class ValueStore
+  property value : Int32 = 1
+end
+
 describe Athena::DependencyInjection do
   describe ".container" do
     it "returns a container" do

@@ -1,8 +1,7 @@
 require "./annotations"
+require "./extension"
 require "./proxy"
 require "./service_container"
-
-require "athena-config"
 
 # :nodoc:
 class Fiber
@@ -54,12 +53,12 @@ module Athena::DependencyInjection
 
   private BINDINGS            = {} of Nil => Nil
   private AUTO_CONFIGURATIONS = {} of Nil => Nil
+  private EXTENSIONS          = {} of Nil => Nil
 
   # :nodoc:
-  module PreArgumentsCompilerPass; end
+  CONFIG = {parameters: {__nil: nil}} # Ensure this type is a NamedTupleLiteral
 
-  # :nodoc:
-  module PostArgumentsCompilerPass; end
+  private CONFIGS = [] of Nil
 
   # Applies the provided *options* to any registered service of the provided *type*.
   #
@@ -159,29 +158,42 @@ module Athena::DependencyInjection
   # ADI.container.bool_arr  # => BoolArr(@value_arr=[true, true, false])
   # ```
   macro bind(key, value)
-    {% if key.is_a? TypeDeclaration %}
-      {% name = key.var.id.stringify %}
-      {% type = key.type.resolve %}
-    {% else %}
-      {% name = key.id.stringify %}
-      {% type = nil %}
-    {% end %}
-
-    # TODO: Refactor this to ||= once https://github.com/crystal-lang/crystal/pull/9409 is released
-    {% BINDINGS[name] = {typed: [] of Nil, untyped: [] of Nil} if BINDINGS[name] == nil %}
-
-    {% if type == nil %}
-      {% BINDINGS[name][:untyped].unshift({value: value}) %}
-    {% else %}
-      {% BINDINGS[name][:typed].unshift({value: value, type: type}) %}
-    {% end %}
+    {% BINDINGS[key] = value %}
   end
 
   # Returns the `ADI::ServiceContainer` for the current fiber.
   def self.container : ADI::ServiceContainer
     Fiber.current.container
   end
-end
 
-# Require extension code last so all built-in DI types are available
-require "./ext/*"
+  macro configure(config)
+    {%
+      CONFIGS << config
+    %}
+  end
+
+  # :nodoc:
+  macro add_compiler_pass(pass, type = nil, priority = nil)
+    {%
+      pass_type = pass.resolve
+
+      pass.raise "Pass type must be a module." unless pass_type.module?
+
+      type = type || :before_optimization
+      priority = priority || 0
+
+      if hash = ADI::ServiceContainer::PASS_CONFIG[type]
+        hash[priority] = [] of Nil if hash[priority] == nil
+
+        hash[priority] << pass_type.id
+      else
+        type.raise "Invalid compiler pass type: '#{type}'."
+      end
+    %}
+  end
+
+  # :nodoc:
+  macro register_extension(name, schema)
+    {% ADI::ServiceContainer::EXTENSIONS[name.id.stringify] = schema %}
+  end
+end
