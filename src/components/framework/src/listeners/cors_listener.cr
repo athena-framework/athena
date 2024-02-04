@@ -25,9 +25,9 @@ struct Athena::Framework::Listeners::CORS
       @max_age : Int32 = 0
     )
       # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Expose-Headers
-      # if @allow_credentials && @expose_headers.includes? "*"
-      #   raise ArgumentError.new "expose_headers cannot contain a wildcard ('*') when allow_credentials is 'true'."
-      # end
+      if @allow_credentials && @expose_headers.includes? "*"
+        raise ArgumentError.new "expose_headers cannot contain a wildcard ('*') when allow_credentials is 'true'."
+      end
 
       @allow_origin = allow_origin.map &.as String | Regex
     end
