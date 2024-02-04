@@ -15,17 +15,29 @@ module Athena::Console::Spec
 
     # Returns the output resulting from running the command.
     # Raises if called before executing the command.
-    def display : String
+    def display(normalize : Bool = false) : String
       raise ACON::Exceptions::Logic.new "Output not initialized. Did you execute the command before requesting the display?" unless output = @output
-      output.to_s
+      output = output.to_s
+
+      if normalize
+        output = output.gsub System::EOL, "\n"
+      end
+
+      output
     end
 
     # Returns the error output resulting from running the command.
     # Raises if `capture_stderr_separately` was not set to `true`.
-    def error_output : String
+    def error_output(normalize : Bool = false) : String
       raise ACON::Exceptions::Logic.new "The error output is not available when the test is ran without 'capture_stderr_separately' set." unless @capture_stderr_separately
 
-      self.output.as(ACON::Output::ConsoleOutput).error_output.to_s
+      output = self.output.as(ACON::Output::ConsoleOutput).error_output.to_s
+
+      if normalize
+        output = output.gsub System::EOL, "\n"
+      end
+
+      output
     end
 
     # Helper method to setting the `#inputs=` property.
@@ -76,7 +88,7 @@ module Athena::Console::Spec
       input_stream = IO::Memory.new
 
       inputs.each do |input|
-        input_stream << "#{input}\n"
+        input_stream << "#{input}#{System::EOL}"
       end
 
       input_stream.rewind

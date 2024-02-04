@@ -16,11 +16,15 @@ class Athena::Console::Output::IO < Athena::Console::Output
   end
 
   protected def do_write(message : String, new_line : Bool) : Nil
-    new_line ? @io.puts(message) : @io.print(message)
+    message += ACON::System::EOL if new_line
+
+    @io.print message
   end
 
   private def io_do_write(message : String, new_line : Bool) : Nil
-    new_line ? @io.puts(message) : @io.print(message)
+    message += ACON::System::EOL if new_line
+
+    @io.print message
   end
 
   private def has_color_support? : Bool

@@ -62,6 +62,10 @@ abstract struct AbstractDescriptorTestCase < ASPEC::TestCase
     context = context.clone
     context.raw_output = true
     self.descriptor.describe output, object, context
-    output.to_s.strip.should eq expected.strip
+    self.normalize_output(output.to_s).should eq self.normalize_output(expected)
+  end
+
+  private def normalize_output(output : String) : String
+    output.gsub(ACON::System::EOL, "\n").strip
   end
 end

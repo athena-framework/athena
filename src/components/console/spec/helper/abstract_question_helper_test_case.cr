@@ -16,10 +16,16 @@ abstract struct AbstractQuestionHelperTest < ASPEC::TestCase
     yield input
   end
 
-  protected def assert_output_contains(string : String) : Nil
+  protected def assert_output_contains(string : String, normalize : Bool = false) : Nil
     stream = @output.io
     stream.rewind
 
-    stream.to_s.should contain string
+    output = stream.to_s
+
+    if normalize
+      output = output.gsub ACON::System::EOL, "\n"
+    end
+
+    output.should contain string
   end
 end

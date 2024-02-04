@@ -91,7 +91,7 @@ describe ATHR::Time do
         "foo",
         annotation_configurations: ACF::AnnotationConfigurations.new({
           ATHR::Time::Format => [
-            ATHR::Time::FormatConfiguration.new(format: "%Y--%m//%d  %T", location: Time::Location.load("Europe/Berlin")),
+            ATHR::Time::FormatConfiguration.new(format: "%Y--%m//%d  %T", location: Time::Location.fixed(9001)),
           ] of ACF::AnnotationConfigurations::ConfigurationBase,
         } of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase))
       )
@@ -99,7 +99,7 @@ describe ATHR::Time do
       request = new_request
       request.attributes.set "foo", "2020--04//07  12:34:56"
 
-      ATHR::Time.new.resolve(request, parameter).should eq Time.local 2020, 4, 7, 12, 34, 56, location: Time::Location.load("Europe/Berlin")
+      ATHR::Time.new.resolve(request, parameter).should eq Time.local 2020, 4, 7, 12, 34, 56, location: Time::Location.fixed(9001)
     end
 
     it "raises an ATH::Exceptions::BadRequest if a time could not be parsed from the string" do

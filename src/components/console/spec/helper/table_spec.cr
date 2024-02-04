@@ -4,7 +4,7 @@ struct TableSpec < ASPEC::TestCase
   @output : IO
 
   protected def get_table_contents(table_name : String) : String
-    File.read File.join __DIR__, "..", "fixtures", "helper", "table", "#{table_name}.txt"
+    File.read(File.join __DIR__, "..", "fixtures", "helper", "table", "#{table_name}.txt") # .gsub(ACON::System::EOL, "\n")
   end
 
   def initialize
@@ -29,7 +29,7 @@ struct TableSpec < ASPEC::TestCase
       .row(0, %w(a b c))
       .render
 
-    self.output_content(output).should eq <<-TABLE
+    self.output_content(output).should eq self.normalize <<-TABLE
     +-------+------+-------+
     | false | true | false |
     +-------+------+-------+
@@ -51,7 +51,7 @@ struct TableSpec < ASPEC::TestCase
       .style(style)
       .render
 
-    self.output_content(output).should eq expected
+    self.output_content(output).should eq expected.gsub ACON::System::EOL, "\n"
   end
 
   def render_provider : Hash
@@ -470,7 +470,7 @@ struct TableSpec < ASPEC::TestCase
       .style("default")
       .render
 
-    self.output_content(output).should eq <<-TABLE
+    self.output_content(output).should eq self.normalize <<-TABLE
     +------+
     | 🍝   |
     +------+
@@ -486,7 +486,7 @@ struct TableSpec < ASPEC::TestCase
       .rows([[ACON::Helper::Table::Cell.new(1234)]])
       .render
 
-    self.output_content(output).should eq <<-TABLE
+    self.output_content(output).should eq self.normalize <<-TABLE
     +------+
     | 1234 |
     +------+
@@ -500,7 +500,7 @@ struct TableSpec < ASPEC::TestCase
       .rows([[ACON::Helper::Table::Cell.new(3.14)]])
       .render
 
-    self.output_content(output).should eq <<-TABLE
+    self.output_content(output).should eq self.normalize <<-TABLE
     +------+
     | 3.14 |
     +------+
@@ -523,7 +523,7 @@ struct TableSpec < ASPEC::TestCase
       .style("dotfull")
       .render
 
-    self.output_content(output).should eq <<-TABLE
+    self.output_content(output).should eq self.normalize <<-TABLE
     .......
     . Foo .
     .......
@@ -542,7 +542,7 @@ struct TableSpec < ASPEC::TestCase
     table.render
     table.render
 
-    self.output_content(output).should eq <<-TABLE
+    self.output_content(output).should eq self.normalize <<-TABLE
     +----+---+
     | foo    |
     +----+---+
@@ -573,7 +573,7 @@ struct TableSpec < ASPEC::TestCase
 
     table.render
 
-    self.output_content(output).should eq <<-TABLE
+    self.output_content(output).should eq self.normalize <<-TABLE
     +---------------+----------------------+-----------------+--------+
     | ISBN          | Title                | Author          |  Price |
     +---------------+----------------------+-----------------+--------+
@@ -602,7 +602,7 @@ struct TableSpec < ASPEC::TestCase
 
     table.render
 
-    self.output_content(output).should eq <<-TABLE
+    self.output_content(output).should eq self.normalize <<-TABLE
     +-----------------+----------------------+-----------------+------------+
     | ISBN            | Title                | Author          |      Price |
     +-----------------+----------------------+-----------------+------------+
@@ -630,7 +630,7 @@ struct TableSpec < ASPEC::TestCase
 
     table.render
 
-    self.output_content(output).should eq <<-TABLE
+    self.output_content(output).should eq self.normalize <<-TABLE
     +-----------------+----------------------+-----------------+------------+
     | ISBN            | Title                | Author          |      Price |
     +-----------------+----------------------+-----------------+------------+
@@ -658,7 +658,7 @@ struct TableSpec < ASPEC::TestCase
 
     table.render
 
-    self.output_content(output).should eq <<-TABLE
+    self.output_content(output).should eq self.normalize <<-TABLE
     +-----------------+----------------------+-----------------+------------+
     | ISBN            | Title                | Author          |      Price |
     +-----------------+----------------------+-----------------+------------+
@@ -680,7 +680,7 @@ struct TableSpec < ASPEC::TestCase
       .column_max_width(3, 15)
       .render
 
-    self.output_content(output).should eq <<-TABLE
+    self.output_content(output).should eq self.normalize <<-TABLE
     +---------------+-------+------------+-----------------+
     | Divine Comedy | A Tal | The Lord o | And Then There  |
     |               | e of  | f the Ring | Were None       |
@@ -710,7 +710,7 @@ struct TableSpec < ASPEC::TestCase
       .column_max_width(1, 30)
       .render
 
-    self.output_content(output).should eq <<-TABLE
+    self.output_content(output).should eq self.normalize <<-TABLE
     +-------------+--------------------------------+
     | Publication | Very long header with a lot of |
     |             | information                    |
@@ -732,7 +732,7 @@ struct TableSpec < ASPEC::TestCase
       .column_max_width(0, 5)
       .render
 
-    self.output_content(output).should eq <<-'TABLE'
+    self.output_content(output).should eq self.normalize <<-'TABLE'
     +-------+
     | 1234\ |
     | 6     |
@@ -761,7 +761,7 @@ struct TableSpec < ASPEC::TestCase
       .column_max_width(2, 15)
       .render
 
-    self.output_content(output).should eq <<-'TABLE'
+    self.output_content(output).should eq self.normalize <<-'TABLE'
     +-----------------+-----------------+-----------------+
     | Lorem ipsum dolor sit amet, consectetur adipi       |
     | scing elit, sed do eiusmod tempor                   |
@@ -826,7 +826,7 @@ struct TableSpec < ASPEC::TestCase
     table.append_row ["9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"]
     table.append_row "9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"
 
-    self.output_content(output).should eq <<-TABLE
+    self.output_content(output).should eq self.normalize <<-TABLE
     +---------------+---------------+-----------------+-------+
     |[32m ISBN          [0m|[32m Title         [0m|[32m Author          [0m|[32m Price [0m|
     +---------------+---------------+-----------------+-------+
@@ -864,7 +864,7 @@ struct TableSpec < ASPEC::TestCase
 
     table.append_row "9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"
 
-    self.output_content(output).should eq <<-TABLE
+    self.output_content(output).should eq self.normalize <<-TABLE
     +---------------+----------------------+-----------------+--------+
     |[32m ISBN          [0m|[32m Title                [0m|[32m Author          [0m|[32m Price  [0m|
     +---------------+----------------------+-----------------+--------+
@@ -891,7 +891,7 @@ struct TableSpec < ASPEC::TestCase
 
     table.append_row "9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"
 
-    self.output_content(output).should eq <<-TABLE
+    self.output_content(output).should eq self.normalize <<-TABLE
     +---------------+---------------+-----------------+-------+
     | ISBN          | Title         | Author          | Price |
     +---------------+---------------+-----------------+-------+
@@ -920,7 +920,7 @@ struct TableSpec < ASPEC::TestCase
 
     table.append_row "9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"
 
-    self.output_content(output).should eq <<-TABLE
+    self.output_content(output).should eq self.normalize <<-TABLE
     +------+-------+--------+-------+
     |[32m ISBN [0m|[32m Title [0m|[32m Author [0m|[32m Price [0m|
     +------+-------+--------+-------+
@@ -970,7 +970,7 @@ struct TableSpec < ASPEC::TestCase
       .style(style)
       .render
 
-    self.output_content(output).should eq expected
+    self.output_content(output).should eq expected.gsub ACON::System::EOL, "\n"
   end
 
   def title_provider : Tuple
@@ -1053,7 +1053,7 @@ struct TableSpec < ASPEC::TestCase
       ])
       .render
 
-    self.output_content(output).should eq <<-TABLE
+    self.output_content(output).should eq self.normalize <<-TABLE
     +-------- Reproducer --------+
     | Value            | 123-456 |
     | Some other value | 789-0   |
@@ -1078,7 +1078,7 @@ struct TableSpec < ASPEC::TestCase
       ])
       .render
 
-    self.output_content(output).should eq <<-TABLE
+    self.output_content(output).should eq self.normalize <<-TABLE
     ┌───────────────┬───────────────┬─────────────────┐
     │ ISBN          │ Title         │ Author          │
     ├───────────────┼───────────────┼─────────────────┤
@@ -1098,7 +1098,7 @@ struct TableSpec < ASPEC::TestCase
       .horizontal
       .render
 
-    self.output_content(output).should eq expected
+    self.output_content(output).should eq expected.gsub ACON::System::EOL, "\n"
   end
 
   def horizontal_provider : Tuple
@@ -1163,7 +1163,7 @@ struct TableSpec < ASPEC::TestCase
       .vertical
       .render
 
-    self.output_content(output).should eq expected
+    self.output_content(output).should eq expected.gsub ACON::System::EOL, "\n"
   end
 
   def vertical_provider : Hash
@@ -1485,10 +1485,14 @@ struct TableSpec < ASPEC::TestCase
   end
 
   private def output_content(output : ACON::Output::IO) : String
-    output.to_s
+    self.normalize output.to_s
   end
 
   private def io_output(decorated : Bool = false) : ACON::Output::IO
     ACON::Output::IO.new @output, decorated: decorated
+  end
+
+  private def normalize(input : String) : String
+    input.gsub ACON::System::EOL, "\n"
   end
 end

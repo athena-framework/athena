@@ -18,6 +18,6 @@ struct Athena::Console::Completion::Output::Zsh < Athena::Console::Completion::O
       end
     end
 
-    output.puts values.join "\n"
+    output.print "#{values.join "\n"}\n"
   end
 end
