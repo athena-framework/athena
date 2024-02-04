@@ -265,10 +265,7 @@ struct ApplicationTest < ASPEC::TestCase
   end
 
   @[DataProvider("ambiguous_abbreviations_provider")]
-  @[Focus]
   def test_find_ambiguous_abbreviations(abbreviation, expected_message) : Nil
-    pp ACON::Terminal.new.size
-
     app = ACON::Application.new "foo"
     app.add FooCommand.new
     app.add Foo1Command.new
@@ -281,9 +278,9 @@ struct ApplicationTest < ASPEC::TestCase
 
   def ambiguous_abbreviations_provider : Tuple
     {
-      # {"f", "Command 'f' is not defined."},
+      {"f", "Command 'f' is not defined."},
       {"a", "Command 'a' is ambiguous."},
-      # {"foo:b", "Command 'foo:b' is ambiguous."},
+      {"foo:b", "Command 'foo:b' is ambiguous."},
     }
   end
 
