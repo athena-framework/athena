@@ -33,7 +33,6 @@ require "./streamed_response"
 require "./ext/serializer"
 
 require "./commands/*"
-require "./config/*"
 require "./controller/**"
 require "./compiler_passes/*"
 require "./events/*"
