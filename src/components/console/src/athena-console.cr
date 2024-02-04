@@ -131,15 +131,4 @@ module Athena::Console
 
   # Contains types related to lazily loading commands.
   module Loader; end
-
-  # :nodoc:
-  #
-  # TODO: Remove this in favor of `::System::EOL` when/if https://github.com/crystal-lang/crystal/pull/11303 is released.
-  module System
-    EOL = {% if flag? :windows %}
-            "\r\n"
-          {% else %}
-            "\n"
-          {% end %}
-  end
 end

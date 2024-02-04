@@ -28,11 +28,11 @@ struct CommandTesterTest < ASPEC::TestCase
   end
 
   def test_output : Nil
-    @tester.output.to_s.should eq "foo#{ACON::System::EOL}"
+    @tester.output.to_s.should eq "foo#{EOL}"
   end
 
   def test_display : Nil
-    @tester.display.to_s.should eq "foo#{ACON::System::EOL}"
+    @tester.display.to_s.should eq "foo#{EOL}"
   end
 
   def test_display_before_calling_execute : Nil

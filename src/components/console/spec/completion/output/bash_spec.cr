@@ -6,10 +6,10 @@ struct BashTest < CompletionOutputTestCase
   end
 
   def expected_options_output : String
-    "--option1\n--negatable\n--no-negatable#{ACON::System::EOL}"
+    "--option1\n--negatable\n--no-negatable#{EOL}"
   end
 
   def expected_values_output : String
-    "Green\nRed\nYellow#{ACON::System::EOL}"
+    "Green\nRed\nYellow#{EOL}"
   end
 end

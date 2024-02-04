@@ -19,10 +19,10 @@ struct ConsoleSectionOutputTest < ASPEC::TestCase
     sections = Array(ACON::Output::Section).new
     output = ACON::Output::Section.new @io, sections, :normal, true, ACON::Formatter::Output.new
 
-    output.puts "Foo#{ACON::System::EOL}Bar"
+    output.puts "Foo#{EOL}Bar"
     output.clear
 
-    @io.to_s.should eq "Foo#{ACON::System::EOL}Bar#{ACON::System::EOL}\e[2A\e[0J"
+    @io.to_s.should eq "Foo#{EOL}Bar#{EOL}\e[2A\e[0J"
   end
 
   def test_clear_number_of_lines : Nil
@@ -32,7 +32,7 @@ struct ConsoleSectionOutputTest < ASPEC::TestCase
     output.puts "Foo\nBar\nBaz\nFooBar"
     output.clear 2
 
-    @io.to_s.should eq "Foo\nBar\nBaz\nFooBar#{ACON::System::EOL}\e[2A\e[0J"
+    @io.to_s.should eq "Foo\nBar\nBaz\nFooBar#{EOL}\e[2A\e[0J"
   end
 
   def test_clear_number_more_than_current_size : Nil
@@ -42,7 +42,7 @@ struct ConsoleSectionOutputTest < ASPEC::TestCase
     output.puts "Foo"
     output.clear 2
 
-    @io.to_s.should eq "Foo#{ACON::System::EOL}\e[2A\e[0J"
+    @io.to_s.should eq "Foo#{EOL}\e[2A\e[0J"
   end
 
   def test_clear_number_of_lines_multiple_sections : Nil
@@ -55,7 +55,7 @@ struct ConsoleSectionOutputTest < ASPEC::TestCase
     output2.clear 1
     output1.puts "Baz"
 
-    @io.to_s.should eq "Foo#{ACON::System::EOL}Bar#{ACON::System::EOL}\e[1A\e[0J\e[1A\e[0JBaz#{ACON::System::EOL}Foo#{ACON::System::EOL}"
+    @io.to_s.should eq "Foo#{EOL}Bar#{EOL}\e[1A\e[0J\e[1A\e[0JBaz#{EOL}Foo#{EOL}"
   end
 
   def test_clear_number_of_lines_multiple_sections_preserves_empty_lines : Nil
@@ -63,11 +63,11 @@ struct ConsoleSectionOutputTest < ASPEC::TestCase
     output1 = ACON::Output::Section.new @io, sections, :normal, true, ACON::Formatter::Output.new
     output2 = ACON::Output::Section.new @io, sections, :normal, true, ACON::Formatter::Output.new
 
-    output2.puts "#{ACON::System::EOL}foo"
+    output2.puts "#{EOL}foo"
     output2.clear 1
     output1.puts "bar"
 
-    @io.to_s.should eq "#{ACON::System::EOL}foo#{ACON::System::EOL}\e[1A\e[0J\e[1A\e[0Jbar#{ACON::System::EOL}#{ACON::System::EOL}"
+    @io.to_s.should eq "#{EOL}foo#{EOL}\e[1A\e[0J\e[1A\e[0Jbar#{EOL}#{EOL}"
   end
 
   def test_clear_with_question : Nil
@@ -81,7 +81,7 @@ struct ConsoleSectionOutputTest < ASPEC::TestCase
     ACON::Helper::Question.new.ask input, output, ACON::Question(String?).new("What's your favorite superhero?", nil)
     output.clear
 
-    @io.to_s.should eq "What's your favorite superhero?#{ACON::System::EOL}\e[2A\e[0J"
+    @io.to_s.should eq "What's your favorite superhero?#{EOL}\e[2A\e[0J"
   end
 
   def test_clear_after_overwrite_clear_correct_number_of_lines : Nil
@@ -91,7 +91,7 @@ struct ConsoleSectionOutputTest < ASPEC::TestCase
     output = ACON::Output::Section.new @io, sections, :normal, true, ACON::Formatter::Output.new
 
     output.overwrite "foo"
-    expected << "foo" << ACON::System::EOL
+    expected << "foo" << EOL
 
     output.clear
     expected << "\e[1A\e[0J"
@@ -106,17 +106,17 @@ struct ConsoleSectionOutputTest < ASPEC::TestCase
     output.puts "Foo"
     output.overwrite "Bar"
 
-    @io.to_s.should eq "Foo#{ACON::System::EOL}\e[1A\e[0JBar#{ACON::System::EOL}"
+    @io.to_s.should eq "Foo#{EOL}\e[1A\e[0JBar#{EOL}"
   end
 
   def test_overwrite_multiple_lines : Nil
     sections = Array(ACON::Output::Section).new
     output = ACON::Output::Section.new @io, sections, :normal, true, ACON::Formatter::Output.new
 
-    output.puts "Foo#{ACON::System::EOL}Bar#{ACON::System::EOL}Baz"
+    output.puts "Foo#{EOL}Bar#{EOL}Baz"
     output.overwrite "Bar"
 
-    @io.to_s.should eq "Foo#{ACON::System::EOL}Bar#{ACON::System::EOL}Baz#{ACON::System::EOL}\e[3A\e[0JBar#{ACON::System::EOL}"
+    @io.to_s.should eq "Foo#{EOL}Bar#{EOL}Baz#{EOL}\e[3A\e[0JBar#{EOL}"
   end
 
   def test_overwrite_multiple_section_output : Nil
@@ -130,7 +130,7 @@ struct ConsoleSectionOutputTest < ASPEC::TestCase
     output1.overwrite "Baz"
     output2.overwrite "Foobar"
 
-    @io.to_s.should eq "Foo#{ACON::System::EOL}Bar#{ACON::System::EOL}\e[2A\e[0JBar#{ACON::System::EOL}\e[1A\e[0JBaz#{ACON::System::EOL}Bar#{ACON::System::EOL}\e[1A\e[0JFoobar#{ACON::System::EOL}"
+    @io.to_s.should eq "Foo#{EOL}Bar#{EOL}\e[2A\e[0JBar#{EOL}\e[1A\e[0JBaz#{EOL}Bar#{EOL}\e[1A\e[0JFoobar#{EOL}"
   end
 
   def test_max_height : Nil
@@ -142,23 +142,23 @@ struct ConsoleSectionOutputTest < ASPEC::TestCase
 
     # Fill the section
     output.puts({"One", "Two", "Three"})
-    expected << "One" << ACON::System::EOL << "Two" << ACON::System::EOL << "Three" << ACON::System::EOL
+    expected << "One" << EOL << "Two" << EOL << "Three" << EOL
 
     # Cause overflow that'll redraw whole section, without the first line
     output.puts "Four"
     expected << "\e[3A\e[0J"
-    expected << "Two" << ACON::System::EOL << "Three" << ACON::System::EOL << "Four" << ACON::System::EOL
+    expected << "Two" << EOL << "Three" << EOL << "Four" << EOL
 
     # Cause overflow with multiple new lines at once
-    output.puts "Five#{ACON::System::EOL}Six"
+    output.puts "Five#{EOL}Six"
     expected << "\e[3A\e[0J"
-    expected << "Four" << ACON::System::EOL << "Five" << ACON::System::EOL << "Six" << ACON::System::EOL
+    expected << "Four" << EOL << "Five" << EOL << "Six" << EOL
 
     # Reset line height that'll redraw whole section, displaying all lines
     output.max_height = nil
     expected << "\e[3A\e[0J"
-    expected << "One" << ACON::System::EOL << "Two" << ACON::System::EOL << "Three" << ACON::System::EOL
-    expected << "Four" << ACON::System::EOL << "Five" << ACON::System::EOL << "Six" << ACON::System::EOL
+    expected << "One" << EOL << "Two" << EOL << "Three" << EOL
+    expected << "Four" << EOL << "Five" << EOL << "Six" << EOL
 
     @io.to_s.should eq expected.to_s
   end
@@ -175,22 +175,22 @@ struct ConsoleSectionOutputTest < ASPEC::TestCase
 
     # Fill the first section
     output1.puts({"One", "Two", "Three"})
-    expected << "One" << ACON::System::EOL << "Two" << ACON::System::EOL << "Three" << ACON::System::EOL
+    expected << "One" << EOL << "Two" << EOL << "Three" << EOL
 
     # Fill the second section
     output2.puts({"One", "Two", "Three"})
-    expected << "One" << ACON::System::EOL << "Two" << ACON::System::EOL << "Three" << ACON::System::EOL
+    expected << "One" << EOL << "Two" << EOL << "Three" << EOL
 
     # Cause overflow on second section that'll redraw whole section, without the first line
     output2.puts "Four"
     expected << "\e[3A\e[0J"
-    expected << "Two" << ACON::System::EOL << "Three" << ACON::System::EOL << "Four" << ACON::System::EOL
+    expected << "Two" << EOL << "Three" << EOL << "Four" << EOL
 
     # Cause overflow on first section that'll redraw whole section, without the first line
-    output1.puts "Four#{ACON::System::EOL}Five#{ACON::System::EOL}Six"
+    output1.puts "Four#{EOL}Five#{EOL}Six"
     expected << "\e[6A\e[0J"
-    expected << "Four" << ACON::System::EOL << "Five" << ACON::System::EOL << "Six" << ACON::System::EOL
-    expected << "Two" << ACON::System::EOL << "Three" << ACON::System::EOL << "Four" << ACON::System::EOL
+    expected << "Four" << EOL << "Five" << EOL << "Six" << EOL
+    expected << "Two" << EOL << "Three" << EOL << "Four" << EOL
 
     @io.to_s.should eq expected.to_s
   end
@@ -205,11 +205,11 @@ struct ConsoleSectionOutputTest < ASPEC::TestCase
     # Fill the section
     output.puts({"One", "Two"})
     output.print "Three"
-    expected << "One" << ACON::System::EOL << "Two" << ACON::System::EOL << "Three" << ACON::System::EOL
+    expected << "One" << EOL << "Two" << EOL << "Three" << EOL
 
     # Append text to the last line
     output.print " and Four"
-    expected << "\e[1A\e[0J" << "Three and Four" << ACON::System::EOL
+    expected << "\e[1A\e[0J" << "Three and Four" << EOL
 
     @io.to_s.should eq expected.to_s
   end
@@ -218,10 +218,10 @@ struct ConsoleSectionOutputTest < ASPEC::TestCase
     sections = Array(ACON::Output::Section).new
     output = ACON::Output::Section.new @io, sections, :normal, true, ACON::Formatter::Output.new
 
-    output.print "Foo#{ACON::System::EOL}"
+    output.print "Foo#{EOL}"
     output.print "Bar"
 
-    @io.to_s.should eq "Foo#{ACON::System::EOL}Bar#{ACON::System::EOL}"
+    @io.to_s.should eq "Foo#{EOL}Bar#{EOL}"
   end
 
   def test_write_multiple_sections_output_without_new_lines : Nil
@@ -232,28 +232,28 @@ struct ConsoleSectionOutputTest < ASPEC::TestCase
     output2 = ACON::Output::Section.new @io, sections, :normal, true, ACON::Formatter::Output.new
 
     output1.print "Foo"
-    expected << "Foo" << ACON::System::EOL
+    expected << "Foo" << EOL
 
     output2.puts "Bar"
-    expected << "Bar" << ACON::System::EOL
+    expected << "Bar" << EOL
 
     output1.puts " is not foo."
-    expected << "\e[2A\e[0JFoo is not foo." << ACON::System::EOL << "Bar" << ACON::System::EOL
+    expected << "\e[2A\e[0JFoo is not foo." << EOL << "Bar" << EOL
 
     output2.print "Baz"
-    expected << "Baz" << ACON::System::EOL
+    expected << "Baz" << EOL
 
     output2.print "bar"
-    expected << "\e[1A\e[0JBazbar" << ACON::System::EOL
+    expected << "\e[1A\e[0JBazbar" << EOL
 
     output2.puts ""
-    expected << "\e[1A\e[0JBazbar" << ACON::System::EOL
+    expected << "\e[1A\e[0JBazbar" << EOL
 
     output2.puts ""
-    expected << ACON::System::EOL
+    expected << EOL
 
     output2.puts "Done."
-    expected << "Done." << ACON::System::EOL
+    expected << "Done." << EOL
 
     @io.to_s.should eq expected.to_s
   end

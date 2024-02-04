@@ -31,7 +31,7 @@ abstract class Athena::Console::Style::Output
 
   # :inherit:
   def new_line(count : Int32 = 1) : Nil
-    @output.print System::EOL * count
+    @output.print EOL * count
   end
 
   # Creates and returns an `ACON::Helper::ProgressBar`, optionally with the provided *max* amount of steps.

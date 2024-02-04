@@ -4,7 +4,7 @@ struct TableSpec < ASPEC::TestCase
   @output : IO
 
   protected def get_table_contents(table_name : String) : String
-    File.read(File.join __DIR__, "..", "fixtures", "helper", "table", "#{table_name}.txt") # .gsub(ACON::System::EOL, "\n")
+    File.read(File.join __DIR__, "..", "fixtures", "helper", "table", "#{table_name}.txt") # .gsub(EOL, "\n")
   end
 
   def initialize
@@ -51,7 +51,7 @@ struct TableSpec < ASPEC::TestCase
       .style(style)
       .render
 
-    self.output_content(output).should eq expected.gsub ACON::System::EOL, "\n"
+    self.output_content(output).should eq expected.gsub EOL, "\n"
   end
 
   def render_provider : Hash
@@ -970,7 +970,7 @@ struct TableSpec < ASPEC::TestCase
       .style(style)
       .render
 
-    self.output_content(output).should eq expected.gsub ACON::System::EOL, "\n"
+    self.output_content(output).should eq expected.gsub EOL, "\n"
   end
 
   def title_provider : Tuple
@@ -1098,7 +1098,7 @@ struct TableSpec < ASPEC::TestCase
       .horizontal
       .render
 
-    self.output_content(output).should eq expected.gsub ACON::System::EOL, "\n"
+    self.output_content(output).should eq expected.gsub EOL, "\n"
   end
 
   def horizontal_provider : Tuple
@@ -1163,7 +1163,7 @@ struct TableSpec < ASPEC::TestCase
       .vertical
       .render
 
-    self.output_content(output).should eq expected.gsub ACON::System::EOL, "\n"
+    self.output_content(output).should eq expected.gsub EOL, "\n"
   end
 
   def vertical_provider : Hash
@@ -1493,6 +1493,6 @@ struct TableSpec < ASPEC::TestCase
   end
 
   private def normalize(input : String) : String
-    input.gsub ACON::System::EOL, "\n"
+    input.gsub EOL, "\n"
   end
 end

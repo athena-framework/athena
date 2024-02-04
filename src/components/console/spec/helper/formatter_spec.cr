@@ -1,7 +1,7 @@
 require "../spec_helper"
 
 private def normalize(input : String) : String
-  input.gsub ACON::System::EOL, "\n"
+  input.gsub EOL, "\n"
 end
 
 describe ACON::Helper::Formatter do
