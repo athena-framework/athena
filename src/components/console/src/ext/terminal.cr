@@ -1,30 +1,32 @@
 {% if flag?(:win32) %}
   lib LibC
-    struct COORD
-      x : Int16
-      y : Int16
+    STDOUT_HANDLE = 0xFFFFFFF5
+
+    struct Point
+      x : UInt16
+      y : UInt16
     end
 
-    struct SMALL_RECT
-      left : Int16
-      top : Int16
-      right : Int16
-      bottom : Int16
+    struct SmallRect
+      left : UInt16
+      top : UInt16
+      right : UInt16
+      bottom : UInt16
     end
 
-    struct CONSOLE_SCREEN_BUFFER_INFO
-      dwSize : COORD
-      dwCursorPosition : COORD
+    struct ScreenBufferInfo
+      dwSize : Point
+      dwCursorPosition : Point
       wAttributes : UInt16
-      srWindow : SMALL_RECT
-      dwMaximumWindowSize : COORD
+      srWindow : SmallRect
+      dwMaximumWindowSize : Point
     end
 
-    STD_INPUT_HANDLE  = -10
-    STD_OUTPUT_HANDLE = -11
+    alias Handle = Void*
+    alias ScreenBufferInfoPtr = ScreenBufferInfo*
 
-    fun GetConsoleScreenBufferInfo(hConsoleOutput : Void*, lpConsoleScreenBufferInfo : CONSOLE_SCREEN_BUFFER_INFO*) : Void
-    fun GetStdHandle(nStdHandle : UInt32) : Void*
+    fun GetConsoleScreenBufferInfo(handle : Handle, info : ScreenBufferInfoPtr) : Bool
+    fun GetStdHandle(handle : UInt32) : Handle
   end
 {% else %}
   lib LibC
