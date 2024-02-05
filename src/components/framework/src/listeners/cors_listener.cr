@@ -1,4 +1,3 @@
-@[ADI::Register]
 # Supports [Cross-Origin Resource Sharing](https://enable-cors.org) (CORS) requests.
 #
 # Handles CORS preflight `OPTIONS` requests as well as adding CORS headers to each response.
@@ -18,18 +17,12 @@ struct Athena::Framework::Listeners::CORS
 
     def initialize(
       @allow_credentials : Bool = false,
-      allow_origin : Array(String | Regex) = Array(String | Regex).new,
+      @allow_origin : Array(String | Regex) = Array(String | Regex).new,
       @allow_headers : Array(String) = [] of String,
       @allow_methods : Array(String) = Athena::Framework::Listeners::CORS::SAFELISTED_METHODS,
       @expose_headers : Array(String) = [] of String,
       @max_age : Int32 = 0
     )
-      # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Expose-Headers
-      if @allow_credentials && @expose_headers.includes? "*"
-        raise ArgumentError.new "expose_headers cannot contain a wildcard ('*') when allow_credentials is 'true'."
-      end
-
-      @allow_origin = allow_origin.map &.as String | Regex
     end
   end
 
