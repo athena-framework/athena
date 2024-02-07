@@ -7,6 +7,7 @@
 struct Athena::Framework::Listeners::CORS
   include AED::EventListenerInterface
 
+  # :nodoc:
   struct Config
     getter? allow_credentials : Bool
     getter allow_origin : Array(String | Regex)
@@ -17,12 +18,13 @@ struct Athena::Framework::Listeners::CORS
 
     def initialize(
       @allow_credentials : Bool = false,
-      @allow_origin : Array(String | Regex) = Array(String | Regex).new,
+      allow_origin : Array(String | Regex) = Array(String | Regex).new,
       @allow_headers : Array(String) = [] of String,
       @allow_methods : Array(String) = Athena::Framework::Listeners::CORS::SAFELISTED_METHODS,
       @expose_headers : Array(String) = [] of String,
       @max_age : Int32 = 0
     )
+      @allow_origin = allow_origin.map &.as String | Regex
     end
   end
 
@@ -56,7 +58,7 @@ struct Athena::Framework::Listeners::CORS
   private EXPOSE_HEADERS_HEADER    = "access-control-expose-headers"
   private MAX_AGE_HEADER           = "access-control-max-age"
 
-  def initialize(@config : ATH::Listeners::CORS::Config = ATH::Listeners::CORS::Config.new); end
+  protected def initialize(@config : ATH::Listeners::CORS::Config = ATH::Listeners::CORS::Config.new); end
 
   @[AEDA::AsEventListener(priority: 250)]
   def on_request(event : ATH::Events::Request) : Nil

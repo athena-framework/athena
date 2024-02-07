@@ -56,13 +56,22 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
     macro included
       macro finished
         {% verbatim do %}
-
-          # Format Listener
+          # Built-in parameters
           {%
-            cfg = CONFIG["framework"]["format_listener"]
+            debug = CONFIG["parameters"]["framework.debug"]
 
-            if cfg["enabled"] && !cfg["rules"].empty?
-              # pp "Yup"
+            # If no debug parameter was already configured, try and determine an appropriate value:
+            # * true if configured explicitly via ENV var
+            # * true if env ENV var is present and not production
+            # * true if not compiled with --release
+            #
+            # This should default to `false`, except explicitly set otherwise
+            if debug.nil?
+              release_flag = flag?(:release)
+              debug_env = env("ATHENA_DEBUG") == "true"
+              non_prod_env = env("ATHENA_ENV") != "production"
+
+              CONFIG["parameters"]["framework.debug"] = debug_env || non_prod_env || !flag?(:release)
             end
           %}
 
@@ -73,7 +82,7 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
             if cfg["enabled"]
               # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Expose-Headers
               if cfg["defaults"]["allow_credentials"] && cfg["defaults"]["expose_headers"].includes? "*"
-                cfg["defaults"]["expose_headers"].raise "expose_headers cannot contain a wildcard ('*') when allow_credentials is 'true'."
+                cfg["defaults"]["expose_headers"].raise "'expose_headers' cannot contain a wildcard ('*') when 'allow_credentials' is 'true'."
               end
 
               # TODO: Support multiple paths
@@ -93,15 +102,22 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
                 tags:       {} of Nil => Nil,
                 bindings:   {} of Nil => Nil,
                 generics:   [] of Nil,
-                public:     true,
+                public:     false,
                 parameters: {
+                  # TODO: Consider having some other service responsible for resolving the config obj
                   config: {value: config.id, name: "config"},
                 },
               }
             end
+          %}
 
-            puts ""
-            puts ""
+          # Format Listener
+          {%
+            cfg = CONFIG["framework"]["format_listener"]
+
+            if cfg["enabled"] && !cfg["rules"].empty?
+              # pp "Yup"
+            end
           %}
         {% end %}
       end
