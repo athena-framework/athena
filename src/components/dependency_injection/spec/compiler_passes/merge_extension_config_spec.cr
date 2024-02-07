@@ -446,13 +446,13 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
         module One
           include ADI::Extension::Schema
 
-          property? enabled : Bool = false
+          property enabled : Bool = false
         end
 
         module Two
           include ADI::Extension::Schema
 
-          property? enabled : Bool = false
+          property enabled : Bool = false
         end
       end
 
@@ -477,19 +477,19 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
         module One
           include ADI::Extension::Schema
 
-          property? enabled : Bool = false
+          property enabled : Bool = false
           property id : Int32
         end
 
         module Two
           include ADI::Extension::Schema
 
-          property? enabled : Bool = false
+          property enabled : Bool = false
 
           module Three
             include ADI::Extension::Schema
 
-            property? enabled : Bool = false
+            property enabled : Bool = false
           end
         end
       end

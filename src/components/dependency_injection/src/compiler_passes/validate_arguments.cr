@@ -88,8 +88,10 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                       elsif cfv.is_a?(SymbolLiteral)
                                         Symbol
                                       elsif cfv.is_a?(ArrayLiteral)
-                                        # Fallback on the type of the property if no type was specified
-                                        array_type = (cfv.of || cfv.type) || prop_type.type_vars.first
+                                        # Extract a type to use from the `TypeDeclaration` itself to use if no other more explicit type is available.
+                                        # If nilable, `Array(String)?`, extract the type var from the first not-nilable type in the union, `Array(String)`.
+                                        # Then in either case use the first type var as is, `String`.
+                                        array_type = (cfv.of || cfv.type) || (prop_type.nilable? ? prop_type.union_types.find { |tv| !tv.nilable? }.type_vars.first : prop_type.type_vars.first)
 
                                         # Special case: Allow using NoReturn to "inherit" type from the TypeDeclaration
                                         if array_type.resolve == NoReturn.resolve

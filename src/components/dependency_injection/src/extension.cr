@@ -6,15 +6,17 @@ module Athena::DependencyInjection::Extension::Schema
 
   macro property(decl)
     {% OPTIONS << decl %}
+    {%
+      default_string = if !(v = decl.value).is_a? Nop
+                         "Default value of `#{v}`."
+                       else
+                         ""
+                       end
+    %}
 
+    # {{ @caller.first.doc_comment }}
     #
-    #
-    # Default value of: '{{decl.type}}'
+    # {{default_string.id}}
     abstract def {{decl.var.id}} : {{decl.type.id}}
-  end
-
-  # Alias to `.property` for handling Bool properties.
-  macro property?(decl)
-    property {{decl}}
   end
 end
