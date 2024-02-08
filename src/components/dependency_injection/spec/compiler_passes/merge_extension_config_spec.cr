@@ -8,7 +8,7 @@ private def assert_error(message : String, code : String, *, line : Int32 = __LI
   CR
 end
 
-describe ADI::ServiceContainer::MergeExtensionConfig do
+describe ADI::ServiceContainer::MergeExtensionConfig, focus: true do
   describe "compiler errors" do
     describe "root level" do
       it "errors if a configuration value has the incorrect type" do
@@ -16,8 +16,8 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
           module Schema
             include ADI::Extension::Schema
 
-            property id : Int32
-            property name : String
+            int id
+            string name
           end
 
           ADI.register_extension "test", Schema
@@ -35,7 +35,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
           module Schema
             include ADI::Extension::Schema
 
-            property foo : Array(Int32)
+            array foo : Int32
           end
 
           ADI.register_extension "test", Schema
@@ -53,7 +53,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
           module Schema
             include ADI::Extension::Schema
 
-            property foo : Array(Int32)
+            array foo : Int32
           end
 
           ADI.register_extension "test", Schema
@@ -71,7 +71,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
           module Schema
             include ADI::Extension::Schema
 
-            property id : Int32
+            bigint id
           end
 
           ADI.register_extension "test", Schema
@@ -98,8 +98,8 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
               module Defaults
                 include ADI::Extension::Schema
 
-                property name : String
-                property id : Int32
+                string name
+                int id
               end
             end
           end
@@ -129,7 +129,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
               module Defaults
                 include ADI::Extension::Schema
 
-                property foo : Array(Int32)
+                array foo : Int32
               end
             end
           end
@@ -159,7 +159,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
               module Defaults
                 include ADI::Extension::Schema
 
-                property foo : Array(Int32)
+                array foo : Int32
               end
             end
           end
@@ -189,7 +189,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
               module Defaults
                 include ADI::Extension::Schema
 
-                property foo : Array(Int32)
+                array foo : Int32
               end
             end
           end
@@ -219,7 +219,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
               module Defaults
                 include ADI::Extension::Schema
 
-                property foo : Array(Int32) = [] of NoReturn
+                array foo : Int32
               end
             end
           end
@@ -249,7 +249,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
               module Defaults
                 include ADI::Extension::Schema
 
-                property id : Int32
+                int id
               end
             end
           end
@@ -287,7 +287,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
         module Schema
           include ADI::Extension::Schema
 
-          property id : Int32
+          int id
         end
 
         ADI.register_extension "test", Schema
@@ -310,13 +310,14 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
 
         ID = 10.0
 
-        property id : Int32
-        property float : Float64 = Schema::ID
-        property name : String = "fred"
-        property nilable : String?
-        property color_type : Color
-        property color_sym : Color
-        property value : Hash(String, String)
+        int id
+        float float = Schema::ID
+        string name = "fred"
+        string? nilable
+
+        color_type : Color
+        color_sym : Color
+        value : Hash(String, String)
       end
 
       ADI.register_extension "blah", Schema
@@ -351,7 +352,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
       module Schema
         include ADI::Extension::Schema
 
-        property id : Int32 = 123
+        int id = 123
       end
 
       ADI.register_extension "blah", Schema
@@ -371,7 +372,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
       module Schema
         include ADI::Extension::Schema
 
-        property foo : Array(Int32)
+        array_of foo, Int32
       end
 
       ADI.register_extension "test", Schema
@@ -397,7 +398,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
       module Schema
         include ADI::Extension::Schema
 
-        property foo : Array(Int32) = [] of NoReturn
+        array foo : Int32 | String = [] of NoReturn
       end
 
       ADI.register_extension "test", Schema
@@ -405,6 +406,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
       macro finished
         macro finished
           it { (\\{{ADI::CONFIG["test"]["foo"]}}).should be_empty }
+          it { \\{{ADI::CONFIG["test"]["foo"].stringify}}.should eq "Array(Int32 | String).new" }
         end
       end
     CR
@@ -417,7 +419,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
       module Schema
         include ADI::Extension::Schema
 
-        property foo : Array(Int32) = [] of NoReturn
+        array foo : Int32 | String = [] of NoReturn
       end
 
       ADI.register_extension "test", Schema
@@ -446,13 +448,13 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
         module One
           include ADI::Extension::Schema
 
-          property? enabled : Bool = false
+          bool enabled = false
         end
 
         module Two
           include ADI::Extension::Schema
 
-          property? enabled : Bool = false
+          bool enabled = false
         end
       end
 
@@ -477,19 +479,19 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
         module One
           include ADI::Extension::Schema
 
-          property? enabled : Bool = false
-          property id : Int32
+          bool enabled = false
+          int id
         end
 
         module Two
           include ADI::Extension::Schema
 
-          property? enabled : Bool = false
+          bool enabled = false
 
           module Three
             include ADI::Extension::Schema
 
-            property? enabled : Bool = false
+            bool enabled = false
           end
         end
       end

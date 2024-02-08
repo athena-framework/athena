@@ -4,17 +4,139 @@ module Athena::DependencyInjection::Extension::Schema
     OPTIONS = [] of Nil
   end
 
-  macro property(decl)
-    {% OPTIONS << decl %}
+  # bool foo          - non-nilable required bool
+  # bool foo = false  - non-nilable optional bool
+  # bool? foo         - nilable required bool
+  # bool? foo = false - nilable required bool
 
-    #
-    #
-    # Default value of: '{{decl.type}}'
-    abstract def {{decl.var.id}} : {{decl.type.id}}
+  macro bool(assign_or_var)
+    add_config_property({{assign_or_var}}, Bool)
   end
 
-  # Alias to `.property` for handling Bool properties.
-  macro property?(decl)
-    property {{decl}}
+  macro bool?(assign_or_var)
+    add_config_property({{assign_or_var}}, Bool?)
+  end
+
+  macro string(assign_or_var)
+    add_config_property({{assign_or_var}}, String)
+  end
+
+  macro string?(assign_or_var)
+    add_config_property({{assign_or_var}}, String?)
+  end
+
+  macro int(assign_or_var, size = Int32)
+    add_config_property({{assign_or_var}}, {{size}})
+  end
+
+  macro int?(assign_or_var, size = Int32?)
+    add_config_property({{assign_or_var}}, {{size}}?)
+  end
+
+  macro bigint(assign_or_var)
+    int({{assign_or_var}}, Int64)
+  end
+
+  macro bigint?(assign_or_var)
+    int({{assign_or_var}}, Int64?)
+  end
+
+  macro float(assign_or_var, size = Float64)
+    add_config_property({{assign_or_var}}, {{size}})
+  end
+
+  macro float?(assign_or_var, size = Float64?)
+    add_config_property({{assign_or_var}}, {{size}}?)
+  end
+
+  macro array(declaration)
+    process_array({{declaration}}, false)
+  end
+
+  macro array?(declaration)
+    process_array({{declaration}}, true)
+  end
+
+  private macro process_array(declaration, nilable)
+    {%
+      __nil = nil
+
+      type_string = if nilable
+                      "Array(#{declaration.type})?"
+                    else
+                      "Array(#{declaration.type})"
+                    end
+
+      # Special case: Allow using NoReturn to "inherit" type from the TypeDeclaration.
+      # I.e. to make it so you do not have to retype the type if its long/complex
+      default = if (!declaration.value.is_a?(Nop) &&
+                   (array_type = ((declaration.value.of || declaration.value.type))) &&
+                   !array_type.is_a?(Nop) &&
+                   array_type.resolve == NoReturn.resolve)
+                  "#{type_string.id}.new".id
+                else
+                  declaration.value
+                end
+
+      OPTIONS << {name: declaration.var.id, type: parse_type(type_string).resolve, default: default, root: declaration, members: [] of Nil}
+    %}
+  end
+
+  macro array_of(name, *members)
+    {%
+      type = if members.size == 1
+               member = members[0]
+
+               if member.is_a?(Assign)
+                 array_type = (member.value.of || member.value.type)
+
+                 # Special case: Allow using NoReturn to "inherit" type from the TypeDeclaration
+                 t = if array_type.resolve == NoReturn.resolve
+                       member.target
+                     else
+                       array_type
+                     end
+
+                 default = "Array(#{t}).new".id
+               else
+                 t = member
+                 default = "Array(#{t}).new".id
+               end
+
+               # A single member denotes a normal array type: Array(T)
+               parse_type("Array(#{t})").resolve
+             else
+               # Ensure this doesn't get passed garbage
+               members.each do |m|
+                 m.raise "All members must be `TypeDeclaration`s." unless m.is_a? TypeDeclaration
+               end
+
+               # Otherwise it denotes an array of complex objects,
+               # so keep the general type more generic and let the extra logic handle that part
+               Array
+             end
+
+      declaration = {name: name.id, type: type, default: default, root: name, members: members}
+
+      OPTIONS << declaration
+    %}
+  end
+
+  private macro add_config_property(assign_or_var, type)
+    {%
+      if assign_or_var.is_a?(Assign)
+        name = assign_or_var.target.id
+        default = assign_or_var.value
+      else
+        name = assign_or_var.id
+        default = pp() # Hack to ensure the default is a Nop to differentiate it from `nil`
+      end
+    %}
+
+    {%
+      declaration = {name: name, type: type.resolve, default: default, root: assign_or_var}
+
+      OPTIONS << declaration
+    %}
   end
 end

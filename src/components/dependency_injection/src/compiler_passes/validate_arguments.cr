@@ -55,7 +55,7 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
               if prop
                 # If the configuration property was not provided and is required, throw an error
                 if !user_provided_extension_config_for_current_property
-                  if prop.value.is_a?(Nop) && !prop.type.resolve.nilable?
+                  if prop["default"].is_a?(Nop) && !prop["type"].resolve.nilable?
                     path = [ext_name]
 
                     unless ext_path.empty?
@@ -68,17 +68,17 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                       end
                     end
 
-                    prop.raise "Required configuration property '#{path.join('.').id}.#{prop}' must be provided."
+                    prop["root"].raise "Required configuration property '#{path.join('.').id}.#{prop["name"]} : #{prop["type"]}' must be provided."
                   end
                 else
-                  if (config_value = user_provided_extension_config_for_current_property[prop.var.id]) != nil
+                  if (config_value = user_provided_extension_config_for_current_property[prop["name"]]) != nil
                     config_value = config_value.is_a?(Path) ? config_value.resolve : config_value
 
                     # Tuple of:
                     # 0 - type of the property in the schema
                     # 1 - the value
                     # 2 - an array representing the path to this property in the schema
-                    values_to_resolve = [{prop.type.resolve, config_value, ext_path + [prop.var.id]}]
+                    values_to_resolve = [{prop["type"], config_value, ext_path + [prop["name"]]}]
 
                     values_to_resolve.each_with_index do |(prop_type, cfv, stack), idx|
                       resolved_type = if cfv.is_a?(BoolLiteral)
@@ -90,11 +90,6 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                       elsif cfv.is_a?(ArrayLiteral)
                                         # Fallback on the type of the property if no type was specified
                                         array_type = (cfv.of || cfv.type) || prop_type.type_vars.first
-
-                                        # Special case: Allow using NoReturn to "inherit" type from the TypeDeclaration
-                                        if array_type.resolve == NoReturn.resolve
-                                          array_type = prop_type.type_vars.first
-                                        end
 
                                         cfv.each_with_index do |v, v_idx|
                                           values_to_resolve << {array_type.resolve, v, stack + [v_idx]}
@@ -181,7 +176,7 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                         end
                       end
                     end
-                  elsif prop.value.is_a?(Nop) && !prop.type.resolve.nilable?
+                  elsif prop["default"].is_a?(Nop) && !prop["type"].resolve.nilable?
                     path = [ext_name]
 
                     unless ext_path.empty?
@@ -194,7 +189,7 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                       end
                     end
 
-                    prop.raise "Required configuration property '#{path.join('.').id}.#{prop}' must be provided."
+                    prop["root"].raise "Required configuration property '#{path.join('.').id}.#{prop["name"]} : #{prop["type"]}' must be provided."
                   end
                 end
               end
