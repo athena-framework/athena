@@ -4,10 +4,10 @@ module Athena::DependencyInjection::Extension::Schema
     OPTIONS = [] of Nil
   end
 
-  # bool foo          - non-nilable required bool
-  # bool foo = false  - non-nilable optional bool
-  # bool? foo         - nilable required bool
-  # bool? foo = false - nilable required bool
+  # bool foo          - non-nilable required
+  # bool foo = false  - non-nilable optional
+  # bool? foo         - nilable required
+  # bool? foo = false - nilable required
 
   macro bool(assign_or_var)
     add_config_property({{assign_or_var}}, Bool)
@@ -49,6 +49,24 @@ module Athena::DependencyInjection::Extension::Schema
     add_config_property({{assign_or_var}}, {{size}}?)
   end
 
+  private macro add_config_property(assign_or_var, type)
+    {%
+      if assign_or_var.is_a?(Assign)
+        name = assign_or_var.target.id
+        default = assign_or_var.value
+      else
+        name = assign_or_var.id
+        default = pp # Hack to ensure the default is a Nop to differentiate it from `nil`
+      end
+    %}
+
+    {%
+      declaration = {name: name, type: type.resolve, default: default, root: assign_or_var}
+
+      OPTIONS << declaration
+    %}
+  end
+
   macro array(declaration)
     process_array({{declaration}}, false)
   end
@@ -82,61 +100,26 @@ module Athena::DependencyInjection::Extension::Schema
     %}
   end
 
+  # An array of a complex type
   macro array_of(name, *members)
+    process_array_of({{name}}, {{members.splat}}, nilable: false)
+  end
+
+  macro array_of?(name, *members)
+    process_array_of({{name}}, {{members.splat}}, nilable: true)
+  end
+
+  private macro process_array_of(name, *members, nilable)
     {%
-      type = if members.size == 1
-               member = members[0]
+      members.each do |m|
+        m.raise "All members must be `TypeDeclaration`s." unless m.is_a? TypeDeclaration
+      end
 
-               if member.is_a?(Assign)
-                 array_type = (member.value.of || member.value.type)
-
-                 # Special case: Allow using NoReturn to "inherit" type from the TypeDeclaration
-                 t = if array_type.resolve == NoReturn.resolve
-                       member.target
-                     else
-                       array_type
-                     end
-
-                 default = "Array(#{t}).new".id
-               else
-                 t = member
-                 default = "Array(#{t}).new".id
-               end
-
-               # A single member denotes a normal array type: Array(T)
-               parse_type("Array(#{t})").resolve
-             else
-               # Ensure this doesn't get passed garbage
-               members.each do |m|
-                 m.raise "All members must be `TypeDeclaration`s." unless m.is_a? TypeDeclaration
-               end
-
-               # Otherwise it denotes an array of complex objects,
-               # so keep the general type more generic and let the extra logic handle that part
-               Array
-             end
-
-      declaration = {name: name.id, type: type, default: default, root: name, members: members}
-
-      OPTIONS << declaration
+      OPTIONS << {name: name.id, type: nilable ? Array? : Array, default: default, root: name, members: members}
     %}
   end
 
-  private macro add_config_property(assign_or_var, type)
-    {%
-      if assign_or_var.is_a?(Assign)
-        name = assign_or_var.target.id
-        default = assign_or_var.value
-      else
-        name = assign_or_var.id
-        default = pp() # Hack to ensure the default is a Nop to differentiate it from `nil`
-      end
-    %}
-
-    {%
-      declaration = {name: name, type: type.resolve, default: default, root: assign_or_var}
-
-      OPTIONS << declaration
-    %}
+  macro type_of(declaration)
+    {% OPTIONS << {name: declaration.var.id, type: declaration.type.resolve, default: declaration.value, root: declaration} %}
   end
 end

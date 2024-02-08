@@ -197,29 +197,3 @@ module Athena::DependencyInjection
     {% ADI::ServiceContainer::EXTENSIONS[name.id.stringify] = schema %}
   end
 end
-
-# module Schema
-#   include ADI::Extension::Schema
-
-#   module SubConfig
-#     include ADI::Extension::Schema
-
-#     module Defaults
-#       include ADI::Extension::Schema
-
-#       array foo : Int32
-#     end
-#   end
-# end
-
-# ADI.register_extension "test", Schema
-
-# ADI.configure({
-#   test: {
-#     sub_config: {
-#       defaults: {
-#         foo: [] of String,
-#       },
-#     },
-#   },
-# })

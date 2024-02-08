@@ -315,9 +315,9 @@ describe ADI::ServiceContainer::MergeExtensionConfig, focus: true do
         string name = "fred"
         string? nilable
 
-        color_type : Color
-        color_sym : Color
-        value : Hash(String, String)
+        type_of color_type : Color
+        type_of color_sym : Color
+        type_of value : Hash(String, String)
       end
 
       ADI.register_extension "blah", Schema
@@ -372,7 +372,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, focus: true do
       module Schema
         include ADI::Extension::Schema
 
-        array_of foo, Int32
+        array foo : Int32
       end
 
       ADI.register_extension "test", Schema
