@@ -10,11 +10,11 @@ module Athena::DependencyInjection::Extension::Schema
 
       # Special case: Allow using NoReturn to "inherit" type from the TypeDeclaration for Array types.
       # I.e. to make it so you do not have to retype the type if its long/complex
-      default = if (declaration.type.resolve <= Array &&
+      default = if declaration.type.resolve <= Array &&
                    !declaration.value.is_a?(Nop) &&
                    (array_type = ((declaration.value.of || declaration.value.type))) &&
                    !array_type.is_a?(Nop) &&
-                   array_type.resolve == NoReturn.resolve)
+                   array_type.resolve == NoReturn.resolve
                   "#{declaration.type.id}.new".id
                 else
                   declaration.value
