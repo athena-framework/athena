@@ -143,8 +143,6 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
               extension_config_for_current_property[prop["name"]] = resolved_value
             end
           end
-
-          pp CONFIG
         %}
       {% end %}
     end

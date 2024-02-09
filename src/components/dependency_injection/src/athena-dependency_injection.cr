@@ -197,19 +197,3 @@ module Athena::DependencyInjection
     {% ADI::ServiceContainer::EXTENSIONS[name.id.stringify] = schema %}
   end
 end
-
-module Schema
-  include ADI::Extension::Schema
-
-  array_of rules, path : Regex? = nil, stop : Bool = false
-end
-
-ADI.register_extension "test", Schema
-
-ADI.configure({
-  test: {
-    rules: [
-      {path: /foo/, stop: nil},
-    ],
-  },
-})

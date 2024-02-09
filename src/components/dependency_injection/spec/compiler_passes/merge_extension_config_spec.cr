@@ -8,7 +8,7 @@ private def assert_error(message : String, code : String, *, line : Int32 = __LI
   CR
 end
 
-describe ADI::ServiceContainer::MergeExtensionConfig, focus: true do
+describe ADI::ServiceContainer::MergeExtensionConfig do
   describe "compiler errors" do
     describe "root level" do
       it "errors if a configuration value has the incorrect type" do
@@ -317,6 +317,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, focus: true do
         property color_type : Color
         property color_sym : Color
         property value : Hash(String, String)
+        property regex : Regex
       end
 
       ADI.register_extension "blah", Schema
@@ -326,7 +327,8 @@ describe ADI::ServiceContainer::MergeExtensionConfig, focus: true do
           id:    123,
           color_type: Color::Red,
           color_sym: :blue,
-          value: {"id" => "10", "name" => "fred"}
+          value: {"id" => "10", "name" => "fred"},
+          regex: /foo/
         },
       })
 
@@ -339,6 +341,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, focus: true do
           it { \\{{ADI::CONFIG["blah"]["color_type"]}}.should eq Color::Red }
           it { \\{{ADI::CONFIG["blah"]["color_sym"]}}.should eq Color::Blue }
           it { \\{{ADI::CONFIG["blah"]["value"]}}.should eq({"id" => "10", "name" => "fred"}) }
+          it { \\{{ADI::CONFIG["blah"]["regex"]}}.should eq /foo/ }
         end
       end
     CR

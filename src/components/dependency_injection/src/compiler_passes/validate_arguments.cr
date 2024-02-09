@@ -229,8 +229,6 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
               end
             end
           end
-
-          pp CONFIG
         %}
       {% end %}
     end
