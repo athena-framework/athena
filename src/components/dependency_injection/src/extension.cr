@@ -4,99 +4,23 @@ module Athena::DependencyInjection::Extension::Schema
     OPTIONS = [] of Nil
   end
 
-  # bool foo          - non-nilable required
-  # bool foo = false  - non-nilable optional
-  # bool? foo         - nilable required
-  # bool? foo = false - nilable required
-
-  macro bool(assign_or_var)
-    add_config_property({{assign_or_var}}, Bool)
-  end
-
-  macro bool?(assign_or_var)
-    add_config_property({{assign_or_var}}, Bool?)
-  end
-
-  macro string(assign_or_var)
-    add_config_property({{assign_or_var}}, String)
-  end
-
-  macro string?(assign_or_var)
-    add_config_property({{assign_or_var}}, String?)
-  end
-
-  macro int(assign_or_var, size = Int32)
-    add_config_property({{assign_or_var}}, {{size}})
-  end
-
-  macro int?(assign_or_var, size = Int32?)
-    add_config_property({{assign_or_var}}, {{size}}?)
-  end
-
-  macro bigint(assign_or_var)
-    int({{assign_or_var}}, Int64)
-  end
-
-  macro bigint?(assign_or_var)
-    int({{assign_or_var}}, Int64?)
-  end
-
-  macro float(assign_or_var, size = Float64)
-    add_config_property({{assign_or_var}}, {{size}})
-  end
-
-  macro float?(assign_or_var, size = Float64?)
-    add_config_property({{assign_or_var}}, {{size}}?)
-  end
-
-  private macro add_config_property(assign_or_var, type)
-    {%
-      if assign_or_var.is_a?(Assign)
-        name = assign_or_var.target.id
-        default = assign_or_var.value
-      else
-        name = assign_or_var.id
-        default = pp # Hack to ensure the default is a Nop to differentiate it from `nil`
-      end
-    %}
-
-    {%
-      declaration = {name: name, type: type.resolve, default: default, root: assign_or_var}
-
-      OPTIONS << declaration
-    %}
-  end
-
-  macro array(declaration)
-    process_array({{declaration}}, false)
-  end
-
-  macro array?(declaration)
-    process_array({{declaration}}, true)
-  end
-
-  private macro process_array(declaration, nilable)
+  macro property(declaration)
     {%
       __nil = nil
 
-      type_string = if nilable
-                      "Array(#{declaration.type})?"
-                    else
-                      "Array(#{declaration.type})"
-                    end
-
-      # Special case: Allow using NoReturn to "inherit" type from the TypeDeclaration.
+      # Special case: Allow using NoReturn to "inherit" type from the TypeDeclaration for Array types.
       # I.e. to make it so you do not have to retype the type if its long/complex
-      default = if (!declaration.value.is_a?(Nop) &&
+      default = if (declaration.type.resolve <= Array &&
+                   !declaration.value.is_a?(Nop) &&
                    (array_type = ((declaration.value.of || declaration.value.type))) &&
                    !array_type.is_a?(Nop) &&
                    array_type.resolve == NoReturn.resolve)
-                  "#{type_string.id}.new".id
+                  "#{declaration.type.id}.new".id
                 else
                   declaration.value
                 end
 
-      OPTIONS << {name: declaration.var.id, type: parse_type(type_string).resolve, default: default, root: declaration, members: [] of Nil}
+      OPTIONS << {name: declaration.var.id, type: declaration.type.resolve, default: default, root: declaration}
     %}
   end
 
@@ -109,17 +33,25 @@ module Athena::DependencyInjection::Extension::Schema
     process_array_of({{name}}, {{members.splat}}, nilable: true)
   end
 
-  private macro process_array_of(name, *members, nilable)
+  private macro process_array_of(name_or_assign, *members, nilable)
     {%
-      members.each do |m|
-        m.raise "All members must be `TypeDeclaration`s." unless m.is_a? TypeDeclaration
+      __nil = nil
+
+      if name_or_assign.is_a?(Assign)
+        name = name_or_assign.target
+        default = name_or_assign.value
+      else
+        name = name_or_assign.name
+        default = [] of NoReturn
       end
 
-      OPTIONS << {name: name.id, type: nilable ? Array? : Array, default: default, root: name, members: members}
-    %}
-  end
+      member_map = {__nil: nil}
+      members.each do |m|
+        m.raise "All members must be `TypeDeclaration`s." unless m.is_a? TypeDeclaration
+        member_map[m.var.id] = m
+      end
 
-  macro type_of(declaration)
-    {% OPTIONS << {name: declaration.var.id, type: declaration.type.resolve, default: declaration.value, root: declaration} %}
+      OPTIONS << {name: name, type: nilable ? Array? : Array, default: default, root: name, members: member_map}
+    %}
   end
 end

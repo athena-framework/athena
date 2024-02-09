@@ -81,21 +81,33 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                     values_to_resolve = [{prop["type"], config_value, ext_path + [prop["name"]]}]
 
                     values_to_resolve.each_with_index do |(prop_type, cfv, stack), idx|
-                      resolved_type = if cfv.is_a?(BoolLiteral)
+                      resolved_type = if cfv.nil?
+                                        Nil
+                                      elsif cfv.is_a?(BoolLiteral)
                                         Bool
                                       elsif cfv.is_a?(StringLiteral)
                                         String
                                       elsif cfv.is_a?(SymbolLiteral)
                                         Symbol
+                                      elsif cfv.is_a?(RegexLiteral)
+                                        Regex
                                       elsif cfv.is_a?(ArrayLiteral)
                                         # Fallback on the type of the property if no type was specified
-                                        array_type = (cfv.of || cfv.type) || prop_type.type_vars.first
+                                        if member_map = prop["members"]
+                                          cfv.each_with_index do |v, v_idx|
+                                            values_to_resolve << {member_map, v, stack + [v_idx]}
+                                          end
 
-                                        cfv.each_with_index do |v, v_idx|
-                                          values_to_resolve << {array_type.resolve, v, stack + [v_idx]}
+                                          Array
+                                        else
+                                          array_type = (cfv.of || cfv.type) || prop_type.type_vars.first
+
+                                          cfv.each_with_index do |v, v_idx|
+                                            values_to_resolve << {array_type.resolve, v, stack + [v_idx]}
+                                          end
+
+                                          parse_type("Array(#{array_type})").resolve
                                         end
-
-                                        parse_type("Array(#{array_type})").resolve
                                       elsif cfv.is_a?(NumberLiteral)
                                         kind = cfv.kind
 
@@ -111,6 +123,17 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                       elsif cfv.is_a?(TypeNode) || cfv.is_a?(HashLiteral)
                                         cfv
                                       elsif cfv.is_a?(NamedTupleLiteral)
+                                        # The prop type is from an array_of, so we need to fill in defaults
+                                        if prop_type.is_a?(NamedTupleLiteral)
+                                          provided_keys = cfv.keys
+
+                                          prop_type.keys.reject { |k| k.stringify == "__nil" || provided_keys.includes? k }.each do |k|
+                                            decl = prop_type[k]
+
+                                            cfv[k] = decl.value
+                                          end
+                                        end
+
                                         cfv.each do |k, v|
                                           nt_key_type = prop_type[k]
 
@@ -129,15 +152,27 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                           elsif k == "__nil"
                                             # no-op
                                           else
-                                            values_to_resolve << {nt_key_type.resolve, v, stack + [k]}
+                                            type = nt_key_type.is_a?(TypeDeclaration) ? nt_key_type.type : nt_key_type
+
+                                            values_to_resolve << {type.resolve, v, stack + [k]}
                                           end
                                         end
 
-                                        missing_keys = prop_type.keys - cfv.keys
+                                        missing_keys = prop_type.keys.reject { |k| k.stringify == "__nil" } - cfv.keys
 
                                         unless missing_keys.empty?
                                           missing_keys.each do |mk|
-                                            unless prop_type[mk].nilable?
+                                            mt = prop_type[mk]
+
+                                            nilable = if mt.is_a?(TypeNode)
+                                                        mt.nilable?
+                                                      elsif mt.is_a?(TypeDeclaration)
+                                                        mt.type.resolve.nilable?
+                                                      else
+                                                        false
+                                                      end
+
+                                            unless nilable
                                               path = "#{stack[0]}"
 
                                               stack[1..].each do |p|
@@ -153,11 +188,10 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                           end
                                         end
 
-                                        # TODO: Figure out if there's a way to get a TypeNode reference to the named tuple instance itself.
                                         nil
                                       end
 
-                      unless resolved_type.nil?
+                      if resolved_type
                         values_to_resolve[idx][2] = resolved_type
 
                         # Handles outer most typing issues.
@@ -195,6 +229,8 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
               end
             end
           end
+
+          pp CONFIG
         %}
       {% end %}
     end
