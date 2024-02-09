@@ -16,7 +16,7 @@ describe ADI::ServiceContainer::MergeConfigs do
           module Defaults
             include ADI::Extension::Schema
 
-            property? allow_credentials : Bool = false
+            property allow_credentials : Bool = false
             property allow_origin : Array(String) = [] of String
           end
         end

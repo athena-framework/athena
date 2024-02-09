@@ -71,7 +71,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
           module Schema
             include ADI::Extension::Schema
 
-            property id : Int32
+            property id : Int64
           end
 
           ADI.register_extension "test", Schema
@@ -219,7 +219,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
               module Defaults
                 include ADI::Extension::Schema
 
-                property foo : Array(Int32) = [] of NoReturn
+                property foo : Array(Int32)
               end
             end
           end
@@ -317,6 +317,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
         property color_type : Color
         property color_sym : Color
         property value : Hash(String, String)
+        property regex : Regex
       end
 
       ADI.register_extension "blah", Schema
@@ -326,7 +327,8 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
           id:    123,
           color_type: Color::Red,
           color_sym: :blue,
-          value: {"id" => "10", "name" => "fred"}
+          value: {"id" => "10", "name" => "fred"},
+          regex: /foo/
         },
       })
 
@@ -339,6 +341,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
           it { \\{{ADI::CONFIG["blah"]["color_type"]}}.should eq Color::Red }
           it { \\{{ADI::CONFIG["blah"]["color_sym"]}}.should eq Color::Blue }
           it { \\{{ADI::CONFIG["blah"]["value"]}}.should eq({"id" => "10", "name" => "fred"}) }
+          it { \\{{ADI::CONFIG["blah"]["regex"]}}.should eq /foo/ }
         end
       end
     CR
@@ -397,7 +400,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
       module Schema
         include ADI::Extension::Schema
 
-        property foo : Array(Int32) = [] of NoReturn
+        property foo : Array(Int32 | String) = [] of NoReturn
       end
 
       ADI.register_extension "test", Schema
@@ -405,6 +408,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
       macro finished
         macro finished
           it { (\\{{ADI::CONFIG["test"]["foo"]}}).should be_empty }
+          it { \\{{ADI::CONFIG["test"]["foo"].stringify}}.should eq "Array(Int32 | String).new" }
         end
       end
     CR
@@ -417,7 +421,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
       module Schema
         include ADI::Extension::Schema
 
-        property foo : Array(Int32) = [] of NoReturn
+        property foo : Array(Int32 | String) = [] of NoReturn
       end
 
       ADI.register_extension "test", Schema
@@ -446,13 +450,13 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
         module One
           include ADI::Extension::Schema
 
-          property? enabled : Bool = false
+          property enabled : Bool = false
         end
 
         module Two
           include ADI::Extension::Schema
 
-          property? enabled : Bool = false
+          property enabled : Bool = false
         end
       end
 
@@ -477,19 +481,19 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
         module One
           include ADI::Extension::Schema
 
-          property? enabled : Bool = false
+          property enabled : Bool = false
           property id : Int32
         end
 
         module Two
           include ADI::Extension::Schema
 
-          property? enabled : Bool = false
+          property enabled : Bool = false
 
           module Three
             include ADI::Extension::Schema
 
-            property? enabled : Bool = false
+            property enabled : Bool = false
           end
         end
       end

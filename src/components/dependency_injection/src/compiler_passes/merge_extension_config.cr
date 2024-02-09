@@ -50,7 +50,7 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
               obj = ext_options
 
               if ext_path.empty?
-                obj[o.var.id] = o
+                obj[o["name"]] = o
                 EXTENSION_SCHEMA_PROPERTIES_MAP[ext_name] << {o, ext_path}
               else
                 ext_path.each_with_index do |k, idx|
@@ -58,7 +58,7 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                   obj = obj[k]
 
                   if idx == ext_path.size - 1
-                    obj[o.var.id] = o
+                    obj[o["name"]] = o
                     EXTENSION_SCHEMA_PROPERTIES_MAP[ext_name] << {o, ext_path}
                   end
                 end
@@ -102,19 +102,19 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
               end
 
               # Then handle any light transformations needed to get the configuration value into the expected format/type
-              if (config_value = extension_config_for_current_property[prop.var.id]) != nil
+              if (config_value = extension_config_for_current_property[prop["name"]]) != nil
                 config_value = config_value.is_a?(Path) ? config_value.resolve : config_value
 
-                resolved_value = if config_value.is_a?(SymbolLiteral) && (type = prop.type.resolve) <= ::Enum
-                                   config_value.raise "Unknown '#{type}' enum member '#{config_value}' for property '#{([ext_name] + ext_path).join('.').id}.#{prop.var.id}'." unless type.constants.any?(&.downcase.id.==(config_value.id))
+                resolved_value = if config_value.is_a?(SymbolLiteral) && (type = prop["type"]) <= ::Enum
+                                   config_value.raise "Unknown '#{type}' enum member '#{config_value}' for property '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}'." unless type.constants.any?(&.downcase.id.==(config_value.id))
 
                                    # Resolve symbol literals to enum members
                                    config_value = "#{type}.new(#{config_value})".id
-                                 elsif config_value.is_a?(NumberLiteral) && (type = prop.type.resolve) <= ::Enum
+                                 elsif config_value.is_a?(NumberLiteral) && (type = prop["type"]) <= ::Enum
                                    # Resolve enum value to enum members
                                    config_value = "#{type}.new(#{config_value})".id
                                  elsif config_value.is_a?(NamedTupleLiteral)
-                                   p = prop.type.resolve
+                                   p = prop["type"]
 
                                    # Fill in `nil` values to missing nilable NT keys
                                    p.keys.each do |k|
@@ -131,16 +131,16 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                                  end
               else
                 # Otherwise fall back on the default value of the property
-                resolved_value = if prop.value.is_a?(Nop)
+                resolved_value = if prop["default"].is_a?(Nop)
                                    nil
-                                 elsif prop.value.is_a?(Path)
-                                   prop.value.resolve
+                                 elsif prop["default"].is_a?(Path)
+                                   prop["default"].resolve
                                  else
-                                   prop.value
+                                   prop["default"]
                                  end
               end
 
-              extension_config_for_current_property[prop.var] = resolved_value
+              extension_config_for_current_property[prop["name"]] = resolved_value
             end
           end
         %}
