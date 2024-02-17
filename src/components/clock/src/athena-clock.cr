@@ -5,17 +5,6 @@ require "./monotonic"
 # Convenience alias to make referencing `Athena::Clock` types easier.
 alias ACLK = Athena::Clock
 
-# The `Athena::Clock` component allows decoupling an application from the system clock.
-# This allows time to be fixed, aiding in testability of time-sensitive logic.
-#
-# The component provides `Athena::Clock::Interface` with the following built-in implementations:
-#
-# * `ACLK::Native` - Interacts with the system clock; same as doing `Time.local`
-# * `ACLK::Monotonic` - Based on a high resolution monotonic clock, perfect for measuring time; similar to `Time.monotonic`
-# * `ACLK::Spec::MockClock` - Can be used in specs to able to freeze and change the current time using either `#sleep` or `#shift`
-#
-# ## Usage
-#
 # The core `Athena::Clock` type can be used to return the current time via a global clock.
 #
 # ```

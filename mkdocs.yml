@@ -1,29 +1,29 @@
 INHERIT: ./mkdocs-common.yml
 
 site_name: Athena
-use_directory_urls: true
+
+extra_css:
+  - ../../../css/index.css
 
 plugins:
+  - search
   - section-index
   - projects:
       projects_dir: src/components
-      cache: false
-
-strict: false
-
-validation:
-  absolute_links: ignore
-  unrecognized_links: ignore
-
-extra:
-  homepage: project://.
 
 nav:
-  - Manual: index.md
+  - Introduction: index.md
+  - Why Athena: why_athena.md
+  - Architecture: architecture.md
+  - Getting Started:
+    - getting_started/index.md
+    - Foo: getting_started/foo.md
+    - Bar: getting_started/foo.md
   - Components:
     - components.md
     - project://clock
-    # - project://dotenv
+    - project://dotenv
+    - project://framework
 
 extra:
   social:

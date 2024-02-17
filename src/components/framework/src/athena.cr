@@ -60,9 +60,8 @@ alias ATHA = ATH::Annotations
 # Convenience alias to make referencing `ATH::Controller::ValueResolvers` types easier.
 alias ATHR = ATH::Controller::ValueResolvers
 
-# See the [external documentation](https://athenaframework.org) for an introduction to `Athena`.
-#
-# Also checkout the [Architecture](../architecture/README.md) page for an overview of how the Athena Framework is designed.
+module Athena; end
+
 module Athena::Framework
   VERSION = "0.18.2"
 
@@ -225,3 +224,9 @@ module Athena::Framework
 end
 
 ATH.register_bundle ATH::Bundle
+
+ATH.configure({
+  parameters: {
+    "framework.debug": true,
+  },
+})

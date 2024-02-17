@@ -15,13 +15,21 @@ theme:
       toggle:
         icon: material/weather-night
         name: Switch to light theme
+  features:
+    - navigation.sections
+    - navigation.instant
+
+use_directory_urls: true
+
+strict: false
 
 validation:
-  omitted_files: warn
-  absolute_links: warn
-  unrecognized_links: warn
+  omitted_files: ignore
+  absolute_links: ignore
+  unrecognized_links: ignore
 
-strict: true
+extra:
+  homepage: /
 
 markdown_extensions:
   - admonition
@@ -33,8 +41,3 @@ markdown_extensions:
   - deduplicate-toc
   - toc:
       permalink: "#"
-
-# plugins:
-#   - gen-files:
-#       scripts:
-#         - ../../../gen_doc_stubs.py

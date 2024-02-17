@@ -1,28 +1,25 @@
 INHERIT: ../../../mkdocs-common.yml
 
 site_name: Clock
-use_directory_urls: true
 
 nav:
-  - Back to Manual: project://.
-  - Clock:
-    - index.md
+  - Introduction:
+    - landing.md
+    - Getting Started: getting_started.md
     - Aliases: aliases.md
-    - './*'
+    - Back to Manual: project://.
+  - API:
+    - Top Level: index.md
+    - '*'
 
-strict: false
-
-validation:
-  absolute_links: ignore
-  unrecognized_links: ignore
-
-extra:
-  homepage: project://.
+extra_css:
+  - ../../../css/index.css
+  - ../../../css/component.css
 
 plugins:
   - search
-  - literate-nav  # Allows using the `./*` wildcard
-  - section-index # Allows
+  - literate-nav
+  - section-index
   - gen-files:
       scripts:
         - ../../../gen_doc_stubs.py
