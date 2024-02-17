@@ -42,7 +42,7 @@ alias Assert = AVD::Annotations
 # ## Getting Started
 #
 # If using this component within the [Athena Framework][Athena::Framework], it is already installed and required for you.
-# Checkout the [manual](/architecture/validator) for some additional information on how to use it within the framework.
+# Checkout the [manual](../architecture/validator.md) for some additional information on how to use it within the framework.
 #
 # If using it outside of the framework, you will first need to add it as a dependency:
 #
@@ -400,7 +400,7 @@ alias Assert = AVD::Annotations
 #
 # NOTE: See the related types for more detailed information.
 module Athena::Validator
-  VERSION = "0.3.1"
+  VERSION = "0.3.2"
 
   # :nodoc:
   #

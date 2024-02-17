@@ -1,35 +1,19 @@
 require "../spec_helper"
 
 struct FormatListenerTest < ASPEC::TestCase
-  def test_call_no_config : Nil
+  def test_fallback_format : Nil
     event = new_request_event
 
     request_store = ATH::RequestStore.new
     request_store.request = event.request
 
-    negotiator = ATH::View::FormatNegotiator.new request_store, nil
-
-    listener = ATH::Listeners::Format.new nil, negotiator
-
-    listener.on_request event
-
-    event.request.request_format.should eq "json"
-    event.request.attributes.get?("media_type").should be_nil
-  end
-
-  def test_call_fallback_format : Nil
-    event = new_request_event
-
-    request_store = ATH::RequestStore.new
-    request_store.request = event.request
-
-    config = ATH::Config::ContentNegotiation.new [
-      ATH::Config::ContentNegotiation::Rule.new(fallback_format: "xml"),
+    rules = [
+      ATH::View::FormatNegotiator::Rule.new(fallback_format: "xml"),
     ]
 
-    negotiator = ATH::View::FormatNegotiator.new request_store, config
+    negotiator = ATH::View::FormatNegotiator.new request_store, rules
 
-    listener = ATH::Listeners::Format.new config, negotiator
+    listener = ATH::Listeners::Format.new negotiator
 
     listener.on_request event
 
@@ -37,21 +21,21 @@ struct FormatListenerTest < ASPEC::TestCase
     event.request.attributes.get?("media_type").should eq "text/xml"
   end
 
-  def test_call_stop_listener : Nil
+  def test_stop_listener : Nil
     event = new_request_event
     event.request.request_format = "xml"
 
     request_store = ATH::RequestStore.new
     request_store.request = event.request
 
-    config = ATH::Config::ContentNegotiation.new [
-      ATH::Config::ContentNegotiation::Rule.new(stop: true),
-      ATH::Config::ContentNegotiation::Rule.new(fallback_format: "json"),
+    rules = [
+      ATH::View::FormatNegotiator::Rule.new(stop: true),
+      ATH::View::FormatNegotiator::Rule.new(fallback_format: "json"),
     ]
 
-    negotiator = ATH::View::FormatNegotiator.new request_store, config
+    negotiator = ATH::View::FormatNegotiator.new request_store, rules
 
-    listener = ATH::Listeners::Format.new config, negotiator
+    listener = ATH::Listeners::Format.new negotiator
 
     listener.on_request event
 
@@ -59,17 +43,17 @@ struct FormatListenerTest < ASPEC::TestCase
     event.request.attributes.get?("media_type").should be_nil
   end
 
-  def test_call_cannot_resolve_format : Nil
+  def test_cannot_resolve_format : Nil
     event = new_request_event
 
     request_store = ATH::RequestStore.new
     request_store.request = event.request
 
-    config = ATH::Config::ContentNegotiation.new Array(ATH::Config::ContentNegotiation::Rule).new
+    rules = Array(ATH::View::FormatNegotiator::Rule).new
 
-    negotiator = ATH::View::FormatNegotiator.new request_store, config
+    negotiator = ATH::View::FormatNegotiator.new request_store, rules
 
-    listener = ATH::Listeners::Format.new config, negotiator
+    listener = ATH::Listeners::Format.new negotiator
 
     expect_raises ATH::Exceptions::NotAcceptable, "No matching accepted Response format could be determined." do
       listener.on_request event
@@ -88,13 +72,13 @@ struct FormatListenerTest < ASPEC::TestCase
     request_store = ATH::RequestStore.new
     request_store.request = event.request
 
-    config = ATH::Config::ContentNegotiation.new [
-      ATH::Config::ContentNegotiation::Rule.new(fallback_format: "xml"),
+    rules = [
+      ATH::View::FormatNegotiator::Rule.new(fallback_format: "xml"),
     ]
 
-    negotiator = ATH::View::FormatNegotiator.new request_store, config
+    negotiator = ATH::View::FormatNegotiator.new request_store, rules
 
-    listener = ATH::Listeners::Format.new config, negotiator
+    listener = ATH::Listeners::Format.new negotiator
 
     listener.on_request event
 

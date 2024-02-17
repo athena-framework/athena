@@ -1,5 +1,9 @@
 require "./spec_helper"
 
+module TransformerInterface
+  abstract def transform
+end
+
 class FakeTransformer
   include TransformerInterface
 
@@ -8,7 +12,7 @@ class FakeTransformer
 end
 
 class ADI::Spec::MockableServiceContainer
-  setter reverse_transformer : TransformerInterface?
+  property reverse_transformer : TransformerInterface?
 end
 
 describe ADI::Spec::MockableServiceContainer do

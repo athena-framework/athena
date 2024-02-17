@@ -95,15 +95,6 @@
 #
 # NOTE: Placeholder customization is global and would affect any indicator used after calling `.set_placeholder_formatter`.
 class Athena::Console::Helper::ProgressIndicator
-  # :nodoc:
-  class Clock
-    include Athena::Console::ClockInterface
-
-    def now : Time
-      Time.utc
-    end
-  end
-
   # Represents the built in progress indicator formats.
   #
   # See [Built-In Formats][Athena::Console::Helper::ProgressIndicator--built-in-formats] for more information.
@@ -167,7 +158,7 @@ class Athena::Console::Helper::ProgressIndicator
 
   private def self.init_placeholder_formatters : Hash(String, PlaceholderFormatter)
     {
-      "elapsed"   => PlaceholderFormatter.new { |indicator| ACON::Helper.format_time indicator.clock.now.to_unix - indicator.start_time },
+      "elapsed"   => PlaceholderFormatter.new { |indicator| ACON::Helper.format_time indicator.clock.now - indicator.start_time },
       "indicator" => PlaceholderFormatter.new { |indicator| indicator.indicator_values[indicator.indicator_index % indicator.indicator_values.size] },
       "memory"    => PlaceholderFormatter.new { (GC.stats.heap_size - GC.stats.free_bytes).humanize_bytes },
       "message"   => PlaceholderFormatter.new(&.message.to_s),
@@ -176,22 +167,25 @@ class Athena::Console::Helper::ProgressIndicator
 
   protected getter indicator_values : Indexable(String)
   protected getter indicator_index : Int32 = 0
-  protected getter start_time : Int64
+  protected getter start_time : Time
 
   protected getter message : String? = nil
-  protected property clock : Athena::Console::ClockInterface = Clock.new
+  protected getter clock : ACLK::Interface
 
   @output : ACON::Output::Interface
   @format : Format
-  @indicator_change_interval : Int32
+  @indicator_change_interval : Time::Span
   @started : Bool = false
-  @indicator_update_time : Int64 = 0
+  @indicator_update_time : Time = Time::UNIX_EPOCH
 
   def initialize(
     @output : ACON::Output::Interface,
     format : ACON::Helper::ProgressIndicator::Format? = nil,
-    indicator_change_interval_milliseconds : Int32 = 100,
-    indicator_values : Indexable(String)? = nil
+    indicator_change_interval : Time::Span = 100.milliseconds,
+    indicator_values : Indexable(String)? = nil,
+
+    # Use a monotonic clock by default since its better for measuring time
+    @clock : ACLK::Interface = ACLK::Monotonic.new
   )
     indicator_values ||= ["-", "\\", "|", "/"]
 
@@ -201,8 +195,8 @@ class Athena::Console::Helper::ProgressIndicator
 
     @format = format || determine_best_format
     @indicator_values = indicator_values
-    @start_time = @clock.now.to_unix
-    @indicator_change_interval = indicator_change_interval_milliseconds
+    @start_time = @clock.now
+    @indicator_change_interval = indicator_change_interval
   end
 
   # Sets the *message* to display alongside the indicator.
@@ -216,8 +210,8 @@ class Athena::Console::Helper::ProgressIndicator
 
     @message = message
     @started = true
-    @start_time = @clock.now.to_unix
-    @indicator_update_time = @clock.now.to_unix_ms + @indicator_change_interval
+    @start_time = @clock.now
+    @indicator_update_time = @clock.now + @indicator_change_interval
     @indicator_index = 0
 
     self.display
@@ -229,7 +223,7 @@ class Athena::Console::Helper::ProgressIndicator
 
     return unless @output.decorated?
 
-    current_time = @clock.now.to_unix_ms
+    current_time = @clock.now
 
     return if current_time < @indicator_update_time
 

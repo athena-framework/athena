@@ -1,13 +1,7 @@
 # Convenience alias to make referencing `Athena::Config` types easier.
 alias ACF = Athena::Config
 
-# Convenience alias to make referencing `ACF::Annotations` types easier.
-alias ACFA = ACF::Annotations
-
 require "./annotation_configurations"
-require "./annotations"
-require "./base"
-require "./parameters"
 
 # A web framework comprised of reusable, independent components.
 #
@@ -37,14 +31,17 @@ module Athena
   #
   # Then run `shards install`, being sure to require it via `require "athena-config"`.
   #
-  # From here, checkout the [manual](/architecture/config) for some additional information on how to use it both within and outside of the framework.
+  # From here, checkout the [manual](../architecture/config.md) for some additional information on how to use it both within and outside of the framework.
   #
   # INFO: DI parameter injection requires the [Athena::DependencyInjection][] component as well.
   module Config
-    VERSION = "0.3.2"
+    VERSION = "0.3.3"
 
     # :nodoc:
     CUSTOM_ANNOTATIONS = [] of Nil
+
+    # :nodoc:
+    CONFIG = {parameters: {} of Nil => Nil} # Ensure this type is a NamedTupleLiteral
 
     # Registers a configuration annotation with the provided *name*.
     # Defines a configuration record with the provided *args*, if any, that represents the possible arguments that the annotation accepts.
@@ -75,35 +72,11 @@ module Athena
       annotation {{name.id}}; end
 
       # :nodoc:
-      record {{name.id}}Configuration < ACF::AnnotationConfigurations::ConfigurationBase{% unless args.empty? %}, {{*args}}{% end %} do
+      record {{name.id}}Configuration < ACF::AnnotationConfigurations::ConfigurationBase{% unless args.empty? %}, {{args.splat}}{% end %} do
         {{yield}}
       end
 
       {% CUSTOM_ANNOTATIONS << name %}
-    end
-
-    # Returns the configured `ACF::Base` instance.
-    # The instance is a lazily initialized singleton.
-    #
-    # `ACF.load_configuration` may be redefined to change _how_ the configuration object is provided; e.g. create it from a `YAML` or `JSON` configuration file.
-    # See the [external documentation](/architecture/config/#configuration) for more information.
-    class_getter config : ACF::Base { ACF.load_configuration }
-
-    # Returns the configured `ACF::Parameters` instance.
-    # The instance is a lazily initialized singleton.
-    #
-    # `ACF.load_parameters` may be redefined to change _how_ the parameters object is provided; e.g. create it from a `YAML` or `JSON` configuration file.
-    # See the [external documentation](/architecture/config/#parameters) for more information.
-    class_getter parameters : ACF::Parameters { ACF.load_parameters }
-
-    # By default return an empty configuration type.
-    protected def self.load_configuration : ACF::Base
-      ACF::Base.new
-    end
-
-    # By default return an empty parameters type.
-    protected def self.load_parameters : ACF::Parameters
-      ACF::Parameters.new
     end
   end
 end

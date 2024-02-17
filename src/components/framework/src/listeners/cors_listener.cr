@@ -8,6 +8,31 @@
 struct Athena::Framework::Listeners::CORS
   include AED::EventListenerInterface
 
+  struct Config
+    getter? allow_credentials : Bool
+    getter allow_origin : Array(String | Regex)
+    getter allow_headers : Array(String)
+    getter allow_methods : Array(String)
+    getter expose_headers : Array(String)
+    getter max_age : Int32
+
+    def initialize(
+      @allow_credentials : Bool = false,
+      allow_origin : Array(String | Regex) = Array(String | Regex).new,
+      @allow_headers : Array(String) = [] of String,
+      @allow_methods : Array(String) = Athena::Framework::Listeners::CORS::SAFELISTED_METHODS,
+      @expose_headers : Array(String) = [] of String,
+      @max_age : Int32 = 0
+    )
+      # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Expose-Headers
+      # if @allow_credentials && @expose_headers.includes? "*"
+      #   raise ArgumentError.new "expose_headers cannot contain a wildcard ('*') when allow_credentials is 'true'."
+      # end
+
+      @allow_origin = allow_origin.map &.as String | Regex
+    end
+  end
+
   # The [CORS-safelisted request-headers](https://fetch.spec.whatwg.org/#cors-safelisted-request-header).
   SAFELISTED_HEADERS = [
     "accept",
@@ -38,9 +63,7 @@ struct Athena::Framework::Listeners::CORS
   private EXPOSE_HEADERS_HEADER    = "access-control-expose-headers"
   private MAX_AGE_HEADER           = "access-control-max-age"
 
-  private getter! config : ATH::Config::CORS
-
-  def initialize(@config : ATH::Config::CORS?); end
+  def initialize(@config : ATH::Listeners::CORS::Config = ATH::Listeners::CORS::Config.new); end
 
   @[AEDA::AsEventListener(priority: 250)]
   def on_request(event : ATH::Events::Request) : Nil
@@ -102,14 +125,14 @@ struct Athena::Framework::Listeners::CORS
     # TODO: Add a configuration option to allow setting this explicitly
     event.response.headers[ALLOW_ORIGIN_HEADER] = origin
 
-    if self.config.allow_credentials?
+    if @config.allow_credentials?
       Log.trace { "Setting '#{ALLOW_CREDENTIALS_HEADER}' to 'true'." }
 
       event.response.headers[ALLOW_CREDENTIALS_HEADER] = "true"
     end
 
-    unless self.config.expose_headers.empty?
-      headers = self.config.expose_headers.join(", ")
+    unless @config.expose_headers.empty?
+      headers = @config.expose_headers.join(", ")
 
       Log.trace { "Settings '#{EXPOSE_HEADERS_HEADER}' to '#{headers}'." }
 
@@ -122,30 +145,30 @@ struct Athena::Framework::Listeners::CORS
     response = ATH::Response.new
     response.headers["vary"] = "origin"
 
-    if self.config.allow_credentials?
+    if @config.allow_credentials?
       Log.trace { "Setting '#{ALLOW_CREDENTIALS_HEADER}' response header to 'true'." }
 
       response.headers[ALLOW_CREDENTIALS_HEADER] = "true"
     end
 
-    if self.config.max_age > 0
-      max_age = self.config.max_age.to_s
+    if @config.max_age > 0
+      max_age = @config.max_age.to_s
 
       Log.trace { "Setting '#{MAX_AGE_HEADER}' response header to '#{max_age}'." }
 
       response.headers[MAX_AGE_HEADER] = max_age
     end
 
-    unless self.config.allow_methods.empty?
-      allow_methods = self.config.allow_methods.join(", ")
+    unless @config.allow_methods.empty?
+      allow_methods = @config.allow_methods.join(", ")
 
       Log.trace { "Setting '#{ALLOW_METHODS_HEADER}' response header to '#{allow_methods}'." }
 
       response.headers[ALLOW_METHODS_HEADER] = allow_methods
     end
 
-    unless self.config.allow_headers.empty?
-      headers : Array(String) = self.config.allow_headers.includes?(WILDCARD) ? (request.headers[REQUEST_HEADERS_HEADER]?.try &.split(/,\ ?/) || [] of String) : self.config.allow_headers
+    unless @config.allow_headers.empty?
+      headers : Array(String) = @config.allow_headers.includes?(WILDCARD) ? (request.headers[REQUEST_HEADERS_HEADER]?.try &.split(/,\ ?/) || [] of String) : @config.allow_headers
 
       unless headers.empty?
         allow_headers = headers.join(", ")
@@ -170,7 +193,7 @@ struct Athena::Framework::Listeners::CORS
 
     response.headers[ALLOW_ORIGIN_HEADER] = origin
 
-    unless self.config.allow_methods.includes?(method = request.headers[REQUEST_METHOD_HEADER].upcase)
+    unless @config.allow_methods.includes?(method = request.headers[REQUEST_METHOD_HEADER].upcase)
       Log.trace { "Method '#{method}' is not allowed." }
 
       response.status = :method_not_allowed
@@ -178,10 +201,10 @@ struct Athena::Framework::Listeners::CORS
       return response
     end
 
-    unless self.config.allow_headers.includes? WILDCARD
+    unless @config.allow_headers.includes? WILDCARD
       ((rh = request.headers[REQUEST_HEADERS_HEADER]?) ? rh.split(/,\ ?/) : [] of String).each do |header|
         next if SAFELISTED_HEADERS.includes? header
-        next if self.config.allow_headers.includes? header
+        next if @config.allow_headers.includes? header
 
         raise ATH::Exceptions::Forbidden.new "Unauthorized header: '#{header}'."
       end
@@ -193,14 +216,14 @@ struct Athena::Framework::Listeners::CORS
   private def check_origin(request : ATH::Request) : Bool
     origin = request.headers["origin"]
 
-    if self.config.allow_origin.includes?(WILDCARD)
+    if @config.allow_origin.includes?(WILDCARD)
       Log.trace { "Origin is a wildcard." }
 
       return true
     end
 
     # Use case equality in case an origin is a Regex
-    self.config.allow_origin.each do |ao|
+    @config.allow_origin.each do |ao|
       Log.trace { "Checking allowed origin '#{ao}' to origin '#{origin}'." }
 
       if ao === origin

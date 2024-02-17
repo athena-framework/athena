@@ -28,6 +28,7 @@ struct TerminalTest < ASPEC::TestCase
     terminal = ACON::Terminal.new
     terminal.width.should eq 120
     terminal.height.should eq 60
+    terminal.size.should eq({120, 60})
   end
 
   def test_zero_values : Nil
@@ -37,5 +38,6 @@ struct TerminalTest < ASPEC::TestCase
     terminal = ACON::Terminal.new
     terminal.width.should eq 0
     terminal.height.should eq 0
+    terminal.size.should eq({0, 0})
   end
 end

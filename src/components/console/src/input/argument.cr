@@ -111,7 +111,7 @@ class Athena::Console::Input::Argument
   end
 
   # Returns `true` if `self` expects an array of values, otherwise `false`.
-  # ameba:disable Style/PredicateName
+  # ameba:disable Naming/PredicateName
   def is_array? : Bool
     @mode.is_array?
   end

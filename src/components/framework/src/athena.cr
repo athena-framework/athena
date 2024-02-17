@@ -2,16 +2,17 @@ require "ecr"
 require "http/server"
 require "json"
 
+require "athena-clock"
 require "athena-config"
 require "athena-console"
+require "athena-dependency_injection"
 require "athena-event_dispatcher"
 require "athena-negotiation"
 
-# Require DI component last so it knows what extensions it should load
-require "athena-dependency_injection"
-
+require "./abstract_bundle"
 require "./action"
 require "./annotations"
+require "./bundle"
 require "./binary_file_response"
 require "./controller"
 require "./controller_resolver"
@@ -24,6 +25,7 @@ require "./redirect_response"
 require "./response"
 require "./response_headers"
 require "./request"
+require "./request_matcher"
 require "./request_store"
 require "./route_handler"
 require "./streamed_response"
@@ -31,7 +33,6 @@ require "./streamed_response"
 require "./ext/serializer"
 
 require "./commands/*"
-require "./config/*"
 require "./controller/**"
 require "./compiler_passes/*"
 require "./events/*"
@@ -39,10 +40,13 @@ require "./exceptions/*"
 require "./listeners/*"
 require "./parameters/*"
 require "./params/*"
+require "./request_matcher/*"
 require "./view/*"
 
+require "./ext/clock"
 require "./ext/console"
 require "./ext/conversion_types"
+require "./ext/event_dispatcher"
 require "./ext/negotiation"
 require "./ext/routing"
 require "./ext/validator"
@@ -58,9 +62,9 @@ alias ATHR = ATH::Controller::ValueResolvers
 
 # See the [external documentation](https://athenaframework.org) for an introduction to `Athena`.
 #
-# Also checkout the [Architecture](/architecture) page for an overview of how the Athena Framework is designed.
+# Also checkout the [Architecture](../architecture/README.md) page for an overview of how the Athena Framework is designed.
 module Athena::Framework
-  VERSION = "0.18.1"
+  VERSION = "0.18.2"
 
   # This type includes all of the built-in resolvers that Athena uses to try and resolve an argument for a particular controller action parameter.
   # They run in the following order:
@@ -90,7 +94,7 @@ module Athena::Framework
   # The `AED::Event` that are emitted via `Athena::EventDispatcher` to handle a request during its life-cycle.
   # Custom events can also be defined and dispatched within a controller, listener, or some other service.
   #
-  # See each specific event and the [external documentation](/architecture/event_dispatcher/) for more information.
+  # See each specific event and the [external documentation](../../architecture/event_dispatcher.md) for more information.
   module Events; end
 
   # Exception handling in Athena is similar to exception handling in any Crystal program, with the addition of a new unique exception type, `ATH::Exceptions::HTTPException`.
@@ -106,7 +110,7 @@ module Athena::Framework
 
   # The `AED::EventListenerInterface` that act upon `ATH::Events` to handle a request. Custom listeners can also be defined, see `AED::EventListenerInterface`.
   #
-  # See each listener and the [external documentation](/architecture/event_dispatcher/) for more information.
+  # See each listener and the [external documentation](../../architecture/event_dispatcher.md) for more information.
   module Listeners; end
 
   # Namespace for types related to request parameter processing.
@@ -210,9 +214,8 @@ module Athena::Framework
         end
       {% end %}
 
-      # Handle exiting correctly on stop/kill signals
-      Signal::INT.trap { self.stop }
-      Signal::TERM.trap { self.stop }
+      # Handle exiting correctly on interrupt signals
+      Process.on_interrupt { self.stop }
 
       Log.info { %(Server has started and is listening at #{@ssl_context ? "https" : "http"}://#{@server.addresses.first}) }
 
@@ -220,3 +223,5 @@ module Athena::Framework
     end
   end
 end
+
+ATH.register_bundle ATH::Bundle

@@ -26,15 +26,15 @@ private def assert_headers_with_wildcard_config_without_request_headers(response
   response.headers["access-control-max-age"].should eq "123"
 end
 
-private EMPTY_CONFIG    = ATH::Config::CORS.new
-private WILDCARD_CONFIG = ATH::Config::CORS.new(
+private EMPTY_CONFIG    = ATH::Listeners::CORS::Config.new
+private WILDCARD_CONFIG = ATH::Listeners::CORS::Config.new(
   allow_credentials: false,
   allow_headers: %w(*),
   allow_origin: %w(*),
   expose_headers: %w(*),
   max_age: 123,
 )
-private CONFIG = ATH::Config::CORS.new(
+private CONFIG = ATH::Listeners::CORS::Config.new(
   allow_credentials: true,
   allow_headers: %w(X-FOO),
   allow_methods: %w(POST GET),
@@ -46,7 +46,7 @@ private CONFIG = ATH::Config::CORS.new(
 describe ATH::Listeners::CORS do
   describe "#on_request - request" do
     it "without a configuration defined" do
-      listener = ATH::Listeners::CORS.new nil
+      listener = ATH::Listeners::CORS.new
       event = new_request_event
 
       listener.on_request event
@@ -289,7 +289,7 @@ describe ATH::Listeners::CORS do
     end
 
     it "without a configuration defined" do
-      listener = ATH::Listeners::CORS.new nil
+      listener = ATH::Listeners::CORS.new
       event = new_response_event
 
       listener.on_response event

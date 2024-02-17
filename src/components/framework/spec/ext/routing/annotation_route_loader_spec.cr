@@ -175,6 +175,13 @@ class StringificationController < ATH::Controller
   end
 end
 
+class MultipleRoutesSingleMethod < ATH::Controller
+  @[ARTA::Get("/multiple-routes")]
+  @[ARTA::Post("/multiple-routes")]
+  @[ARTA::Route("/multiple-routes", methods: "PATCH")]
+  def action : Nil; end
+end
+
 describe ATH::Routing::AnnotationRouteLoader do
   describe ".route_collection" do
     it "simple route" do
@@ -213,6 +220,39 @@ describe ATH::Routing::AnnotationRouteLoader do
         ATH::Routing::AnnotationRouteLoader.populate_collection(StringificationController),
         path: "/color/{color}",
         requirements: {"color" => /red|green|blue/, "foo" => /foo/, "bar" => /bar/}
+      )
+    end
+
+    it "allows multiple route annotations on a single method" do
+      routes = ATH::Routing::AnnotationRouteLoader.populate_collection(MultipleRoutesSingleMethod).routes.to_a
+
+      routes.size.should eq 3
+
+      route = routes[0]
+
+      assert_route(
+        route,
+        name: "multiple_routes_single_method_action",
+        path: "/multiple-routes",
+        methods: Set{"PATCH"}
+      )
+
+      route = routes[1]
+
+      assert_route(
+        route,
+        name: "multiple_routes_single_method_action_1",
+        path: "/multiple-routes",
+        methods: Set{"GET"}
+      )
+
+      route = routes[2]
+
+      assert_route(
+        route,
+        name: "multiple_routes_single_method_action_2",
+        path: "/multiple-routes",
+        methods: Set{"POST"}
       )
     end
 

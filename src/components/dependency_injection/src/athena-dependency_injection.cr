@@ -1,10 +1,7 @@
 require "./annotations"
+require "./extension"
 require "./proxy"
 require "./service_container"
-
-require "athena-config"
-
-require "compiler/crystal/macros"
 
 # :nodoc:
 class Fiber
@@ -31,7 +28,7 @@ alias ADI = Athena::DependencyInjection
 # ## Getting Started
 #
 # If using this component within the [Athena Framework][Athena::Framework], it is already installed and required for you.
-# Checkout the [manual](/architecture/dependency_injection) for some additional information on how to use it within the framework.
+# Checkout the [manual](../architecture/dependency_injection.md) for some additional information on how to use it within the framework.
 #
 # If using it outside of the framework, you will first need to add it as a dependency:
 #
@@ -52,16 +49,16 @@ alias ADI = Athena::DependencyInjection
 # fiber is truly independent from one another, with them not being reused or sharing state external to the container. An example of this is how `HTTP::Server` reuses fibers
 # for `connection: keep-alive` requests. Because of this, or in cases similar to, you may want to manually reset the container via `Fiber.current.container = ADI::ServiceContainer.new`.
 module Athena::DependencyInjection
-  VERSION = "0.3.6"
+  VERSION = "0.3.8"
 
   private BINDINGS            = {} of Nil => Nil
   private AUTO_CONFIGURATIONS = {} of Nil => Nil
+  private EXTENSIONS          = {} of Nil => Nil
 
   # :nodoc:
-  module PreArgumentsCompilerPass; end
+  CONFIG = {parameters: {__nil: nil}} # Ensure this type is a NamedTupleLiteral
 
-  # :nodoc:
-  module PostArgumentsCompilerPass; end
+  private CONFIGS = [] of Nil
 
   # Applies the provided *options* to any registered service of the provided *type*.
   #
@@ -161,29 +158,42 @@ module Athena::DependencyInjection
   # ADI.container.bool_arr  # => BoolArr(@value_arr=[true, true, false])
   # ```
   macro bind(key, value)
-    {% if key.is_a? TypeDeclaration %}
-      {% name = key.var.id.stringify %}
-      {% type = key.type.resolve %}
-    {% else %}
-      {% name = key.id.stringify %}
-      {% type = Crystal::Macros::Nop %}
-    {% end %}
-
-    # TODO: Refactor this to ||= once https://github.com/crystal-lang/crystal/pull/9409 is released
-    {% BINDINGS[name] = {typed: [] of Nil, untyped: [] of Nil} if BINDINGS[name] == nil %}
-
-    {% if type == Crystal::Macros::Nop %}
-      {% BINDINGS[name][:untyped].unshift({value: value, type: type}) %}
-    {% else %}
-      {% BINDINGS[name][:typed].unshift({value: value, type: type}) %}
-    {% end %}
+    {% BINDINGS[key] = value %}
   end
 
   # Returns the `ADI::ServiceContainer` for the current fiber.
   def self.container : ADI::ServiceContainer
     Fiber.current.container
   end
-end
 
-# Require extension code last so all built-in DI types are available
-require "./ext/*"
+  macro configure(config)
+    {%
+      CONFIGS << config
+    %}
+  end
+
+  # :nodoc:
+  macro add_compiler_pass(pass, type = nil, priority = nil)
+    {%
+      pass_type = pass.resolve
+
+      pass.raise "Pass type must be a module." unless pass_type.module?
+
+      type = type || :before_optimization
+      priority = priority || 0
+
+      if hash = ADI::ServiceContainer::PASS_CONFIG[type]
+        hash[priority] = [] of Nil if hash[priority] == nil
+
+        hash[priority] << pass_type.id
+      else
+        type.raise "Invalid compiler pass type: '#{type}'."
+      end
+    %}
+  end
+
+  # :nodoc:
+  macro register_extension(name, schema)
+    {% ADI::ServiceContainer::EXTENSIONS[name.id.stringify] = schema %}
+  end
+end

@@ -173,7 +173,7 @@ class Athena::Console::Input::Option
   end
 
   # Returns `true` if `self` is a required argument, otherwise `false`.
-  # ameba:disable Style/PredicateName
+  # ameba:disable Naming/PredicateName
   def is_array? : Bool
     @value_mode.is_array?
   end

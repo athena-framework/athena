@@ -3,7 +3,7 @@ require "semantic_version"
 @[Athena::Console::Annotations::AsCommand("|_complete", description: "Internal command to provide shell completion suggestions")]
 # :nodoc:
 class Athena::Console::Commands::Complete < Athena::Console::Command
-  API_VERSION = 1
+  API_VERSION = 2
 
   @completion_outputs : Hash(String, ACON::Completion::Output::Interface.class)
 
@@ -163,7 +163,7 @@ class Athena::Console::Commands::Complete < Athena::Console::Command
     command_name = Path.new(PROGRAM_NAME).basename
     File.write(
       "#{Dir.tempdir}/athena_#{command_name}.log",
-      "#{messages.join(ACON::System::EOL)}#{ACON::System::EOL}",
+      "#{messages.join(EOL)}#{EOL}",
       mode: "a"
     )
   end

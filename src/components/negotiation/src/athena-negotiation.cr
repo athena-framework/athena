@@ -19,7 +19,7 @@ alias ANG = Athena::Negotiation
 # ## Getting Started
 #
 # If using this component within the [Athena Framework][Athena::Framework], it is already installed and required for you.
-# Checkout the [manual](/architecture/negotiation) for some additional information on how to use it within the framework.
+# Checkout the [manual](../architecture/negotiation.md) for some additional information on how to use it within the framework.
 #
 # If using it outside of the framework, you will first need to add it as a dependency:
 #
@@ -102,7 +102,7 @@ alias ANG = Athena::Negotiation
 #
 # The `ANG::LanguageNegotiator` type returns an `ANG::AcceptLanguage`, or `nil` if negotiating the best language has failed.
 module Athena::Negotiation
-  VERSION = "0.1.3"
+  VERSION = "0.1.4"
 
   # Returns a lazily initialized `ANG::Negotiator` singleton instance.
   class_getter(negotiator) { ANG::Negotiator.new }

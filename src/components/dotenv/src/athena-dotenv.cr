@@ -12,10 +12,9 @@ require "./exceptions/*"
 #
 # ## Getting Started
 #
-# If using this component within the [Athena Framework][Athena::Framework], it is already installed and required for you.
-# Checkout the [manual](/architecture/dotenv) for some additional information on how to use it within the framework.
-#
-# If using it outside of the framework, you will first need to add it as a dependency:
+# Unlike the other components, this one requires being manually installed, even if it is being used within the framework.
+# This is primarily because it is not strictly required, and its use is completely optional.
+# As such, you will first need to add it as a dependency:
 #
 # ```yaml
 # dependencies:
@@ -168,9 +167,9 @@ require "./exceptions/*"
 # They can of course continue to be used in production by distributing the base `.env` file along with the binary, then creating a `.env.local` on the production server and including production values within it.
 # This can work quite well for simple applications, but ultimately a more robust solution that best leverages the features of the server the application is running on is best.
 class Athena::Dotenv
-  VERSION = "0.1.0"
+  VERSION = "0.1.1"
 
-  private VARNAME_REGEX = /(?i:[A-Z][A-Z0-9_]*+)/
+  private VARNAME_REGEX = /(?i:_?[A-Z][A-Z0-9_]*+)/
 
   private enum State
     VARNAME
@@ -473,8 +472,8 @@ class Athena::Dotenv
         @reader.next_char
         value = value.gsub(%(\\"), '"').gsub("\\r", "\r").gsub("\\n", "\n")
         resolved_value = value
-        resolved_value = self.resolve_variables resolved_value, loaded_vars
         resolved_value = self.resolve_commands resolved_value, loaded_vars
+        resolved_value = self.resolve_variables resolved_value, loaded_vars
         resolved_value = resolved_value.gsub "\\\\", "\\"
 
         v += resolved_value
@@ -500,8 +499,8 @@ class Athena::Dotenv
         value = value.strip
 
         resolved_value = value
-        resolved_value = self.resolve_variables resolved_value, loaded_vars
         resolved_value = self.resolve_commands resolved_value, loaded_vars
+        resolved_value = self.resolve_variables resolved_value, loaded_vars
         resolved_value = resolved_value.gsub "\\\\", "\\"
 
         if resolved_value == value && value.each_char.any? &.whitespace?

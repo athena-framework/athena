@@ -1,27 +1,13 @@
 require "../spec_helper"
 
-private class MockClock
-  include Athena::Console::ClockInterface
-
-  def initialize(@now : Time); end
-
-  def now : Time
-    @now
-  end
-
-  def sleep(seconds : Int32) : Nil
-    @now += seconds.seconds
-  end
-end
-
 struct ProgressBarTest < ASPEC::TestCase
   @col_size : String?
-  @clock : MockClock
+  @clock : ACLK::Spec::MockClock
 
   def initialize
     @col_size = ENV["COLUMNS"]?
     ENV["COLUMNS"] = "120"
-    @clock = MockClock.new Time.utc
+    @clock = ACLK::Spec::MockClock.new
   end
 
   protected def tear_down : Nil
@@ -69,8 +55,7 @@ struct ProgressBarTest < ASPEC::TestCase
   end
 
   def test_regular_time_estimation : Nil
-    bar = ACON::Helper::ProgressBar.new self.output, 1_200, 0
-    bar.clock = @clock
+    bar = ACON::Helper::ProgressBar.new self.output, 1_200, 0, clock: @clock
 
     bar.start
     bar.advance
@@ -82,8 +67,7 @@ struct ProgressBarTest < ASPEC::TestCase
   end
 
   def test_resumed_time_estimation : Nil
-    bar = ACON::Helper::ProgressBar.new self.output, 1_200, 0
-    bar.clock = @clock
+    bar = ACON::Helper::ProgressBar.new self.output, 1_200, 0, clock: @clock
 
     bar.start at: 599
     bar.advance
@@ -346,9 +330,9 @@ struct ProgressBarTest < ASPEC::TestCase
 
     self.assert_output(
       output,
-      "  0/50 [>---------------------------]   0%#{ACON::System::EOL}",
-      "\e[1A\e[0J  1/50 [>---------------------------]   2%#{ACON::System::EOL}",
-      "\e[1A\e[0J  2/50 [=>--------------------------]   4%#{ACON::System::EOL}",
+      "  0/50 [>---------------------------]   0%#{EOL}",
+      "\e[1A\e[0J  1/50 [>---------------------------]   2%#{EOL}",
+      "\e[1A\e[0J  2/50 [=>--------------------------]   4%#{EOL}",
     )
   end
 
@@ -369,9 +353,9 @@ struct ProgressBarTest < ASPEC::TestCase
 
     self.assert_output(
       output,
-      " \033[44;37m 0/50\033[0m [>---------------------------]   0%#{ACON::System::EOL}",
-      "\e[1A\e[0J \033[44;37m 1/50\033[0m [>---------------------------]   2%#{ACON::System::EOL}",
-      "\e[1A\e[0J \033[44;37m 2/50\033[0m [=>--------------------------]   4%#{ACON::System::EOL}",
+      " \033[44;37m 0/50\033[0m [>---------------------------]   0%#{EOL}",
+      "\e[1A\e[0J \033[44;37m 1/50\033[0m [>---------------------------]   2%#{EOL}",
+      "\e[1A\e[0J \033[44;37m 2/50\033[0m [=>--------------------------]   4%#{EOL}",
     )
   end
 
@@ -393,12 +377,12 @@ struct ProgressBarTest < ASPEC::TestCase
 
     self.assert_output(
       acon_output,
-      "  0/50 [>---------------------------]   0%#{ACON::System::EOL}",
-      "  0/50 [>---------------------------]   0%#{ACON::System::EOL}",
-      "\e[1A\e[0J  1/50 [>---------------------------]   2%#{ACON::System::EOL}",
-      "\e[2A\e[0J  1/50 [>---------------------------]   2%#{ACON::System::EOL}",
-      "\e[1A\e[0J  1/50 [>---------------------------]   2%#{ACON::System::EOL}",
-      "  1/50 [>---------------------------]   2%#{ACON::System::EOL}",
+      "  0/50 [>---------------------------]   0%#{EOL}",
+      "  0/50 [>---------------------------]   0%#{EOL}",
+      "\e[1A\e[0J  1/50 [>---------------------------]   2%#{EOL}",
+      "\e[2A\e[0J  1/50 [>---------------------------]   2%#{EOL}",
+      "\e[1A\e[0J  1/50 [>---------------------------]   2%#{EOL}",
+      "  1/50 [>---------------------------]   2%#{EOL}",
     )
   end
 
@@ -440,9 +424,9 @@ struct ProgressBarTest < ASPEC::TestCase
 
     self.assert_output(
       output,
-      " 0/50 [>---------------------------]   0% %message% EXISTING TEXT.#{ACON::System::EOL}",
-      "\e[1A\e[0J 1/50 [>---------------------------]   2% MESSAGE\nTEXT! EXISTING TEXT.#{ACON::System::EOL}",
-      "\e[2A\e[0J 2/50 [=>--------------------------]   4% OTHER\nTEXT! EXISTING TEXT.#{ACON::System::EOL}",
+      " 0/50 [>---------------------------]   0% %message% EXISTING TEXT.#{EOL}",
+      "\e[1A\e[0J 1/50 [>---------------------------]   2% MESSAGE\nTEXT! EXISTING TEXT.#{EOL}",
+      "\e[2A\e[0J 2/50 [=>--------------------------]   4% OTHER\nTEXT! EXISTING TEXT.#{EOL}",
     )
   end
 
@@ -467,12 +451,12 @@ struct ProgressBarTest < ASPEC::TestCase
 
     self.assert_output(
       acon_output,
-      "  0/50 [>---------------------------]   0%#{ACON::System::EOL}",
-      " 0/50 [>]   0% Fruitcake marzipan toffee. Cupcake gummi bears tart dessert ice cream chupa chups cupcake chocolate bar sesame snaps. Croissant halvah cookie jujubes powder macaroon. Fruitcake bear claw bonbon jelly beans oat cake pie muffin Fruitcake marzipan toffee.#{ACON::System::EOL}",
-      "\e[4A\e[0J 0/50 [>]   0% Fruitcake marzipan toffee. Cupcake gummi bears tart dessert ice cream chupa chups cupcake chocolate bar sesame snaps. Croissant halvah cookie jujubes powder macaroon. Fruitcake bear claw bonbon jelly beans oat cake pie muffin Fruitcake marzipan toffee.#{ACON::System::EOL}",
-      "\e[3A\e[0J  1/50 [>---------------------------]   2%#{ACON::System::EOL}",
-      " 0/50 [>]   0% Fruitcake marzipan toffee. Cupcake gummi bears tart dessert ice cream chupa chups cupcake chocolate bar sesame snaps. Croissant halvah cookie jujubes powder macaroon. Fruitcake bear claw bonbon jelly beans oat cake pie muffin Fruitcake marzipan toffee.#{ACON::System::EOL}",
-      "\e[3A\e[0J 1/50 [>]   2% Fruitcake marzipan toffee. Cupcake gummi bears tart dessert ice cream chupa chups cupcake chocolate bar sesame snaps. Croissant halvah cookie jujubes powder macaroon. Fruitcake bear claw bonbon jelly beans oat cake pie muffin Fruitcake marzipan toffee.#{ACON::System::EOL}",
+      "  0/50 [>---------------------------]   0%#{EOL}",
+      " 0/50 [>]   0% Fruitcake marzipan toffee. Cupcake gummi bears tart dessert ice cream chupa chups cupcake chocolate bar sesame snaps. Croissant halvah cookie jujubes powder macaroon. Fruitcake bear claw bonbon jelly beans oat cake pie muffin Fruitcake marzipan toffee.#{EOL}",
+      "\e[4A\e[0J 0/50 [>]   0% Fruitcake marzipan toffee. Cupcake gummi bears tart dessert ice cream chupa chups cupcake chocolate bar sesame snaps. Croissant halvah cookie jujubes powder macaroon. Fruitcake bear claw bonbon jelly beans oat cake pie muffin Fruitcake marzipan toffee.#{EOL}",
+      "\e[3A\e[0J  1/50 [>---------------------------]   2%#{EOL}",
+      " 0/50 [>]   0% Fruitcake marzipan toffee. Cupcake gummi bears tart dessert ice cream chupa chups cupcake chocolate bar sesame snaps. Croissant halvah cookie jujubes powder macaroon. Fruitcake bear claw bonbon jelly beans oat cake pie muffin Fruitcake marzipan toffee.#{EOL}",
+      "\e[3A\e[0J 1/50 [>]   2% Fruitcake marzipan toffee. Cupcake gummi bears tart dessert ice cream chupa chups cupcake chocolate bar sesame snaps. Croissant halvah cookie jujubes powder macaroon. Fruitcake bear claw bonbon jelly beans oat cake pie muffin Fruitcake marzipan toffee.#{EOL}",
     )
   end
 
@@ -610,16 +594,16 @@ struct ProgressBarTest < ASPEC::TestCase
 
     self.assert_output(
       output,
-      "   0/200 [>---------------------------]   0%#{ACON::System::EOL}",
-      "  20/200 [==>-------------------------]  10%#{ACON::System::EOL}",
-      "  40/200 [=====>----------------------]  20%#{ACON::System::EOL}",
-      "  60/200 [========>-------------------]  30%#{ACON::System::EOL}",
-      "  80/200 [===========>----------------]  40%#{ACON::System::EOL}",
-      " 100/200 [==============>-------------]  50%#{ACON::System::EOL}",
-      " 120/200 [================>-----------]  60%#{ACON::System::EOL}",
-      " 140/200 [===================>--------]  70%#{ACON::System::EOL}",
-      " 160/200 [======================>-----]  80%#{ACON::System::EOL}",
-      " 180/200 [=========================>--]  90%#{ACON::System::EOL}",
+      "   0/200 [>---------------------------]   0%#{EOL}",
+      "  20/200 [==>-------------------------]  10%#{EOL}",
+      "  40/200 [=====>----------------------]  20%#{EOL}",
+      "  60/200 [========>-------------------]  30%#{EOL}",
+      "  80/200 [===========>----------------]  40%#{EOL}",
+      " 100/200 [==============>-------------]  50%#{EOL}",
+      " 120/200 [================>-----------]  60%#{EOL}",
+      " 140/200 [===================>--------]  70%#{EOL}",
+      " 160/200 [======================>-----]  80%#{EOL}",
+      " 180/200 [=========================>--]  90%#{EOL}",
       " 200/200 [============================] 100%",
     )
   end
@@ -634,8 +618,8 @@ struct ProgressBarTest < ASPEC::TestCase
 
     self.assert_output(
       output,
-      "  0/50 [>---------------------------]   0%#{ACON::System::EOL}",
-      " 25/50 [==============>-------------]  50%#{ACON::System::EOL}",
+      "  0/50 [>---------------------------]   0%#{EOL}",
+      " 25/50 [==============>-------------]  50%#{EOL}",
       " 50/50 [============================] 100%",
     )
   end
@@ -647,7 +631,7 @@ struct ProgressBarTest < ASPEC::TestCase
 
     self.assert_output(
       output,
-      "    0 [>---------------------------]#{ACON::System::EOL}",
+      "    0 [>---------------------------]#{EOL}",
       "    1 [->--------------------------]",
     )
   end
@@ -897,8 +881,7 @@ struct ProgressBarTest < ASPEC::TestCase
   end
 
   def test_min_and_max_seconds_between_redraws : Nil
-    bar = ACON::Helper::ProgressBar.new output = self.output
-    bar.clock = @clock
+    bar = ACON::Helper::ProgressBar.new output = self.output, clock: @clock
     bar.redraw_frequency = 1
     bar.minimum_seconds_between_redraws = 5
     bar.maximum_seconds_between_redraws = 10
@@ -919,8 +902,7 @@ struct ProgressBarTest < ASPEC::TestCase
   end
 
   def test_max_seconds_between_redraws : Nil
-    bar = ACON::Helper::ProgressBar.new output = self.output, minimum_seconds_between_redraws: 0
-    bar.clock = @clock
+    bar = ACON::Helper::ProgressBar.new output = self.output, minimum_seconds_between_redraws: 0, clock: @clock
     bar.redraw_frequency = 4 # Disable step based redraw
     bar.start
 
@@ -948,8 +930,7 @@ struct ProgressBarTest < ASPEC::TestCase
   end
 
   def test_min_seconds_between_redraws : Nil
-    bar = ACON::Helper::ProgressBar.new output = self.output, minimum_seconds_between_redraws: 0
-    bar.clock = @clock
+    bar = ACON::Helper::ProgressBar.new output = self.output, minimum_seconds_between_redraws: 0, clock: @clock
     bar.redraw_frequency = 1
     bar.minimum_seconds_between_redraws = 1
     bar.start
@@ -1128,7 +1109,7 @@ struct ProgressBarTest < ASPEC::TestCase
       "Processing \"foobar\"...",
       "\x1B[1G\x1B[2K\x1B[1A",
       self.generate_output(""),
-      "Foo!#{ACON::System::EOL}",
+      "Foo!#{EOL}",
       self.generate_output("[--->------------------------]"),
       "\nProcessing \"foobar\"...",
       self.generate_output("[----->----------------------]\nProcessing \"foobar\"..."),

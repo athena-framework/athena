@@ -1,5 +1,7 @@
 require "ecr"
 
+require "athena-clock"
+
 require "./annotations"
 require "./application"
 require "./command"
@@ -113,7 +115,7 @@ alias ACONA = ACON::Annotations
 # WARNING: The completion script may only be used with real built binaries, not temporary ones such as `crystal run src/console.cr -- completion`.
 # This is to ensure the performance of the script is sufficient, and to avoid any issues with the naming of the temporary binary.
 module Athena::Console
-  VERSION = "0.3.2"
+  VERSION = "0.3.4"
 
   # Contains all the `Athena::Console` based annotations.
   module Annotations; end
@@ -129,15 +131,4 @@ module Athena::Console
 
   # Contains types related to lazily loading commands.
   module Loader; end
-
-  # :nodoc:
-  #
-  # TODO: Remove this in favor of `::System::EOL` when/if https://github.com/crystal-lang/crystal/pull/11303 is released.
-  module System
-    EOL = {% if flag? :windows %}
-            "\r\n"
-          {% else %}
-            "\n"
-          {% end %}
-  end
 end

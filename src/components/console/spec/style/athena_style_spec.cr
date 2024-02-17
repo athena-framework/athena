@@ -18,7 +18,7 @@ struct AthenaStyleTest < ASPEC::TestCase
 
   private def assert_file_equals_string(filepath : String, string : String, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
     normalized_path = File.join __DIR__, "..", "fixtures", filepath
-    string.should match(Regex.new(File.read(normalized_path))), file: file, line: line
+    string.should match(Regex.new(File.read(normalized_path).gsub EOL, "\n")), file: file, line: line
   end
 
   def test_error_style : Nil
@@ -29,7 +29,7 @@ struct AthenaStyleTest < ASPEC::TestCase
     style = ACON::Style::Athena.new ACON::Input::Hash.new({} of String => String), output
     style.error_style.puts "foo"
 
-    io.to_s.should eq "foo\n"
+    io.to_s.should eq "foo#{EOL}"
   end
 
   def test_error_style_non_console_output : Nil
@@ -38,7 +38,7 @@ struct AthenaStyleTest < ASPEC::TestCase
     style = ACON::Style::Athena.new ACON::Input::Hash.new({} of String => String), output
     style.error_style.puts "foo"
 
-    io.to_s.should eq "foo\n"
+    io.to_s.should eq "foo#{EOL}"
   end
 
   @[DataProvider("output_provider")]
@@ -48,7 +48,7 @@ struct AthenaStyleTest < ASPEC::TestCase
     tester = ACON::Spec::CommandTester.new command
 
     tester.execute interactive: false, decorated: false
-    self.assert_file_equals_string file_path, tester.display
+    self.assert_file_equals_string file_path, tester.display true
   end
 
   def output_provider : Hash
@@ -223,7 +223,7 @@ struct AthenaStyleTest < ASPEC::TestCase
         (ACON::Commands::Generic::Proc.new do |input, output|
           output.decorated = true
           ACON::Style::Athena.new(input, output).comment(
-            "Lorem ipsum dolor sit <comment>amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</comment> Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
+            "Árvíztűrőtükörfúrógép 🎼 Lorem ipsum dolor sit <comment>💕 amet, consectetur adipisicing elit, sed do eiusmod tempor incididu labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</comment> Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
           )
 
           ACON::Command::Status::SUCCESS
@@ -336,6 +336,15 @@ struct AthenaStyleTest < ASPEC::TestCase
         end),
         "style/nested_tag_prefix.txt",
       },
+      "Do not prepend empty line if the buffer is empty" => {
+        (ACON::Commands::Generic::Proc.new do |input, output|
+          style = ACON::Style::Athena.new input, output
+          style.text "Hello"
+
+          ACON::Command::Status::SUCCESS
+        end),
+        "style/empty_buffer.txt",
+      },
     }
   end
 
@@ -358,7 +367,7 @@ struct AthenaStyleTest < ASPEC::TestCase
     tester = ACON::Spec::CommandTester.new command
 
     tester.execute interactive: false, decorated: false
-    self.assert_file_equals_string "style/table.txt", tester.display
+    self.assert_file_equals_string "style/table.txt", tester.display true
   end
 
   def test_table : Nil
@@ -374,7 +383,7 @@ struct AthenaStyleTest < ASPEC::TestCase
     tester = ACON::Spec::CommandTester.new command
 
     tester.execute interactive: false, decorated: false
-    self.assert_file_equals_string "style/table.txt", tester.display
+    self.assert_file_equals_string "style/table.txt", tester.display true
   end
 
   def test_horizontal_table : Nil
@@ -390,7 +399,7 @@ struct AthenaStyleTest < ASPEC::TestCase
     tester = ACON::Spec::CommandTester.new command
 
     tester.execute interactive: false, decorated: false
-    self.assert_file_equals_string "style/table_horizontal.txt", tester.display
+    self.assert_file_equals_string "style/table_horizontal.txt", tester.display true
   end
 
   def test_vertical_table : Nil
@@ -406,6 +415,6 @@ struct AthenaStyleTest < ASPEC::TestCase
     tester = ACON::Spec::CommandTester.new command
 
     tester.execute interactive: false, decorated: false
-    self.assert_file_equals_string "style/table_vertical.txt", tester.display
+    self.assert_file_equals_string "style/table_vertical.txt", tester.display true
   end
 end

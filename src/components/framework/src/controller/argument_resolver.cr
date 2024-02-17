@@ -8,7 +8,7 @@ ADI.bind value_resolvers : Array(Athena::Framework::Controller::ValueResolvers::
 struct Athena::Framework::Controller::ArgumentResolver
   include Athena::Framework::Controller::ArgumentResolverInterface
 
-  def initialize(@value_resolvers : Array(ATHR::Interface)); end
+  def initialize(@value_resolvers : Array(Athena::Framework::Controller::ValueResolvers::Interface)); end
 
   # :inherit:
   def get_arguments(request : ATH::Request, route : ATH::ActionBase) : Array

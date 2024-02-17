@@ -1,5 +1,15 @@
 require "./spec_helper"
 
+private class MockException < ::Exception
+  def initialize(@first_line : String)
+    super "ERR"
+  end
+
+  def backtrace? : Array(String)
+    [@first_line]
+  end
+end
+
 describe ATH::ErrorRenderer do
   it ATH::Exceptions::HTTPException do
     exception = ATH::Exceptions::TooManyRequests.new "cool your jets", 42
@@ -30,24 +40,39 @@ describe ATH::ErrorRenderer do
     response.content.should eq %({"code":500,"message":"Internal Server Error"})
   end
 
-  it "when in debug mode" do
-    exception = uninitialized Exception
+  describe "debug mode" do
+    it "line + column" do
+      path = Path["src", "components", "framework", "spec", "error_renderer_spec.cr"]
+      exception = MockException.new "#{path}:10:20"
 
-    begin
-      raise Exception.new "ERR"
-    rescue exception
+      renderer = ATH::ErrorRenderer.new true
+
+      response = renderer.render exception
+
+      response.headers["content-type"].should eq "application/json; charset=UTF-8"
+      response.headers["x-debug-exception-message"].should eq "ERR"
+      response.headers["x-debug-exception-class"].should eq "MockException"
+      response.headers["x-debug-exception-file"].should match /#{URI.encode_path path.to_s}:\d+:\d+$/
+      response.headers["x-debug-exception-code"].should eq "500"
+      response.status.should eq HTTP::Status::INTERNAL_SERVER_ERROR
+      response.content.should eq %({"code":500,"message":"Internal Server Error"})
     end
 
-    renderer = ATH::ErrorRenderer.new true
+    it "only line" do
+      path = Path["src", "components", "framework", "spec", "error_renderer_spec.cr"]
+      exception = MockException.new "#{path}:10"
 
-    response = renderer.render exception
+      renderer = ATH::ErrorRenderer.new true
 
-    response.headers["content-type"].should eq "application/json; charset=UTF-8"
-    response.headers["x-debug-exception-message"].should eq "ERR"
-    response.headers["x-debug-exception-class"].should eq "Exception"
-    response.headers["x-debug-exception-file"].should match /src\/components\/framework\/spec\/error_renderer_spec\.cr:\d+:\d+/
-    response.headers["x-debug-exception-code"].should eq "500"
-    response.status.should eq HTTP::Status::INTERNAL_SERVER_ERROR
-    response.content.should eq %({"code":500,"message":"Internal Server Error"})
+      response = renderer.render exception
+
+      response.headers["content-type"].should eq "application/json; charset=UTF-8"
+      response.headers["x-debug-exception-message"].should eq "ERR"
+      response.headers["x-debug-exception-class"].should eq "MockException"
+      response.headers["x-debug-exception-file"].should match /#{URI.encode_path path.to_s}:\d+$/
+      response.headers["x-debug-exception-code"].should eq "500"
+      response.status.should eq HTTP::Status::INTERNAL_SERVER_ERROR
+      response.content.should eq %({"code":500,"message":"Internal Server Error"})
+    end
   end
 end

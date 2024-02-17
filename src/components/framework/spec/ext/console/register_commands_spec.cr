@@ -1,15 +1,15 @@
 require "../../spec_helper"
 
-private def assert_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_error message, <<-CR, line: line, codegen: true
+private def assert_error(message : String, code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
+  ASPEC::Methods.assert_error message, <<-CR, line: line, file: file, codegen: true
     require "../../spec_helper.cr"
 
     #{code}
   CR
 end
 
-private def assert_success(code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_success <<-CR, line: line, codegen: true
+private def assert_success(code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
+  ASPEC::Methods.assert_success <<-CR, line: line, file: file, codegen: true
     require "../../spec_helper.cr"
 
     #{code}

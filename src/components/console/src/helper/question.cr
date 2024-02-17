@@ -150,9 +150,6 @@ class Athena::Console::Helper::Question < Athena::Console::Helper
   end
 
   private def hidden_response(output : ACON::Output::Interface, input_stream : IO) : String
-    # TODO: Support Windows
-    {% raise "Athena::Console component does not support Windows yet." if flag?(:win32) %}
-
     response = if input_stream.tty? && input_stream.responds_to? :noecho
                  input_stream.noecho &.gets 4096
                elsif @@stty && ACON::Terminal.has_stty_available?
@@ -161,7 +158,7 @@ class Athena::Console::Helper::Question < Athena::Console::Helper
 
                  input_stream.gets(4096).tap { system "stty #{stty_mode}" }
                elsif input_stream.tty?
-                 raise ACON::Exceptions::MissingInput.new "Unable to hide the response."
+                 raise ACON::Exceptions::RuntimeError.new "Unable to hide the response."
                end
 
     raise ACON::Exceptions::MissingInput.new "Aborted." if response.nil?

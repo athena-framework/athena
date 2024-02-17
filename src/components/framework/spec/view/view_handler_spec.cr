@@ -63,7 +63,7 @@ struct ViewHandlerTest < ASPEC::TestCase
            end
 
     view_handler = if empty_content_status
-                     self.create_view_handler ATH::Config::ViewHandler.new empty_content_status: empty_content_status
+                     self.create_view_handler empty_content_status: empty_content_status
                    else
                      self.create_view_handler
                    end
@@ -81,7 +81,7 @@ struct ViewHandlerTest < ASPEC::TestCase
   end
 
   def test_create_response_with_location : Nil
-    view_handler = self.create_view_handler ATH::Config::ViewHandler.new empty_content_status: HTTP::Status::USE_PROXY
+    view_handler = self.create_view_handler empty_content_status: HTTP::Status::USE_PROXY
 
     view = ATH::View(String?).new nil
     view.location = "location"
@@ -134,7 +134,7 @@ struct ViewHandlerTest < ASPEC::TestCase
 
   @[DataProvider("serialize_nil_provider")]
   def test_serialize_nil_view_handler(emit_nil : Bool) : Nil
-    view_handler = self.create_view_handler ATH::Config::ViewHandler.new emit_nil: emit_nil
+    view_handler = self.create_view_handler emit_nil: emit_nil
 
     @serializer.context_assertion = ->(context : ASR::SerializationContext) do
       context.emit_nil?.should eq emit_nil
@@ -189,13 +189,13 @@ struct ViewHandlerTest < ASPEC::TestCase
     view_handler.create_response ATH::View(Nil).new, ATH::Request.new("GET", "/"), "json"
   end
 
-  private def create_view_handler(config : ATH::Config::ViewHandler = ATH::Config::ViewHandler.new) : ATH::View::ViewHandler
+  private def create_view_handler(**args) : ATH::View::ViewHandler
     ATH::View::ViewHandler.new(
-      config,
       @url_generator,
       @serializer,
       @request_store,
       ([] of Athena::Framework::View::FormatHandlerInterface),
+      **args
     )
   end
 end
