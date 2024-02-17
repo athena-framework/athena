@@ -9,6 +9,15 @@ plugins:
       projects_dir: src/components
       cache: false
 
+strict: false
+
+validation:
+  absolute_links: ignore
+  unrecognized_links: ignore
+
+extra:
+  homepage: project://.
+
 nav:
   - Manual: index.md
   - Components:

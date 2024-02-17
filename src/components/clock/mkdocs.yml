@@ -4,15 +4,25 @@ site_name: Clock
 use_directory_urls: true
 
 nav:
+  - Back to Manual: project://.
   - Clock:
     - index.md
     - Aliases: aliases.md
     - './*'
 
+strict: false
+
+validation:
+  absolute_links: ignore
+  unrecognized_links: ignore
+
+extra:
+  homepage: project://.
+
 plugins:
   - search
-  - literate-nav
-  - section-index
+  - literate-nav  # Allows using the `./*` wildcard
+  - section-index # Allows
   - gen-files:
       scripts:
         - ../../../gen_doc_stubs.py
