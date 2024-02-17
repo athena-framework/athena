@@ -23,12 +23,6 @@ module Athena::DependencyInjection::Extension::Schema
                   declaration.value
                 end
 
-      default_string = if !(v = declaration.value).is_a? Nop
-                         "Default value of `#{v}`."
-                       else
-                         ""
-                       end
-
       OPTIONS << {name: declaration.var.id, type: declaration.type.resolve, default: default, root: declaration}
       CONFIG_DOCS << %({"name":"#{declaration.var.id}","type":"`#{declaration.type.id}`","default":"`#{default.id}`"}).id
     %}
@@ -51,7 +45,7 @@ module Athena::DependencyInjection::Extension::Schema
       __nil = nil
 
       if name_or_assign.is_a?(Assign)
-        name = name_or_assign.target
+        name = name_or_assign.target.id
         default = name_or_assign.value
       else
         name = name_or_assign.name
@@ -72,9 +66,9 @@ module Athena::DependencyInjection::Extension::Schema
         elsif in_member_docblock && line.starts_with?(">>")
           current_member, docs = line[2..].split(':')
 
-          member_doc_map[current_member] = "#{docs.id}\\n"
+          member_doc_map[current_member.id.stringify] = "#{docs.id}\\n"
         elsif current_member
-          member_doc_map[current_member] += "#{line.id}\\n"
+          member_doc_map[current_member.id.stringify] += "#{line.id}\\n"
         elsif "---" == line && in_member_docblock
           in_member_docblock = false
           current_member = nil
@@ -91,12 +85,12 @@ module Athena::DependencyInjection::Extension::Schema
       members.each_with_index do |m, idx|
         m.raise "All members must be `TypeDeclaration`s." unless m.is_a? TypeDeclaration
         member_map[m.var.id] = m
-        members_string += %({"name":"#{m.var.id}","type":"`#{m.type.id}`","default":"`#{m.value.id}`","doc":"#{member_doc_map[m.var.stringify].strip.gsub(/"/, "\\\"").id}"})
+        members_string += %({"name":"#{m.var.id}","type":"`#{m.type.id}`","default":"`#{m.value.id}`","doc":"#{(member_doc_map[m.var.stringify] || "NONE").strip.strip.gsub(/"/, "\\\"").id}"})
         members_string += "," unless idx == members.size - 1
       end
       members_string += "]"
 
-      OPTIONS << {name: name, type: type = (nilable ? Array? : Array), default: default, root: name, members: member_map}
+      OPTIONS << {name: name, type: (type = (nilable ? parse_type("Array?").resolve : Array)), default: nilable ? nil : default, root: name, members: member_map}
       CONFIG_DOCS << %({"name":"#{name.id}","type":"`#{type.id}`","default":"`#{default.id}`","members":#{members_string.id}}).id
     %}
 

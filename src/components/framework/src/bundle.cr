@@ -99,6 +99,11 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
         #
         # Maps to the access-control-expose-headers header.
         property expose_headers : Array(String) = [] of String
+
+        # The method(s) allowed when accessing the resource.
+        #
+        # Maps to the `access-control-allow-methods` header.
+        # Defaults to the [CORS-safelisted methods](https://fetch.spec.whatwg.org/#cors-safelisted-method).
         property allow_methods : Array(String) = ATH::Listeners::CORS::SAFELISTED_METHODS
         property max_age : Int32 = 0
       end
