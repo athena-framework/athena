@@ -45,9 +45,11 @@ markupsafe==2.1.5
 mergedeep==1.3.4
     # via
     #   mkdocs
+    #   mkdocs-get-deps
     #   mkdocs-material
-mkdocs==1.5.3
+mkdocs @ git+https://github.com/mkdocs/mkdocs.git@e755aaed7ea47348a60495ab364d5483ab90a4a6
     # via
+    #   -r requirements.in
     #   mkdocs-autorefs
     #   mkdocs-gen-files
     #   mkdocs-literate-nav
@@ -59,6 +61,8 @@ mkdocs-autorefs==0.5.0
     #   mkdocstrings-crystal
 mkdocs-gen-files==0.5.0
     # via -r requirements.in
+mkdocs-get-deps==0.2.0
+    # via mkdocs
 mkdocs-literate-nav==0.6.1
     # via -r requirements.in
 mkdocs-material @ git+ssh://git@github.com/squidfunk/mkdocs-material-insiders.git@d6f2c9341b857be4d77333764597958c38bb1c2a
@@ -77,7 +81,7 @@ pathspec==0.12.1
     # via mkdocs
 platformdirs==4.2.0
     # via
-    #   mkdocs
+    #   mkdocs-get-deps
     #   mkdocstrings
 pygments==2.17.2
     # via mkdocs-material
@@ -90,6 +94,7 @@ python-dateutil==2.8.2
 pyyaml==6.0.1
     # via
     #   mkdocs
+    #   mkdocs-get-deps
     #   pymdown-extensions
     #   pyyaml-env-tag
 pyyaml-env-tag==0.1
@@ -100,7 +105,7 @@ requests==2.31.0
     # via mkdocs-material
 six==1.16.0
     # via python-dateutil
-urllib3==2.2.0
+urllib3==2.2.1
     # via requests
 watchdog==4.0.0
     # via mkdocs

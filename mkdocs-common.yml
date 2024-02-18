@@ -26,7 +26,7 @@ strict: false
 
 validation:
   omitted_files: ignore
-  absolute_links: ignore
+  absolute_links: relative_to_docs
   unrecognized_links: ignore
   not_found: ignore
 

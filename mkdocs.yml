@@ -7,7 +7,6 @@ extra_css:
 
 plugins:
   - search
-  - section-index
   - projects:
       projects_dir: src/components
 
