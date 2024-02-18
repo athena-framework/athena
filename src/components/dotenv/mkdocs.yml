@@ -4,12 +4,11 @@ site_name: Dotenv
 
 nav:
   - Introduction:
-    - landing.md
-    - Getting Started: getting_started.md
-    - Aliases: aliases.md
+    - index.md
     - Back to Manual: project://.
   - API:
-    - Top Level: index.md
+    - Top Level: top_level.md
+    - Aliases: aliases.md
     - '*'
 
 extra_css:
@@ -28,7 +27,5 @@ plugins:
       handlers:
         crystal:
           crystal_docs_flags:
-            - ./src/components/dotenv/src/athena-dotenv.cr
-          source_locations:
-            src/components/dotenv: https://github.com/athena-framework/dotenv/blob/v{shard_version}/{file}#L{line}
-
+            - ./docs/index.cr
+            - ./lib/athena-dotenv/src/athena-dotenv.cr

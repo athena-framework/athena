@@ -5,11 +5,10 @@ site_name: Clock
 nav:
   - Introduction:
     - landing.md
-    - Getting Started: getting_started.md
-    - Aliases: aliases.md
     - Back to Manual: project://.
   - API:
-    - Top Level: index.md
+    - Top Level: top_level.md
+    - Aliases: aliases.md
     - '*'
 
 extra_css:
@@ -28,5 +27,6 @@ plugins:
       handlers:
         crystal:
           crystal_docs_flags:
-            - ./src/components/clock/src/athena-clock.cr
-            - ./src/components/clock/src/spec.cr
+            - ./docs/index.cr
+            - ./lib/athena-clock/src/athena-clock.cr
+            - ./lib/athena-clock/src/spec.cr

@@ -27,6 +27,7 @@ validation:
   omitted_files: ignore
   absolute_links: ignore
   unrecognized_links: ignore
+  not_found: ignore
 
 extra:
   homepage: /

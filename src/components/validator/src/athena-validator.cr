@@ -30,6 +30,8 @@ alias AVD = Athena::Validator
 # NOTE: Constraints, including custom ones, are automatically added to this namespace.
 alias Assert = AVD::Annotations
 
+module Athena; end
+
 # Athena's Validation component, `AVD` for short, adds an object/value validation framework to your project.
 # The framework consists of `AVD::Constraint`s that describe some assertion; such as a string should be `AVD::Constraints::NotBlank`
 # or that a value is `AVD::Constraints::GreaterThanOrEqual` another value.

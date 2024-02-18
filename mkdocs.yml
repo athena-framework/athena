@@ -22,8 +22,18 @@ nav:
   - Components:
     - components.md
     - project://clock
-    - project://dotenv
-    - project://framework
+    # - project://config
+    # - project://console
+    # - project://dependency_injection
+    # - project://dotenv
+    # - project://event_dispatcher
+    # - project://framework
+    # - project://image_size
+    # - project://negotiation
+    # - project://routing
+    # - project://serializer
+    # - project://spec
+    # - project://validator
 
 extra:
   social:

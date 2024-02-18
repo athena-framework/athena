@@ -1,10 +1,10 @@
 INHERIT: ../../../mkdocs-common.yml
 
-site_name: Framework
+site_name: Console
 
 nav:
   - Introduction:
-    - ../landing.md
+    - index.md
     - Back to Manual: project://.
   - API:
     - Top Level: top_level.md
@@ -28,5 +28,5 @@ plugins:
         crystal:
           crystal_docs_flags:
             - ./docs/index.cr
-            - ./lib/athena/src/athena.cr
-            - ./lib/athena/src/spec.cr
+            - ./lib/athena-console/src/athena-console.cr
+            - ./lib/athena-console/src/spec.cr

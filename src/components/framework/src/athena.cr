@@ -60,8 +60,6 @@ alias ATHA = ATH::Annotations
 # Convenience alias to make referencing `ATH::Controller::ValueResolvers` types easier.
 alias ATHR = ATH::Controller::ValueResolvers
 
-module Athena; end
-
 module Athena::Framework
   VERSION = "0.18.2"
 
