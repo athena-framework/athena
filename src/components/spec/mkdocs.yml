@@ -18,7 +18,6 @@ extra_css:
 plugins:
   - search
   - literate-nav
-  - section-index
   - gen-files:
       scripts:
         - ../../../gen_doc_stubs.py

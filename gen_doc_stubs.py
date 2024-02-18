@@ -10,9 +10,8 @@ for typ in root.lookup("Athena").walk_types():
     filename = '/'.join(typ.abs_id.split('::')[2:] + ['index.md'])
 
     # Rename the root `index.md` to `top_level.md` so that the user lands on the introduction page instead of the root component module docs.
-    # if filename == 'index.md':
-    #     print(filename)
-    #     filename = 'top_level.md'
+    if filename == 'index.md':
+        filename = 'top_level.md'
 
     with mkdocs_gen_files.open(filename, 'w') as f:
         f.write(f'# ::: {typ.abs_id}\n\n')

@@ -4,7 +4,7 @@ site_name: Framework
 
 nav:
   - Introduction:
-    - ../landing.md
+    - index.md
     - Back to Manual: project://.
   - API:
     - Top Level: top_level.md
@@ -18,7 +18,6 @@ extra_css:
 plugins:
   - search
   - literate-nav
-  - section-index
   - gen-files:
       scripts:
         - ../../../gen_doc_stubs.py
