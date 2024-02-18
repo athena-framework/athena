@@ -30,6 +30,9 @@ validation:
   unrecognized_links: ignore
   not_found: ignore
 
+extra_css:
+  - ../../../css/index.css
+
 extra:
   homepage: /
 

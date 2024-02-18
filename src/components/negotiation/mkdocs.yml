@@ -11,10 +11,6 @@ nav:
     - Aliases: aliases.md
     - '*'
 
-extra_css:
-  - ../../../css/index.css
-  - ../../../css/component.css
-
 plugins:
   - search
   - literate-nav
