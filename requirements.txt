@@ -52,7 +52,6 @@ mkdocs==1.5.3
     #   mkdocs-gen-files
     #   mkdocs-literate-nav
     #   mkdocs-material
-    #   mkdocs-section-index
     #   mkdocstrings
 mkdocs-autorefs==0.5.0
     # via
@@ -66,8 +65,6 @@ mkdocs-material @ git+ssh://git@github.com/squidfunk/mkdocs-material-insiders.gi
     # via -r requirements.in
 mkdocs-material-extensions==1.3.1
     # via mkdocs-material
-mkdocs-section-index==0.3.8
-    # via -r requirements.in
 mkdocstrings==0.24.0
     # via mkdocstrings-crystal
 mkdocstrings-crystal==0.3.7
