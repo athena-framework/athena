@@ -4,7 +4,7 @@ site_name: Dotenv
 
 nav:
   - Introduction:
-    - Introduction: index.md
+    - Introduction: README.md
     - Back to Manual: project://.
   - API:
     - Top Level: top_level.md

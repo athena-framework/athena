@@ -15,15 +15,13 @@ watch:
   - ./mkdocs-common.yml
 
 nav:
-  - Introduction: index.md
+  - Introduction: README.md
   - Why Athena: why_athena.md
   - Architecture: architecture.md
   - Getting Started:
-    - getting_started/index.md
-    - Foo: getting_started/foo.md
-    - Bar: getting_started/foo.md
-  - Components:
-    - components.md
+    - Getting Started: getting_started/README.md
+  - API Reference:
+    - Components: components/README.md
     - project://clock
     - project://config
     - project://console
