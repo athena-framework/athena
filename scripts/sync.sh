@@ -29,6 +29,7 @@ maybeSync "src/components/dotenv" dotenv https://github.com/athena-framework/dot
 maybeSync "src/components/event_dispatcher" event-dispatcher https://github.com/athena-framework/event-dispatcher.git
 maybeSync "src/components/image_size" image-size https://github.com/athena-framework/image-size.git
 maybeSync "src/components/framework" framework https://github.com/athena-framework/framework.git
+maybeSync "src/components/mercure" mercure https://github.com/athena-framework/mercure.git
 maybeSync "src/components/negotiation" negotiation https://github.com/athena-framework/negotiation.git
 maybeSync "src/components/routing" routing https://github.com/athena-framework/routing.git
 maybeSync "src/components/serializer" serializer https://github.com/athena-framework/serializer.git

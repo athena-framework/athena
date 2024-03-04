@@ -29,6 +29,7 @@ function tag()
   componentNameMap[dependency-injection]="Dependency Injection"
   componentNameMap[dotenv]="Dotenv"
   componentNameMap[event-dispatcher]="Event Dispatcher"
+  componentNameMap[mercure]=Mercure
   componentNameMap[framework]=Framework
   componentNameMap[image-size]="Image Size"
   componentNameMap[negotiation]=Negotiation
