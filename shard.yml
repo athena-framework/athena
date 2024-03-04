@@ -30,6 +30,8 @@ dependencies:
     github: athena-framework/event-dispatcher
   athena-image_size:
     github: athena-framework/image-size
+  athena-mercure:
+    github: athena-framework/mercure
   athena-negotiation:
     github: athena-framework/negotiation
   athena-routing:

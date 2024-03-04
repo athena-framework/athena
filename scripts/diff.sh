@@ -44,6 +44,7 @@ diff dependency-injection
 diff dotenv
 diff event-dispatcher
 diff image-size
+diff mercure
 diff framework
 diff negotiation
 diff routing
