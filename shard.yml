@@ -1,0 +1,22 @@
+name: athena-mercure
+
+version: 0.1.0
+
+crystal: '>= 0.36.0'
+
+license: MIT
+
+repository: https://github.com/athena-framework/mercure
+
+documentation: https://athenaframework.org/Mercure
+
+description: |
+  Allows easily pushing updates to web browsers and other HTTP clients using the Mercure protocol.
+
+authors:
+  - George Dietrich <dev@dietrich.pub>
+
+dependencies:
+  jwt:
+    github: crystal-community/jwt
+    version: ~> 1.6
