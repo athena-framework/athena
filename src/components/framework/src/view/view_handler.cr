@@ -158,7 +158,15 @@ class Athena::Framework::View::ViewHandler
                     athena_serializer_context.add_exclusion_strategy s
                   end
 
-                  @serializer.serialize data, format, athena_serializer_context
+                  serialized_data = @serializer.serialize data, format, athena_serializer_context
+
+                  # If the serialized data is "null", but the data is not `nil`, assume this means the serializer component failed to serialize it,
+                  # raise an error as it is likely the user forgot to include either `JSON::Serializable` or `ASR::Serializable`.
+                  if "null" == serialized_data && !data.nil?
+                    raise ATH::Exceptions::Logic.new "Failed to serialize response body. Did you forget to include either `JSON::Serializable` or `ASR::Serializable`?"
+                  end
+
+                  serialized_data
                 end
     end
 
