@@ -2,6 +2,8 @@ require "../spec_helper"
 
 ACF.configuration_annotation SpecAnnotation
 ACF.configuration_annotation CustomAnn, id : Int32
+ACF.configuration_annotation TopParameterAnn
+ACF.configuration_annotation MyApp::NestedParameterAnn
 
 @[ADI::Register]
 struct CustomAnnotationListener
@@ -31,4 +33,12 @@ class AnnotationController < ATH::Controller
 
   @[CustomAnn(2)]
   get("/with-ann-override", return_type: Nil) { }
+
+  @[ARTA::Get("/top-parameter-ann/{id}")]
+  def top_parameter_ann(@[TopParameterAnn] id : Int32) : Nil
+  end
+
+  @[ARTA::Get("/nested-parameter-ann/{id}")]
+  def nested_parameter_ann(@[MyApp::NestedParameterAnn] id : Int32) : Nil
+  end
 end
