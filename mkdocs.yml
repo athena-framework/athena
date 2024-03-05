@@ -7,6 +7,7 @@ extra_css:
 
 plugins:
   - search
+  - section-index
   - projects:
       projects_dir: src/components
 
@@ -19,9 +20,10 @@ nav:
   - Why Athena: why_athena.md
   - Architecture: architecture.md
   - Getting Started:
-    - Getting Started: getting_started/README.md
+    - getting_started/README.md
+    - getting_started/foo.md
   - API Reference:
-    - Components: components/README.md
+    - components.md
     - project://clock
     - project://config
     - project://console
@@ -30,6 +32,7 @@ nav:
     - project://event_dispatcher
     - project://framework
     - project://image_size
+    - project://mercure
     - project://negotiation
     - project://routing
     - project://serializer

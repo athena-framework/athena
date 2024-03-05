@@ -1,13 +1,10 @@
 INHERIT: ../../../mkdocs-common.yml
 
-site_name: Clock
+site_name: Mercure
 
 nav:
   - Introduction: README.md
   - Back to Manual: project://.
-  - How-To:
-    - How-To: how_to/README.md
-    - 'how_to/*'
   - API:
     - Top Level: top_level.md
     - Aliases: aliases.md
@@ -27,5 +24,5 @@ plugins:
         crystal:
           crystal_docs_flags:
             - ./docs/index.cr
-            - ./lib/athena-clock/src/athena-clock.cr
-            - ./lib/athena-clock/src/spec.cr
+            - ./lib/athena-mercure/src/athena-mercure.cr
+            - ./lib/athena-mercure/src/spec.cr

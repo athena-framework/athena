@@ -3,16 +3,15 @@ INHERIT: ../../../mkdocs-common.yml
 site_name: Dotenv
 
 nav:
-  - Introduction:
-    - Introduction: README.md
-    - Back to Manual: project://.
+  - Introduction: README.md
+  - Back to Manual: project://.
   - API:
     - Top Level: top_level.md
-    - Aliases: aliases.md
     - '*'
 
 plugins:
   - search
+  - section-index
   - literate-nav
   - gen-files:
       scripts:

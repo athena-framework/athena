@@ -13,14 +13,14 @@ It is designed in such a way that allows for it to accommodate the majority of u
 Not every component needs to be used or understood to start using the framework,
 only those which are required for the task at hand. However, of course the components work best when used together within the framework.
 
-## Feature Highlights
+### Feature Highlights
 
 * Follows the SOLID principles to encourage good software design
 * Architected in such a way to allow maximum flexibility without needing to fight against the framework
 * Uses annotations as a means of extension/customization
+* Built-in testing utilities
 
 ## Resources
 
 * [Discord Server](https://discord.gg/TmDVPb3dmr)
-* [API Docs](Framework/index.md)
 * [GitHub Repository](https://github.com/athena-framework/athena)

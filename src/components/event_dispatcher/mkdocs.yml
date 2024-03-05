@@ -3,9 +3,8 @@ INHERIT: ../../../mkdocs-common.yml
 site_name: Event Dispatcher
 
 nav:
-  - Introduction:
-    - Introduction: README.md
-    - Back to Manual: project://.
+  - Introduction: README.md
+  - Back to Manual: project://.
   - API:
     - Top Level: top_level.md
     - Aliases: aliases.md
@@ -13,6 +12,7 @@ nav:
 
 plugins:
   - search
+  - section-index
   - literate-nav
   - gen-files:
       scripts:

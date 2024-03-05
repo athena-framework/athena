@@ -81,7 +81,7 @@
 # {
 #   "first_name": "George",
 #   "last_name": "Dietrich",
-#   "email": "george@dietrich.app"
+#   "email": "dev@dietrich.pub"
 # }
 # ```
 struct Athena::Framework::Controller::ValueResolvers::RequestBody

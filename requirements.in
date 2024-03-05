@@ -2,8 +2,9 @@
 mkdocs @ git+https://github.com/mkdocs/mkdocs.git@e755aaed7ea47348a60495ab364d5483ab90a4a6
 
 # 4.52.2 / 9.5.9
-mkdocs-material @ git+ssh://git@github.com/squidfunk/mkdocs-material-insiders.git@d6f2c9341b857be4d77333764597958c38bb1c2a
+mkdocs-material @ git+ssh://git@github.com/squidfunk/mkdocs-material-insiders.git@879810e5080d78cee6177e5c38ac692866cdcad5
 
 mkdocstrings-crystal ~= 0.3.5
 mkdocs-gen-files ~= 0.5.0
 mkdocs-literate-nav ~= 0.6.1
+mkdocs-section-index>=0.3.8

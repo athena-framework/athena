@@ -228,3 +228,102 @@ ATH.configure({
     "framework.debug": true,
   },
 })
+
+struct Update
+  getter topics : Array(String)
+  getter data : String
+  getter? private : Bool
+  getter id : String?
+  getter type : String?
+  getter retry : Int32?
+
+  def initialize(
+    topics : String | Array(String),
+    @data : String = "",
+    @private : Bool = false,
+    @id : String? = nil,
+    @type : String? = nil,
+    @retry : Int32? = nil
+  )
+    @topics = topics.is_a?(String) ? [topics] : topics
+  end
+end
+
+module TokenProviderInterface
+  abstract def jwt : String
+end
+
+record StaticTokenProvider, jwt : String do
+  include TokenProviderInterface
+end
+
+module TokenFactoryInterface
+  abstract def create(
+    subscribe : Array(String)? = [] of String,
+    publish : Array(String)? = [] of String,
+    additional_claims : Hash(String, String) = {} of String => String
+  ) : String
+end
+
+module HubInterface
+  abstract def url : String
+  abstract def public_url : String
+  abstract def token_provider : TokenProviderInterface
+  abstract def token_factory : TokenFactoryInterface?
+  abstract def publish(update : Update) : String
+end
+
+class Hub
+  include HubInterface
+
+  getter url : String
+  getter token_provider : TokenProviderInterface
+  getter token_factory : TokenFactoryInterface?
+
+  @public_url : String?
+
+  def initialize(
+    @url : String,
+    @token_provider : TokenProviderInterface,
+    @public_url : String? = nil,
+    @token_factory : TokenFactoryInterface? = nil
+  )
+  end
+
+  def public_url : String
+    @public_url || @url
+  end
+
+  def publish(update : Update) : String
+    HTTP::Client.post(
+      @url,
+      headers: HTTP::Headers{
+        "Authorization" => "Bearer #{@token_provider.jwt}",
+      },
+      form: URI::Params.encode({
+        "topic" => update.topics,
+        "data"  => update.data,
+        "id"    => update.id.to_s,
+        "type"  => update.type.to_s,
+        "retry" => update.retry.to_s,
+      })
+    ).body
+  end
+end
+
+HUB_URL = "http://localhost:8000/.well-known/mercure"
+TOPIC   = "https://example.com/my-private-topic"
+JWT     = "eyJhbGciOiJIUzI1NiJ9.eyJtZXJjdXJlIjp7InB1Ymxpc2giOlsiKiJdLCJzdWJzY3JpYmUiOlsiaHR0cHM6Ly9leGFtcGxlLmNvbS9teS1wcml2YXRlLXRvcGljIiwie3NjaGVtZX06Ly97K2hvc3R9L2RlbW8vYm9va3Mve2lkfS5qc29ubGQiLCIvLndlbGwta25vd24vbWVyY3VyZS9zdWJzY3JpcHRpb25zey90b3BpY317L3N1YnNjcmliZXJ9Il0sInBheWxvYWQiOnsidXNlciI6Imh0dHBzOi8vZXhhbXBsZS5jb20vdXNlcnMvZHVuZ2xhcyIsInJlbW90ZUFkZHIiOiIxMjcuMC4wLjEifX19.KKPIikwUzRuB3DTpVw6ajzwSChwFw5omBMmMcWKiDcM"
+
+# @[ADI::Register]
+# class MercureController < ATH::Controller
+# end
+
+hub = Hub.new(
+  HUB_URL,
+  StaticTokenProvider.new(JWT)
+)
+
+update = Update.new(TOPIC, "Hello from Crystal!")
+
+p hub.publish update # => urn:uuid:53105541-846b-4e33-ab7c-a098f9461a76

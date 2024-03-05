@@ -14,7 +14,7 @@ description: |
   A web framework comprised of reusable, independent components.
 
 authors:
-  - George Dietrich <george@dietrich.app>
+  - George Dietrich <dev@dietrich.pub>
 
 dependencies:
   athena-clock:

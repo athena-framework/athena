@@ -18,17 +18,17 @@ theme:
   features:
     - navigation.sections
     - navigation.instant
-    - navigation.indexes
+    # - navigation.indexes
 
 use_directory_urls: true
 
 strict: false
 
 validation:
-  omitted_files: ignore
+  omitted_files: warn
   absolute_links: relative_to_docs
-  unrecognized_links: ignore
-  not_found: ignore
+  unrecognized_links: warn
+  not_found: warn
 
 extra_css:
   - ../../../css/index.css

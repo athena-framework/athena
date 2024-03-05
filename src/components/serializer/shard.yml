@@ -14,7 +14,7 @@ description: |
   Object (de)serialization library.
 
 authors:
-  - George Dietrich <george@dietrich.app>
+  - George Dietrich <dev@dietrich.pub>
 
 dependencies:
   athena-config:

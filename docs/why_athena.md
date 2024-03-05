@@ -49,7 +49,7 @@ end
 
 ##### Services
 
-A sharp eye will notice this type was created with the [ADI::Register][] annotation applied to it. This registers the type as a service, which is essentially just a useful object that could be used by other services. Not all types are services though, such as the `Article` type. This is because it only stores data within the domain of the application and does not provide any useful functionality on its own. More on this topic in the [dependency injection](#dependency-injection) section.
+A sharp eye will notice this type was created with the [ADI::Register](/dependency_injection/Register/) annotation applied to it. This registers the type as a service, which is essentially just a useful object that could be used by other services. Not all types are services though, such as the `Article` type. This is because it only stores data within the domain of the application and does not provide any useful functionality on its own. More on this topic in the [dependency injection](#dependency-injection) section.
 
 #### Dependency Inversion
 
@@ -128,11 +128,11 @@ While this is a bit of extra boilerplate, it is an incredibly powerful pattern. 
 
 ### Flexibility
 
-Athena Framework is very flexible in that it is able to support both simple and complex use cases by adapting to the needs of the application without getting in the way of customizations the user wants to make. This is accomplished by providing all the components to the user, but not requiring they be used. If an application does not need to validate anything, the [Athena::Validator][] component can just be ignored. But if the need ever arises it is there and well integrated into the framework.
+Athena Framework is very flexible in that it is able to support both simple and complex use cases by adapting to the needs of the application without getting in the way of customizations the user wants to make. This is accomplished by providing all the components to the user, but not requiring they be used. If an application does not need to validate anything, the [Athena::Validator](/validator/) component can just be ignored. But if the need ever arises it is there and well integrated into the framework.
 
 #### Dependency Injection
 
-Athena Framework includes an IoC Service Container that manages services automatically. Any service, or a useful type, annotated with [ADI::Register][], can be used in another service by defining a constructor typed to the desired service. For example:
+Athena Framework includes an IoC Service Container that manages services automatically. Any service, or a useful type, annotated with [ADI::Register](/dependency_injection/Register/), can be used in another service by defining a constructor typed to the desired service. For example:
 
 ```crystal
 require "athena"
@@ -171,9 +171,9 @@ ATH.run
 # GET / # => "Hello World"
 ```
 
-It is worth noting again that while dependency injection is a big part of the framework, it is not necessarily required to fully understand it in order to use the framework, but like the other components, it is there if needed. Checkout [ADI::Register][], especially the [aliasing services][Athena::DependencyInjection::Register--aliasing-services] section, as well as the [Dependency Injection](./architecture/dependency_injection.md) component for more information related to this feature.
+It is worth noting again that while dependency injection is a big part of the framework, it is not necessarily required to fully understand it in order to use the framework, but like the other components, it is there if needed. Checkout [ADI::Register](/dependency_injection/Register/), especially the [aliasing services](/dependency_injection/Register/#Athena::DependencyInjection::Register--aliasing-services) section.
 
-Athena Framework is almost fully overridable/customizable in part since it embraces dependency injection. Want to globally customize how errors are rendered? Create a service implementing [ATH::ErrorRendererInterface][] and make it an alias of the interface:
+Athena Framework is almost fully overridable/customizable in part since it embraces dependency injection. Want to globally customize how errors are rendered? Create a service implementing [ATH::ErrorRendererInterface](/framework/ErrorRendererInterface/) and make it an alias of the interface:
 
 ```crystal
 @[ADI::Register(alias: ATH::ErrorRendererInterface)]
@@ -279,8 +279,8 @@ While the components that make up Athena Framework can be used within a wide ran
 At its core, Athena Framework is a MVC web application framework. It can be used to serve any kind of content, but best lends itself to creating RESTful JSON APIs due to the features explained in the previous section, as well as due its native JSON support:
 
 * Objects returned from the controller are JSON serialized by default
-* Native support for both [ASR::Serializable][] and [JSON::Serializable](https://crystal-lang.org/api/JSON/Serializable.html)
-* Native support for DTOs to deserialize and validate, see [ATHR::RequestBody][].
+* Native support for both [ASR::Serializable](/serializer/Serializable) and [JSON::Serializable](https://crystal-lang.org/api/JSON/Serializable.html)
+* Native support for DTOs to deserialize and validate, see [ATHR::RequestBody](/framework/Controller/ValueResolvers/RequestBody/)
 
 ```crystal
 require "athena"
@@ -325,7 +325,7 @@ ATH.run
 #   ]
 # }
 
-# POST /user body: {"email":"george@dietrich.app"} # => {"email":"george@dietrich.app"}
+# POST /user body: {"email":"dev@dietrich.pub"} # => {"email":"dev@dietrich.pub"}
 ```
 
 ### CLI Applications
