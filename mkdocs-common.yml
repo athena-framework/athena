@@ -18,7 +18,6 @@ theme:
   features:
     - navigation.sections
     - navigation.instant
-    # - navigation.indexes
 
 use_directory_urls: true
 

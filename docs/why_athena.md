@@ -219,7 +219,7 @@ A common way to do certain things in other frameworks is the use of macro DSLs s
 
 #### User Defined Annotations
 
-One of the most powerful features Athena Framework offers is that of custom user defined annotations which provide almost an infinite amount of use cases. These annotations could be applied to controller classes and/or controller actions to expose additional information to other services, such as event listeners or [ATHR::Interfaces][ATHR::Interface] to customize their behavior on a case by case basis.
+One of the most powerful features Athena Framework offers is that of custom user defined annotations which provide almost an infinite amount of use cases. These annotations could be applied to controller classes and/or controller actions to expose additional information to other services, such as event listeners or [ATHR::Interfaces](/framework/Controller/ValueResolvers/Interface/) to customize their behavior on a case by case basis.
 
 ```crystal
 require "athena"

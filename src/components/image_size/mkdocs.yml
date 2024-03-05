@@ -1,6 +1,8 @@
 INHERIT: ../../../mkdocs-common.yml
 
 site_name: Image Size
+site_url: https://athenaframework.org/ImageSize/
+repo_url: https://github.com/athena-framework/image-size
 
 nav:
   - Introduction: README.md
@@ -25,3 +27,5 @@ plugins:
           crystal_docs_flags:
             - ./docs/index.cr
             - ./lib/athena-image_size/src/athena-image_size.cr
+          source_locations:
+            lib/athena-image_size: https://github.com/athena-framework/image-size/blob/v{shard_version}/{file}#L{line}

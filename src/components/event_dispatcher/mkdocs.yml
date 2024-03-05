@@ -1,6 +1,8 @@
 INHERIT: ../../../mkdocs-common.yml
 
 site_name: Event Dispatcher
+site_url: https://athenaframework.org/EventDispatcher/
+repo_url: https://github.com/athena-framework/event-dispatcher
 
 nav:
   - Introduction: README.md
@@ -26,3 +28,5 @@ plugins:
             - ./docs/index.cr
             - ./lib/athena-event_dispatcher/src/athena-event_dispatcher.cr
             - ./lib/athena-event_dispatcher/src/spec.cr
+          source_locations:
+            lib/athena-event_dispatcher: https://github.com/athena-framework/event-dispatcher/blob/v{shard_version}/{file}#L{line}
