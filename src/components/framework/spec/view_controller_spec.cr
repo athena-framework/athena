@@ -1,6 +1,16 @@
 require "./spec_helper"
 
 struct ViewControllerTest < ATH::Spec::APITestCase
+  def test_unserializable_object : Nil
+    self.get "/view/unserializable"
+    self.assert_response_has_status :internal_server_error
+  end
+
+  def test_nil : Nil
+    self.get "/view/nil"
+    self.assert_response_has_status :no_content
+  end
+
   def test_json_serializable_object : Nil
     self.get("/view/json").body.should eq %({"id":10,"name":"Bob"})
   end

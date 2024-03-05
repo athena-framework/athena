@@ -201,10 +201,14 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                   annotations = [] of Nil
 
                   (arg.annotations ann_class).each do |ann|
-                    resolver = parse_type(ann.name.names[0..-2].join "::").resolve
+                    # See if this annotation relates to a typed resolver interface,
+                    # checking the namespace the configuration annotation was defined in for the interface.
+                    #
+                    # If there is only 1 part to the annotation's name, we know it was defined in the top level,
+                    # and as such, does not related to a resolver type
+                    resolver = 1 == ann.name.names.size ? false : parse_type(ann.name.names[0..-2].join "::").resolve
 
-                    # See if this annotation relates to a typed resolver interface.
-                    if interface = resolver.resolve.ancestors.find &.<=(ATHR::Interface::Typed)
+                    if resolver && (interface = resolver.resolve.ancestors.find &.<=(ATHR::Interface::Typed))
                       supported_types = interface.type_vars.first.type_vars
 
                       unless supported_types.any? { |t| arg.restriction.resolve <= t.resolve }

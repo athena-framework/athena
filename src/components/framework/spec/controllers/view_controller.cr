@@ -1,5 +1,7 @@
 require "../spec_helper"
 
+private record Unserializable
+
 record JSONSerializableModel, id : Int32, name : String do
   include JSON::Serializable
 end
@@ -14,6 +16,15 @@ end
 
 @[ARTA::Route(path: "view")]
 class ViewController < ATH::Controller
+  @[ARTA::Get("/unserializable")]
+  def unserializable : Unserializable
+    Unserializable.new
+  end
+
+  @[ARTA::Get("/nil")]
+  def nil_return : Nil
+  end
+
   @[ARTA::Get("/json")]
   def json_serializable : JSONSerializableModel
     JSONSerializableModel.new 10, "Bob"
