@@ -25,7 +25,9 @@ strict: false
 
 validation:
   omitted_files: warn
-  absolute_links: relative_to_docs
+
+  # TODO: Make this `relative_to_docs` when/if mkdocs-material projects plugin supports it
+  absolute_links: ignore
   unrecognized_links: warn
   not_found: warn
 

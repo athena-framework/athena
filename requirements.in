@@ -1,8 +1,8 @@
 # TODO: Remove once mkdocs 1.6 is released
-mkdocs @ git+https://github.com/mkdocs/mkdocs.git@e755aaed7ea47348a60495ab364d5483ab90a4a6
+mkdocs@git+https://github.com/mkdocs/mkdocs.git@e755aaed7ea47348a60495ab364d5483ab90a4a6
 
-# 4.52.2 / 9.5.9
-mkdocs-material @ git+ssh://git@github.com/squidfunk/mkdocs-material-insiders.git@879810e5080d78cee6177e5c38ac692866cdcad5
+# 4.53.1 / 9.5.13
+mkdocs-material@git+ssh://git@github.com/squidfunk/mkdocs-material-insiders.git@9e8c3d99dadb89624b67c0f9f28389d14dd7cbdd
 
 mkdocstrings-crystal ~= 0.3.5
 mkdocs-gen-files ~= 0.5.0

@@ -18,12 +18,17 @@ watch:
   - ./mkdocs-common.yml
 
 nav:
-  - Introduction: README.md
+  - Introducton: README.md
   - Why Athena: why_athena.md
-  - Architecture: architecture.md
   - Getting Started:
     - getting_started/README.md
-    - getting_started/foo.md
+    - Routing & HTTP: getting_started/routing.md
+    - Configuration: getting_started/configuration.md
+    - Middleware: getting_started/middleware.md
+    - Error Handling: getting_started/error_handling.md
+    - Commands: getting_started/commands.md
+    - Validation: getting_started/validation.md
+    - Testing: getting_started/testing.md
   - API Reference:
     - components.md
     - project://clock
