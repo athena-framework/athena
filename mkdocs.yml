@@ -30,7 +30,7 @@ nav:
     - Validation: getting_started/validation.md
     - Testing: getting_started/testing.md
   - API Reference:
-    - components.md
+    - api_reference.md
     - project://clock
     - project://config
     - project://console

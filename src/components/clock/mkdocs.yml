@@ -7,12 +7,9 @@ repo_url: https://github.com/athena-framework/clock
 nav:
   - Introduction: README.md
   - Back to Manual: project://.
-  - How-To:
-    - How-To: how_to/README.md
-    - 'how_to/*'
   - API:
-    - Top Level: top_level.md
     - Aliases: aliases.md
+    - Top Level: top_level.md
     - '*'
 
 plugins:

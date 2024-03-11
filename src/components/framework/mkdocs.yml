@@ -8,8 +8,8 @@ nav:
   - Introduction: README.md
   - Back to Manual: project://.
   - API:
-    - Top Level: top_level.md
     - Aliases: aliases.md
+    - Top Level: top_level.md
     - '*'
 
 plugins:

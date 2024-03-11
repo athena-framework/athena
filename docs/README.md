@@ -1,18 +1,32 @@
 ## Athena
 
 Athena is a collection of general-purpose, robust, independent, and reusable components with the goal of powering a software ecosystem.
+These include:
+
+* [Clock](/Clock) (`ACLK`) - Decouples applications from the system clock
+* [Config](/Config) (`ACF`) - Common library for configuring Athena components
+* [Console](/Console) (`ACON`) - Allows the creation of CLI based commands
+* [DependencyInjection](/DependencyInjection) (`ADI`) - Robust dependency injection service container framework
+* [Dotenv](/Dotenv) - Registers environment variables from a `.env` file
+* [EventDispatcher](/EventDispatcher) (`AED`) - A Mediator and Observer pattern event library
+* [ImageSize](/ImageSize) (`AIS`) - Measures the size of various image formats
+* [Mercure](/Mercure) (`AMC`) - Allows easily pushing updates to web browsers and other HTTP clients using the Mercure protocol
+* [Negotiation](/Negotiation) (`ANG`) - Framework agnostic content negotiation library
+* [Routing](/Routing) (`ART`) - HTTP based routing library/framework
+* [Serializer](/Serializer) (`ASR`) - Object (de)serialization library
+* [Spec](/Spec) (`ASPEC`) - Common/helpful [Spec](https://crystal-lang.org/api/Spec.html) compliant testing utilities
+* [Validator](/Validator) (`AVD`) - Object/value validation library
+
 These components may be used on their own to aid in existing projects or integrated into existing (or new) frameworks.
-In either case, this enables a feedback loop that ultimately benefits both the project using the component(s), and the ecosystem as a whole.
-The projects themselves get access to quality, well tested code to reduce the maintenance overhead of their application while any issues they do uncover, or additional features that are implemented, benefit not only that project, but every project using that component.
-However, while using them separately is part of their design, they are best used together.
+
+TIP: Each component may also define additional shortcut aliases. Check the `Aliases` page of each component in the [API Reference](./api_reference.md) for more information.
 
 ## Athena Framework
 
-Athena Framework integrates each component into a single cohesive, flexible, and modular framework.
+Athena also provides the [Framework](./getting_started/README.md) component that integrates select components into a single cohesive, flexible, and modular framework.
 It is designed in such a way to be non-intrusive and not require a strict organizational convention in regards to how a project is setup;
 this allows it to use a minimal amount of setup boilerplate while not preventing it for more complex projects.
-Not every component needs to be used or understood to start using the framework,
-only those which are required for the task at hand. However, of course the components work best when used together within the framework.
+Not every component needs to be used or understood to start using the framework, only those which are required for the task at hand.
 
 ### Feature Highlights
 
