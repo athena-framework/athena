@@ -102,7 +102,7 @@ It is also possible to handle specific error states differently by registering m
 Unlike other frameworks, Athena Framework leverages event based middleware instead of a pipeline based approach.
 The primary use case for event listeners is to tap into the life-cycle of the request, such as adding common headers, setting state extracted from the request, or whatever else the application requires.
 These can be created by creating a type annotated with [ADI::Register](/DependencyInjection/Register) and including [AED::EventListenerInterface](/EventDispatcher/EventListenerInterface).
-From here, 1 or more method may be defined that has the [AEDA::AsEventListener](/EventDispatcher/Annotations/AsEventListener) annotation applied to it.
+From here, 1 or more methods may be defined that has the [AEDA::AsEventListener](/EventDispatcher/Annotations/AsEventListener) annotation applied to it.
 
 ```crystal
 require "athena"

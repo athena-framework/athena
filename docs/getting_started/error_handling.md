@@ -1,14 +1,14 @@
 ## HTTP Exceptions
 
-Exception handling in the Athena Framework is similar to exception handling in any Crystal program, with the addition of a new unique exception type, [ATH::Exceptions::HTTPException][].
-Custom `HTTP` errors can also be defined by inheriting from [ATH::Exceptions::HTTPException][] or a child type.
+Exception handling in the Athena Framework is similar to exception handling in any Crystal program, with the addition of a new unique exception type, [ATH::Exceptions::HTTPException](/Framework/Exceptions/HTTPException).
+Custom `HTTP` errors can also be defined by inheriting from `ATH::Exceptions::HTTPException` or a child type.
 A use case for this could be allowing additional data/context to be included within the exception.
 
-Non [ATH::Exceptions::HTTPException][] exceptions are represented as a `500 Internal Server Error`.
+Non `ATH::Exceptions::HTTPException` exceptions are represented as a `500 Internal Server Error`.
 
-When an exception is raised, the framework emits the [ATH::Events::Exception][] event to allow an opportunity for it to be handled.
-By default these exceptions will return a `JSON` serialized version of the exception, via [ATH::ErrorRenderer][], that includes the message and code; with the proper response status set.
-If the exception goes unhandled, i.e. no listener sets an [ATH::Response][] on the event, then the request is finished and the exception is re-raised.
+When an exception is raised, the framework emits the [Exception](./middleware.md#8-exception-handling) event to allow an opportunity for it to be handled.
+By default these exceptions will return a `JSON` serialized version of the exception, via [ATH::ErrorRenderer](/Framework/ErrorRenderer), that includes the message and code; with the proper response status set.
+If the exception goes unhandled, i.e. no listener sets an [ATH::Response](/Framework/Response) on the event, then the request is finished and the exception is re-raised.
 
 ```crystal
 require "athena"
@@ -81,4 +81,18 @@ Invalid num2:  Cannot divide by zero (Athena::Framework::Exceptions::BadRequest)
 
 #### Customization
 
-By default the Athena Framework utilizes the default [Log::Formatter](https://crystal-lang.org/api/Log/Formatter.html) and [Log::Backend](https://crystal-lang.org/api/Log/Backend.html)s Crystal defines. This of course can be customized via interacting with Crystal's [Log](https://crystal-lang.org/api/Log.html) module. It is also possible to control what exceptions, and with what severity, will be logged by redefining the `log_exception` method within [ATH::Listeners::Error][].
+By default the Athena Framework utilizes the default [Log::Formatter](https://crystal-lang.org/api/Log/Formatter.html) and [Log::Backend](https://crystal-lang.org/api/Log/Backend.html)s Crystal defines. This of course can be customized via interacting with Crystal's [Log](https://crystal-lang.org/api/Log.html) module. It is also possible to control what exceptions, and with what severity, will be logged by redefining the `log_exception` method within [ATH::Listeners::Error](/Framework/Listeners/Error).
+
+TIP: Since `ATH::Listeners::Error` logs already include the error message and first line of the trace, consider defining a custom [Log Formatter](https://crystal-lang.org/api/Log/Formatter.html) that excludes the `exception` to have shorter, single line error logs in console:
+```crystal
+Log.define_formatter SingleLineFormatter, "#{timestamp} #{severity} - #{source(after: ": ")}#{message}" \
+                                          "#{data(before: " -- ")}#{context(before: " -- ")}"
+
+# 2024-03-04T05:30:29.329041Z   INFO - athena.framework: Server has started and is listening at http://0.0.0.0:3000
+# 2024-03-04T05:30:37.568264Z   INFO - athena.framework: Matched route 'view_controller_bar' -- route: "view_controller_bar", route_parameters: {"_route" => "view_controller_bar", # "_controller" => "ViewController#bar"}, request_uri: "/bar", method: "GET"
+# 2024-03-04T05:30:40.280070Z   INFO - athena.framework: Matched route 'view_controller_foo' -- route: "view_controller_foo", route_parameters: {"_route" => "view_controller_foo", # "_controller" => "ViewController#foo"}, request_uri: "/foo", method: "GET"
+# 2024-03-04T05:30:40.351541Z  ERROR - athena.framework: Uncaught exception #<Athena::Framework::Exceptions::Logic:Failed to serialize response body. Did you forget to include # either `JSON::Serializable` or `ASR::Serializable`?> at src/components/framework/src/view/view_handler.cr:166:21 in 'init_response'
+# 2024-03-04T05:30:41.281275Z   INFO - athena.framework: Matched route 'view_controller_foo' -- route: "view_controller_foo", route_parameters: {"_route" => "view_controller_foo", # "_controller" => "ViewController#foo"}, request_uri: "/foo", method: "GET"
+# 2024-03-04T05:30:41.282632Z  ERROR - athena.framework: Uncaught exception #<Athena::Framework::Exceptions::Logic:Failed to serialize response body. Did you forget to include # either `JSON::Serializable` or `ASR::Serializable`?> at src/components/framework/src/view/view_handler.cr:166:21 in 'init_response'
+# 2024-03-04T05:30:43.886367Z   INFO - athena.framework: Matched route 'view_controller_bar' -- route: "view_controller_bar", route_parameters: {"_route" => "view_controller_bar", # "_controller" => "ViewController#bar"}, request_uri: "/bar", method: "GET"
+```

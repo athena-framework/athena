@@ -1,12 +1,12 @@
-The Athena Framework comes with a built-in integration with the [Athena::Console][] component.
+The Athena Framework comes with a built-in integration with the [Athena::Console](/Console) component.
 This integration can be a way to define alternate entry points into your business logic,
 such as for use with scheduled jobs (Cron, Airflow, etc), or one-off internal/administrative things (running migrations, creating users, etc)
 all the while sharing the same dependencies due to it also leveraging [dependency injection](../why_athena.md#dependency-injection).
 
 ## Basic Usage
 
-Similar to [event listeners](./event_dispatcher.md), console commands can simply be registered as a service to be automatically registered.
-If using the preferred [ACONA::AsCommand][] annotation, they are registered in a lazy fashion, meaning only the command(s) you execute will actually be instantiated.
+Similar to [event listeners](./middleware.md#event-listeners), console commands can simply be registered as a service to be automatically registered.
+If using the preferred [ACONA::AsCommand](/Console/Annotations/AsCommand) annotation, they are registered in a lazy fashion, meaning only the command(s) you execute will actually be instantiated.
 
 ```crystal
 @[ADI::Register]
@@ -49,12 +49,12 @@ end
 ```
 
 From here, if the application was created using the [skeleton](https://github.com/athena-framework/skeleton), commands can be executed via `shards run console -- admin:create-user 12 "George Dietrich" --admin`.
-Otherwise see [Athena::Console][] for how to setup your CLI entry point.
+Otherwise see [Athena::Console](/Console) for how to setup your CLI entry point.
 
-NOTE: During development the console needs to re-build the application in order to have access to the changes made since last execution.
-When deploying a production *console* binary, or if not doing any new console command dev, build it with the `--release` flag for increased performance locally.
+NOTE: During *development* the console binary needs to re-build the application in order to have access to the changes made since last execution.
+When deploying a *production* console binary, or if not doing any new console command dev, build it with the `--release` flag for increased performance.
 
 ## Built-in Commands
 
 The framework also comes with some helpful built-in commands to either help with debugging, or provide framework specific features.
-See each command within the [ATH::Commands][] namespace for more information.
+See each command within the [ATH::Commands](/Framework/Commands) namespace for more information.

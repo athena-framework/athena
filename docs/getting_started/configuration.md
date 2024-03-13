@@ -1,9 +1,9 @@
 Some features need to be configured;
 either to enable/control how they work, or to customize the default functionality.
 
-## `ATH.configure`
+<!-- ## `ATH.configure` -->
 
-Configuration in Athena is mainly focused on "configuring" _how_ specific features/components provided by Athena itself, or third parties, function at runtime.
+Configuration in Athena is mainly focused on controlling _how_ specific features/components provided by Athena itself, or third parties, function at runtime.
 A more concrete example would be how [ATH::Config::CORS](/Framework/Config/CORS) can be used to control [ATH::Listeners::CORS](/Framework/Listeners/CORS).
 Say we want to enable CORS for our application from our app URL, expose some custom headers, and allow credentials to be sent.
 To do this we would want to redefine the configuration type's `self.configure` method.
@@ -39,7 +39,7 @@ Another benefit is they offer full compile time safety, if for example, the type
 
 ## Custom Annotations
 
-Athena integrates the `Config` component's ability to define custom annotation configurations.
+Athena integrates the [Athena::Config](/Config) component's ability to define custom annotation configurations.
 This feature allows developers to define custom annotations, and the data that should be read off of them, then apply/access the annotations on [ATH::Controller](/Framework/Controller) and/or [ATH::Action](/Framework/Action)s.
 
 This is a powerful feature that allows for almost limitless flexibility/customization.

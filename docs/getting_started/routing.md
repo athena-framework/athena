@@ -293,7 +293,7 @@ ATH.run
 
 When a route is generated in the context of a request, the scheme and hostname of a [ART::Generator::ReferenceType::ABSOLUTE_URL](/Routing/Generator/ReferenceType/#Athena::Routing::Generator::ReferenceType::ABSOLUTE_URL) defaults to `http` and `localhost` respectively, if they could not be extracted from the request.
 However, in cases where there is no request to use, such as within an [ACON::Command](/Console/Command), `http://localhost/` would always be the scheme and hostname of the generated URL.
-[ATH::Parameters.configure][] can be used to customize this, as well as define a global path prefix when generating the URLs.
+[ATH::Parameters.configure](/Framework/Parameters/#Athena::Framework::Parameters.configure) can be used to customize this, as well as define a global path prefix when generating the URLs.
 
 ## WebSockets
 
@@ -314,7 +314,7 @@ end
 ATH.run prepend_handlers: [ws_handler]
 ```
 
-In the future, a goal is to have an integration with https://mercure.rocks/, which would allow for the majority of WebSocket use cases in a way that better fits into the Athena ecosystem.
+Alternatively, the [Athena::Mercure](/Mercure) component may be used as a replacement of the more common websocket use cases.
 
 ## Content Negotiation
 
@@ -383,7 +383,7 @@ Official handlers could be provided in the future for common formats such as `ht
 
 ### Adding/Customizing Formats
 
-[ATH::Request::FORMATS](Framework/Request/#Athena::Framework::Request::FORMATS) represents the formats supported by default.
+[ATH::Request::FORMATS](/Framework/Request/#Athena::Framework::Request::FORMATS) represents the formats supported by default.
 However this list is not exhaustive and may need altered application to application; such as [registering](/Framework/Request/#Athena::Framework::Request.register_format(format,mime_types)) new formats.
 
 #### Example
