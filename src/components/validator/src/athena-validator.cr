@@ -336,7 +336,7 @@ module Athena; end
 #   getter city : String
 # end
 #
-# user = User.new "dev@dietrich.pub", "monkey123", ""
+# user = User.new "contact@athenaframework.org", "monkey123", ""
 #
 # # Validate the user object, but only for those in the "create" group,
 # # if no groups are supplied, then all constraints in the "default" group will be used.

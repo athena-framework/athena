@@ -312,7 +312,7 @@ end
 
 ATH.run
 
-# POST /user body: {"email":"dietrich.app"} # =>
+# POST /user body: {"email":"athenaframework.org"} # =>
 # {
 #   "code": 422,
 #   "message": "Validation failed",
@@ -325,7 +325,7 @@ ATH.run
 #   ]
 # }
 
-# POST /user body: {"email":"dev@dietrich.pub"} # => {"email":"dev@dietrich.pub"}
+# POST /user body: {"email":"contact@athenaframework.org"} # => {"email":"contact@athenaframework.org"}
 ```
 
 ### CLI Applications
