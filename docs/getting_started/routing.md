@@ -8,7 +8,7 @@ An annotation, such as `ARTA::Get` is applied to an instance method of a control
 
 In Athena Framework, controllers are simply classes and route actions are simply methods.
 This means they can be documented/tested as you would any Crystal class/method.
-However see the [testing](./testing.md#api-test-case) section for how to best test a controller.
+However see the [testing](./testing.md#testing-controllers) section for how to best test a controller.
 
 ```crystal
 require "athena"
@@ -297,7 +297,7 @@ However, in cases where there is no request to use, such as within an [ACON::Com
 
 ## WebSockets
 
-Currently due to Athena Framework's [architecture](./middleware.md#framework-architecture), WebSockets are not directly supported.
+Currently due to Athena Framework's [architecture](./middleware.md#events), WebSockets are not directly supported.
 However the framework does allow prepending [HTTP::Handler](https://crystal-lang.org/api/HTTP/Handler.html) to the internal server.
 This could be used to leverage the standard library's [HTTP::WebSocketHandler](https://crystal-lang.org/api/HTTP/WebSocketHandler.html) handler
 or a third party library such as https://github.com/cable-cr/cable.
