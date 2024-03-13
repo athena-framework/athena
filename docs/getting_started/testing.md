@@ -32,7 +32,7 @@ In other cases, the related component may provide these out of the box, such as:
 * [ACLK::Spec::MockClock](/Clock/Spec/MockClock) For testing time sensitive types
 * [AVD::Spec::FailingConstraint](/Validator/Spec/FailingConstraint) For testing invalid constraint related logic
 
-Checkout the `Spec` namespace of each component in the [API Reference](./api_reference.md) for more examples.
+Checkout the `Spec` namespace of each component in the [API Reference](../api_reference.md) for more examples.
 
 ## Testing Controllers
 
