@@ -15,8 +15,36 @@ dependencies:
 
 ## Usage
 
+In its most basic form, a [ACON::Command][] consists of an `#execute` method that provides access to [input][ACON::Input::Interface] and [output][ACON::Output::Interface] of the command and returns a [ACON::Command::Status][] member.
+
+```crystal
+@[ACONA::AsCommand("app:create-user", description: "Manually create a user with the provided username")]
+class CreateUserCommand < ACON::Command
+  protected def execute(input : ACON::Input::Interface, output : ACON::Output::Interface) : Status
+    # Implement all the business logic here.
+
+    # Indicates the command executed successfully.
+    Status::SUCCESS
+  end
+end
+```
+
+However, in most cases the command will need to be configured to better fit its use case.
+Commands may also implement a [#configure](/Console/Command/#Athena::Console::Command--configuring-the-command) method to accomplish this.
+This method is where the [ACON::Input::Argument][]s and [ACON::Input::Option][]s may be defined, but also additional help output, aliases, etc.
+
+```crystal
+protected def configure : Nil
+  self
+    .argument("username", :required, "The username of the user")
+    .alias("new-user")
+end
+```
+
+### Application
+
 The core of the console component is the [ACON::Application][] type which is where all the registered [ACON::Command][]s are stored
-as well as what controls the default command(s), input options, and helpers are available.
+as well as what controls what built-in command(s), global input options (flags), and [ACON::Helper][]s are available.
 In most cases it provides a good starting point, but may be extended/customized if needed.
 
 ```crystal
@@ -25,7 +53,7 @@ In most cases it provides a good starting point, but may be extended/customized 
 application = ACON::Application.new "My CLI"
 
 # Register commands using the `#add` method
-application.add MyCommand.new
+application.add CreateUserCommand.new
 
 # Or register a block as a command directly
 application.register "foo" do |input, output, cmd|
@@ -79,7 +107,6 @@ This is to ensure the performance of the script is sufficient, and to avoid any 
 
 ## Learn More
 
-* Creating [ACON::Command][]s
 * Asking [ACON::Question][]s
 * Reusable output [styles][Athena::Console::Formatter::OutputStyleInterface]
 * High level reusable formatting [styles][Athena::Console::Style::Interface]

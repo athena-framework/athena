@@ -148,6 +148,8 @@ abstract class Athena::Console::Command
   # Represents the execution status of an `ACON::Command`.
   #
   # The value of each member is used as the exit code of the invocation.
+  #
+  # TIP: The exit code may be customized by manually instantiated the enum with it. E.g. `Status.new 126`.
   enum Status
     # Represents a successful invocation with no errors.
     SUCCESS = 0

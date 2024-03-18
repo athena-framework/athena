@@ -102,7 +102,7 @@ require "./definition"
 #
 # ## Argument/Option Value Completion
 #
-# If the [completion script][Athena::Console--console-completion] is installed, command and option names will be auto completed by the shell.
+# If the [completion script](/Console#console-completion) is installed, command and option names will be auto completed by the shell.
 # However, value completion may also be implemented in custom commands by providing the suggested values for a particular option/argument.
 #
 # ```
