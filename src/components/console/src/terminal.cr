@@ -61,7 +61,10 @@ struct Athena::Console::Terminal
 
     # Detect terminal size Windows `GetConsoleScreenBufferInfo`.
     private def self.size_from_screen_buffer
-      LibC.GetConsoleScreenBufferInfo(LibC.GetStdHandle(LibC::STDOUT_HANDLE), out csbi)
+      ret = LibC.GetConsoleScreenBufferInfo(LibC.GetStdHandle(LibC::STDOUT_HANDLE), out csbi)
+
+      pp! ret
+
       cols = csbi.srWindow.right - csbi.srWindow.left + 1
       rows = csbi.srWindow.bottom - csbi.srWindow.top + 1
 
