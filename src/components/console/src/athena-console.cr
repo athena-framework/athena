@@ -132,3 +132,7 @@ module Athena::Console
   # Contains types related to lazily loading commands.
   module Loader; end
 end
+
+term = ACON::Terminal.new
+
+pp "Width: #{term.width} | Height: #{term.height}"

@@ -67,5 +67,5 @@ jobs:
           SHARDS_OVERRIDE: shard.dev.yml
       - name: Specs
         run: |
-           crystal eval 'term = ACON::Terminal.new; pp "Width: #{term.width} | Height: #{term.height}"'
+           crystal src/components/console/src/athena-console.cr
         shell: bash
