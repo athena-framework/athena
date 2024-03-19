@@ -12,7 +12,7 @@ These include:
 * [ImageSize](/ImageSize) (`AIS`) - Measures the size of various image formats
 * [Mercure](/Mercure) (`AMC`) - Allows easily pushing updates to web browsers and other HTTP clients using the Mercure protocol
 * [Negotiation](/Negotiation) (`ANG`) - Framework agnostic content negotiation library
-* [Routing](/Routing) (`ART`) - HTTP based routing library/framework
+* [Routing](/Routing) (`ART`) - A performant and robust HTTP based routing library/framework
 * [Serializer](/Serializer) (`ASR`) - Object (de)serialization library
 * [Spec](/Spec) (`ASPEC`) - Common/helpful [Spec](https://crystal-lang.org/api/Spec.html) compliant testing utilities
 * [Validator](/Validator) (`AVD`) - Object/value validation library
