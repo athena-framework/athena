@@ -176,6 +176,13 @@ class Athena::Dotenv
     VALUE
   end
 
+  # Convenience method that loads one or more `.env` files, defaulting to `.env`.
+  def self.load(path : String | ::Path = ".env", *paths : String | ::Path) : self
+    instance = new
+    instance.load path, *paths
+    instance
+  end
+
   @path : String | ::Path = ""
   @data = ""
   @values = Hash(String, String).new
