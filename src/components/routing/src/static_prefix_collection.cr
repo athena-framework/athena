@@ -13,7 +13,7 @@ class Athena::Routing::RouteProvider::StaticPrefixCollection
 
   private alias RouteInfo = Array(StaticTreeNamedRoute | StaticPrefixTreeRoute | StaticTreeName | self)
 
-  private def self.handle_error?(message : String) : Bool
+  protected def self.handle_error?(message : String) : Bool
     message.starts_with?("lookbehind assertion is not fixed length") ||
       message.starts_with?("length of lookbehind assertion is not limited")
   end
