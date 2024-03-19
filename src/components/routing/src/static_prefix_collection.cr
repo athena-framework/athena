@@ -13,6 +13,11 @@ class Athena::Routing::RouteProvider::StaticPrefixCollection
 
   private alias RouteInfo = Array(StaticTreeNamedRoute | StaticPrefixTreeRoute | StaticTreeName | self)
 
+  protected def self.handle_error?(message : String) : Bool
+    message.starts_with?("lookbehind assertion is not fixed length") ||
+      message.starts_with?("length of lookbehind assertion is not limited")
+  end
+
   getter prefix : String
   getter items : RouteInfo = RouteInfo.new
 
@@ -135,7 +140,9 @@ class Athena::Routing::RouteProvider::StaticPrefixCollection
         idx += 1
       end
     rescue e : ArgumentError
-      raise e unless e.message.try &.starts_with? "lookbehind assertion is not fixed length"
+      if !(msg = e.message) || !self.class.handle_error?(msg)
+        raise e
+      end
     end
 
     {prefix[0, idx], prefix[0, static_length || idx]}
