@@ -1,68 +1,17 @@
-# Introduction
-
 Object-oriented code has helped a lot in ensuring code extensibility.
 By having classes with well defined responsibilities, it becomes more flexible and easily extendable to modify their behavior.
 However inheritance has its limits is not the best option when these modifications need to be shared between other modified subclasses.
-Say for example you want to do something before and after a method is executed, without interfering with the other plugins.
+Say for example you want to do something before and after a method is executed, without interfering with the other logic.
 
 The `Athena::EventDispatcher` component is a [Mediator](https://en.wikipedia.org/wiki/Mediator_pattern) and [Observer](https://en.wikipedia.org/wiki/Observer_pattern) pattern event library.
 This pattern allows creating very flexibly and truly extensible applications.
 
-A good example of this is the [architecture](/architecture/) of Athena Framework itself.
-Once an [ATH::Response](/framework/Response) has been created by a controller, it may be useful to allow additional modifications before it is actually returned to the client.
-Such modifications could include adding additional headers, paginating the data itself, or capturing performance metrics to name a few.
-To handle this, the framework itself makes use of `Athena::EventDispatcher` to dispatch an event that notifies all registered listeners on that event.
-From which, they could make any necessary modifications seamlessly without affecting the framework logic itself, or the other listeners.
+A good example of this is the [architecture](/getting_started/middleware#events) of the Athena Framework itself in how it uses `Athena::EventDispatcher` to dispatch events that then is able to notify all registered listeners for that event.
+These listeners could then make any necessary modifications seamlessly without affecting the framework logic itself, or the other listeners.
 
-## Usage
-```crystal
-# Create a custom event.
-class ExceptionRaisedEvent < AED::Event
-  property? handled : Bool = false
+## Installation
 
-  getter exception : Exception
-
-  # Events can contain stateful information related to the event.
-  def initialize(@exception : Exception); end
-end
-
-dispatcher = AED::EventDispatcher.new
-
-# Register a listener directly with the dispatcher
-dispatcher.listener ExceptionRaisedEvent do |event|
-  pp event.exception.message
-end
-
-# Or use a dedicated type for more complex use cases.
-class ExceptionListener
-  include AED::EventListenerInterface
-
-  @[AEDA::AsEventListener]
-  # Multiple methods can be defined to handle multiple events within the same listener,
-  # and/or to share state via instance variables between listener methods on different events.
-  def on_exception(event : ExceptionRaisedEvent) : Nil
-    # Do something with the event`
-    event.handled = true
-  end
-end
-
-dispatcher.listener ExceptionListener.new
-
-# Instantiate our custom event.
-event = ExceptionRaisedEvent.new ArgumentError.new("Test exception")
-
-dispatcher.dispatch event
-# =>
-#   "Test exception"
-
-event.handled? # => true
-```
-
-## Getting Started
-
-If using this component within the [Athena Framework](/framework), it is already installed and required for you.
-
-If using it outside of the framework, you will first need to add it as a dependency:
+First, install the component by adding the following to your `shard.yml`, then running `shards install`:
 
 ```yaml
 dependencies:
@@ -70,17 +19,64 @@ dependencies:
     github: athena-framework/event-dispatcher
     version: ~> 0.2.0
 ```
+## Usage
 
-Then run `shards install`, being sure to require it via `require "athena-event_dispatcher"`.
+Usage of this component centers around the [AED::EventDispatcher][] type which keeps track of the listeners on various [AED::Event][]s.
+An event is nothing more than a plain old Crystal object that provides access to data related to the event.
 
-From here you will want to create your `AED::Event`s classes.
-You will then need a way to create/register the listeners with an `AED::EventDispatcherInterface`.
+```crystal
+# Create a custom event that can be emitted when an order is placed.
+class OrderPlaced < AED::Event
+  getter order : Order
 
-The dispatcher should be created in a way that allows it to be used throughout the application such that any mutations that happen to the listeners are reflected on subsequent dispatches.
+  def initialize(@order : Order); end
+end
+```
+
+For simple use cases, listeners may be registered directly:
+
+```crystal
+dispatcher = AED::EventDispatcher.new
+
+# Register a listener on our event directly with the dispatcher
+dispatcher.listener OrderPlaced do |event|
+  pp event.order
+end
+```
+
+However having a dedicated type is usually the better practice.
+
+```crystal
+struct SendConfirmationListener
+  include AED::EventListenerInterface
+
+  @[AEDA::AsEventListener]
+  def order_placed(event : OrderPlaced) : Nil
+    # Send a confirmation email to the user
+  end
+end
+
+dispatcher.listener SendConfirmationListener.new
+```
+
+In either case, the dispatcher can then be used to dispatch our event.
+
+```crystal
+# Assume this is a real object
+record Order, id : String
+
+event = OrderPlaced.new Order.new "order 1"
+
+dispatcher.dispatch Order.new
+# => Order(@id="order1")
+```
 
 WARNING: If using this component within the context of something that handles independent execution flows, such as a web framework, you will want there to be a dedicated dispatcher instance for each path.
 This ensures that one flow will not leak state to any other flow, while still allowing flow specific mutations to be used.
-Consider pairing this component with the [Athena::DependencyInjection][Athena::DependencyInjection--getting-started] component as a way to handle this.
+Consider pairing this component with the [Athena::DependencyInjection](/DependencyInjection) component as a way to handle this.
 
-TIP: If using this component with the `Athena::DependencyInjection` component, `AED::EventListenerInterface` that have the `ADI::Register` annotation will automatically
-be registered with the default `AED::EventDispatcherInterface`.
+## Learn More
+
+* [Listener Priority][Athena::EventDispatcher::EventDispatcherInterface--listener-priority]
+* [Stoppable][AED::StoppableEvent] events
+* [Testing Abstractions][AED::Spec::TracableEventDispatcher]
