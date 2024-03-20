@@ -4,7 +4,7 @@ require "../output/interface"
 
 # When executing longer-running commands, it can be helpful to show progress information that updates as the command runs:
 #
-# ![Progress Bar](../../../img/progress_bar.gif)
+# ![Progress Bar](/img/progress_bar.gif)
 #
 # TIP: Consider using `ACON::Style::Athena` to display a progress bar.
 #

@@ -1,9 +1,6 @@
 # Encompasses parameters related to the `Athena::Framework` component.
-#
-# For a higher level introduction to using parameters, see the [external documentation](../../architecture/config.md).
 struct Athena::Framework::Parameters
   # This method should be overridden in order to customize the parameters for the `Athena::Framework` component.
-  # See the [external documentation](../../architecture/config.md#parameters) for more details.
   #
   # ```
   # # Returns an `ATH::Parameters` instance with customized parameter values.

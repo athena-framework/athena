@@ -91,7 +91,7 @@ module Athena::Framework
   # The `AED::Event` that are emitted via `Athena::EventDispatcher` to handle a request during its life-cycle.
   # Custom events can also be defined and dispatched within a controller, listener, or some other service.
   #
-  # See each specific event and the [external documentation](../../architecture/event_dispatcher.md) for more information.
+  # See each specific event and the [Getting Started](/getting_started/middleware) docs for more information.
   module Events; end
 
   # Exception handling in Athena is similar to exception handling in any Crystal program, with the addition of a new unique exception type, `ATH::Exceptions::HTTPException`.
@@ -107,7 +107,7 @@ module Athena::Framework
 
   # The `AED::EventListenerInterface` that act upon `ATH::Events` to handle a request. Custom listeners can also be defined, see `AED::EventListenerInterface`.
   #
-  # See each listener and the [external documentation](../../architecture/event_dispatcher.md) for more information.
+  # See each listener and the [Getting Started](/getting_started/middleware) docs for more information.
   module Listeners; end
 
   # Namespace for types related to request parameter processing.

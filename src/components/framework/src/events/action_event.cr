@@ -2,7 +2,7 @@ require "./request_aware"
 
 # Emitted after `ATH::Events::Request` and the related `ATH::Action` has been resolved, but before it has been executed.
 #
-# See the [external documentation](../../../architecture/README.md#2-action-event) for more information.
+# See the [Getting Started](/getting_started/middleware#2-action-event) docs for more information.
 class Athena::Framework::Events::Action < AED::Event
   include Athena::Framework::Events::RequestAware
 

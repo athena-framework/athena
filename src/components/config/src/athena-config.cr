@@ -15,25 +15,6 @@ module Athena
     ENV[ENV_NAME]? || "development"
   end
 
-  # Athena's Config component contains common types for configuring components/features, and managing `ACF::Parameters`.
-  #
-  # ## Getting Started
-  #
-  # If using this component within the [Athena Framework][Athena::Framework], it is already installed and required for you.
-  # Otherwise, if using it outside of the framework, you will first need to add it as a dependency:
-  #
-  # ```yaml
-  # dependencies:
-  #   athena-config:
-  #     github: athena-framework/config
-  #     version: ~> 0.3.0
-  # ```
-  #
-  # Then run `shards install`, being sure to require it via `require "athena-config"`.
-  #
-  # From here, checkout the [manual](../architecture/config.md) for some additional information on how to use it both within and outside of the framework.
-  #
-  # INFO: DI parameter injection requires the [Athena::DependencyInjection][] component as well.
   module Config
     VERSION = "0.3.3"
 

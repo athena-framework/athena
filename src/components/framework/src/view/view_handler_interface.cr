@@ -1,6 +1,6 @@
 # Processes an `ATH::View` into an `ATH::Response` of the proper format.
 #
-# See the [negotiation](../../../architecture/negotiation.md) component for more information.
+# See the [Getting Started](/getting_started/routing/#content-negotiation) docs for more information.
 module Athena::Framework::View::ViewHandlerInterface
   # The possible types for a view format handler.
   alias HandlerType = ATH::View::FormatHandlerInterface | Proc(ATH::View::ViewHandlerInterface, ATH::ViewBase, ATH::Request, String, ATH::Response)

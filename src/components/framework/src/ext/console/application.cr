@@ -10,7 +10,7 @@
 # ADI.container.athena_console_application.run
 # ```
 #
-# Checkout the [external documentation](../../../architecture/console.md) for more information.
+# Checkout the [Getting Started](/getting_started/commands) docs for more information.
 class Athena::Framework::Console::Application < ACON::Application
   protected def initialize(
     command_loader : ACON::Loader::Interface? = nil,

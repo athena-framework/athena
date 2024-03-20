@@ -25,7 +25,7 @@
 # ```
 #
 # The implementation for `HTML` for example could use `.to_s` as depicted here, or utilize a templating engine, possibly taking advantage
-# of [custom annotations](../../../architecture/config.md#custom-annotations) to allow specifying the related template name.
+# of [custom annotations](/getting_started/configuration#custom-annotations) to allow specifying the related template name.
 module Athena::Framework::View::FormatHandlerInterface
   TAG = "athena.format_handler"
 
