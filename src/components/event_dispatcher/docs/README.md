@@ -21,7 +21,8 @@ dependencies:
 ```
 ## Usage
 
-Usage of this component centers around the [AED::EventDispatcher][] type which keeps track of the listeners on various [AED::Event][]s.
+Usage of this component centers around [AED::EventDispatcherInterface][] implementations with the default being [AED::EventDispatcher][].
+The event dispatcher  keeps track of the listeners on various [AED::Event][]s.
 An event is nothing more than a plain old Crystal object that provides access to data related to the event.
 
 ```crystal
