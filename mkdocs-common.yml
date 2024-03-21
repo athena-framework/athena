@@ -34,6 +34,10 @@ validation:
 extra_css:
   - ../../../css/index.css
 
+watch:
+  - src/
+  - ../../../mkdocs-common.yml
+
 extra:
   homepage: /
 
