@@ -26,7 +26,7 @@ jinja2==3.1.3
     #   mkdocs-material
     #   mkdocstrings
     #   mkdocstrings-crystal
-markdown==3.5.2
+markdown==3.6
     # via
     #   markdown-callouts
     #   mkdocs
@@ -67,7 +67,7 @@ mkdocs-get-deps==0.2.0
     # via mkdocs
 mkdocs-literate-nav==0.6.1
     # via -r requirements.in
-mkdocs-material @ git+ssh://git@github.com/squidfunk/mkdocs-material-insiders.git@5eb9c0c0a627f9b61795c6718a44393711d2e51b
+mkdocs-material @ git+ssh://git@github.com/squidfunk/mkdocs-material-insiders.git@caf2c0d696346347745872544a0ef556785ac8a1
     # via -r requirements.in
 mkdocs-material-extensions==1.3.1
     # via mkdocs-material
@@ -77,7 +77,7 @@ mkdocstrings==0.24.1
     # via mkdocstrings-crystal
 mkdocstrings-crystal==0.3.7
     # via -r requirements.in
-packaging==23.2
+packaging==24.0
     # via mkdocs
 paginate==0.5.6
     # via mkdocs-material

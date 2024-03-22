@@ -28,7 +28,7 @@ $(PIP):
 	./.venv/bin/pip3 install -q pip-tools
 
 .PHONY: upgrade
-upgrade: ## Upgrade mkdocs deps
+upgrade: $(PIP) ## Upgrade mkdocs deps
 	$(PIP_COMPILE) -U requirements.in
 
 .PHONY: clean
