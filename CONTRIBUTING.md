@@ -32,7 +32,7 @@ From here, the tests for a specific component may be ran via the helper script:
 $ ./scripts/test.sh routing
 ```
 
-Or alternateively, for all components:
+Or alternatively, for all components:
 
 ```sh
 $ ./scripts/test.sh

@@ -29,7 +29,7 @@ jobs:
           fetch-depth: 0
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
-      - name: Install Dependencies
+      - name: Install Components
         run: shards install
         env:
           SHARDS_OVERRIDE: shard.dev.yml
@@ -37,8 +37,9 @@ jobs:
         with:
           python-version: 3.x
       - run: pip install -r requirements.txt
-      - run: make build
-      - name: Publish to Cloudflare Pages1
+      - name: Build Docs
+        run: make build
+      - name: Publish to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
