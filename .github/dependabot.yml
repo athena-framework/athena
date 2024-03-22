@@ -8,3 +8,10 @@ updates:
     labels:
       - "kind:infrastructure"
       - "kind:enhancement"
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "kind:infrastructure"
+      - "kind:enhancement"

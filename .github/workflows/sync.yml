@@ -36,7 +36,7 @@ jobs:
           python-version: 3.x
       - run: pip install -r requirements.txt
       - name: Build Docs
-        run: make build
+        run: mkdocs build -d ./site
       - name: Publish to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
