@@ -28,7 +28,7 @@ jobs:
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
       - name: Install Components
-        run: shards install
+        run: shards install --without-development
         env:
           SHARDS_OVERRIDE: shard.dev.yml
       - uses: actions/setup-python@v5
