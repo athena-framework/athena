@@ -1,23 +1,10 @@
-name: Sync
+name: Release
 
 on:
-  push:
-    branches:
-      - master
+  repository_dispatch:
+    types: [docs]
 
 jobs:
-  sync:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.SYNC_TOKEN }}
-      - name: Sync Repos
-        run: ./scripts/sync.sh
-        env:
-          BEFORE_SHA: ${{ github.event.before }}
-          AFTER_SHA: ${{ github.event.after }}
   docs:
     runs-on: ubuntu-latest
     steps:
@@ -31,8 +18,6 @@ jobs:
         uses: crystal-lang/install-crystal@v1
       - name: Install Dependencies
         run: shards install
-        env:
-          SHARDS_OVERRIDE: shard.dev.yml
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
