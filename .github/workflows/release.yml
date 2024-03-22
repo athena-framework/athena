@@ -31,4 +31,4 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: athenaframework
           directory: site
-          branch: dev
+          branch: master
