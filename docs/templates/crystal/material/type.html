@@ -1,0 +1,80 @@
+{{ log.debug() }}
+
+<div class="doc doc-object doc-type {{ obj.kind }}">
+{% if "Athena::DependencyInjection::Extension::Schema" in obj.included_modules  %}
+  <div class="doc doc-contents {% if root %}first{% endif %}">
+    {% if obj.doc %}{{ obj.doc |convert_markdown_ctx(obj, heading_level, obj.abs_id) }}{% endif %}
+
+    {% include "schema.html" with context %}
+  </div>
+{% else %}
+  {% if obj.parent %}
+  {% filter heading(heading_level, id=obj.abs_id, class="doc doc-heading", toc_label=obj.name) -%}
+    {% if obj.is_abstract %}abstract {% endif %}{{ obj.kind }} <code>{{ obj.full_name }}</code>
+    {% if obj.superclass %}
+      <br/><small>inherits <code>{{ obj.superclass |reference }}</code></small>
+    {% endif %}
+  {%- endfilter %}
+  {% endif %}
+
+  <div class="doc doc-contents {% if root %}first{% endif %}">
+    {% if obj.doc %}{{ obj.doc |convert_markdown_ctx(obj, heading_level, obj.abs_id) }}{% endif %}
+
+    {% with root = False, heading_level = heading_level + 1 %}
+      <div class="doc doc-children">
+        {% if obj.kind == "alias" %}
+          <h{{ heading_level }}>Alias definition</h{{ heading_level }}>
+          {{ obj.aliased |code_highlight(language="crystal", inline=True) }}
+        {% endif %}
+
+        {% for title, sub in [
+            ("Included modules", obj.included_modules),
+            ("Extended modules", obj.extended_modules),
+            ("Direct known subclasses", obj.subclasses),
+            ("Direct including types", obj.including_types),
+        ] %}
+          {% if sub %}
+            <h{{ heading_level }}>{{ title }}</h{{ heading_level }}>
+            {% for other in sub %}
+              <code>{{ other |reference }}</code>
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+
+        {% if obj.constants %}
+          {% if obj.kind == "enum" %}
+            {% filter heading(heading_level, id=obj.abs_id ~ "-members") %}Members{% endfilter %}
+          {% else %}
+            {% filter heading(heading_level, id=obj.abs_id ~ "-constants") %}Constants{% endfilter %}
+          {% endif %}
+          {% with heading_level = heading_level + 1 %}
+            {% for obj in obj.constants %}
+              {% include "constant.html" with context %}
+            {% endfor %}
+          {% endwith %}
+        {% endif %}
+
+        {% for title, sub in [
+            ("Constructors", obj.constructors),
+            ("Class methods", obj.class_methods),
+            ("Methods", obj.instance_methods),
+            ("Macros", obj.macros),
+        ] %}
+          {% if sub %}
+            {% filter heading(heading_level, id=obj.abs_id ~ "-" ~ title.lower().replace(" ", "-")) %}{{ title }}{% endfilter %}
+            {% with heading_level = heading_level + 1 %}
+              {% for obj in sub %}
+                {% include "method.html" with context %}
+              {% endfor %}
+            {% endwith %}
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endwith %}
+  </div>
+
+  {% for obj in obj.types %}
+    {% include "type.html" with context %}
+  {% endfor %}
+</div>
+{% endif %}

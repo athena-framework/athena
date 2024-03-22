@@ -116,7 +116,7 @@
 # `AVD::Constraints::Callback.with_callback` can be used to create a callback constraint, using the block as the callback proc.
 # See the related types for more information.
 #
-# Proc/block based callbacks operate similarly to [Class Methods](#static-methods) in that they receive the value as an argument.
+# Proc/block based callbacks operate similarly to [Class Methods][Athena::Validator::Constraints::Callback--class-methods] in that they receive the value as an argument.
 class Athena::Validator::Constraints::Callback < Athena::Validator::Constraint
   # :nodoc:
   abstract struct ValueContainer; end

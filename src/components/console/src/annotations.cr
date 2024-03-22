@@ -1,7 +1,6 @@
 module Athena::Console::Annotations
   # Annotation containing metadata related to an `ACON::Command`.
-  # This is the preferred way of configuring a command as it enables lazy command instantiation when used within the Athena framework.
-  # Checkout the [external documentation](../../../architecture/console.md) for more information.
+  # This is the preferred way of configuring a command.
   #
   # ```
   # @[ACONA::AsCommand("add", description: "Sums two numbers, optionally making making the sum negative")]

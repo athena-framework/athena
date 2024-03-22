@@ -1,3 +1,5 @@
+class Athena::Clock; end
+
 # Can be used to make a type time aware without having to alter its constructor.
 #
 # ```

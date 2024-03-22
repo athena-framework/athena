@@ -1,0 +1,53 @@
+INHERIT: ./mkdocs-common.yml
+
+site_name: Athena
+site_url: https://athenaframework.org/
+repo_url: https://github.com/athena-framework/athena
+
+extra_css:
+  - css/index.css
+
+plugins:
+  - search
+  - section-index
+  - projects:
+      projects_dir: src/components
+
+watch:
+  - ./mkdocs-common.yml
+
+nav:
+  - Introducton: README.md
+  - Why Athena: why_athena.md
+  - Getting Started:
+    - getting_started/README.md
+    - Routing & HTTP: getting_started/routing.md
+    - Configuration: getting_started/configuration.md
+    - Middleware: getting_started/middleware.md
+    - Error Handling: getting_started/error_handling.md
+    - Commands: getting_started/commands.md
+    - Validation: getting_started/validation.md
+    - Testing: getting_started/testing.md
+  - API Reference:
+    - api_reference.md
+    - project://clock
+    - project://config
+    - project://console
+    - project://dependency_injection
+    - project://dotenv
+    - project://event_dispatcher
+    - project://framework
+    - project://image_size
+    - project://mercure
+    - project://negotiation
+    - project://routing
+    - project://serializer
+    - project://spec
+    - project://validator
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/athena-framework
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/TmDVPb3dmr

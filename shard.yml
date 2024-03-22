@@ -11,7 +11,7 @@ description: |
   An ecosystem of reusable, independent components.
 
 authors:
-  - George Dietrich <george@dietrich.app>
+  - George Dietrich <dev@dietrich.pub>
 
 dependencies:
   athena:

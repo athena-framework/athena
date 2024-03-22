@@ -24,7 +24,7 @@
 # # GET /view/Fred # => 418 {"greeting":"Hello Fred"}
 # ```
 #
-# See the [negotiation](../../architecture/negotiation.md) component for more information.
+# See the [Getting Started](/getting_started/routing#content-negotiation) docs for more information.
 class Athena::Framework::View(T)
   # The response data.
   property data : T
@@ -50,7 +50,7 @@ class Athena::Framework::View(T)
 
   # Returns the name of the route the current request should be redirected to.
   #
-  # See the [URL Generation](../../getting_started/README.md#url-generation) documentation.
+  # See the [Getting Started](/getting_started/routing#url-generation) docs for more information.
   getter route : String? = nil
 
   # The wrapped `ATH::Response` instance.

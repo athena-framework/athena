@@ -5,7 +5,7 @@ require "./settable_response"
 #
 # This event can be listened on to recover from errors or to modify the exception before it's rendered.
 #
-# See the [external documentation](../../../architecture/README.md#8-exception-handling) for more information.
+# See the [Getting Started](/getting_started/middleware#8-exception-handling) docs for more information.
 class Athena::Framework::Events::Exception < AED::Event
   include Athena::Framework::Events::SettableResponse
   include Athena::Framework::Events::RequestAware

@@ -1,5 +1,5 @@
 @[Athena::Console::Annotations::AsCommand("completion", description: "Dump the shell completion script")]
-# Can be used to generate the [completion script][Athena::Console--console-completion] to enable [argument/option value completion][Athena::Console::Input::Interface--argumentoption-value-completion].
+# Can be used to generate the [completion script](/Console#console-completion) to enable [argument/option value completion][Athena::Console::Input::Interface--argumentoption-value-completion].
 #
 # See the related docs for more information.
 class Athena::Console::Commands::DumpCompletion < Athena::Console::Command

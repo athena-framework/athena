@@ -1,6 +1,6 @@
 @[ACONA::AsCommand("debug:router", description: "Display current routes for an application")]
 @[ADI::Register]
-# Utility command to allow viewing all of the routes Athena is aware of within your application.
+# Utility command to allow viewing all of the routes the framework is aware of within your application.
 #
 # ```text
 # $ ./bin/console debug:router

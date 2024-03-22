@@ -1,0 +1,51 @@
+{% for param in (obj.constants['CONFIG_DOCS'].value|from_json) %}
+  {% if loop.first %}
+    <h2>Configuration Properties</h2>
+  {% endif %}
+
+  {% set obj = obj.instance_methods.__getitem__(param['name']) %}
+  <div class="doc doc-object doc-method doc-doc-instance_method">
+    {% filter heading(heading_level+2, id=obj.abs_id, class="doc schema-heading", toc_label=obj.short_name) -%}
+      {{ param['name'] | code_highlight(title='', language="crystal", inline=True) }}
+    {%- endfilter %}
+    <div class="schema-type">
+      <strong>type: </strong>{{ param['type'] |convert_markdown_ctx(obj, heading_level+2, obj.abs_id) }}
+    </div>
+
+    <div class="schema-default">
+      <strong>default: </strong>{{ param['default'] |convert_markdown_ctx(obj, heading_level+2, obj.abs_id) }}
+    </div>
+
+    <div class="doc doc-contents {% if root %}first{% endif %}">
+      {% if obj.doc %}{{ obj.doc | convert_markdown_ctx(obj, heading_level, obj.abs_id) }}{% endif %}
+    </div>
+
+    {% if 'members' in param %}
+      <div class="schema-members">
+        <p>This property consists of an object with the following properties:
+
+        <blockquote style="color: inherit;">
+          {% for member in param['members'] %}
+            {% filter heading(heading_level+3, id="%s.%s" % (obj.abs_id, member['name']), class="doc schema-heading", toc_label="%s.%s" % (obj.short_name, member['name'])) -%}
+              {{ member['name'] | code_highlight(title='', language="crystal", inline=True) }}
+            {%- endfilter %}
+
+            <div class="schema-type">
+              <strong>type: </strong>{{ member['type'] |convert_markdown_ctx(obj, heading_level+4, obj.abs_id) }}
+            </div>
+
+            <div class="schema-default">
+              <strong>default: </strong>{{ member['default'] |convert_markdown_ctx(obj, heading_level+4, obj.abs_id) }}
+            </div>
+
+            <div class="doc doc-contents {% if root %}first{% endif %}">
+              {{ member['doc'] | convert_markdown_ctx(obj, heading_level+4, obj.abs_id) }}
+            </div>
+            {% if not loop.last %}<hr>{% endif %}
+          {% endfor %}
+        </blockquote>
+      </div>
+    {% endif %}
+  </div>
+  {% if not loop.last %}<hr>{% endif %}
+{% endfor %}

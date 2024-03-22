@@ -14,7 +14,7 @@ description: |
   Allows the creation of CLI based commands.
 
 authors:
-  - George Dietrich <george@dietrich.app>
+  - George Dietrich <dev@dietrich.pub>
 
 dependencies:
   athena-clock:

@@ -1,0 +1,32 @@
+INHERIT: ../../../mkdocs-common.yml
+
+site_name: Validator
+site_url: https://athenaframework.org/Validator/
+repo_url: https://github.com/athena-framework/validator
+
+nav:
+  - Introduction: README.md
+  - Back to Manual: project://.
+  - API:
+    - Aliases: aliases.md
+    - Top Level: top_level.md
+    - '*'
+
+plugins:
+  - search
+  - section-index
+  - literate-nav
+  - gen-files:
+      scripts:
+        - ../../../gen_doc_stubs.py
+  - mkdocstrings:
+      default_handler: crystal
+      custom_templates: ../../../docs/templates
+      handlers:
+        crystal:
+          crystal_docs_flags:
+            - ./docs/index.cr
+            - ./lib/athena-validator/src/athena-validator.cr
+            - ./lib/athena-validator/src/spec.cr
+          source_locations:
+            lib/athena-validator: https://github.com/athena-framework/validator/blob/v{shard_version}/{file}#L{line}

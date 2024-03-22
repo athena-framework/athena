@@ -1,5 +1,3 @@
-class Athena::Clock; end
-
 # Represents a clock that returns a `Time` instance, possibly in a specific location.
 module Athena::Clock::Interface
   # Returns a new clock instance set to the provided *location*.
