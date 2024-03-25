@@ -8,7 +8,7 @@ private def assert_error(message : String, code : String, *, line : Int32 = __LI
   CR
 end
 
-describe ADI::ServiceContainer::MergeExtensionConfig do
+describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
   describe "compiler errors" do
     describe "root level" do
       it "errors if a configuration value has the incorrect type" do

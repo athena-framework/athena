@@ -1,7 +1,7 @@
 require "./spec_helper"
 
 describe Athena::Console do
-  describe "compiler errors" do
+  describe "compiler errors", tags: "compiled" do
     describe "when a command configured via annotation doesn't have a name" do
       it "non hidden no aliases" do
         ASPEC::Methods.assert_error "Console command 'NoNameCommand' has an 'ACONA::AsCommand' annotation but is missing the commands's name. It was not provided as the first positional argument nor via the 'name' field.", <<-CR
