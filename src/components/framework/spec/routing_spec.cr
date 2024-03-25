@@ -3,7 +3,7 @@ require "./spec_helper"
 struct RoutingTest < ATH::Spec::APITestCase
   def test_is_concurrently_safe : Nil
     spawn do
-      sleep 1
+      sleep 100.milliseconds
       self.get("/get/safe?bar").body.should eq %("safe")
     end
     self.get("/get/safe?foo").body.should eq %("safe")

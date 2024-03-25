@@ -13,7 +13,7 @@ end
 # Changes here should also be reflected in `event_dispatcher/spec/compiler.cr`
 describe ATH do
   describe "EventDispatcher" do
-    describe "compiler errors", tags: "compiler" do
+    describe "compiler errors", tags: "compiled" do
       it "when the listener method is static" do
         assert_error "Event listener methods can only be defined as instance methods. Did you mean 'MyListener#listener'?", <<-CR
           @[ADI::Register]

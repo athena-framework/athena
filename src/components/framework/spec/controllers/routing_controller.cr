@@ -7,7 +7,7 @@ class RoutingController < ATH::Controller
   @[ARTA::Get("get/safe")]
   def safe_request_check : String
     initial_query = @request_store.request.try &.query
-    sleep 2 if initial_query == "foo"
+    sleep 250.milliseconds if initial_query == "foo"
     check_query = @request_store.request.try &.query
 
     initial_query == check_query ? "safe" : "unsafe"

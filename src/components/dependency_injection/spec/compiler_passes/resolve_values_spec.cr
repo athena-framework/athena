@@ -76,7 +76,7 @@ ADI.auto_configure ServiceValuePriorityService, {bind: {alias_overridden_by_auto
 ADI.bind alias_overridden_by_global_bind : ResolveValuePriorityInterface, "@service_priority_one"
 
 describe ADI::ServiceContainer::ResolveValues do
-  describe "compiler errors", tags: "compiler" do
+  describe "compiler errors", tags: "compiled" do
     it "errors if a service string reference doesn't map to a known service" do
       assert_error "Failed to register service 'foo'. Argument 'id : Int32' references undefined service 'bar'.", <<-CR
         @[ADI::Register(_id: "@bar")]
