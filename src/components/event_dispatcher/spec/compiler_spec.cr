@@ -2,7 +2,7 @@ require "./spec_helper"
 
 # Changes here should also be reflected in `framework/spec/ext/event_dispatcher/register_listeners_spec.cr`
 describe Athena::EventDispatcher do
-  describe "compiler errors", tags: "compiler" do
+  describe "compiler errors", tags: "compiled" do
     it "when the listener method is static" do
       ASPEC::Methods.assert_error "Event listener methods can only be defined as instance methods. Did you mean 'MyListener#listener'?", <<-CR
         require "./spec_helper.cr"

@@ -1,7 +1,7 @@
 require "./spec_helper"
 
 describe ASPEC::Methods do
-  describe ".assert_error" do
+  describe ".assert_error", tags: "compiled" do
     describe "no codegen" do
       it do
         assert_error "can't instantiate abstract class Foo", <<-CR
@@ -20,7 +20,7 @@ describe ASPEC::Methods do
     end
   end
 
-  describe ".assert_success" do
+  describe ".assert_success", tags: "compiled" do
     describe "no codegen" do
       it do
         assert_success <<-CR
@@ -44,7 +44,7 @@ describe ASPEC::Methods do
     end
   end
 
-  describe ".run_executable" do
+  describe ".run_executable", tags: "compiled" do
     it "without input" do
       run_executable "ls", ["./.github"] do |output, error, status|
         output.should eq %(dependabot.yml\nworkflows\n)

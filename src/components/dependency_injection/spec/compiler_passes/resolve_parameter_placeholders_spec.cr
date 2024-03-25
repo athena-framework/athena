@@ -9,7 +9,7 @@ private def assert_error(message : String, code : String, *, line : Int32 = __LI
 end
 
 describe ADI::ServiceContainer::ResolveParameterPlaceholders do
-  describe "compiler errors", tags: "compiler" do
+  describe "compiler errors", tags: "compiled" do
     it "errors if a parameter references another undefined placeholder." do
       assert_error "Parameter 'parameters[app.name]' referenced unknown parameter 'app.version'.", <<-CR
         ADI.configure({
