@@ -17,7 +17,7 @@ struct GenericServiceBase(T, B)
 end
 
 describe ADI::ServiceContainer::ResolveGenerics do
-  describe "compiler errors", tags: "compiler" do
+  describe "compiler errors", tags: "compiled" do
     it "errors if the generic service does not have a name." do
       assert_error "Failed to register services for 'Foo(T)'. Generic services must explicitly provide a name.", <<-CR
         @[ADI::Register]

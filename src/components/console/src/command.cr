@@ -71,7 +71,7 @@
 # ```
 #
 # TIP: The suggested way of setting the name and description of the command is via the `ACONA::AsCommand` annotation.
-# This enables lazy command instantiation when used within the Athena framework. Checkout the [external documentation](../../architecture/console.md) for more information.
+# This enables lazy command instantiation when used within the Athena framework.
 #
 # The `#configure` command is called automatically at the end of the constructor method.
 # If your command defines its own, be sure to call `super()` to also run the parent constructor.
@@ -148,6 +148,8 @@ abstract class Athena::Console::Command
   # Represents the execution status of an `ACON::Command`.
   #
   # The value of each member is used as the exit code of the invocation.
+  #
+  # TIP: The exit code may be customized by manually instantiating the enum with it. E.g. `Status.new 126`.
   enum Status
     # Represents a successful invocation with no errors.
     SUCCESS = 0

@@ -1,54 +1,8 @@
 require "semantic_version"
 require "levenshtein"
 
-# An `ACON::Application` is a container for a collection of multiple `ACON::Command`, and serves as the entry point of a CLI application.
-#
+# A container for a collection of multiple `ACON::Command`, and serves as the entry point of a CLI application.
 # This class is optimized for a standard CLI environment; but it may be subclassed to provide a more specialized/customized entry point.
-#
-# ## Basic Usage
-#
-# The console component best works in conjunction with a dedicated Crystal file that'll be used as the entry point.
-# Ideally this file is compiled into a dedicated binary for use in production, but is invoked directly while developing.
-# Otherwise, any changes made to the files it requires would not be represented.
-# The most basic example would be:
-#
-# ```
-# #!/usr/bin/env crystal
-#
-# # Require the component and anything extra needed based on your business logic.
-# require "athena-console"
-#
-# # Create an ACON::Application, passing it the name of your CLI.
-# # Optionally accepts a second argument representing the version of the CLI.
-# application = ACON::Application.new "My CLI"
-#
-# # Add any commands defined externally,
-# # or configure/customize the application as needed.
-#
-# # Run the application.
-# # By default this uses STDIN and STDOUT for its input and output.
-# application.run
-# ```
-#
-# The [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix)) allows executing the file as a command without needing the `crystal` prefix.
-# For example `./console list` would list all commands.
-#
-# External commands can be registered via `#add`:
-#
-# ```
-# application.add MyCommand.new
-# ```
-#
-# The `#register` method may also be used to define simpler/generic commands:
-#
-# ```
-# application.register "foo" do |input, output|
-#   # Do stuff here.
-#
-#   # Denote that this command has finished successfully.
-#   ACON::Command::Status::SUCCESS
-# end
-# ```
 #
 # ## Default Command
 #

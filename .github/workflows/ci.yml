@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  merge_group:
   pull_request:
     branches:
       - 'master'
@@ -17,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Check Spelling
-        uses: crate-ci/typos@v1.18.0
+        uses: crate-ci/typos@v1.19.0
   check_format:
     runs-on: ubuntu-latest
     container:
@@ -38,7 +39,20 @@ jobs:
           SHARDS_OVERRIDE: shard.dev.yml
       - name: Ameba
         run: ./bin/ameba
-  test:
+  test_compiled:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+      - name: Install Dependencies
+        run: shards install --skip-postinstall --skip-executables
+        env:
+          SHARDS_OVERRIDE: shard.dev.yml
+      - name: Compiled Specs
+        run: ./scripts/test.sh all compiled
+        shell: bash
+  test_unit:
     strategy:
       fail-fast: false
       matrix:
@@ -66,5 +80,5 @@ jobs:
         env:
           SHARDS_OVERRIDE: shard.dev.yml
       - name: Specs
-        run: ./scripts/test.sh
+        run: ./scripts/test.sh all unit
         shell: bash

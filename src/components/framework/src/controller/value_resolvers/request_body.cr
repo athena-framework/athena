@@ -50,7 +50,7 @@
 # {
 #   "first_name": "George",
 #   "last_name": "",
-#   "email": "dietrich.app"
+#   "email": "athenaframework.org"
 # }
 # ```
 #
@@ -81,7 +81,7 @@
 # {
 #   "first_name": "George",
 #   "last_name": "Dietrich",
-#   "email": "george@dietrich.app"
+#   "email": "contact@athenaframework.org"
 # }
 # ```
 struct Athena::Framework::Controller::ValueResolvers::RequestBody

@@ -8,8 +8,8 @@ private def assert_error(message : String, code : String, *, line : Int32 = __LI
   CR
 end
 
-describe ADI::ServiceContainer::ValidateArguments do
-  describe "compiler errors", tags: "compiler" do
+describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
+  describe "compiler errors" do
     it "errors if a expects a string value parameter but it is not of that type" do
       assert_error "Parameter 'value : String' of service 'foo' (Foo) expects a String but got '123'.", <<-CR
         @[ADI::Register(_value: "%value%")]

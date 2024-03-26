@@ -1,0 +1,10 @@
+# TODO: Remove once mkdocs 1.6 is released
+mkdocs@git+https://github.com/mkdocs/mkdocs.git@e755aaed7ea47348a60495ab364d5483ab90a4a6
+
+# 4.53.2 / 9.5.14
+mkdocs-material@git+ssh://git@github.com/squidfunk/mkdocs-material-insiders.git@caf2c0d696346347745872544a0ef556785ac8a1
+
+mkdocstrings-crystal ~= 0.3.5
+mkdocs-gen-files ~= 0.5.0
+mkdocs-literate-nav ~= 0.6.1
+mkdocs-section-index>=0.3.8

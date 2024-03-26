@@ -1,0 +1,58 @@
+/* https://mkdocstrings.github.io/crystal/styling.html#recommended-styles */
+
+/* Indentation of sub-items */
+div.doc-contents:not(.first) {
+  padding-left: 15px;
+  border-left: 4px solid rgba(230, 230, 230);
+}
+
+/* Additional Customizations */
+
+body {
+    font-size: 1rem;
+}
+
+/* Increased spacing between macro & instance methods. */
+.doc-macro + .doc-macro,
+.doc-instance_method + .doc-instance_method {
+  margin-top: 3em;
+}
+
+.md-typeset pre>code::-webkit-scrollbar {
+  height: 0.4em;
+}
+/* Slightly more compact headings */
+h1.doc-heading {
+  font-size: 1.3rem;
+}
+h3.doc-heading {
+  font-size: 0.85rem;
+  background: var(--md-code-bg-color);
+  border-radius: 2px;
+}
+
+h3.schema-heading {
+  margin: 0;
+}
+
+.schema-default, .schema-type {
+  display: inline;
+}
+
+.schema-type p {
+  display: inline;
+}
+
+.schema-default p {
+  display: inline;
+}
+
+/* Make content grid a bit wider (but never wider than the screen) */
+.md-grid {
+  max-width: min(80rem, 100vw);
+}
+
+/* Make sure page content doesn't get too wide on big 4k monitors */
+.md-content {
+    max-width: 85ch;
+}

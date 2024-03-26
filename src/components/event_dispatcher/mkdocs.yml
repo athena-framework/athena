@@ -1,0 +1,32 @@
+INHERIT: ../../../mkdocs-common.yml
+
+site_name: Event Dispatcher
+site_url: https://athenaframework.org/EventDispatcher/
+repo_url: https://github.com/athena-framework/event-dispatcher
+
+nav:
+  - Introduction: README.md
+  - Back to Manual: project://.
+  - API:
+    - Aliases: aliases.md
+    - Top Level: top_level.md
+    - '*'
+
+plugins:
+  - search
+  - section-index
+  - literate-nav
+  - gen-files:
+      scripts:
+        - ../../../gen_doc_stubs.py
+  - mkdocstrings:
+      default_handler: crystal
+      custom_templates: ../../../docs/templates
+      handlers:
+        crystal:
+          crystal_docs_flags:
+            - ./docs/index.cr
+            - ./lib/athena-event_dispatcher/src/athena-event_dispatcher.cr
+            - ./lib/athena-event_dispatcher/src/spec.cr
+          source_locations:
+            lib/athena-event_dispatcher: https://github.com/athena-framework/event-dispatcher/blob/v{shard_version}/{file}#L{line}

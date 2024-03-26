@@ -16,6 +16,8 @@ dependencies:
     path: ./src/components/event_dispatcher
   athena-image_size:
     path: ./src/components/image_size
+  athena-mercure:
+    path: ./src/components/mercure
   athena-negotiation:
     path: ./src/components/negotiation
   athena-routing:

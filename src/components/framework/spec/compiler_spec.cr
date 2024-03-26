@@ -17,7 +17,7 @@ private def assert_success(code : String, *, line : Int32 = __LINE__) : Nil
 end
 
 describe Athena::Framework do
-  describe "compiler errors", tags: "compiler" do
+  describe "compiler errors", tags: "compiled" do
     it "action parameter missing type restriction" do
       assert_error "Route action parameter 'CompileController#action:id' must have a type restriction.", <<-CODE
         class CompileController < ATH::Controller

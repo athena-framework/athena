@@ -2,31 +2,6 @@ class Athena::Dotenv; end
 
 require "./exceptions/*"
 
-# Using [Environment variables](https://en.wikipedia.org/wiki/Environment_variable) (ENV vars) is a common practice to configure options that depend on where the application is run;
-# allowing the application's configuration to be de-coupled from its code.
-# E.g. anything that changes from one machine to another, such as database credentials.
-#
-# `.env` files are a convenient way to get the benefits of ENV vars, without taking on the extra complexity of other tools/abstractions until if/when they are needed.
-# The file(s) can be defined at the root of your project for development, or placed next to the binary if running outside of a dev environment.
-# The `Athena::Dotenv` component parses the `.env` files to make ENV vars stored within them accessible.
-#
-# ## Getting Started
-#
-# Unlike the other components, this one requires being manually installed, even if it is being used within the framework.
-# This is primarily because it is not strictly required, and its use is completely optional.
-# As such, you will first need to add it as a dependency:
-#
-# ```yaml
-# dependencies:
-#   athena-dotenv:
-#     github: athena-framework/dotenv
-#     version: ~> 0.1.0
-# ```
-#
-# Then run `shards install`, being sure to require it via `require "athena-dotenv"`.
-#
-# ## Usage
-#
 # All usage involves using an `Athena::Dotenv` instance.
 # For example:
 #
@@ -51,7 +26,7 @@ require "./exceptions/*"
 # ```
 # A `Athena::Dotenv::Exceptions::Path` error will be raised if the provided file was not found, or is not readable.
 #
-# ### Syntax
+# ## Syntax
 #
 # ENV vars should be defined one per line.
 # There should be no space between the `=` between the var name and its value.
@@ -62,7 +37,7 @@ require "./exceptions/*"
 #
 # A`Athena::Dotenv::Exceptions::Format` error will be raised if a formatting/parsing error is encountered.
 #
-# #### Comments
+# ### Comments
 #
 # Comments can be defined by prefixing them with a `#` character.
 # Comments can defined on its own line, or inlined after an ENV var definition.
@@ -74,7 +49,7 @@ require "./exceptions/*"
 # BAR=BAZ # Inline comment
 # ```
 #
-# #### Quotes
+# ### Quotes
 #
 # Unquoted values, or those quoted with single (`'`) quotes behave as literals while double (`"`) quotes will have special chars expanded.
 # For example, given the following `.env` file:
@@ -106,7 +81,7 @@ require "./exceptions/*"
 #
 # Both single and double quotes will include the actual newline characters, however only double quotes would expand the extra newline in `BAR\n`.
 #
-# #### Variables
+# ### Variables
 #
 # ENV vars can be used in values by prefixing the variable name with a `$` with optional opening and closing `{}`.
 #
@@ -128,7 +103,7 @@ require "./exceptions/*"
 #
 # This would set the value of `DB_USER` to be `root`, unless `DB_USER` is defined elsewhere in which case it would use the value of that variable.
 #
-# #### Commands
+# ### Commands
 #
 # Shell commands can be evaluated via `$()`.
 #
@@ -138,7 +113,7 @@ require "./exceptions/*"
 # DATE=$(date)
 # ```
 #
-# ### File Precedence
+# ## File Precedence
 #
 # The default `.env` file defines _ALL_ ENV vars used within an application, with sane defaults.
 # This file should be committed and should not contain any sensitive values.
@@ -161,7 +136,7 @@ require "./exceptions/*"
 # TIP: Environment specific `.env` files should _ONLY_ to override values defined within the default `.env` file and _NOT_ as a replacement to it.
 # This ensures there is still a single source of truth and removes the need to duplicate everything for each environment.
 #
-# ### Production
+# ## Production
 #
 # `.env` files are mainly intended for non-production environments in order to give the benefits of using ENV vars, but be more convenient/easier to use.
 # They can of course continue to be used in production by distributing the base `.env` file along with the binary, then creating a `.env.local` on the production server and including production values within it.
@@ -174,6 +149,13 @@ class Athena::Dotenv
   private enum State
     VARNAME
     VALUE
+  end
+
+  # Convenience method that loads one or more `.env` files, defaulting to `.env`.
+  def self.load(path : String | ::Path = ".env", *paths : String | ::Path) : self
+    instance = new
+    instance.load path, *paths
+    instance
   end
 
   @path : String | ::Path = ""

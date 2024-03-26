@@ -42,7 +42,7 @@ class QueryParamController < ATH::Controller
     ids
   end
 
-  # Incompatibilites
+  # Incompatibilities
   @[ATHA::QueryParam("search", requirements: /\w+/)]
   @[ATHA::QueryParam("by_author", requirements: /\w+/, incompatibles: ["search"])]
   @[ARTA::Get("/searchv1")]

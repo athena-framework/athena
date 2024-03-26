@@ -22,7 +22,7 @@ module Athena::Framework::HeaderUtils
   # )
   # ```
   #
-  # TIP: Checkout the [external documentation](../../getting_started/README.md#static-files) for an example of how to serve static files.
+  # TIP: Checkout the [Getting Started](/getting_started/routing/#static-files) docs for an example of how to serve static files.
   def self.make_disposition(disposition : ATH::BinaryFileResponse::ContentDisposition, filename : String, fallback_filename : String? = nil) : String
     if fallback_filename.nil? && (!filename.ascii_only? || filename.includes?('%'))
       fallback_filename = filename.gsub { |chr| chr.ascii? ? chr : '_' }

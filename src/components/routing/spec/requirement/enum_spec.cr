@@ -24,6 +24,7 @@ struct EnumRequirementTest < ASPEC::TestCase
     ART::Requirement::Enum(EnumRequirementEnumFlags).new(:b, :c).to_s.should eq "b|c"
   end
 
+  @[Tags("compiled")]
   def test_constructor_non_enum_type : Nil
     self.assert_error "'Int32' is not an Enum type.", <<-CR
       require "../spec_helper"

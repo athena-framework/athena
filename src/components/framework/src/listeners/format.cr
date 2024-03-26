@@ -1,6 +1,13 @@
 require "mime"
 
-# See the [ATH::Bundle::FormatListener] for more information.
+# @[ADI::Register]
+# Attempts to determine the best format for the current request based on its [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) `HTTP` header
+# and the format priority configuration.
+#
+# `ATH::Request::FORMATS` is used to determine the related format from the request's `MIME` type.
+#
+# See the [Getting Started](/getting_started/routing#content-negotiation) docs for more information.
+# See [ATH::Bundle::FormatListener] for more information.
 struct Athena::Framework::Listeners::Format
   include AED::EventListenerInterface
 

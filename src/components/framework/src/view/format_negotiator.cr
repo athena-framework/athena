@@ -1,7 +1,7 @@
 # @[ADI::Register]
 # An extension of `ANG::Negotiator` that supports resolving the format based on an applications `ATH::Config::ContentNegotiation` rules.
 #
-# See the [negotiation](../../../architecture/negotiation.md) component for more information.
+# See the [Getting Started](/getting_started/routing#content-negotiation) docs for more information.
 class Athena::Framework::View::FormatNegotiator < ANG::Negotiator
   record Rule,
     path : Regex = /^\//,

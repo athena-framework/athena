@@ -1,0 +1,31 @@
+INHERIT: ../../../mkdocs-common.yml
+
+site_name: Image Size
+site_url: https://athenaframework.org/ImageSize/
+repo_url: https://github.com/athena-framework/image-size
+
+nav:
+  - Introduction: README.md
+  - Back to Manual: project://.
+  - API:
+    - Aliases: aliases.md
+    - Top Level: top_level.md
+    - '*'
+
+plugins:
+  - search
+  - section-index
+  - literate-nav
+  - gen-files:
+      scripts:
+        - ../../../gen_doc_stubs.py
+  - mkdocstrings:
+      default_handler: crystal
+      custom_templates: ../../../docs/templates
+      handlers:
+        crystal:
+          crystal_docs_flags:
+            - ./docs/index.cr
+            - ./lib/athena-image_size/src/athena-image_size.cr
+          source_locations:
+            lib/athena-image_size: https://github.com/athena-framework/image-size/blob/v{shard_version}/{file}#L{line}

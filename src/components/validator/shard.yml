@@ -14,7 +14,7 @@ description: |
   Object/value validation library.
 
 authors:
-  - George Dietrich <george@dietrich.app>
+  - George Dietrich <dev@dietrich.pub>
 
 dependencies:
   athena-image_size:

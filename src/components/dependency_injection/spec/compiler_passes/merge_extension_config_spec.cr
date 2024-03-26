@@ -8,7 +8,7 @@ private def assert_error(message : String, code : String, *, line : Int32 = __LI
   CR
 end
 
-describe ADI::ServiceContainer::MergeExtensionConfig do
+describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
   describe "compiler errors" do
     describe "root level" do
       it "errors if a configuration value has the incorrect type" do
@@ -280,7 +280,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
       CR
     end
 
-    it "errors if nothing is configured, but a property is required", tags: "compiler" do
+    it "errors if nothing is configured, but a property is required", tags: "compiled" do
       assert_error "Required configuration property 'test.id : Int32' must be provided.", <<-CR
         require "../spec_helper"
 
@@ -295,7 +295,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
     end
   end
 
-  it "extension configuration value resolution", tags: "compiler" do
+  it "extension configuration value resolution", tags: "compiled" do
     ASPEC::Methods.assert_success <<-CR, codegen: true
       require "../spec_helper"
 
@@ -347,7 +347,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
     CR
   end
 
-  it "does not error if nothing is configured, but all properties have defaults or are nilable", tags: "compiler" do
+  it "does not error if nothing is configured, but all properties have defaults or are nilable", tags: "compiled" do
     ASPEC::Methods.assert_success <<-CR, codegen: true
       require "../spec_helper"
 
@@ -367,7 +367,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
     CR
   end
 
-  it "inherits type of arrays from property if not explicitly set", tags: "compiler" do
+  it "inherits type of arrays from property if not explicitly set", tags: "compiled" do
     ASPEC::Methods.assert_success <<-CR, codegen: true
       require "../spec_helper"
 
@@ -393,7 +393,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
     CR
   end
 
-  it "allows using NoReturn to type empty arrays in schema", tags: "compiler" do
+  it "allows using NoReturn to type empty arrays in schema", tags: "compiled" do
     ASPEC::Methods.assert_success <<-CR, codegen: true
       require "../spec_helper"
 
@@ -414,7 +414,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
     CR
   end
 
-  it "allows customizing values when using NoReturn to type empty arrays defaults in schema", tags: "compiler" do
+  it "allows customizing values when using NoReturn to type empty arrays defaults in schema", tags: "compiled" do
     ASPEC::Methods.assert_success <<-CR, codegen: true
       require "../spec_helper"
 
@@ -440,7 +440,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
     CR
   end
 
-  it "expands schema to include expected structure/defaults if not configuration is provided", tags: "compiler" do
+  it "expands schema to include expected structure/defaults if not configuration is provided", tags: "compiled" do
     ASPEC::Methods.assert_success <<-CR, codegen: true
       require "../spec_helper"
 
@@ -471,7 +471,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig do
     CR
   end
 
-  it "expands schema to include expected structure/defaults if not explicitly provided", tags: "compiler" do
+  it "expands schema to include expected structure/defaults if not explicitly provided", tags: "compiled" do
     ASPEC::Methods.assert_success <<-CR, codegen: true
       require "../spec_helper"
 

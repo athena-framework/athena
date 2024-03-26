@@ -9,7 +9,7 @@ private def assert_error(message : String, code : String, *, codegen : Bool = fa
 end
 
 describe Athena::Spec do
-  describe "compiler errors", tags: "compiler" do
+  describe "compiler errors", tags: "compiled" do
     describe ASPEC::TestCase::TestWith do
       describe "args" do
         it "non tuple value" do

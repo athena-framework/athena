@@ -1,0 +1,53 @@
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: red
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark theme
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: red
+      toggle:
+        icon: material/weather-night
+        name: Switch to light theme
+  features:
+    - navigation.sections
+    - navigation.instant
+
+use_directory_urls: true
+
+strict: false
+
+validation:
+  omitted_files: warn
+
+  # TODO: Make this `relative_to_docs` when/if mkdocs-material projects plugin supports it
+  absolute_links: ignore
+  unrecognized_links: warn
+  not_found: warn
+
+extra_css:
+  - ../../../css/index.css
+
+watch:
+  - src/
+  - ../../../mkdocs-common.yml
+
+extra:
+  homepage: /
+
+markdown_extensions:
+  - admonition
+  - callouts
+  - pymdownx.highlight
+  - pymdownx.magiclink
+  - pymdownx.saneheaders
+  - pymdownx.superfences
+  - deduplicate-toc
+  - toc:
+      permalink: "#"

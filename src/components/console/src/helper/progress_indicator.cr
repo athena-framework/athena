@@ -2,7 +2,7 @@
 # However, unlike `ACON::Helper::ProgressBar`s, these indicators are used when the command's duration is indeterminate,
 # such as long-running commands or tasks that are quantifiable.
 #
-# ![Progress Indicator](../../../img/progress_indicator.gif)
+# ![Progress Indicator](/img/progress_indicator.gif)
 #
 # ```
 # # Create a new progress indicator.

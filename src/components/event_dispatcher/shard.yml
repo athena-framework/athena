@@ -11,7 +11,7 @@ repository: https://github.com/athena-framework/event-dispatcher
 documentation: https://athenaframework.org/EventDispatcher
 
 description: |
-  A Mediator and Observer pattern event library
+  A Mediator and Observer pattern event library.
 
 authors:
-  - George Dietrich <george@dietrich.app>
+  - George Dietrich <dev@dietrich.pub>

@@ -1,0 +1,31 @@
+INHERIT: ../../../mkdocs-common.yml
+
+site_name: Config
+site_url: https://athenaframework.org/Config/
+repo_url: https://github.com/athena-framework/config
+
+nav:
+  - Introduction: README.md
+  - Back to Manual: project://.
+  - API:
+    - Aliases: aliases.md
+    - Top Level: top_level.md
+    - '*'
+
+plugins:
+  - search
+  - section-index
+  - literate-nav
+  - gen-files:
+      scripts:
+        - ../../../gen_doc_stubs.py
+  - mkdocstrings:
+      default_handler: crystal
+      custom_templates: ../../../docs/templates
+      handlers:
+        crystal:
+          crystal_docs_flags:
+            - ./docs/index.cr
+            - ./lib/athena-config/src/athena-config.cr
+          source_locations:
+            lib/athena-config: https://github.com/athena-framework/config/blob/v{shard_version}/{file}#L{line}

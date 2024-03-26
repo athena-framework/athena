@@ -71,7 +71,7 @@ class InstanceInjectService
 end
 
 describe ADI::ServiceContainer::RegisterServices do
-  describe "compiler errors", tags: "compiler" do
+  describe "compiler errors", tags: "compiled" do
     it "errors if a factory method is an instance method" do
       assert_error "Failed to register service 'foo'. Factory method 'foo' within 'Foo' is an instance method.", <<-CR
         @[ADI::Register(factory: "foo")]
