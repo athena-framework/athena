@@ -99,8 +99,8 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
 
                                           Array
                                         else
-                                          # If the type is a union, extract the first non-nilable type,
-                                          # falling back on the type of the property if no type was specified
+                                          # If the type is a union, extract the first non-nilable type.
+                                          # Then fallback on the type of the property if no type could be extracted/was provided
                                           non_nilable_prop_type = prop_type.union? ? prop_type.union_types.reject(&.nilable?).first : prop_type
                                           array_type = (cfv.of || cfv.type) || non_nilable_prop_type.type_vars.first
 

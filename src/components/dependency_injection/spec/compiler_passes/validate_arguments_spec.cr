@@ -60,12 +60,9 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
         assert_error "Expected configuration value 'test.connection.hostname' to be a 'String', but got 'Int32'.", <<-CR
           module Schema
             include ADI::Extension::Schema
-
             property connection : NamedTuple(hostname: String)
           end
-
           ADI.register_extension "test", Schema
-
           ADI.configure({
             test: {
               connection: {
@@ -80,12 +77,9 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
         assert_error "Expected configuration value 'test.connection.ports[1]' to be a 'Int32', but got 'String'.", <<-CR
           module Schema
             include ADI::Extension::Schema
-
             property connection : NamedTuple(ports: Array(Int32))
           end
-
           ADI.register_extension "test", Schema
-
           ADI.configure({
             test: {
               connection: {
@@ -103,12 +97,9 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
         assert_error "Expected configuration value 'test.connection.ports[1]' to be a 'Int32', but got 'String'.", <<-CR
           module Schema
             include ADI::Extension::Schema
-
             property connection : NamedTuple(ports: Array(Int32)?)
           end
-
           ADI.register_extension "test", Schema
-
           ADI.configure({
             test: {
               connection: {
