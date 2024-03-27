@@ -9,7 +9,7 @@ CRYSTAL=${CRYSTAL:=crystal}
 # $2 - (optional) "type" of specs to run: "unit", "compiled", or "all". Defaults to "all".
 
 COMPONENT=${1-all}
-TYPE=${2-unit}
+TYPE=${2-all}
 
 if [ $TYPE == "unit" ]
 then
@@ -25,7 +25,7 @@ fi
 
 if [ $COMPONENT != "all" ]
 then
-  echo $CRYSTAL spec "${DEFAULT_OPTIONS[@]}" "src/components/$1/spec"
+  $CRYSTAL spec "${DEFAULT_OPTIONS[@]}" "src/components/$1/spec"
   exit $?
 fi
 
