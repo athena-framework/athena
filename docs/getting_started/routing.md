@@ -320,31 +320,39 @@ Alternatively, the [Athena::Mercure](/Mercure) component may be used as a replac
 
 As mentioned earlier, controller action responses are JSON serialized if the controller action does _NOT_ return an [ATH::Response](/Framework/Response).
 The [Negotiation](/Negotiation) component enhances the view layer of the Athena Framework by enabling [content negotiation](https://tools.ietf.org/html/rfc7231#section-5.3) support; making it possible to write format agnostic controllers by placing a layer of abstraction between the controller and generation of the final response content.
-Or in other words allow having the same controller action be rendered based on the request's [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) `HTTP` header and the format priority configuration.
+Or in other words, allow having the same controller action be rendered based on the request's [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header and the format priority configuration.
 
 ### Format Priority
 
-The content negotiation logic is disabled by default, but can be easily enabled by redefining [ATH::Config::ContentNegotiation.configure](/Framework/Config/ContentNegotiation/#Athena::Framework::Config::ContentNegotiation.configure) with the desired configuration.
-Content negotiation configuration is represented by an array of [Rule](/Framework/Config/ContentNegotiation/Rule/) used to describe allowed formats, their priorities, and how things should function if a unsupported format is requested.
+The content negotiation logic is disabled by default, but can be easily enabled via the related [bundle configuration](./configuration.md).
+Content negotiation configuration is represented by an array of [rules](/Framework/Bundle/Schema/FormatListener/#Athena::Framework::Bundle::Schema::FormatListener#rules) used to describe allowed formats, their priorities, and how things should function if a unsupported format is requested.
 
 For example, say we configured things like:
 
 ```crystal
-def ATH::Config::ContentNegotiation.configure
-  new(
-    # Setting fallback_format to json means that instead of considering
-    # the next rule in case of a priority mismatch, json will be used.
-    Rule.new(priorities: ["json", "xml"], host: "api.example.com", fallback_format: "json"),
-    # Setting fallback_format to false means that instead of considering
-    # the next rule in case of a priority mismatch, a 406 will be returned.
-    Rule.new(path: /^\/image/, priorities: ["jpeg", "gif"], fallback_format: false),
-    # Setting fallback_format to nil (or not including it) means that
-    # in case of a priority mismatch the next rule will be considered.
-    Rule.new(path: /^\/admin/, priorities: ["xml", "html"]),
-    # Setting a priority to */* basically means any format will be matched.
-    Rule.new(priorities: ["text/html", "*/*"], fallback_format: "html"),
-  )
-end
+ADI.configure({
+  framework: {
+    format_listener: {
+      enabled: true,
+      rules:   [
+        # Setting fallback_format to json means that instead of considering
+        # the next rule in case of a priority mismatch, json will be used.
+        {priorities: ["json", "xml"], host: "api.example.com", fallback_format: "json"},
+
+        # Setting fallback_format to false means that instead of considering
+        # the next rule in case of a priority mismatch, a 406 will be returned.
+        {path: /^\/image/, priorities: ["jpeg", "gif"], fallback_format: false},
+
+        # Setting fallback_format to nil (or not including it) means that
+        # in case of a priority mismatch the next rule will be considered.
+        {path: /^\/admin/, priorities: ["xml", "html"]},
+
+        # Setting a priority to */* basically means any format will be matched.
+        {priorities: ["text/html", "*/*"], fallback_format: "html"},
+      ],
+    },
+  },
+})
 ```
 
 Assuming an `accept` header with the value `text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8,application/json`: a request made to `/foo` from the `api.example.com` hostname; the request format would be `json`. If the request was not made from that hostname; the request format would be `html`. The rules can be as complex or as simple as needed depending on the use case of your application.

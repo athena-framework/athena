@@ -1,41 +1,181 @@
 Some features need to be configured;
 either to enable/control how they work, or to customize the default functionality.
 
-<!-- ## `ATH.configure` -->
-
-Configuration in Athena is mainly focused on controlling _how_ specific features/components provided by Athena itself, or third parties, function at runtime.
-A more concrete example would be how [ATH::Config::CORS](/Framework/Config/CORS) can be used to control [ATH::Listeners::CORS](/Framework/Listeners/CORS).
-Say we want to enable CORS for our application from our app URL, expose some custom headers, and allow credentials to be sent.
-To do this we would want to redefine the configuration type's `self.configure` method.
-This method should return an instance of `self`, configured how we wish. Alternatively, it could return `nil` to disable the listener, which is the default.
+The [ATH.configure](/Framework/top_level/#Athena::Framework:configure(config)) macro is the primary entrypoint for configuring Athena Framework applications.
+It is used in conjunction with the related [bundle schema](/Framework/Bundle/Schema/Cors/Defaults/) that defines the possible configuration properties:
 
 ```crystal
-def ATH::Config::CORS.configure
-  new(
-    allow_credentials: true,
-    allow_origin: %(https://app.example.com),
-    expose_headers: %w(X-Transaction-ID X-Some-Custom-Header),
-  )
-end
+ADI.configure({
+  framework: {
+    cors: {
+      enabled:  true,
+      defaults: {
+        allow_credentials: true,
+        allow_origin: ["https://app.example.com"],
+        expose_headers: ["X-Transaction-ID X-Some-Custom-Header"],
+      },
+    },
+  },
+})
 ```
 
-Configuration objects may also be injected as you would any other service. This can be especially helpful for Athena extensions created by third parties whom services should be configurable by the end use.
+In this example we enable the [CORS Listener](/Framework/Listeners/CORS), as well as configure it to function as we desire.
+However you may be wondering "how do I know what configuration properties are available?" or "what is that 'bundle schema' thing mentioned earlier?".
+For that we need to introduce the concept of a `Bundle`.
+
+## Bundles
+
+It should be well known by now that the components that make up Athena's ecosystem are independent and usable outside of the Athena Framework itself.
+However because they are made with the assumption that the entire framework will not be available, there has to be something that provides the tighter integration into the rest of the framework that makes it all work together so nicely.
+
+Bundles in the Athena Framework provide the mechanism by which external code can be integrated into the rest of the framework.
+This primarily involves wiring everything up via the [Athena::DependencyInjection](/DependencyInjection) component.
+But it also ties back into the configuration theme by allowing the user to control _how_ things are wired up and/or function at runtime.
+
+What makes the bundle concept so powerful and flexible is that it operates at the compile time level.
+E.g. if feature(s) are disabled in the configuration, then the types related to those feature(s) will not be included in the resulting binary at all.
+Similarly, the configuration values can be accessed/used as constructor arguments to the various services, something a runtime approach would not allow.
+
+TODO: Expand upon bundle internals and how to create custom bundles.
+
+### Schemas
+
+Each bundle is responsible for defining a "schema" that represents the possible configuration properties that relate to the services provided by that bundle.
+Each bundle also has a name that is used to namespace the configuration passed to `ATH.configure`.
+From there, the keys maps to the downcase snakecased of the types found within the bundle's schema.
+For example, the [Framework Bundle](/Framework/Bundle) used in the previous example, exposes `cors` and `format_listener` among others as part of its schema.
+
+NOTE: Bundles and schemas are not something the average end user is going to need to define/manage themselves other than register/configure to fit their needs.
+
+#### Validation
+
+The compile time nature of bundles also extends to how their schemas are validated.
+Bundles will raise a compile time error if the provided configuration values are invalid according to its schema.
+For example:
+
+```crystal
+ 10 | allow_credentials: 10,
+                          ^
+Error: Expected configuration value 'framework.cors.defaults.allow_credentials' to be a 'Bool', but got 'Int32'.
+```
+
+This also works for nested values:
+
+```crystal
+ 10 | allow_origin:      [10, "https://app.example.com"] of String,
+                           ^
+Error: Expected configuration value 'framework.cors.defaults.allow_origin[0]' to be a 'String', but got 'Int32'.
+```
+
+Or if the schema defines a value that is not nilable nor has a default:
+
+```crystal
+ 10 | property some_property : String
+               ^------------
+Error: Required configuration property 'framework.some_property : String' must be provided.
+```
+
+It can also call out unexpected keys:
+
+```crystal
+ 10 | foo:      "bar",
+                 ^
+Error: Encountered unexpected property 'framework.cors.foo' with value '"bar"'.
+```
+
+Hash configuration values are unchecked so are best used for unstructured data, so if you have a fixed set of related configuration, consider using a named tuple instead.
+This way it'll be type safe, and error if a required value (non-nilable) was not provided.
+
+#### Multi-Environment
+
+In most cases, the configuration for each bundle is likely going to vary one environment to another.
+Values that change machine to machine should ideally be leveraging environmental variables.
+However, there are also cases where the underlying configuration should be different.
+E.g. locally use an in-memory cache while using redis in other environments.
+
+To handle this, `ATH.configure` may be called multiple times, with the last call taking priority.
+The configuration is deep merged together as well, so only the configuration you wish to alter needs to be defined.
+However hash/array/namedTuple values are not.
+Normal compile time logic may be used to make these conditional as well.
+E.g. basing things off `--release` or `--debug` flags vs the environment.
+
+```crystal
+ATH.configure({
+  framework: {
+    cors: {
+      defaults: {
+        allow_credentials: true,
+        allow_origin:      ["https://app.example.com"] of String,
+        expose_headers:    ["X-Transaction-ID", "X-Debug-Header"] of String,
+      },
+    },
+  },
+})
+
+# Exclude the debug header in prod, but retain the other two configuration property values
+{% if env(Athena::ENV_NAME) == "prod" %}
+ATH.configure({
+  framework: {
+    cors: {
+      defaults: {
+        expose_headers:    ["X-Transaction-ID"] of String,
+      },
+    },
+  },
+})
+{% end %}
+
+# Do this other thing if in a non-release build
+{% unless flag? "release" %}
+ATH.configure({...})
+{% end %}
+```
+
+TIP: Consider abstracting the additional `ATH.configure` calls to their own files, and `require` them.
+This way things stay pretty organized, without needing large conditional logic blocks.
 
 ## Parameters
 
-Parameters represent reusable configuration values that can be used when configuring the framework, or directly within the application's services.
-For example, the URL of the application is a common piece of information, used both in configuration and other services for redirects.
-This URl could be defined as a parameter to allow its definition to be centralized and reused.
+Sometimes the same configuration value is used in several places within `ATH.configure`.
+Instead of repeating it, you can define it as a "parameter", which represents reusable configuration values.
+Parameters are intended for values that do not change between machines, and control the application's behavior, e.g. the sender of notification emails, what features are enabled, or other high level application level values.
 
 Parameters should _NOT_ be used for values that rarely change, such as the max amount of items to return per page.
 These types of values are better suited to being a [constant](https://crystal-lang.org/reference/syntax_and_semantics/constants.html) within the related type.
 Similarly, infrastructure related values that change from one machine to another, e.g. development machine to production server, should be defined using environmental variables.
 
-Parameters are intended for values that do not change between machines, and control the application's behavior, e.g. the sender of notification emails, what features are enabled, or other high level application level values.
-To reiterate, the primary benefit of parameters is to centralize and decouple their values from the types that actually use them.
-Another benefit is they offer full compile time safety, if for example, the type of `app_url` was mistakenly set to `Int32` or if the parameter's name was typo'd, e.g. `"%app.ap_url%"`; both would result in compile time errors.
+Parameters can be defined using the special top level `parameters` key within `ATH.configure`.
 
-<!-- ## Bundles -->
+```crystal
+ATH.configure({
+  parameters: {
+    # The parameter name is an arbitrary string,
+    # but is suggested to use some sort of prefix to differentiate your parameters
+    # from the built-in framework parameters, as well as other bundles.
+    "app.admin_email": "admin@example.com",
+
+    # Boolean param
+    "app.enable_v2_protocol": true,
+
+    # Collection param
+    "app.supported_locales": ["en", "es", "de"],
+  },
+})
+```
+
+The parameter value may be any primitive type, including strings, bools, hashes, arrays, etc.
+From here they can be used when configuring a bundle via enclosing the name of the parameter within `%`.
+For example:
+
+```crystal
+ATH.configure({
+  some_bundle: {
+    email: "%app.admin_email%",
+  },
+})
+```
+
+TIP: Parameters may also be [injected](/DependencyInjection/Register/#Athena::DependencyInjection::Register--parameters) directly into services via their constructor.
 
 ## Custom Annotations
 

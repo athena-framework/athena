@@ -1,5 +1,6 @@
 @[Athena::Framework::Annotations::Bundle("framework")]
 struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
+  # :nodoc:
   PASSES = [
     {Athena::Framework::CompilerPasses::MakeControllerServicesPublicPass, nil, nil},
     {Athena::Framework::Console::CompilerPasses::RegisterCommands, :before_removing, nil},
@@ -13,7 +14,7 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
     # Configuration related to the `ATH::Listeners::Format` listener.
     #
     # If enabled, the rules are used to determine the best format for the current request based on its
-    # [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept).
+    # [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header.
     #
     # `ATH::Request::FORMATS` is used to map the request's `MIME` type to its format.
     module FormatListener
@@ -72,7 +73,7 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
         prefer_extension : Bool = true
     end
 
-    # Configured how `ATH::Listeners::CORS` functions.
+    # Configures how `ATH::Listeners::CORS` functions.
     # If no configuration is provided, that listener is disabled and will not be invoked at all.
     module Cors
       include ADI::Extension::Schema
@@ -93,6 +94,11 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
         # Can be set to ["*"] to allow any origin.
         property allow_origin : Array(String | Regex) = [] of String | Regex
 
+        # The header or headers that can be used when making the actual request.
+        #
+        # Can be set to `["*"]` to allow any headers.
+        #
+        # maps to the `access-control-allow-headers` header.
         property allow_headers : Array(String) = [] of String
 
         # Array of headers that the browser is allowed to read from the response.
@@ -105,9 +111,32 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
         # Maps to the `access-control-allow-methods` header.
         # Defaults to the [CORS-safelisted methods](https://fetch.spec.whatwg.org/#cors-safelisted-method).
         property allow_methods : Array(String) = ATH::Listeners::CORS::SAFELISTED_METHODS
+
+        # Number of seconds that the results of a preflight request can be cached.
+        #
+        # Maps to the `access-control-max-age header`.
         property max_age : Int32 = 0
       end
     end
+
+    module Router
+      include ADI::Extension::Schema
+
+      property default_uri : String? = nil
+    end
+
+    # Router
+    # * enabled?
+    # * http_port
+    # * https_port
+    # * strict_requirements
+
+    # Validation
+    # * enabled?
+    # * email validation mode
+
+    # Serialize
+    # * enabled?
   end
 
   # :nodoc:

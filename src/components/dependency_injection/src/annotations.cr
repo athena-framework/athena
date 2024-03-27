@@ -273,28 +273,16 @@ module Athena::DependencyInjection
   #
   # ### Parameters
   #
-  # The `Athena::Config` component provides a way to manage `ACF::Parameters` objects used to define reusable [parameters](/getting_started/configuration#parameters).
-  # It is possible to inject these parameters directly into services in a type safe way.
-  #
-  # Parameter injection utilizes a specially formatted string, similar to tagged services.
-  # The parameter name should be a string starting and ending with a `%`, e.g. `"%app.database.username%"`.
-  # The value within the `%` represents the "path" to the parameter from the `ACF::Parameters` base type.
-  #
+  # Reusable configuration [parameters](/getting_started/configuration#parameters) can be injected directly into services using the same syntax as when used within `ADI.configure`.
   # Parameters may be supplied either via `Athena::DependencyInjection.bind` or an explicit service argument.
   #
   # ```
-  # struct DatabaseConfig
-  #   getter username : String = "USERNAME"
-  # end
-  #
-  # struct AppConfig
-  #   getter name : String = "My App"
-  #   getter database : DatabaseConfig = DatabaseConfig.new
-  # end
-  #
-  # class Athena::Config::Parameters
-  #   getter app : AppConfig = AppConfig.new
-  # end
+  # ADI.configure({
+  #   parameters: {
+  #     "app.name":              "My App",
+  #     "app.database.username": "administrator",
+  #   },
+  # })
   #
   # ADI.bind db_username, "%app.database.username%"
   #
@@ -304,93 +292,6 @@ module Athena::DependencyInjection
   # service = ADI.container.some_service
   # service.app_name    # => "My App"
   # service.db_username # => "USERNAME"
-  # ```
-  #
-  # ### Configuration
-  #
-  # The `Athena::Config` component provides a way to manage `ACF::Base` objects used for [configuration](/getting_started/configuration).
-  # The `Athena::DependencyInjection` component leverages the `ACFA::Resolvable` annotation to allow injecting entire configuration objects into services
-  # in addition to individual [parameters][Athena::DependencyInjection::Register--parameters].
-  #
-  # The primary use case for is for types that have functionality that should be configurable by the end user.
-  # The configuration object could be injected as a constructor argument to set the value of instance variables, or be one itself.
-  #
-  # ```
-  # # Define an example configuration type for a fictional Athena component.
-  # # The annotation argument describes the "path" to this particular configuration
-  # # type from `ACF.config`. I.e. `ACF.config.some_component`.
-  # @[ACFA::Resolvable("some_component")]
-  # struct SomeComponentConfig
-  #   # By default return a new instance with a default value.
-  #   def self.configure : self
-  #     new
-  #   end
-  #
-  #   getter multiplier : Int32
-  #
-  #   def initialize(@multiplier : Int32 = 1); end
-  # end
-  #
-  # # This type would be a part of the `ACF::Base` type.
-  # class ACF::Base
-  #   getter some_component : SomeComponentConfig = SomeComponentConfig.configure
-  # end
-  #
-  # # Define an example configurable service to use our configuration object.
-  # @[ADI::Register(public: true)]
-  # class MultiplierService
-  #   @multiplier : Int32
-  #
-  #   def initialize(config : SomeComponentConfig)
-  #     @multiplier = config.multiplier
-  #   end
-  #
-  #   def multiply(value : Number)
-  #     value * @multiplier
-  #   end
-  # end
-  #
-  # ADI.container.multiplier_service.multiply 10 # => 10
-  # ```
-  #
-  # By default our `MultiplierService` will use a multiplier of `1`, the default value in the `SomeComponentConfig`.
-  # However, if we wanted to change that value we could do something like this, without changing any of the earlier code.
-  #
-  # ```
-  # # Override the configuration type's configure method
-  # # to supply our own custom multiplier value.
-  # def SomeComponentConfig.configure
-  #   new 10
-  # end
-  #
-  # ADI.container.multiplier_service.multiply 10 # => 100
-  # ```
-  #
-  # If the configurable service is also used outside of the service container,
-  # the [factory][Athena::DependencyInjection::Register--factories] pattern could also be used.
-  #
-  # ```
-  # @[ADI::Register(public: true)]
-  # class MultiplierService
-  #   # Tell the service container to use this constructor for DI.
-  #   @[ADI::Inject]
-  #   def self.new(config : SomeComponentConfig)
-  #     # Using the configuration object to supply the argument to the standard initialize method.
-  #     new config.multiplier
-  #   end
-  #
-  #   def initialize(@multiplier : Int32); end
-  #
-  #   def multiply(value : Number)
-  #     value * @multiplier
-  #   end
-  # end
-  #
-  # # Multiplier from the service container.
-  # ADI.container.multiplier_service.multiply 10 # => 10
-  #
-  # # A directly instantiated type.
-  # MultiplierService.new(10).multiply 10 # => 100
   # ```
   #
   # ### Optional Services

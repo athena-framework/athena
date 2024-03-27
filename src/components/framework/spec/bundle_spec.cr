@@ -14,7 +14,7 @@ private def assert_success(code : String, *, codegen : Bool = false, line : Int3
   CR
 end
 
-describe ATH::Bundle, tags: ["compiler"] do
+describe ATH::Bundle, tags: "compiled" do
   describe ATH::Listeners::CORS do
     it "wildcard allow_headers with allow_credentials" do
       assert_error "'expose_headers' cannot contain a wildcard ('*') when 'allow_credentials' is 'true'.", <<-CODE

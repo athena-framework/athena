@@ -4,6 +4,9 @@ module Athena::Framework
     PASSES = [] of Nil
   end
 
+  # Registers the provided *bundle* with the framework.
+  #
+  # See the [Getting Started](/getting_started/configuration) docs for more information.
   macro register_bundle(bundle)
     {%
       resolved_bundle = bundle.resolve
@@ -23,6 +26,11 @@ module Athena::Framework
     {% end %}
   end
 
+  # Primary entrypoint for configuring Athena Framework applications.
+  #
+  # See the [Getting Started](/getting_started/configuration) docs for more information.
+  #
+  # NOTE: This is an alias of [ADI.configure](/DependencyInjection/top_level/#Athena::DependencyInjection:configure(config)).
   macro configure(config)
     ADI.configure({{config}})
   end

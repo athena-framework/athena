@@ -130,6 +130,7 @@ module Athena::DependencyInjection
     Fiber.current.container
   end
 
+  # Primary entrypoint for configuring `ADI::Extension`s.
   macro configure(config)
     {%
       CONFIGS << config
