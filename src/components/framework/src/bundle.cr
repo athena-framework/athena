@@ -134,12 +134,12 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
       property emit_nil : Bool = false
 
       # The `HTTP::Status` used when there is no response content.
-      # property empty_content_status : HTTP::Status = HTTP::Status::NO_CONTENT
+      property empty_content_status : HTTP::Status = :no_content
 
-      # # The `HTTP::Status` used when validations fail.
-      # #
-      # # Currently not used. Included for future work.
-      # property failed_validation_status : HTTP::Status = HTTP::Status::UNPROCESSABLE_ENTITY
+      # The `HTTP::Status` used when validations fail.
+      #
+      # Currently not used. Included for future work.
+      property failed_validation_status : HTTP::Status = :unprocessable_entity
     end
   end
 

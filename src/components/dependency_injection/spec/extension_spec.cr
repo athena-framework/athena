@@ -8,7 +8,7 @@ private def assert_success(code : String, *, line : Int32 = __LINE__) : Nil
   CR
 end
 
-describe ADI::Extension, focus: true do
+describe ADI::Extension do
   it "happy path" do
     assert_success <<-CR
       module Schema
@@ -18,7 +18,7 @@ describe ADI::Extension, focus: true do
         property name : String = "Fred"
 
         def self.validate
-          it line: #{__LINE__} do
+          it do
             {{OPTIONS.size}}.should eq 2
             {{OPTIONS[0]["name"].stringify}}.should eq "id"
             {{OPTIONS[0]["type"].stringify}}.should eq "Int32"
@@ -53,7 +53,7 @@ describe ADI::Extension, focus: true do
         property values : Array(Int32 | String) = [] of NoReturn
 
         def self.validate
-          it line: #{__LINE__} do
+          it do
             {{OPTIONS.size}}.should eq 1
             {{OPTIONS[0]["name"].stringify}}.should eq "values"
             {{OPTIONS[0]["type"].stringify}}.should eq "Array(Int32 | String)"
@@ -80,7 +80,7 @@ describe ADI::Extension, focus: true do
           array_of rules, id : Int32, stop : Bool = false
 
           def self.validate
-            it line: #{__LINE__} do
+            it do
               {{OPTIONS.size}}.should eq 1
               {{OPTIONS[0]["name"].stringify}}.should eq "rules"
               {{OPTIONS[0]["type"].stringify}}.should eq "Array(T)"
@@ -108,7 +108,7 @@ describe ADI::Extension, focus: true do
           array_of rules = [{id: 10, stop: true}], id : Int32, stop : Bool = false
 
           def self.validate
-            it line: #{__LINE__} do
+            it do
               {{OPTIONS.size}}.should eq 1
               {{OPTIONS[0]["name"].stringify}}.should eq "rules"
               {{OPTIONS[0]["type"].stringify}}.should eq "Array(T)"
@@ -136,7 +136,7 @@ describe ADI::Extension, focus: true do
           array_of? rules, id : Int32, stop : Bool = false
 
           def self.validate
-            it line: #{__LINE__} do
+            it do
               {{OPTIONS.size}}.should eq 1
               {{OPTIONS[0]["name"].stringify}}.should eq "rules"
               {{OPTIONS[0]["type"].stringify}}.should eq "(Array(T) | Nil)"

@@ -280,7 +280,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
       CR
     end
 
-    it "errors if nothing is configured, but a property is required", tags: "compiled" do
+    it "errors if nothing is configured, but a property is required" do
       assert_error "Required configuration property 'test.id : Int32' must be provided.", <<-CR
         require "../spec_helper"
 
@@ -295,7 +295,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
     end
   end
 
-  it "extension configuration value resolution", tags: "compiled" do
+  it "extension configuration value resolution" do
     ASPEC::Methods.assert_success <<-CR, codegen: true
       require "../spec_helper"
 
@@ -316,6 +316,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
         property nilable : String?
         property color_type : Color
         property color_sym : Color
+        property color_default : Color = :green
         property value : Hash(String, String)
         property regex : Regex
       end
@@ -340,6 +341,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           it { \\{{ADI::CONFIG["blah"]["nilable"]}}.should be_nil }
           it { \\{{ADI::CONFIG["blah"]["color_type"]}}.should eq Color::Red }
           it { \\{{ADI::CONFIG["blah"]["color_sym"]}}.should eq Color::Blue }
+          it { \\{{ADI::CONFIG["blah"]["color_default"]}}.should eq Color::Green }
           it { \\{{ADI::CONFIG["blah"]["value"]}}.should eq({"id" => "10", "name" => "fred"}) }
           it { \\{{ADI::CONFIG["blah"]["regex"]}}.should eq /foo/ }
         end
@@ -347,7 +349,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
     CR
   end
 
-  it "does not error if nothing is configured, but all properties have defaults or are nilable", tags: "compiled" do
+  it "does not error if nothing is configured, but all properties have defaults or are nilable" do
     ASPEC::Methods.assert_success <<-CR, codegen: true
       require "../spec_helper"
 
@@ -367,7 +369,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
     CR
   end
 
-  it "inherits type of arrays from property if not explicitly set", tags: "compiled" do
+  it "inherits type of arrays from property if not explicitly set" do
     ASPEC::Methods.assert_success <<-CR, codegen: true
       require "../spec_helper"
 
@@ -393,7 +395,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
     CR
   end
 
-  it "allows using NoReturn to type empty arrays in schema", tags: "compiled" do
+  it "allows using NoReturn to type empty arrays in schema" do
     ASPEC::Methods.assert_success <<-CR, codegen: true
       require "../spec_helper"
 
@@ -414,7 +416,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
     CR
   end
 
-  it "allows customizing values when using NoReturn to type empty arrays defaults in schema", tags: "compiled" do
+  it "allows customizing values when using NoReturn to type empty arrays defaults in schema" do
     ASPEC::Methods.assert_success <<-CR, codegen: true
       require "../spec_helper"
 
@@ -440,7 +442,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
     CR
   end
 
-  it "expands schema to include expected structure/defaults if not configuration is provided", tags: "compiled" do
+  it "expands schema to include expected structure/defaults if not configuration is provided" do
     ASPEC::Methods.assert_success <<-CR, codegen: true
       require "../spec_helper"
 
@@ -471,7 +473,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
     CR
   end
 
-  it "expands schema to include expected structure/defaults if not explicitly provided", tags: "compiled" do
+  it "expands schema to include expected structure/defaults if not explicitly provided" do
     ASPEC::Methods.assert_success <<-CR, codegen: true
       require "../spec_helper"
 
