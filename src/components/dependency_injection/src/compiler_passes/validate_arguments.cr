@@ -99,8 +99,10 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
 
                                           Array
                                         else
-                                          # Fallback on the type of the property if no type was specified
-                                          array_type = (cfv.of || cfv.type) || prop_type.type_vars.first
+                                          # If the type is a union, extract the first non-nilable type.
+                                          # Then fallback on the type of the property if no type could be extracted/was provided
+                                          non_nilable_prop_type = prop_type.union? ? prop_type.union_types.reject(&.nilable?).first : prop_type
+                                          array_type = (cfv.of || cfv.type) || non_nilable_prop_type.type_vars.first
 
                                           cfv.each_with_index do |v, v_idx|
                                             values_to_resolve << {array_type.resolve, v, stack + [v_idx]}
