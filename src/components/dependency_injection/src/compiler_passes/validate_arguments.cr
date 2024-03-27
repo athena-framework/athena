@@ -92,7 +92,6 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                       elsif cfv.is_a?(RegexLiteral)
                                         Regex
                                       elsif cfv.is_a?(ArrayLiteral)
-                                        # Fallback on the type of the property if no type was specified
                                         if member_map = prop["members"]
                                           cfv.each_with_index do |v, v_idx|
                                             values_to_resolve << {member_map, v, stack + [v_idx]}
@@ -100,9 +99,9 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
 
                                           Array
                                         else
-                                          # If the type is a union, extract the first non-nilable type
+                                          # If the type is a union, extract the first non-nilable type,
+                                          # falling back on the type of the property if no type was specified
                                           non_nilable_prop_type = prop_type.union? ? prop_type.union_types.reject(&.nilable?).first : prop_type
-
                                           array_type = (cfv.of || cfv.type) || non_nilable_prop_type.type_vars.first
 
                                           cfv.each_with_index do |v, v_idx|
@@ -126,15 +125,22 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                       elsif cfv.is_a?(TypeNode) || cfv.is_a?(HashLiteral)
                                         cfv
                                       elsif cfv.is_a?(NamedTupleLiteral)
-                                        # The prop type is from an array_of, so we need to fill in defaults
+                                        if member_map = prop["members"]
+                                          prop_type = member_map
+                                        end
+
+                                        # The prop type is from an (array|object)_of, so we need to fill in defaults
                                         if prop_type.is_a?(NamedTupleLiteral)
                                           provided_keys = cfv.keys
 
                                           prop_type.keys.reject { |k| k.stringify == "__nil" || provided_keys.includes? k }.each do |k|
                                             decl = prop_type[k]
 
-                                            cfv[k] = decl.value
+                                            # Skip setting required values so that it results in a missing error vs type mismatch error
+                                            cfv[k] = decl.value unless decl.value.is_a?(Nop)
                                           end
+
+                                          # Use the member_map as is if not processing an `array_of` object so that missing required properties are properly enforced.
                                         end
 
                                         cfv.each do |k, v|
@@ -167,15 +173,15 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                           missing_keys.each do |mk|
                                             mt = prop_type[mk]
 
-                                            nilable = if mt.is_a?(TypeNode)
-                                                        mt.nilable?
-                                                      elsif mt.is_a?(TypeDeclaration)
-                                                        mt.type.resolve.nilable?
-                                                      else
-                                                        false
-                                                      end
+                                            can_be_missing = if mt.is_a?(TypeNode)
+                                                               mt.nilable?
+                                                             elsif mt.is_a?(TypeDeclaration)
+                                                               mt.type.resolve.nilable? || !mt.value.is_a?(Nop)
+                                                             else
+                                                               false
+                                                             end
 
-                                            unless nilable
+                                            unless can_be_missing
                                               path = "#{stack[0]}"
 
                                               stack[1..].each do |p|
@@ -186,7 +192,10 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                                         end
                                               end
 
-                                              cfv.raise "Configuration value '#{ext_name.id}.#{path.id}' is missing required value for '#{mk}' of type '#{prop_type[mk]}'."
+                                              type = prop_type[mk]
+                                              type = type.is_a?(TypeDeclaration) ? type.type : type
+
+                                              cfv.raise "Configuration value '#{ext_name.id}.#{path.id}' is missing required value for '#{mk}' of type '#{type}'."
                                             end
                                           end
                                         end
@@ -194,7 +203,7 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                         nil
                                       end
 
-                      if resolved_type
+                      if resolved_type && resolved_type.stringify != "Nop"
                         values_to_resolve[idx][2] = resolved_type
 
                         # Handles outer most typing issues.

@@ -31,6 +31,36 @@ module Athena::DependencyInjection::Extension::Schema
     abstract def {{declaration.var.id}} : {{declaration.type.id}}
   end
 
+  macro object_of(name, *members)
+    process_object_of({{name}}, {{members.splat}}, nilable: false)
+  end
+
+  macro object_of?(name, *members)
+    process_object_of({{name}}, {{members.splat}}, nilable: true)
+  end
+
+  private macro process_object_of(name_or_assign, *members, nilable)
+    {%
+      __nil = nil
+
+      if name_or_assign.is_a?(Assign)
+        name = name_or_assign.target
+        default = name_or_assign.value
+      else
+        name = name_or_assign.name
+        default = pp # Hack to ensure the default is a Nop to differentiate it from `nil`
+      end
+
+      member_map = {__nil: nil}
+      members.each do |m|
+        m.raise "All members must be `TypeDeclaration`s." unless m.is_a? TypeDeclaration
+        member_map[m.var.id] = m
+      end
+
+      OPTIONS << {name: name, type: (type = (nilable ? parse_type("NamedTuple?").resolve : NamedTuple)), default: default, root: name, members: member_map}
+    %}
+  end
+
   # An array of a complex type
   macro array_of(name, *members)
     process_array_of({{name}}, {{members.splat}}, nilable: false)
