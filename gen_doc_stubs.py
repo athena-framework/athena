@@ -3,7 +3,30 @@
 
 import mkdocs_gen_files
 
-root = mkdocs_gen_files.config['plugins']['mkdocstrings'].get_handler('crystal').collector.root
+from typing import Any
+
+import markdown as md
+import json
+
+handler = mkdocs_gen_files.config['plugins']['mkdocstrings'].get_handler('crystal')
+
+# get the `update_env` method of the handler
+update_env = handler.update_env
+
+# override the `update_env` method of the handler
+def patched_update_env(markdown: md.Markdown, config: dict[str, Any]) -> None:
+    update_env(markdown, config)
+
+    def from_json(data):
+        return json.loads(data.removesuffix('of Nil'))
+
+    # patch the filter
+    handler.env.filters["from_json"] = from_json
+
+# patch the method
+handler.update_env = patched_update_env
+
+root = handler.collector.root
 
 for typ in root.lookup("Athena").walk_types():
     # Athena::Validator::Violation -> Validator/Violation/index.md
