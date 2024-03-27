@@ -114,14 +114,22 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                                    # Resolve enum value to enum members
                                    config_value = "#{type}.new(#{config_value})".id
                                  elsif config_value.is_a?(NamedTupleLiteral)
-                                   p = prop["type"]
-
                                    # Fill in `nil` values to missing nilable NT keys
-                                   p.keys.each do |k|
-                                     t = p[k]
+                                   if member_map = prop["members"]
+                                     member_map.each do |k, decl|
+                                       if config_value[k] == nil && decl && decl.type.resolve.nilable?
+                                         config_value[k] = nil
+                                       end
+                                     end
+                                   else
+                                     p = prop["type"]
 
-                                     if config_value[k] == nil && t.nilable?
-                                       config_value[k] = nil
+                                     p.keys.each do |k|
+                                       t = p[k]
+
+                                       if config_value[k] == nil && t.nilable?
+                                         config_value[k] = nil
+                                       end
                                      end
                                    end
 

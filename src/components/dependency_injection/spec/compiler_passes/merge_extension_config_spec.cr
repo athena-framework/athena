@@ -11,7 +11,7 @@ end
 describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
   describe "compiler errors" do
     describe "root level" do
-      it "errors if a configuration value has the incorrect type" do
+      it "errors if a required configuration value has not been provided" do
         assert_error "Required configuration property 'test.id : Int32' must be provided.", <<-CR
           module Schema
             include ADI::Extension::Schema
