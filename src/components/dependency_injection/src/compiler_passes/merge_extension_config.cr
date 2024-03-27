@@ -144,7 +144,17 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                                  elsif prop["default"].is_a?(Path)
                                    prop["default"].resolve
                                  else
-                                   prop["default"]
+                                   default_value = prop["default"]
+
+                                   # Resolve symbol literals to enum members
+                                   if default_value.is_a?(SymbolLiteral) && (type = prop["type"]) <= ::Enum
+                                     config_value.raise "Unknown '#{type}' enum member '#{default_value}' for default value of property '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}'." unless type.constants.any?(&.downcase.id.==(default_value.id))
+
+                                     # Resolve symbol literals to enum members
+                                     default_value = "#{type}.new(#{default_value})".id
+                                   end
+
+                                   default_value
                                  end
               end
 
