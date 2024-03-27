@@ -122,21 +122,25 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
     module Router
       include ADI::Extension::Schema
 
+      # The default URI used to generate URLs in non-HTTP contexts.
+      # See the [Getting Started](/getting_started/routing/#in-commands) docs for more information.
       property default_uri : String? = nil
     end
 
-    # Router
-    # * enabled?
-    # * http_port
-    # * https_port
-    # * strict_requirements
+    module ViewHandler
+      include ADI::Extension::Schema
 
-    # Validation
-    # * enabled?
-    # * email validation mode
+      # If `nil` values should be serialized.
+      property emit_nil : Bool = false
 
-    # Serialize
-    # * enabled?
+      # The `HTTP::Status` used when there is no response content.
+      # property empty_content_status : HTTP::Status = HTTP::Status::NO_CONTENT
+
+      # # The `HTTP::Status` used when validations fail.
+      # #
+      # # Currently not used. Included for future work.
+      # property failed_validation_status : HTTP::Status = HTTP::Status::UNPROCESSABLE_ENTITY
+    end
   end
 
   # :nodoc:
