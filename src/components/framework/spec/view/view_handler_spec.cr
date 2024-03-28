@@ -23,6 +23,11 @@ private class MockURLGenerator
 
     @generated_url
   end
+
+  # :ditto:
+  def generate(route : String, reference_type : ART::Generator::ReferenceType = :absolute_path, **params) : String
+    self.generate route, params.to_h.transform_keys(&.to_s), reference_type
+  end
 end
 
 struct ViewHandlerTest < ASPEC::TestCase

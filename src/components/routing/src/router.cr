@@ -32,14 +32,22 @@ class Athena::Routing::Router
     @context = context || ART::RequestContext.new
   end
 
+  # :inherit:
   def generate(route : String, params : Hash(String, String?) = Hash(String, String?).new, reference_type : ART::Generator::ReferenceType = :absolute_path) : String
     self.generator.generate route, params, reference_type
   end
 
+  # :inherit:
+  def generate(route : String, reference_type : ART::Generator::ReferenceType = :absolute_path, **params) : String
+    self.generate route, params.to_h.transform_keys(&.to_s), reference_type
+  end
+
+  # :inherit:
   def match(path : String) : Hash(String, String?)
     self.matcher.match path
   end
 
+  # :inherit:
   def match(request : ART::Request) : Hash(String, String?)
     matcher = self.matcher
 
@@ -50,10 +58,12 @@ class Athena::Routing::Router
     matcher.match request
   end
 
+  # :inherit:
   def match?(path : String) : Hash(String, String?)?
     self.matcher.match? path
   end
 
+  # :inherit:
   def match?(request : ART::Request) : Hash(String, String?)?
     matcher = self.matcher
 
