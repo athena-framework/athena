@@ -3,11 +3,11 @@
 <div class="doc doc-object doc-type {{ obj.kind }}">
 {% if "Athena::DependencyInjection::Extension::Schema" in obj.included_modules  %}
   <div class="doc doc-contents {% if root %}first{% endif %}">
-  {% if obj.parent %}
-    {% filter heading(heading_level, id=obj.abs_id, class="doc doc-heading", toc_label=obj.name) -%}
-      <code>{{ obj.full_name }}</code>
-    {%- endfilter %}
-  {% endif %}
+    {% if obj.parent %}
+      {% filter heading(heading_level, id=obj.abs_id, class="doc doc-heading", toc_label=obj.name) -%}
+        <code>{{ obj.full_name }}</code>
+      {%- endfilter %}
+    {% endif %}
 
     {% if obj.doc %}{{ obj.doc |convert_markdown_ctx(obj, heading_level, obj.abs_id) }}{% endif %}
 
