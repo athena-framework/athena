@@ -44,4 +44,7 @@ module Athena::Routing::Generator::Interface
 
   # Generates a URL for the provided *route*, optionally with the provided *params* and *reference_type*.
   abstract def generate(route : String, params : Hash(String, String?) = Hash(String, String?).new, reference_type : ART::Generator::ReferenceType = :absolute_path) : String
+
+  # :ditto:
+  abstract def generate(route : String, reference_type : ART::Generator::ReferenceType = :absolute_path, **params) : String
 end
