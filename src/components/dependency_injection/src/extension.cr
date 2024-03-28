@@ -44,7 +44,7 @@ module Athena::DependencyInjection::Extension::Schema
       __nil = nil
 
       if name_or_assign.is_a?(Assign)
-        name = name_or_assign.target
+        name = name_or_assign.target.id
         default = name_or_assign.value
       else
         name = name_or_assign.name
@@ -89,7 +89,7 @@ module Athena::DependencyInjection::Extension::Schema
       members_string += "]"
 
       OPTIONS << {name: name, type: (type = (nilable ? parse_type("NamedTuple?").resolve : NamedTuple)), default: nilable ? nil : default, root: name, members: member_map}
-      CONFIG_DOCS << %({"name":"#{name.id}","type":"`#{type.id}`","default":"`#{(nilable ? nil : default).id}`","members":#{members_string.id}}).id
+      CONFIG_DOCS << %({"name":"#{name.id}","type":"`#{type.id}`","default":"`#{(nilable && default.is_a?(Nop) ? nil : default).id}`","members":#{members_string.id}}).id
     %}
 
     # {{ doc_string.strip.id }}
@@ -155,7 +155,7 @@ module Athena::DependencyInjection::Extension::Schema
       members_string += "]"
 
       OPTIONS << {name: name, type: (type = (nilable ? parse_type("Array?").resolve : Array)), default: nilable ? nil : default, root: name, members: member_map}
-      CONFIG_DOCS << %({"name":"#{name.id}","type":"`#{type.id}`","default":"`#{(nilable ? nil : default).id}`","members":#{members_string.id}}).id
+      CONFIG_DOCS << %({"name":"#{name.id}","type":"`#{type.id}`","default":"`#{(nilable && default.empty? ? nil : default).id}`","members":#{members_string.id}}).id
     %}
 
     # {{ doc_string.strip.id }}
