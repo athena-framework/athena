@@ -12,9 +12,14 @@
       <strong>type: </strong>{{ param['type'] |convert_markdown_ctx(obj, heading_level+2, obj.abs_id) }}
     </div>
 
-    <div class="schema-default">
-      <strong>default: </strong>{{ param['default'] |convert_markdown_ctx(obj, heading_level+2, obj.abs_id) }}
-    </div>
+
+      <div class="schema-default">
+        {% if param['default'] != '``' %}
+          <strong>default: </strong>{{ param['default'] |convert_markdown_ctx(obj, heading_level+2, obj.abs_id) }}
+        {% else %}
+          <strong>Required</strong>
+        {% endif %}
+      </div>
 
     <div class="doc doc-contents {% if root %}first{% endif %}">
       {% if obj.doc %}{{ obj.doc | convert_markdown_ctx(obj, heading_level, obj.abs_id) }}{% endif %}
@@ -22,7 +27,11 @@
 
     {% if 'members' in param %}
       <div class="schema-members">
-        <p>This property consists of an object with the following properties:
+        {% if 'Array' in param['type'] %}
+          <p>This property consists of an array of objects with the following properties:</p>
+        {% else %}
+          <p>This property consists of an object with the following properties:</p>
+        {% endif %}
 
         <blockquote style="color: inherit;">
           {% for member in param['members'] %}
@@ -34,9 +43,13 @@
               <strong>type: </strong>{{ member['type'] |convert_markdown_ctx(obj, heading_level+4, obj.abs_id) }}
             </div>
 
-            <div class="schema-default">
-              <strong>default: </strong>{{ member['default'] |convert_markdown_ctx(obj, heading_level+4, obj.abs_id) }}
-            </div>
+              <div class="schema-default">
+                {% if member['default'] != '``' %}
+                  <strong>default: </strong>{{ member['default'] |convert_markdown_ctx(obj, heading_level+4, obj.abs_id) }}
+                {% else %}
+                  <strong>Required</strong>
+                {% endif %}
+              </div>
 
             <div class="doc doc-contents {% if root %}first{% endif %}">
               {{ member['doc'] | convert_markdown_ctx(obj, heading_level+4, obj.abs_id) }}

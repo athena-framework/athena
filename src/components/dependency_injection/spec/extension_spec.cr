@@ -32,6 +32,10 @@ describe ADI::Extension do
             {{OPTIONS[1]["name"].stringify}}.should eq "name"
             {{OPTIONS[1]["type"].stringify}}.should eq "String"
             {{OPTIONS[1]["default"].stringify}}.should eq %("Fred")
+
+            {{CONFIG_DOCS.stringify}}.should eq <<-JSON
+            [{"name":"id","type":"`Int32`","default":"``"}, {"name":"name","type":"`String`","default":"`Fred`"}] of Nil
+            JSON
           end
         end
       end
@@ -55,6 +59,10 @@ describe ADI::Extension do
             {{OPTIONS[0]["name"].stringify}}.should eq "values"
             {{OPTIONS[0]["type"].stringify}}.should eq "Array(Int32 | String)"
             {{OPTIONS[0]["default"].stringify}}.should eq "Array(Int32 | String).new"
+
+            {{CONFIG_DOCS.stringify}}.should eq <<-JSON
+            [{"name":"values","type":"`Array(Int32 | String)`","default":"`Array(Int32 | String).new`"}] of Nil
+            JSON
           end
         end
       end
@@ -137,6 +145,67 @@ describe ADI::Extension do
       CR
     end
 
+    it "object_of" do
+      assert_success <<-CR
+        module Schema
+          include ADI::Extension::Schema
+          object_of rule, id : Int32, stop : Bool = false
+          def self.validate
+            it do
+              {{OPTIONS.size}}.should eq 1
+              {{OPTIONS[0]["name"].stringify}}.should eq "rule"
+              {{OPTIONS[0]["type"].stringify}}.should eq "NamedTuple(T)"
+              {{OPTIONS[0]["default"].stringify}}.should eq ""
+              {{OPTIONS[0]["members"].size}}.should eq 3 # Account for __nil
+              {{OPTIONS[0]["members"]["id"].type.stringify}}.should eq "Int32"
+              {{OPTIONS[0]["members"]["id"].value.stringify}}.should eq ""
+              {{OPTIONS[0]["members"]["stop"].type.stringify}}.should eq "Bool"
+              {{OPTIONS[0]["members"]["stop"].value.stringify}}.should eq "false"
+
+              {{CONFIG_DOCS.stringify}}.should eq <<-JSON
+              [{"name":"rule","type":"`NamedTuple(T)`","default":"``","members":[{"name":"id","type":"`Int32`","default":"``","doc":"NONE"},{"name":"stop","type":"`Bool`","default":"`false`","doc":"NONE"}]}] of Nil
+              JSON
+            end
+          end
+        end
+        ADI.register_extension "test", Schema
+        ADI.configure({
+          test: {
+            rule: {
+              id: 10
+            },
+          },
+        })
+      CR
+    end
+
+    it "object_of with assign" do
+      assert_success <<-CR
+        module Schema
+          include ADI::Extension::Schema
+          object_of rule = {id: 999}, id : Int32, stop : Bool = false
+          def self.validate
+            it do
+              {{OPTIONS.size}}.should eq 1
+              {{OPTIONS[0]["name"].stringify}}.should eq "rule"
+              {{OPTIONS[0]["type"].stringify}}.should eq "NamedTuple(T)"
+              {{OPTIONS[0]["default"].stringify}}.should eq "{id: 999, stop: false}"
+              {{OPTIONS[0]["members"].size}}.should eq 3 # Account for __nil
+              {{OPTIONS[0]["members"]["id"].type.stringify}}.should eq "Int32"
+              {{OPTIONS[0]["members"]["id"].value.stringify}}.should eq ""
+              {{OPTIONS[0]["members"]["stop"].type.stringify}}.should eq "Bool"
+              {{OPTIONS[0]["members"]["stop"].value.stringify}}.should eq "false"
+
+              {{CONFIG_DOCS.stringify}}.should eq <<-JSON
+              [{"name":"rule","type":"`NamedTuple(T)`","default":"`{id: 999}`","members":[{"name":"id","type":"`Int32`","default":"``","doc":"NONE"},{"name":"stop","type":"`Bool`","default":"`false`","doc":"NONE"}]}] of Nil
+              JSON
+            end
+          end
+        end
+        ADI.register_extension "test", Schema
+      CR
+    end
+
     it "object_of?" do
       assert_success <<-CR
         module Schema
@@ -147,12 +216,43 @@ describe ADI::Extension do
               {{OPTIONS.size}}.should eq 1
               {{OPTIONS[0]["name"].stringify}}.should eq "rule"
               {{OPTIONS[0]["type"].stringify}}.should eq "(NamedTuple(T) | Nil)"
-              {{OPTIONS[0]["default"].stringify}}.should eq ""
+              {{OPTIONS[0]["default"].stringify}}.should eq "nil"
               {{OPTIONS[0]["members"].size}}.should eq 3 # Account for __nil
               {{OPTIONS[0]["members"]["id"].type.stringify}}.should eq "Int32"
               {{OPTIONS[0]["members"]["id"].value.stringify}}.should eq ""
               {{OPTIONS[0]["members"]["stop"].type.stringify}}.should eq "Bool"
               {{OPTIONS[0]["members"]["stop"].value.stringify}}.should eq "false"
+
+              {{CONFIG_DOCS.stringify}}.should eq <<-JSON
+              [{"name":"rule","type":"`(NamedTuple(T) | Nil)`","default":"`nil`","members":[{"name":"id","type":"`Int32`","default":"``","doc":"NONE"},{"name":"stop","type":"`Bool`","default":"`false`","doc":"NONE"}]}] of Nil
+              JSON
+            end
+          end
+        end
+        ADI.register_extension "test", Schema
+      CR
+    end
+
+    it "object_of? with assign" do
+      assert_success <<-CR
+        module Schema
+          include ADI::Extension::Schema
+          object_of? rule = {id: 999}, id : Int32, stop : Bool = false
+          def self.validate
+            it do
+              {{OPTIONS.size}}.should eq 1
+              {{OPTIONS[0]["name"].stringify}}.should eq "rule"
+              {{OPTIONS[0]["type"].stringify}}.should eq "(NamedTuple(T) | Nil)"
+              {{OPTIONS[0]["default"].stringify}}.should eq "nil"
+              {{OPTIONS[0]["members"].size}}.should eq 3 # Account for __nil
+              {{OPTIONS[0]["members"]["id"].type.stringify}}.should eq "Int32"
+              {{OPTIONS[0]["members"]["id"].value.stringify}}.should eq ""
+              {{OPTIONS[0]["members"]["stop"].type.stringify}}.should eq "Bool"
+              {{OPTIONS[0]["members"]["stop"].value.stringify}}.should eq "false"
+
+              {{CONFIG_DOCS.stringify}}.should eq <<-JSON
+              [{"name":"rule","type":"`(NamedTuple(T) | Nil)`","default":"`{id: 999}`","members":[{"name":"id","type":"`Int32`","default":"``","doc":"NONE"},{"name":"stop","type":"`Bool`","default":"`false`","doc":"NONE"}]}] of Nil
+              JSON
             end
           end
         end
@@ -201,6 +301,10 @@ describe ADI::Extension do
               {{OPTIONS[0]["members"]["id"].value.stringify}}.should eq ""
               {{OPTIONS[0]["members"]["stop"].type.stringify}}.should eq "Bool"
               {{OPTIONS[0]["members"]["stop"].value.stringify}}.should eq "false"
+
+              {{CONFIG_DOCS.stringify}}.should eq <<-JSON
+              [{"name":"rules","type":"`Array(T)`","default":"`[{id: 10, stop: true}]`","members":[{"name":"id","type":"`Int32`","default":"``","doc":"NONE"},{"name":"stop","type":"`Bool`","default":"`false`","doc":"NONE"}]}] of Nil
+              JSON
             end
           end
         end
@@ -224,6 +328,10 @@ describe ADI::Extension do
               {{OPTIONS[0]["members"]["id"].value.stringify}}.should eq ""
               {{OPTIONS[0]["members"]["stop"].type.stringify}}.should eq "Bool"
               {{OPTIONS[0]["members"]["stop"].value.stringify}}.should eq "false"
+
+              {{CONFIG_DOCS.stringify}}.should eq <<-JSON
+              [{"name":"rules","type":"`(Array(T) | Nil)`","default":"`nil`","members":[{"name":"id","type":"`Int32`","default":"``","doc":"NONE"},{"name":"stop","type":"`Bool`","default":"`false`","doc":"NONE"}]}] of Nil
+              JSON
             end
           end
         end
