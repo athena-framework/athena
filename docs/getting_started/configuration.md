@@ -83,8 +83,8 @@ It can also call out unexpected keys:
 Error: Encountered unexpected property 'framework.cors.foo' with value '"bar"'.
 ```
 
-Hash configuration values are unchecked so are best used for unstructured data, so if you have a fixed set of related configuration, consider using a named tuple instead.
-This way it'll be type safe, and error if a required value (non-nilable) was not provided.
+Hash configuration values are unchecked so are best used for unstructured data.
+If you have a fixed set of related configuration, consider using [object_of](/DependencyInjection/Extension/Schema/#Athena::DependencyInjection::Extension::Schema:object_of(name,*)).
 
 #### Multi-Environment
 
