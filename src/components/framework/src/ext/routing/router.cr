@@ -1,5 +1,5 @@
 # :nodoc:
-@[ADI::Register(_default_uri: "%routing.base_uri%", name: "router", public: true, alias: [ART::Generator::Interface, ART::Matcher::URLMatcherInterface, ART::RouterInterface])]
+@[ADI::Register(alias: [ART::Generator::Interface, ART::Matcher::URLMatcherInterface, ART::RouterInterface])]
 class Athena::Framework::Routing::Router < Athena::Routing::Router
   getter matcher : ART::Matcher::URLMatcherInterface do
     ATH::Routing::RedirectableURLMatcher.new(@context)
@@ -8,12 +8,13 @@ class Athena::Framework::Routing::Router < Athena::Routing::Router
   def initialize(
     default_locale : String? = nil,
     strict_requirements : Bool = true,
-    base_uri : String? = nil
+    request_context : ART::RequestContext? = nil
   )
-    super(ATH::Routing::AnnotationRouteLoader.route_collection,
+    super(
+      ATH::Routing::AnnotationRouteLoader.route_collection,
       default_locale,
       strict_requirements,
-      base_uri.try { |uri| ART::RequestContext.from_uri uri }
+      request_context,
     )
   end
 end

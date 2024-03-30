@@ -28,6 +28,8 @@
 #   object_of? connection, username : String, password : String, port : Int32 = 5432
 # end
 # ```
+#
+# WARNING: The custom markup is only supported when using `mkdocs` with some custom templates.
 module Athena::DependencyInjection::Extension::Schema
   macro included
     # :nodoc:

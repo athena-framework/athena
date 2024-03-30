@@ -1,4 +1,9 @@
 @[Athena::Framework::Annotations::Bundle("framework")]
+# The Athena Framework Bundle is responsible for integrating the various Athena components into the Athena Framework.
+# This primarily involves wiring up various types as services, and other DI related tasks.
+# However the framework does provide some extensions/customizations unique to the framework itself.
+#
+#
 struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
   # :nodoc:
   PASSES = [
@@ -10,6 +15,8 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
   # Represents the possible configuration properties, including their name, type, default, and documentation.
   module Schema
     include ADI::Extension::Schema
+
+    property default_locale : String = "en"
 
     # Configuration related to the `ATH::Listeners::Format` listener.
     #
@@ -125,6 +132,10 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
       # The default URI used to generate URLs in non-HTTP contexts.
       # See the [Getting Started](/getting_started/routing/#in-commands) docs for more information.
       property default_uri : String? = nil
+
+      property http_port : Int32 = 80
+      property https_port : Int32 = 443
+      property strict_requirements : Bool = true
     end
 
     module ViewHandler
@@ -150,7 +161,12 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
         {% verbatim do %}
           # Built-in parameters
           {%
-            debug = CONFIG["parameters"]["framework.debug"]
+            cfg = CONFIG["framework"]
+            parameters = CONFIG["parameters"]
+
+            parameters["framework.default_locale"] = cfg["default_locale"]
+
+            debug = parameters["framework.debug"]
 
             # If no debug parameter was already configured, try and determine an appropriate value:
             # * true if configured explicitly via ENV var
@@ -163,7 +179,7 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
               debug_env = env("ATHENA_DEBUG") == "true"
               non_prod_env = env("ATHENA_ENV") != "production"
 
-              CONFIG["parameters"]["framework.debug"] = debug_env || non_prod_env || !flag?(:release)
+              parameters["framework.debug"] = debug_env || non_prod_env || !flag?(:release)
             end
           %}
 
@@ -202,6 +218,52 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
               }
             end
           %}
+
+          # Routing
+          {%
+            parameters = CONFIG["parameters"]
+            cfg = CONFIG["framework"]["router"]
+
+            parameters["framework.router.request_context.host"] = "localhost"
+            parameters["framework.router.request_context.scheme"] = "http"
+            parameters["framework.router.request_context.base_url"] = ""
+            parameters["framework.request_listener.http_port"] = cfg["http_port"]
+            parameters["framework.request_listener.https_port"] = cfg["https_port"]
+
+            SERVICE_HASH[router_id = "default_router"] = {
+              class:      ATH::Routing::Router,
+              tags:       {} of Nil => Nil,
+              bindings:   {} of Nil => Nil,
+              generics:   [] of Nil,
+              public:     false,
+              parameters: {
+                default_locale:      {value: "%framework.default_locale%", name: "default_locale", resolved_restriction: String?},
+                strict_requirements: {value: cfg["strict_requirements"], name: "strict_requirements"},
+                request_context:     {value: nil, name: "request_context", resolved_restriction: ART::RequestContext?},
+              },
+            }
+
+            SERVICE_HASH[request_context_id = "athena_routing_request_context"] = {
+              class:      ART::RequestContext,
+              factory:    {ART::RequestContext, "from_uri"},
+              tags:       {} of Nil => Nil,
+              bindings:   {} of Nil => Nil,
+              generics:   [] of Nil,
+              public:     false,
+              parameters: {
+                uri:        {value: "%framework.router.request_context.base_url%", name: "uri"},
+                host:       {value: "%framework.router.request_context.host%", name: "host"},
+                scheme:     {value: "%framework.router.request_context.scheme%", name: "scheme"},
+                http_port:  {value: "%framework.request_listener.http_port%", name: "http_port"},
+                https_port: {value: "%framework.request_listener.https_port%", name: "https_port"},
+              },
+            }
+
+            if default_uri = cfg["default_uri"]
+              SERVICE_HASH[request_context_id]["parameters"]["uri"]["value"] = default_uri
+            end
+          %}
+
 
           # Format Listener
           {%
