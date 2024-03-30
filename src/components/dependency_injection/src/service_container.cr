@@ -8,9 +8,11 @@ require "./compiler_passes/*"
 #
 # TODO: Reduce the amount of duplication when [this issue](https://github.com/crystal-lang/crystal/pull/9091) is resolved.
 class Athena::DependencyInjection::ServiceContainer
+  # :nodoc:
+  #
   # Define a hash to store services while the container is being built
   # Key is the ID of the service and the value is another hash containing its arguments, type, etc.
-  private SERVICE_HASH = {} of Nil => Nil
+  SERVICE_HASH = {} of Nil => Nil
 
   # Define a hash to store the service ids for each tag.
   #
@@ -29,7 +31,10 @@ class Athena::DependencyInjection::ServiceContainer
     # Sets up common concepts so that future passes can leverage them
     before_optimization: {
       100 => [
+        NormalizeDefinitions,
         RegisterServices,
+        ProcessAliases,
+        ProcessParameters,
         AutoConfigure,
         ResolveGenerics,
       ],

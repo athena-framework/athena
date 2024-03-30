@@ -35,7 +35,8 @@ module Athena::DependencyInjection::ServiceContainer::AutoConfigure
           end
 
           SERVICE_HASH.each do |service_id, definition|
-            tags = definition["class_ann"]["tags"] || [] of Nil
+            # Support missing `class_ann` definition due to manually wired up services.
+            tags = ((ann = definition["class_ann"]) && (ann["tags"])) || [] of Nil
 
             unless tags.is_a? ArrayLiteral
               definition["class_ann"].raise "Tags for '#{service_id.id}' must be an 'ArrayLiteral', got '#{tags.class_name.id}'."

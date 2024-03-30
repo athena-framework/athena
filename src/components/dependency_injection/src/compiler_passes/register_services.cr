@@ -1,4 +1,6 @@
 # :nodoc:
+#
+# Automatically registers types with an `ADI::Register` annotation.
 module Athena::DependencyInjection::ServiceContainer::RegisterServices
   macro included
     macro finished
@@ -18,63 +20,31 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
               {% id_key = ann[:name] || klass.name.gsub(/::/, "_").underscore %}
               {% service_id = id_key.is_a?(StringLiteral) ? id_key : id_key.stringify %}
 
-              {% factory = nil %}
+              {%
+                factory = if factory_ann = ann[:factory]
+                            if factory_ann.is_a? StringLiteral
+                              {klass.resolve, factory_ann}
+                            elsif factory_ann.is_a? TupleLiteral
+                              {factory_ann[0].resolve, factory_ann[1]}
+                            end
+                          elsif (class_initializer = klass.class.methods.find(&.annotation(ADI::Inject))) && (class_initializer.name.stringify != "new")
+                            # Class methods with ADI::Inject should act as a factory.
+                            # But only those not named `"new"`, as that's the default and we can't know about overloads of `initialize` at this point.
+                            {klass.resolve, class_initializer.name.stringify}
+                          else
+                            nil
+                          end
 
-              {% if factory_ann = ann[:factory] %}
-                {% factory = if factory_ann.is_a? StringLiteral
-                               {klass.resolve, factory_ann}
-                             elsif factory_ann.is_a? TupleLiteral
-                               {factory_ann[0].resolve, factory_ann[1]}
-                             end %}
+                # Validate the factory method exists and is a class method if one was found.
+                if factory
+                  factory_class, factory_method = factory
 
-                # Validate the factory method exists and is a class method
-                {% if factory %}
-                  {% factory_class, factory_method = factory %}
-
-                  {% raise "Failed to register service '#{service_id.id}'. Factory method '#{factory_method.id}' within '#{factory_class}' is an instance method." if factory_class.instance.has_method? factory_method %}
-                  {% raise "Failed to register service '#{service_id.id}'. Factory method '#{factory_method.id}' within '#{factory_class}' does not exist." unless factory_class.class.has_method? factory_method %}
-                {% end %}
-              {% end %}
+                  raise "Failed to register service '#{service_id.id}'. Factory method '#{factory_method.id}' within '#{factory_class}' is an instance method." if factory_class.instance.has_method? factory_method
+                  raise "Failed to register service '#{service_id.id}'. Factory method '#{factory_method.id}' within '#{factory_class}' does not exist." unless factory_class.class.has_method? factory_method
+                end
+              %}
 
               {%
-                initializer = if f = factory
-                                (f.first).class.methods.find(&.name.==(f[1]))
-                              elsif class_initializer = klass.class.methods.find(&.annotation(ADI::Inject))
-                                # Class methods with ADI::Inject should act as a factory.
-                                factory = {klass, class_initializer.name.stringify}
-
-                                class_initializer
-                              elsif specific_initializer = klass.methods.find(&.annotation(ADI::Inject))
-                                specific_initializer
-                              else
-                                klass.methods.find(&.name.==("initialize"))
-                              end
-
-                # If no initializer was resolved, assume it's the default argless constructor.
-                initializer_args = (i = initializer) ? i.args : [] of Nil
-                parameters = {} of Nil => Nil
-
-                initializer_args.each_with_index do |initializer_arg, idx|
-                  default_value = nil
-                  value = nil
-
-                  # Set the value of this parameter, but don't mark it as resolved as it could be overridden.
-                  if !(dv = initializer_arg.default_value).is_a?(Nop)
-                    default_value = value = dv
-                  end
-
-                  parameters[initializer_arg.name.id.stringify] = {
-                    arg:                  initializer_arg,
-                    name:                 initializer_arg.name.stringify,
-                    idx:                  idx,
-                    internal_name:        initializer_arg.internal_name.stringify,
-                    restriction:          initializer_arg.restriction,
-                    resolved_restriction: ((r = initializer_arg.restriction).is_a?(Nop) ? nil : r.resolve),
-                    default_value:        default_value,
-                    value:                value || default_value,
-                  }
-                end
-
                 SERVICE_HASH[service_id] = {
                   class:             klass.resolve,
                   class_ann:         ann,
@@ -87,30 +57,9 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
                   decorated_service: nil,
                   bindings:          {} of Nil => Nil,
                   generics:          [] of Nil,
-                  parameters:        parameters,
+                  parameters:        {} of Nil => Nil,
+                  aliases:           ann[:alias],
                 }
-
-                if al = ann[:alias]
-                  aliases = al.is_a?(ArrayLiteral) ? al : [al]
-
-                  aliases.each do |a|
-                    id_key = a.resolve.name.gsub(/::/, "_").underscore
-                    alias_service_id = id_key.is_a?(StringLiteral) ? id_key : id_key.stringify
-
-                    SERVICE_HASH[a.resolve] = {
-                      class:      klass.resolve,
-                      class_ann:  ann,
-                      tags:       {} of Nil => Nil,
-                      parameters: parameters,
-                      bindings:   {} of Nil => Nil,
-                      generics:   [] of Nil,
-
-                      alias_service_id:   alias_service_id,
-                      aliased_service_id: service_id,
-                      alias:              true,
-                    }
-                  end
-                end
               %}
             {% end %}
           {% end %}
