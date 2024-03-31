@@ -42,8 +42,8 @@ module Regex::PCRE2
   private def match_data(str, byte_index, options)
     match_data = self.match_data
 
-    # CUSTOMIZE - Leverage JIT mode if possible
-    match_count = if @force_jit
+    # CUSTOMIZE - Leverage JIT Fast Path mode if available
+    match_count = if @jit && @force_jit
                     LibPCRE2.jit_match(@re, str, str.bytesize, byte_index, pcre2_match_options(options), match_data, PCRE2.match_context)
                   else
                     LibPCRE2.match(@re, str, str.bytesize, byte_index, pcre2_match_options(options), match_data, PCRE2.match_context)
