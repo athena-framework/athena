@@ -18,7 +18,7 @@ describe ATH::Bundle, tags: "compiled" do
   describe ATH::Listeners::CORS do
     it "wildcard allow_headers with allow_credentials" do
       assert_error "'expose_headers' cannot contain a wildcard ('*') when 'allow_credentials' is 'true'.", <<-CODE
-          ADI.configure({
+          ATH.configure({
             framework: {
               cors: {
                 enabled:  true,
@@ -41,7 +41,7 @@ describe ATH::Bundle, tags: "compiled" do
     # TODO: Is there a better way to test bundle extension logic?
     it "correctly wires up the listener based on its configuration" do
       assert_success <<-CODE, codegen: true
-          ADI.configure({
+          ATH.configure({
             framework: {
               cors: {
                 enabled:  true,

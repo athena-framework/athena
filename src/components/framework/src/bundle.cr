@@ -36,7 +36,7 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
       # ### Example
       #
       # ```
-      # ADI.configure({
+      # ATH.configure({
       #   framework: {
       #     format_listener: {
       #       enabled: true,
@@ -207,13 +207,9 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
 
               SERVICE_HASH["athena_framework_listeners_cors"] = {
                 class:      ATH::Listeners::CORS,
-                tags:       {} of Nil => Nil,
-                bindings:   {} of Nil => Nil,
-                generics:   [] of Nil,
-                public:     false,
                 parameters: {
                   # TODO: Consider having some other service responsible for resolving the config obj
-                  config: {value: config.id, name: "config"},
+                  config: {value: config.id},
                 },
               }
             end
@@ -232,30 +228,23 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
 
             SERVICE_HASH[router_id = "default_router"] = {
               class:      ATH::Routing::Router,
-              tags:       {} of Nil => Nil,
-              bindings:   {} of Nil => Nil,
-              generics:   [] of Nil,
-              public:     false,
+              aliases:    [ART::Generator::Interface, ART::Matcher::URLMatcherInterface, ART::RouterInterface],
               parameters: {
-                default_locale:      {value: "%framework.default_locale%", name: "default_locale", resolved_restriction: String?},
-                strict_requirements: {value: cfg["strict_requirements"], name: "strict_requirements"},
-                request_context:     {value: nil, name: "request_context", resolved_restriction: ART::RequestContext?},
+                default_locale:      {value: "%framework.default_locale%"},
+                strict_requirements: {value: cfg["strict_requirements"]},
+                request_context:     {value: nil},
               },
             }
 
             SERVICE_HASH[request_context_id = "athena_routing_request_context"] = {
               class:      ART::RequestContext,
               factory:    {ART::RequestContext, "from_uri"},
-              tags:       {} of Nil => Nil,
-              bindings:   {} of Nil => Nil,
-              generics:   [] of Nil,
-              public:     false,
               parameters: {
-                uri:        {value: "%framework.router.request_context.base_url%", name: "uri"},
-                host:       {value: "%framework.router.request_context.host%", name: "host"},
-                scheme:     {value: "%framework.router.request_context.scheme%", name: "scheme"},
-                http_port:  {value: "%framework.request_listener.http_port%", name: "http_port"},
-                https_port: {value: "%framework.request_listener.https_port%", name: "https_port"},
+                uri:        {value: "%framework.router.request_context.base_url%"},
+                host:       {value: "%framework.router.request_context.host%"},
+                scheme:     {value: "%framework.router.request_context.scheme%"},
+                http_port:  {value: "%framework.request_listener.http_port%"},
+                https_port: {value: "%framework.request_listener.https_port%"},
               },
             }
 
@@ -263,7 +252,6 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
               SERVICE_HASH[request_context_id]["parameters"]["uri"]["value"] = default_uri
             end
           %}
-
 
           # Format Listener
           {%

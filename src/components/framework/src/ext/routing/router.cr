@@ -1,5 +1,4 @@
 # :nodoc:
-@[ADI::Register(alias: [ART::Generator::Interface, ART::Matcher::URLMatcherInterface, ART::RouterInterface])]
 class Athena::Framework::Routing::Router < Athena::Routing::Router
   getter matcher : ART::Matcher::URLMatcherInterface do
     ATH::Routing::RedirectableURLMatcher.new(@context)
