@@ -8,7 +8,10 @@ end
 
 class Regex
   def self.fast_path(source : String, options : Options = Options::None)
-    new(_source: source, _options: options, _force_jit: true)
+    jit_enabled = 1
+    LibPCRE2.config LibPCRE2::CONFIG_JIT, pointerof(jit_enabled)
+
+    new(_source: source, _options: options, _force_jit: !jit_enabled.zero?)
   end
 end
 
@@ -42,7 +45,7 @@ module Regex::PCRE2
   private def match_data(str, byte_index, options)
     match_data = self.match_data
 
-    # CUSTOMIZE - Leverage JIT mode if possible
+    # CUSTOMIZE - Leverage JIT Fast Path mode if available
     match_count = if @force_jit
                     LibPCRE2.jit_match(@re, str, str.bytesize, byte_index, pcre2_match_options(options), match_data, PCRE2.match_context)
                   else
