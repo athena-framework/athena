@@ -42,6 +42,8 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
           EXTENSION_SCHEMA_PROPERTIES_MAP.each do |ext_name, schema_properties|
             user_provided_extension_config = CONFIG[ext_name]
 
+            schema_member_map_prop_cache = {} of Nil => Nil
+
             schema_properties.each do |(prop, ext_path)|
               user_provided_extension_config_for_current_property = user_provided_extension_config
 
@@ -92,7 +94,10 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                       elsif cfv.is_a?(RegexLiteral)
                                         Regex
                                       elsif cfv.is_a?(ArrayLiteral)
-                                        if member_map = prop["members"]
+                                        # Because each value to resolve has the same `prop`, we only want to process the prop's members once.
+                                        # Otherwise next iterations cfv will be correct, but the prop_type will be a named tuple literal.
+                                        if schema_member_map_prop_cache[prop["name"]] == nil && (member_map = prop["members"])
+                                          schema_member_map_prop_cache[prop["name"]] = true
                                           cfv.each_with_index do |v, v_idx|
                                             values_to_resolve << {member_map, v, stack + [v_idx]}
                                           end
@@ -125,7 +130,10 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                       elsif cfv.is_a?(TypeNode) || cfv.is_a?(HashLiteral)
                                         cfv
                                       elsif cfv.is_a?(NamedTupleLiteral)
-                                        if member_map = prop["members"]
+                                        # Because each value to resolve has the same `prop`, we only want to process the prop's members once.
+                                        # Otherwise next iterations cfv will be correct, but the prop_type will be a named tuple literal.
+                                        if schema_member_map_prop_cache[prop["name"]] == nil && (member_map = prop["members"])
+                                          schema_member_map_prop_cache[prop["name"]] = true
                                           prop_type = member_map
                                         end
 
@@ -203,9 +211,7 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                         nil
                                       end
 
-                      if resolved_type && resolved_type.stringify != "Nop"
-                        values_to_resolve[idx][2] = resolved_type
-
+                      if resolved_type
                         # Handles outer most typing issues.
                         if resolved_type.is_a?(TypeNode) && !(resolved_type <= prop_type)
                           path = "#{stack[0]}"
