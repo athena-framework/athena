@@ -161,3 +161,38 @@ module Athena::DependencyInjection
     {% ADI::ServiceContainer::EXTENSIONS[name.id.stringify] = schema %}
   end
 end
+
+# ADI.bind id, 20
+# ADI.bind name, "Fred"
+
+# # Overrides previous value
+# ADI.bind value, 66
+# ADI.bind value, 88
+
+# # Mixed type
+# ADI.bind value : Float32, 3.14
+# ADI.bind value : Float64, 99.99
+
+# @[ADI::Register(
+#   public: true,
+#   _id: 30,
+# )]
+# class BindingsPriorityClient
+#   def initialize(
+#     @id : Int64,    # Ann has highest priority
+#     @name : String, # Global bind 2nd highest priority
+#     @alive : Bool,  # Autoconfigure lowest priority
+#     @value : Float32
+#   )
+#   end
+# end
+
+# ADI.auto_configure BindingsPriorityClient, {
+#   bind: {
+#     id:    10,
+#     name:  "Jim",
+#     alive: true,
+#   },
+# }
+
+# pp ADI.container.bindings_priority_client

@@ -1,7 +1,7 @@
 # :nodoc:
 #
 # Service bindings overrides those defined globally, but both override autoconfigured bindings.
-module Athena::DependencyInjection::ServiceContainer::ApplyBindings
+module Athena::DependencyInjection::ServiceContainer::ProcessBindings
   macro included
     macro finished
       {% verbatim do %}
@@ -23,14 +23,6 @@ module Athena::DependencyInjection::ServiceContainer::ApplyBindings
                 if key.id == param["arg"].name.id && !set_value
                   # Only set a value if one was not already set via a typed binding
                   definition["bindings"][name.id] = BINDINGS[key]
-                end
-              end
-            end
-
-            if ann = definition["class_ann"]
-              ann.named_args.each do |k, v|
-                if k.starts_with? '_'
-                  definition["bindings"][k[1..-1].id] = v
                 end
               end
             end

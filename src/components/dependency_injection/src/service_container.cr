@@ -30,27 +30,29 @@ class Athena::DependencyInjection::ServiceContainer
     # Global pre-optimization modules
     # Sets up common concepts so that future passes can leverage them
     before_optimization: {
-      100 => [
-        NormalizeDefinitions,
-        RegisterServices,
-        ProcessAliases,
-        ProcessParameters,
-        AutoConfigure,
-        ResolveGenerics,
-      ],
-
       1028 => [
         # Ensure merged configuration is available
         MergeConfigs,
         MergeExtensionConfig,
       ],
+
+      100 => [
+        NormalizeDefinitions,
+        RegisterServices,
+        ProcessAliases,
+        ProcessParameters,
+        ProcessAutoConfigurations,
+        ValidateGenerics,
+      ],
+
     },
 
     # Prepare the services for usage by resolving arguments, parameters, and ensure validity of each service
     optimization: {
       0 => [
         ResolveParameterPlaceholders,
-        ApplyBindings,
+        ProcessBindings,
+        ProcessAnnotationBindings,
         AutoWire,
         ResolveValues,
         ValidateArguments,

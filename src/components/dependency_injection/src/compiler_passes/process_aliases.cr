@@ -14,7 +14,6 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAliases
 
                 SERVICE_HASH[a.resolve] = {
                   class:      definition["class"].resolve,
-                  class_ann:  definition["class_ann"],
                   tags:       {} of Nil => Nil,
                   parameters: definition["parameters"],
                   bindings:   {} of Nil => Nil,
