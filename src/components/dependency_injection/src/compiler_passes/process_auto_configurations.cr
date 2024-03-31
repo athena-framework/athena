@@ -1,5 +1,5 @@
 # :nodoc:
-module Athena::DependencyInjection::ServiceContainer::AutoConfigure
+module Athena::DependencyInjection::ServiceContainer::ProcessAutoConfigurations
   macro included
     macro finished
       {% verbatim do %}
@@ -35,21 +35,14 @@ module Athena::DependencyInjection::ServiceContainer::AutoConfigure
           end
 
           SERVICE_HASH.each do |service_id, definition|
-            # Support missing `class_ann` definition due to manually wired up services.
-            tags = ((ann = definition["class_ann"]) && (ann["tags"])) || [] of Nil
-
-            unless tags.is_a? ArrayLiteral
-              definition["class_ann"].raise "Tags for '#{service_id.id}' must be an 'ArrayLiteral', got '#{tags.class_name.id}'."
-            end
-
-            auto_configuration_tags = nil
+            tags = [] of Nil
 
             AUTO_CONFIGURATIONS.keys.select(&.>=(definition["class"])).each do |key|
               auto_configuration = AUTO_CONFIGURATIONS[key]
 
               if (v = auto_configuration["bind"]) != nil
                 v.each do |k, v|
-                  definition["bindings"][k.id] = v
+                  definition["bindings"][k] = v
                 end
               end
 
@@ -64,17 +57,16 @@ module Athena::DependencyInjection::ServiceContainer::AutoConfigure
               # TODO: Configurator?
             end
 
-            # Process both autoconfiguration tags and normal tags here to keep the logic somewhat centralized.
-
             definition_tags = definition["tags"]
 
+            # TODO: Centralize tag handling logic between AutoConfigure and RegisterServices
             tags.each do |tag|
               name, attributes = if tag.is_a?(StringLiteral)
                                    {tag, {} of Nil => Nil}
                                  elsif tag.is_a?(Path)
                                    {tag.resolve.id.stringify, {} of Nil => Nil}
                                  elsif tag.is_a?(NamedTupleLiteral) || tag.is_a?(HashLiteral)
-                                   tag.raise "Failed to register service '#{service_id.id}'.  All tags must have a name." unless tag[:name]
+                                   tag.raise "Failed to register service '#{service_id.id}'. All tags must have a name." unless tag[:name]
 
                                    # Resolve a constant to its value if used as a tag name
                                    if tag["name"].is_a? Path

@@ -102,7 +102,7 @@ ADI.auto_configure UnusedInterface5, {tags: [{name: "string_unused_tag5"}]}
 @[ADI::Register(_services: "!unused_tag", public: true)]
 record UnusedTagClient, services : Array(UnusedInterface)
 
-describe ADI::ServiceContainer::AutoConfigure do
+describe ADI::ServiceContainer::ProcessAutoConfigurations do
   describe "compiler errors", tags: "compiled" do
     it "errors if the `tags` field is not of a valid type" do
       assert_error "Tags for 'foo' must be an 'ArrayLiteral', got 'NumberLiteral'.", <<-CR
@@ -125,7 +125,7 @@ describe ADI::ServiceContainer::AutoConfigure do
     end
 
     it "errors if not all tags have a `name` field" do
-      assert_error "Failed to register service 'foo'.  All tags must have a name.", <<-CR
+      assert_error "Failed to auto register service 'foo'. All tags must have a name.", <<-CR
         @[ADI::Register(tags: [{priority: 100}])]
         record Foo
       CR

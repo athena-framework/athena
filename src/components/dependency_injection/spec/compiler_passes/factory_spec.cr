@@ -73,7 +73,7 @@ end
 describe ADI::ServiceContainer::RegisterServices do
   describe "compiler errors", tags: "compiled" do
     it "errors if a factory method is an instance method" do
-      assert_error "Failed to register service 'foo'. Factory method 'foo' within 'Foo' is an instance method.", <<-CR
+      assert_error "Failed to auto register service 'foo'. Factory method 'foo' within 'Foo' is an instance method.", <<-CR
         @[ADI::Register(factory: "foo")]
         record Foo do
           def foo; end
@@ -82,7 +82,7 @@ describe ADI::ServiceContainer::RegisterServices do
     end
 
     it "errors if a factory method is missing" do
-      assert_error "Failed to register service 'foo'. Factory method 'foo' within 'Foo' does not exist.", <<-CR
+      assert_error "Failed to auto register service 'foo'. Factory method 'foo' within 'Foo' does not exist.", <<-CR
         @[ADI::Register(factory: "foo")]
         record Foo
       CR
