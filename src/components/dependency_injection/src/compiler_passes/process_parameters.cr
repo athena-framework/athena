@@ -36,7 +36,7 @@ module Athena::DependencyInjection::ServiceContainer::ProcessParameters
 
               # Set the default value is there is one.
               if !(dv = initializer_arg.default_value).is_a?(Nop)
-                default_value = value = dv
+                default_value = dv
               end
 
               parameters[initializer_arg.name.id.stringify] = {
@@ -47,7 +47,7 @@ module Athena::DependencyInjection::ServiceContainer::ProcessParameters
                 restriction:          initializer_arg.restriction,
                 resolved_restriction: ((r = initializer_arg.restriction).is_a?(Nop) ? nil : r.resolve),
                 default_value:        default_value,
-                value:                value || default_value,
+                value:                value.nil? ? default_value : value,
               }
             end
           end
