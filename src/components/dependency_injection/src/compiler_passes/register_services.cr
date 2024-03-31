@@ -10,7 +10,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
           {% if (annotations = klass.annotations(ADI::Register)) && !annotations.empty? && !klass.abstract? %}
             # Raise a compile time exception if multiple services are based on this type, and not all of them specify a `name`.
             {% if annotations.size > 1 && !annotations.all? &.[:name] %}
-              {% klass.raise "Failed to register services for '#{klass}'. Services based on this type must each explicitly provide a name." %}
+              {% klass.raise "Failed to auto register services for '#{klass}'. Services based on this type must each explicitly provide a name." %}
             {% end %}
 
             {% for ann in annotations %}
@@ -40,8 +40,8 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
                 if factory
                   factory_class, factory_method = factory
 
-                  raise "Failed to register service '#{service_id.id}'. Factory method '#{factory_method.id}' within '#{factory_class}' is an instance method." if factory_class.instance.has_method? factory_method
-                  raise "Failed to register service '#{service_id.id}'. Factory method '#{factory_method.id}' within '#{factory_class}' does not exist." unless factory_class.class.has_method? factory_method
+                  raise "Failed to auto register service '#{service_id.id}'. Factory method '#{factory_method.id}' within '#{factory_class}' is an instance method." if factory_class.instance.has_method? factory_method
+                  raise "Failed to auto register service '#{service_id.id}'. Factory method '#{factory_method.id}' within '#{factory_class}' does not exist." unless factory_class.class.has_method? factory_method
                 end
               %}
 
@@ -60,7 +60,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
                                      elsif tag.is_a?(Path)
                                        {tag.resolve.id.stringify, {} of Nil => Nil}
                                      elsif tag.is_a?(NamedTupleLiteral) || tag.is_a?(HashLiteral)
-                                       tag.raise "Failed to register service '#{service_id.id}'.  All tags must have a name." unless tag[:name]
+                                       tag.raise "Failed to auto register service '#{service_id.id}'. All tags must have a name." unless tag[:name]
 
                                        # Resolve a constant to its value if used as a tag name
                                        if tag["name"].is_a? Path
@@ -92,7 +92,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
               # Generic services are somewhat coupled to the annotation, so do a check here in addition to those in `ResolveGenerics`.
               {%
                 if !klass.type_vars.empty? && !ann["name"]
-                  1.raise "Failed to register services for '#{klass}'. Generic services must explicitly provide a name."
+                  ann.raise "Failed to auto register service for '#{klass}'. Generic services must explicitly provide a name."
                 end
               %}
 

@@ -66,7 +66,7 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAutoConfigurations
                                  elsif tag.is_a?(Path)
                                    {tag.resolve.id.stringify, {} of Nil => Nil}
                                  elsif tag.is_a?(NamedTupleLiteral) || tag.is_a?(HashLiteral)
-                                   tag.raise "Failed to register service '#{service_id.id}'.  All tags must have a name." unless tag[:name]
+                                   tag.raise "Failed to register service '#{service_id.id}'. All tags must have a name." unless tag[:name]
 
                                    # Resolve a constant to its value if used as a tag name
                                    if tag["name"].is_a? Path

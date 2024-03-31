@@ -125,7 +125,7 @@ describe ADI::ServiceContainer::ProcessAutoConfigurations do
     end
 
     it "errors if not all tags have a `name` field" do
-      assert_error "Failed to register service 'foo'.  All tags must have a name.", <<-CR
+      assert_error "Failed to auto register service 'foo'. All tags must have a name.", <<-CR
         @[ADI::Register(tags: [{priority: 100}])]
         record Foo
       CR

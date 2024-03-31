@@ -50,7 +50,7 @@ record MultipleAliasService,
 describe ADI::ServiceContainer::RegisterServices do
   describe "compiler errors", tags: "compiled" do
     it "errors if a service has multiple ADI::Register annotations but not all of them have a name" do
-      assert_error "Failed to register services for 'Foo'. Services based on this type must each explicitly provide a name.", <<-CR
+      assert_error "Failed to auto register services for 'Foo'. Services based on this type must each explicitly provide a name.", <<-CR
         @[ADI::Register(name: "one")]
         @[ADI::Register]
         record Foo
