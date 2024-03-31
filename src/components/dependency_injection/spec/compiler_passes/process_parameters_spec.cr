@@ -63,4 +63,40 @@ describe ADI::ServiceContainer::ProcessParameters, tags: "compiled" do
       end
     CR
   end
+
+  it "does not override value of manually wired up parameters with default value" do
+    ASPEC::Methods.assert_success <<-CR, codegen: true
+      require "../spec_helper.cr"
+
+      class SomeService
+        def initialize(@id : Int32 = 123); end
+      end
+
+      module MyExtension
+        macro included
+          macro finished
+            {% verbatim do %}
+              {%
+                SERVICE_HASH["some_service"] = {
+                  class: SomeService,
+                  parameters: {
+                    id: {value: 999}
+                  }
+                }
+              %}
+            {% end %}
+          end
+        end
+      end
+
+      ADI.add_compiler_pass MyExtension, :before_optimization, 1028
+      ADI::ServiceContainer.new
+
+      macro finished
+        macro finished
+          it { \\{{ADI::ServiceContainer::SERVICE_HASH["some_service"]["parameters"]["id"]["value"].stringify}}.should eq "999" }
+        end
+      end
+    CR
+  end
 end
