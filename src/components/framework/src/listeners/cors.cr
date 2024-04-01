@@ -1,4 +1,3 @@
-@[ADI::Register]
 # Supports [Cross-Origin Resource Sharing](https://enable-cors.org) (CORS) requests.
 #
 # Handles CORS preflight `OPTIONS` requests as well as adding CORS headers to each response.
@@ -8,6 +7,7 @@
 struct Athena::Framework::Listeners::CORS
   include AED::EventListenerInterface
 
+  # :nodoc:
   struct Config
     getter? allow_credentials : Bool
     getter allow_origin : Array(String | Regex)
@@ -24,11 +24,6 @@ struct Athena::Framework::Listeners::CORS
       @expose_headers : Array(String) = [] of String,
       @max_age : Int32 = 0
     )
-      # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Expose-Headers
-      # if @allow_credentials && @expose_headers.includes? "*"
-      #   raise ArgumentError.new "expose_headers cannot contain a wildcard ('*') when allow_credentials is 'true'."
-      # end
-
       @allow_origin = allow_origin.map &.as String | Regex
     end
   end
@@ -63,7 +58,7 @@ struct Athena::Framework::Listeners::CORS
   private EXPOSE_HEADERS_HEADER    = "access-control-expose-headers"
   private MAX_AGE_HEADER           = "access-control-max-age"
 
-  def initialize(@config : ATH::Listeners::CORS::Config = ATH::Listeners::CORS::Config.new); end
+  protected def initialize(@config : ATH::Listeners::CORS::Config = ATH::Listeners::CORS::Config.new); end
 
   @[AEDA::AsEventListener(priority: 250)]
   def on_request(event : ATH::Events::Request) : Nil

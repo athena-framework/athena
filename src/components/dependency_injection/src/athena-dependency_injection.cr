@@ -130,13 +130,27 @@ module Athena::DependencyInjection
     Fiber.current.container
   end
 
+  # Namespace for DI extension related types.
+  module Extension; end
+
+  # Primary entrypoint for configuring `ADI::Extension::Schema`s.
   macro configure(config)
     {%
       CONFIGS << config
     %}
   end
 
-  # :nodoc:
+  # Adds a compiler *pass*, optionally of a specific *type* and *priority* (default `0`).
+  #
+  # Valid types include:
+  #
+  # * `:before_optimization` (default)
+  # * `:optimization`
+  # * `:before_removing`
+  # * `:after_removing`
+  # * `:removing`
+  #
+  # EXPERIMENTAL: This feature is intended for internal/advanced use and, for now, comes with limited public documentation.
   macro add_compiler_pass(pass, type = nil, priority = nil)
     {%
       pass_type = pass.resolve
@@ -156,7 +170,7 @@ module Athena::DependencyInjection
     %}
   end
 
-  # :nodoc:
+  # Registers an extension `ADI::Extension::Schema` with the provided *name*.
   macro register_extension(name, schema)
     {% ADI::ServiceContainer::EXTENSIONS[name.id.stringify] = schema %}
   end

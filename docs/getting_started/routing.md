@@ -257,6 +257,11 @@ end
 ## URL Generation
 
 A common use case, especially when rendering `HTML`, is generating links to other routes based on a set of provided parameters.
+When in the context of a request, the scheme and hostname of a [ART::Generator::ReferenceType::ABSOLUTE_URL](/Routing/Generator/ReferenceType/#Athena::Routing::Generator::ReferenceType::ABSOLUTE_URL) defaults to `http` and `localhost` respectively, if they could not be extracted from the request.
+
+### In Controllers
+
+The parent [ATH::Controller](/Framework/Controller) type provides some helper methods for generating URLs within the context of a controller.
 
 ```crystal
 require "athena"
@@ -291,9 +296,48 @@ ATH.run
 # GET / # => 10
 ```
 
-When a route is generated in the context of a request, the scheme and hostname of a [ART::Generator::ReferenceType::ABSOLUTE_URL](/Routing/Generator/ReferenceType/#Athena::Routing::Generator::ReferenceType::ABSOLUTE_URL) defaults to `http` and `localhost` respectively, if they could not be extracted from the request.
-However, in cases where there is no request to use, such as within an [ACON::Command](/Console/Command), `http://localhost/` would always be the scheme and hostname of the generated URL.
-[ATH::Parameters.configure](/Framework/Parameters/#Athena::Framework::Parameters.configure) can be used to customize this, as well as define a global path prefix when generating the URLs.
+NOTE: Passing arguments to `#generate_url` that are not part of the route definition are included within the query string of the generated URL.
+```crystal
+self.generate_url "blog", page: 2, category: "Crystal"
+# The "blog" route only defines the "page" parameter; the generated URL is:
+# /blog/2?category=Crystal
+```
+
+### In Services
+
+A service can define a constructor parameter typed as [ART::Generator::Interface](/Routing/Generator/Interface) in order to obtain the `router` service:
+
+```crystal
+@[ADI::Register]
+class SomeService
+  def initialize(@url_generator : ART::Generator::Interface); end
+
+  def some_method : Nil
+    sign_up_page = @url_generator.generate "sign_up"
+
+    # ...
+  end
+end
+```
+
+### In Commands
+
+Generating URLs in [commands](./commands.md) works the same as in a service.
+However, commands are not executed in an HTTP context.
+Because of this, absolute URLs will always generate as `http://localhost/` instead of your actual host name.
+
+The solution to this is to configure the [framework.router.default_uri](/Framework/Bundle/Schema/Router/#Athena::Framework::Bundle::Schema::Router#default_uri) configuration value.
+This'll ensure URLs generated within commands have the proper host.
+
+```crystal
+ATH.configure({
+  framework: {
+    router: {
+      default_uri: "https://example.com/my/path",
+    },
+  },
+})
+```
 
 ## WebSockets
 
@@ -320,31 +364,39 @@ Alternatively, the [Athena::Mercure](/Mercure) component may be used as a replac
 
 As mentioned earlier, controller action responses are JSON serialized if the controller action does _NOT_ return an [ATH::Response](/Framework/Response).
 The [Negotiation](/Negotiation) component enhances the view layer of the Athena Framework by enabling [content negotiation](https://tools.ietf.org/html/rfc7231#section-5.3) support; making it possible to write format agnostic controllers by placing a layer of abstraction between the controller and generation of the final response content.
-Or in other words allow having the same controller action be rendered based on the request's [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) `HTTP` header and the format priority configuration.
+Or in other words, allow having the same controller action be rendered based on the request's [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header and the format priority configuration.
 
 ### Format Priority
 
-The content negotiation logic is disabled by default, but can be easily enabled by redefining [ATH::Config::ContentNegotiation.configure](/Framework/Config/ContentNegotiation/#Athena::Framework::Config::ContentNegotiation.configure) with the desired configuration.
-Content negotiation configuration is represented by an array of [Rule](/Framework/Config/ContentNegotiation/Rule/) used to describe allowed formats, their priorities, and how things should function if a unsupported format is requested.
+The content negotiation logic is disabled by default, but can be easily enabled via the related [bundle configuration](./configuration.md).
+Content negotiation configuration is represented by an array of [rules](/Framework/Bundle/Schema/FormatListener/#Athena::Framework::Bundle::Schema::FormatListener#rules) used to describe allowed formats, their priorities, and how things should function if a unsupported format is requested.
 
 For example, say we configured things like:
 
 ```crystal
-def ATH::Config::ContentNegotiation.configure
-  new(
-    # Setting fallback_format to json means that instead of considering
-    # the next rule in case of a priority mismatch, json will be used.
-    Rule.new(priorities: ["json", "xml"], host: "api.example.com", fallback_format: "json"),
-    # Setting fallback_format to false means that instead of considering
-    # the next rule in case of a priority mismatch, a 406 will be returned.
-    Rule.new(path: /^\/image/, priorities: ["jpeg", "gif"], fallback_format: false),
-    # Setting fallback_format to nil (or not including it) means that
-    # in case of a priority mismatch the next rule will be considered.
-    Rule.new(path: /^\/admin/, priorities: ["xml", "html"]),
-    # Setting a priority to */* basically means any format will be matched.
-    Rule.new(priorities: ["text/html", "*/*"], fallback_format: "html"),
-  )
-end
+ATH.configure({
+  framework: {
+    format_listener: {
+      enabled: true,
+      rules:   [
+        # Setting fallback_format to json means that instead of considering
+        # the next rule in case of a priority mismatch, json will be used.
+        {priorities: ["json", "xml"], host: /api\.example\.com/, fallback_format: "json"},
+
+        # Setting fallback_format to false means that instead of considering
+        # the next rule in case of a priority mismatch, a 406 will be returned.
+        {path: /^\/image/, priorities: ["jpeg", "gif"], fallback_format: false},
+
+        # Setting fallback_format to nil (or not including it) means that
+        # in case of a priority mismatch the next rule will be considered.
+        {path: /^\/admin/, priorities: ["xml", "html"]},
+
+        # Setting a priority to */* basically means any format will be matched.
+        {priorities: ["text/html", "*/*"], fallback_format: "html"},
+      ],
+    },
+  },
+})
 ```
 
 Assuming an `accept` header with the value `text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8,application/json`: a request made to `/foo` from the `api.example.com` hostname; the request format would be `json`. If the request was not made from that hostname; the request format would be `html`. The rules can be as complex or as simple as needed depending on the use case of your application.
@@ -352,18 +404,20 @@ Assuming an `accept` header with the value `text/html,application/xhtml+xml,appl
 ### View Handler
 
 The [ATH::View::ViewHandler](/Framework/View/ViewHandler) is responsible for generating an [ATH::Response](/Framework/Response) in the format determined by the [ATH::Listeners::Format](/Framework/Listeners/Format), otherwise falling back on the request's [format](/Framework/Request/#Athena::Framework::Request#format(mime_type)), defaulting to `json`.
-The view handler has a few configurable options that can be customized if so desired.
-This can be achieved via redefining [Athena::Framework::Config::ViewHandler.configure](/Framework/Config/ViewHandler/#Athena::Framework::Config::ViewHandler.configure).
+The view handler has a options that may also be [configured](./configuration.md) via the [ATH::Bundle::Schema::ViewHandler](/Framework/Bundle/Schema/ViewHandler) schema.
 
 ```crystal
-def ATH::Config::ViewHandler.configure : ATH::Config::ViewHandler
-  new(
-    # The HTTP::Status to use if there is no response body, defaults to 204.
-    empty_content_status: :im_a_teapot,
-    # If `nil` values should be serialized, defaults to false.
-    emit_nil: true
-  )
-end
+ATH.configure({
+  framework: {
+    view_handler: {
+      # The HTTP::Status to use if there is no response body, defaults to 204.
+      empty_content_status: :im_a_teapot,
+
+      # If `nil` values should be serialized, defaults to false.
+      serialize_nil: true
+    },
+  },
+})
 ```
 
 ## Views

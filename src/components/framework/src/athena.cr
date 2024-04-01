@@ -38,7 +38,6 @@ require "./compiler_passes/*"
 require "./events/*"
 require "./exceptions/*"
 require "./listeners/*"
-require "./parameters/*"
 require "./params/*"
 require "./request_matcher/*"
 require "./view/*"
@@ -47,7 +46,6 @@ require "./ext/clock"
 require "./ext/console"
 require "./ext/conversion_types"
 require "./ext/event_dispatcher"
-require "./ext/negotiation"
 require "./ext/routing"
 require "./ext/validator"
 
@@ -222,9 +220,3 @@ module Athena::Framework
 end
 
 ATH.register_bundle ATH::Bundle
-
-ATH.configure({
-  parameters: {
-    "framework.debug": true,
-  },
-})

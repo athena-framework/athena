@@ -12,7 +12,7 @@ module Athena::DependencyInjection::ServiceContainer::ProcessBindings
 
               # Typed binding
               BINDINGS.keys.select(&.is_a?(TypeDeclaration)).each do |key|
-                if key.var.id == param["arg"].name.id && (type = param["resolved_restriction"]) && key.type.resolve >= type
+                if key.var.id == param["name"].id && (type = param["resolved_restriction"]) && key.type.resolve >= type
                   set_value = true
                   definition["bindings"][name.id] = BINDINGS[key]
                 end
@@ -20,7 +20,7 @@ module Athena::DependencyInjection::ServiceContainer::ProcessBindings
 
               # Untyped binding
               BINDINGS.keys.select(&.!.is_a?(TypeDeclaration)).each do |key|
-                if key.id == param["arg"].name.id && !set_value
+                if key.id == param["name"].id && !set_value
                   # Only set a value if one was not already set via a typed binding
                   definition["bindings"][name.id] = BINDINGS[key]
                 end
