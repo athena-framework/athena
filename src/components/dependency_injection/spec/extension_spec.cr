@@ -163,7 +163,7 @@ describe ADI::Extension do
               {{OPTIONS[0]["members"]["stop"].value.stringify}}.should eq "false"
 
               {{CONFIG_DOCS.stringify}}.should eq <<-JSON
-              [{"name":"rule","type":"`NamedTuple(T)`","default":"``","members":[{"name":"id","type":"`Int32`","default":"``","doc":"NONE"},{"name":"stop","type":"`Bool`","default":"`false`","doc":"NONE"}]}] of Nil
+              [{"name":"rule","type":"`NamedTuple(T)`","default":"``","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil
               JSON
             end
           end
@@ -197,7 +197,7 @@ describe ADI::Extension do
               {{OPTIONS[0]["members"]["stop"].value.stringify}}.should eq "false"
 
               {{CONFIG_DOCS.stringify}}.should eq <<-JSON
-              [{"name":"rule","type":"`NamedTuple(T)`","default":"`{id: 999}`","members":[{"name":"id","type":"`Int32`","default":"``","doc":"NONE"},{"name":"stop","type":"`Bool`","default":"`false`","doc":"NONE"}]}] of Nil
+              [{"name":"rule","type":"`NamedTuple(T)`","default":"`{id: 999}`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil
               JSON
             end
           end
@@ -224,7 +224,7 @@ describe ADI::Extension do
               {{OPTIONS[0]["members"]["stop"].value.stringify}}.should eq "false"
 
               {{CONFIG_DOCS.stringify}}.should eq <<-JSON
-              [{"name":"rule","type":"`(NamedTuple(T) | Nil)`","default":"`nil`","members":[{"name":"id","type":"`Int32`","default":"``","doc":"NONE"},{"name":"stop","type":"`Bool`","default":"`false`","doc":"NONE"}]}] of Nil
+              [{"name":"rule","type":"`(NamedTuple(T) | Nil)`","default":"`nil`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil
               JSON
             end
           end
@@ -251,7 +251,7 @@ describe ADI::Extension do
               {{OPTIONS[0]["members"]["stop"].value.stringify}}.should eq "false"
 
               {{CONFIG_DOCS.stringify}}.should eq <<-JSON
-              [{"name":"rule","type":"`(NamedTuple(T) | Nil)`","default":"`{id: 999}`","members":[{"name":"id","type":"`Int32`","default":"``","doc":"NONE"},{"name":"stop","type":"`Bool`","default":"`false`","doc":"NONE"}]}] of Nil
+              [{"name":"rule","type":"`(NamedTuple(T) | Nil)`","default":"`{id: 999}`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil
               JSON
             end
           end
@@ -303,7 +303,7 @@ describe ADI::Extension do
               {{OPTIONS[0]["members"]["stop"].value.stringify}}.should eq "false"
 
               {{CONFIG_DOCS.stringify}}.should eq <<-JSON
-              [{"name":"rules","type":"`Array(T)`","default":"`[{id: 10, stop: true}]`","members":[{"name":"id","type":"`Int32`","default":"``","doc":"NONE"},{"name":"stop","type":"`Bool`","default":"`false`","doc":"NONE"}]}] of Nil
+              [{"name":"rules","type":"`Array(T)`","default":"`[{id: 10, stop: true}]`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil
               JSON
             end
           end
@@ -330,7 +330,7 @@ describe ADI::Extension do
               {{OPTIONS[0]["members"]["stop"].value.stringify}}.should eq "false"
 
               {{CONFIG_DOCS.stringify}}.should eq <<-JSON
-              [{"name":"rules","type":"`(Array(T) | Nil)`","default":"`nil`","members":[{"name":"id","type":"`Int32`","default":"``","doc":"NONE"},{"name":"stop","type":"`Bool`","default":"`false`","doc":"NONE"}]}] of Nil
+              [{"name":"rules","type":"`(Array(T) | Nil)`","default":"`nil`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil
               JSON
             end
           end
