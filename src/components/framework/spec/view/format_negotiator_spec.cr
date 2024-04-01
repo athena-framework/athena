@@ -1,20 +1,27 @@
 require "../spec_helper"
 
+private class MockRequestMatcher
+  include ATH::RequestMatcher::Interface
+
+  def initialize(@matches : Bool); end
+
+  def matches?(request : ATH::Request) : Bool
+    @matches
+  end
+end
+
 struct FormatNegotiatorTest < ASPEC::TestCase
   @request_store : ATH::RequestStore
   @request : ATH::Request
   @negotiator : ATH::View::FormatNegotiator
-  @rules : Array(ATH::View::FormatNegotiator::Rule)
 
   def initialize
     @request_store = ATH::RequestStore.new
     @request = ATH::Request.new "GET", "/"
     @request_store.request = @request
-    @rules = [] of ATH::View::FormatNegotiator::Rule
 
     @negotiator = ATH::View::FormatNegotiator.new(
       @request_store,
-      @rules,
       {"json" => ["application/json;version=1.0"]}
     )
   end
@@ -24,7 +31,7 @@ struct FormatNegotiatorTest < ASPEC::TestCase
   end
 
   def test_best_stop_exception : Nil
-    self.add_rule
+    self.add_rule false
     self.add_rule stop: true
 
     expect_raises ATH::Exceptions::StopFormatListener, "Stopping format listener." do
@@ -77,28 +84,39 @@ struct FormatNegotiatorTest < ASPEC::TestCase
     @negotiator.best("").should eq ANG::Accept.new "application/json"
   end
 
-  def test_best_undesired_path : Nil
-    @request.headers["accept"] = "text/html"
-    @request.path = "/user"
-    self.add_rule priorities: ["html", "json"], fallback_format: "json", path: /^\/admin/
-    @negotiator.best("").should be_nil
+  def test_best_with_prefer_extension : Nil
+    priorities = ["text/html", "application/json"]
+    self.add_rule priorities: priorities, prefer_extension: true
+
+    @request.path = "/file.json"
+
+    # Without extension mime-type in accept header
+
+    @request.headers["accept"] = "text/html; q=1.0"
+    @negotiator.best("").should eq ANG::Accept.new "application/json"
+
+    # With low q extension mime-type in accept header
+
+    @request.headers["accept"] = "text/html; q=1.0, application/json; q=0.1"
+    @negotiator.best("").should eq ANG::Accept.new "application/json"
   end
 
-  def test_best_undesired_method : Nil
-    @request.headers["accept"] = "text/html"
-    @request.method = "POST"
-    self.add_rule priorities: ["html", "json"], fallback_format: "json", methods: ["GET"]
-    @negotiator.best("").should be_nil
+  def test_best_with_prefer_extension_and_unknown_extension : Nil
+    priorities = ["text/html", "application/json"]
+    self.add_rule priorities: priorities, prefer_extension: true
+
+    @request.path = "/file.123456789"
+
+    # Without extension mime-type in accept header
+
+    @request.headers["accept"] = "text/html, application/json"
+    @negotiator.best("").should eq ANG::Accept.new "text/html"
   end
 
-  def test_best_undesired_host : Nil
-    @request.headers["accept"] = "text/html"
-    @request.headers["host"] = "app.domain.com"
-    self.add_rule priorities: ["html", "json"], fallback_format: "json", host: /api\.domain\.com/
-    @negotiator.best("").should be_nil
-  end
+  private def add_rule(match : Bool = true, **args)
+    rule = ATH::View::FormatNegotiator::Rule.new **args
+    matcher = MockRequestMatcher.new match
 
-  private def add_rule(**args)
-    @rules << ATH::View::FormatNegotiator::Rule.new **args
+    @negotiator.add matcher, rule
   end
 end

@@ -1,8 +1,8 @@
-# @[ADI::Register]
 # An extension of `ANG::Negotiator` that supports resolving the format based on an applications `ATH::Config::ContentNegotiation` rules.
 #
 # See the [Getting Started](/getting_started/routing#content-negotiation) docs for more information.
 class Athena::Framework::View::FormatNegotiator < ANG::Negotiator
+  # :nodoc:
   record Rule,
     path : Regex = /^\//,
     host : Regex? = nil,
@@ -12,13 +12,31 @@ class Athena::Framework::View::FormatNegotiator < ANG::Negotiator
     stop : Bool = false,
     prefer_extension : Bool = true
 
-  @options : Array(ATH::View::FormatNegotiator::Rule)
+  @map : Array({ATH::RequestMatcher::Interface, ATH::View::FormatNegotiator::Rule}) = [] of {ATH::RequestMatcher::Interface, ATH::View::FormatNegotiator::Rule}
+
+  # TODO: Handle this via `calls` on the service def
+  protected def self.create(
+    request_store : ATH::RequestStore,
+    map : Array({ATH::RequestMatcher::Interface, ATH::View::FormatNegotiator::Rule}),
+    mime_types : Hash(String, Array(String)) = Hash(String, Array(String)).new
+  ) : self
+    instance = new request_store, mime_types
+
+    map.each do |(matcher, rule)|
+      instance.add matcher, rule
+    end
+
+    instance
+  end
 
   def initialize(
     @request_store : ATH::RequestStore,
-    @options : Array(ATH::View::FormatNegotiator::Rule) = [] of ATH::View::FormatNegotiator::Rule,
     @mime_types : Hash(String, Array(String)) = Hash(String, Array(String)).new
   )
+  end
+
+  protected def add(request_matcher : ATH::RequestMatcher::Interface, rule : Rule) : Nil
+    @map << {request_matcher, rule}
   end
 
   # :inherit:
@@ -27,19 +45,14 @@ class Athena::Framework::View::FormatNegotiator < ANG::Negotiator
     request = @request_store.request
 
     header = header.presence || request.headers["accept"]?
+    extension_header = nil
 
-    @options.each do |rule|
-      # TODO: Abstract request matching logic into a dedicated service.
-      next unless request.path.matches? rule.path
-      if methods = rule.methods
-        next unless methods.includes? request.method
+    @map.each do |(matcher, rule)|
+      next unless matcher.matches? request
+
+      if rule.stop
+        raise ATH::Exceptions::StopFormatListener.new "Stopping format listener."
       end
-
-      if (host_pattern = rule.host) && (hostname = request.hostname)
-        next unless host_pattern.matches? hostname
-      end
-
-      raise ATH::Exceptions::StopFormatListener.new "Stopping format listener." if rule.stop
 
       if priorities.nil? && rule.priorities.nil?
         if fallback_format = rule.fallback_format
@@ -51,14 +64,19 @@ class Athena::Framework::View::FormatNegotiator < ANG::Negotiator
         next
       end
 
-      # TODO: Support using the request path extension to determine the format.
-      # This would require being able to define routes like `/foo.{_format}` first however.
+      if rule.prefer_extension && extension_header.nil?
+        if (extension = Path.new(request.path).extension.lchop '.').presence
+          extension_header = request.mime_type extension
 
-      if header
+          header = %(#{extension_header}; q=2.0#{(h = header.presence) ? ",#{h}" : ""})
+        end
+      end
+
+      if h = header.presence
         # Priorities defined on the rule wont be nil at this point it would have been skipped
         mime_types = self.normalize_mime_types priorities || rule.priorities.not_nil!
 
-        if mime_type = super header, mime_types
+        if mime_type = super h, mime_types
           return mime_type
         end
       end
@@ -71,6 +89,8 @@ class Athena::Framework::View::FormatNegotiator < ANG::Negotiator
         end
       end
     end
+
+    nil
   end
 
   private def normalize_mime_types(priorities : Indexable(String)) : Array(String)

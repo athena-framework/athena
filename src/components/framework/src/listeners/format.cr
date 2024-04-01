@@ -1,6 +1,5 @@
 require "mime"
 
-# @[ADI::Register]
 # Attempts to determine the best format for the current request based on its [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) `HTTP` header
 # and the format priority configuration.
 #

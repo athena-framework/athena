@@ -133,16 +133,27 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
       # See the [Getting Started](/getting_started/routing/#in-commands) docs for more information.
       property default_uri : String? = nil
 
+      # The default HTTP port when generating URLs.
+      # See the [Getting Started](/getting_started/routing/#url-generation) docs for more information.
       property http_port : Int32 = 80
+
+      # The default HTTPS port when generating URLs.
+      # See the [Getting Started](/getting_started/routing/#url-generation) docs for more information.
       property https_port : Int32 = 443
-      property strict_requirements : Bool = true
+
+      # Determines how invalid parameters should be treated when [Generating URLs](/getting_started/routing/#url-generation):
+      #
+      # * `true` - Raise an exception for mismatched requirements.
+      # * `false` - Do not raise an exception, but return an empty string.
+      # * `nil` - Disables checks, returning a URL with possibly invalid parameters.
+      property strict_requirements : Bool? = true
     end
 
     module ViewHandler
       include ADI::Extension::Schema
 
       # If `nil` values should be serialized.
-      property emit_nil : Bool = false
+      property serialize_nil : Bool = false
 
       # The `HTTP::Status` used when there is no response content.
       property empty_content_status : HTTP::Status = :no_content
@@ -226,13 +237,14 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
             parameters["framework.request_listener.http_port"] = cfg["http_port"]
             parameters["framework.request_listener.https_port"] = cfg["https_port"]
 
-            SERVICE_HASH[router_id = "default_router"] = {
+            # TODO: Make this `default_router` with a public alias of `router` instead.
+            SERVICE_HASH[router_id = "router"] = {
               class:      ATH::Routing::Router,
               aliases:    [ART::Generator::Interface, ART::Matcher::URLMatcherInterface, ART::RouterInterface],
+              public:     true,
               parameters: {
                 default_locale:      {value: "%framework.default_locale%"},
                 strict_requirements: {value: cfg["strict_requirements"]},
-                request_context:     {value: nil},
               },
             }
 
@@ -258,8 +270,66 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
             cfg = CONFIG["framework"]["format_listener"]
 
             if cfg["enabled"] && !cfg["rules"].empty?
-              # pp "Yup"
+              matcher_arguments_to_service_id_map = {} of Nil => Nil
+
+              map = [] of Nil
+
+              cfg["rules"].each_with_index do |rule, idx|
+                matcher_id = {rule["path"], rule["host"], rule["methods"], nil}.symbolize
+
+                # Optimization to allow reusing request matcher instances that are common between the rules.
+                if matcher_arguments_to_service_id_map[matcher_id] == nil
+                  matchers = [] of Nil
+
+                  if v = rule["path"]
+                    matchers << "ATH::RequestMatcher::Path.new(#{v})".id
+                  end
+
+                  if v = rule["host"]
+                    matchers << "ATH::RequestMatcher::Host.new(#{v})".id
+                  end
+
+                  if v = rule["methods"]
+                    matchers << "ATH::RequestMatcher::Method.new(#{v})".id
+                  end
+
+                  SERVICE_HASH[matcher_service_id = "framework_view_handler_request_match_#{idx}"] = {
+                    class:      ATH::RequestMatcher,
+                    parameters: {
+                      matchers: {value: "#{matchers} of ATH::RequestMatcher::Interface".id},
+                    },
+                  }
+
+                  matcher_arguments_to_service_id_map[matcher_id] = matcher_service_id
+                else
+                  matcher_service_id = matcher_arguments_to_service_id_map[matcher_id]
+                end
+
+                map << %({#{matcher_service_id.id}, ATH::View::FormatNegotiator::Rule.new(#{rule.double_splat})}).id
+              end
+
+              SERVICE_HASH["athena_framework_listeners_format"] = {
+                class:      ATH::View::FormatNegotiator,
+                factory:    {ATH::View::FormatNegotiator, "create"},
+                parameters: {
+                  map: {value: map.id},
+                },
+              }
             end
+          %}
+
+          # View Handler
+          {%
+            cfg = CONFIG["framework"]["view_handler"]
+
+            SERVICE_HASH["athena_framework_view_view_handler"] = {
+              class:      ATH::View::ViewHandler,
+              parameters: {
+                emit_nil:                 {value: cfg["serialize_nil"]},
+                failed_validation_status: {value: cfg["failed_validation_status"]},
+                empty_content_status:     {value: cfg["empty_content_status"]},
+              },
+            }
           %}
         {% end %}
       end

@@ -46,7 +46,6 @@ require "./ext/clock"
 require "./ext/console"
 require "./ext/conversion_types"
 require "./ext/event_dispatcher"
-require "./ext/negotiation"
 require "./ext/routing"
 require "./ext/validator"
 

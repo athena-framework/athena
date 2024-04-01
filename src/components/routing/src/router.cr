@@ -26,7 +26,7 @@ class Athena::Routing::Router
   def initialize(
     @route_collection : ART::RouteCollection,
     @default_locale : String? = nil,
-    @strict_requirements : Bool = true,
+    @strict_requirements : Bool? = true,
     context : ART::RequestContext? = nil
   )
     @context = context || ART::RequestContext.new

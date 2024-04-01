@@ -6,7 +6,7 @@ class Athena::Framework::Routing::Router < Athena::Routing::Router
 
   def initialize(
     default_locale : String? = nil,
-    strict_requirements : Bool = true,
+    strict_requirements : Bool? = true,
     request_context : ART::RequestContext? = nil
   )
     super(

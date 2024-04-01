@@ -44,7 +44,6 @@ class Athena::DependencyInjection::ServiceContainer
         ProcessAutoConfigurations,
         ValidateGenerics,
       ],
-
     },
 
     # Prepare the services for usage by resolving arguments, parameters, and ensure validity of each service
