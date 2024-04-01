@@ -36,6 +36,7 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAutoConfigurations
 
           SERVICE_HASH.each do |service_id, definition|
             tags = [] of Nil
+            calls = [] of Nil
 
             AUTO_CONFIGURATIONS.keys.select(&.>=(definition["class"])).each do |key|
               auto_configuration = AUTO_CONFIGURATIONS[key]
@@ -52,6 +53,28 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAutoConfigurations
 
               if (v = auto_configuration["tags"]) != nil
                 tags += v
+              end
+
+              if (v = auto_configuration["calls"]) != nil
+                calls = [] of Nil
+
+                v.each do |call|
+                  method = call[0]
+                  args = call[1] || nil
+                  klass = definition["class"]
+
+                  if method.empty?
+                    method.raise "Method name cannot be empty."
+                  end
+
+                  unless klass.resolve.has_method?(method)
+                    method.raise "Failed to auto register service for '#{service_id.id}' (#{klass}). Call references non-existent method '#{method.id}'."
+                  end
+
+                  calls << {method, args || [] of Nil}
+                end
+
+                definition["calls"] = calls
               end
 
               # TODO: Configurator?

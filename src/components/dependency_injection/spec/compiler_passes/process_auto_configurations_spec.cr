@@ -102,17 +102,33 @@ ADI.auto_configure UnusedInterface5, {tags: [{name: "string_unused_tag5"}]}
 @[ADI::Register(_services: "!unused_tag", public: true)]
 record UnusedTagClient, services : Array(UnusedInterface)
 
+module CallInterface; end
+
+ADI.auto_configure CallInterface, {calls: [{"foo", {6}}, {"foo", {3}}, {"foo"}]}
+
+@[ADI::Register(public: true)]
+class CallAutoconfigureClient
+  include CallInterface
+
+  getter values = [] of Int32
+
+  def foo(value : Int32 = 1)
+    @values << value
+  end
+end
+
 describe ADI::ServiceContainer::ProcessAutoConfigurations do
   describe "compiler errors", tags: "compiled" do
-    it "errors if the `tags` field is not of a valid type" do
-      assert_error "Tags for 'foo' must be an 'ArrayLiteral', got 'NumberLiteral'.", <<-CR
+    describe "tags" do
+      it "errors if the `tags` field is not of a valid type" do
+        assert_error "Tags for 'foo' must be an 'ArrayLiteral', got 'NumberLiteral'.", <<-CR
         @[ADI::Register(tags: 123)]
         record Foo
       CR
-    end
+      end
 
-    it "errors if the `tags` field on the auto configuration is not of a valid type" do
-      assert_error "Tags for auto configuration of 'Test' must be an 'ArrayLiteral', got 'NumberLiteral'.", <<-CR
+      it "errors if the `tags` field on the auto configuration is not of a valid type" do
+        assert_error "Tags for auto configuration of 'Test' must be an 'ArrayLiteral', got 'NumberLiteral'.", <<-CR
         module Test; end
 
         ADI.auto_configure Test, {tags: 123}
@@ -122,20 +138,49 @@ describe ADI::ServiceContainer::ProcessAutoConfigurations do
           include Test
         end
       CR
-    end
+      end
 
-    it "errors if not all tags have a `name` field" do
-      assert_error "Failed to auto register service 'foo'. All tags must have a name.", <<-CR
+      it "errors if not all tags have a `name` field" do
+        assert_error "Failed to auto register service 'foo'. All tags must have a name.", <<-CR
         @[ADI::Register(tags: [{priority: 100}])]
         record Foo
       CR
-    end
+      end
 
-    it "errors if not all tags are of the proper type" do
-      assert_error "Tag '100' must be a 'StringLiteral' or 'NamedTupleLiteral', got 'NumberLiteral'.", <<-CR
+      it "errors if not all tags are of the proper type" do
+        assert_error "Tag '100' must be a 'StringLiteral' or 'NamedTupleLiteral', got 'NumberLiteral'.", <<-CR
         @[ADI::Register(tags: [100])]
         record Foo
       CR
+      end
+    end
+
+    describe "calls" do
+      it "errors if the method of a call is empty" do
+        assert_error "Method name cannot be empty.", <<-CR
+          module Test; end
+
+          ADI.auto_configure Test, {calls: [{""}]}
+
+          @[ADI::Register]
+          record Foo do
+            include Test
+          end
+        CR
+      end
+
+      it "errors if the method does not exist on the type" do
+        assert_error "Failed to auto register service for 'foo' (Foo). Call references non-existent method 'foo'.", <<-CR
+          module Test; end
+
+          ADI.auto_configure Test, {calls: [{"foo"}]}
+
+          @[ADI::Register]
+          record Foo do
+            include Test
+          end
+        CR
+      end
     end
   end
 
@@ -172,5 +217,9 @@ describe ADI::ServiceContainer::ProcessAutoConfigurations do
 
   it "allows making a service public" do
     ADI.container.auto_configured_public_service.should be_a AutoConfiguredPublicService
+  end
+
+  it "allows defining calls" do
+    ADI.container.call_autoconfigure_client.values.should eq [6, 3, 1]
   end
 end

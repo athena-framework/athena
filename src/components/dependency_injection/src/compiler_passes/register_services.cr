@@ -96,12 +96,34 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
                 end
               %}
 
+              # Apply calls to the underlying service, validating they exist.
+              {%
+                calls = [] of Nil
+
+                if ann_calls = ann["calls"]
+                  ann_calls.each do |call|
+                    method = call[0]
+                    args = call[1] || nil
+
+                    if method.empty?
+                      method.raise "Method name cannot be empty."
+                    end
+
+                    unless klass.resolve.has_method?(method)
+                      method.raise "Failed to auto register service for '#{service_id.id}' (#{klass}). Call references non-existent method '#{method.id}'."
+                    end
+
+                    calls << {method, args || [] of Nil}
+                  end
+                end
+              %}
+
               {%
                 SERVICE_HASH[service_id] = {
                   class:             klass.resolve,
                   factory:           factory,
                   shared:            klass.class?,
-                  calls:             [] of Nil,
+                  calls:             calls,
                   configurator:      nil,
                   tags:              definition_tags,
                   public:            ann[:public] == true,
