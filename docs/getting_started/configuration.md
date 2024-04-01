@@ -5,7 +5,7 @@ The [ATH.configure](/Framework/top_level/#Athena::Framework:configure(config)) m
 It is used in conjunction with the related [bundle schema](/Framework/Bundle/Schema/Cors/Defaults/) that defines the possible configuration properties:
 
 ```crystal
-ADI.configure({
+ATH.configure({
   framework: {
     cors: {
       enabled:  true,
@@ -105,8 +105,8 @@ ATH.configure({
     cors: {
       defaults: {
         allow_credentials: true,
-        allow_origin:      ["https://app.example.com"] of String,
-        expose_headers:    ["X-Transaction-ID", "X-Debug-Header"] of String,
+        allow_origin:      ["https://app.example.com"],
+        expose_headers:    ["X-Transaction-ID", "X-Debug-Header"],
       },
     },
   },
@@ -118,7 +118,7 @@ ATH.configure({
   framework: {
     cors: {
       defaults: {
-        expose_headers:    ["X-Transaction-ID"] of String,
+        expose_headers:    ["X-Transaction-ID"],
       },
     },
   },

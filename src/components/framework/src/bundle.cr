@@ -1,9 +1,6 @@
 @[Athena::Framework::Annotations::Bundle("framework")]
 # The Athena Framework Bundle is responsible for integrating the various Athena components into the Athena Framework.
 # This primarily involves wiring up various types as services, and other DI related tasks.
-# However the framework does provide some extensions/customizations unique to the framework itself.
-#
-#
 struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
   # :nodoc:
   PASSES = [
@@ -12,10 +9,13 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
     {Athena::Framework::EventDispatcher::CompilerPasses::RegisterEventListenersPass, :before_removing, nil},
   ]
 
-  # Represents the possible configuration properties, including their name, type, default, and documentation.
+  # Represents the possible properties used to configure and customize Athena Framework features.
+  # See the [Getting Started](/getting_started/configuration) docs for more information.
   module Schema
     include ADI::Extension::Schema
 
+    # The default locale is used if no [_locale](/Routing/Route/#Athena::Routing::Route--special-parameters) routing parameter has been set.
+    # It is available with the Request::getDefaultLocale method.
     property default_locale : String = "en"
 
     # Configuration related to the `ATH::Listeners::Format` listener.

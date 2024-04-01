@@ -374,14 +374,14 @@ Content negotiation configuration is represented by an array of [rules](/Framewo
 For example, say we configured things like:
 
 ```crystal
-ADI.configure({
+ATH.configure({
   framework: {
     format_listener: {
       enabled: true,
       rules:   [
         # Setting fallback_format to json means that instead of considering
         # the next rule in case of a priority mismatch, json will be used.
-        {priorities: ["json", "xml"], host: "api.example.com", fallback_format: "json"},
+        {priorities: ["json", "xml"], host: /api\.example\.com/, fallback_format: "json"},
 
         # Setting fallback_format to false means that instead of considering
         # the next rule in case of a priority mismatch, a 406 will be returned.
@@ -407,14 +407,17 @@ The [ATH::View::ViewHandler](/Framework/View/ViewHandler) is responsible for gen
 The view handler has a options that may also be [configured](./configuration.md) via the [ATH::Bundle::Schema::ViewHandler](/Framework/Bundle/Schema/ViewHandler) schema.
 
 ```crystal
-def ATH::Config::ViewHandler.configure : ATH::Config::ViewHandler
-  new(
-    # The HTTP::Status to use if there is no response body, defaults to 204.
-    empty_content_status: :im_a_teapot,
-    # If `nil` values should be serialized, defaults to false.
-    emit_nil: true
-  )
-end
+ATH.configure({
+  framework: {
+    view_handler: {
+      # The HTTP::Status to use if there is no response body, defaults to 204.
+      empty_content_status: :im_a_teapot,
+
+      # If `nil` values should be serialized, defaults to false.
+      serialize_nil: true
+    },
+  },
+})
 ```
 
 ## Views
