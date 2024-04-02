@@ -4,30 +4,12 @@
 class Athena::Framework::View::FormatNegotiator < ANG::Negotiator
   # :nodoc:
   record Rule,
-    path : Regex = /^\//,
-    host : Regex? = nil,
-    methods : Array(String)? = nil,
     priorities : Array(String)? = nil,
     fallback_format : String | Bool | Nil = false,
     stop : Bool = false,
     prefer_extension : Bool = true
 
   @map : Array({ATH::RequestMatcher::Interface, ATH::View::FormatNegotiator::Rule}) = [] of {ATH::RequestMatcher::Interface, ATH::View::FormatNegotiator::Rule}
-
-  # TODO: Handle this via `calls` on the service def
-  protected def self.create(
-    request_store : ATH::RequestStore,
-    map : Array({ATH::RequestMatcher::Interface, ATH::View::FormatNegotiator::Rule}),
-    mime_types : Hash(String, Array(String)) = Hash(String, Array(String)).new
-  ) : self
-    instance = new request_store, mime_types
-
-    map.each do |(matcher, rule)|
-      instance.add matcher, rule
-    end
-
-    instance
-  end
 
   def initialize(
     @request_store : ATH::RequestStore,
