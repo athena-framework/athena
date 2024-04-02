@@ -314,9 +314,8 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
               end
 
               SERVICE_HASH["athena_framework_listeners_format"] = {
-                class:   ATH::View::FormatNegotiator,
-                factory: {ATH::View::FormatNegotiator, "create"},
-                calls:   calls,
+                class: ATH::View::FormatNegotiator,
+                calls: calls,
               }
             end
           %}
