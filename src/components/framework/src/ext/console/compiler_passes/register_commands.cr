@@ -54,9 +54,9 @@ module Athena::Framework::Console::CompilerPasses::RegisterCommands
 
               SERVICE_HASH[lazy_service_id = "_#{service_id.id}_lazy"] = {
                 class:      "ACON::Commands::Lazy",
-                ivar_type:  "ACON::Commands::Lazy",
                 tags:       [] of Nil,
                 generics:   [] of Nil,
+                calls:      [] of Nil,
                 public:     false,
                 parameters: {
                   name:        {value: command_name},
@@ -73,9 +73,9 @@ module Athena::Framework::Console::CompilerPasses::RegisterCommands
 
           SERVICE_HASH[loader_id = "athena_console_command_loader_container"] = {
             class:      "Athena::Framework::Console::ContainerCommandLoaderLocator",
-            ivar_type:  "Athena::Framework::Console::ContainerCommandLoaderLocator",
             tags:       [] of Nil,
             generics:   [] of Nil,
+            calls:      [] of Nil,
             public:     false,
             parameters: {
               container: {value: "self".id},
@@ -84,9 +84,9 @@ module Athena::Framework::Console::CompilerPasses::RegisterCommands
 
           SERVICE_HASH[command_loader_service_id = "athena_console_command_loader"] = {
             class:      Athena::Framework::Console::ContainerCommandLoader,
-            ivar_type:  Athena::Framework::Console::ContainerCommandLoader,
             tags:       [] of Nil,
             generics:   [] of Nil,
+            calls:      [] of Nil,
             public:     false,
             parameters: {
               command_map: {value: "#{command_map} of String => ACON::Command.class".id},
