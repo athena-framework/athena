@@ -22,11 +22,18 @@ module Athena::DependencyInjection::ServiceContainer::DefineGetters
               {% if metadata[:alias] %}
                 {{metadata[:aliased_service_id].id}}
               {% else %}
-                {{constructor_service}}.{{constructor_method.id}}({{
-                                                                    metadata["parameters"].map do |name, param|
-                                                                      "#{name.id}: #{param["value"]}".id
-                                                                    end.splat
-                                                                  }})
+                instance = {{constructor_service}}.{{constructor_method.id}}({{
+                                                                               metadata["parameters"].map do |name, param|
+                                                                                 "#{name.id}: #{param["value"]}".id
+                                                                               end.splat
+                                                                             }})
+
+                {% for call in metadata[:calls] %}
+                  {% method, args = call %}
+                  instance.{{method.id}}({{args.splat}})
+                {% end %}
+
+                instance
               {% end %}
             end
 

@@ -1,5 +1,5 @@
 module Athena::DependencyInjection
-  # Registers a service based on the type the annotation is applied to.
+  # Automatically registers a service based on the type the annotation is applied to.
   #
   # The type of the service affects how it behaves within the container.  When a `struct` service is retrieved or injected into a type, it will be a copy of the one in the SC (passed by value).
   # This means that changes made to it in one type, will _NOT_ be reflected in other types.  A `class` service on the other hand will be a reference to the one in the SC.  This allows it
@@ -10,12 +10,11 @@ module Athena::DependencyInjection
   # In most cases, the annotation can be applied without additional arguments.  However, the annotation accepts a handful of optional arguments to fine tune how the service is registered.
   #
   # * `name : String`- The name of the service.  Should be unique.  Defaults to the type's FQN snake cased.
-  # * `public : Bool` - If the service should be directly accessible from the container.  Defaults to `false`.
-  # * `public_alias : Bool` - If a service should be directly accessible from the container via an alias.  Defaults to `false`.
-  # * `alias : T` - Injects `self` when this type is used as a type restriction.  See the Aliasing Services example for more information.
-  # * `tags : Array(String | NamedTuple(name: String, priority: Int32?))` - Tags that should be assigned to the service.  Defaults to an empty array.  See the [Tagging Services][Athena::DependencyInjection::Register--tagging-services] example for more information.
-  # * `type : T` - The type of the service within the container.  Defaults to service's types.  See the [Customizing Service's Type](#customizing-services-type) section.
   # * `factory : String | Tuple(T, String)` - Use a factory type/method to create the service.  See the [Factories](#factories) section.
+  # * `public : Bool` - If the service should be directly accessible from the container.  Defaults to `false`.
+  # * `alias : Array(T)` - Injects `self` when any of these types are used as a type restriction.  See the Aliasing Services example for more information.
+  # * `tags : Array(String | NamedTuple(name: String, priority: Int32?))` - Tags that should be assigned to the service.  Defaults to an empty array.  See the [Tagging Services][Athena::DependencyInjection::Register--tagging-services] example for more information.
+  # * `calls : Array(Tuple(String, Tuple(T)))` - Calls that should be made on the service after its instantiated.
   #
   # ## Examples
   #
@@ -60,7 +59,7 @@ module Athena::DependencyInjection
   #   abstract def transform(value : String) : String
   # end
   #
-  # @[ADI::Register(alias: TransformerInterface)]
+  # @[ADI::Register(alias: [TransformerInterface])]
   # # Alias the `TransformerInterface` to this service.
   # struct ShoutTransformer
   #   include TransformerInterface
@@ -197,6 +196,28 @@ module Athena::DependencyInjection
   # While tagged services cannot be injected automatically by default, the `Athena::DependencyInjection.bind` macro can be used to support it.  For example: `ADI.bind partners, "!partner"`.
   # This would now inject all services with the `partner` tagged when an argument named `partners` is encountered.
   # A type restriction can also be added to the binding to allow reusing the name.  See the documentation for `Athena::DependencyInjection.bind` for an example.
+  #
+  # ### Service Calls
+  #
+  # Service calls can be defined that will call a specific method on the service, with a set of arguments.
+  # Use cases for this are generally not all that common, but can sometimes be useful.
+  #
+  # ```
+  # @[ADI::Register(public: true, calls: [
+  #   {"foo"},
+  #   {"foo", {3}},
+  #   {"foo", {6}},
+  # ])]
+  # class CallClient
+  #   getter values = [] of Int32
+  #
+  #   def foo(value : Int32 = 1)
+  #     @values << value
+  #   end
+  # end
+  #
+  # ADI.container.call_client.values # => [1, 3, 6]
+  # ```
   #
   # ### Service Proxies
   #
@@ -416,32 +437,6 @@ module Athena::DependencyInjection
   #
   # ADI.container.tuple_factory_service.value # => 30
   # ```
-  #
-  # ### Customizing Service's Type
-  #
-  # By default when a service is registered, it is typed the same as the service, for example:
-  #
-  # ```
-  # @[ADI::Register]
-  # class MyService; end
-  # ```
-  #
-  # This service is essentially represented in the service container as `@my_service : MyService`.
-  # This is usually fine for most services, however there are some cases where the service's type should not be the concrete implementation.
-  # An example of this is if that service should be mockable in a test setting.  Mockable services should be typed to an interface that they implement
-  # in order to allow mock implementations to be used if needed.
-  #
-  # ```
-  # module SomeInterface; end
-  #
-  # @[ADI::Register(type: SomeInterface)]
-  # class MyService
-  #   include SomeInterface
-  # end
-  # ```
-  #
-  # By specifying the `type` as `SomeInterface`, this changes the services representation in the service container to `@my_service : SomeInterface`,
-  # thus allowing the exact implementation to be changed.  See `ADI::Spec::MockableServiceContainer` for more details.
   annotation Register; end
 
   # Specifies which constructor should be used for injection.

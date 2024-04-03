@@ -272,7 +272,7 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
             if cfg["enabled"] && !cfg["rules"].empty?
               matcher_arguments_to_service_id_map = {} of Nil => Nil
 
-              map = [] of Nil
+              calls = [] of Nil
 
               cfg["rules"].each_with_index do |rule, idx|
                 matcher_id = {rule["path"], rule["host"], rule["methods"], nil}.symbolize
@@ -305,15 +305,17 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
                   matcher_service_id = matcher_arguments_to_service_id_map[matcher_id]
                 end
 
-                map << %({#{matcher_service_id.id}, ATH::View::FormatNegotiator::Rule.new(#{rule.double_splat})}).id
+                calls << {"add", {matcher_service_id.id, "ATH::View::FormatNegotiator::Rule.new(
+                  stop: #{rule["stop"]},
+                  priorities: #{rule["priorities"]},
+                  prefer_extension: #{rule["prefer_extension"]},
+                  fallback_format: #{rule["fallback_format"]}
+                )".id}}
               end
 
               SERVICE_HASH["athena_framework_listeners_format"] = {
-                class:      ATH::View::FormatNegotiator,
-                factory:    {ATH::View::FormatNegotiator, "create"},
-                parameters: {
-                  map: {value: map.id},
-                },
+                class: ATH::View::FormatNegotiator,
+                calls: calls,
               }
             end
           %}
