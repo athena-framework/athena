@@ -50,11 +50,14 @@ record ProxyTagClient, services : Array(ADI::Proxy(FeedPartner))
 
 OTHER_TAG = "foo.bar"
 
+@[ADI::Autoconfigure(tags: [OTHER_TAG])]
 module Test; end
 
+@[ADI::Autoconfigure(public: true)]
 module PublicService; end
 
 @[ADI::Register]
+@[ADI::Autoconfigure(tags: ["config"])]
 class MultipleTags
   include Test
 end
@@ -63,10 +66,6 @@ end
 class SingleTag
   include Test
 end
-
-ADI.auto_configure MultipleTags, {tags: ["config"]}
-ADI.auto_configure Test, {tags: [OTHER_TAG]}
-ADI.auto_configure PublicService, {public: true}
 
 @[ADI::Register(_services: "!foo.bar", public: true)]
 record OtherTagClient, services : Array(Test)
@@ -83,28 +82,26 @@ STRING_UNUSED_TAG2 = "string_unused_tag2"
 STRING_UNUSED_TAG3 = "string_unused_tag3"
 STRING_UNUSED_TAG4 = "string_unused_tag4"
 
+@[ADI::Autoconfigure(tags: ["unused_tag"])]
 module UnusedInterface; end
 
+@[ADI::Autoconfigure(tags: [STRING_UNUSED_TAG2])]
 module UnusedInterface2; end
 
+@[ADI::Autoconfigure(tags: STRING_UNUSED_TAG3)]
 module UnusedInterface3; end
 
+@[ADI::Autoconfigure(tags: [{name: STRING_UNUSED_TAG4}])]
 module UnusedInterface4; end
 
+@[ADI::Autoconfigure(tags: [{name: "string_unused_tag5"}])]
 module UnusedInterface5; end
-
-ADI.auto_configure UnusedInterface, {tags: ["unused_tag"]}
-ADI.auto_configure UnusedInterface2, {tags: [STRING_UNUSED_TAG2]}
-ADI.auto_configure UnusedInterface3, {tags: STRING_UNUSED_TAG3}
-ADI.auto_configure UnusedInterface4, {tags: [{name: STRING_UNUSED_TAG4}]}
-ADI.auto_configure UnusedInterface5, {tags: [{name: "string_unused_tag5"}]}
 
 @[ADI::Register(_services: "!unused_tag", public: true)]
 record UnusedTagClient, services : Array(UnusedInterface)
 
+@[ADI::Autoconfigure(calls: [{"foo", {6}}, {"foo", {3}}, {"foo"}])]
 module CallInterface; end
-
-ADI.auto_configure CallInterface, {calls: [{"foo", {6}}, {"foo", {3}}, {"foo"}]}
 
 @[ADI::Register(public: true)]
 class CallAutoconfigureClient
@@ -117,7 +114,7 @@ class CallAutoconfigureClient
   end
 end
 
-describe ADI::ServiceContainer::ProcessAutoConfigurations do
+describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
   describe "compiler errors", tags: "compiled" do
     describe "tags" do
       it "errors if the `tags` field is not of a valid type" do
@@ -129,9 +126,8 @@ describe ADI::ServiceContainer::ProcessAutoConfigurations do
 
       it "errors if the `tags` field on the auto configuration is not of a valid type" do
         assert_error "Tags for auto configuration of 'Test' must be an 'ArrayLiteral', got 'NumberLiteral'.", <<-CR
+        @[ADI::Autoconfigure(tags: 123)]
         module Test; end
-
-        ADI.auto_configure Test, {tags: 123}
 
         @[ADI::Register]
         record Foo do
@@ -158,9 +154,8 @@ describe ADI::ServiceContainer::ProcessAutoConfigurations do
     describe "calls" do
       it "errors if the method of a call is empty" do
         assert_error "Method name cannot be empty.", <<-CR
+          @[ADI::Autoconfigure(calls: [{""}])]
           module Test; end
-
-          ADI.auto_configure Test, {calls: [{""}]}
 
           @[ADI::Register]
           record Foo do
@@ -171,9 +166,8 @@ describe ADI::ServiceContainer::ProcessAutoConfigurations do
 
       it "errors if the method does not exist on the type" do
         assert_error "Failed to auto register service for 'foo' (Foo). Call references non-existent method 'foo'.", <<-CR
+          @[ADI::Autoconfigure(calls: [{"foo"}])]
           module Test; end
-
-          ADI.auto_configure Test, {calls: [{"foo"}]}
 
           @[ADI::Register]
           record Foo do

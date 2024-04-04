@@ -41,7 +41,7 @@ class Athena::DependencyInjection::ServiceContainer
         RegisterServices,
         ProcessAliases,
         ProcessParameters,
-        ProcessAutoConfigurations,
+        ProcessAutoconfigureAnnotations,
         ValidateGenerics,
       ],
     },

@@ -34,10 +34,8 @@ module Athena::DependencyInjection::ServiceContainer::ResolveValues
               elsif unresolved_value.is_a?(StringLiteral) && unresolved_value.starts_with?('!')
                 tag_name = unresolved_value[1..]
 
-                unresolved_value.raise "Failed to register service '#{service_id.id}'. Argument '#{param["arg"]}' references undefined tag '#{tag_name.id}'." unless TAG_HASH[tag_name]
-
                 # Sort based on tag priority.  Services without a priority will be last in order of definition
-                tagged_services = TAG_HASH[tag_name].sort_by { |(_tmp, attributes)| -(attributes["priority"] || 0) }
+                tagged_services = (TAG_HASH[tag_name] || [] of Nil).sort_by { |(_tmp, attributes)| -(attributes["priority"] || 0) }
 
                 if param["resolved_restriction"].type_vars.first.resolve < ADI::Proxy
                   tagged_services = tagged_services.map do |(id, attributes)|

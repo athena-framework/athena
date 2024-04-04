@@ -1,4 +1,12 @@
 module Athena::DependencyInjection
+  # tags
+  # calls
+  # bind
+  # public
+  # constructor
+  annotation Autoconfigure; end
+  annotation AutoconfigureTag; end
+
   # Automatically registers a service based on the type the annotation is applied to.
   #
   # The type of the service affects how it behaves within the container.  When a `struct` service is retrieved or injected into a type, it will be a copy of the one in the SC (passed by value).

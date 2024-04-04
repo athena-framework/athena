@@ -29,6 +29,7 @@ end
 record ServicePriorityThree
 
 @[ADI::Register(_ann_bind: 1000, public: true)]
+@[ADI::Autoconfigure(bind: {ann_bind: 800, global_bind: 800, auto_configure_bind: 800})]
 class ValuePriorityService
   getter ann_bind, global_bind, auto_configure_bind, default_value, nilable_type
 
@@ -47,11 +48,11 @@ class ValuePriorityService
   end
 end
 
-ADI.auto_configure ValuePriorityService, {bind: {ann_bind: 800, global_bind: 800, auto_configure_bind: 800}}
 ADI.bind ann_bind : Int32, 900
 ADI.bind global_bind : Int32, 900
 
 @[ADI::Register(_alias_overridden_by_ann_bind: "@service_priority_one", public: true)]
+@[ADI::Autoconfigure(bind: {alias_overridden_by_auto_configure_bind: "@service_priority_two"})]
 class ServiceValuePriorityService
   getter explicit_auto_wire, interface_service_matches_name, default_alias, alias_overridden_by_ann_bind
 
@@ -72,7 +73,6 @@ class ServiceValuePriorityService
   end
 end
 
-ADI.auto_configure ServiceValuePriorityService, {bind: {alias_overridden_by_auto_configure_bind: "@service_priority_two"}}
 ADI.bind alias_overridden_by_global_bind : ResolveValuePriorityInterface, "@service_priority_one"
 
 describe ADI::ServiceContainer::ResolveValues do
@@ -80,13 +80,6 @@ describe ADI::ServiceContainer::ResolveValues do
     it "errors if a service string reference doesn't map to a known service" do
       assert_error "Failed to register service 'foo'. Argument 'id : Int32' references undefined service 'bar'.", <<-CR
         @[ADI::Register(_id: "@bar")]
-        record Foo, id : Int32
-      CR
-    end
-
-    it "errors if a service string reference doesn't map to a known tag" do
-      assert_error "Failed to register service 'foo'. Argument 'id : Int32' references undefined tag 'bar'.", <<-CR
-        @[ADI::Register(_id: "!bar")]
         record Foo, id : Int32
       CR
     end
