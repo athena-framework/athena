@@ -15,52 +15,13 @@ alias ADI = Athena::DependencyInjection
 module Athena::DependencyInjection
   VERSION = "0.3.8"
 
-  private BINDINGS            = {} of Nil => Nil
-  private AUTO_CONFIGURATIONS = {} of Nil => Nil
-  private EXTENSIONS          = {} of Nil => Nil
+  private BINDINGS   = {} of Nil => Nil
+  private EXTENSIONS = {} of Nil => Nil
 
   # :nodoc:
   CONFIG = {parameters: {__nil: nil}} # Ensure this type is a NamedTupleLiteral
 
   private CONFIGS = [] of Nil
-
-  # Applies the provided *options* to any registered service of the provided *type*.
-  #
-  # A common use case of this would be to apply a specific tag to all instances of an interface; thus preventing the need to manually apply the tag for each implementation.
-  # This can be paired with `Athena::DependencyInjection.bind` to make working with tags easier.
-  #
-  # ### Example
-  #
-  # ```
-  # module ConfigInterface; end
-  #
-  # # Automatically apply the `"config"` tag to all instances of `ConfigInterface`.
-  # ADI.auto_configure ConfigInterface, {tags: ["config"]}
-  #
-  # @[ADI::Register]
-  # record ConfigOne do
-  #   include ConfigInterface
-  # end
-  #
-  # @[ADI::Register]
-  # record ConfigTwo do
-  #   include ConfigInterface
-  # end
-  #
-  # # Options supplied on the annotation itself override the auto configured options.
-  # @[ADI::Register(tags: [] of String)]
-  # record ConfigThree do
-  #   include ConfigInterface
-  # end
-  #
-  # @[ADI::Register(_configs: "!config", public: true)]
-  # record ConfigClient, configs : Array(ConfigInterface)
-  #
-  # ADI.container.config_client.configs # => [ConfigOne(), ConfigTwo()]
-  # ```
-  macro auto_configure(type, options)
-    {% AUTO_CONFIGURATIONS[type.resolve] = options %}
-  end
 
   # Allows binding a *value* to a *key* in order to enable auto registration of that value.
   #
