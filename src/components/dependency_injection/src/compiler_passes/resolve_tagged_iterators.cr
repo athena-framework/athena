@@ -13,9 +13,13 @@ module Athena::DependencyInjection::ServiceContainer::ResolveTaggedIterators
             definition["parameters"].each do |_, param|
               if ann = param["declaration"].annotation ADI::TaggedIterator
                 param_type = param["resolved_restriction"]
+                base_collection_type = param_type.name(generic_args: false).stringify
 
-                unless param_type <= ::Enumerable
-                  ann.raise "Only enumerables"
+                unless {"Enumerable", "Iterator", "Indexable"}.includes? base_collection_type
+                  param["declaration"].raise <<-TEXT
+                  Failed to register service '#{service_id.id}' (#{definition["class"]}). Collection parameter '#{param["declaration"]}' \
+                  type must be one of `Indexable`, `Iterator`, or `Enumerable`. Got '#{param_type.name(generic_args: false).id}'.
+                  TEXT
                 end
 
                 enumerable_type = param_type.type_vars.first
@@ -29,18 +33,14 @@ module Athena::DependencyInjection::ServiceContainer::ResolveTaggedIterators
                              enumerable_type.stringify
                            end
 
-                if param_type <= Iterator
-                  iterator_service_map[iterator_id = "#{service_id.id}_iterator"] = {
-                    type:     enumerable_type,
-                    services: (TAG_HASH[tag_name] || [] of Nil)
-                      .sort_by { |(_tmp, attributes)| -(attributes["priority"] || 0) }
-                      .map(&.first.id),
-                  }
+                iterator_service_map[iterator_id = "#{service_id.id}_iterator"] = {
+                  type:     enumerable_type,
+                  services: (TAG_HASH[tag_name] || [] of Nil)
+                    .sort_by { |(_tmp, attributes)| -(attributes["priority"] || 0) }
+                    .map(&.first.id),
+                }
 
-                  param["value"] = "@#{iterator_id.id}"
-                else
-                  param["value"] = "!#{tag_name.id}"
-                end
+                param["value"] = "@#{iterator_id.id}"
               end
             end
           end
