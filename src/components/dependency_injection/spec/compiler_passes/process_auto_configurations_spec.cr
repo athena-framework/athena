@@ -114,6 +114,26 @@ class CallAutoconfigureClient
   end
 end
 
+@[ADI::AutoconfigureTag]
+module Namespace::FQNTagInterface; end
+
+@[ADI::Register]
+record FQNService1 do
+  include Namespace::FQNTagInterface
+end
+
+@[ADI::Register]
+record FQNService2 do
+  include Namespace::FQNTagInterface
+end
+
+@[ADI::Register(public: true, _services: "!Namespace::FQNTagInterface")]
+class FQNTagClient
+  getter services : Array(Namespace::FQNTagInterface)
+
+  def initialize(@services : Array(Namespace::FQNTagInterface)); end
+end
+
 describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
   describe "compiler errors", tags: "compiled" do
     describe "tags" do
@@ -203,6 +223,10 @@ describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
   it "applies tags from auto_configure" do
     ADI.container.other_tag_client.services.size.should eq 2
     ADI.container.config_tag_client.services.size.should eq 1
+  end
+
+  it "handles AutoconfigureTag" do
+    ADI.container.fqn_tag_client.services.should eq [FQNService1.new, FQNService2.new]
   end
 
   it "provides an empty array if there were no services configured with the desired tag" do
