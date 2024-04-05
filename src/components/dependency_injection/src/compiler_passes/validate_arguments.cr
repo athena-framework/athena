@@ -19,7 +19,7 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                 end
 
                 if (s = SERVICE_HASH[value.stringify]) && (klass = s["class"]).is_a?(TypeNode) && !(klass <= restriction)
-                  error = "Parameter '#{param["declaration"]}' of service '#{service_id.id}' (#{klass}) expects '#{restriction}' but" \
+                  error = "Parameter '#{param["declaration"]}' of service '#{service_id.id}' (#{definition["class"]}) expects '#{restriction}' but" \
                           " the resolved service '#{value.id}' is of type '#{s["class"].id}'."
                 end
               elsif !param["resolved_restriction"].nilable?

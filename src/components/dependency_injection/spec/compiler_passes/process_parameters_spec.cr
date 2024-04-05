@@ -15,7 +15,7 @@ describe ADI::ServiceContainer::ProcessParameters, tags: "compiled" do
       macro finished
         macro finished
           it { \\{{ADI::ServiceContainer::SERVICE_HASH["some_service"]["parameters"].size}}.should eq 1 }
-          it { \\{{ADI::ServiceContainer::SERVICE_HASH["some_service"]["parameters"]["id"]["arg"].stringify}}.should eq "id : Int32" }
+          it { \\{{ADI::ServiceContainer::SERVICE_HASH["some_service"]["parameters"]["id"]["declaration"].stringify}}.should eq "id : Int32" }
           it { \\{{ADI::ServiceContainer::SERVICE_HASH["some_service"]["parameters"]["id"]["name"].stringify}}.should eq %("id") }
           it { \\{{ADI::ServiceContainer::SERVICE_HASH["some_service"]["parameters"]["id"]["internal_name"].stringify}}.should eq %("id") }
           it { \\{{ADI::ServiceContainer::SERVICE_HASH["some_service"]["parameters"]["id"]["idx"]}}.should eq 0 }
