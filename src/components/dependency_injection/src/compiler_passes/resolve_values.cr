@@ -27,7 +27,7 @@ module Athena::DependencyInjection::ServiceContainer::ResolveValues
                 # Service reference
               elsif unresolved_value.is_a?(StringLiteral) && unresolved_value.starts_with?('@')
                 service_name = unresolved_value[1..-1]
-                unresolved_value.raise "Failed to register service '#{service_id.id}'. Argument '#{param["arg"]}' references undefined service '#{service_name.id}'." unless SERVICE_HASH[service_name]
+                unresolved_value.raise "Failed to register service '#{service_id.id}'. Argument '#{param["declaration"]}' references undefined service '#{service_name.id}'." unless SERVICE_HASH[service_name]
                 resolved_value = service_name.id
 
                 # Tagged services

@@ -53,6 +53,7 @@ class Athena::DependencyInjection::ServiceContainer
         ProcessBindings,
         ProcessAnnotationBindings,
         AutoWire,
+        ResolveTaggedIterators,
         ResolveValues,
         ValidateArguments,
       ],

@@ -97,31 +97,6 @@ module Athena::Framework::Console::CompilerPasses::RegisterCommands
           SERVICE_HASH["athena_console_application"]["parameters"]["command_loader"]["value"] = command_loader_service_id.id
           SERVICE_HASH["athena_console_application"]["parameters"]["eager_commands"]["value"] = "#{eager_service_ids} of ACON::Command".id
         %}
-
-        # :nodoc:
-        #
-        # TODO: Define some more generic way to create these
-        struct ::Athena::Framework::Console::ContainerCommandLoaderLocator
-          def initialize(@container : ::ADI::ServiceContainer); end
-
-          {% for service_type, service_id in command_refs %}
-            def get(service : {{service_type}}.class) : ACON::Command
-              @container.{{service_id.id}}
-            end
-          {% end %}
-
-          def get(service) : ACON::Command
-            {% begin %}
-              case service
-              {% for service_type, service_id in command_refs %}
-                when {{service_type}} then @container.{{service_id.id}}
-              {% end %}
-              else
-                raise "BUG: Couldn't find correct service."
-              end
-            {% end %}
-          end
-        end
       {% end %}
     end
   end

@@ -135,4 +135,45 @@ module Athena::DependencyInjection
   macro register_extension(name, schema)
     {% ADI::ServiceContainer::EXTENSIONS[name.id.stringify] = schema %}
   end
+
+  # :nodoc:
+  macro service_iterator(for name, services)
+    {% begin %}
+      private struct {{"#{name.camelcase.id}".id}}(T, S)
+        include Iterator(T)
+        include Indexable(T)
+
+        @offset = 0
+
+        def initialize(@container : ADI::ServiceContainer); end
+
+        def next : T | Iterator::Stop
+          return stop if @offset == S
+
+          self
+            .unsafe_fetch(@offset)
+            .tap { @offset += 1 }
+        end
+
+        def size : Int32
+          S
+        end
+
+        def rewind : Nil
+          @offset = 0
+        end
+
+        # :nodoc:
+        def unsafe_fetch(index : Int) : T
+          case index
+            {% for service_id, idx in services %}
+              when {{idx}} then @container.{{service_id.id}}\
+            {% end %}
+          else
+            raise ""
+          end
+        end
+      end
+    {% end %}
+  end
 end

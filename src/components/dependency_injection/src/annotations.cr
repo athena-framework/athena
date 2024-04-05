@@ -6,6 +6,7 @@ module Athena::DependencyInjection
   # constructor
   annotation Autoconfigure; end
   annotation AutoconfigureTag; end
+  annotation TaggedIterator; end
 
   # Automatically registers a service based on the type the annotation is applied to.
   #
