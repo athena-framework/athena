@@ -3,11 +3,8 @@ extend-ignore-re = ["(?Rm)^.*#\\s*spellchecker:disable-line$"]
 
 [default.extend-words]
 referer = "referrer"
-recruses = "recurses"
-dimenstional = "dimensional"
-extreanous = "extraneous"
-instantaintg = "instantiating"
 alternateively = "alternatively"
+improvemnets = "improvements"
 
 [files]
 extend-exclude = [
