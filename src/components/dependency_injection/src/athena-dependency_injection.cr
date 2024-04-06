@@ -139,7 +139,7 @@ module Athena::DependencyInjection
   # :nodoc:
   macro service_iterator(for name, services)
     {% begin %}
-      private struct {{"#{name.camelcase.id}".id}}(T, S)
+      private struct {{name.camelcase.id}}(T, S)
         include Iterator(T)
         include Indexable(T)
 
