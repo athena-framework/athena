@@ -42,7 +42,7 @@ struct RoutingTest < ATH::Spec::APITestCase
 
   def test_route_doesnt_exist_with_referrer : Nil
     # This is misspelled on purpose, see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referer.
-    response = self.get "/fake/route", headers: HTTP::Headers{"referer" => "somebody"}
+    response = self.get "/fake/route", headers: HTTP::Headers{"referer" => "somebody"} # spellchecker:disable-line
     response.status.should eq HTTP::Status::NOT_FOUND
     response.body.should eq %({"code":404,"message":"No route found for 'GET /fake/route' (from: 'somebody')."})
   end

@@ -41,7 +41,7 @@ struct Athena::Framework::Listeners::Routing
       message = "No route found for '#{request.method} #{request.resource}'"
 
       # This is misspelled on purpose, see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referer.
-      if referrer = request.headers["referer"]?
+      if referrer = request.headers["referer"]? # spellchecker:disable-line
         message += " (from: '#{referrer}')"
       end
 
