@@ -134,6 +134,20 @@ class FQNTagClient
   def initialize(@services : Array(Namespace::FQNTagInterface)); end
 end
 
+@[ADI::Register(public: true)]
+class FQNTaggedIteratorClient
+  getter services
+
+  def initialize(@[ADI::TaggedIterator] @services : Enumerable(Namespace::FQNTagInterface)); end
+end
+
+@[ADI::Register(public: true)]
+class FQNTaggedIteratorNamedClient
+  getter services
+
+  def initialize(@[ADI::TaggedIterator("Namespace::FQNTagInterface")] @services : Enumerable(Namespace::FQNTagInterface)); end
+end
+
 @[ADI::Autoconfigure(tags: ["non-service-abstract"])]
 abstract struct NonServiceAbstract; end
 
@@ -155,35 +169,48 @@ describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
     describe "tags" do
       it "errors if the `tags` field is not of a valid type" do
         assert_error "Tags for 'foo' must be an 'ArrayLiteral', got 'NumberLiteral'.", <<-CR
-        @[ADI::Register(tags: 123)]
-        record Foo
-      CR
+          @[ADI::Register(tags: 123)]
+          record Foo
+        CR
       end
 
       it "errors if the `tags` field on the auto configuration is not of a valid type" do
         assert_error "Tags for auto configuration of 'Test' must be an 'ArrayLiteral', got 'NumberLiteral'.", <<-CR
-        @[ADI::Autoconfigure(tags: 123)]
-        module Test; end
+          @[ADI::Autoconfigure(tags: 123)]
+          module Test; end
 
-        @[ADI::Register]
-        record Foo do
-          include Test
-        end
-      CR
+          @[ADI::Register]
+          record Foo do
+            include Test
+          end
+        CR
       end
 
       it "errors if not all tags have a `name` field" do
         assert_error "Failed to auto register service 'foo'. All tags must have a name.", <<-CR
-        @[ADI::Register(tags: [{priority: 100}])]
-        record Foo
-      CR
+          @[ADI::Register(tags: [{priority: 100}])]
+          record Foo
+        CR
       end
 
       it "errors if not all tags are of the proper type" do
         assert_error "Tag '100' must be a 'StringLiteral' or 'NamedTupleLiteral', got 'NumberLiteral'.", <<-CR
-        @[ADI::Register(tags: [100])]
-        record Foo
-      CR
+          @[ADI::Register(tags: [100])]
+          record Foo
+        CR
+      end
+
+      describe ADI::TaggedIterator do
+        it "errors if used with unsupported collection type" do
+          assert_error "Failed to register service 'fqn_tagged_iterator_named_client' (FQNTaggedIteratorNamedClient). Collection parameter '@[ADI::TaggedIterator] services : Set(String)' type must be one of `Indexable`, `Iterator`, or `Enumerable`. Got 'Set'.", <<-CR
+            @[ADI::Register]
+            class FQNTaggedIteratorNamedClient
+              getter services
+
+              def initialize(@[ADI::TaggedIterator] @services : Set(String)); end
+            end
+          CR
+        end
       end
     end
 
@@ -214,43 +241,59 @@ describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
     end
   end
 
-  it "injects all services with that tag, ordering based on priority" do
-    services = ADI.container.partner_client.services
-    services[0].id.should eq 3
-    services[1].id.should eq 1
-    services[2].id.should eq 2
-    services[3].id.should eq 4
-  end
+  describe "tags" do
+    it "injects all services with that tag, ordering based on priority" do
+      services = ADI.container.partner_client.services
+      services[0].id.should eq 3
+      services[1].id.should eq 1
+      services[2].id.should eq 2
+      services[3].id.should eq 4
+    end
 
-  it "also allows the service to still have defaults after the tagged services argument" do
-    service = ADI.container.partner_named_default_client
-    service.services.size.should eq 4
-    service.status.should eq Status::Active
-  end
+    it "also allows the service to still have defaults after the tagged services argument" do
+      service = ADI.container.partner_named_default_client
+      service.services.size.should eq 4
+      service.status.should eq Status::Active
+    end
 
-  it "converts each tagged service into a proxy" do
-    services = ADI.container.proxy_tag_client.services
-    services[0].id.should eq 3
-    services[1].id.should eq 1
-    services[2].id.should eq 2
-    services[3].id.should eq 4
-  end
+    it "converts each tagged service into a proxy" do
+      services = ADI.container.proxy_tag_client.services
+      services[0].id.should eq 3
+      services[1].id.should eq 1
+      services[2].id.should eq 2
+      services[3].id.should eq 4
+    end
 
-  it "applies tags from auto_configure" do
-    ADI.container.other_tag_client.services.size.should eq 2
-    ADI.container.config_tag_client.services.size.should eq 1
-  end
+    it "applies tags from auto_configure" do
+      ADI.container.other_tag_client.services.size.should eq 2
+      ADI.container.config_tag_client.services.size.should eq 1
+    end
 
-  it "handles AutoconfigureTag" do
-    ADI.container.fqn_tag_client.services.should eq [FQNService1.new, FQNService2.new]
-  end
+    it "handles AutoconfigureTag" do
+      ADI.container.fqn_tag_client.services.should eq [FQNService1.new, FQNService2.new]
+    end
 
-  it "handles a non service abstract parent type with service child types" do
-    ADI.container.non_service_abstract_client.services.should eq [NonServiceChild1.new, NonServiceChild2.new]
-  end
+    describe ADI::TaggedIterator do
+      it "without tag name" do
+        collection = ADI.container.fqn_tagged_iterator_client.services
+        collection.should be_a Iterator(Namespace::FQNTagInterface)
+        collection.map(&.itself).should eq [FQNService1.new, FQNService2.new]
+      end
 
-  it "provides an empty array if there were no services configured with the desired tag" do
-    ADI.container.unused_tag_client.services.should be_empty
+      it "with tag name" do
+        collection = ADI.container.fqn_tagged_iterator_named_client.services
+        collection.should be_a Iterator(Namespace::FQNTagInterface)
+        collection.map(&.itself).should eq [FQNService1.new, FQNService2.new]
+      end
+    end
+
+    it "handles a non service abstract parent type with service child types" do
+      collection = ADI.container.non_service_abstract_client.services.should eq [NonServiceChild1.new, NonServiceChild2.new]
+    end
+
+    it "provides an empty array if there were no services configured with the desired tag" do
+      ADI.container.unused_tag_client.services.should be_empty
+    end
   end
 
   it "allows making a service public" do
