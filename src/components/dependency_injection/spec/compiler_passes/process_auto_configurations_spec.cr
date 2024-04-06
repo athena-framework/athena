@@ -172,13 +172,13 @@ class FQNTaggedIteratorNamedClient
   def initialize(@[ADI::TaggedIterator("Namespace::FQNTagInterface")] @services : Enumerable(Namespace::FQNTagInterface)); end
 end
 
-NAMEPSACE_TAG = "Namespace::FQNTagInterface"
+NAMESPACE_TAG = "Namespace::FQNTagInterface"
 
 @[ADI::Register(public: true)]
 class FQNTaggedIteratorNamedConstClient
   getter services
 
-  def initialize(@[ADI::TaggedIterator(NAMEPSACE_TAG)] @services : Enumerable(Namespace::FQNTagInterface)); end
+  def initialize(@[ADI::TaggedIterator(NAMESPACE_TAG)] @services : Enumerable(Namespace::FQNTagInterface)); end
 end
 
 @[ADI::Autoconfigure(tags: ["non-service-abstract"])]
