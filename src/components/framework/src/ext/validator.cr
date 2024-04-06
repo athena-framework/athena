@@ -5,7 +5,8 @@ require "./validator/validation_failed_exception"
 @[ADI::Register]
 class Athena::Validator::Validator::RecursiveValidator; end
 
-ADI.auto_configure AVD::ServiceConstraintValidator, {tags: ["athena.validator.constraint_validator"]}
+@[ADI::Autoconfigure(tags: ["athena.validator.constraint_validator"])]
+abstract class AVD::ServiceConstraintValidator; end
 
 @[ADI::Register]
 struct Athena::Validator::ConstraintValidatorFactory; end

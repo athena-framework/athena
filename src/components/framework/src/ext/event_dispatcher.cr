@@ -6,7 +6,8 @@ module Athena::Framework::EventDispatcher::Listeners
   TAG = "athena.event_dispatcher.listener"
 end
 
-ADI.auto_configure AED::EventListenerInterface, {tags: [ATH::EventDispatcher::Listeners::TAG]}
+@[ADI::Autoconfigure(tags: [ATH::EventDispatcher::Listeners::TAG])]
+module AED::EventListenerInterface; end
 
 # :nodoc:
 module Athena::Framework::EventDispatcher::CompilerPasses::RegisterEventListenersPass
@@ -23,7 +24,7 @@ module Athena::Framework::EventDispatcher::CompilerPasses::RegisterEventListener
           {%
             listeners = [] of Nil
 
-            TAG_HASH[ATH::EventDispatcher::Listeners::TAG].each do |(service_id, _attributes)|
+            (TAG_HASH[ATH::EventDispatcher::Listeners::TAG] || [] of Nil).each do |(service_id, _attributes)|
               metadata = SERVICE_HASH[service_id]
 
               class_listeners = metadata["class"].class.methods.select &.annotation(AEDA::AsEventListener)

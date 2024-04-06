@@ -134,6 +134,22 @@ class FQNTagClient
   def initialize(@services : Array(Namespace::FQNTagInterface)); end
 end
 
+@[ADI::Autoconfigure(tags: ["non-service-abstract"])]
+abstract struct NonServiceAbstract; end
+
+@[ADI::Register]
+record NonServiceChild1 < NonServiceAbstract
+
+@[ADI::Register]
+record NonServiceChild2 < NonServiceAbstract
+
+@[ADI::Register(public: true, _services: "!non-service-abstract")]
+class NonServiceAbstractClient
+  getter services : Array(NonServiceAbstract)
+
+  def initialize(@services : Array(NonServiceAbstract)); end
+end
+
 describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
   describe "compiler errors", tags: "compiled" do
     describe "tags" do
@@ -227,6 +243,10 @@ describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
 
   it "handles AutoconfigureTag" do
     ADI.container.fqn_tag_client.services.should eq [FQNService1.new, FQNService2.new]
+  end
+
+  it "handles a non service abstract parent type with service child types" do
+    ADI.container.non_service_abstract_client.services.should eq [NonServiceChild1.new, NonServiceChild2.new]
   end
 
   it "provides an empty array if there were no services configured with the desired tag" do

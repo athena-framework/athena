@@ -8,26 +8,27 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAutoconfigureAnnota
         {%
           __nil = nil
 
-          # Build out a list of types we need to process.
-          # I.e. that have an applicable annotation.
+          # Build out a list of interfaces, and types that can be used to autoconfigure other services
           #
           # Array(TypeNode)
           types_to_process = [] of Nil
 
-          # Used interface modules (this only captures modules that would be included in at least 1 used type)
+          # Use `Object.all_subclasses` since some autoconfigured types may not be services themselves.
           Object.all_subclasses.each do |sc|
+            # Used interface modules (this only captures modules that would be included in at least 1 used type)
             sc.ancestors.each do |a|
               # TODO: Use `#private?` once available.
               if a.module? && (m = parse_type(a.name(generic_args: false).stringify).resolve?) && (m.annotation(ADI::Autoconfigure) || m.annotation(ADI::AutoconfigureTag))
                 types_to_process << m
               end
             end
+
+            # Non module types that may be the parent type of a service.
+            types_to_process << sc if sc.annotation(ADI::Autoconfigure) || sc.annotation(ADI::AutoconfigureTag)
           end
 
-          # Parent services
-          SERVICE_HASH.each do |_, definition|
-            types_to_process << definition["class"] if definition["class"].annotation(ADI::Autoconfigure) || definition["class"].annotation(ADI::AutoconfigureTag)
-          end
+          # Don't process types more than once.
+          types_to_process = types_to_process.uniq
 
           SERVICE_HASH.each do |service_id, definition|
             types_to_process.each do |t|
