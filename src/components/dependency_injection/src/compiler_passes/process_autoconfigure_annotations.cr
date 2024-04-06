@@ -47,6 +47,10 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAutoconfigureAnnota
 
                 ann = t.annotation ADI::Autoconfigure
 
+                if ann && (v = ann["constructor"])
+                  definition["factory"] = {definition["class"], v}
+                end
+
                 if ann && (v = ann["bind"]) != nil
                   v.each do |k, v|
                     definition["bindings"][k] = v

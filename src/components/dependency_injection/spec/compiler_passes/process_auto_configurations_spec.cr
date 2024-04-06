@@ -164,6 +164,31 @@ class NonServiceAbstractClient
   def initialize(@services : Array(NonServiceAbstract)); end
 end
 
+@[ADI::Autoconfigure(constructor: "create", public: true)]
+abstract class AutoConfigureConstructor; end
+
+@[ADI::Register(public: true)]
+class ConstructorOne < AutoConfigureConstructor
+  getter num
+
+  def self.create : self
+    new 123
+  end
+
+  private def initialize(@num : Int32); end
+end
+
+@[ADI::Register(_id: 999, public: true)]
+class ConstructorTwo < AutoConfigureConstructor
+  getter num
+
+  def self.create(id : Int32) : self
+    new id
+  end
+
+  private def initialize(@num : Int32); end
+end
+
 describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
   describe "compiler errors", tags: "compiled" do
     describe "tags" do
@@ -302,5 +327,10 @@ describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
 
   it "allows defining calls" do
     ADI.container.call_autoconfigure_client.values.should eq [6, 3, 1]
+  end
+
+  it "allows specifying the constructor" do
+    ADI.container.constructor_one.num.should eq 123
+    ADI.container.constructor_two.num.should eq 999
   end
 end
