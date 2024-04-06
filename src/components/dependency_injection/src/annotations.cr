@@ -242,12 +242,11 @@ module Athena::DependencyInjection
   #
   # ### Tagging Services
   #
-  # Services can also be tagged.  Service tags allows another service to have all services with a specific tag injected as a dependency.
+  # Services can also be tagged.
+  # Service tags allows another service to have all services with a specific tag injected as a dependency.
   # A tag consists of a name, and additional metadata related to the tag.
-  # Currently the only supported metadata value is `priority`, which controls the order in which the services are injected; the higher the priority
-  # the sooner in the array it would be.  In the future support for custom tag metadata will be implemented.
   #
-  # The `Athena::DependencyInjection.auto_configure` macro may also be used to make working with tags easier.
+  # TIP: Checkout `ADI::AutoconfigureTag` for an easy way to tag services.
   #
   # ```
   # PARTNER_TAG = "partner"
@@ -259,24 +258,21 @@ module Athena::DependencyInjection
   # # Register multiple services based on the same type.  Each service must give define a unique name.
   # record FeedPartner, id : Int32
   #
-  # @[ADI::Register(_services: "!partner", public: true)]
-  # # Inject all services with the `"partner"` tag into `self`.
+  # @[ADI::Register(public: true)]
   # class PartnerClient
-  #   def initialize(@services : Array(FeedPartner)); end
+  #   getter services : Enumerable(FeedPartner)
+  #
+  #   def initialize(@[ADI::TaggedIterator(PARTNER_TAG)] @services : Enumerable(FeedPartner)); end
   # end
   #
-  # ADI.container.partner_client # =>
-  # # #<PartnerClient:0x7f43c0a1ae60
-  # #  @services=
-  # #   [FeedPartner(@id=3, @name="Yahoo"),
-  # #    FeedPartner(@id=1, @name="Google"),
-  # #    FeedPartner(@id=2, @name="Facebook"),
-  # #    FeedPartner(@id=4, @name="Microsoft")]>
+  # ADI.container.partner_client.services.to_a # =>
+  # # [FeedPartner(@id=3),
+  # #  FeedPartner(@id=1),
+  # #  FeedPartner(@id=2),
+  # #  FeedPartner(@id=4)]
   # ```
   #
-  # While tagged services cannot be injected automatically by default, the `Athena::DependencyInjection.bind` macro can be used to support it.  For example: `ADI.bind partners, "!partner"`.
-  # This would now inject all services with the `partner` tagged when an argument named `partners` is encountered.
-  # A type restriction can also be added to the binding to allow reusing the name.  See the documentation for `Athena::DependencyInjection.bind` for an example.
+  # The `ADI::TaggedIterator` annotation provides an easy way to inject services with a specific tag to a specific parameter.
   #
   # ### Service Calls
   #

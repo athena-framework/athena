@@ -26,7 +26,11 @@ module Athena::DependencyInjection::ServiceContainer::ResolveTaggedIterators
 
                 # If no tag name was explicitly provided, assume its the FQN of the enumerable type
                 tag_name = if name = ann[0]
-                             name
+                             if name.is_a?(Path)
+                               name.resolve
+                             else
+                               name
+                             end
                            elsif enumerable_type.union?
                              ann.raise "Unable to support unions"
                            else

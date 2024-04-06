@@ -117,14 +117,24 @@ end
 @[ADI::AutoconfigureTag]
 module Namespace::FQNTagInterface; end
 
+@[ADI::AutoconfigureTag("foo")]
+module Namespace::ExplicitTagInterface; end
+
+BAR_TAG = "bar"
+
+@[ADI::AutoconfigureTag(BAR_TAG)]
+module Namespace::ExplicitTagConstInterface; end
+
 @[ADI::Register]
 record FQNService1 do
   include Namespace::FQNTagInterface
+  include Namespace::ExplicitTagConstInterface
 end
 
 @[ADI::Register]
 record FQNService2 do
   include Namespace::FQNTagInterface
+  include Namespace::ExplicitTagInterface
 end
 
 @[ADI::Register(public: true, _services: "!Namespace::FQNTagInterface")]
@@ -132,6 +142,20 @@ class FQNTagClient
   getter services : Array(Namespace::FQNTagInterface)
 
   def initialize(@services : Array(Namespace::FQNTagInterface)); end
+end
+
+@[ADI::Register(public: true, _services: "!foo")]
+class FQNTagNamedClient
+  getter services : Array(Namespace::ExplicitTagInterface)
+
+  def initialize(@services : Array(Namespace::ExplicitTagInterface)); end
+end
+
+@[ADI::Register(public: true, _services: "!bar")]
+class FQNTagConstClient
+  getter services : Array(Namespace::ExplicitTagConstInterface)
+
+  def initialize(@services : Array(Namespace::ExplicitTagConstInterface)); end
 end
 
 @[ADI::Register(public: true)]
@@ -146,6 +170,15 @@ class FQNTaggedIteratorNamedClient
   getter services
 
   def initialize(@[ADI::TaggedIterator("Namespace::FQNTagInterface")] @services : Enumerable(Namespace::FQNTagInterface)); end
+end
+
+NAMEPSACE_TAG = "Namespace::FQNTagInterface"
+
+@[ADI::Register(public: true)]
+class FQNTaggedIteratorNamedConstClient
+  getter services
+
+  def initialize(@[ADI::TaggedIterator(NAMEPSACE_TAG)] @services : Enumerable(Namespace::FQNTagInterface)); end
 end
 
 @[ADI::Autoconfigure(tags: ["non-service-abstract"])]
@@ -294,8 +327,18 @@ describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
       ADI.container.config_tag_client.services.size.should eq 1
     end
 
-    it "handles AutoconfigureTag" do
-      ADI.container.fqn_tag_client.services.should eq [FQNService1.new, FQNService2.new]
+    describe ADI::AutoconfigureTag do
+      it "without tag" do
+        ADI.container.fqn_tag_client.services.should eq [FQNService1.new, FQNService2.new]
+      end
+
+      it "with tag name" do
+        ADI.container.fqn_tag_named_client.services.should eq [FQNService2.new]
+      end
+
+      it "with tag name const" do
+        ADI.container.fqn_tag_const_client.services.should eq [FQNService1.new]
+      end
     end
 
     describe ADI::TaggedIterator do
@@ -307,6 +350,12 @@ describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
 
       it "with tag name" do
         collection = ADI.container.fqn_tagged_iterator_named_client.services
+        collection.should be_a Iterator(Namespace::FQNTagInterface)
+        collection.map(&.itself).should eq [FQNService1.new, FQNService2.new]
+      end
+
+      it "with tag name as const" do
+        collection = ADI.container.fqn_tagged_iterator_named_const_client.services
         collection.should be_a Iterator(Namespace::FQNTagInterface)
         collection.map(&.itself).should eq [FQNService1.new, FQNService2.new]
       end

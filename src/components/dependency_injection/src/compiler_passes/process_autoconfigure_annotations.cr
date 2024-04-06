@@ -36,7 +36,17 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAutoconfigureAnnota
                 tags = [] of Nil
 
                 if at = t.annotation(ADI::AutoconfigureTag)
-                  tag = {name: (at[0] || t.stringify)}
+                  tag_name = if n = at[0]
+                               if n.is_a?(Path)
+                                 n.resolve
+                               else
+                                 n
+                               end
+                             else
+                               t.stringify
+                             end
+
+                  tag = {name: tag_name}
 
                   at.named_args.each do |k, v|
                     tag[k.id.stringify] = v
