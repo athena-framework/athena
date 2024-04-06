@@ -1,12 +1,10 @@
+[default]
+extend-ignore-re = ["(?Rm)^.*#\\s*spellchecker:disable-line$"]
+
 [default.extend-words]
-# Remove this once https://github.com/crate-ci/typos/issues/316 is resolved
-referer = "referer"
-recruse = "recurse"
-recruses = "recurses"
-dimenstional = "dimensional"
-extreanous = "extraneous"
-instantaintg = "instantiating"
+referer = "referrer"
 alternateively = "alternatively"
+improvemnets = "improvements"
 
 [files]
 extend-exclude = [
