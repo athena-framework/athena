@@ -59,7 +59,7 @@ module Athena::DependencyInjection
   # Supported collection types include: `Indexable`, `Enumerable`, and `Iterator`.
   # Accepts an optional tag name as the first positional parameter, otherwise defaults to the FQN of the type within the collection type's generic.
   #
-  # TIP: This type is best used in conjunction with `ADI::TaggedIterator`.
+  # TIP: This type is best used in conjunction with `ADI::AutoconfigureTag`.
   #
   # The provided type lazily initializes the provided services as they are accessed.
   #
