@@ -26,11 +26,9 @@
 #
 # The implementation for `HTML` for example could use `.to_s` as depicted here, or utilize a templating engine, possibly taking advantage
 # of [custom annotations](/getting_started/configuration#custom-annotations) to allow specifying the related template name.
+@[ADI::Autoconfigure(tags: [Athena::Framework::View::FormatHandlerInterface::TAG])]
 module Athena::Framework::View::FormatHandlerInterface
   TAG = "athena.format_handler"
-
-  # Apply `TAG` to all `ATH::View::FormatHandlerInterface` instances automatically.
-  ADI.auto_configure Athena::Framework::View::FormatHandlerInterface, {tags: [Athena::Framework::View::FormatHandlerInterface::TAG]}
 
   # Responsible for returning an `ATH::Response` for the provided *view* and *request* in the provided *format*.
   #

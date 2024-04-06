@@ -5,4 +5,5 @@ end
 
 require "./console/**"
 
-ADI.auto_configure ACON::Command, {tags: [ATH::Console::Command::TAG]}
+@[ADI::Autoconfigure(tags: [ATH::Console::Command::TAG])]
+abstract class ACON::Command; end

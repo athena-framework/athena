@@ -15,18 +15,18 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                 restriction = param["resolved_restriction"]
 
                 if restriction && restriction <= String && !value.is_a? StringLiteral
-                  error = "Parameter '#{param["arg"]}' of service '#{service_id.id}' (#{definition["class"]}) expects a String but got '#{value}'."
+                  error = "Parameter '#{param["declaration"]}' of service '#{service_id.id}' (#{definition["class"]}) expects a String but got '#{value}'."
                 end
 
-                if (s = SERVICE_HASH[value.stringify]) && !(s["class"] <= restriction)
-                  error = "Parameter '#{param["arg"]}' of service '#{service_id.id}' (#{definition["class"]}) expects '#{restriction}' but" \
+                if (s = SERVICE_HASH[value.stringify]) && (klass = s["class"]).is_a?(TypeNode) && !(klass <= restriction)
+                  error = "Parameter '#{param["declaration"]}' of service '#{service_id.id}' (#{definition["class"]}) expects '#{restriction}' but" \
                           " the resolved service '#{value.id}' is of type '#{s["class"].id}'."
                 end
               elsif !param["resolved_restriction"].nilable?
-                error = "Failed to resolve value for parameter '#{param["arg"]}' of service '#{service_id.id}' (#{definition["class"]})."
+                error = "Failed to resolve value for parameter '#{param["declaration"]}' of service '#{service_id.id}' (#{definition["class"]})."
               end
 
-              param["arg"].raise error if error
+              param["declaration"].raise error if error
             end
           end
         %}

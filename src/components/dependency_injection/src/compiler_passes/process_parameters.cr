@@ -40,7 +40,7 @@ module Athena::DependencyInjection::ServiceContainer::ProcessParameters
               end
 
               parameters[initializer_arg.name.id.stringify] = {
-                arg:                  initializer_arg,
+                declaration:          initializer_arg,
                 name:                 initializer_arg.name.stringify,
                 idx:                  idx,
                 internal_name:        initializer_arg.internal_name.stringify,

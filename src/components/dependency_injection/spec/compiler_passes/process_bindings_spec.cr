@@ -11,10 +11,8 @@ ADI.bind value, 88
 ADI.bind value : Float32, 3.14
 ADI.bind value : Float64, 99.99
 
-@[ADI::Register(
-  public: true,
-  _id: 30,
-)]
+@[ADI::Register(public: true, _id: 30)]
+@[ADI::Autoconfigure(bind: {id: 10, name: "Jim", alive: true})]
 class BindingsPriorityClient
   def initialize(
     id : Int64,    # Ann has highest priority
@@ -28,14 +26,6 @@ class BindingsPriorityClient
     value.should eq 3.14_f32
   end
 end
-
-ADI.auto_configure BindingsPriorityClient, {
-  bind: {
-    id:    10,
-    name:  "Jim",
-    alive: true,
-  },
-}
 
 @[ADI::Register]
 class SomeClassService
