@@ -7,8 +7,6 @@ ACF.configuration_annotation MyApp::NestedParameterAnn
 
 @[ADI::Register]
 struct CustomAnnotationListener
-  include AED::EventListenerInterface
-
   @[AEDA::AsEventListener]
   def on_response(event : ATH::Events::Response) : Nil
     return unless action = event.request.action?

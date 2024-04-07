@@ -1,7 +1,5 @@
 @[ADI::Register]
 struct Athena::Framework::Listeners::ParamFetcher
-  include AED::EventListenerInterface
-
   def initialize(@param_fetcher : ATH::Params::ParamFetcherInterface); end
 
   @[AEDA::AsEventListener(priority: 5)]

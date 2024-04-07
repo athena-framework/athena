@@ -53,7 +53,7 @@ module Athena::Framework::Console::CompilerPasses::RegisterCommands
               end
 
               SERVICE_HASH[lazy_service_id = "_#{service_id.id}_lazy"] = {
-                class:      "ACON::Commands::Lazy",
+                class:      ACON::Commands::Lazy,
                 tags:       [] of Nil,
                 generics:   [] of Nil,
                 calls:      [] of Nil,

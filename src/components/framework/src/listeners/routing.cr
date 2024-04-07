@@ -1,8 +1,6 @@
 @[ADI::Register]
 # Sets the related `ATH::Action` on the current request via an `ART::RequestMatcherInterface`.
 struct Athena::Framework::Listeners::Routing
-  include AED::EventListenerInterface
-
   @request_context : ART::RequestContext
 
   def initialize(

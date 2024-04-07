@@ -194,6 +194,14 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
             end
           %}
 
+          # Event Dispatcher
+          {%
+            SERVICE_HASH[event_dispatcher_id = "event_dispatcher"] = {
+              class:  AED::EventDispatcher,
+              public: true,
+            }
+          %}
+
           # CORS Listener
           {%
             cfg = CONFIG["framework"]["cors"]

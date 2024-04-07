@@ -1,7 +1,6 @@
 require "./spec_helper"
 
 private class TestListener
-  include AED::EventListenerInterface
 end
 
 describe AED::Callable do
