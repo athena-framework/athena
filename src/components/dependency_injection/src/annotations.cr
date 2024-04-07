@@ -186,72 +186,12 @@ module Athena::DependencyInjection
   #
   # ### Aliasing Services
   #
-  # An important part of DI is building against interfaces as opposed to concrete types.  This allows a type to depend upon abstractions rather than a specific implementation of the interface.
+  # An important part of DI is building against interfaces as opposed to concrete types.
+  # This allows a type to depend upon abstractions rather than a specific implementation of the interface.
   # Or in other words, prevents a singular implementation from being tightly coupled with another type.
   #
-  # We can use the `alias` argument when registering a service to tell the container that it should inject this service when a type restriction for the aliased service is found.
-  #
-  # ```
-  # # Define an interface for our services to use.
-  # module TransformerInterface
-  #   abstract def transform(value : String) : String
-  # end
-  #
-  # @[ADI::Register(alias: [TransformerInterface])]
-  # # Alias the `TransformerInterface` to this service.
-  # struct ShoutTransformer
-  #   include TransformerInterface
-  #
-  #   def transform(value : String) : String
-  #     value.upcase
-  #   end
-  # end
-  #
-  # @[ADI::Register]
-  # # Define another transformer type.
-  # struct ReverseTransformer
-  #   include TransformerInterface
-  #
-  #   def transform(value : String) : String
-  #     value.reverse
-  #   end
-  # end
-  #
-  # @[ADI::Register(public: true)]
-  # # The `ShoutTransformer` is injected because the `TransformerInterface` is aliased to the `ShoutTransformer`.
-  # struct SomeAPIClient
-  #   def initialize(@transformer : TransformerInterface); end
-  #
-  #   def send(message : String)
-  #     message = @transformer.transform message
-  #
-  #     # ...
-  #   end
-  # end
-  #
-  # ADI.container.some_api_client.send "foo" # => FOO
-  # ```
-  #
-  # Any service that uses `TransformerInterface` as a dependency type restriction will get the `ShoutTransformer`.
-  # However, it is also possible to use a specific implementation while still building against the interface.  The name of the constructor argument is used in part to resolve the dependency.
-  #
-  # ```
-  # @[ADI::Register(public: true)]
-  # # The `ReverseTransformer` is injected because the constructor argument's name matches the service name of `ReverseTransformer`.
-  # struct SomeAPIClient
-  #   def initialize(reverse_transformer : TransformerInterface)
-  #     @transformer = reverse_transformer
-  #   end
-  #
-  #   def send(message : String)
-  #     message = @transformer.transform message
-  #
-  #     # ...
-  #   end
-  # end
-  #
-  # ADI.container.some_api_client.send "foo" # => oof
-  # ```
+  # The `ADI::AsAlias` annotation can be used to define a default implementation for an interface.
+  # Checkout the annotation's docs for more information.
   #
   # ### Scalar Arguments
   #
