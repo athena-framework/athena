@@ -207,8 +207,6 @@ checking if the request's path represents a file/directory within the applicatio
 # Register a request event listener to handle returning static files.
 @[ADI::Register]
 struct StaticFileListener
-  include AED::EventListenerInterface
-
   # This could be parameter if the directory changes between environments.
   private PUBLIC_DIR = Path.new("public").expand
 

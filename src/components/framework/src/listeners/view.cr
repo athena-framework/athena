@@ -5,8 +5,6 @@
 #
 # See the [Getting Started](/getting_started/routing#content-negotiation) docs for more information.
 struct Athena::Framework::Listeners::View
-  include AED::EventListenerInterface
-
   def initialize(@view_handler : ATH::View::ViewHandlerInterface); end
 
   @[AEDA::AsEventListener(priority: 100)]

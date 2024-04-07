@@ -5,7 +5,7 @@
 # See each subclass for more information.
 #
 # TIP: These types can be manually instantiated and added via the related `AED::EventDispatcherInterface#listener(callable)` overload.
-# This can be useful as a point of integration to other libraries, such as lazily instantiating a `AED::EventListenerInterface` instance.
+# This can be useful as a point of integration to other libraries, such as lazily instantiating listener instances.
 #
 # ### Name
 #
@@ -21,8 +21,6 @@
 # dispatcher.listener(MyEvent, name: "block-listener") { }
 #
 # class MyListener
-#   include AED::EventListenerInterface
-#
 #   @[AEDA::AsEventListener]
 #   def on_my_event(event : MyEvent) : Nil
 #   end
@@ -127,9 +125,9 @@ abstract struct Athena::EventDispatcher::Callable
     end
   end
 
-  # Represents a listener associated with an `AED::EventListenerInterface` when using the `AEDA::AsEventListener` annotation.
+  # Represents a dedicated type based listener using `AEDA::AsEventListener` annotations.
   struct EventListenerInstance(I, E) < Athena::EventDispatcher::Callable
-    # Returns the `AED::EventListenerInterface` instance this listener is associated with.
+    # Returns the listener instance this callable is associated with.
     getter instance : I
 
     @callback : Proc(E, Nil) | Proc(E, AED::EventDispatcherInterface, Nil)

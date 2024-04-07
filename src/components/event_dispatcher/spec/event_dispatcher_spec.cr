@@ -11,8 +11,6 @@ class Sum < AED::Event
 end
 
 class TestListener
-  include AED::EventListenerInterface
-
   getter values = [] of Int32
 
   @[AEDA::AsEventListener]

@@ -1,4 +1,4 @@
-# Can be applied to method(s) within a type including `AED::EventListenerInterface` to denote that method is an event listener.
+# Can be applied to method(s) within a type to denote that method is an event listener.
 # The annotation expects to be assigned to an instance method with between 1 and 2 parameters with a return type of `Nil`.
 # The first parameter should be the concrete `AED::Event` instance the method is listening on.
 # The optional second parameter should be typed as an `AED::EventDispatcherInterface`.
@@ -7,8 +7,6 @@
 #
 # ```
 # class MyListener
-#   include AED::EventListenerInterface
-#
 #   # Single parameter
 #   @[AEDA::AsEventListener]
 #   def single_param(event : MyEvent) : Nil

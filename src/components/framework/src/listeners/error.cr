@@ -26,8 +26,6 @@
 # end
 # ```
 struct Athena::Framework::Listeners::Error
-  include AED::EventListenerInterface
-
   def initialize(@error_renderer : ATH::ErrorRendererInterface); end
 
   @[AEDA::AsEventListener(priority: -50)]

@@ -1,6 +1,5 @@
 require "./event_dispatcher_interface"
 require "./event"
-require "./event_listener_interface"
 require "./callable"
 
 # Default implementation of `AED::EventDispatcherInterface`.
@@ -47,15 +46,10 @@ class Athena::EventDispatcher::EventDispatcher
   end
 
   # :inherit:
-  def listener(listener : AED::EventListenerInterface) : Nil
-    self.add_listener listener
-  end
-
-  private def add_listener(listener : T) : Nil forall T
+  def listener(listener : T) : Nil forall T
     {% begin %}
       {% listeners = [] of Nil %}
 
-      # Changes made here should also be reflected within `ATH::EventDispatcher::CompilerPasses::RegisterEventListenersPass`.
       {%
         class_listeners = T.class.methods.select &.annotation(AEDA::AsEventListener)
 
@@ -156,7 +150,7 @@ class Athena::EventDispatcher::EventDispatcher
   end
 
   # :inherit:
-  def remove_listener(listener : AED::EventListenerInterface) : Nil
+  def remove_listener(listener : T) : Nil forall T
     @listeners.each do |event_class, listeners|
       listeners.reject! { |l| l.is_a?(AED::Callable::EventListenerInstance) && l.instance == listener }
 

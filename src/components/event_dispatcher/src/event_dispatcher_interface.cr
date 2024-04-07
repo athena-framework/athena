@@ -15,7 +15,7 @@
 # ```
 #
 # Another way involves passing an `AED::Callable` instance, created manually or via the `AED::Event.callable` method.
-# Lastly, an `AED::EventListenerInterface` instance may also be passed.
+# Lastly, a type that has one or more `AEDA::AsEventListener` annotated methods may also be passed.
 #
 # Once all listeners are registered, you can begin to dispatch events.
 # Dispatching an event is simply calling the `#dispatch` method with an `AED::Event` subclass instance as an argument.
@@ -68,7 +68,12 @@ module Athena::EventDispatcher::EventDispatcherInterface
   abstract def listener(event_class : E.class, *, priority : Int32 = 0, name : String? = nil, &block : E, AED::EventDispatcherInterface -> Nil) : AED::Callable forall E
 
   # Registers the provided *listener* instance to this dispatcher.
-  abstract def listener(listener : AED::EventListenerInterface) : Nil
+  #
+  # `T` is any type that has methods annotated with `AEDA::AsEventListener`.
+  def listener(listener : T) : Nil forall T
+    # TODO: Make this actually abstract once https://github.com/crystal-lang/crystal/issues/14451 is resolved.
+    {% @type.raise "abstract `def Athena::EventDispatcher::EventDispatcherInterface#listener(listener : T) : Nil forall T` must be implemented by #{@type}" %}
+  end
 
   # Returns a hash of all registered listeners as a `Hash(AED::Event.class, Array(AED::Callable))`.
   abstract def listeners : Hash(AED::Event.class, Array(AED::Callable))
@@ -82,5 +87,10 @@ module Athena::EventDispatcher::EventDispatcherInterface
   abstract def remove_listener(callable : AED::Callable) : Nil
 
   # Deregisters listeners based on the provided *listener* from this dispatcher.
-  abstract def remove_listener(listener : AED::EventListenerInterface) : Nil
+  #
+  # `T` is any type that has methods annotated with `AEDA::AsEventListener`.
+  def remove_listener(listener : T) : Nil forall T
+    # TODO: Make this actually abstract once https://github.com/crystal-lang/crystal/issues/14451 is resolved.
+    {% @type.raise "abstract `def Athena::EventDispatcher::EventDispatcherInterface#remove_listener(listener : T) : Nil forall T` must be implemented by #{@type}" %}
+  end
 end

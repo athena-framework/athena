@@ -196,8 +196,6 @@ Unlike other frameworks, Athena Framework leverages event based middleware inste
 ```crystal
 @[ADI::Register]
 class CustomListener
-  include AED::EventListenerInterface
-
   @[AEDA::AsEventListener]
   def on_response(event : ATH::Events::Response) : Nil
     event.response.headers["FOO"] = "BAR"
@@ -231,8 +229,6 @@ ACF.configuration_annotation MyAnnotation, name : String? = nil
 # Define and register our listener that will do something based on our annotation.
 @[ADI::Register]
 class MyAnnotationListener
-  include AED::EventListenerInterface
-
   @[AEDA::AsEventListener]
   def on_view(event : ATH::Events::View) : Nil
     # Represents all custom annotations applied to the current ATH::Action.

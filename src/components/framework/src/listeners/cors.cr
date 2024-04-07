@@ -5,8 +5,6 @@
 #
 # TIP: Set your [Log::Severity](https://crystal-lang.org/api/Log/Severity.html) to `TRACE` to help debug the listener.
 struct Athena::Framework::Listeners::CORS
-  include AED::EventListenerInterface
-
   # :nodoc:
   struct Config
     getter? allow_credentials : Bool

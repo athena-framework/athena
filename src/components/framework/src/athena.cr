@@ -103,7 +103,8 @@ module Athena::Framework
   # within the exception that ultimately could be used in a `ATH::Events::Exception` listener.
   module Exceptions; end
 
-  # The `AED::EventListenerInterface` that act upon `ATH::Events` to handle a request. Custom listeners can also be defined, see `AED::EventListenerInterface`.
+  # The event listeners that act upon `ATH::Events` to handle a request.
+  # Custom listeners can also be defined, see `AEDA::AsEventListener`.
   #
   # See each listener and the [Getting Started](/getting_started/middleware) docs for more information.
   module Listeners; end
