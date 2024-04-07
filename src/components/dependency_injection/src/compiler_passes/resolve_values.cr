@@ -8,9 +8,9 @@ module Athena::DependencyInjection::ServiceContainer::ResolveValues
           # The values should be provided in priority order:
           #
           # 1. Explicit value on annotation => _id
-          # 2. Bindings (typed and untyped) => ADI.bind > ADI.auto_configure
+          # 2. Bindings (typed and untyped) => `ADI.bind` > `ADI::Autoconfigure`
           # 3. Autowire => By direct type, or parameter name
-          # 4. Service Alias => Service registered with `alias` of a specific interface
+          # 4. Service Alias => Service registered with `AsAlias` of a specific interface
           # 5. Default value => some_value : Int32 = 123
           # 6. Nilable Type => nil
 
@@ -27,7 +27,16 @@ module Athena::DependencyInjection::ServiceContainer::ResolveValues
                 # Service reference
               elsif unresolved_value.is_a?(StringLiteral) && unresolved_value.starts_with?('@')
                 service_name = unresolved_value[1..-1]
-                unresolved_value.raise "Failed to register service '#{service_id.id}'. Argument '#{param["declaration"]}' references undefined service '#{service_name.id}'." unless SERVICE_HASH[service_name]
+
+                # Resolve the alias ID to its underlying ID
+                if a = ALIASES[service_name]
+                  service_name = a["id"]
+                end
+
+                if SERVICE_HASH[service_name].nil?
+                  unresolved_value.raise "Failed to register service '#{service_id.id}'. Argument '#{param["declaration"]}' references undefined service '#{service_name.id}'."
+                end
+
                 resolved_value = service_name.id
 
                 # Tagged services

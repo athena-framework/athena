@@ -1,4 +1,61 @@
 module Athena::DependencyInjection
+  # Allows defining an alternative name to identify a service.
+  # This helps solve two primary use cases:
+  #
+  # 1. Defining a default service to use when a parameter is typed as an interface
+  # 1. Decoupling a service from its ID to more easily allow customizing it.
+  #
+  # ### Default Service
+  #
+  # This annotation may be applied to a service that includes one or more interface(s).
+  # The annotation can then be provided the interface to alias as the first positional argument.
+  # If the service only includes one interface (module ending with `Interface`), the annotation argument can be omitted.
+  # Multiple annotations may be applied if it includes more than one.
+  #
+  # ```
+  # module SomeInterface; end
+  #
+  # module OtherInterface; end
+  #
+  # module BlahInterface; end
+  #
+  # # `Foo` is implicitly aliased to `SomeInterface` since it only includes the one.
+  # @[ADI::Register]
+  # @[ADI::AsAlias] # SomeInterface is assumed
+  # class Foo
+  #   include SomeInterface
+  # end
+  #
+  # # Alias `Bar` to both included interfaces.
+  # @[ADI::Register]
+  # @[ADI::AsAlias(BlahInterface)]
+  # @[ADI::AsAlias(OtherInterface)]
+  # class Bar
+  #   include BlahInterface
+  #   include OtherInterface
+  # end
+  # ```
+  #
+  # In this example, anytime a parameter restriction for `SomeInterface` is encountered, `Foo` will be injected.
+  # Similarly, anytime a parameter restriction of `BlahInterface` or `OtherInterface` is encountered, `Bar` will be injected.
+  # This can be especially useful for when you want to define a default service to use when there are multiple implementations of an interface.
+  #
+  # ### String Keys
+  #
+  # The use case for string keys is you can do something like this:
+  #
+  # ```
+  # @[ADI::Register(name: "default_service")]
+  # @[ADI::AsAlias("my_service")]
+  # class SomeService
+  # end
+  # ```
+  # The idea being, have a service with an internal `default_service` id, but alias it to a more general `my_service` id.
+  # Dependencies could then be wired up to depend upon the `"@my_service"` implementation.
+  # This enabled the user/other logic to override the `my_service` alias to their own implementation (assuming it implements same API/interface(s)).
+  # This should allow everything to propagate and use the custom type without having to touch the original `default_service`.
+  annotation AsAlias; end
+
   # Applies the provided configuration to any registered service of the type the annotation is applied to.
   # E.g. a module interface, or a parent type.
   #
@@ -129,72 +186,12 @@ module Athena::DependencyInjection
   #
   # ### Aliasing Services
   #
-  # An important part of DI is building against interfaces as opposed to concrete types.  This allows a type to depend upon abstractions rather than a specific implementation of the interface.
+  # An important part of DI is building against interfaces as opposed to concrete types.
+  # This allows a type to depend upon abstractions rather than a specific implementation of the interface.
   # Or in other words, prevents a singular implementation from being tightly coupled with another type.
   #
-  # We can use the `alias` argument when registering a service to tell the container that it should inject this service when a type restriction for the aliased service is found.
-  #
-  # ```
-  # # Define an interface for our services to use.
-  # module TransformerInterface
-  #   abstract def transform(value : String) : String
-  # end
-  #
-  # @[ADI::Register(alias: [TransformerInterface])]
-  # # Alias the `TransformerInterface` to this service.
-  # struct ShoutTransformer
-  #   include TransformerInterface
-  #
-  #   def transform(value : String) : String
-  #     value.upcase
-  #   end
-  # end
-  #
-  # @[ADI::Register]
-  # # Define another transformer type.
-  # struct ReverseTransformer
-  #   include TransformerInterface
-  #
-  #   def transform(value : String) : String
-  #     value.reverse
-  #   end
-  # end
-  #
-  # @[ADI::Register(public: true)]
-  # # The `ShoutTransformer` is injected because the `TransformerInterface` is aliased to the `ShoutTransformer`.
-  # struct SomeAPIClient
-  #   def initialize(@transformer : TransformerInterface); end
-  #
-  #   def send(message : String)
-  #     message = @transformer.transform message
-  #
-  #     # ...
-  #   end
-  # end
-  #
-  # ADI.container.some_api_client.send "foo" # => FOO
-  # ```
-  #
-  # Any service that uses `TransformerInterface` as a dependency type restriction will get the `ShoutTransformer`.
-  # However, it is also possible to use a specific implementation while still building against the interface.  The name of the constructor argument is used in part to resolve the dependency.
-  #
-  # ```
-  # @[ADI::Register(public: true)]
-  # # The `ReverseTransformer` is injected because the constructor argument's name matches the service name of `ReverseTransformer`.
-  # struct SomeAPIClient
-  #   def initialize(reverse_transformer : TransformerInterface)
-  #     @transformer = reverse_transformer
-  #   end
-  #
-  #   def send(message : String)
-  #     message = @transformer.transform message
-  #
-  #     # ...
-  #   end
-  # end
-  #
-  # ADI.container.some_api_client.send "foo" # => oof
-  # ```
+  # The `ADI::AsAlias` annotation can be used to define a default implementation for an interface.
+  # Checkout the annotation's docs for more information.
   #
   # ### Scalar Arguments
   #

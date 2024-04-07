@@ -5,25 +5,27 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAliases
       {% verbatim do %}
         {%
           SERVICE_HASH.each do |service_id, definition|
-            if al = definition["aliases"]
-              aliases = al.is_a?(ArrayLiteral) ? al : [al]
+            interface_modules = definition["class"].ancestors.select &.name.ends_with? "Interface"
+            default_alias = 1 == interface_modules.size ? interface_modules[0] : nil
 
-              aliases.each do |a|
-                id_key = a.resolve.name.gsub(/::/, "_").underscore
-                alias_service_id = id_key.is_a?(StringLiteral) ? id_key : id_key.stringify
+            definition["class"].annotations(ADI::AsAlias).each do |ann|
+              alias_id = if name = ann[0]
+                           name.is_a?(Path) ? name.resolve : name
+                         else
+                           default_alias
+                         end
 
-                SERVICE_HASH[a.resolve] = {
-                  class:      definition["class"].resolve,
-                  tags:       {} of Nil => Nil,
-                  parameters: definition["parameters"],
-                  bindings:   {} of Nil => Nil,
-                  generics:   [] of Nil,
-
-                  alias_service_id:   alias_service_id,
-                  aliased_service_id: service_id,
-                  alias:              true,
-                }
+              unless alias_id
+                ann.raise <<-TXT
+                Alias cannot be automatically determined for '#{service_id.id}' (#{definition["class"]}). \
+                If the type includes multiple interfaces, provide the interface to alias as the first positional argument to `@[ADI::AsAlias]`.
+                TXT
               end
+
+              ALIASES[alias_id] = {
+                id:     service_id,
+                public: ann["public"] == true,
+              }
             end
           end
         %}

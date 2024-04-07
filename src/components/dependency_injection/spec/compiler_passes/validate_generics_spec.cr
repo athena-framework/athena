@@ -18,13 +18,6 @@ end
 
 describe ADI::ServiceContainer::ValidateGenerics do
   describe "compiler errors", tags: "compiled" do
-    it "errors if the generic service does not have a name." do
-      assert_error "Failed to auto register service for 'Foo(T)'. Generic services must explicitly provide a name.", <<-CR
-        @[ADI::Register]
-        record Foo(T)
-      CR
-    end
-
     it "errors if the generic service does not provide the generic arguments." do
       assert_error "Failed to register service 'foo_service'. Generic services must provide the types to use via the 'generics' field.", <<-CR
         @[ADI::Register(name: "foo_service")]

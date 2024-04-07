@@ -11,6 +11,7 @@ end
 module ResolveValuePriorityInterface; end
 
 @[ADI::Register]
+@[ADI::AsAlias("my_string_alias")]
 record ServicePriorityOne do
   include ResolveValuePriorityInterface
 end
@@ -20,7 +21,8 @@ record ServicePriorityTwo do
   include ResolveValuePriorityInterface
 end
 
-@[ADI::Register(alias: ResolveValuePriorityInterface)]
+@[ADI::Register]
+@[ADI::AsAlias(ResolveValuePriorityInterface)]
 record ServicePriorityFour do
   include ResolveValuePriorityInterface
 end
@@ -51,7 +53,7 @@ end
 ADI.bind ann_bind : Int32, 900
 ADI.bind global_bind : Int32, 900
 
-@[ADI::Register(_alias_overridden_by_ann_bind: "@service_priority_one", public: true)]
+@[ADI::Register(_alias_overridden_by_ann_bind: "@service_priority_one", _alias_service_via_string_alias: "@my_string_alias", public: true)]
 @[ADI::Autoconfigure(bind: {alias_overridden_by_auto_configure_bind: "@service_priority_two"})]
 class ServiceValuePriorityService
   getter explicit_auto_wire, interface_service_matches_name, default_alias, alias_overridden_by_ann_bind
@@ -62,7 +64,10 @@ class ServiceValuePriorityService
     default_alias : ResolveValuePriorityInterface,
     alias_overridden_by_ann_bind : ResolveValuePriorityInterface,
     alias_overridden_by_global_bind : ResolveValuePriorityInterface,
-    alias_overridden_by_auto_configure_bind : ResolveValuePriorityInterface
+    alias_overridden_by_auto_configure_bind : ResolveValuePriorityInterface,
+
+    # Validates container rewrites the alias service ID to the real underlying service ID
+    alias_service_via_string_alias : ResolveValuePriorityInterface
   )
     explicit_auto_wire.should be_a ServicePriorityThree
     service_priority_two.should be_a ServicePriorityTwo
@@ -70,6 +75,7 @@ class ServiceValuePriorityService
     alias_overridden_by_ann_bind.should be_a ServicePriorityOne
     alias_overridden_by_global_bind.should be_a ServicePriorityOne
     alias_overridden_by_auto_configure_bind.should be_a ServicePriorityTwo
+    alias_service_via_string_alias.should be_a ServicePriorityOne
   end
 end
 

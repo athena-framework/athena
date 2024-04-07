@@ -10,7 +10,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
           {% if (annotations = klass.annotations(ADI::Register)) && !annotations.empty? && !klass.abstract? %}
             # Raise a compile time exception if multiple services are based on this type, and not all of them specify a `name`.
             {% if annotations.size > 1 && !annotations.all? &.[:name] %}
-              {% klass.raise "Failed to auto register services for '#{klass}'. Services based on this type must each explicitly provide a name." %}
+              {% klass.raise "Failed to auto register services for '#{klass}'. Each service must explicitly provide a name when auto registering more than one service based on the same type." %}
             {% end %}
 
             {% for ann in annotations %}
@@ -131,7 +131,6 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
                   bindings:          {} of Nil => Nil,
                   generics:          ann.args,
                   parameters:        {} of Nil => Nil,
-                  aliases:           ann[:alias],
                 }
               %}
             {% end %}
