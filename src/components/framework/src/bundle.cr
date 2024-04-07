@@ -238,9 +238,8 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
             parameters["framework.request_listener.https_port"] = cfg["https_port"]
 
             # TODO: Make this `default_router` with a public alias of `router` instead.
-            SERVICE_HASH[router_id = "router"] = {
+            SERVICE_HASH[router_id = "default_router"] = {
               class:      ATH::Routing::Router,
-              aliases:    [ART::Generator::Interface, ART::Matcher::URLMatcherInterface, ART::RouterInterface],
               public:     true,
               parameters: {
                 default_locale:      {value: "%framework.default_locale%"},
