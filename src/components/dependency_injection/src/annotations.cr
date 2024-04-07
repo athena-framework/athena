@@ -1,6 +1,59 @@
 module Athena::DependencyInjection
-  # id
-  # public
+  # Allows defining an alternative name to identify a service.
+  # This helps solve two primary use cases:
+  #
+  # 1. Defining a default service to use when a parameter is typed as an interface
+  # 1. Decoupling a service from its ID to more easily allow customizing it.
+  #
+  # ### Default Service
+  #
+  # This annotation may be applied to a service that includes one or more interface(s).
+  # The annotation can then be provided the interface to alias as the first positional argument.
+  # If the service only includes one interface (module ending with `Interface`), the annotation argument can be omitted.
+  # Multiple annotations may be applied if it includes more than one.
+  #
+  # ```
+  # module SomeInterface; end
+  #
+  # module OtherInterface; end
+  #
+  # module BlahInterface; end
+  #
+  # # `Foo` is implicitly aliased to `SomeInterface` since it only includes the one.
+  # @[ADI::Register]
+  # @[ADI::AsAlias] # SomeInterface is assumed
+  # class Foo
+  #   include SomeInterface
+  # end
+  #
+  # # Alias `Bar` to both included interfaces.
+  # @[ADI::Register]
+  # @[ADI::AsAlias(BlahInterface)]
+  # @[ADI::AsAlias(OtherInterface)]
+  # class Bar
+  #   include BlahInterface
+  #   include OtherInterface
+  # end
+  # ```
+  #
+  # In this example, anytime a parameter restriction for `SomeInterface` is encountered, `Foo` will be injected.
+  # Similarly, anytime a parameter restriction of `BlahInterface` or `OtherInterface` is encountered, `Bar` will be injected.
+  # This can be especially useful for when you want to define a default service to use when there are multiple implementations of an interface.
+  #
+  # ### String Keys
+  #
+  # The use case for string keys is you can do something like this:
+  #
+  # ```
+  # @[ADI::Register(name: "default_service")]
+  # @[ADI::AsAlias("my_service")]
+  # class SomeService
+  # end
+  # ```
+  # The idea being, have a service with an internal `default_service` id, but alias it to a more general `my_service` id.
+  # Dependencies could then be wired up to depend upon the `"@my_service"` implementation.
+  # This enabled the user/other logic to override the `my_service` alias to their own implementation (assuming it implements same API/interface(s)).
+  # This should allow everything to propagate and use the custom type without having to touch the original `default_service`.
   annotation AsAlias; end
 
   # Applies the provided configuration to any registered service of the type the annotation is applied to.
