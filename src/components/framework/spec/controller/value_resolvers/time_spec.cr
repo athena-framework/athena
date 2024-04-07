@@ -73,11 +73,11 @@ describe ATHR::Time do
     it "allows specifying a format" do
       parameter = ATH::Controller::ParameterMetadata(::Time).new(
         "foo",
-        annotation_configurations: ACF::AnnotationConfigurations.new({
+        annotation_configurations: ADI::AnnotationConfigurations.new({
           ATHR::Time::Format => [
             ATHR::Time::FormatConfiguration.new(format: "%Y--%m//%d  %T"),
-          ] of ACF::AnnotationConfigurations::ConfigurationBase,
-        } of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase))
+          ] of ADI::AnnotationConfigurations::ConfigurationBase,
+        } of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase))
       )
 
       request = new_request
@@ -89,11 +89,11 @@ describe ATHR::Time do
     it "allows specifying a location to parse the format in" do
       parameter = ATH::Controller::ParameterMetadata(::Time).new(
         "foo",
-        annotation_configurations: ACF::AnnotationConfigurations.new({
+        annotation_configurations: ADI::AnnotationConfigurations.new({
           ATHR::Time::Format => [
             ATHR::Time::FormatConfiguration.new(format: "%Y--%m//%d  %T", location: Time::Location.fixed(9001)),
-          ] of ACF::AnnotationConfigurations::ConfigurationBase,
-        } of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase))
+          ] of ADI::AnnotationConfigurations::ConfigurationBase,
+        } of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase))
       )
 
       request = new_request

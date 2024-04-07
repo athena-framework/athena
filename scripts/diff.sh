@@ -38,7 +38,6 @@ then
 fi
 
 diff clock
-diff config
 diff console
 diff dependency-injection
 diff dotenv

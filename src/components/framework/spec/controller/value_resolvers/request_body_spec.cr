@@ -102,11 +102,11 @@ struct RequestBodyResolverTest < ASPEC::TestCase
   private def get_config(type : T.class) forall T
     ATH::Controller::ParameterMetadata(T).new(
       "foo",
-      annotation_configurations: ACF::AnnotationConfigurations.new({
+      annotation_configurations: ADI::AnnotationConfigurations.new({
         ATHR::RequestBody::Extract => [
           ATHR::RequestBody::ExtractConfiguration.new,
-        ] of ACF::AnnotationConfigurations::ConfigurationBase,
-      } of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase))
+        ] of ADI::AnnotationConfigurations::ConfigurationBase,
+      } of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase))
     )
   end
 end

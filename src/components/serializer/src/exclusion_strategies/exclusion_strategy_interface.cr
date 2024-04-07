@@ -43,7 +43,7 @@
 #
 # ```
 # # Define an annotation called `IsActiveProperty` that accepts an optional `active` field.
-# ACF.configuration_annotation IsActiveProperty, active : Bool = true
+# ADI.configuration_annotation IsActiveProperty, active : Bool = true
 #
 # # Define an exclusion strategy that should skip "inactive" properties.
 # struct ActivePropertyExclusionStrategy

@@ -276,10 +276,10 @@ module Athena::Framework::Controller::ValueResolvers::Interface
   # The tag name for `ATHR::Interface` services.
   TAG = "athena.controller.value_resolver"
 
-  # Helper macro around `ACF.configuration_annotation` that allows defining resolver specific annotations.
+  # Helper macro around `ADI.configuration_annotation` that allows defining resolver specific annotations.
   # See the underlying macro and the [configuration][Athena::Framework::Controller::ValueResolvers::Interface--configuration] section for more information.
   macro configuration(name, *args)
-    ACF.configuration_annotation ::{{@type}}::{{name.id}}{% unless args.empty? %}, {{args.splat}}{% end %}
+    ADI.configuration_annotation ::{{@type}}::{{name.id}}{% unless args.empty? %}, {{args.splat}}{% end %}
   end
 
   # Represents an `ATHR::Interface` that only supports a subset of types.

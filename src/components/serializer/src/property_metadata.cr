@@ -52,12 +52,12 @@ struct Athena::Serializer::PropertyMetadata(IvarType, ValueType, ClassType)
   # Returns annotations configurations registered via `Athena::Config.configuration_annotation` and applied to this property.
   #
   # These configurations could then be accessed within an `ASR::ExclusionStrategies::ExclusionStrategyInterface`.
-  getter annotation_configurations : ACF::AnnotationConfigurations
+  getter annotation_configurations : ADI::AnnotationConfigurations
 
   def initialize(
     @name : String,
     @external_name : String,
-    @annotation_configurations : ACF::AnnotationConfigurations,
+    @annotation_configurations : ADI::AnnotationConfigurations,
     @value : ValueType = nil,
     @skip_when_empty : Bool = false,
     groups : Enumerable(String) = ["default"],

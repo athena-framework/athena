@@ -1,9 +1,9 @@
 require "../spec_helper"
 
-ACF.configuration_annotation SpecAnnotation
-ACF.configuration_annotation CustomAnn, id : Int32
-ACF.configuration_annotation TopParameterAnn
-ACF.configuration_annotation MyApp::NestedParameterAnn
+ADI.configuration_annotation SpecAnnotation
+ADI.configuration_annotation CustomAnn, id : Int32
+ADI.configuration_annotation TopParameterAnn
+ADI.configuration_annotation MyApp::NestedParameterAnn
 
 @[ADI::Register]
 struct CustomAnnotationListener

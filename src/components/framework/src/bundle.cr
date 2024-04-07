@@ -190,7 +190,7 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
               debug_env = env("ATHENA_DEBUG") == "true"
               non_prod_env = env("ATHENA_ENV") != "production"
 
-              parameters["framework.debug"] = debug_env || non_prod_env || !flag?(:release)
+              parameters["framework.debug"] = debug_env || non_prod_env || !release_flag
             end
           %}
 

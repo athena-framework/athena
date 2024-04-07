@@ -17,6 +17,6 @@ authors:
   - George Dietrich <dev@dietrich.pub>
 
 dependencies:
-  athena-config:
-    github: athena-framework/config
-    version: '>= 0.2.0'
+  athena-dependency_injection:
+    github: athena-framework/dependency-injection
+    version: '>= 0.4.0'

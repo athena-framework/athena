@@ -4,7 +4,7 @@ require "uuid"
 require "json"
 require "yaml"
 
-require "athena-config"
+require "athena-dependency_injection"
 
 require "./annotations"
 require "./any"
