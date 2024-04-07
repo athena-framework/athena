@@ -98,7 +98,7 @@ class CallClient
   end
 end
 
-describe ADI::ServiceContainer::RegisterServices, focus: true do
+describe ADI::ServiceContainer::RegisterServices do
   describe "compiler errors", tags: "compiled" do
     it "errors if a service has multiple ADI::Register annotations but not all of them have a name" do
       assert_error "Failed to auto register services for 'Foo'. Each service must explicitly provide a name when auto registering more than one service based on the same type.", <<-CR

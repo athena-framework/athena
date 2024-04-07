@@ -14,6 +14,13 @@ class Athena::DependencyInjection::ServiceContainer
   # Key is the ID of the service and the value is another hash containing its arguments, type, etc.
   SERVICE_HASH = {} of Nil => Nil
 
+  # :nodoc:
+  #
+  # Maps services to their aliases
+  #
+  # Hash(String, NamedTuple(id: String, public: Bool))
+  ALIASES = {} of Nil => Nil
+
   # Define a hash to store the service ids for each tag.
   #
   # Tag Name, service_id, array attributes
