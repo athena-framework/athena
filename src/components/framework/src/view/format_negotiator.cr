@@ -1,4 +1,4 @@
-# An extension of `ANG::Negotiator` that supports resolving the format based on an applications `ATH::Config::ContentNegotiation` rules.
+# An extension of `ANG::Negotiator` that supports resolving the format based on an applications `ATH::Bundle::Schema::FormatListener` rules.
 #
 # See the [Getting Started](/getting_started/routing#content-negotiation) docs for more information.
 class Athena::Framework::View::FormatNegotiator < ANG::Negotiator

@@ -31,7 +31,6 @@ nav:
   - API Reference:
     - api_reference.md
     - project://clock
-    - project://config
     - project://console
     - project://dependency_injection
     - project://dotenv

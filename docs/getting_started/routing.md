@@ -521,13 +521,17 @@ class CSVFormatHandler
   end
 end
 
-# Configure the format listener.
-def ATH::Config::ContentNegotiation.configure
-  new(
-    # Allow json and csv formats, falling back on json if an unsupported format is requested.
-    Rule.new(priorities: ["json", "csv"], fallback_format: "json"),
-  )
-end
+ATH.configure({
+  framework: {
+    format_listener: {
+      enabled: true,
+      rules:   [
+        # Allow json and csv formats, falling back on json if an unsupported format is requested.
+        {priorities: ["json", "csv"], fallback_format: "json"}
+      ]
+    },
+  }
+})
 
 class ExampleController < ATH::Controller
   @[ARTA::Get("/users")]

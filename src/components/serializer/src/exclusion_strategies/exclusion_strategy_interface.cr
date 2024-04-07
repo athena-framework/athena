@@ -37,7 +37,7 @@
 #
 # ### Annotation Configurations
 #
-# Custom annotations can be defined using `Athena::Config.configuration_annotation`.
+# Custom annotations can be defined using `ADI.configuration_annotation`.
 # These annotations will be exposed at runtime as part of the properties' metadata within exclusion strategies via `ASR::PropertyMetadata#annotation_configurations`.
 # The main purpose of this is to allow for more advanced annotation based exclusion strategies.
 #

@@ -49,7 +49,7 @@ struct Athena::Serializer::PropertyMetadata(IvarType, ValueType, ClassType)
   # See `ASRA::SkipWhenEmpty`.
   getter? skip_when_empty : Bool
 
-  # Returns annotations configurations registered via `Athena::Config.configuration_annotation` and applied to this property.
+  # Returns annotations configurations registered via `ADI..configuration_annotation` and applied to this property.
   #
   # These configurations could then be accessed within an `ASR::ExclusionStrategies::ExclusionStrategyInterface`.
   getter annotation_configurations : ADI::AnnotationConfigurations

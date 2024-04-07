@@ -6,7 +6,7 @@ struct Athena::Framework::Controller::ParameterMetadata(T)
   # Returns `true` if this parameter has a default value set, otherwise `false`.
   getter? has_default : Bool
 
-  # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to this parameter.
+  # Returns annotation configurations registered via `ADI.configuration_annotation` and applied to this parameter.
   #
   # These configurations could then be accessed within `ATHR::Interface`s and/or `ATH::Listeners`s.
   getter annotation_configurations : ADI::AnnotationConfigurations

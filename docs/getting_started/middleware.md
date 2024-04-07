@@ -32,7 +32,9 @@ Another use case for this event is populating additional data into the request's
 
 ### 2. Action Event
 
-The next event to be dispatched is the [ATH::Events::Action](/Framework/Events/Action/) event, assuming a response was not already returned within the [request](#1-request-event) event. This event is dispatched after the related controller/action pair is determined, but before it is executed. This event is intended to be used when a listener requires information from the related [ATH::Action](/Framework/Action/); such as reading custom annotations off of it via the [Config](./configuration.md) component.
+The next event to be dispatched is the [ATH::Events::Action](/Framework/Events/Action/) event, assuming a response was not already returned within the [request](#1-request-event) event.
+This event is dispatched after the related controller/action pair is determined, but before it is executed.
+This event is intended to be used when a listener requires information from the related [ATH::Action](/Framework/Action/); such as reading [custom annotations](./configuration.md#custom-annotations).
 
 !!! example "Action event in the Athena Framework"
     This is the event that the [ATH::Listeners::ParamFetcher](/Framework/Listeners/ParamFetcher) listens on to resolve request parameters such as [ATHA::QueryParam](/Framework/Events/Annotations/QueryParam).

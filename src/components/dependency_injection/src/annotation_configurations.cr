@@ -25,7 +25,7 @@ module Athena::DependencyInjection
   # ```
   #
   # NOTE: The logic to actually do the resolution of the annotations must be handled in the owning shard.
-  # `Athena::Config` only defines the common logic that each implementation can use.
+  # `Athena::DependencyInjection` only defines the common logic that each implementation can use.
   # See `ADI::AnnotationConfigurations` for more information.
   macro configuration_annotation(name, *args, &)
     annotation {{name.id}}; end

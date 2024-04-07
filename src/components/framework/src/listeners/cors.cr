@@ -1,7 +1,7 @@
 # Supports [Cross-Origin Resource Sharing](https://enable-cors.org) (CORS) requests.
 #
 # Handles CORS preflight `OPTIONS` requests as well as adding CORS headers to each response.
-# See `ATH::Config::CORS` for information on configuring the listener.
+# See `ATH::Bundle::Schema::Cors` for information on configuring the listener.
 #
 # TIP: Set your [Log::Severity](https://crystal-lang.org/api/Log/Severity.html) to `TRACE` to help debug the listener.
 struct Athena::Framework::Listeners::CORS
