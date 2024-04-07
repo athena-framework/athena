@@ -1,3 +1,7 @@
+@[ADI::Register(name: "event_dispatcher", public: true)]
+@[ADI::AsAlias(AED::EventDispatcherInterface)]
+class AED::EventDispatcher; end
+
 # :nodoc:
 module Athena::Framework::EventDispatcher::CompilerPasses::RegisterEventListenersPass
   macro included
