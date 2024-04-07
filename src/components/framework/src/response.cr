@@ -30,8 +30,6 @@ class Athena::Framework::Response
   # # Define a new event listener to handle applying this writer
   # @[ADI::Register]
   # struct CompressionListener
-  #   include AED::EventListenerInterface
-  #
   #   @[AEDA::AsEventListener(priority: -256)]
   #   def on_response(event : ATH::Events::Response) : Nil
   #     # If the request supports gzip encoding

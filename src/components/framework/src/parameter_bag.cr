@@ -11,8 +11,6 @@
 # # Define a request listener to add our value before the action is executed.
 # @[ADI::Register]
 # struct TestListener
-#   include AED::EventListenerInterface
-#
 #   @[AEDA::AsEventListener]
 #   def on_request(event : ATH::Events::Request) : Nil
 #     # Store our value within the request's attributes, restricted to a `String`.

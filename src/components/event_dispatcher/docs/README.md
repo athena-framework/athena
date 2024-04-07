@@ -49,8 +49,6 @@ However having a dedicated type is usually the better practice.
 
 ```crystal
 struct SendConfirmationListener
-  include AED::EventListenerInterface
-
   @[AEDA::AsEventListener]
   def order_placed(event : OrderPlaced) : Nil
     # Send a confirmation email to the user

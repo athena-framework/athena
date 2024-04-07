@@ -15,7 +15,7 @@
 # ```
 #
 # Another way involves passing an `AED::Callable` instance, created manually or via the `AED::Event.callable` method.
-# Lastly, an `AED::EventListenerInterface` instance may also be passed.
+# Lastly, a type that has one or more `AEDA::AsEventListener` annotated methods may also be passed.
 #
 # Once all listeners are registered, you can begin to dispatch events.
 # Dispatching an event is simply calling the `#dispatch` method with an `AED::Event` subclass instance as an argument.

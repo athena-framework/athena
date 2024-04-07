@@ -196,8 +196,6 @@ ACF.configuration_annotation MyAnnotation, name : String? = nil
 # Define and register our listener that will do something based on our annotation.
 @[ADI::Register]
 class MyAnnotationListener
-  include AED::EventListenerInterface
-
   @[AEDA::AsEventListener]
   def on_view(event : ATH::Events::View) : Nil
     # Represents all custom annotations applied to the current ATH::Action.
@@ -250,8 +248,6 @@ ACF.configuration_annotation Paginated, page : Int32 = 1, per_page : Int32 = 100
 # Define and register our listener that will handle paginating the response.
 @[ADI::Register]
 struct PaginationListener
-  include AED::EventListenerInterface
-
   private PAGE_QUERY_PARAM     = "page"
   private PER_PAGE_QUERY_PARAM = "per_page"
 

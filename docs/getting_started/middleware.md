@@ -101,16 +101,13 @@ It is also possible to handle specific error states differently by registering m
 
 Unlike other frameworks, Athena Framework leverages event based middleware instead of a pipeline based approach.
 The primary use case for event listeners is to tap into the life-cycle of the request, such as adding common headers, setting state extracted from the request, or whatever else the application requires.
-These can be created by creating a type annotated with [ADI::Register](/DependencyInjection/Register) and including [AED::EventListenerInterface](/EventDispatcher/EventListenerInterface).
-From here, 1 or more methods may be defined that has the [AEDA::AsEventListener](/EventDispatcher/Annotations/AsEventListener) annotation applied to it.
+These can be created by creating a type annotated with [ADI::Register](/DependencyInjection/Register), then annotating one or more methods with [AEDA::AsEventListener](/EventDispatcher/Annotations/AsEventListener).
 
 ```crystal
 require "athena"
 
 @[ADI::Register]
 class CustomListener
-  include AED::EventListenerInterface
-
   @[AEDA::AsEventListener]
   def on_response(event : ATH::Events::Response) : Nil
     event.response.headers["FOO"] = "BAR"
@@ -161,8 +158,6 @@ end
 # Define a listener that listens our the custom event.
 @[ADI::Register]
 class CustomEventListener
-  include AED::EventListenerInterface
-
   @[AEDA::AsEventListener]
   def call(event : MyEvent) : Nil
     event.value *= 10
