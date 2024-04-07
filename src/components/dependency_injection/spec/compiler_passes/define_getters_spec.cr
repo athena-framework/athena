@@ -23,7 +23,7 @@ private def assert_success(code : String, *, line : Int32 = __LINE__) : Nil
   CR
 end
 
-describe ADI::ServiceContainer::DefineGetters, tags: "compiled", focus: true do
+describe ADI::ServiceContainer::DefineGetters, tags: "compiled" do
   describe "compiler errors" do
     describe "aliases" do
       it "does not expose named getter for non-public string aliases" do
