@@ -179,7 +179,7 @@ TIP: Parameters may also be [injected](/DependencyInjection/Register/#Athena::De
 
 ## Custom Annotations
 
-Athena integrates the [Athena::Config](/Config) component's ability to define custom annotation configurations.
+Athena integrates the [Athena::DependencyInjection](/DependencyInjection) component's ability to define custom annotation configurations.
 This feature allows developers to define custom annotations, and the data that should be read off of them, then apply/access the annotations on [ATH::Controller](/Framework/Controller) and/or [ATH::Action](/Framework/Action)s.
 
 This is a powerful feature that allows for almost limitless flexibility/customization.
@@ -191,7 +191,7 @@ require "athena"
 
 # Define our configuration annotation with an optional `name` argument.
 # A default value can also be provided, or made not nilable to be considered required.
-ACF.configuration_annotation MyAnnotation, name : String? = nil
+ADI.configuration_annotation MyAnnotation, name : String? = nil
 
 # Define and register our listener that will do something based on our annotation.
 @[ADI::Register]
@@ -243,7 +243,7 @@ A good example use case for custom annotations is the creation of a `Paginated` 
 
 # Define our configuration annotation with the default pagination values.
 # These values can be overridden on a per endpoint basis.
-ACF.configuration_annotation Paginated, page : Int32 = 1, per_page : Int32 = 100, max_per_page : Int32 = 1000
+ADI.configuration_annotation Paginated, page : Int32 = 1, per_page : Int32 = 100, max_per_page : Int32 = 1000
 
 # Define and register our listener that will handle paginating the response.
 @[ADI::Register]

@@ -320,7 +320,7 @@ module Athena::Framework::Annotations
   # ```
   annotation RequestParam; end
 
-  ACF.configuration_annotation Athena::Framework::Annotations::View,
+  ADI.configuration_annotation Athena::Framework::Annotations::View,
     status : HTTP::Status? = nil,
     serialization_groups : Array(String)? = nil,
     validation_groups : Array(String)? = nil,

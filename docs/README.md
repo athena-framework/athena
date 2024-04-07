@@ -4,7 +4,6 @@ Athena is a collection of general-purpose, robust, independent, and reusable com
 These include:
 
 * [Clock](/Clock) (`ACLK`) - Decouples applications from the system clock
-* [Config](/Config) (`ACF`) - Common library for configuring Athena components
 * [Console](/Console) (`ACON`) - Allows the creation of CLI based commands
 * [DependencyInjection](/DependencyInjection) (`ADI`) - Robust dependency injection service container framework
 * [Dotenv](/Dotenv) - Registers environment variables from a `.env` file

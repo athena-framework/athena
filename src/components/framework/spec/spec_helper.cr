@@ -65,7 +65,7 @@ macro create_action(return_type = String, &)
   ATH::Action.new(
     Proc(typeof(Tuple.new), {{return_type}}).new { {{yield}} },
     Tuple.new,
-    ACF::AnnotationConfigurations.new,
+    ADI::AnnotationConfigurations.new,
     Array(ATH::Params::ParamInterface).new,
     TestController,
     {{return_type}},
@@ -89,7 +89,7 @@ def new_action(
   ATH::Action.new(
     Proc(typeof(Tuple.new), String).new { test_controller = TestController.new; test_controller.get_test },
     arguments,
-    annotation_configurations || ACF::AnnotationConfigurations.new,
+    annotation_configurations || ADI::AnnotationConfigurations.new,
     params,
     TestController,
     String,

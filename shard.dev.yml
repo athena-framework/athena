@@ -4,8 +4,6 @@ dependencies:
     path: ./src/components/framework
   athena-clock:
     path: ./src/components/clock
-  athena-config:
-    path: ./src/components/config
   athena-console:
     path: ./src/components/console
   athena-dependency_injection:

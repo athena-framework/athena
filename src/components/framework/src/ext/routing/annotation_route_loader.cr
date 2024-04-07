@@ -196,7 +196,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                 parameter_annotation_configurations = {} of Nil => Nil
 
                 # Process custom annotation types
-                ACF::CUSTOM_ANNOTATIONS.each do |ann_class|
+                ADI::CUSTOM_ANNOTATIONS.each do |ann_class|
                   ann_class = ann_class.resolve
                   annotations = [] of Nil
 
@@ -219,7 +219,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                     annotations << "#{ann_class}Configuration.new(#{ann.args.empty? ? "".id : "#{ann.args.splat},".id}#{ann.named_args.double_splat})".id
                   end
 
-                  parameter_annotation_configurations[ann_class] = "(#{annotations} of ACF::AnnotationConfigurations::ConfigurationBase)".id unless annotations.empty?
+                  parameter_annotation_configurations[ann_class] = "(#{annotations} of ADI::AnnotationConfigurations::ConfigurationBase)".id unless annotations.empty?
                 end
 
                 arg.raise "Route action parameter '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction." if arg.restriction.is_a? Nop
@@ -227,14 +227,14 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                   #{arg.name.stringify},
                   #{!arg.default_value.is_a? Nop},
                   #{arg.default_value.is_a?(Nop) ? nil : arg.default_value},
-                  ACF::AnnotationConfigurations.new(
-                    #{parameter_annotation_configurations} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)
+                  ADI::AnnotationConfigurations.new(
+                    #{parameter_annotation_configurations} of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase)
                   ),
                 )).id
               end
 
               # Process custom annotation types
-              ACF::CUSTOM_ANNOTATIONS.each do |ann_class|
+              ADI::CUSTOM_ANNOTATIONS.each do |ann_class|
                 ann_class = ann_class.resolve
                 annotations = [] of Nil
 
@@ -242,7 +242,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                   annotations << "#{ann_class}Configuration.new(#{ann.args.empty? ? "".id : "#{ann.args.splat},".id}#{ann.named_args.double_splat})".id
                 end
 
-                annotation_configurations[ann_class] = "(#{annotations} of ACF::AnnotationConfigurations::ConfigurationBase)".id unless annotations.empty?
+                annotation_configurations[ann_class] = "(#{annotations} of ADI::AnnotationConfigurations::ConfigurationBase)".id unless annotations.empty?
               end
 
               # Process query and request params
@@ -353,7 +353,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                   %instance.{{m.name.id}} *arguments
                 end,
                 parameters: {{parameters.empty? ? "Tuple.new".id : "{#{parameters.splat}}".id}},
-                annotation_configurations: ACF::AnnotationConfigurations.new({{annotation_configurations}} of ACF::AnnotationConfigurations::Classes => Array(ACF::AnnotationConfigurations::ConfigurationBase)),
+                annotation_configurations: ADI::AnnotationConfigurations.new({{annotation_configurations}} of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase)),
                 params: ({{params}} of ATH::Params::ParamInterface),
                 _controller: {{klass.id}},
                 _return_type: {{m.return_type}},
@@ -547,7 +547,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
           ATH::Controller::ParameterMetadata(Int32?).new("https_port", true, nil),
           ATH::Controller::ParameterMetadata(Bool).new("keep_request_method", true, false),
         },
-        annotation_configurations: ACF::AnnotationConfigurations.new,
+        annotation_configurations: ADI::AnnotationConfigurations.new,
         params: ([] of ATH::Params::ParamInterface),
         _controller: Athena::Framework::Controller::Redirect,
         _return_type: ATH::RedirectResponse,

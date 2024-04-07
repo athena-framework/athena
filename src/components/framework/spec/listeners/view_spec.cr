@@ -27,8 +27,8 @@ private class MockViewHandler
   end
 end
 
-private def get_ann_configs(config : ACF::AnnotationConfigurations::ConfigurationBase) : ACF::AnnotationConfigurations
-  ACF::AnnotationConfigurations.new ACF::AnnotationConfigurations::AnnotationHash{ATHA::View => [config] of ACF::AnnotationConfigurations::ConfigurationBase}
+private def get_ann_configs(config : ADI::AnnotationConfigurations::ConfigurationBase) : ADI::AnnotationConfigurations
+  ADI::AnnotationConfigurations.new ADI::AnnotationConfigurations::AnnotationHash{ATHA::View => [config] of ADI::AnnotationConfigurations::ConfigurationBase}
 end
 
 describe ATH::Listeners::View do

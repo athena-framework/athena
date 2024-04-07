@@ -37,13 +37,13 @@
 #
 # ### Annotation Configurations
 #
-# Custom annotations can be defined using `Athena::Config.configuration_annotation`.
+# Custom annotations can be defined using `ADI.configuration_annotation`.
 # These annotations will be exposed at runtime as part of the properties' metadata within exclusion strategies via `ASR::PropertyMetadata#annotation_configurations`.
 # The main purpose of this is to allow for more advanced annotation based exclusion strategies.
 #
 # ```
 # # Define an annotation called `IsActiveProperty` that accepts an optional `active` field.
-# ACF.configuration_annotation IsActiveProperty, active : Bool = true
+# ADI.configuration_annotation IsActiveProperty, active : Bool = true
 #
 # # Define an exclusion strategy that should skip "inactive" properties.
 # struct ActivePropertyExclusionStrategy

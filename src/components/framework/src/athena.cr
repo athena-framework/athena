@@ -3,7 +3,6 @@ require "http/server"
 require "json"
 
 require "athena-clock"
-require "athena-config"
 require "athena-console"
 require "athena-dependency_injection"
 require "athena-event_dispatcher"
@@ -60,6 +59,14 @@ alias ATHR = ATH::Controller::ValueResolvers
 
 module Athena::Framework
   VERSION = "0.18.2"
+
+  # The name of the environment variable used to determine Athena's current environment.
+  ENV_NAME = "ATHENA_ENV"
+
+  # Returns the current environment Athena is in based on `ENV_NAME`.  Defaults to `development` if not defined.
+  def self.environment : String
+    ENV[ENV_NAME]? || "development"
+  end
 
   # This type includes all of the built-in resolvers that Athena uses to try and resolve an argument for a particular controller action parameter.
   # They run in the following order:

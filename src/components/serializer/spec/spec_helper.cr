@@ -14,7 +14,7 @@ def get_test_property_metadata : Array(ASR::PropertyMetadataBase)
   [ASR::PropertyMetadata(String, String, TestObject).new(
     name: "name",
     external_name: "external_name",
-    annotation_configurations: ACF::AnnotationConfigurations.new,
+    annotation_configurations: ADI::AnnotationConfigurations.new,
     value: "YES",
     skip_when_empty: false,
     groups: ["default"],
@@ -138,7 +138,7 @@ def create_metadata(
   groups : Array(String) = ["default"],
   since_version : String? = nil,
   until_version : String? = nil,
-  annotation_configurations : ACF::AnnotationConfigurations = ACF::AnnotationConfigurations.new
+  annotation_configurations : ADI::AnnotationConfigurations = ADI::AnnotationConfigurations.new
 ) : ASR::PropertyMetadata forall I
   context = ASR::PropertyMetadata(I, I, EmptyObject).new name, external_name, annotation_configurations, value, skip_when_empty, groups
 

@@ -22,7 +22,6 @@ function maybeSync()
 }
 
 maybeSync "src/components/clock" clock https://github.com/athena-framework/clock.git
-maybeSync "src/components/config" config https://github.com/athena-framework/config.git
 maybeSync "src/components/console" console https://github.com/athena-framework/console.git
 maybeSync "src/components/dependency_injection" dependency-injection https://github.com/athena-framework/dependency-injection.git
 maybeSync "src/components/dotenv" dotenv https://github.com/athena-framework/dotenv.git

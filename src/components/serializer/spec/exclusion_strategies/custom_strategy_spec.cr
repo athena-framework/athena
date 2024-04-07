@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-ACF.configuration_annotation IsActiveProperty, active : Bool = true
+ADI.configuration_annotation IsActiveProperty, active : Bool = true
 
 private struct ActivePropertyExclusionStrategy
   include Athena::Serializer::ExclusionStrategies::ExclusionStrategyInterface
@@ -15,7 +15,7 @@ private struct ActivePropertyExclusionStrategy
   end
 end
 
-# Mainly testing `Athena::Config` integration in regards to custom annotations accessible via the property metadata.
+# Mainly testing `Athena::DependencyInjection` integration in regards to custom annotations accessible via the property metadata.
 describe ActivePropertyExclusionStrategy do
   describe "#skip_property?" do
     describe :deserialization do
@@ -33,13 +33,13 @@ describe ActivePropertyExclusionStrategy do
 
       describe "with the annotation" do
         it true do
-          ann_config = ACF::AnnotationConfigurations.new({IsActiveProperty => [IsActivePropertyConfiguration.new] of ACF::AnnotationConfigurations::ConfigurationBase})
+          ann_config = ADI::AnnotationConfigurations.new({IsActiveProperty => [IsActivePropertyConfiguration.new] of ADI::AnnotationConfigurations::ConfigurationBase})
 
           ActivePropertyExclusionStrategy.new.skip_property?(create_metadata(annotation_configurations: ann_config), ASR::SerializationContext.new).should be_false
         end
 
         it false do
-          ann_config = ACF::AnnotationConfigurations.new({IsActiveProperty => [IsActivePropertyConfiguration.new(false)] of ACF::AnnotationConfigurations::ConfigurationBase})
+          ann_config = ADI::AnnotationConfigurations.new({IsActiveProperty => [IsActivePropertyConfiguration.new(false)] of ADI::AnnotationConfigurations::ConfigurationBase})
 
           ActivePropertyExclusionStrategy.new.skip_property?(create_metadata(annotation_configurations: ann_config), ASR::SerializationContext.new).should be_true
         end

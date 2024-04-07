@@ -224,7 +224,7 @@ require "athena"
 
 # Define our configuration annotation with an optional `name` argument.
 # A default value can also be provided, or made not nilable to be considered required.
-ACF.configuration_annotation MyAnnotation, name : String? = nil
+ADI.configuration_annotation MyAnnotation, name : String? = nil
 
 # Define and register our listener that will do something based on our annotation.
 @[ADI::Register]
