@@ -18,6 +18,11 @@ module Athena::DependencyInjection
   private BINDINGS   = {} of Nil => Nil
   private EXTENSIONS = {} of Nil => Nil
 
+  # Maps services to their aliases
+  #
+  # Hash(String, NamedTuple(id: String, public: Bool))
+  private ALIASES = {} of Nil => Nil
+
   # :nodoc:
   CONFIG = {parameters: {__nil: nil}} # Ensure this type is a NamedTupleLiteral
 

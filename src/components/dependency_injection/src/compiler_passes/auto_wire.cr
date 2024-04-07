@@ -26,20 +26,17 @@ module Athena::DependencyInjection::ServiceContainer::AutoWire
 
               # Try and determine the service to used in priority order:
               #
-              # 1. Use only resolved service
-              # 2. If the constructor arg explicitly matches service ID
-              # 3. Explicit match on the type of the constructor arg
-              # 4. The first valid alias based on type
+              # 1. The first service if there is only 1 option
+              # 2. If the constructor parameter name explicitly matches service ID
+              # 3. Constructor parameter type is aliased to another service
 
-              if resolved_services.size == 1
-                resolved_service = resolved_services[0]
-              elsif rs = resolved_services.find(&.==(name.id))
-                resolved_service = rs
-              elsif s = SERVICE_HASH[(param_resolved_restriction && param_resolved_restriction < ADI::Proxy ? param_resolved_restriction.type_vars.first.resolve : param_resolved_restriction)]
-                resolved_service = s["alias_service_id"]
-              else
-                resolved_service = resolved_services.first
-              end
+              resolved_service = if resolved_services.size == 1
+                                   resolved_services[0]
+                                 elsif rs = resolved_services.find(&.==(name.id))
+                                   rs
+                                 elsif a = ALIASES.keys.find { |k| k == param_resolved_restriction }
+                                   ALIASES[a]["id"]
+                                 end
 
               if resolved_service
                 param["value"] = if param["resolved_restriction"] < ADI::Proxy

@@ -1,4 +1,8 @@
 module Athena::DependencyInjection
+  # id
+  # public
+  annotation AsAlias; end
+
   # Applies the provided configuration to any registered service of the type the annotation is applied to.
   # E.g. a module interface, or a parent type.
   #

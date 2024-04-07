@@ -244,20 +244,6 @@ describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
         CR
       end
 
-      it "errors if not all tags have a `name` field" do
-        assert_error "Failed to auto register service 'foo'. All tags must have a name.", <<-CR
-          @[ADI::Register(tags: [{priority: 100}])]
-          record Foo
-        CR
-      end
-
-      it "errors if not all tags are of the proper type" do
-        assert_error "Tag '100' must be a 'StringLiteral' or 'NamedTupleLiteral', got 'NumberLiteral'.", <<-CR
-          @[ADI::Register(tags: [100])]
-          record Foo
-        CR
-      end
-
       describe ADI::TaggedIterator do
         it "errors if used with unsupported collection type" do
           assert_error "Failed to register service 'fqn_tagged_iterator_named_client' (FQNTaggedIteratorNamedClient). Collection parameter '@[ADI::TaggedIterator] services : Set(String)' type must be one of `Indexable`, `Iterator`, or `Enumerable`. Got 'Set'.", <<-CR
