@@ -160,6 +160,7 @@ _Last release in the [athena-framework/athena](https://github.com/athena-framewo
 - Fix incorrect ivar type on `AVD::Exceptions::Exceptions::ValidationFailed#violations` ([#116](https://github.com/athena-framework/athena/pull/116)) (George Dietrich)
 - Correctly reject requests with whitespace when converting numeric inputs ([#117](https://github.com/athena-framework/athena/pull/117)) (George Dietrich)
 
+[0.19.0]: https://github.com/athena-framework/athena/releases/tag/v0.19.0
 [0.18.2]: https://github.com/athena-framework/athena/releases/tag/v0.18.2
 [0.18.1]: https://github.com/athena-framework/athena/releases/tag/v0.18.1
 [0.18.0]: https://github.com/athena-framework/athena/releases/tag/v0.18.0
