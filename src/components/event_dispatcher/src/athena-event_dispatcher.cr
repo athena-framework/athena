@@ -9,7 +9,7 @@ alias AED = Athena::EventDispatcher
 alias AEDA = AED::Annotations
 
 module Athena::EventDispatcher
-  VERSION = "0.2.3"
+  VERSION = "0.3.0"
 
   # Contains all the `Athena::EventDispatcher` based annotations.
   module Annotations; end

@@ -4,10 +4,10 @@
 
 ### Changed
 
-- **Breaking:** Remove `Clock`, `Console`, and `EventDispatcher` built-in integrations ([#337](https://github.com/athena-framework/athena/pull/337)) (George Dietrich)
-- **Breaking:** Major internal refactor ([#337](https://github.com/athena-framework/athena/pull/337), [#378](https://github.com/athena-framework/athena/pull/378)) (George Dietrich)
-- **Breaking:** Replace `ADI.auto_configure` with [ADI::Autoconfigure](https://athenaframework.org/DependencyInjection/Autoconfigure/) ([#387](https://github.com/athena-framework/athena/pull/387)) (George Dietrich)
-- **Breaking:** Replace `alias` `ADI::Register` field with [ADI::AsAlias](https://athenaframework.org/DependencyInjection/AsAlias/) ([#389](https://github.com/athena-framework/athena/pull/389)) (George Dietrich)
+- **Breaking:** remove `Clock`, `Console`, and `EventDispatcher` built-in integrations ([#337](https://github.com/athena-framework/athena/pull/337)) (George Dietrich)
+- **Breaking:** major internal refactor ([#337](https://github.com/athena-framework/athena/pull/337), [#378](https://github.com/athena-framework/athena/pull/378)) (George Dietrich)
+- **Breaking:** replace `ADI.auto_configure` with [ADI::Autoconfigure](https://athenaframework.org/DependencyInjection/Autoconfigure/) ([#387](https://github.com/athena-framework/athena/pull/387)) (George Dietrich)
+- **Breaking:** replace `alias` `ADI::Register` field with [ADI::AsAlias](https://athenaframework.org/DependencyInjection/AsAlias/) ([#389](https://github.com/athena-framework/athena/pull/389)) (George Dietrich)
 - Integrate website into monorepo ([#365](https://github.com/athena-framework/athena/pull/365)) (George Dietrich)
 
 ### Added

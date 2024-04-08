@@ -9,7 +9,7 @@ First, install the component by adding the following to your `shard.yml`, then r
 dependencies:
   athena-dependency_injection:
     github: athena-framework/dependency-injection
-    version: ~> 0.3.0
+    version: ~> 0.4.0
 ```
 
 ## Usage
