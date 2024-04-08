@@ -8,7 +8,7 @@ A web framework comprised of reusable, independent components.
 
 ## Getting Started
 
-Checkout the [API documentation](https://athenaframework.org/getting_started).
+Checkout the [Documentation](https://athenaframework.org/getting_started).
 
 ## Contributing
 

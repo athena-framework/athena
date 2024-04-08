@@ -8,7 +8,7 @@ A [Mediator](https://en.wikipedia.org/wiki/Mediator_pattern) and [Observer](http
 
 ## Getting Started
 
-Checkout the [API documentation](https://athenaframework.org/EventDispatcher).
+Checkout the [Documentation](https://athenaframework.org/EventDispatcher).
 
 ## Contributing
 

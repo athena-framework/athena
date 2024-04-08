@@ -8,7 +8,7 @@ Allows for the creation of CLI based commands.
 
 ## Getting Started
 
-Checkout the [API documentation](https://athenaframework.org/Console).
+Checkout the [Documentation](https://athenaframework.org/Console).
 
 ## Contributing
 

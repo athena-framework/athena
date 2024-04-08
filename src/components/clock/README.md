@@ -8,7 +8,7 @@ Decouples applications from the system clock.
 
 ## Getting Started
 
-Checkout the [API documentation](https://athenaframework.org/Clock).
+Checkout the [Documentation](https://athenaframework.org/Clock).
 
 ## Contributing
 

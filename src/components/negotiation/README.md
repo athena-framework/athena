@@ -8,7 +8,7 @@ Framework agnostic [content negotiation](https://tools.ietf.org/html/rfc7231#sec
 
 ## Getting Started
 
-Checkout the [API documentation](https://athenaframework.org/Negotiation).
+Checkout the [Documentation](https://athenaframework.org/Negotiation).
 
 ## Contributing
 

@@ -8,7 +8,7 @@ Registers environment variables from a .env file.
 
 ## Getting Started
 
-Checkout the [API documentation](https://athenaframework.org/Dotenv).
+Checkout the [Documentation](https://athenaframework.org/Dotenv).
 
 ## Contributing
 

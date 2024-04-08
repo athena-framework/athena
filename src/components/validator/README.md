@@ -8,7 +8,7 @@ Object/value validation library
 
 ## Getting Started
 
-Checkout the [API documentation](https://athenaframework.org/Validator).
+Checkout the [Documentation](https://athenaframework.org/Validator).
 
 ## Contributing
 

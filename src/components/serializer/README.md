@@ -8,7 +8,7 @@ Flexible object (de)serialization library
 
 ## Getting Started
 
-Checkout the [API documentation](https://athenaframework.org/Serializer).
+Checkout the [Documentation](https://athenaframework.org/Serializer).
 
 ## Contributing
 

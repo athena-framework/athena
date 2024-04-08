@@ -8,7 +8,7 @@ Robust dependency injection service container framework.
 
 ## Getting Started
 
-Checkout the [API documentation](https://athenaframework.org/DependencyInjection).
+Checkout the [Documentation](https://athenaframework.org/DependencyInjection).
 
 ## Contributing
 

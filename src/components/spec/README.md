@@ -8,7 +8,7 @@ Common/helpful Spec compliant testing utilities
 
 ## Getting Started
 
-Checkout the [API documentation](https://athenaframework.org/Spec).
+Checkout the [Documentation](https://athenaframework.org/Spec).
 
 ## Contributing
 

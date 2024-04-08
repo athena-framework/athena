@@ -8,7 +8,7 @@ Measures the size of various image formats.
 
 ## Getting Started
 
-Checkout the [API documentation](https://athenaframework.org/ImageSize).
+Checkout the [Documentation](https://athenaframework.org/ImageSize).
 
 ## Contributing
 

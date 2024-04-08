@@ -8,7 +8,7 @@ Allows easily pushing updates to web browsers and other HTTP clients using the M
 
 ## Getting Started
 
-Checkout the [API documentation](https://athenaframework.org/Mercure).
+Checkout the [Documentation](https://athenaframework.org/Mercure).
 
 ## Contributing
 

@@ -8,7 +8,7 @@ HTTP based routing library/framework.
 
 ## Getting Started
 
-Checkout the [API documentation](https://athenaframework.org/Routing).
+Checkout the [Documentation](https://athenaframework.org/Routing).
 
 ## Contributing
 
