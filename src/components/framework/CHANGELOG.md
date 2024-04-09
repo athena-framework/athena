@@ -13,6 +13,7 @@
 - Support for Windows OS ([#270](https://github.com/athena-framework/athena/pull/270)) (George Dietrich)
 - Add `ATH::RequestMatcher` as a generic way of matching an `ATH::Request` given a set of rules ([#338](https://github.com/athena-framework/athena/pull/338)) (George Dietrich)
 - Raise an exception if a controller's return value fails to serialize instead of just returning `nil` ([#357](https://github.com/athena-framework/athena/pull/357)) (George Dietrich)
+- Add support for new Crystal 1.12 `Process.on_terminate` method ([#394](https://github.com/athena-framework/athena/pull/394)) (George Dietrich)
 
 ### Fixed
 
