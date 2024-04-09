@@ -137,7 +137,7 @@ struct TestWithTest < ASPEC::TestCase
   @[TestWith(
     two: {2, 4},
     three: {3, 9},
-    "with spaces": {4, 16}
+    "with spaces": {4, 16},
   )]
   def test_squares(value : Int32, expected : Int32) : Nil
     (value ** 2).should eq expected

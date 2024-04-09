@@ -6,9 +6,7 @@
 # class ExampleController < ATH::Controller
 #   @[ARTA::Get(
 #     "/user/{id}",
-#     requirements: {
-#       "id" => ART::Requirement::DIGITS,
-#     }
+#     requirements: {"id" => ART::Requirement::DIGITS},
 #   )]
 #   def get_user(id : Int64) : Int64
 #     id
@@ -16,9 +14,7 @@
 #
 #   @[ARTA::Get(
 #     "/article/{slug}",
-#     requirements: {
-#       "slug" => ART::Requirement::ASCII_SLUG,
-#     }
+#     requirements: {"slug" => ART::Requirement::ASCII_SLUG},
 #   )]
 #   def get_article(slug : String) : String
 #     slug
