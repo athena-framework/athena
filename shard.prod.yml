@@ -22,6 +22,9 @@ dependencies:
   athena-image_size:
     github: athena-framework/image-size
     branch: docs
+  athena-mercure:
+    github: athena-framework/mercure
+    branch: docs
   athena-negotiation:
     github: athena-framework/negotiation
     branch: docs
