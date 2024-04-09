@@ -46,6 +46,10 @@ function tag()
   git tag -asm "$MESSAGE" $TAG
   git push --quiet origin $TAG
 
+  # Be sure to reset `docs` branch back to current state of `master` as a release assumes the previously cherry-picked commits are now inherently included
+  git branch --quiet --force docs master
+  git push --quiet origin docs --force
+
   printf "Tagged \e]8;;https://github.com/athena-framework/%s/releases/tag/%s\e\\%s\e]8;;\e\\ \n" $1 $TAG "$MESSAGE"
 
   cd $OLDPWD

@@ -1,0 +1,39 @@
+# Used for prod builds of the docs to ensure API docs can be updated w/o a dedicated release
+# $ SHARDS_OVERRIDE=shard.prod.yml shards update
+dependencies:
+  athena:
+    github: athena-framework/framework
+    branch: docs
+  athena-clock:
+    github: athena-framework/clock
+    branch: docs
+  athena-console:
+    github: athena-framework/console
+    branch: docs
+  athena-dependency_injection:
+    github: athena-framework/dependency-injection
+    branch: docs
+  athena-dotenv:
+    github: athena-framework/dotenv
+    branch: docs
+  athena-event_dispatcher:
+    github: athena-framework/event-dispatcher
+    branch: docs
+  athena-image_size:
+    github: athena-framework/image-size
+    branch: docs
+  athena-negotiation:
+    github: athena-framework/negotiation
+    branch: docs
+  athena-routing:
+    github: athena-framework/routing
+    branch: docs
+  athena-serializer:
+    github: athena-framework/serializer
+    branch: docs
+  athena-spec:
+    github: athena-framework/spec
+    branch: docs
+  athena-validator:
+    github: athena-framework/validator
+    branch: docs
