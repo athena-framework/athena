@@ -14,9 +14,7 @@
 # class ExampleController < ATH::Controller
 #   @[ARTA::Get(
 #     "/color/{color}",
-#     requirements: {
-#       "color" => ART::Requirement::Enum(Color).new,
-#     }
+#     requirements: {"color" => ART::Requirement::Enum(Color).new},
 #   )]
 #   def get_color(color : Color) : Color
 #     color
@@ -24,9 +22,7 @@
 #
 #   @[ARTA::Get(
 #     "/rgb-color/{color}",
-#     requirements: {
-#       "color" => ART::Requirement::Enum(Color).new(:red, :green, :blue),
-#     }
+#     requirements: {"color" => ART::Requirement::Enum(Color).new(:red, :green, :blue)},
 #   )]
 #   def get_rgb_color(color : Color) : Color
 #     color

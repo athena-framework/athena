@@ -27,6 +27,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check Format
         run: crystal tool format --check
+  check_format_nightly:
+    runs-on: ubuntu-latest
+    container:
+      image: crystallang/crystal:nightly-alpine
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Format
+        run: crystal tool format --check
   coding_standards:
     runs-on: ubuntu-latest
     container:
