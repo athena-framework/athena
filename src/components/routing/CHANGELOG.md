@@ -8,7 +8,7 @@
 
 ### Added
 
-- Add kwargs overload to `ART::Generator::Interface#generate` ([#375](https://github.com/athena-framework/athena/pull/375)) (George Dietrich)
+- **Breaking:** add kwargs overload to `ART::Generator::Interface#generate` ([#375](https://github.com/athena-framework/athena/pull/375)) (George Dietrich)
 
 ### Fixed
 

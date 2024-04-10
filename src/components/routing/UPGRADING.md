@@ -2,7 +2,7 @@
 
 Documents the changes that may be required when upgrading to a newer component version.
 
-## Upgrade to 0.2.0
+## Upgrade to 0.1.9
 
 ### New `ART::Generator::Interface` method
 
