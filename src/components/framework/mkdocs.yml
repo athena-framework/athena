@@ -5,11 +5,10 @@ site_url: https://athenaframework.org/Framework/
 repo_url: https://github.com/athena-framework/framework
 
 nav:
-  - Introduction: README.md
   - Back to Manual: project://.
   - API:
     - Aliases: aliases.md
-    - Top Level: top_level.md
+    - Top Level: index.md
     - '*'
 
 plugins:
