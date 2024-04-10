@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.4.0] - 2024-04-09
+
+### Changed
+
+- **Breaking:** remove `Clock`, `Console`, and `EventDispatcher` built-in integrations ([#337](https://github.com/athena-framework/athena/pull/337)) (George Dietrich)
+- **Breaking:** major internal refactor ([#337](https://github.com/athena-framework/athena/pull/337), [#378](https://github.com/athena-framework/athena/pull/378)) (George Dietrich)
+- **Breaking:** replace `ADI.auto_configure` with [ADI::Autoconfigure](https://athenaframework.org/DependencyInjection/Autoconfigure/) ([#387](https://github.com/athena-framework/athena/pull/387)) (George Dietrich)
+- **Breaking:** replace `alias` `ADI::Register` field with [ADI::AsAlias](https://athenaframework.org/DependencyInjection/AsAlias/) ([#389](https://github.com/athena-framework/athena/pull/389)) (George Dietrich)
+- Integrate website into monorepo ([#365](https://github.com/athena-framework/athena/pull/365)) (George Dietrich)
+
+### Added
+
+- Add ability to easily extend/customize the container ([#337](https://github.com/athena-framework/athena/pull/337), [#348](https://github.com/athena-framework/athena/pull/348), [#371](https://github.com/athena-framework/athena/pull/371), [#372](https://github.com/athena-framework/athena/pull/372), [#373](https://github.com/athena-framework/athena/pull/373), [#374](https://github.com/athena-framework/athena/pull/374), [#377](https://github.com/athena-framework/athena/pull/377), [#379](https://github.com/athena-framework/athena/pull/379), [#382](https://github.com/athena-framework/athena/pull/382), [#383](https://github.com/athena-framework/athena/pull/383)) (George Dietrich)
+- Add ability to define method calls that should be made during service instantiation ([#384](https://github.com/athena-framework/athena/pull/384)) (George Dietrich)
+- Add new [ADI::AutoconfigureTag](https://athenaframework.org/DependencyInjection/AutoconfigureTag/) and [ADI::TaggedIterator](https://athenaframework.org/DependencyInjection/TaggedIterator/) to make working with tagged services easier ([#387](https://github.com/athena-framework/athena/pull/387)) (George Dietrich)
+- Add `ADI.configuration_annotation` to `Athena::DependencyInjection` from `Athena::Config` ([#392](https://github.com/athena-framework/athena/pull/392)) (George Dietrich)
+
 ## [0.3.8] - 2023-12-16
 
 ### Fixed
@@ -156,6 +173,7 @@ _Major refactor of the component._
 
 _Initial release._
 
+[0.4.0]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.4.0
 [0.3.8]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.8
 [0.3.7]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.7
 [0.3.6]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.6

@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.3.5] - 2024-04-09
+
+### Changed
+
+- Update minimum `crystal` version to `~> 1.11.0` ([#270](https://github.com/athena-framework/athena/pull/270)) (George Dietrich)
+- Integrate website into monorepo ([#365](https://github.com/athena-framework/athena/pull/365)) (George Dietrich)
+
+### Added
+
+- Support for Windows OS ([#270](https://github.com/athena-framework/athena/pull/270)) (George Dietrich)
+
+### Fixed
+
+- Fix incorrect column/width `ACON::Terminal` values on Windows ([#361](https://github.com/athena-framework/athena/pull/361)) (George Dietrich)
+
 ## [0.3.4] - 2023-10-10
 
 ### Added
@@ -106,6 +121,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.3.5]: https://github.com/athena-framework/console/releases/tag/v0.3.5
 [0.3.4]: https://github.com/athena-framework/console/releases/tag/v0.3.4
 [0.3.3]: https://github.com/athena-framework/console/releases/tag/v0.3.3
 [0.3.2]: https://github.com/athena-framework/console/releases/tag/v0.3.2

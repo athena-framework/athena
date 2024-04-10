@@ -6,23 +6,9 @@
 
 HTTP based routing library/framework.
 
-## Installation
+## Getting Started
 
-1. Add the dependency to your `shard.yml`:
-
-```yaml
-dependencies:
-  athena-routing:
-    github: athena-framework/routing
-    version: ~> 0.1.0
-```
-
-2. Run `shards install`
-
-## Documentation
-
-If using the component on its own, checkout the [API documentation](https://athenaframework.org/Routing).
-If using the component as part of Athena, also checkout the [external documentation](https://athenaframework.org/architecture/routing).
+Checkout the [Documentation](https://athenaframework.org/Routing).
 
 ## Contributing
 

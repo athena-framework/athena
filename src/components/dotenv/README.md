@@ -6,23 +6,9 @@
 
 Registers environment variables from a .env file.
 
-## Installation
+## Getting Started
 
-1. Add the dependency to your `shard.yml`:
-
-```yaml
-dependencies:
-  athena-dotenv:
-    github: athena-framework/dotenv
-    version: ~> 0.1.0
-```
-
-2. Run `shards install`
-
-## Documentation
-
-If using the component on its own, checkout the [API documentation](https://athenaframework.org/Dotenv).
-If using the component as part of Athena, also checkout the [external documentation](https://athenaframework.org/components/dotenv).
+Checkout the [Documentation](https://athenaframework.org/Dotenv).
 
 ## Contributing
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.7] - 2024-04-09
+
+### Changed
+
+- Integrate website into monorepo ([#365](https://github.com/athena-framework/athena/pull/365)) (George Dietrich)
+
 ## [0.3.6] - 2023-10-09
 
 _Administrative release, no functional changes_
@@ -102,6 +108,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.3.7]: https://github.com/athena-framework/spec/releases/tag/v0.3.7
 [0.3.6]: https://github.com/athena-framework/spec/releases/tag/v0.3.6
 [0.3.5]: https://github.com/athena-framework/spec/releases/tag/v0.3.5
 [0.3.4]: https://github.com/athena-framework/spec/releases/tag/v0.3.4

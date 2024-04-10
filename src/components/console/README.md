@@ -6,23 +6,9 @@
 
 Allows for the creation of CLI based commands.
 
-## Installation
+## Getting Started
 
-1. Add the dependency to your `shard.yml`:
-
-```yaml
-dependencies:
-  athena-console:
-    github: athena-framework/console
-    version: ~> 0.3.0
-```
-
-2. Run `shards install`
-
-## Documentation
-
-If using the component on its own, checkout the [API documentation](https://athenaframework.org/Console).
-If using the component as part of Athena, also checkout the [external documentation](https://athenaframework.org/architecture/console).
+Checkout the [Documentation](https://athenaframework.org/Console).
 
 ## Contributing
 

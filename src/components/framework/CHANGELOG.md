@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.19.0] - 2024-04-09
+
+### Changed
+
+- **Breaking:** change how framework features are configured ([#337](https://github.com/athena-framework/athena/pull/337), [#374](https://github.com/athena-framework/athena/pull/374), [#383](https://github.com/athena-framework/athena/pull/383)) (George Dietrich)
+- Update minimum `crystal` version to `~> 1.11.0` ([#270](https://github.com/athena-framework/athena/pull/270)) (George Dietrich)
+- Integrate website into monorepo ([#365](https://github.com/athena-framework/athena/pull/365)) (George Dietrich)
+
+### Added
+
+- Support for Windows OS ([#270](https://github.com/athena-framework/athena/pull/270)) (George Dietrich)
+- Add `ATH::RequestMatcher` as a generic way of matching an `ATH::Request` given a set of rules ([#338](https://github.com/athena-framework/athena/pull/338)) (George Dietrich)
+- Raise an exception if a controller's return value fails to serialize instead of just returning `nil` ([#357](https://github.com/athena-framework/athena/pull/357)) (George Dietrich)
+- Add support for new Crystal 1.12 `Process.on_terminate` method ([#394](https://github.com/athena-framework/athena/pull/394)) (George Dietrich)
+
+### Fixed
+
+- Fix macro splat deprecation ([#330](https://github.com/athena-framework/athena/pull/330)) (George Dietrich)
+- Normalize `ATH::Request#method` to always be uppercase ([#338](https://github.com/athena-framework/athena/pull/338)) (George Dietrich)
+- Fixed not being able to use top level configuration annotations on controller action parameters ([#356](https://github.com/athena-framework/athena/pull/356)) (George Dietrich)
+
 ## [0.18.2] - 2023-10-09
 
 ### Changed
@@ -140,6 +161,7 @@ _Last release in the [athena-framework/athena](https://github.com/athena-framewo
 - Fix incorrect ivar type on `AVD::Exceptions::Exceptions::ValidationFailed#violations` ([#116](https://github.com/athena-framework/athena/pull/116)) (George Dietrich)
 - Correctly reject requests with whitespace when converting numeric inputs ([#117](https://github.com/athena-framework/athena/pull/117)) (George Dietrich)
 
+[0.19.0]: https://github.com/athena-framework/athena/releases/tag/v0.19.0
 [0.18.2]: https://github.com/athena-framework/athena/releases/tag/v0.18.2
 [0.18.1]: https://github.com/athena-framework/athena/releases/tag/v0.18.1
 [0.18.0]: https://github.com/athena-framework/athena/releases/tag/v0.18.0

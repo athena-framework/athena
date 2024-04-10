@@ -6,23 +6,9 @@
 
 A web framework comprised of reusable, independent components.
 
-## Installation
+## Getting Started
 
-1. Add the dependency to your `shard.yml`:
-
-```yaml
-dependencies:
-  athena:
-    github: athena-framework/framework
-    version: ~> 0.18.0
-```
-
-2. Run `shards install`
-
-## Documentation
-
-* [API Docs](https://athenaframework.org/Framework)
-* [External Docs](https://athenaframework.org)
+Checkout the [Documentation](https://athenaframework.org/getting_started).
 
 ## Contributing
 

@@ -6,23 +6,9 @@
 
 A [Mediator](https://en.wikipedia.org/wiki/Mediator_pattern) and [Observer](https://en.wikipedia.org/wiki/Observer_pattern) pattern event library.
 
-## Installation
+## Getting Started
 
-1. Add the dependency to your `shard.yml`:
-
-```yaml
-dependencies:
-  athena-event_dispatcher:
-    github: athena-framework/event-dispatcher
-    version: ~> 0.2.0
-```
-
-2. Run `shards install`
-
-## Documentation
-
-If using the component on its own, checkout the [API documentation](https://athenaframework.org/EventDispatcher).
-If using the component as part of Athena, also checkout the [external documentation](https://athenaframework.org/architecture/event_dispatcher).
+Checkout the [Documentation](https://athenaframework.org/EventDispatcher).
 
 ## Contributing
 

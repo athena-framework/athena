@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.9] - 2024-04-09
+
+### Changed
+
+- Integrate website into monorepo ([#365](https://github.com/athena-framework/athena/pull/365)) (George Dietrich)
+
+### Added
+
+- Add kwargs overload to `ART::Generator::Interface#generate` ([#375](https://github.com/athena-framework/athena/pull/375)) (George Dietrich)
+
+### Fixed
+
+- Fix compatibility with PCRE2 10.43 ([#362](https://github.com/athena-framework/athena/pull/362)) (George Dietrich)
+- Fix error when PCRE2 JIT mode is unavailable ([#381](https://github.com/athena-framework/athena/pull/381)) (George Dietrich)
+
 ## [0.1.8] - 2023-10-09
 
 ### Added
@@ -82,6 +97,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.1.9]: https://github.com/athena-framework/routing/releases/tag/v0.1.9
 [0.1.8]: https://github.com/athena-framework/routing/releases/tag/v0.1.8
 [0.1.7]: https://github.com/athena-framework/routing/releases/tag/v0.1.7
 [0.1.6]: https://github.com/athena-framework/routing/releases/tag/v0.1.6

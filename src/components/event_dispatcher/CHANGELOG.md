@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0] - 2024-04-09
+
+### Changed
+
+- **Breaking:** remove `AED::EventListenerInterface` ([#391](https://github.com/athena-framework/athena/pull/391)) (George Dietrich)
+- Integrate website into monorepo ([#365](https://github.com/athena-framework/athena/pull/365)) (George Dietrich)
+
 ## [0.2.3] - 2023-10-09
 
 _Administrative release, no functional changes_
@@ -78,6 +85,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.3.0]: https://github.com/athena-framework/event-dispatcher/releases/tag/v0.3.0
 [0.2.3]: https://github.com/athena-framework/event-dispatcher/releases/tag/v0.2.3
 [0.2.2]: https://github.com/athena-framework/event-dispatcher/releases/tag/v0.2.2
 [0.2.1]: https://github.com/athena-framework/event-dispatcher/releases/tag/v0.2.1

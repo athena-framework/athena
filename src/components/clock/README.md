@@ -6,23 +6,9 @@
 
 Decouples applications from the system clock.
 
-## Installation
+## Getting Started
 
-1. Add the dependency to your `shard.yml`:
-
-```yaml
-dependencies:
-  athena-clock:
-    github: athena-framework/clock
-    version: ~> 0.1.0
-```
-
-2. Run `shards install`
-
-## Documentation
-
-If using the component on its own, checkout the [API documentation](https://athenaframework.org/Clock).
-If using the component as part of Athena, also checkout the [external documentation](https://athenaframework.org/components/clock).
+Checkout the [Documentation](https://athenaframework.org/Clock).
 
 ## Contributing
 

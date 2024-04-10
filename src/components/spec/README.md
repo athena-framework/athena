@@ -6,23 +6,9 @@
 
 Common/helpful Spec compliant testing utilities
 
-## Installation
+## Getting Started
 
-1. Add the dependency to your `shard.yml`:
-
-```yaml
-development_dependencies:
-  athena-spec:
-    github: athena-framework/spec
-    version: ~> 0.3.0
-```
-
-2. Run `shards install`
-
-## Documentation
-
-If using the component on its own, checkout the [API documentation](https://athenaframework.org/Spec).
-If using the component as part of Athena, also checkout the [external documentation](https://athenaframework.org/architecture/spec).
+Checkout the [Documentation](https://athenaframework.org/Spec).
 
 ## Contributing
 
