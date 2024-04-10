@@ -1,0 +1,4 @@
+/* Hide latest release since the monorepo is the old framework repo and still has tags */
+.md-source__fact--version {
+    display: none;
+}
