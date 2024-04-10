@@ -6,6 +6,7 @@ repo_url: https://github.com/athena-framework/athena
 
 extra_css:
   - css/index.css
+  - css/monorepo.css
 
 plugins:
   - search
