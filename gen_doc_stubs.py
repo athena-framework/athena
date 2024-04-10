@@ -33,7 +33,8 @@ for typ in root.lookup("Athena").walk_types():
     filename = '/'.join(typ.abs_id.split('::')[2:] + ['index.md'])
 
     # Rename the root `index.md` to `top_level.md` so that the user lands on the introduction page instead of the root component module docs.
-    if filename == 'index.md':
+    # But only do this for non-framework components as the site itself is the contextual docs for the framework.
+    if typ.full_name != 'Athena::Framework' and filename == 'index.md':
         filename = 'top_level.md'
 
     with mkdocs_gen_files.open(filename, 'w') as f:
