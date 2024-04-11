@@ -13,9 +13,9 @@ struct MonotonicClockTest < ASPEC::TestCase
   def test_now : Nil
     clock = ACLK::Monotonic.new
     before = Time.local.to_unix_ms
-    sleep 10.milliseconds
+    sleep 100.milliseconds
     now = clock.now
-    sleep 10.milliseconds
+    sleep 100.milliseconds
     after = Time.local.to_unix_ms
 
     now.to_unix_ms.should be > before
@@ -29,7 +29,7 @@ struct MonotonicClockTest < ASPEC::TestCase
     before = Time.local.to_unix_ms
     clock.sleep 0.5
     now = clock.now.to_unix_ms
-    sleep 10.milliseconds
+    sleep 100.milliseconds
     after = Time.local.to_unix_ms
 
     now.should be >= (before + 1.499_999)
