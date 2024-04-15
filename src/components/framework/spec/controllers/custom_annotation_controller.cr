@@ -11,13 +11,11 @@ struct CustomAnnotationListener
   def on_response(event : ATH::Events::Response) : Nil
     return unless action = event.request.action?
 
-    ann_configs = action.annotation_configurations
-
-    if ann_configs.has?(SpecAnnotation)
+    if action.annotation SpecAnnotation
       event.response.headers["ANNOTATION"] = "true"
     end
 
-    if custom_ann = ann_configs[CustomAnn]?
+    if custom_ann = action.annotation CustomAnn
       event.response.headers["ANNOTATION_VALUE"] = custom_ann.id.to_s
     end
   end

@@ -3,17 +3,17 @@ require "../../spec_helper"
 describe ATHR::UUID do
   describe "#resolve" do
     it "does not exist in request attributes" do
-      parameter = ATH::Controller::ParameterMetadata(UUID).new "foo"
+      parameter = ATH::Controller::ParameterMetadata(UUID, TestController, 0, 0).new "foo"
       ATHR::UUID.new.resolve(new_request, parameter).should be_nil
     end
 
     it "some other type" do
-      ATHR::UUID.new.resolve(new_request, ATH::Controller::ParameterMetadata(Int32).new "foo").should be_nil
-      ATHR::UUID.new.resolve(new_request, ATH::Controller::ParameterMetadata(Int32?).new "foo").should be_nil
-      ATHR::UUID.new.resolve(new_request, ATH::Controller::ParameterMetadata(Bool | String).new "foo").should be_nil
+      ATHR::UUID.new.resolve(new_request, ATH::Controller::ParameterMetadata(Int32, TestController, 0, 0).new "foo").should be_nil
+      ATHR::UUID.new.resolve(new_request, ATH::Controller::ParameterMetadata(Int32?, TestController, 0, 0).new "foo").should be_nil
+      ATHR::UUID.new.resolve(new_request, ATH::Controller::ParameterMetadata(Bool | String, TestController, 0, 0).new "foo").should be_nil
     end
     it "attribute exists but is not a string" do
-      parameter = ATH::Controller::ParameterMetadata(UUID).new "foo"
+      parameter = ATH::Controller::ParameterMetadata(UUID, TestController, 0, 0).new "foo"
       request = new_request
       request.attributes.set "foo", 100
 
@@ -21,7 +21,7 @@ describe ATHR::UUID do
     end
 
     it "attribute exists but is nil with a nullable parameter" do
-      parameter = ATH::Controller::ParameterMetadata(UUID?).new "foo"
+      parameter = ATH::Controller::ParameterMetadata(UUID?, TestController, 0, 0).new "foo"
       request = new_request
       request.attributes.set "foo", nil
 
@@ -29,7 +29,7 @@ describe ATHR::UUID do
     end
 
     it "with a valid value" do
-      parameter = ATH::Controller::ParameterMetadata(UUID).new "foo"
+      parameter = ATH::Controller::ParameterMetadata(UUID, TestController, 0, 0).new "foo"
 
       uuid = UUID.random
 
@@ -40,7 +40,7 @@ describe ATHR::UUID do
     end
 
     it "type a union of another type" do
-      parameter = ATH::Controller::ParameterMetadata(UUID | Int32).new "foo"
+      parameter = ATH::Controller::ParameterMetadata(UUID | Int32, TestController, 0, 0).new "foo"
       request = new_request
 
       uuid = UUID.random
@@ -51,7 +51,7 @@ describe ATHR::UUID do
     end
 
     it "with a valid nilable value" do
-      parameter = ATH::Controller::ParameterMetadata(UUID?).new "foo"
+      parameter = ATH::Controller::ParameterMetadata(UUID?, TestController, 0, 0).new "foo"
 
       uuid = UUID.random
 
@@ -62,7 +62,7 @@ describe ATHR::UUID do
     end
 
     it "with an invalid value" do
-      parameter = ATH::Controller::ParameterMetadata(UUID).new "foo"
+      parameter = ATH::Controller::ParameterMetadata(UUID, TestController, 0, 0).new "foo"
 
       request = new_request
       request.attributes.set "foo", "foo"

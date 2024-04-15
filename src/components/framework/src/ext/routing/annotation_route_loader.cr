@@ -134,6 +134,18 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             {% m.raise "Route action return type must be set for '#{klass.name}##{m.name}'." %}
           {% end %}
 
+          {%
+            m_idx = -1
+
+            found = klass.methods.find do |km|
+              m_idx += 1
+
+              m == km
+            end
+
+            m_idx.raise "BUG: Failed to determine m_idx." unless found
+          %}
+
           # Determine routes that this method should handle
           {%
             routes_for_method = [] of Nil # Tuple(Annotation, Array(String))
@@ -179,7 +191,6 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             {%
               parameters = [] of Nil
               params = [] of Nil
-              annotation_configurations = {} of Nil => Nil
 
               # Logic for creating the `ATH::Action` instances:
 
@@ -192,9 +203,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
               end
 
               # Process controller action parameters.
-              m.args.each do |arg|
-                parameter_annotation_configurations = {} of Nil => Nil
-
+              m.args.each_with_index do |arg, arg_idx|
                 # Process custom annotation types
                 ADI::CUSTOM_ANNOTATIONS.each do |ann_class|
                   ann_class = ann_class.resolve
@@ -215,34 +224,15 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                         arg.raise %(The annotation '#{ann}' cannot be applied to '#{klass.name}##{m.name}:#{arg.name} : #{arg.restriction}' since the '#{resolver}' resolver only supports parameters of type '#{supported_types.join(" | ").id}'.)
                       end
                     end
-
-                    annotations << "#{ann_class}Configuration.new(#{ann.args.empty? ? "".id : "#{ann.args.splat},".id}#{ann.named_args.double_splat})".id
                   end
-
-                  parameter_annotation_configurations[ann_class] = "(#{annotations} of ADI::AnnotationConfigurations::ConfigurationBase)".id unless annotations.empty?
                 end
 
                 arg.raise "Route action parameter '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction." if arg.restriction.is_a? Nop
-                parameters << %(ATH::Controller::ParameterMetadata(#{arg.restriction}).new(
+                parameters << %(ATH::Controller::ParameterMetadata(#{arg.restriction}, #{klass.id}, #{m_idx}, #{arg_idx}).new(
                   #{arg.name.stringify},
                   #{!arg.default_value.is_a? Nop},
                   #{arg.default_value.is_a?(Nop) ? nil : arg.default_value},
-                  ADI::AnnotationConfigurations.new(
-                    #{parameter_annotation_configurations} of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase)
-                  ),
                 )).id
-              end
-
-              # Process custom annotation types
-              ADI::CUSTOM_ANNOTATIONS.each do |ann_class|
-                ann_class = ann_class.resolve
-                annotations = [] of Nil
-
-                (klass.annotations(ann_class) + m.annotations(ann_class)).each do |ann|
-                  annotations << "#{ann_class}Configuration.new(#{ann.args.empty? ? "".id : "#{ann.args.splat},".id}#{ann.named_args.double_splat})".id
-                end
-
-                annotation_configurations[ann_class] = "(#{annotations} of ADI::AnnotationConfigurations::ConfigurationBase)".id unless annotations.empty?
               end
 
               # Process query and request params
@@ -353,7 +343,6 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                   %instance.{{m.name.id}} *arguments
                 end,
                 parameters: {{parameters.empty? ? "Tuple.new".id : "{#{parameters.splat}}".id}},
-                annotation_configurations: ADI::AnnotationConfigurations.new({{annotation_configurations}} of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase)),
                 params: ({{params}} of ATH::Params::ParamInterface),
                 _controller: {{klass.id}},
                 _return_type: {{m.return_type}},
@@ -539,15 +528,14 @@ module Athena::Framework::Routing::AnnotationRouteLoader
           Athena::Framework::Controller::Redirect.new.redirect_url *arguments
         end,
         parameters: {
-          ATH::Controller::ParameterMetadata(ATH::Request).new("request"),
-          ATH::Controller::ParameterMetadata(String).new("path"),
-          ATH::Controller::ParameterMetadata(Bool).new("permanent", true, false),
-          ATH::Controller::ParameterMetadata(String?).new("scheme", true, nil),
-          ATH::Controller::ParameterMetadata(Int32?).new("http_port", true, nil),
-          ATH::Controller::ParameterMetadata(Int32?).new("https_port", true, nil),
-          ATH::Controller::ParameterMetadata(Bool).new("keep_request_method", true, false),
+          ATH::Controller::ParameterMetadata(ATH::Request, Athena::Framework::Controller::Redirect, 0, 0).new("request"),
+          ATH::Controller::ParameterMetadata(String, Athena::Framework::Controller::Redirect, 0, 1).new("path"),
+          ATH::Controller::ParameterMetadata(Bool, Athena::Framework::Controller::Redirect, 0, 2).new("permanent", true, false),
+          ATH::Controller::ParameterMetadata(String?, Athena::Framework::Controller::Redirect, 0, 3).new("scheme", true, nil),
+          ATH::Controller::ParameterMetadata(Int32?, Athena::Framework::Controller::Redirect, 0, 4).new("http_port", true, nil),
+          ATH::Controller::ParameterMetadata(Int32?, Athena::Framework::Controller::Redirect, 0, 5).new("https_port", true, nil),
+          ATH::Controller::ParameterMetadata(Bool, Athena::Framework::Controller::Redirect, 0, 6).new("keep_request_method", true, false),
         },
-        annotation_configurations: ADI::AnnotationConfigurations.new,
         params: ([] of ATH::Params::ParamInterface),
         _controller: Athena::Framework::Controller::Redirect,
         _return_type: ATH::RedirectResponse,

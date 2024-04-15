@@ -15,7 +15,7 @@ describe ATHR::RequestAttribute do
 
     describe "that needs to be converted" do
       it String do
-        parameter = ATH::Controller::ParameterMetadata(Int32).new "id"
+        parameter = ATH::Controller::ParameterMetadata(Int32, TestController, 0, 0).new "id"
 
         request = new_request
         request.attributes.set "id", "1"
@@ -24,7 +24,7 @@ describe ATHR::RequestAttribute do
       end
 
       it Bool do
-        parameter = ATH::Controller::ParameterMetadata(Bool).new "id"
+        parameter = ATH::Controller::ParameterMetadata(Bool, TestController, 0, 0).new "id"
 
         request = new_request
         request.attributes.set "id", "false"
@@ -33,7 +33,7 @@ describe ATHR::RequestAttribute do
       end
 
       it "that fails conversion" do
-        parameter = ATH::Controller::ParameterMetadata(Int32).new "id"
+        parameter = ATH::Controller::ParameterMetadata(Int32, TestController, 0, 0).new "id"
 
         request = new_request
         request.attributes.set "id", "foo"

@@ -1,5 +1,5 @@
 # Represents a controller action parameter. Stores metadata associated with it, such as its name, type, and default value if any.
-struct Athena::Framework::Controller::ParameterMetadata(T)
+struct Athena::Framework::Controller::ParameterMetadata(T, Parent, DefIndex, ArgIndex)
   # Returns the name of the parameter.
   getter name : String
 
@@ -9,13 +9,12 @@ struct Athena::Framework::Controller::ParameterMetadata(T)
   # Returns annotation configurations registered via `ADI.configuration_annotation` and applied to this parameter.
   #
   # These configurations could then be accessed within `ATHR::Interface`s and/or `ATH::Listeners`s.
-  getter annotation_configurations : ADI::AnnotationConfigurations
+  getter annotation_configurations : ADI::AnnotationConfigurations { ADI::AnnotationConfigurations.new }
 
   protected def initialize(
     @name : String,
     @has_default : Bool = false,
-    @default_value : T? = nil,
-    @annotation_configurations : ADI::AnnotationConfigurations = ADI::AnnotationConfigurations.new
+    @default_value : T? = nil
   ); end
 
   # If `nil` is a valid value for the parameter.
@@ -38,6 +37,14 @@ struct Athena::Framework::Controller::ParameterMetadata(T)
   # The type of the parameter, i.e. what its type restriction is.
   def type : T.class
     T
+  end
+
+  def annotation(ann : A.class) forall A
+    {% begin %}
+      {% if (d = Parent.methods[DefIndex]) && (arg = d.args[ArgIndex]) && (ann = arg.annotation A) %}
+        {{"#{A.id}Configuration.new(#{ann.args.empty? ? "".id : "#{ann.args.splat},".id}#{ann.named_args.double_splat})".id}}
+      {% end %}
+    {% end %}
   end
 
   # Returns `true` if this parameter's `#type` includes the provided *klass*.

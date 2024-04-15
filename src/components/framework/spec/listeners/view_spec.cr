@@ -27,8 +27,12 @@ private class MockViewHandler
   end
 end
 
-private def get_ann_configs(config : ADI::AnnotationConfigurations::ConfigurationBase) : ADI::AnnotationConfigurations
-  ADI::AnnotationConfigurations.new ADI::AnnotationConfigurations::AnnotationHash{ATHA::View => [config] of ADI::AnnotationConfigurations::ConfigurationBase}
+private class ViewController
+  @[ATHA::View(status: found)]
+  def found; end
+
+  @[ATHA::View(serialization_groups: ["one", "two"])]
+  def groups; end
 end
 
 describe ATH::Listeners::View do
@@ -63,9 +67,7 @@ describe ATH::Listeners::View do
       describe "status" do
         it "with status" do
           request = new_request(
-            action: new_action(
-              annotation_configurations: get_ann_configs(ATHA::ViewConfiguration.new(status: :found))
-            )
+            action: new_action parent: ViewController
           )
           event = ATH::Events::View.new request, "FOO"
           view_handler = MockViewHandler.new
@@ -77,9 +79,7 @@ describe ATH::Listeners::View do
 
         it "when the view already has a status" do
           request = new_request(
-            action: new_action(
-              annotation_configurations: get_ann_configs(ATHA::ViewConfiguration.new(status: :found))
-            )
+            action: new_action parent: ViewController
           )
           view = ATH::View.new "FOO", status: :gone
           event = ATH::Events::View.new request, view
@@ -92,9 +92,7 @@ describe ATH::Listeners::View do
 
         it "when the view already has a status, but it's OK" do
           request = new_request(
-            action: new_action(
-              annotation_configurations: get_ann_configs(ATHA::ViewConfiguration.new(status: :found))
-            )
+            action: new_action parent: ViewController
           )
           view = ATH::View.new "FOO", status: :ok
           event = ATH::Events::View.new request, view
@@ -110,7 +108,7 @@ describe ATH::Listeners::View do
         it "and the view doesn't have any groups already" do
           request = new_request(
             action: new_action(
-              annotation_configurations: get_ann_configs(ATHA::ViewConfiguration.new(serialization_groups: ["one", "two"]))
+              annotation_configurations: get_ann_configs(ATHA::ViewConfiguration.new(serialization_groups: ))
             )
           )
           event = ATH::Events::View.new request, "FOO"

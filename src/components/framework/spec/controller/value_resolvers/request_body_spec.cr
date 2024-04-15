@@ -13,6 +13,10 @@ private record MockValidatableASRSerializableEntity, id : Int32, name : String d
   include AVD::Validatable
 end
 
+private class TestController < ATH::Controller
+  def test_route(@[ATHR::RequestBody::Extract] body : String) : Nil; end
+end
+
 struct RequestBodyResolverTest < ASPEC::TestCase
   @target : ATHR::RequestBody
 
@@ -99,14 +103,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     object.name.should eq "Fred"
   end
 
-  private def get_config(type : T.class) forall T
-    ATH::Controller::ParameterMetadata(T).new(
-      "foo",
-      annotation_configurations: ADI::AnnotationConfigurations.new({
-        ATHR::RequestBody::Extract => [
-          ATHR::RequestBody::ExtractConfiguration.new,
-        ] of ADI::AnnotationConfigurations::ConfigurationBase,
-      } of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase))
-    )
+  private def get_config(type : T.class, parent : C.class = TestController) forall T, C
+    ATH::Controller::ParameterMetadata(T, C, 0, 0).new("foo")
   end
 end

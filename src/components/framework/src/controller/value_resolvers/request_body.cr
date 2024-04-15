@@ -97,8 +97,8 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   ); end
 
   # :inherit:
-  def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata(T)) : T? forall T
-    return unless parameter.annotation_configurations.has? Extract
+  def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata(T, _, _, _)) : T? forall T
+    return unless parameter.annotation Extract
 
     if !(body = request.body) || body.peek.try &.empty?
       raise ATH::Exceptions::BadRequest.new "Request does not have a body."

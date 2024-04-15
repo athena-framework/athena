@@ -9,13 +9,13 @@ end
 describe ATHR::Enum do
   describe "#resolve" do
     it "some other type" do
-      ATHR::Enum.new.resolve(new_request, ATH::Controller::ParameterMetadata(Int32).new "enum").should be_nil
-      ATHR::Enum.new.resolve(new_request, ATH::Controller::ParameterMetadata(Int32?).new "enum").should be_nil
-      ATHR::Enum.new.resolve(new_request, ATH::Controller::ParameterMetadata(Bool | String).new "enum").should be_nil
+      ATHR::Enum.new.resolve(new_request, ATH::Controller::ParameterMetadata(Int32, TestController, 0, 0).new "enum").should be_nil
+      ATHR::Enum.new.resolve(new_request, ATH::Controller::ParameterMetadata(Int32?, TestController, 0, 0).new "enum").should be_nil
+      ATHR::Enum.new.resolve(new_request, ATH::Controller::ParameterMetadata(Bool | String, TestController, 0, 0).new "enum").should be_nil
     end
 
     it "is not a string" do
-      parameter = ATH::Controller::ParameterMetadata(TestEnum).new "enum"
+      parameter = ATH::Controller::ParameterMetadata(TestEnum, TestController, 0, 0).new "enum"
       request = new_request
       request.attributes.set "enum", 1
 
@@ -23,19 +23,19 @@ describe ATHR::Enum do
     end
 
     it "that does not exist in request attributes" do
-      parameter = ATH::Controller::ParameterMetadata(TestEnum).new "enum"
+      parameter = ATH::Controller::ParameterMetadata(TestEnum, TestController, 0, 0).new "enum"
 
       ATHR::Enum.new.resolve(new_request, parameter).should be_nil
     end
 
     it "that is nilable and not exist in request attributes" do
-      parameter = ATH::Controller::ParameterMetadata(TestEnum?).new "enum"
+      parameter = ATH::Controller::ParameterMetadata(TestEnum?, TestController, 0, 0).new "enum"
 
       ATHR::Enum.new.resolve(new_request, parameter).should be_nil
     end
 
     it "that is a union of another type" do
-      parameter = ATH::Controller::ParameterMetadata(TestEnum | String).new "enum"
+      parameter = ATH::Controller::ParameterMetadata(TestEnum | String, TestController, 0, 0).new "enum"
       request = new_request
       request.attributes.set "enum", "1"
 
@@ -43,7 +43,7 @@ describe ATHR::Enum do
     end
 
     it "the enum member is nilable" do
-      parameter = ATH::Controller::ParameterMetadata(TestEnum?).new "enum"
+      parameter = ATH::Controller::ParameterMetadata(TestEnum?, TestController, 0, 0).new "enum"
       request = new_request
       request.attributes.set "enum", "1"
 
@@ -51,7 +51,7 @@ describe ATHR::Enum do
     end
 
     it "with a numeric based value" do
-      parameter = ATH::Controller::ParameterMetadata(TestEnum).new "enum"
+      parameter = ATH::Controller::ParameterMetadata(TestEnum, TestController, 0, 0).new "enum"
 
       request = new_request
       request.attributes.set "enum", "2"
@@ -60,7 +60,7 @@ describe ATHR::Enum do
     end
 
     it "with a numeric based value with whitespace" do
-      parameter = ATH::Controller::ParameterMetadata(TestEnum).new "enum"
+      parameter = ATH::Controller::ParameterMetadata(TestEnum, TestController, 0, 0).new "enum"
 
       request = new_request
       request.attributes.set "enum", "2"
@@ -69,7 +69,7 @@ describe ATHR::Enum do
     end
 
     it "with a string based value" do
-      parameter = ATH::Controller::ParameterMetadata(TestEnum).new "enum"
+      parameter = ATH::Controller::ParameterMetadata(TestEnum, TestController, 0, 0).new "enum"
 
       request = new_request
       request.attributes.set "enum", "B"
@@ -78,7 +78,7 @@ describe ATHR::Enum do
     end
 
     it "with a string based nilable value" do
-      parameter = ATH::Controller::ParameterMetadata(TestEnum?).new "enum"
+      parameter = ATH::Controller::ParameterMetadata(TestEnum?, TestController, 0, 0).new "enum"
 
       request = new_request
       request.attributes.set "enum", "B"
@@ -87,7 +87,7 @@ describe ATHR::Enum do
     end
 
     it "with an unknown member value" do
-      parameter = ATH::Controller::ParameterMetadata(TestEnum).new "enum"
+      parameter = ATH::Controller::ParameterMetadata(TestEnum, TestController, 0, 0).new "enum"
 
       request = new_request
       request.attributes.set "enum", "  4  "

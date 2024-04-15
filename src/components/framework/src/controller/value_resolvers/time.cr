@@ -45,7 +45,7 @@ struct Athena::Framework::Controller::ValueResolvers::Time
 
     return unless value = request.attributes.get? parameter.name, String?
 
-    if !(configuration = parameter.annotation_configurations[Format]?) || !(format = configuration.format)
+    if !(configuration = parameter.annotation(Format)) || !(format = configuration.format)
       return ::Time.parse_rfc3339(value)
     end
 

@@ -65,7 +65,6 @@ macro create_action(return_type = String, &)
   ATH::Action.new(
     Proc(typeof(Tuple.new), {{return_type}}).new { {{yield}} },
     Tuple.new,
-    ADI::AnnotationConfigurations.new,
     Array(ATH::Params::ParamInterface).new,
     TestController,
     {{return_type}},
@@ -77,21 +76,20 @@ def new_context(*, request : ATH::Request = new_request, response : HTTP::Server
 end
 
 def new_parameter : ATH::Controller::ParameterMetadata
-  ATH::Controller::ParameterMetadata(Int32).new "id"
+  ATH::Controller::ParameterMetadata(Int32, TestController, 0, 0).new "id"
 end
 
 def new_action(
   *,
   arguments : Tuple = Tuple.new,
   params : Array(ATH::Params::ParamInterface) = Array(ATH::Params::ParamInterface).new,
-  annotation_configurations = nil
-) : ATH::ActionBase
+  parent : P.class = TestController
+) : ATH::ActionBase forall P
   ATH::Action.new(
     Proc(typeof(Tuple.new), String).new { test_controller = TestController.new; test_controller.get_test },
     arguments,
-    annotation_configurations || ADI::AnnotationConfigurations.new,
     params,
-    TestController,
+    P,
     String,
   )
 end

@@ -18,7 +18,7 @@ struct Athena::Framework::Listeners::View
       view = action.create_view view
     end
 
-    if configuration = event.request.action.annotation_configurations[ATHA::View]?
+    if configuration = event.request.action.annotation ATHA::View
       if (status = configuration.status) && (view.status.nil? || view.status.not_nil!.ok?)
         view.status = status
       end

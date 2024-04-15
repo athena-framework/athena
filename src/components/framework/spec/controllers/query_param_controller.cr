@@ -70,8 +70,8 @@ class QueryParamController < ATH::Controller
   # Param converter named tuple
   @[ATHA::QueryParam("time")]
   @[ARTA::Get("/nt_time")]
+  @[ATHR::Time::Format(format: "%Y--%m//%d  %T")]
   def nt_time(
-    @[ATHR::Time::Format(format: "%Y--%m//%d  %T")]
     time : Time
   ) : String
     "Today is: #{time}"
