@@ -73,7 +73,7 @@ module Athena::Serializer
   #
   # !!!todo
   #     Once feasible, support compile time exclusion strategies.
-  module Athena::Serializer::ExclusionStrategies; end
+  module ExclusionStrategies; end
 
   # Used to denote a type that is (de)serializable.
   #
@@ -99,5 +99,5 @@ module Athena::Serializer
   #
   # record Unionable, type : BaseModel.class
   # ```
-  module Athena::Serializer::Model; end
+  module Model; end
 end
