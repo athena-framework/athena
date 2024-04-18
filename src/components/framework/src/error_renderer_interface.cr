@@ -7,7 +7,8 @@
 # require "athena"
 #
 # # Alias this service to be used when the `ATH::ErrorRendererInterface` type is encountered.
-# @[ADI::Register(alias: ATH::ErrorRendererInterface)]
+# @[ADI::Register]
+# @[ADI::AsAlias]
 # struct Athena::Framework::CustomErrorRenderer
 #   include Athena::Framework::ErrorRendererInterface
 #
