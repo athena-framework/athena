@@ -1,4 +1,5 @@
-@[ADI::Register(_debug: "%framework.debug%", alias: Athena::Framework::ErrorRendererInterface)]
+@[ADI::Register(_debug: "%framework.debug%")]
+@[ADI::AsAlias]
 # The default `ATH::ErrorRendererInterface`, JSON serializes the exception.
 struct Athena::Framework::ErrorRenderer
   include Athena::Framework::ErrorRendererInterface
