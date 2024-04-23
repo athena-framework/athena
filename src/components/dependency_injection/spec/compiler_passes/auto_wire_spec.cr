@@ -17,7 +17,8 @@ record AutoWireService, auto_wire_two : AutoWireInterface
 
 module SameInstanceAliasInterface; end
 
-@[ADI::Register(alias: SameInstanceAliasInterface)]
+@[ADI::Register]
+@[ADI::AsAlias]
 class SameInstancePrimary
   include SameInstanceAliasInterface
 end
