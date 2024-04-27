@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.19.1] - 2024-04-27
+
+### Fixed
+
+- Fix `framework` component docs landing on an empty page ([#399](https://github.com/athena-framework/athena/pull/399)) (George Dietrich)
+- Fix `Athena::Clock` not being aliased to the interface correctly ([#400](https://github.com/athena-framework/athena/pull/400)) (George Dietrich)
+- Fix `ATHA::View` annotation being defined in incorrect namespace ([#403](https://github.com/athena-framework/athena/pull/403)) (George Dietrich)
+- Fix `ATH::ErrorRenderer` not being aliased to the interface correctly ([#404](https://github.com/athena-framework/athena/pull/404)) (George Dietrich)
+
 ## [0.19.0] - 2024-04-09
 
 ### Changed
@@ -161,6 +170,7 @@ _Last release in the [athena-framework/athena](https://github.com/athena-framewo
 - Fix incorrect ivar type on `AVD::Exceptions::Exceptions::ValidationFailed#violations` ([#116](https://github.com/athena-framework/athena/pull/116)) (George Dietrich)
 - Correctly reject requests with whitespace when converting numeric inputs ([#117](https://github.com/athena-framework/athena/pull/117)) (George Dietrich)
 
+[0.19.1]: https://github.com/athena-framework/framework/releases/tag/v0.19.1
 [0.19.0]: https://github.com/athena-framework/framework/releases/tag/v0.19.0
 [0.18.2]: https://github.com/athena-framework/framework/releases/tag/v0.18.2
 [0.18.1]: https://github.com/athena-framework/framework/releases/tag/v0.18.1
