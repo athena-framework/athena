@@ -80,7 +80,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1
+        uses: crystal-lang/install-crystal@34d796a85ca0eee5d772f8ebd114c0fe7c368de6
         with:
           crystal: ${{ matrix.crystal }}
       - name: Install Dependencies
