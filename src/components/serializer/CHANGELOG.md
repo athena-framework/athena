@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.6] - 2024-04-26
+
+### Fixed
+
+- Fix misnamed modules being defined in incorrect namespace ([#402](https://github.com/athena-framework/athena/pull/402)) (George Dietrich)
+
 ## [0.3.5] - 2024-04-09
 
 ### Changed
@@ -144,6 +150,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.3.6]: https://github.com/athena-framework/serializer/releases/tag/v0.3.6
 [0.3.5]: https://github.com/athena-framework/serializer/releases/tag/v0.3.5
 [0.3.4]: https://github.com/athena-framework/serializer/releases/tag/v0.3.4
 [0.3.3]: https://github.com/athena-framework/serializer/releases/tag/v0.3.3

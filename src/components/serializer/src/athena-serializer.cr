@@ -36,7 +36,7 @@ module YAML; end
 
 # Provides enhanced (de)serialization features.
 module Athena::Serializer
-  VERSION = "0.3.5"
+  VERSION = "0.3.6"
 
   # Returns an `ASR::SerializerInterface` instance for ad-hoc (de)serialization.
   #
