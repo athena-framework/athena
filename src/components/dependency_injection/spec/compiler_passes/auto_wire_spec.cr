@@ -1,5 +1,12 @@
 require "../spec_helper"
 
+private def assert_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_error message, <<-CR, line: line
+    require "../spec_helper.cr"
+    #{code}
+  CR
+end
+
 module AutoWireInterface; end
 
 @[ADI::Register]
@@ -27,6 +34,24 @@ end
 record SameInstanceClient, a : SameInstancePrimary, b : SameInstanceAliasInterface
 
 describe ADI::ServiceContainer do
+  describe "compiler errors" do
+    it "does not resolve an un-aliased interface when there is only 1 implementation" do
+      assert_error "Failed to resolve value for parameter 'a : SomeInterface' of service 'bar' (Bar).", <<-CR
+        module SomeInterface; end
+
+        @[ADI::Register]
+        class Foo
+          include SomeInterface
+        end
+
+        @[ADI::Register(public: true)]
+        record Bar, a : SomeInterface
+
+        ADI.container.bar
+      CR
+    end
+  end
+
   it "resolves the service with a matching constructor name" do
     ADI.container.auto_wire_service.auto_wire_two.should be_a AutoWireTwo
   end

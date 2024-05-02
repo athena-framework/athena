@@ -15,14 +15,6 @@ private def assert_error(message : String, code : String, *, line : Int32 = __LI
   CR
 end
 
-private def assert_success(code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_success <<-CR, codegen: true, line: line
-    require "../spec_helper.cr"
-    #{code}
-    ADI::ServiceContainer.new
-  CR
-end
-
 describe ADI::ServiceContainer::DefineGetters, tags: "compiled" do
   describe "compiler errors" do
     describe "aliases" do
