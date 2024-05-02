@@ -1,6 +1,7 @@
 require "./param_fetcher_interface"
 
 @[ADI::Register]
+@[ADI::AsAlias]
 # Basic implementation of `ATH::Params::ParamFetcherInterface`.
 #
 # WARNING: May only be used _after_ the related `ATH::Action` has been resolved.

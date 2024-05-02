@@ -4,6 +4,7 @@ module Athena::Framework::ControllerResolverInterface
 end
 
 @[ADI::Register]
+@[ADI::AsAlias]
 # :nodoc:
 class Athena::Framework::ControllerResolver
   include Athena::Framework::ControllerResolverInterface

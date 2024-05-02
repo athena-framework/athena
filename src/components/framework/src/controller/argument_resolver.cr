@@ -4,6 +4,7 @@ require "./argument_resolver_interface"
 ADI.bind value_resolvers : Array(Athena::Framework::Controller::ValueResolvers::Interface), "!athena.controller.value_resolver"
 
 @[ADI::Register]
+@[ADI::AsAlias]
 # The default implementation of `ATH::Controller::ArgumentResolverInterface`.
 struct Athena::Framework::Controller::ArgumentResolver
   include Athena::Framework::Controller::ArgumentResolverInterface
