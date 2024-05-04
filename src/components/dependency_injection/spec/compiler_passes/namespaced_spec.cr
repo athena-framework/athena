@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-@[ADI::Register(public: true)]
+@[ADI::Register]
 class MyApp::Models::Foo
 end
 

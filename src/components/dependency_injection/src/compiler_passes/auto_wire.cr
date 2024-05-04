@@ -11,7 +11,7 @@ module Athena::DependencyInjection::ServiceContainer::AutoWire
               param_resolved_restriction = param["resolved_restriction"]
               resolved_services = [] of Nil
 
-              # Otherwise resolve possible services based on type
+              # Gather a list of services that are compatible with the parameter's type restriction.
               SERVICE_HASH.each do |id, s_metadata|
                 if (type = param_resolved_restriction) &&
                    (
@@ -22,18 +22,18 @@ module Athena::DependencyInjection::ServiceContainer::AutoWire
                 end
               end
 
-              resolved_service = nil
-
-              # Try and determine the service to used in priority order:
+              # If only one service was resolved use it, but only if the parameter is typed as a non-module.
+              # This prevents parameters typed as an interface from being resolved if there is only a single implementation.
               #
-              # 1. The first service if there is only 1 option
-              # 2. If the constructor parameter name explicitly matches service ID
-              # 3. Constructor parameter type is aliased to another service
-
-              resolved_service = if resolved_services.size == 1
+              # These services should be wired up as aliases to prevent errors if/when another implementation is added.
+              resolved_service = if resolved_services.size == 1 && !param_resolved_restriction.module?
                                    resolved_services[0]
+
+                                   # If there are more than one, try and match the parameter's name to a service ID.
                                  elsif rs = resolved_services.find(&.==(name.id))
                                    rs
+
+                                   # Otherwise see if any aliases explicitly match the parameter's type restriction.
                                  elsif a = ALIASES.keys.find { |k| k == param_resolved_restriction }
                                    ALIASES[a]["id"]
                                  end
