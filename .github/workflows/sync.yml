@@ -14,7 +14,7 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.SYNC_TOKEN }}
       - name: Sync Repos
-        run: ./scripts/sync.sh
+        run: ./scripts/repo.sh sync
         env:
           BEFORE_SHA: ${{ github.event.before }}
           AFTER_SHA: ${{ github.event.after }}
