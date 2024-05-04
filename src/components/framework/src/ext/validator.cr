@@ -3,6 +3,7 @@ require "athena-validator"
 require "./validator/validation_failed_exception"
 
 @[ADI::Register]
+@[ADI::AsAlias]
 class Athena::Validator::Validator::RecursiveValidator; end
 
 @[ADI::Autoconfigure(tags: ["athena.validator.constraint_validator"])]
