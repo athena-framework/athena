@@ -46,8 +46,8 @@ describe ASPEC::Methods do
 
   describe ".run_executable", tags: "compiled" do
     it "without input" do
-      run_executable "ls", ["./.github"] do |output, error, status|
-        output.should eq %(dependabot.yml\nworkflows\n)
+      run_executable "echo", ["foo", "bar"] do |output, error, status|
+        output.should eq "foo bar\n"
         error.should be_empty
         status.success?.should be_true
       end
