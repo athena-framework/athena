@@ -40,7 +40,7 @@ While testing a service in isolation is a good starting point; it does not make 
 A perfect example of this are [ATH::Controller](/Framework/Controller)s.
 Controllers are best tested in conjunction with the various moving parts that make them function.
 
-To make this as easy as possible, the framework provides [ATH::Spec::APITestCase](/Framework/Spec/APITestCase) and provides many helpful `HTTP` related [expectations](/Framework/SpecExpectations/HTTP).
+To make this as easy as possible, the framework provides [ATH::Spec::APITestCase](/Framework/Spec/APITestCase) and provides many helpful `HTTP` related [expectations](/Framework/Spec/Expectations/HTTP).
 
 ```crystal
 require "athena"
