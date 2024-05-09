@@ -10,7 +10,7 @@ repository: https://github.com/athena-framework/clock
 
 documentation: https://athenaframework.org/Clock
 
-Decouples applications from the system clock: |
+description: |
   Decouples applications from the system clock.
 
 authors:
