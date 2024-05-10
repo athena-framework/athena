@@ -1,13 +1,12 @@
 @[ADI::Register(public: true, name: "athena_console_application")]
 # Entrypoint for the `Athena::Console` integration.
-# This service should be fetched via `ADI.container` within your console CLI file.
 #
 # ```
 # # Require your code
 # require "./main"
 #
 # # Run the application
-# ADI.container.athena_console_application.run
+# ATH.run_console
 # ```
 #
 # Checkout the [Getting Started](/getting_started/commands) docs for more information.
