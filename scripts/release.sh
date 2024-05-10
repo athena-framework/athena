@@ -73,8 +73,9 @@ function rebuildDocs()
 
 # Helper script to assist in component release tasks
 #
-# tag     - Creates a signed git tag at the latest commit for the provided component(s). ./scripts/release.sh tag clock:0.1.0 console:0.4.0
-# docPick - Cherry-picks a commit to the docs branch of the provided component. ./scripts/release.sh docPick dotenv abc123
+# tag       - Creates a signed git tag at the latest commit for the provided component(s). ./scripts/release.sh tag clock:0.1.0 console:0.4.0
+# docPick   - Cherry-picks a commit to the docs branch of the provided component. ./scripts/release.sh docPick dotenv abc123
+# buildDocs - Triggers a re-build of https://athenaframework.org/ for the production environment.
 
 METHOD=$1
 
