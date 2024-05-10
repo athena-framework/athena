@@ -165,6 +165,13 @@ module Athena::Framework
     ATH::Server.new(port, host, reuse_port, ssl_context, prepend_handlers).start
   end
 
+  # Runs an `ATH::Console::Application` as the entrypoint of `Athena::Console`.
+  #
+  # Checkout the [Getting Started](/getting_started/commands) docs for more information.
+  def self.run_console : Nil
+    ADI.container.athena_console_application.run
+  end
+
   # :nodoc:
   #
   # Currently an implementation detail. In the future could be exposed to allow having separate "groups" of controllers that a `Server` instance handles.

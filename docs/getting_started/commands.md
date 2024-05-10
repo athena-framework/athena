@@ -49,7 +49,7 @@ end
 ```
 
 From here, if the application was created using the [skeleton](https://github.com/athena-framework/skeleton), commands can be executed via `shards run console -- admin:create-user 12 "George Dietrich" --admin`.
-Otherwise see [Athena::Console](/Console) for how to setup your CLI entry point.
+Otherwise [ATH.run_console](/Framework/#Athena::Framework.run_console) can be used for your [entrypoint](/Console/#entrypoint) file.
 
 NOTE: During *development* the console binary needs to re-build the application in order to have access to the changes made since last execution.
 When deploying a *production* console binary, or if not doing any new console command dev, build it with the `--release` flag for increased performance.
