@@ -55,6 +55,22 @@ function tag()
   cd $OLDPWD
 }
 
+# Triggers a build of the documentation for the production environment.
+#
+# Requires there be an `ATHENA_GH_TOKEN` ENV var set in order to authenticate with GitHub.
+# The token must be a Fine-grained personal access token with `contents:write` permissions.
+# It must also be approved by an `athena-framework` admin.
+function rebuildDocs()
+{
+  echo curl -LsS \
+    -X POST \
+    -H "Accept: application/vnd.github+json" \
+    -H "Authorization: Bearer ${ATHENA_GH_TOKEN:?GH token not set!}" \
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+    https://api.github.com/repos/athena-framework/athena/dispatches \
+    -d '{"event_type":"docs"}'
+}
+
 # Helper script to assist in component release tasks
 #
 # tag     - Creates a signed git tag at the latest commit for the provided component(s). ./scripts/release.sh tag clock:0.1.0 console:0.4.0
@@ -70,12 +86,19 @@ case $METHOD in
 
       tag $name $version
     done
+
+    # Re-build the docs after tagging every component
+    rebuildDocs
     ;;
   docPick)
     ensureRepoExists $2 docs
 
     git cherry-pick --quiet $3
     git push
+
+    ;;
+  buildDocs)
+    rebuildDocs
 
     ;;
 esac
