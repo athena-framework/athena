@@ -62,7 +62,7 @@ function tag()
 # It must also be approved by an `athena-framework` admin.
 function rebuildDocs()
 {
-  echo curl -LsS \
+  curl -LsS \
     -X POST \
     -H "Accept: application/vnd.github+json" \
     -H "Authorization: Bearer ${ATHENA_GH_TOKEN:?GH token not set!}" \
