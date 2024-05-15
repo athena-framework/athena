@@ -9,7 +9,7 @@ First, install the component by adding the following to your `shard.yml`, then r
 ```yaml
 dependencies:
   athena-spec:
-    github: athena-framework/spec:
+    github: athena-framework/spec
     version: ~> 0.3.0
 ```
 
