@@ -19,7 +19,7 @@ describe ATH::ErrorRenderer do
     response = renderer.render exception
 
     response.headers["retry-after"].should eq "42"
-    response.headers["content-type"].should eq "application/json; charset=UTF-8"
+    response.headers["content-type"].should eq "application/json; charset=utf-8"
     response.status.should eq HTTP::Status::TOO_MANY_REQUESTS
     response.content.should eq %({"code":429,"message":"cool your jets"})
   end
@@ -31,7 +31,7 @@ describe ATH::ErrorRenderer do
 
     response = renderer.render exception
 
-    response.headers["content-type"].should eq "application/json; charset=UTF-8"
+    response.headers["content-type"].should eq "application/json; charset=utf-8"
     response.headers["x-debug-exception-message"]?.should be_nil
     response.headers["x-debug-exception-class"]?.should be_nil
     response.headers["x-debug-exception-file"]?.should be_nil
@@ -49,7 +49,7 @@ describe ATH::ErrorRenderer do
 
       response = renderer.render exception
 
-      response.headers["content-type"].should eq "application/json; charset=UTF-8"
+      response.headers["content-type"].should eq "application/json; charset=utf-8"
       response.headers["x-debug-exception-message"].should eq "ERR"
       response.headers["x-debug-exception-class"].should eq "MockException"
       response.headers["x-debug-exception-file"].should match /#{URI.encode_path path.to_s}:\d+:\d+$/
@@ -66,7 +66,7 @@ describe ATH::ErrorRenderer do
 
       response = renderer.render exception
 
-      response.headers["content-type"].should eq "application/json; charset=UTF-8"
+      response.headers["content-type"].should eq "application/json; charset=utf-8"
       response.headers["x-debug-exception-message"].should eq "ERR"
       response.headers["x-debug-exception-class"].should eq "MockException"
       response.headers["x-debug-exception-file"].should match /#{URI.encode_path path.to_s}:\d+$/

@@ -78,7 +78,7 @@ class Athena::Framework::Response
   getter status : HTTP::Status
 
   # Returns the character set this response is encoded as.
-  property charset : String = "UTF-8"
+  property charset : String = "utf-8"
 
   # Returns the response headers of this response.
   getter headers : ATH::Response::Headers

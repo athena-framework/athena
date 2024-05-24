@@ -24,12 +24,12 @@ Each negotiator exposes two methods: [ANG::AbstractNegotiator#best][] and [ANG::
 negotiator = ANG.negotiator
 
 accept_header = "text/html, application/xhtml+xml, application/xml;q=0.9"
-priorities = ["text/html; charset=UTF-8", "application/json", "application/xml;q=0.5"]
+priorities = ["text/html; charset=utf-8", "application/json", "application/xml;q=0.5"]
 
 accept = negotiator.best(accept_header, priorities).not_nil!
 
 accept.media_range # => "text/html"
-accept.parameters  # => {"charset" => "UTF-8"}
+accept.parameters  # => {"charset" => "utf-8"}
 ```
 
 The [ANG::Negotiator][] type returns an [ANG::Accept][], or `nil` if negotiating the best media type has failed.
@@ -39,7 +39,7 @@ The [ANG::Negotiator][] type returns an [ANG::Accept][], or `nil` if negotiating
 ```crystal
 negotiator = ANG.charset_negotiator
 
-accept_header = "ISO-8859-1, UTF-8; q=0.9"
+accept_header = "ISO-8859-1, utf-8; q=0.9"
 priorities = ["iso-8859-1;q=0.3", "utf-8;q=0.9", "utf-16;q=1.0"]
 
 accept = negotiator.best(accept_header, priorities).not_nil!

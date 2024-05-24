@@ -112,11 +112,11 @@ describe ATH::Response do
     it "does not override content-type if already set" do
       request = ATH::Request.new "GET", "/"
       request.request_format = "json"
-      response = ATH::Response.new "CONTENT", headers: HTTP::Headers{"content-type" => "application/json; charset=UTF-8"}
+      response = ATH::Response.new "CONTENT", headers: HTTP::Headers{"content-type" => "application/json; charset=utf-8"}
 
       response.prepare request
 
-      response.headers["content-type"].should eq "application/json; charset=UTF-8"
+      response.headers["content-type"].should eq "application/json; charset=utf-8"
     end
 
     it "adds the charset to text based formats" do
@@ -126,7 +126,7 @@ describe ATH::Response do
 
       response.prepare request
 
-      response.headers["content-type"].should eq "text/csv; charset=UTF-8"
+      response.headers["content-type"].should eq "text/csv; charset=utf-8"
     end
 
     it "allows customizing the charset" do

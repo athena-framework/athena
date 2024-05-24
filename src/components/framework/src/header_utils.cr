@@ -8,8 +8,8 @@ module Athena::Framework::HeaderUtils
   #
   # ```
   # ATH::HeaderUtils.make_disposition :attachment, "download.txt"         # => attachment; filename="download.txt"
-  # ATH::HeaderUtils.make_disposition :attachment, "föö.html"             # => attachment; filename="f__.html"; filename*=UTF-8''f%C3%B6%C3%B6.html
-  # ATH::HeaderUtils.make_disposition :attachment, "föö.html", "foo.html" # => attachment; filename="foo.html"; filename*=UTF-8''f%C3%B6%C3%B6.html
+  # ATH::HeaderUtils.make_disposition :attachment, "föö.html"             # => attachment; filename="f__.html"; filename*=utf-8''f%C3%B6%C3%B6.html
+  # ATH::HeaderUtils.make_disposition :attachment, "föö.html", "foo.html" # => attachment; filename="foo.html"; filename*=utf-8''f%C3%B6%C3%B6.html
   # ```
   #
   # This method can be used to enable downloads of dynamically generated files.
@@ -49,7 +49,7 @@ module Athena::Framework::HeaderUtils
     }
 
     if filename != fallback_filename
-      params["filename*"] = "UTF-8''#{URI.encode_path_segment filename}"
+      params["filename*"] = "utf-8''#{URI.encode_path_segment filename}"
     end
 
     String.build do |io|

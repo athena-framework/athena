@@ -3,11 +3,11 @@ require "./base_accept"
 # Represents an [Accept](https://tools.ietf.org/html/rfc7231#section-5.3.2) header media type.
 #
 # ```
-# accept = ANG::Accept.new "application/json; q = 0.75; charset = UTF-8"
+# accept = ANG::Accept.new "application/json; q = 0.75; charset = utf-8"
 #
-# accept.header            # => "application/json; q = 0.75; charset = UTF-8"
-# accept.normalized_header # => "application/json; charset=UTF-8"
-# accept.parameters        # => {"charset" => "UTF-8"}
+# accept.header            # => "application/json; q = 0.75; charset = utf-8"
+# accept.normalized_header # => "application/json; charset=utf-8"
+# accept.parameters        # => {"charset" => "utf-8"}
 # accept.quality           # => 0.75
 # accept.type              # => "application"
 # accept.sub_type          # => "json"
