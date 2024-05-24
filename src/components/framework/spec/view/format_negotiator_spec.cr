@@ -57,7 +57,7 @@ struct FormatNegotiatorTest < ASPEC::TestCase
 
   def test_best : Nil
     @request.headers["accept"] = "application/xhtml+xml, text/html, application/xml;q=0.9, */*;q=0.8"
-    priorities = ["text/html; charset=UTF-8", "html", "application/json"]
+    priorities = ["text/html; charset=utf-8", "html", "application/json"]
     self.add_rule priorities: priorities
 
     @negotiator.best("").should eq ANG::Accept.new "text/html;charset=utf-8"

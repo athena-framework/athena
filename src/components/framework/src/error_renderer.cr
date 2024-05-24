@@ -16,7 +16,7 @@ struct Athena::Framework::ErrorRenderer
       headers = HTTP::Headers.new
     end
 
-    headers["content-type"] = "application/json; charset=UTF-8"
+    headers["content-type"] = "application/json; charset=utf-8"
 
     # TODO: Use a better API to get the file/line/column info.
     if @debug && (backtrace = exception.backtrace?.try(&.first).to_s.presence)

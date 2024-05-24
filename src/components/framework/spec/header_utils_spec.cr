@@ -30,8 +30,8 @@ struct ATH::HeaderUtilsTest < ASPEC::TestCase
       {ATH::BinaryFileResponse::ContentDisposition::Attachment, "foo.html", nil, "attachment; filename=foo.html"},
       {ATH::BinaryFileResponse::ContentDisposition::Attachment, "foo bar.html", nil, "attachment; filename=foo\\ bar.html"},
       {ATH::BinaryFileResponse::ContentDisposition::Attachment, %(foo "bar".html), nil, %(attachment; filename=foo\\ \\"bar\\".html)},
-      {ATH::BinaryFileResponse::ContentDisposition::Attachment, "foo%20bar.html", "foo bar.html", "attachment; filename=foo\\ bar.html; filename*=UTF-8''foo%2520bar.html"},
-      {ATH::BinaryFileResponse::ContentDisposition::Attachment, "föö.html", "foo.html", "attachment; filename=foo.html; filename*=UTF-8''f%C3%B6%C3%B6.html"},
+      {ATH::BinaryFileResponse::ContentDisposition::Attachment, "foo%20bar.html", "foo bar.html", "attachment; filename=foo\\ bar.html; filename*=utf-8''foo%2520bar.html"},
+      {ATH::BinaryFileResponse::ContentDisposition::Attachment, "föö.html", "foo.html", "attachment; filename=foo.html; filename*=utf-8''f%C3%B6%C3%B6.html"},
     }
   end
 

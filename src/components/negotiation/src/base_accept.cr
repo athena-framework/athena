@@ -10,7 +10,7 @@ abstract struct Athena::Negotiation::BaseAccept
   getter normalized_header : String
 
   # Returns any extension parameters included in the header `self` represents.
-  # E.x. `charset=UTF-8` or `version=2`.
+  # E.x. `charset=utf-8` or `version=2`.
   getter parameters : Hash(String, String) = Hash(String, String).new
 
   # Returns the [quality value](https://tools.ietf.org/html/rfc7231#section-5.3.1) of the header `self` represents.

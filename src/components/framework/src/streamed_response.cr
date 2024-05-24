@@ -17,7 +17,7 @@ class Athena::Framework::StreamedResponse < Athena::Framework::Response
   # class ExampleController < ATH::Controller
   #   @[ARTA::Get("/users")]
   #   def users : ATH::Response
-  #     ATH::StreamedResponse.new headers: HTTP::Headers{"content-type" => "application/json; charset=UTF-8"} do |io|
+  #     ATH::StreamedResponse.new headers: HTTP::Headers{"content-type" => "application/json; charset=utf-8"} do |io|
   #       User.all.to_json io
   #     end
   #   end

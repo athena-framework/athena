@@ -44,7 +44,7 @@ struct ATH::BinaryFileResponseTest < ASPEC::TestCase
     response = ATH::BinaryFileResponse.new __FILE__
     response.set_content_disposition :attachment, "föö.html", "FILE"
 
-    response.headers["content-disposition"]?.should eq %(attachment; filename=FILE; filename*=UTF-8''f%C3%B6%C3%B6.html)
+    response.headers["content-disposition"]?.should eq %(attachment; filename=FILE; filename*=utf-8''f%C3%B6%C3%B6.html)
   end
 
   def test_set_content_disposition_custom_filename : Nil

@@ -71,9 +71,9 @@ struct NegotiatorTest < NegotiatorTestCase
       {"image/png, text/plain, audio/ogg", {"baz/asdf"}, nil},
       {"image/png, text/plain, audio/ogg", {"audio/ogg"}, {"audio/ogg", nil}},
       {"image/png, text/plain, audio/ogg", {"YO/SuP"}, nil},
-      {"text/html; charset=UTF-8, application/pdf", {"text/html; charset=UTF-8"}, {"text/html", {"charset" => "UTF-8"}}},
-      {"text/html; charset=UTF-8, application/pdf", {"text/html"}, nil},
-      {"text/html, application/pdf", {"text/html; charset=UTF-8"}, {"text/html", {"charset" => "UTF-8"}}},
+      {"text/html; charset=utf-8, application/pdf", {"text/html; charset=utf-8"}, {"text/html", {"charset" => "utf-8"}}},
+      {"text/html; charset=utf-8, application/pdf", {"text/html"}, nil},
+      {"text/html, application/pdf", {"text/html; charset=utf-8"}, {"text/html", {"charset" => "utf-8"}}},
 
       # PHP"s PEAR HTTP2 assertions I took from the other lib.
       {php_pear_header, {"image/gif", "image/png", "application/xhtml+xml", "application/xml", "text/html", "image/jpeg", "text/plain"}, {"image/png", nil}},
