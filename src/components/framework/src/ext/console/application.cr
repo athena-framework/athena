@@ -16,7 +16,7 @@ class Athena::Framework::Console::Application < ACON::Application
     event_dipatcher : AED::EventDispatcherInterface? = nil,
     eager_commands : Enumerable(ACON::Command)? = nil
   )
-    super "Athena", SemanticVersion.parse ATH::VERSION
+    super "Athena", ATH::VERSION
 
     self.command_loader = command_loader
     # TODO: set event dispatcher when that's implemented in the console component.
