@@ -32,6 +32,10 @@ struct ApplicationTest < ASPEC::TestCase
     ACON::Application.new("foo", "1.2.3").long_version.should eq "foo <info>1.2.3</info>"
   end
 
+  def test_long_version_non_semver : Nil
+    ACON::Application.new("foo", "2024.1.2").long_version.should eq "foo <info>2024.1.2</info>"
+  end
+
   def test_help : Nil
     ACON::Application.new("foo", "1.2.3").help.should eq "foo <info>1.2.3</info>"
   end

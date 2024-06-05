@@ -39,7 +39,7 @@ struct ListCommandTest < ASPEC::TestCase
     tester.execute command: "list", decorated: false
 
     tester.display(true).should eq normalize <<-OUTPUT
-      foo 0.1.0
+      foo UNKNOWN
 
       Usage:
         command [options] [arguments]
