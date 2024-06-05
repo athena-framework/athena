@@ -1,4 +1,3 @@
-require "semantic_version"
 require "levenshtein"
 
 # A container for a collection of multiple `ACON::Command`, and serves as the entry point of a CLI application.
@@ -25,7 +24,7 @@ require "levenshtein"
 # override the array of default commands, or customize the default input options, etc.
 class Athena::Console::Application
   # Returns the version of this CLI application.
-  getter version : SemanticVersion
+  getter version : String
 
   # Returns the name of this CLI application.
   getter name : String
@@ -96,11 +95,7 @@ class Athena::Console::Application
   @terminal : ACON::Terminal
   @wants_help : Bool = false
 
-  def self.new(name : String, version : String = "0.1.0") : self
-    new name, SemanticVersion.parse version
-  end
-
-  def initialize(@name : String, @version : SemanticVersion = SemanticVersion.new(0, 1, 0))
+  def initialize(@name : String, @version : String = "UNKNOWN")
     @terminal = ACON::Terminal.new
 
     # TODO: Emit events when certain signals are triggered.

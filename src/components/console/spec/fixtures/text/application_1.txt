@@ -1,4 +1,4 @@
-foo <info>0.1.0</info>
+foo <info>UNKNOWN</info>
 
 <comment>Usage:</comment>
   command [options] [arguments]

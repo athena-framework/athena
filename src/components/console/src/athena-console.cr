@@ -1,4 +1,5 @@
 require "ecr"
+require "semantic_version"
 
 require "athena-clock"
 
