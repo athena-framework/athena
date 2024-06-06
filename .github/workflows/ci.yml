@@ -48,11 +48,19 @@ jobs:
       - name: Ameba
         run: ./bin/ameba
   test_compiled:
+    strategy:
+      fail-fast: false
+      matrix:
+        crystal:
+          - latest
+          - nightly
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: ${{ matrix.crystal }}
       - name: Install Dependencies
         run: shards install --skip-postinstall --skip-executables
         env:
