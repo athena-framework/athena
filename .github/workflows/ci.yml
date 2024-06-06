@@ -20,19 +20,18 @@ jobs:
       - name: Check Spelling
         uses: crate-ci/typos@v1.22.1
   check_format:
+    strategy:
+      matrix:
+        crystal:
+          - latest
+          - nightly
     runs-on: ubuntu-latest
-    container:
-      image: crystallang/crystal:latest-alpine
     steps:
       - uses: actions/checkout@v4
-      - name: Check Format
-        run: crystal tool format --check
-  check_format_nightly:
-    runs-on: ubuntu-latest
-    container:
-      image: crystallang/crystal:nightly-alpine
-    steps:
-      - uses: actions/checkout@v4
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: ${{ matrix.crystal }}
       - name: Check Format
         run: crystal tool format --check
   coding_standards:
@@ -48,11 +47,19 @@ jobs:
       - name: Ameba
         run: ./bin/ameba
   test_compiled:
+    strategy:
+      fail-fast: false
+      matrix:
+        crystal:
+          - latest
+          - nightly
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: ${{ matrix.crystal }}
       - name: Install Dependencies
         run: shards install --skip-postinstall --skip-executables
         env:
