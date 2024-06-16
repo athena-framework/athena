@@ -1,5 +1,5 @@
 @[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 105}])]
-# Attempts to resolve the value of any parameter with the `ATHR::RequestBody::Extract` annotation by
+# Attempts to resolve the value of any parameter with the `ATHA::MapRequestBody` annotation by
 # deserializing the request body into an object of the type of the related parameter.
 # Also handles running any validations defined on it, if it is `AVD::Validatable`.
 # Requires the type of the related parameter to include either `ASR::Serializable` or `JSON::Serializable`.
@@ -31,7 +31,7 @@
 #   @[ARTA::Post("/user")]
 #   @[ATHA::View(status: :created)]
 #   def new_user(
-#     @[ATHR::RequestBody::Extract]
+#     @[ATHA::MapRequestBody]
 #     user_create : UserCreate
 #   ) : UserCreate
 #     # Use the provided UserCreate instance to create an actual User DB record.

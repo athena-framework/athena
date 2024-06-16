@@ -1,7 +1,7 @@
 @[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 105}])]
 # Attempts to parse a date(time) string into a `::Time` instance.
 #
-# Optionally allows specifying the *format* and *location* to use when parsing the string via the `ATHR::Time::Format` annotation.
+# Optionally allows specifying the *format* and *location* to use when parsing the string via the `ATHA::MapTime` annotation.
 # If no *format* is specified, defaults to [RFC 3339](https://crystal-lang.org/api/Time.html#parse_rfc3339%28time:String%29-class-method).
 # Defaults to `UTC` if no *location* is specified with the annotation.
 #
@@ -15,7 +15,7 @@
 # class ExampleController < ATH::Controller
 #   @[ARTA::Get(path: "/event/{start_time}/{end_time}")]
 #   def event(
-#     @[ATHR::Time::Format("%F", location: Time::Location.load("Europe/Berlin"))]
+#     @[ATHA::MapTime("%F", location: Time::Location.load("Europe/Berlin"))]
 #     start_time : Time,
 #     end_time : Time
 #   ) : Nil
