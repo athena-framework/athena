@@ -72,7 +72,7 @@ module Athena::Spec::Methods
 
     args << "--no-codegen" unless codegen
 
-    Process.run("crystal", args, input: input.rewind, output: buffer, error: buffer)
+    Process.run(ENV["CRYSTAL"]? || "crystal", args, input: input.rewind, output: buffer, error: buffer)
   end
 
   # Runs the executable at the given *path*, optionally with the provided *args*.
