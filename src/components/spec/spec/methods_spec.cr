@@ -2,6 +2,18 @@ require "./spec_helper"
 
 describe ASPEC::Methods do
   describe ".assert_error", tags: "compiled" do
+    it "allows customizing crystal binary via CRYSTAL env var" do
+      begin
+        ENV["CRYSTAL"] = "/path/to/crystal"
+
+        expect_raises File::NotFoundError, "'/path/to/crystal': No such file or directory" do
+          assert_error "", ""
+        end
+      ensure
+        ENV.delete "CRYSTAL"
+      end
+    end
+
     describe "no codegen" do
       it do
         assert_error "can't instantiate abstract class Foo", <<-CR
