@@ -120,14 +120,14 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
     object
   end
 
-  def map_request_body(body : IO, klass : ASR::Serializable.class)
+  private def map_request_body(body : IO, klass : ASR::Serializable.class)
     @serializer.deserialize klass, body, :json
   end
 
-  def map_request_body(body : IO, klass : JSON::Serializable.class)
+  private def map_request_body(body : IO, klass : JSON::Serializable.class)
     klass.from_json body
   end
 
-  def map_request_body(body : IO, klass : _) : Nil
+  private def map_request_body(body : IO, klass : _) : Nil
   end
 end
