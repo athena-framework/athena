@@ -14,10 +14,9 @@ end
 
 # :nodoc:
 def Bool.from_parameter(value : String) : Bool
-  if value == "true"
-    true
-  elsif value == "false"
-    false
+  case value
+  when "true", "1", "yes", "on"  then true
+  when "false", "0", "no", "off" then false
   else
     raise ArgumentError.new "Invalid Bool: #{value}"
   end
@@ -25,12 +24,9 @@ end
 
 # :nodoc:
 def Bool.from_parameter?(value : String) : Bool?
-  if value == "true"
-    true
-  elsif value == "false"
-    false
-  else
-    nil
+  case value
+  when "true", "1", "yes", "on"  then true
+  when "false", "0", "no", "off" then false
   end
 end
 
@@ -60,4 +56,8 @@ end
 # :nodoc:
 def Nil.from_parameter(value : String) : Nil
   raise ArgumentError.new "Invalid Nil: #{value}" unless value == "null"
+end
+
+# :nodoc:
+def Nil.from_parameter?(value : String) : Nil
 end
