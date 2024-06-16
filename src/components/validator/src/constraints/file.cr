@@ -253,7 +253,7 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
           self
             .context
             .build_violation(constraint.not_readable_message, NOT_READABLE_ERROR)
-            .add_parameter("{{ file }}", path)
+            .add_parameter("\{{ file }}", path)
             .add
 
           return
