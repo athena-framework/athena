@@ -57,7 +57,14 @@ class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
   )
     super nil, status, headers
 
-    raise File::Error.new("File '#{file_path}' must be readable.", file: file_path) unless File.readable? file_path
+    # TODO: Inline this again once 1.13.0 is the new min version
+    {% if compare_versions(Crystal::VERSION, "1.13.0-dev") >= 0 %}
+      is_file_readable = File::Info.readable? file_path
+    {% else %}
+      is_file_readable = File.readable? file_path
+    {% end %}
+
+    raise File::Error.new("File '#{file_path}' must be readable.", file: file_path) unless is_file_readable
 
     @file_path = Path.new(file_path).expand
 

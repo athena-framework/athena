@@ -242,7 +242,14 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
         return
       end
 
-      unless ::File.readable? path
+      # TODO: Inline this again once 1.13.0 is the new min version
+      {% if compare_versions(Crystal::VERSION, "1.13.0-dev") >= 0 %}
+        is_file_readable = ::File::Info.readable? path
+      {% else %}
+        is_file_readable = ::File.readable? path
+      {% end %}
+
+      unless is_file_readable
         self
           .context
           .build_violation(constraint.not_readable_message, NOT_READABLE_ERROR)
