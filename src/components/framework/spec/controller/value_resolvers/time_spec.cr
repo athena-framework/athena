@@ -74,8 +74,8 @@ describe ATHR::Time do
       parameter = ATH::Controller::ParameterMetadata(::Time).new(
         "foo",
         annotation_configurations: ADI::AnnotationConfigurations.new({
-          ATHR::Time::Format => [
-            ATHR::Time::FormatConfiguration.new(format: "%Y--%m//%d  %T"),
+          ATHA::MapTime => [
+            ATHA::MapTimeConfiguration.new(format: "%Y--%m//%d  %T"),
           ] of ADI::AnnotationConfigurations::ConfigurationBase,
         } of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase))
       )
@@ -90,8 +90,8 @@ describe ATHR::Time do
       parameter = ATH::Controller::ParameterMetadata(::Time).new(
         "foo",
         annotation_configurations: ADI::AnnotationConfigurations.new({
-          ATHR::Time::Format => [
-            ATHR::Time::FormatConfiguration.new(format: "%Y--%m//%d  %T", location: Time::Location.fixed(9001)),
+          ATHA::MapTime => [
+            ATHA::MapTimeConfiguration.new(format: "%Y--%m//%d  %T", location: Time::Location.fixed(9001)),
           ] of ADI::AnnotationConfigurations::ConfigurationBase,
         } of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase))
       )

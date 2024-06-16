@@ -273,13 +273,17 @@
 # This feature pairs nicely with the [free var][Athena::Framework::Controller::ValueResolvers::Interface--free-vars] section as it essentially allows
 # scoping the possible types of `T` to the set of types defined as part of the module.
 module Athena::Framework::Controller::ValueResolvers::Interface
+  # :nodoc:
+  ANNOTATION_RESOLVER_MAP = {} of Nil => Nil
+
   # The tag name for `ATHR::Interface` services.
   TAG = "athena.controller.value_resolver"
 
   # Helper macro around `ADI.configuration_annotation` that allows defining resolver specific annotations.
   # See the underlying macro and the [configuration][Athena::Framework::Controller::ValueResolvers::Interface--configuration] section for more information.
   macro configuration(name, *args)
-    ADI.configuration_annotation ::{{@type}}::{{name.id}}{% unless args.empty? %}, {{args.splat}}{% end %}
+    ADI.configuration_annotation {{name.id}}{% unless args.empty? %}, {{args.splat}}{% end %}
+    {% ANNOTATION_RESOLVER_MAP[name.id] = @type.resolve %}
   end
 
   # Represents an `ATHR::Interface` that only supports a subset of types.

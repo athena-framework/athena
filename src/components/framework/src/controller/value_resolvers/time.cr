@@ -33,7 +33,7 @@ struct Athena::Framework::Controller::ValueResolvers::Time
 
   # Allows customing the time format and/or location used to parse the string datetime as part of the `ATHR::Time` resolver.
   # See the related resolver documentation for more information.
-  configuration Format, format : String? = nil, location : ::Time::Location = ::Time::Location::UTC
+  configuration ::Athena::Framework::Annotations::MapTime, format : String? = nil, location : ::Time::Location = ::Time::Location::UTC
 
   # :inherit:
   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata) : ::Time?
@@ -45,7 +45,7 @@ struct Athena::Framework::Controller::ValueResolvers::Time
 
     return unless value = request.attributes.get? parameter.name, String?
 
-    if !(configuration = parameter.annotation_configurations[Format]?) || !(format = configuration.format)
+    if !(configuration = parameter.annotation_configurations[ATHA::MapTime]?) || !(format = configuration.format)
       return ::Time.parse_rfc3339(value)
     end
 
