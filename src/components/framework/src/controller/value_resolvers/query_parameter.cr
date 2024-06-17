@@ -1,5 +1,5 @@
 @[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 105}])]
-struct Athena::Framework::Controller::ValueResolvers::QueryParam
+struct Athena::Framework::Controller::ValueResolvers::QueryParameter
   include Athena::Framework::Controller::ValueResolvers::Interface
 
   configuration ::Athena::Framework::Annotations::MapQueryParameter,

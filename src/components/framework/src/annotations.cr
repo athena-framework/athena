@@ -21,8 +21,7 @@ module Athena::Framework::Annotations
   #   article
   # end
   # ```
-  annotation View; end
-  ADI.configuration_annotation View,
+  ADI.configuration_annotation ::Athena::Framework::Annotations::View,
     status : HTTP::Status? = nil,
     serialization_groups : Array(String)? = nil,
     validation_groups : Array(String)? = nil,
