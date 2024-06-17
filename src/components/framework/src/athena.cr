@@ -37,7 +37,6 @@ require "./compiler_passes/*"
 require "./events/*"
 require "./exceptions/*"
 require "./listeners/*"
-require "./params/*"
 require "./request_matcher/*"
 require "./view/*"
 
