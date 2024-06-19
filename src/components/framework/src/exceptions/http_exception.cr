@@ -15,6 +15,9 @@ end
 #
 # Can be used directly/inherited from to represent non-typical HTTP errors/codes.
 class Athena::Framework::Exceptions::HTTPException < Exception
+  # Helper method to return the proper exception subclass for the provided *status*.
+  # The *message*, *cause*, and *headers* are passed along as well if provided.
+  #
   # ameba:disable Metrics/CyclomaticComplexity
   def self.from_status(
     status : Int32 | HTTP::Status,

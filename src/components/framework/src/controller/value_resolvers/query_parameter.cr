@@ -1,7 +1,53 @@
+# Attempts to resolve the value from the request's query parameters for any parameter with the `ATHA::MapQueryParameter` annotation.
+# Supports most primitive types, as well as arrays of most primitive types, as well as enums.
+#
+# The name of the query parameter is assumed to be the same as the controller action parameter's name.
+# This can be customized via the `name` field on the annotation.
+#
+# If the controller action parameter is not-nilable nor has a default value and is missing, an `ATH::Exceptions::NotFound` exception will be raised.
+# Similarly, an exception will be raised if the value fails to be converted to the expected type.
+# The specific type of exception can be customized via the `validation_failed_status` field on the annotation.
+#
+# ```
+# require "athena"
+#
+# enum Color
+#   Red
+#   Green
+#   Blue
+# end
+#
+# class ExampleController < ATH::Controller
+#   @[ARTA::Get("/")]
+#   def index(
+#     @[ATHA::MapQueryParameter] ids : Array(Int23),
+#     @[ATHA::MapQueryParameter(name: "firstName")] first_name : String,
+#     @[ATHA::MapQueryParameter] required : Bool,
+#     @[ATHA::MapQueryParameter] age : Int32,
+#     @[ATHA::MapQueryParameter] color : Color,
+#     @[ATHA::MapQueryParameter] category : String = "",
+#     @[ATHA::MapQueryParameter] theme : String? = nil
+#   ) : Nil
+#     ids        # => [1, 2]
+#     first_name # => "Jon"
+#     required   # => false
+#     age        # => 123
+#     color      # => Color::Blue
+#     category   # => ""
+#     theme      # => nil
+#   end
+# end
+#
+# ATH.run
+#
+# # GET /?ids=1&ids=2&firstName=Jon&required=false&age=123&color=blue
+# ```
 @[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 110}])]
 struct Athena::Framework::Controller::ValueResolvers::QueryParameter
   include Athena::Framework::Controller::ValueResolvers::Interface
 
+  # Enables the `ATHR::QueryParameter` resolver for the parameter this annotation is applied to.
+  # See the related resolver documentation for more information.
   configuration ::Athena::Framework::Annotations::MapQueryParameter,
     name : String? = nil,
     validation_failed_status : HTTP::Status = :not_found
