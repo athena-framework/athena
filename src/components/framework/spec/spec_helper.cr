@@ -93,11 +93,19 @@ def new_action(
   )
 end
 
-def new_request(*, path : String = "/test", method : String = "GET", action : ATH::ActionBase = new_action, body : String | IO | Nil = nil) : ATH::Request
+def new_request(
+  *,
+  path : String = "/test",
+  method : String = "GET",
+  action : ATH::ActionBase = new_action,
+  body : String | IO | Nil = nil,
+  query : String? = nil
+) : ATH::Request
   request = ATH::Request.new method, path, body: body
   request.attributes.set "_controller", "TestController#test", String
   request.attributes.set "_route", "test_controller_test", String
   request.action = action
+  request.query = query
   request
 end
 

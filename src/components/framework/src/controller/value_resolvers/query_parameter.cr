@@ -31,7 +31,7 @@ struct Athena::Framework::Controller::ValueResolvers::QueryParameter
       parameter.type.from_parameter value
     rescue ex : ArgumentError
       # Catch type cast errors and bubble it up as a BadRequest
-      raise ATH::Exceptions::HTTPException.from_status validation_failed_status, "Invalid query parameter '#{name}'.", cause: ex
+      raise ATH::Exceptions::HTTPException.from_status validation_failed_status, "Invalid query parameter: '#{name}'.", cause: ex
     end
   end
 end

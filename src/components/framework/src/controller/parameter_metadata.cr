@@ -11,7 +11,8 @@ struct Athena::Framework::Controller::ParameterMetadata(T)
   # These configurations could then be accessed within `ATHR::Interface`s and/or `ATH::Listeners`s.
   getter annotation_configurations : ADI::AnnotationConfigurations
 
-  protected def initialize(
+  # :nodoc:
+  def initialize(
     @name : String,
     @has_default : Bool = false,
     @default_value : T? = nil,
