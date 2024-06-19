@@ -20,7 +20,7 @@
 # class ExampleController < ATH::Controller
 #   @[ARTA::Get("/")]
 #   def index(
-#     @[ATHA::MapQueryParameter] ids : Array(Int23),
+#     @[ATHA::MapQueryParameter] ids : Array(Int32),
 #     @[ATHA::MapQueryParameter(name: "firstName")] first_name : String,
 #     @[ATHA::MapQueryParameter] required : Bool,
 #     @[ATHA::MapQueryParameter] age : Int32,
