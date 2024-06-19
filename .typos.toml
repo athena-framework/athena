@@ -3,6 +3,7 @@ extend-ignore-re = ["(?Rm)^.*#\\s*spellchecker:disable-line$"]
 
 [default.extend-words]
 referer = "referrer"
+customing = "customizing"
 
 [files]
 extend-exclude = [

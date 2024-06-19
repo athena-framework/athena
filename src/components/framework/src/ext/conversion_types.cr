@@ -31,6 +31,16 @@ def Bool.from_parameter?(value : String) : Bool?
 end
 
 # :nodoc:
+def Enum.from_parameter(value : String)
+  parse value
+end
+
+# :nodoc:
+def Enum.from_parameter?(value : String)
+  parse? value
+end
+
+# :nodoc:
 def Union.from_parameter(value : String)
   # Process non nilable types first as they are more likely to work.
   {% for type in T.sort_by { |t| t.nilable? ? 1 : 0 } %}

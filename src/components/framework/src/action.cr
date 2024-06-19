@@ -15,13 +15,10 @@ struct Athena::Framework::Action(Controller, ReturnType, ParameterTypeTuple, Par
   # These configurations could then be accessed within `ATHR::Interface`s and/or `ATH::Listeners`s.
   getter annotation_configurations : ADI::AnnotationConfigurations
 
-  getter params : Array(ATH::Params::ParamInterface)
-
   def initialize(
     @action : Proc(ParameterTypeTuple, ReturnType),
     @parameters : ParametersType,
     @annotation_configurations : ADI::AnnotationConfigurations,
-    @params : Array(ATH::Params::ParamInterface),
     # Don't bother making these ivars since we just need them to set the generic types
     _controller : Controller.class,
     _return_type : ReturnType.class

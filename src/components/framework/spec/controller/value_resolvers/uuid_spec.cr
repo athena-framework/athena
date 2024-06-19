@@ -12,6 +12,7 @@ describe ATHR::UUID do
       ATHR::UUID.new.resolve(new_request, ATH::Controller::ParameterMetadata(Int32?).new "foo").should be_nil
       ATHR::UUID.new.resolve(new_request, ATH::Controller::ParameterMetadata(Bool | String).new "foo").should be_nil
     end
+
     it "attribute exists but is not a string" do
       parameter = ATH::Controller::ParameterMetadata(UUID).new "foo"
       request = new_request
