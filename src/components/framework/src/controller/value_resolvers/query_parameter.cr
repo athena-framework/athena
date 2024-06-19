@@ -1,4 +1,4 @@
-@[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 105}])]
+@[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 110}])]
 struct Athena::Framework::Controller::ValueResolvers::QueryParameter
   include Athena::Framework::Controller::ValueResolvers::Interface
 
