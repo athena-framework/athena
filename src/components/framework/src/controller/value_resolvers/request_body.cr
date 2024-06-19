@@ -1,5 +1,5 @@
 @[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 105}])]
-# Attempts to resolve the value of any parameter with the `ATHR::RequestBody::Extract` annotation by
+# Attempts to resolve the value of any parameter with the `ATHA::MapRequestBody` annotation by
 # deserializing the request body into an object of the type of the related parameter.
 # Also handles running any validations defined on it, if it is `AVD::Validatable`.
 # Requires the type of the related parameter to include either `ASR::Serializable` or `JSON::Serializable`.
@@ -31,7 +31,7 @@
 #   @[ARTA::Post("/user")]
 #   @[ATHA::View(status: :created)]
 #   def new_user(
-#     @[ATHR::RequestBody::Extract]
+#     @[ATHA::MapRequestBody]
 #     user_create : UserCreate
 #   ) : UserCreate
 #     # Use the provided UserCreate instance to create an actual User DB record.
@@ -89,7 +89,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
 
   # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to.
   # See the related resolver documentation for more information.
-  configuration Extract
+  configuration ::Athena::Framework::Annotations::MapRequestBody
 
   def initialize(
     @serializer : ASR::SerializerInterface,
@@ -97,25 +97,17 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   ); end
 
   # :inherit:
-  def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata(T)) : T? forall T
-    return unless parameter.annotation_configurations.has? Extract
+  def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata)
+    return unless parameter.annotation_configurations.has? ATHA::MapRequestBody
 
     if !(body = request.body) || body.peek.try &.empty?
       raise ATH::Exceptions::BadRequest.new "Request does not have a body."
     end
 
-    object = nil
-
     begin
-      {% begin %}
-        {% if T.instance <= ASR::Serializable %}
-          object = @serializer.deserialize T, body, :json
-        {% elsif T.instance <= JSON::Serializable %}
-          object = T.from_json body
-        {% else %}
-          return
-        {% end %}
-      {% end %}
+      unless object = self.map_request_body body, parameter.type
+        return
+      end
     rescue ex : JSON::ParseException | ASR::Exceptions::DeserializationException
       raise ATH::Exceptions::BadRequest.new "Malformed JSON payload.", cause: ex
     end
@@ -125,6 +117,17 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
       raise AVD::Exceptions::ValidationFailed.new errors unless errors.empty?
     end
 
-    object.as T
+    object
+  end
+
+  private def map_request_body(body : IO, klass : ASR::Serializable.class)
+    @serializer.deserialize klass, body, :json
+  end
+
+  private def map_request_body(body : IO, klass : JSON::Serializable.class)
+    klass.from_json body
+  end
+
+  private def map_request_body(body : IO, klass : _) : Nil
   end
 end

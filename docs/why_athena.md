@@ -296,7 +296,7 @@ class UserController < ATH::Controller
   @[ARTA::Post("/user")]
   @[ATHA::View(status: :created)]
   def new_user(
-    @[ATHR::RequestBody::Extract]
+    @[ATHA::MapRequestBody]
     user_create : UserCreate
   ) : UserCreate
     # Use the provided UserCreate instance to create an actual User DB record.

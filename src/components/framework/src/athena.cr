@@ -76,7 +76,7 @@ module Athena::Framework
   #
   # 1. `ATHR::Time` (105) - Attempts to resolve a value from the request attributes into a `::Time` instance,
   # defaulting to [RFC 3339](https://crystal-lang.org/api/Time.html#parse_rfc3339%28time:String%29-class-method).
-  # Format/location can be customized via the `ATHR::Time::Format` annotation.
+  # Format/location can be customized via the `ATHA::MapTime` annotation.
   #
   # 1. `ATHR::UUID` (105) - Attempts to resolve a value from the request attributes into a `::UUID` instance.
   #

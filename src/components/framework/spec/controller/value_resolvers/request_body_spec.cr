@@ -103,8 +103,8 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     ATH::Controller::ParameterMetadata(T).new(
       "foo",
       annotation_configurations: ADI::AnnotationConfigurations.new({
-        ATHR::RequestBody::Extract => [
-          ATHR::RequestBody::ExtractConfiguration.new,
+        ATHA::MapRequestBody => [
+          ATHA::MapRequestBodyConfiguration.new,
         ] of ADI::AnnotationConfigurations::ConfigurationBase,
       } of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase))
     )
