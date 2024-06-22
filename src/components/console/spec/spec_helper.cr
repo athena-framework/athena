@@ -13,4 +13,35 @@ require "./fixtures/**"
 # Override that given there are specs based on ansi output.
 Colorize.enabled = true
 
+struct MockCommandLoader
+  include Athena::Console::Loader::Interface
+
+  def initialize(
+    *,
+    @command_or_exception : ACON::Command | ::Exception? = nil,
+    @has : Bool = true,
+    @names : Array(String) | ::Exception = [] of String
+  )
+  end
+
+  def get(name : String) : ACON::Command
+    case v = @command_or_exception
+    in ::Exception   then raise v
+    in ACON::Command then v
+    in Nil           then raise "BUG: no command or exception was set"
+    end
+  end
+
+  def has?(name : String) : Bool
+    @has
+  end
+
+  def names : Array(String)
+    case v = @names
+    in ::Exception   then raise v
+    in Array(String) then v
+    end
+  end
+end
+
 ASPEC.run_all
