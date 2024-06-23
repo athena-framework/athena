@@ -1,7 +1,7 @@
-require "./negotiation_exception"
-
 # Represents an invalid `ANG::AcceptLanguage` header.
-class Athena::Negotiation::Exceptions::InvalidLanguage < Athena::Negotiation::Exceptions::Negotiation
+class Athena::Negotiation::Exception::InvalidLanguage < RuntimeError
+  include Athena::Negotiation::Exception
+
   # Returns the invalid language code.
   getter language : String
 

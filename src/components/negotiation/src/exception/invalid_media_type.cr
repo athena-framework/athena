@@ -1,7 +1,7 @@
-require "./negotiation_exception"
-
 # Represents an invalid `ANG::Accept` header.
-class Athena::Negotiation::Exceptions::InvalidMediaType < Athena::Negotiation::Exceptions::Negotiation
+class Athena::Negotiation::Exception::InvalidMediaType < RuntimeError
+  include Athena::Negotiation::Exception
+
   # Returns the invalid media range.
   getter media_range : String
 
