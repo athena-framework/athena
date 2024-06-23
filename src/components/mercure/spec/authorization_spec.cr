@@ -131,7 +131,7 @@ struct AuthorizationTest < ASPEC::TestCase
 
     authorization = AMC::Authorization.new registry
 
-    expect_raises AMC::Exceptions::InvalidArgument, "Unable to create authorization cookie for a hub on the different second-level domain" do
+    expect_raises AMC::Exception::InvalidArgument, "Unable to create authorization cookie for a hub on the different second-level domain" do
       authorization.create_cookie request
     end
   end
@@ -155,7 +155,7 @@ struct AuthorizationTest < ASPEC::TestCase
 
     authorization = AMC::Authorization.new registry
 
-    expect_raises AMC::Exceptions::Runtime, "The 'mercureAuthorization' cookie for the 'default hub' has already been set. You cannot set it two times during the same request." do
+    expect_raises AMC::Exception::Runtime, "The 'mercureAuthorization' cookie for the 'default hub' has already been set. You cannot set it two times during the same request." do
       authorization.set_cookie request, response
       authorization.clear_cookie request, response
     end

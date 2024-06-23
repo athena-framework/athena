@@ -146,7 +146,7 @@ _First release in the [athena-framework/framework](https://github.com/athena-fra
 
 ### Changed
 
-- Include error list in `ATH::Exceptions::InvalidParameter` ([#124](https://github.com/athena-framework/athena/pull/124)) (George Dietrich)
+- Include error list in `ATH::Exception::InvalidParameter` ([#124](https://github.com/athena-framework/athena/pull/124)) (George Dietrich)
 - Set the base path of parameter errors to the name of the parameter ([#124](https://github.com/athena-framework/athena/pull/124)) (George Dietrich)
 
 ## [0.15.0] - 2021-10-30
@@ -167,7 +167,7 @@ _Last release in the [athena-framework/athena](https://github.com/athena-framewo
 ### Fixed
 
 - Fix incorrect parameter type restriction on `ATH::ParameterBag#set` ([#116](https://github.com/athena-framework/athena/pull/116)) (George Dietrich)
-- Fix incorrect ivar type on `AVD::Exceptions::Exceptions::ValidationFailed#violations` ([#116](https://github.com/athena-framework/athena/pull/116)) (George Dietrich)
+- Fix incorrect ivar type on `AVD::Exception::Exceptions::ValidationFailed#violations` ([#116](https://github.com/athena-framework/athena/pull/116)) (George Dietrich)
 - Correctly reject requests with whitespace when converting numeric inputs ([#117](https://github.com/athena-framework/athena/pull/117)) (George Dietrich)
 
 [0.19.1]: https://github.com/athena-framework/framework/releases/tag/v0.19.1

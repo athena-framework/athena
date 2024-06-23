@@ -28,14 +28,14 @@ class Athena::Console::Input::Definition
 
   # Adds the provided *argument* to `self`.
   def <<(argument : ACON::Input::Argument) : Nil
-    raise ACON::Exceptions::Logic.new "An argument with the name '#{argument.name}' already exists." if @arguments.has_key?(argument.name)
+    raise ACON::Exception::Logic.new "An argument with the name '#{argument.name}' already exists." if @arguments.has_key?(argument.name)
 
     if last_array_argument = @last_array_argument
-      raise ACON::Exceptions::Logic.new "Cannot add a required argument '#{argument.name}' after Array argument '#{last_array_argument.name}'."
+      raise ACON::Exception::Logic.new "Cannot add a required argument '#{argument.name}' after Array argument '#{last_array_argument.name}'."
     end
 
     if argument.required? && (last_optional_argument = @last_optional_argument)
-      raise ACON::Exceptions::Logic.new "Cannot add required argument '#{argument.name}' after the optional argument '#{last_optional_argument.name}'."
+      raise ACON::Exception::Logic.new "Cannot add required argument '#{argument.name}' after the optional argument '#{last_optional_argument.name}'."
     end
 
     if argument.is_array?
@@ -54,17 +54,17 @@ class Athena::Console::Input::Definition
   # Adds the provided *options* to `self`.
   def <<(option : ACON::Input::Option) : Nil
     if self.has_option?(option.name) && option != self.option(option.name)
-      raise ACON::Exceptions::Logic.new "An option named '#{option.name}' already exists."
+      raise ACON::Exception::Logic.new "An option named '#{option.name}' already exists."
     end
 
     if self.has_negation?(option.name)
-      raise ACON::Exceptions::Logic.new "An option named '#{option.name}' already exists."
+      raise ACON::Exception::Logic.new "An option named '#{option.name}' already exists."
     end
 
     if shortcut = option.shortcut
       shortcut.split('|', remove_empty: true) do |s|
         if self.has_shortcut?(s) && option != self.option_for_shortcut(s)
-          raise ACON::Exceptions::Logic.new "An option with shortcut '#{s}' already exists."
+          raise ACON::Exception::Logic.new "An option with shortcut '#{s}' already exists."
         end
       end
     end
@@ -80,7 +80,7 @@ class Athena::Console::Input::Definition
     if option.negatable?
       negated_name = "no-#{option.name}"
 
-      raise ACON::Exceptions::Logic.new "An option named '#{negated_name}' already exists." if self.has_option? negated_name
+      raise ACON::Exception::Logic.new "An option named '#{negated_name}' already exists." if self.has_option? negated_name
 
       @negations[negated_name] = option.name
     end
@@ -120,9 +120,9 @@ class Athena::Console::Input::Definition
   end
 
   # Returns the `ACON::Input::Argument` with the provided *name_or_index*,
-  # otherwise raises `ACON::Exceptions::InvalidArgument` if that argument is not defined.
+  # otherwise raises `ACON::Exception::InvalidArgument` if that argument is not defined.
   def argument(name_or_index : String | Int32) : ACON::Input::Argument
-    raise ACON::Exceptions::InvalidArgument.new "The argument '#{name_or_index}' does not exist." unless self.has_argument? name_or_index
+    raise ACON::Exception::InvalidArgument.new "The argument '#{name_or_index}' does not exist." unless self.has_argument? name_or_index
 
     case name_or_index
     in String then @arguments[name_or_index]
@@ -160,9 +160,9 @@ class Athena::Console::Input::Definition
   end
 
   # Returns the `ACON::Input::Option` with the provided *name_or_index*,
-  # otherwise raises `ACON::Exceptions::InvalidArgument` if that option is not defined.
+  # otherwise raises `ACON::Exception::InvalidArgument` if that option is not defined.
   def option(name_or_index : String | Int32) : ACON::Input::Option
-    raise ACON::Exceptions::InvalidArgument.new "The '--#{name_or_index}' option does not exist." unless self.has_option? name_or_index
+    raise ACON::Exception::InvalidArgument.new "The '--#{name_or_index}' option does not exist." unless self.has_option? name_or_index
 
     case name_or_index
     in String then @options[name_or_index]
@@ -197,7 +197,7 @@ class Athena::Console::Input::Definition
 
   # Returns the name of the `ACON::Input::Option` that maps to the provided *negation*.
   def negation_to_name(negation : String) : String
-    raise ACON::Exceptions::InvalidArgument.new "The '--#{negation}' option does not exist." unless self.has_negation? negation
+    raise ACON::Exception::InvalidArgument.new "The '--#{negation}' option does not exist." unless self.has_negation? negation
 
     @negations[negation]
   end
@@ -259,7 +259,7 @@ class Athena::Console::Input::Definition
   end
 
   protected def shortcut_to_name(shortcut : String) : String
-    raise ACON::Exceptions::InvalidArgument.new "The '-#{shortcut}' option does not exist." unless self.has_shortcut? shortcut
+    raise ACON::Exception::InvalidArgument.new "The '-#{shortcut}' option does not exist." unless self.has_shortcut? shortcut
 
     @shortcuts[shortcut]
   end

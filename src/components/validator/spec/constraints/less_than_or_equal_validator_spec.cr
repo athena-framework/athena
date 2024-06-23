@@ -23,7 +23,7 @@ struct LessThanOrEqualValidatorTest < AVD::Spec::ComparisonConstraintValidatorTe
   end
 
   def test_invalid_type : Nil
-    expect_raises AVD::Exceptions::UnexpectedValueError, "Expected argument of type 'Number | String | Time', 'Bool' given." do
+    expect_raises AVD::Exception::UnexpectedValueError, "Expected argument of type 'Number | String | Time', 'Bool' given." do
       self.validator.validate false, new_constraint value: 50
     end
   end

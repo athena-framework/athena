@@ -28,10 +28,10 @@ struct Athena::Framework::Listeners::Format
       end
     end
 
-    raise ATH::Exceptions::NotAcceptable.new "No matching accepted Response format could be determined." if format.nil?
+    raise ATH::Exception::NotAcceptable.new "No matching accepted Response format could be determined." if format.nil?
 
     request.request_format = format
-  rescue ex : ATH::Exceptions::StopFormatListener
+  rescue ex : ATH::Exception::StopFormatListener
     # ignore
   end
 end

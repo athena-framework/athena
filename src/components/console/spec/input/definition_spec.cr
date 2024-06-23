@@ -79,7 +79,7 @@ struct InputDefinitionTest < ASPEC::TestCase
   def test_add_argument_must_have_unique_names : Nil
     definition = ACON::Input::Definition.new self.arg_foo
 
-    expect_raises ACON::Exceptions::Logic, "An argument with the name 'foo' already exists." do
+    expect_raises ACON::Exception::Logic, "An argument with the name 'foo' already exists." do
       definition << self.arg_foo
     end
   end
@@ -87,7 +87,7 @@ struct InputDefinitionTest < ASPEC::TestCase
   def test_add_argument_array_argument_must_be_last : Nil
     definition = ACON::Input::Definition.new ACON::Input::Argument.new "foo_array", :is_array
 
-    expect_raises ACON::Exceptions::Logic, "Cannot add a required argument 'foo' after Array argument 'foo_array'." do
+    expect_raises ACON::Exception::Logic, "Cannot add a required argument 'foo' after Array argument 'foo_array'." do
       definition << ACON::Input::Argument.new "foo"
     end
   end
@@ -95,7 +95,7 @@ struct InputDefinitionTest < ASPEC::TestCase
   def test_add_argument_required_argument_cannot_follow_optional : Nil
     definition = ACON::Input::Definition.new self.arg_foo
 
-    expect_raises ACON::Exceptions::Logic, "Cannot add required argument 'foo2' after the optional argument 'foo'." do
+    expect_raises ACON::Exception::Logic, "Cannot add required argument 'foo2' after the optional argument 'foo'." do
       definition << self.arg_foo2
     end
   end
@@ -110,7 +110,7 @@ struct InputDefinitionTest < ASPEC::TestCase
   def test_argument_missing : Nil
     definition = ACON::Input::Definition.new self.arg_foo
 
-    expect_raises ACON::Exceptions::InvalidArgument, "The argument 'bar' does not exist." do
+    expect_raises ACON::Exception::InvalidArgument, "The argument 'bar' does not exist." do
       definition.argument "bar"
     end
   end
@@ -177,7 +177,7 @@ struct InputDefinitionTest < ASPEC::TestCase
     definition = ACON::Input::Definition.new [self.opt_foo]
     definition.options = [self.opt_bar]
 
-    expect_raises ACON::Exceptions::InvalidArgument, "The '-f' option does not exist." do
+    expect_raises ACON::Exception::InvalidArgument, "The '-f' option does not exist." do
       definition.option_for_shortcut "f"
     end
   end
@@ -205,7 +205,7 @@ struct InputDefinitionTest < ASPEC::TestCase
   def test_add_option_must_have_unique_names : Nil
     definition = ACON::Input::Definition.new self.opt_foo
 
-    expect_raises ACON::Exceptions::Logic, "An option named 'foo' already exists." do
+    expect_raises ACON::Exception::Logic, "An option named 'foo' already exists." do
       definition << self.opt_foo2
     end
   end
@@ -213,7 +213,7 @@ struct InputDefinitionTest < ASPEC::TestCase
   def test_add_option_duplicate_negated : Nil
     definition = ACON::Input::Definition.new ACON::Input::Option.new "no-foo"
 
-    expect_raises ACON::Exceptions::Logic, "An option named 'no-foo' already exists." do
+    expect_raises ACON::Exception::Logic, "An option named 'no-foo' already exists." do
       definition << ACON::Input::Option.new "foo", value_mode: :negatable
     end
   end
@@ -221,7 +221,7 @@ struct InputDefinitionTest < ASPEC::TestCase
   def test_add_option_duplicate_negated_reverse_option : Nil
     definition = ACON::Input::Definition.new ACON::Input::Option.new "foo", value_mode: :negatable
 
-    expect_raises ACON::Exceptions::Logic, "An option named 'no-foo' already exists." do
+    expect_raises ACON::Exception::Logic, "An option named 'no-foo' already exists." do
       definition << ACON::Input::Option.new "no-foo"
     end
   end
@@ -229,7 +229,7 @@ struct InputDefinitionTest < ASPEC::TestCase
   def test_add_option_duplicate_shortcut : Nil
     definition = ACON::Input::Definition.new self.opt_foo
 
-    expect_raises ACON::Exceptions::Logic, "An option with shortcut 'f' already exists." do
+    expect_raises ACON::Exception::Logic, "An option with shortcut 'f' already exists." do
       definition << self.opt_foo1
     end
   end
@@ -244,7 +244,7 @@ struct InputDefinitionTest < ASPEC::TestCase
   def test_option_missing : Nil
     definition = ACON::Input::Definition.new self.opt_foo
 
-    expect_raises ACON::Exceptions::InvalidArgument, "The '--bar' option does not exist." do
+    expect_raises ACON::Exception::InvalidArgument, "The '--bar' option does not exist." do
       definition.option "bar"
     end
   end
@@ -281,7 +281,7 @@ struct InputDefinitionTest < ASPEC::TestCase
   def test_option_for_shortcut_invalid : Nil
     definition = ACON::Input::Definition.new self.opt_foo
 
-    expect_raises ACON::Exceptions::InvalidArgument, "The '-l' option does not exist." do
+    expect_raises ACON::Exception::InvalidArgument, "The '-l' option does not exist." do
       definition.option_for_shortcut "l"
     end
   end
@@ -316,7 +316,7 @@ struct InputDefinitionTest < ASPEC::TestCase
   def test_negation_to_name_invalid : Nil
     definition = ACON::Input::Definition.new ACON::Input::Option.new "foo", value_mode: :negatable
 
-    expect_raises ACON::Exceptions::InvalidArgument, "The '--no-bar' option does not exist." do
+    expect_raises ACON::Exception::InvalidArgument, "The '--no-bar' option does not exist." do
       definition.negation_to_name "no-bar"
     end
   end

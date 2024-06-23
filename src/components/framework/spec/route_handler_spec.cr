@@ -110,7 +110,7 @@ describe Athena::Framework::RouteHandler do
             event.response = ATH::Response.new "HANDLED", HTTP::Status::BAD_REQUEST
           end
 
-          handler = ATH::RouteHandler.new dispatcher, ATH::RequestStore.new, MockArgumentResolver.new(ATH::Exceptions::BadRequest.new("TEST_EX")), MockControllerResolver.new new_action
+          handler = ATH::RouteHandler.new dispatcher, ATH::RequestStore.new, MockArgumentResolver.new(ATH::Exception::BadRequest.new("TEST_EX")), MockControllerResolver.new new_action
 
           response = handler.handle new_request
 
@@ -125,9 +125,9 @@ describe Athena::Framework::RouteHandler do
         it "should emit the proper events and set correct response" do
           dispatcher = AED::Spec::TracableEventDispatcher.new
 
-          handler = ATH::RouteHandler.new dispatcher, ATH::RequestStore.new, MockArgumentResolver.new(ATH::Exceptions::BadRequest.new("TEST_EX")), MockControllerResolver.new new_action
+          handler = ATH::RouteHandler.new dispatcher, ATH::RequestStore.new, MockArgumentResolver.new(ATH::Exception::BadRequest.new("TEST_EX")), MockControllerResolver.new new_action
 
-          expect_raises ATH::Exceptions::BadRequest, "TEST_EX" do
+          expect_raises ATH::Exception::BadRequest, "TEST_EX" do
             handler.handle new_request
           end
 
@@ -139,7 +139,7 @@ describe Athena::Framework::RouteHandler do
         it "should return the previous response" do
           dispatcher = AED::Spec::TracableEventDispatcher.new
           dispatcher.listener ATH::Events::Response do
-            raise ATH::Exceptions::NotFound.new "NOT_FOUND"
+            raise ATH::Exception::NotFound.new "NOT_FOUND"
           end
 
           dispatcher.listener ATH::Events::Exception do |event|

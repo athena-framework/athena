@@ -51,7 +51,7 @@ class Athena::Console::Formatter::Output
 
   # :inherit:
   def style(name : String) : ACON::Formatter::OutputStyleInterface
-    @styles[name.downcase]
+    @styles[name.downcase]? || raise ACON::Exception::InvalidArgument.new "Undefined style: '#{name}'."
   end
 
   # :inherit:

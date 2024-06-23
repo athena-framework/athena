@@ -9,7 +9,7 @@ class Athena::Mercure::Hub::Registry
   def hub(name : String? = nil) : AMC::Hub::Interface
     return @default_hub if name.nil?
 
-    raise AMC::Exceptions::InvalidArgument.new "No hub named '#{name}' is available." unless @hubs.has_key? name
+    raise AMC::Exception::InvalidArgument.new "No hub named '#{name}' is available." unless @hubs.has_key? name
 
     @hubs[name]
   end

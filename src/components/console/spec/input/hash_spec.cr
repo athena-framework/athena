@@ -92,7 +92,7 @@ struct HashTest < ASPEC::TestCase
   end
 
   @[DataProvider("invalid_input_provider")]
-  def test_parse_invalid_input(args : Hash(String, _), definition : ACON::Input::Definition, error_class : Exception.class, error_message : String) : Nil
+  def test_parse_invalid_input(args : Hash(String, _), definition : ACON::Input::Definition, error_class : ::Exception.class, error_message : String) : Nil
     expect_raises error_class, error_message do
       ACON::Input::Hash.new args, definition
     end
@@ -103,25 +103,25 @@ struct HashTest < ASPEC::TestCase
       {
         {"foo" => "foo"},
         ACON::Input::Definition.new(ACON::Input::Argument.new("name")),
-        ACON::Exceptions::InvalidArgument,
+        ACON::Exception::InvalidArgument,
         "The 'foo' argument does not exist.",
       },
       {
         {"--foo" => nil},
         ACON::Input::Definition.new(ACON::Input::Option.new("foo", "f", :required)),
-        ACON::Exceptions::InvalidOption,
+        ACON::Exception::InvalidOption,
         "The '--foo' option requires a value.",
       },
       {
         {"--foo" => "foo"},
         ACON::Input::Definition.new,
-        ACON::Exceptions::InvalidOption,
+        ACON::Exception::InvalidOption,
         "The '--foo' option does not exist.",
       },
       {
         {"-o" => "foo"},
         ACON::Input::Definition.new,
-        ACON::Exceptions::InvalidOption,
+        ACON::Exception::InvalidOption,
         "The '-o' option does not exist.",
       },
     }

@@ -11,8 +11,8 @@ private class MockException < ::Exception
 end
 
 describe ATH::ErrorRenderer do
-  it ATH::Exceptions::HTTPException do
-    exception = ATH::Exceptions::TooManyRequests.new "cool your jets", 42
+  it ATH::Exception::HTTPException do
+    exception = ATH::Exception::TooManyRequests.new "cool your jets", 42
 
     renderer = ATH::ErrorRenderer.new false
 

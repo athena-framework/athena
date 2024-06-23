@@ -116,7 +116,7 @@ describe ACON::Input do
         )
       )
 
-      expect_raises ACON::Exceptions::InvalidArgument, "The 'foo' option does not exist." do
+      expect_raises ACON::Exception::InvalidArgument, "The 'foo' option does not exist." do
         input.set_option "foo", "foo"
       end
     end
@@ -130,7 +130,7 @@ describe ACON::Input do
         )
       )
 
-      expect_raises ACON::Exceptions::InvalidArgument, "The 'foo' option does not exist." do
+      expect_raises ACON::Exception::InvalidArgument, "The 'foo' option does not exist." do
         input.option "foo"
       end
     end
@@ -184,7 +184,7 @@ describe ACON::Input do
           )
         )
 
-        expect_raises ACON::Exceptions::Logic, "Cannot cast negatable option 'name' to non 'Bool?' type." do
+        expect_raises ACON::Exception::Logic, "Cannot cast negatable option 'name' to non 'Bool?' type." do
           input.option "name", Int32
         end
       end
@@ -214,7 +214,7 @@ describe ACON::Input do
           )
         )
 
-        expect_raises ACON::Exceptions::InvalidArgument, "The 'foo' option does not exist." do
+        expect_raises ACON::Exception::InvalidArgument, "The 'foo' option does not exist." do
           input.option "foo"
         end
       end
@@ -259,7 +259,7 @@ describe ACON::Input do
         )
       )
 
-      expect_raises ACON::Exceptions::InvalidArgument, "The 'foo' argument does not exist." do
+      expect_raises ACON::Exception::InvalidArgument, "The 'foo' argument does not exist." do
         input.set_argument "foo", "foo"
       end
     end
@@ -273,7 +273,7 @@ describe ACON::Input do
         )
       )
 
-      expect_raises ACON::Exceptions::InvalidArgument, "The 'foo' argument does not exist." do
+      expect_raises ACON::Exception::InvalidArgument, "The 'foo' argument does not exist." do
         input.argument "foo"
       end
     end
@@ -287,7 +287,7 @@ describe ACON::Input do
           )
         )
 
-        expect_raises ACON::Exceptions::Logic, "Cannot cast optional argument 'name' to non-nilable type 'String' without a default." do
+        expect_raises ACON::Exception::Logic, "Cannot cast optional argument 'name' to non-nilable type 'String' without a default." do
           input.argument "name", String
         end
       end
@@ -327,7 +327,7 @@ describe ACON::Input do
           )
         )
 
-        expect_raises ACON::Exceptions::InvalidArgument, "The 'foo' argument does not exist." do
+        expect_raises ACON::Exception::InvalidArgument, "The 'foo' argument does not exist." do
           input.argument "foo"
         end
       end
@@ -339,7 +339,7 @@ describe ACON::Input do
       input = ACON::Input::Hash.new
       input.bind ACON::Input::Definition.new ACON::Input::Argument.new("name", :required)
 
-      expect_raises ACON::Exceptions::ValidationFailed, "Not enough arguments (missing: 'name')." do
+      expect_raises ACON::Exception::Runtime, "Not enough arguments (missing: 'name')." do
         input.validate
       end
     end
@@ -351,7 +351,7 @@ describe ACON::Input do
         ACON::Input::Argument.new("bar", :optional)
       )
 
-      expect_raises ACON::Exceptions::ValidationFailed, "Not enough arguments (missing: 'name')." do
+      expect_raises ACON::Exception::Runtime, "Not enough arguments (missing: 'name')." do
         input.validate
       end
     end

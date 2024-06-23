@@ -4,13 +4,13 @@ describe ACON::Input::Value::Number do
   describe "#get" do
     describe Bool do
       it "non-nilable" do
-        expect_raises ACON::Exceptions::Logic, "'123' is not a valid 'Bool'." do
+        expect_raises ACON::Exception::Logic, "'123' is not a valid 'Bool'." do
           ACON::Input::Value::Number.new(123).get Bool
         end
       end
 
       it "nilable" do
-        expect_raises ACON::Exceptions::Logic, "'123' is not a valid '(Bool | Nil)'." do
+        expect_raises ACON::Exception::Logic, "'123' is not a valid '(Bool | Nil)'." do
           ACON::Input::Value::Number.new(123).get Bool?
         end
       end
@@ -77,19 +77,19 @@ describe ACON::Input::Value::Number do
     describe Array do
       describe String do
         it "non-nilable" do
-          expect_raises ACON::Exceptions::Logic, "'123' is not a valid 'Array(String)'." do
+          expect_raises ACON::Exception::Logic, "'123' is not a valid 'Array(String)'." do
             ACON::Input::Value::Number.new(123).get Array(String)
           end
         end
 
         it "nilable" do
-          expect_raises ACON::Exceptions::Logic, "'123' is not a valid '(Array(String) | Nil)'." do
+          expect_raises ACON::Exception::Logic, "'123' is not a valid '(Array(String) | Nil)'." do
             ACON::Input::Value::Number.new(123).get Array(String)?
           end
         end
 
         it "nilable generic value" do
-          expect_raises ACON::Exceptions::Logic, "'123' is not a valid '(Array(String | Nil) | Nil)'." do
+          expect_raises ACON::Exception::Logic, "'123' is not a valid '(Array(String | Nil) | Nil)'." do
             ACON::Input::Value::Number.new(123).get Array(String?)?
           end
         end
@@ -97,19 +97,19 @@ describe ACON::Input::Value::Number do
 
       describe Int32 do
         it "non-nilable" do
-          expect_raises ACON::Exceptions::Logic, "'123' is not a valid 'Array(Int32)'." do
+          expect_raises ACON::Exception::Logic, "'123' is not a valid 'Array(Int32)'." do
             ACON::Input::Value::Number.new(123).get Array(Int32)
           end
         end
 
         it "nilable" do
-          expect_raises ACON::Exceptions::Logic, "'123' is not a valid '(Array(Int32) | Nil)'." do
+          expect_raises ACON::Exception::Logic, "'123' is not a valid '(Array(Int32) | Nil)'." do
             ACON::Input::Value::Number.new(123).get Array(Int32)?
           end
         end
 
         it "nilable generic value" do
-          expect_raises ACON::Exceptions::Logic, "'123' is not a valid '(Array(Int32 | Nil) | Nil)'." do
+          expect_raises ACON::Exception::Logic, "'123' is not a valid '(Array(Int32 | Nil) | Nil)'." do
             ACON::Input::Value::Number.new(123).get Array(Int32?)?
           end
         end
@@ -117,19 +117,19 @@ describe ACON::Input::Value::Number do
 
       describe Bool do
         it "non-nilable" do
-          expect_raises ACON::Exceptions::Logic, "'123' is not a valid 'Array(Bool)'." do
+          expect_raises ACON::Exception::Logic, "'123' is not a valid 'Array(Bool)'." do
             ACON::Input::Value::Number.new(123).get Array(Bool)
           end
         end
 
         it "nilable" do
-          expect_raises ACON::Exceptions::Logic, "'123' is not a valid '(Array(Bool) | Nil)'." do
+          expect_raises ACON::Exception::Logic, "'123' is not a valid '(Array(Bool) | Nil)'." do
             ACON::Input::Value::Number.new(123).get Array(Bool)?
           end
         end
 
         it "nilable generic value" do
-          expect_raises ACON::Exceptions::Logic, "'123' is not a valid '(Array(Bool | Nil) | Nil)'." do
+          expect_raises ACON::Exception::Logic, "'123' is not a valid '(Array(Bool | Nil) | Nil)'." do
             ACON::Input::Value::Number.new(123).get Array(Bool?)?
           end
         end

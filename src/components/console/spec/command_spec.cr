@@ -46,15 +46,15 @@ describe ACON::Command do
     end
 
     it "raises on invalid name" do
-      expect_raises ACON::Exceptions::InvalidArgument, "Command name '' is invalid." do
+      expect_raises ACON::Exception::InvalidArgument, "Command name '' is invalid." do
         AnnotationConfiguredCommand.new ""
       end
 
-      expect_raises ACON::Exceptions::InvalidArgument, "Command name '  ' is invalid." do
+      expect_raises ACON::Exception::InvalidArgument, "Command name '  ' is invalid." do
         AnnotationConfiguredCommand.new "  "
       end
 
-      expect_raises ACON::Exceptions::InvalidArgument, "Command name 'foo:' is invalid." do
+      expect_raises ACON::Exception::InvalidArgument, "Command name 'foo:' is invalid." do
         AnnotationConfiguredCommand.new "foo:"
       end
     end
@@ -191,7 +191,7 @@ describe ACON::Command do
     it "invalid option" do
       tester = ACON::Spec::CommandTester.new TestCommand.new
 
-      expect_raises ACON::Exceptions::InvalidOption, "The '--bar' option does not exist." do
+      expect_raises ACON::Exception::InvalidOption, "The '--bar' option does not exist." do
         tester.execute "--bar": true
       end
     end

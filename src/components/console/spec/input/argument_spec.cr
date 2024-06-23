@@ -3,11 +3,11 @@ require "../spec_helper"
 describe ACON::Input::Argument do
   describe ".new" do
     it "disallows blank names" do
-      expect_raises ACON::Exceptions::InvalidArgument, "An argument name cannot be blank." do
+      expect_raises ACON::Exception::InvalidArgument, "An argument name cannot be blank." do
         ACON::Input::Argument.new ""
       end
 
-      expect_raises ACON::Exceptions::InvalidArgument, "An argument name cannot be blank." do
+      expect_raises ACON::Exception::InvalidArgument, "An argument name cannot be blank." do
         ACON::Input::Argument.new "   "
       end
     end
@@ -18,7 +18,7 @@ describe ACON::Input::Argument do
       it "raises if not nil" do
         argument = ACON::Input::Argument.new "foo", :required
 
-        expect_raises ACON::Exceptions::Logic, "Cannot set a default value when the argument is required." do
+        expect_raises ACON::Exception::Logic, "Cannot set a default value when the argument is required." do
           argument.default = "bar"
         end
       end
@@ -38,7 +38,7 @@ describe ACON::Input::Argument do
       it "non array" do
         argument = ACON::Input::Argument.new "foo", ACON::Input::Argument::Mode[:optional, :is_array]
 
-        expect_raises ACON::Exceptions::Logic, "Default value for an array argument must be an array." do
+        expect_raises ACON::Exception::Logic, "Default value for an array argument must be an array." do
           argument.default = "bar"
         end
       end

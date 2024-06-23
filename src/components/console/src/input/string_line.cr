@@ -40,7 +40,7 @@ class Athena::Console::Input::StringLine < Athena::Console::Input::ARGV
                 token += m[1]
                 m
               else
-                raise ArgumentError.new "Unable to parse input neat '... #{input[idx, 10]} ...'."
+                raise ACON::Exception::InvalidArgument.new "Unable to parse input neat '... #{input[idx, 10]} ...'."
               end
 
       idx += match[0].size

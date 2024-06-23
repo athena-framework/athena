@@ -12,7 +12,7 @@ class Athena::Framework::Console::ContainerCommandLoader
   # :inherit:
   def get(name : String) : ACON::Command
     if !self.has? name
-      raise ACON::Exceptions::CommandNotFound.new "Command '#{name}' does not exist."
+      raise ACON::Exception::CommandNotFound.new "Command '#{name}' does not exist."
     end
 
     @loader.get @command_map[name]

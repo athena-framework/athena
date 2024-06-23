@@ -154,7 +154,7 @@ struct RangeValidatorTest < AVD::Spec::ConstraintValidatorTestCase
   end
 
   def test_invalid_type : Nil
-    expect_raises AVD::Exceptions::UnexpectedValueError, "Expected argument of type 'Number | Time', 'Bool' given." do
+    expect_raises AVD::Exception::UnexpectedValueError, "Expected argument of type 'Number | Time', 'Bool' given." do
       self.validator.validate false, self.new_constraint range: (10..20)
     end
   end

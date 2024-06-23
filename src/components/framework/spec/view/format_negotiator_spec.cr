@@ -34,7 +34,7 @@ struct FormatNegotiatorTest < ASPEC::TestCase
     self.add_rule false
     self.add_rule stop: true
 
-    expect_raises ATH::Exceptions::StopFormatListener, "Stopping format listener." do
+    expect_raises ATH::Exception::StopFormatListener, "Stopping format listener." do
       @negotiator.best ""
     end
   end

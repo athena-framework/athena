@@ -20,6 +20,6 @@ struct Athena::Framework::Controller::ValueResolvers::RequestAttribute
     parameter.type.from_parameter value
   rescue ex : ArgumentError
     # Catch type cast errors and bubble it up as a BadRequest
-    raise ATH::Exceptions::BadRequest.new "Parameter '#{parameter.name}' with value '#{value}' could not be converted into a valid '#{parameter.type}'.", cause: ex
+    raise ATH::Exception::BadRequest.new "Parameter '#{parameter.name}' with value '#{value}' could not be converted into a valid '#{parameter.type}'.", cause: ex
   end
 end

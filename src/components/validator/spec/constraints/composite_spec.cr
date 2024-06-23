@@ -59,7 +59,7 @@ struct CompositeTest < ASPEC::TestCase
   end
 
   def test_fail_if_explicit_nest_group_not_subset_of_explicit_parent_groups : Nil
-    expect_raises AVD::Exceptions::Logic, "The group(s) 'foobar' passed to the constraint 'Athena::Validator::Constraints::NotNil' should also be passed to its containing constraint 'ConcreteComposite'." do
+    expect_raises AVD::Exception::Logic, "The group(s) 'foobar' passed to the constraint 'Athena::Validator::Constraints::NotNil' should also be passed to its containing constraint 'ConcreteComposite'." do
       ConcreteComposite.new([
         AVD::Constraints::NotNil.new(groups: ["default", "foobar"]),
       ] of AVD::Constraint, groups: ["default", "strict"])
@@ -80,7 +80,7 @@ struct CompositeTest < ASPEC::TestCase
   end
 
   def test_valid_cannot_be_nested : Nil
-    expect_raises AVD::Exceptions::Logic, "The 'Athena::Validator::Constraints::Valid' constraint cannot be nested inside a 'ConcreteComposite' constraint." do
+    expect_raises AVD::Exception::Logic, "The 'Athena::Validator::Constraints::Valid' constraint cannot be nested inside a 'ConcreteComposite' constraint." do
       ConcreteComposite.new([
         AVD::Constraints::Valid.new,
       ] of AVD::Constraint)

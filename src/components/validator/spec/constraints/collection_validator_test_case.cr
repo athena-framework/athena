@@ -11,7 +11,7 @@ abstract struct CollectionValidatorTestCase < AVD::Spec::ConstraintValidatorTest
   end
 
   def test_invalid_type : Nil
-    expect_raises AVD::Exceptions::UnexpectedValueError, "Expected argument of type 'Enumerable({K, V})', 'String' given." do
+    expect_raises AVD::Exception::UnexpectedValueError, "Expected argument of type 'Enumerable({K, V})', 'String' given." do
       self.validator.validate "foobar", self.new_constraint fields: {"foo" => AVD::Constraints::NotBlank.new}
     end
   end

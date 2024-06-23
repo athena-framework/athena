@@ -29,7 +29,7 @@ struct Athena::Framework::RouteHandler
       raise exception
     end
 
-    if exception.is_a? ATH::Exceptions::HTTPException
+    if exception.is_a? ATH::Exception::HTTPException
       response.status = exception.status
       response.headers.merge! exception.headers
     end

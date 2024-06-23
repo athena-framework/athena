@@ -33,7 +33,7 @@ class Athena::Framework::View::FormatNegotiator < ANG::Negotiator
       next unless matcher.matches? request
 
       if rule.stop
-        raise ATH::Exceptions::StopFormatListener.new "Stopping format listener."
+        raise ATH::Exception::StopFormatListener.new "Stopping format listener."
       end
 
       if priorities.nil? && rule.priorities.nil?

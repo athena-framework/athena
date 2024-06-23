@@ -1,7 +1,7 @@
 require "./request_event"
 require "./settable_response"
 
-# Emitted when an exception occurs. See `ATH::Exceptions` for more information on how exception handling works in Athena.
+# Emitted when an exception occurs. See `ATH::Exception` for more information on how exception handling works in Athena.
 #
 # This event can be listened on to recover from errors or to modify the exception before it's rendered.
 #

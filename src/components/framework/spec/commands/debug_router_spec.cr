@@ -74,7 +74,7 @@ struct DebugRouterCommandTest < ASPEC::TestCase
   def test_missing_route : Nil
     tester = self.command_tester
 
-    expect_raises ACON::Exceptions::InvalidArgument, "The route 'blah' does not exist." do
+    expect_raises ACON::Exception::InvalidArgument, "The route 'blah' does not exist." do
       tester.execute name: "blah", interactive: true
     end
   end

@@ -6,7 +6,7 @@ private class MockURLMatcher
 
   property context : ART::RequestContext
 
-  def initialize(@route : String, @exception : Exception? = nil)
+  def initialize(@route : String, @exception : ::Exception? = nil)
     @context = ART::RequestContext.new
   end
 

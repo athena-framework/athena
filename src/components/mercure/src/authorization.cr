@@ -35,7 +35,7 @@ class Athena::Mercure::Authorization
   ) : HTTP::Cookie
     hub = @hub_registry.hub hub_name
     unless token_factory = hub.token_factory
-      raise AMC::Exceptions::InvalidArgument.new "The hub '#{hub_name}' does not contain a token factory."
+      raise AMC::Exception::InvalidArgument.new "The hub '#{hub_name}' does not contain a token factory."
     end
 
     cookie_lifetime = @cookie_lifetime
@@ -104,7 +104,7 @@ class Athena::Mercure::Authorization
       end
     end
 
-    raise AMC::Exceptions::InvalidArgument.new "Unable to create authorization cookie for a hub on the different second-level domain '#{cookie_domain}'."
+    raise AMC::Exception::InvalidArgument.new "Unable to create authorization cookie for a hub on the different second-level domain '#{cookie_domain}'."
   end
 
   private def update_cookies(
@@ -114,7 +114,7 @@ class Athena::Mercure::Authorization
     cookie : HTTP::Cookie
   ) : Nil
     unless response.cookies[COOKIE_NAME]?.nil?
-      raise AMC::Exceptions::Runtime.new "The 'mercureAuthorization' cookie for the '#{hub_name ? "#{hub_name} hub" : "default hub"}' has already been set. You cannot set it two times during the same request."
+      raise AMC::Exception::Runtime.new "The 'mercureAuthorization' cookie for the '#{hub_name ? "#{hub_name} hub" : "default hub"}' has already been set. You cannot set it two times during the same request."
     end
 
     response.cookies << cookie

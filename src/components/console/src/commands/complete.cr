@@ -50,11 +50,11 @@ class Athena::Console::Commands::Complete < Athena::Console::Command
     end
 
     unless shell = input.option "shell"
-      raise ACON::Exceptions::RuntimeError.new "The '--shell' option must be set."
+      raise ACON::Exception::Runtime.new "The '--shell' option must be set."
     end
 
     unless completion_output = @completion_outputs[shell]?
-      raise ACON::Exceptions::RuntimeError.new %(Shell completion is not supported for your shell: '#{shell}' (supported: '#{@completion_outputs.keys.join "', '"}').)
+      raise ACON::Exception::Runtime.new %(Shell completion is not supported for your shell: '#{shell}' (supported: '#{@completion_outputs.keys.join "', '"}').)
     end
 
     completion_input = self.create_completion_input input
@@ -128,14 +128,16 @@ class Athena::Console::Commands::Complete < Athena::Console::Command
     current_index = input.option "current"
 
     if current_index.nil? || !(index = current_index.to_i?)
-      raise ACON::Exceptions::RuntimeError.new "The '--current' option must be set and it must be an integer."
+      raise ACON::Exception::Runtime.new "The '--current' option must be set and it must be an integer."
     end
 
     completion_input = ACON::Completion::Input.from_tokens input.option("input", Array(String)), index
 
     begin
       completion_input.bind self.application.definition
-    rescue ex : ACON::Exceptions::ConsoleException
+    rescue ex : ::Exception
+      # TODO: Make this part of the `rescue` after Crystal 1.13
+      raise ex unless ex.is_a? ACON::Exception
     end
 
     completion_input
@@ -148,7 +150,7 @@ class Athena::Console::Commands::Complete < Athena::Console::Command
       end
 
       return self.application.find input_name
-    rescue ex : ACON::Exceptions::CommandNotFound
+    rescue ACON::Exception::CommandNotFound
       # noop
     end
 

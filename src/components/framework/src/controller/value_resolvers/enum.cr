@@ -46,7 +46,7 @@ struct Athena::Framework::Controller::ValueResolvers::Enum
              end
 
     unless member
-      raise ATH::Exceptions::BadRequest.new "Parameter '#{parameter.name}' of enum type '#{enum_type}' has no valid member for '#{value}'."
+      raise ATH::Exception::BadRequest.new "Parameter '#{parameter.name}' of enum type '#{enum_type}' has no valid member for '#{value}'."
     end
 
     member

@@ -33,7 +33,7 @@ describe ASR::Visitors::YAMLDeserializationVisitor do
         assert_deserialized_output ASR::Visitors::YAMLDeserializationVisitor, String | Int32, "100000", 100_000
         assert_deserialized_output ASR::Visitors::YAMLDeserializationVisitor, String | Int32, %("Bar"), "Bar"
 
-        expect_raises(ASR::Exceptions::DeserializationException, "Couldn't parse (Int32 | String) from 'false'") do
+        expect_raises(ASR::Exception::DeserializationException, "Couldn't parse (Int32 | String) from 'false'") do
           assert_deserialized_output ASR::Visitors::YAMLDeserializationVisitor, String | Int32, "false", false
         end
       end
@@ -65,7 +65,7 @@ describe ASR::Visitors::YAMLDeserializationVisitor do
         assert_deserialized_output ASR::Visitors::YAMLDeserializationVisitor, TestEnum, %("Three"), TestEnum::Three
         assert_deserialized_output ASR::Visitors::YAMLDeserializationVisitor, TestEnum?, "1", TestEnum::One
 
-        expect_raises(ASR::Exceptions::DeserializationException, "Couldn't parse (TestEnum | Nil) from 'asdf'") do
+        expect_raises(ASR::Exception::DeserializationException, "Couldn't parse (TestEnum | Nil) from 'asdf'") do
           assert_deserialized_output ASR::Visitors::YAMLDeserializationVisitor, TestEnum?, %("asdf"), nil
         end
       end

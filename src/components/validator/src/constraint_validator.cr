@@ -17,7 +17,7 @@ abstract class Athena::Validator::ConstraintValidator
     # Noop if a given validator doesn't support a given type of value
   end
 
-  # Can be used to raise an `AVD::Exceptions::UnexpectedValueError`
+  # Can be used to raise an `AVD::Exception::UnexpectedValueError`
   # in case `self` is only able to validate values of the *supported_types*.
   #
   # ```
@@ -31,7 +31,7 @@ abstract class Athena::Validator::ConstraintValidator
   # This would result in a violation with the message `This value should be a valid: Int | Float`
   # being added to the current `#context`.
   def raise_invalid_type(value : _, supported_types : String) : NoReturn
-    raise AVD::Exceptions::UnexpectedValueError.new value, supported_types
+    raise AVD::Exception::UnexpectedValueError.new value, supported_types
   end
 end
 

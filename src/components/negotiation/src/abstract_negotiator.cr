@@ -11,12 +11,12 @@ abstract class Athena::Negotiation::AbstractNegotiator(HeaderType)
 
   # Returns the best `HeaderType` based on the provided *header* value and *priorities*.
   #
-  # If *strict* is `true`, an `ANG::Exceptions::Exception` will be raised if the *header* contains an invalid value, otherwise it is ignored.
+  # If *strict* is `true`, an `ANG::Exception::Exception` will be raised if the *header* contains an invalid value, otherwise it is ignored.
   #
   # See `Athena::Negotiation` for examples.
   def best(header : String, priorities : Indexable(String), strict : Bool = false) : HeaderType?
-    raise ArgumentError.new "priorities should not be empty." if priorities.empty?
-    raise ArgumentError.new "The header string should not be empty." if header.blank?
+    raise ANG::Exception::InvalidArgument.new "priorities should not be empty." if priorities.empty?
+    raise ANG::Exception::InvalidArgument.new "The header string should not be empty." if header.blank?
 
     accepted_headers = Array(HeaderType).new
 
@@ -55,7 +55,7 @@ abstract class Athena::Negotiation::AbstractNegotiator(HeaderType)
   # ordered_elements[4].media_range # => "text/*"
   # ```
   def ordered_elements(header : String) : Array(HeaderType)
-    raise ArgumentError.new "The header string should not be empty." if header.blank?
+    raise ANG::Exception::InvalidArgument.new "The header string should not be empty." if header.blank?
 
     elements = Array(HeaderType).new
     order_keys = Array(OrderKey).new

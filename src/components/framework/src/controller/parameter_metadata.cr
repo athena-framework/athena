@@ -25,7 +25,7 @@ struct Athena::Framework::Controller::ParameterMetadata(T)
 
   # Returns the default value for this parameter, raising an exception if it does not have one.
   def default_value : T
-    raise "Argument '#{@name}' does not have a default value." unless self.has_default?
+    raise ATH::Exception::Logic.new "Argument '#{@name}' does not have a default value." unless self.has_default?
 
     @default_value.not_nil!
   end

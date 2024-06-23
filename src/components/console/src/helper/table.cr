@@ -578,9 +578,9 @@ class Athena::Console::Helper::Table
   end
 
   # Returns the `ACON::Helper::Table::Style` style with the provided *name*,
-  # raising an `ACON::Exceptions::InvalidArgument` if no style with that name is defined.
+  # raising an `ACON::Exception::InvalidArgument` if no style with that name is defined.
   def self.style_definition(name : String) : ACON::Helper::Table::Style
-    self.styles[name]? || raise ACON::Exceptions::InvalidArgument.new "The table style '#{name}' is not defined."
+    self.styles[name]? || raise ACON::Exception::InvalidArgument.new "The table style '#{name}' is not defined."
   end
 
   # INTERNAL
@@ -717,7 +717,7 @@ class Athena::Console::Helper::Table
   # See [column sizing][Athena::Console::Helper::Table--column-sizing].
   def column_max_width(index : Int32, width : Int32) : self
     if !@output.formatter.is_a? ACON::Formatter::WrappableInterface
-      raise ACON::Exceptions::Logic.new "Setting a maximum column width is only supported when using a #{ACON::Formatter::WrappableInterface} formatter, got #{@output.class}."
+      raise ACON::Exception::Logic.new "Setting a maximum column width is only supported when using a #{ACON::Formatter::WrappableInterface} formatter, got #{@output.class}."
     end
 
     @column_max_widths[index] = width
@@ -828,7 +828,7 @@ class Athena::Console::Helper::Table
   # See [modifying rendered tables][Athena::Console::Helper::Table--modifying-rendered-tables]
   def append_row(row : RowType) : self
     unless (output = @output).is_a? ACON::Output::Section
-      raise ACON::Exceptions::Logic.new "Appending a row is only supported when using a #{ACON::Output::Section} output, got #{@output.class}."
+      raise ACON::Exception::Logic.new "Appending a row is only supported when using a #{ACON::Output::Section} output, got #{@output.class}."
     end
 
     if @rendered
@@ -1463,6 +1463,6 @@ class Athena::Console::Helper::Table
   end
 
   private def resolve_style(style : String) : Style
-    self.class.styles[style]? || raise ACON::Exceptions::InvalidArgument.new "The table style '#{style}' is not defined."
+    self.class.styles[style]? || raise ACON::Exception::InvalidArgument.new "The table style '#{style}' is not defined."
   end
 end

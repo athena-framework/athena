@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-describe ATH::Exceptions::InvalidParameter do
+describe ATH::Exception::InvalidParameter do
   describe ".with_violations" do
     it "builds the message and exposes the param and violations" do
       violation = AVD::Violation::ConstraintViolation.new(
@@ -15,7 +15,7 @@ describe ATH::Exceptions::InvalidParameter do
       errors = AVD::Violation::ConstraintViolationList.new [violation] of AVD::Violation::ConstraintViolationInterface
       param = ATH::Params::QueryParam(Int32?).new("id")
 
-      exception = ATH::Exceptions::InvalidParameter.with_violations param, errors
+      exception = ATH::Exception::InvalidParameter.with_violations param, errors
 
       exception.message.should eq "Parameter 'id' is invalid."
       exception.status.should eq HTTP::Status::UNPROCESSABLE_ENTITY

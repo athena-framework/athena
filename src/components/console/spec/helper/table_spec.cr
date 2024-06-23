@@ -936,7 +936,7 @@ struct TableSpec < ASPEC::TestCase
   def test_append_row_no_section_output : Nil
     table = ACON::Helper::Table.new self.io_output
 
-    expect_raises ACON::Exceptions::Logic, "Appending a row is only supported when using a Athena::Console::Output::Section output, got Athena::Console::Output::IO." do
+    expect_raises ACON::Exception::Logic, "Appending a row is only supported when using a Athena::Console::Output::Section output, got Athena::Console::Output::IO." do
       table.append_row "9971-5-0210-0", "A Tale of Two Cities", "Charles Dickens", "139.25"
     end
   end
@@ -944,13 +944,13 @@ struct TableSpec < ASPEC::TestCase
   def test_missing_table_definition : Nil
     table = ACON::Helper::Table.new self.io_output
 
-    expect_raises ACON::Exceptions::InvalidArgument, "The table style 'absent' is not defined." do
+    expect_raises ACON::Exception::InvalidArgument, "The table style 'absent' is not defined." do
       table.style "absent"
     end
   end
 
   def test_style_definition_missing : Nil
-    expect_raises ACON::Exceptions::InvalidArgument, "The table style 'absent' is not defined." do
+    expect_raises ACON::Exception::InvalidArgument, "The table style 'absent' is not defined." do
       ACON::Helper::Table.style_definition "absent"
     end
   end

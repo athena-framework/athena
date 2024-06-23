@@ -133,7 +133,7 @@ require "athena"
 class ExampleController < ATH::Controller
   @[ARTA::Post("/data")]
   def data(request : ATH::Request) : String
-    raise ATH::Exceptions::BadRequest.new "Request body is empty." unless body = request.body
+    raise ATH::Exception::BadRequest.new "Request body is empty." unless body = request.body
 
     JSON.parse(body).as_h["name"].as_s
   end
@@ -222,7 +222,7 @@ struct StaticFileListener
 
     # File path cannot contains '\0' (NUL).
     if request_path.includes? '\0'
-      raise ATH::Exceptions::BadRequest.new "File path cannot contain NUL bytes."
+      raise ATH::Exception::BadRequest.new "File path cannot contain NUL bytes."
     end
 
     request_path = Path.posix request_path

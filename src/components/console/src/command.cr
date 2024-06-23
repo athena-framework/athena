@@ -380,7 +380,7 @@ abstract class Athena::Console::Command
   # ```
   def helper(helper_class : T.class) : T forall T
     unless helper_set = @helper_set
-      raise ACON::Exceptions::Logic.new "Cannot retrieve helper '#{helper_class}' because there is no `ACON::Helper::HelperSet` defined. Did you forget to add your command to the application or to set the application on the command using '#application='? You can also set the HelperSet directly using '#helper_set='."
+      raise ACON::Exception::Logic.new "Cannot retrieve helper '#{helper_class}' because there is no `ACON::Helper::HelperSet` defined. Did you forget to add your command to the application or to set the application on the command using '#application='? You can also set the HelperSet directly using '#helper_set='."
     end
 
     helper_set[helper_class].as T
@@ -496,8 +496,11 @@ abstract class Athena::Console::Command
 
     begin
       input.bind self.definition
-    rescue ex : ACON::Exceptions::ConsoleException
-      raise ex unless @ignore_validation_errors
+    rescue ex : ::Exception
+      # TODO: Make this part of the `rescue` after Crystal 1.13
+      if ex.is_a?(ACON::Exception)
+        raise ex unless @ignore_validation_errors
+      end
     end
 
     self.setup input, output
@@ -573,6 +576,6 @@ abstract class Athena::Console::Command
   end
 
   private def validate_name(name : String) : Nil
-    raise ACON::Exceptions::InvalidArgument.new "Command name '#{name}' is invalid." if name.blank? || !name.matches? /^[^:]++(:[^:]++)*$/
+    raise ACON::Exception::InvalidArgument.new "Command name '#{name}' is invalid." if name.blank? || !name.matches? /^[^:]++(:[^:]++)*$/
   end
 end

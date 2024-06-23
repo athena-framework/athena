@@ -2,7 +2,7 @@ require "../spec_helper"
 
 struct MultipleChoiceQuestionTest < ASPEC::TestCase
   def test_new_empty_choices : Nil
-    expect_raises ACON::Exceptions::Logic, "Choice questions must have at least 1 choice available." do
+    expect_raises ACON::Exception::Logic, "Choice questions must have at least 1 choice available." do
       ACON::Question::MultipleChoice.new "A question", Array(String).new
     end
   end

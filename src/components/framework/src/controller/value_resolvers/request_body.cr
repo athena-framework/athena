@@ -101,7 +101,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
     return unless parameter.annotation_configurations.has? Extract
 
     if !(body = request.body) || body.peek.try &.empty?
-      raise ATH::Exceptions::BadRequest.new "Request does not have a body."
+      raise ATH::Exception::BadRequest.new "Request does not have a body."
     end
 
     object = nil
@@ -116,13 +116,13 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
           return
         {% end %}
       {% end %}
-    rescue ex : JSON::ParseException | ASR::Exceptions::DeserializationException
-      raise ATH::Exceptions::BadRequest.new "Malformed JSON payload.", cause: ex
+    rescue ex : JSON::ParseException | ASR::Exception::DeserializationException
+      raise ATH::Exception::BadRequest.new "Malformed JSON payload.", cause: ex
     end
 
     if object.is_a? AVD::Validatable
       errors = @validator.validate object
-      raise AVD::Exceptions::ValidationFailed.new errors unless errors.empty?
+      raise AVD::Exception::ValidationFailed.new errors unless errors.empty?
     end
 
     object.as T

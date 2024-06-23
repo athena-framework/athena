@@ -159,7 +159,7 @@ struct ViewHandlerTest < ASPEC::TestCase
     request = ATH::Request.new "GET", "/"
     request.request_format = "rss"
 
-    expect_raises ATH::Exceptions::NotAcceptable, "The server is unable to return a response in the requested format: 'rss'." do
+    expect_raises ATH::Exception::NotAcceptable, "The server is unable to return a response in the requested format: 'rss'." do
       self.create_view_handler.handle ATH::View(Nil).new, request
     end
   end

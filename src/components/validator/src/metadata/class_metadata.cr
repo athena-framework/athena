@@ -187,22 +187,22 @@ class Athena::Validator::Metadata::ClassMetadata(T)
 
   # Sets the `AVD::Constraints::GroupSequence` that should be used for `self`.
   #
-  # Raises an `ArgumentError` if `self` is an `AVD::Constraints::GroupSequence::Provider`,
+  # Raises an `AVD::Exception::InvalidArgument` if `self` is an `AVD::Constraints::GroupSequence::Provider`,
   # the *sequence* contains `AVD::Constraint::DEFAULT_GROUP`,
   # or the `#class_name` based group is missing.
   def group_sequence=(sequence : Array(String) | AVD::Constraints::GroupSequence) : self
-    raise ArgumentError.new "Defining a static group sequence is not allowed with a group sequence provider." if @group_sequence_provider
+    raise AVD::Exception::InvalidArgument.new "Defining a static group sequence is not allowed with a group sequence provider." if @group_sequence_provider
 
     if sequence.is_a? Array
       sequence = AVD::Constraints::GroupSequence.new sequence
     end
 
     if sequence.groups.includes? AVD::Constraint::DEFAULT_GROUP
-      raise ArgumentError.new "The group '#{AVD::Constraint::DEFAULT_GROUP}' is not allowed in group sequences."
+      raise AVD::Exception::InvalidArgument.new "The group '#{AVD::Constraint::DEFAULT_GROUP}' is not allowed in group sequences."
     end
 
     unless sequence.groups.includes? @default_group
-      raise ArgumentError.new "The group '#{@default_group}' is missing from the group sequence."
+      raise AVD::Exception::InvalidArgument.new "The group '#{@default_group}' is missing from the group sequence."
     end
 
     @group_sequence = sequence
@@ -212,7 +212,7 @@ class Athena::Validator::Metadata::ClassMetadata(T)
 
   # Denotes `self` as a `AVD::Constraints::GroupSequence::Provider`.
   def group_sequence_provider=(active : Bool) : Nil
-    raise ArgumentError.new "Defining a group sequence provider is not allowed with a static group sequence." unless @group_sequence.nil?
+    raise AVD::Exception::InvalidArgument.new "Defining a group sequence provider is not allowed with a static group sequence." unless @group_sequence.nil?
     # TODO: ensure `T` implements the module interface
     @group_sequence_provider = active
   end

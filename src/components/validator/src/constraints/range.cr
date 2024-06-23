@@ -139,7 +139,7 @@ class Athena::Validator::Constraints::Range < Athena::Validator::Constraint
     end
 
     def validate(value : _, constraint : AVD::Constraints::Range) : Nil
-      raise AVD::Exceptions::UnexpectedValueError.new value, "Number | Time"
+      raise AVD::Exception::UnexpectedValueError.new value, "Number | Time"
     end
 
     private def add_not_in_range_violation(constraint, value, min, max) : Nil

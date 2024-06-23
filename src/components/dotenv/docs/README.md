@@ -48,4 +48,4 @@ dotenv.overload ".env.overrides"
 dotenv.load_environment ".env"
 ```
 
-[Athena::Dotenv::Exceptions::Path][] error will be raised if the provided file was not found, or is not readable.
+[Athena::Dotenv::Exception::Path][] error will be raised if the provided file was not found, or is not readable.

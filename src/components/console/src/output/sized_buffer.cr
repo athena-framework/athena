@@ -9,6 +9,10 @@ class Athena::Console::Output::SizedBuffer < Athena::Console::Output
     decorated : Bool = false,
     formatter : ACON::Formatter::Interface? = nil
   )
+    if @max_length < 0
+      raise ACON::Exception::InvalidArgument.new "'#{self.class}#max_length' must be a positive, got: '#{@max_length}'."
+    end
+
     super verbosity, decorated, formatter
   end
 

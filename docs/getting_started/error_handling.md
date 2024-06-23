@@ -1,10 +1,10 @@
 ## HTTP Exceptions
 
-Exception handling in the Athena Framework is similar to exception handling in any Crystal program, with the addition of a new unique exception type, [ATH::Exceptions::HTTPException](/Framework/Exceptions/HTTPException).
-Custom `HTTP` errors can also be defined by inheriting from `ATH::Exceptions::HTTPException` or a child type.
+Exception handling in the Athena Framework is similar to exception handling in any Crystal program, with the addition of a new unique exception type, [ATH::Exception::HTTPException](/Framework/Exceptions/HTTPException).
+Custom `HTTP` errors can also be defined by inheriting from `ATH::Exception::HTTPException` or a child type.
 A use case for this could be allowing additional data/context to be included within the exception.
 
-Non `ATH::Exceptions::HTTPException` exceptions are represented as a `500 Internal Server Error`.
+Non `ATH::Exception::HTTPException` exceptions are represented as a `500 Internal Server Error`.
 
 When an exception is raised, the framework emits the [Exception](./middleware.md#8-exception-handling) event to allow an opportunity for it to be handled.
 By default these exceptions will return a `JSON` serialized version of the exception, via [ATH::ErrorRenderer](/Framework/ErrorRenderer), that includes the message and code; with the proper response status set.
@@ -22,10 +22,10 @@ class ExampleController < ATH::Controller
   @[ARTA::Get("/divide_rescued/{num1}/{num2}")]
   def divide_rescued(num1 : Int32, num2 : Int32) : Int32
     num1 // num2
-    # Rescue a non `ATH::Exceptions::HTTPException`
+    # Rescue a non `ATH::Exception::HTTPException`
   rescue ex : DivisionByZeroError
-    # in order to raise an `ATH::Exceptions::HTTPException` to provide a better error message to the client.
-    raise ATH::Exceptions::BadRequest.new "Invalid num2:  Cannot divide by zero"
+    # in order to raise an `ATH::Exception::HTTPException` to provide a better error message to the client.
+    raise ATH::Exception::BadRequest.new "Invalid num2:  Cannot divide by zero"
   end
 end
 
@@ -61,8 +61,8 @@ Division by 0 (DivisionByZeroError)
   from ???
 
 2022-01-08T20:45:10.803001Z   INFO - athena.routing: Matched route 'example_controller_divide_rescued' -- route: "example_controller_divide_rescued", route_parameters: {"_route" => "example_controller_divide_rescued", "_controller" => "ExampleController#divide_rescued", "num1" => "10", "num2" => "0"}, request_uri: "/divide_rescued/10/0", method: "GET"
-2022-01-08T20:45:10.923945Z   WARN - athena.routing: Uncaught exception #<Athena::Framework::Exceptions::BadRequest:Invalid num2:  Cannot divide by zero> at src/components/framework/src/athena.cr:215:5 in 'divide_rescued'
-Invalid num2:  Cannot divide by zero (Athena::Framework::Exceptions::BadRequest)
+2022-01-08T20:45:10.923945Z   WARN - athena.routing: Uncaught exception #<Athena::Framework::Exception::BadRequest:Invalid num2:  Cannot divide by zero> at src/components/framework/src/athena.cr:215:5 in 'divide_rescued'
+Invalid num2:  Cannot divide by zero (Athena::Framework::Exception::BadRequest)
   from src/components/framework/src/athena.cr:215:5 in 'divide_rescued'
   from src/components/framework/src/ext/routing/annotation_route_loader.cr:8:5 in '->'
   from /usr/lib/crystal/primitives.cr:266:3 in 'execute'
@@ -91,8 +91,8 @@ Log.define_formatter SingleLineFormatter, "#{timestamp} #{severity} - #{source(a
 # 2024-03-04T05:30:29.329041Z   INFO - athena.framework: Server has started and is listening at http://0.0.0.0:3000
 # 2024-03-04T05:30:37.568264Z   INFO - athena.framework: Matched route 'view_controller_bar' -- route: "view_controller_bar", route_parameters: {"_route" => "view_controller_bar", # "_controller" => "ViewController#bar"}, request_uri: "/bar", method: "GET"
 # 2024-03-04T05:30:40.280070Z   INFO - athena.framework: Matched route 'view_controller_foo' -- route: "view_controller_foo", route_parameters: {"_route" => "view_controller_foo", # "_controller" => "ViewController#foo"}, request_uri: "/foo", method: "GET"
-# 2024-03-04T05:30:40.351541Z  ERROR - athena.framework: Uncaught exception #<Athena::Framework::Exceptions::Logic:Failed to serialize response body. Did you forget to include # either `JSON::Serializable` or `ASR::Serializable`?> at src/components/framework/src/view/view_handler.cr:166:21 in 'init_response'
+# 2024-03-04T05:30:40.351541Z  ERROR - athena.framework: Uncaught exception #<Athena::Framework::Exception::Logic:Failed to serialize response body. Did you forget to include # either `JSON::Serializable` or `ASR::Serializable`?> at src/components/framework/src/view/view_handler.cr:166:21 in 'init_response'
 # 2024-03-04T05:30:41.281275Z   INFO - athena.framework: Matched route 'view_controller_foo' -- route: "view_controller_foo", route_parameters: {"_route" => "view_controller_foo", # "_controller" => "ViewController#foo"}, request_uri: "/foo", method: "GET"
-# 2024-03-04T05:30:41.282632Z  ERROR - athena.framework: Uncaught exception #<Athena::Framework::Exceptions::Logic:Failed to serialize response body. Did you forget to include # either `JSON::Serializable` or `ASR::Serializable`?> at src/components/framework/src/view/view_handler.cr:166:21 in 'init_response'
+# 2024-03-04T05:30:41.282632Z  ERROR - athena.framework: Uncaught exception #<Athena::Framework::Exception::Logic:Failed to serialize response body. Did you forget to include # either `JSON::Serializable` or `ASR::Serializable`?> at src/components/framework/src/view/view_handler.cr:166:21 in 'init_response'
 # 2024-03-04T05:30:43.886367Z   INFO - athena.framework: Matched route 'view_controller_bar' -- route: "view_controller_bar", route_parameters: {"_route" => "view_controller_bar", # "_controller" => "ViewController#bar"}, request_uri: "/bar", method: "GET"
 ```

@@ -17,7 +17,7 @@ require "./deserialization_context"
 require "./serialization_context"
 
 require "./construction/*"
-require "./exceptions/*"
+require "./exception/*"
 require "./exclusion_strategies/*"
 require "./navigators/*"
 require "./visitors/*"
@@ -64,6 +64,10 @@ module Athena::Serializer
       end
     end
   end
+
+  # Contains all custom exceptions defined within `Athena::Serializer`.
+  # Also acts as a marker that can be used to rescue all serializer related exceptions.
+  module Exception; end
 
   # Exclusion Strategies allow controlling which properties should be (de)serialized.
   #

@@ -66,7 +66,7 @@ class Athena::Console::Helper::Table::Style
   # +-----+
   # ```
   def padding_char(char : Char) : self
-    raise ArgumentError.new "The padding char cannot be empty" if char.empty?
+    raise ACON::Exception::Logic.new "The padding char cannot be empty" if char.empty?
 
     @padding_char = char
 

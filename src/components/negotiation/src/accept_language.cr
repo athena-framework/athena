@@ -42,7 +42,7 @@ struct Athena::Negotiation::AcceptLanguage < Athena::Negotiation::BaseAccept
       @script = parts[1]
       @region = parts[2]
     else
-      raise ANG::Exceptions::InvalidLanguage.new @accept_value
+      raise ANG::Exception::InvalidLanguage.new @accept_value
     end
   end
 

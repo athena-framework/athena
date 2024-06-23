@@ -134,7 +134,7 @@ struct DotEnvTest < ASPEC::TestCase
   def test_parse_with_format_error(data : String, error_message : String | Regex) : Nil
     dotenv = Athena::Dotenv.new
 
-    expect_raises Athena::Dotenv::Exceptions::Format, error_message do
+    expect_raises Athena::Dotenv::Exception::Format, error_message do
       dotenv.parse data
     end
   end
@@ -372,7 +372,7 @@ struct DotEnvTest < ASPEC::TestCase
   end
 
   def test_load_directory : Nil
-    expect_raises Athena::Dotenv::Exceptions::Path do
+    expect_raises Athena::Dotenv::Exception::Path do
       Athena::Dotenv.new.load __DIR__
     end
   end

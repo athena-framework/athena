@@ -33,7 +33,7 @@ abstract class Athena::Console::Question::AbstractChoice(T, ChoiceType)
   def initialize(question : String, choices : Hash(String | Int32, T), default : T? = nil)
     super question, default
 
-    raise ACON::Exceptions::Logic.new "Choice questions must have at least 1 choice available." if choices.empty?
+    raise ACON::Exception::Logic.new "Choice questions must have at least 1 choice available." if choices.empty?
 
     @choices = choices.transform_keys &.as String | Int32
 
@@ -67,7 +67,7 @@ abstract class Athena::Console::Question::AbstractChoice(T, ChoiceType)
         results << key.to_s if choice == value
       end
 
-      raise ACON::Exceptions::InvalidArgument.new %(The provided answer is ambiguous. Value should be one of #{results.join(" or ") { |i| "'#{i}'" }}.) if results.size > 1
+      raise ACON::Exception::InvalidArgument.new %(The provided answer is ambiguous. Value should be one of #{results.join(" or ") { |i| "'#{i}'" }}.) if results.size > 1
 
       result = @choices.find { |(k, v)| v == value || k.to_s == value }.try &.first.to_s
 
@@ -81,7 +81,7 @@ abstract class Athena::Console::Question::AbstractChoice(T, ChoiceType)
       end
 
       if result.nil?
-        raise ACON::Exceptions::InvalidArgument.new sprintf(@error_message, value)
+        raise ACON::Exception::InvalidArgument.new sprintf(@error_message, value)
       end
 
       valid_choices << result

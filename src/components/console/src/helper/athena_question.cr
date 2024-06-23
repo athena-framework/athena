@@ -6,7 +6,7 @@ require "./question"
 #
 # See `ACON::Style::Athena`.
 class Athena::Console::Helper::AthenaQuestion < Athena::Console::Helper::Question
-  protected def write_error(output : ACON::Output::Interface, error : Exception) : Nil
+  protected def write_error(output : ACON::Output::Interface, error : ::Exception) : Nil
     if output.is_a? ACON::Style::Athena
       output.new_line
       output.error error.message || ""
