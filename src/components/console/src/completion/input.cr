@@ -155,7 +155,7 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
   protected def parse_token(token : String, parse_options : Bool) : Bool
     begin
       return super
-    rescue ex : ACON::Exceptions::InvalidArgument
+    rescue ex : ACON::Exception::Runtime
       # noop, completed input is almost never valid
     end
 

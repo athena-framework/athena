@@ -190,7 +190,7 @@ class Athena::Console::Helper::ProgressIndicator
     indicator_values ||= ["-", "\\", "|", "/"]
 
     if 2 > indicator_values.size
-      raise ACON::Exceptions::InvalidArgument.new "Must have at least 2 indicator value characters."
+      raise ACON::Exception::InvalidArgument.new "Must have at least 2 indicator value characters."
     end
 
     @format = format || determine_best_format
@@ -206,7 +206,7 @@ class Athena::Console::Helper::ProgressIndicator
 
   # Starts and displays the indicator with the provided *message*.
   def start(message : String) : Nil
-    raise ACON::Exceptions::Logic.new "Progress indicator is already started." if @started
+    raise ACON::Exception::Logic.new "Progress indicator is already started." if @started
 
     @message = message
     @started = true
@@ -219,7 +219,7 @@ class Athena::Console::Helper::ProgressIndicator
 
   # Advance the indicator to display the next indicator character.
   def advance : Nil
-    raise ACON::Exceptions::Logic.new "Progress indicator has not yet been started." unless @started
+    raise ACON::Exception::Logic.new "Progress indicator has not yet been started." unless @started
 
     return unless @output.decorated?
 
@@ -250,7 +250,7 @@ class Athena::Console::Helper::ProgressIndicator
 
   # Completes the indicator with the provided *message*.
   def finish(@message : String) : Nil
-    raise ACON::Exceptions::Logic.new "Progress indicator has not yet been started." unless @started
+    raise ACON::Exception::Logic.new "Progress indicator has not yet been started." unless @started
 
     self.display
     @output.puts ""

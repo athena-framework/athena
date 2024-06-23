@@ -12,7 +12,7 @@ require "./terminal"
 require "./commands/*"
 require "./completion/**"
 require "./descriptor/*"
-require "./exceptions/*"
+require "./exception/*"
 require "./formatter/*"
 require "./helper/*"
 require "./input/*"
@@ -41,7 +41,12 @@ module Athena::Console
   module Completion; end
 
   # Contains all custom exceptions defined within `Athena::Console`.
-  module Exceptions; end
+  # Also acts as a marker that can be used to rescue all console related exceptions.
+  # Exposes a `#code` method that represents the exit code of a command invocation.
+  module Exception
+    # Returns the exit code that should be used for this exception.
+    getter code : Int32
+  end
 
   # Contains types related to lazily loading commands.
   module Loader; end

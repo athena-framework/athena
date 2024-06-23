@@ -38,6 +38,6 @@ class Athena::Console::Helper::HelperSet
 
   # Returns the helper of the provided *helper_class*, or raises if it is not defined.
   def [](helper_class : T.class) : T forall T
-    self.[helper_class]? || raise ACON::Exceptions::InvalidArgument.new "The helper '#{helper_class}' is not defined."
+    self.[helper_class]? || raise ACON::Exception::InvalidArgument.new "The helper '#{helper_class}' is not defined."
   end
 end

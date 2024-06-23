@@ -19,7 +19,7 @@ struct QuestionTest < ASPEC::TestCase
       [] of String
     end
 
-    expect_raises ACON::Exceptions::Logic, "A hidden question cannot use the autocompleter" do
+    expect_raises ACON::Exception::Logic, "A hidden question cannot use the autocompleter" do
       @question.hidden = true
     end
   end

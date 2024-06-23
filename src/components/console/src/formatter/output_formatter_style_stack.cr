@@ -29,7 +29,7 @@ struct Athena::Console::Formatter::OutputStyleStack
       end
     end
 
-    raise ACON::Exceptions::InvalidArgument.new "Provided style is not present in the stack."
+    raise ACON::Exception::InvalidArgument.new "Provided style is not present in the stack."
   end
 
   def current : ACON::Formatter::OutputStyleInterface

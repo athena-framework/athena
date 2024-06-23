@@ -138,7 +138,7 @@ struct ApplicationTest < ASPEC::TestCase
   def test_get_missing_command : Nil
     app = ACON::Application.new "foo"
 
-    expect_raises ACON::Exceptions::CommandNotFound, "The command 'foofoo' does not exist." do
+    expect_raises ACON::Exception::CommandNotFound, "The command 'foofoo' does not exist." do
       app.get "foofoo"
     end
   end
@@ -172,7 +172,7 @@ struct ApplicationTest < ASPEC::TestCase
     app.add BarBucCommand.new
     app.add Foo2Command.new
 
-    expect_raises ACON::Exceptions::NamespaceNotFound, "The namespace 'f' is ambiguous." do
+    expect_raises ACON::Exception::NamespaceNotFound, "The namespace 'f' is ambiguous." do
       app.find_namespace "f"
     end
   end
@@ -180,7 +180,7 @@ struct ApplicationTest < ASPEC::TestCase
   def test_find_namespace_invalid : Nil
     app = ACON::Application.new "foo"
 
-    expect_raises ACON::Exceptions::NamespaceNotFound, "There are no commands defined in the 'bar' namespace." do
+    expect_raises ACON::Exception::NamespaceNotFound, "There are no commands defined in the 'bar' namespace." do
       app.find_namespace "bar"
     end
   end
@@ -219,7 +219,7 @@ struct ApplicationTest < ASPEC::TestCase
     app.add Foo1Command.new
     app.add Foo2Command.new
 
-    expect_raises ACON::Exceptions::CommandNotFound, "Command 'foo1' is not defined." do
+    expect_raises ACON::Exception::CommandNotFound, "Command 'foo1' is not defined." do
       app.find "foo1"
     end
   end
@@ -249,7 +249,7 @@ struct ApplicationTest < ASPEC::TestCase
     app.add FooSameCaseUppercaseCommand.new
     app.add FooSameCaseLowercaseCommand.new
 
-    expect_raises ACON::Exceptions::CommandNotFound, "Command 'FOO:bar' is ambiguous." do
+    expect_raises ACON::Exception::CommandNotFound, "Command 'FOO:bar' is ambiguous." do
       app.find "FOO:bar"
     end
   end
@@ -275,7 +275,7 @@ struct ApplicationTest < ASPEC::TestCase
     app.add Foo1Command.new
     app.add Foo2Command.new
 
-    expect_raises ACON::Exceptions::CommandNotFound, expected_message do
+    expect_raises ACON::Exception::CommandNotFound, expected_message do
       app.find abbreviation
     end
   end
@@ -325,7 +325,7 @@ struct ApplicationTest < ASPEC::TestCase
     app = ACON::Application.new "foo"
     app.add Foo3Command.new
 
-    expect_raises ACON::Exceptions::CommandNotFound, "Did you mean this?" do
+    expect_raises ACON::Exception::CommandNotFound, "Did you mean this?" do
       app.find name
     end
   end
@@ -414,7 +414,7 @@ struct ApplicationTest < ASPEC::TestCase
     app.add Foo2Command.new
 
     # Command + plural
-    ex = expect_raises ACON::Exceptions::CommandNotFound do
+    ex = expect_raises ACON::Exception::CommandNotFound do
       app.find "foo:BAR"
     end
 
@@ -424,7 +424,7 @@ struct ApplicationTest < ASPEC::TestCase
     message.should contain "foo:bar"
 
     # Namespace + plural
-    ex = expect_raises ACON::Exceptions::CommandNotFound do
+    ex = expect_raises ACON::Exception::CommandNotFound do
       app.find "foo2:bar"
     end
 
@@ -436,7 +436,7 @@ struct ApplicationTest < ASPEC::TestCase
     app.add Foo4Command.new
 
     # Subnamespace + plural
-    ex = expect_raises ACON::Exceptions::CommandNotFound do
+    ex = expect_raises ACON::Exception::CommandNotFound do
       app.find "foo3:"
     end
 
@@ -451,7 +451,7 @@ struct ApplicationTest < ASPEC::TestCase
     app.add Foo1Command.new
     app.add Foo2Command.new
 
-    ex = expect_raises ACON::Exceptions::CommandNotFound do
+    ex = expect_raises ACON::Exception::CommandNotFound do
       app.find "Unknown command"
     end
 
@@ -460,7 +460,7 @@ struct ApplicationTest < ASPEC::TestCase
 
     # Test if "bar1" command throw a "CommandNotFoundException" and does not contain
     # "foo:bar" as alternative because "bar1" is too far from "foo:bar"
-    ex = expect_raises ACON::Exceptions::CommandNotFound do
+    ex = expect_raises ACON::Exception::CommandNotFound do
       app.find "bar1"
     end
 
@@ -493,12 +493,12 @@ struct ApplicationTest < ASPEC::TestCase
     app.add Foo2Command.new
     app.add Foo3Command.new
 
-    ex = expect_raises ACON::Exceptions::CommandNotFound, "There are no commands defined in the 'Unknown-namespace' namespace." do
+    ex = expect_raises ACON::Exception::CommandNotFound, "There are no commands defined in the 'Unknown-namespace' namespace." do
       app.find "Unknown-namespace:Unknown-command"
     end
     ex.alternatives.should be_empty
 
-    ex = expect_raises ACON::Exceptions::CommandNotFound do
+    ex = expect_raises ACON::Exception::CommandNotFound do
       app.find "foo2:command"
     end
     ex.alternatives.should eq ["foo", "foo1", "foo3"]
@@ -518,11 +518,11 @@ struct ApplicationTest < ASPEC::TestCase
     app.add Foo3Command.new
     app.add FooHiddenCommand.new
 
-    expect_raises ACON::Exceptions::CommandNotFound, "There are no commands defined in the 'Unknown-namespace' namespace." do
+    expect_raises ACON::Exception::CommandNotFound, "There are no commands defined in the 'Unknown-namespace' namespace." do
       app.find "Unknown-namespace:Unknown-command"
     end.alternatives.should be_empty
 
-    expect_raises ACON::Exceptions::CommandNotFound, /Command 'foo' is not defined\..*Did you mean one of these\?.*/m do
+    expect_raises ACON::Exception::CommandNotFound, /Command 'foo' is not defined\..*Did you mean one of these\?.*/m do
       app.find "foo"
     end.alternatives.should eq ["afoobar", "afoobar1", "afoobar2", "foo1:bar", "foo3:bar", "foo:bar", "foo:bar1"]
   end
@@ -532,7 +532,7 @@ struct ApplicationTest < ASPEC::TestCase
     app.add FooCommand.new
     app.add Foo4Command.new
 
-    expect_raises ACON::Exceptions::CommandNotFound, "Command 'foo::bar' is not defined." do
+    expect_raises ACON::Exception::CommandNotFound, "Command 'foo::bar' is not defined." do
       app.find "foo::bar"
     end
   end
@@ -865,7 +865,7 @@ struct ApplicationTest < ASPEC::TestCase
     app = ACON::Application.new "foo"
     app.auto_exit = false
     app.register "foo" do
-      raise ACON::Exceptions::Logic.new "", code: 5
+      raise ACON::Exception::Logic.new "", code: 5
     end
 
     input = ACON::Input::Hash.new({"command" => "foo"})
@@ -901,7 +901,7 @@ struct ApplicationTest < ASPEC::TestCase
 
     input = ACON::Input::Hash.new({"command" => "foo"})
 
-    expect_raises ACON::Exceptions::Logic, "An option with shortcut 'e' already exists." do
+    expect_raises ACON::Exception::Logic, "An option with shortcut 'e' already exists." do
       app.run input, ACON::Output::Null.new
     end
   end
@@ -919,7 +919,7 @@ struct ApplicationTest < ASPEC::TestCase
 
     input = ACON::Input::Hash.new({"command" => "foo"})
 
-    expect_raises ACON::Exceptions::Logic do
+    expect_raises ACON::Exception::Logic do
       app.run input, ACON::Output::Null.new
     end
   end
@@ -1072,7 +1072,7 @@ struct ApplicationTest < ASPEC::TestCase
       "foo" => ->{ ACON::Commands::Generic.new("bar") { ACON::Command::Status::SUCCESS }.as ACON::Command },
     })
 
-    expect_raises ACON::Exceptions::CommandNotFound, "The 'foo' command cannot be found because it is registered under multiple names. Make sure you don't set a different name via constructor or 'name='." do
+    expect_raises ACON::Exception::CommandNotFound, "The 'foo' command cannot be found because it is registered under multiple names. Make sure you don't set a different name via constructor or 'name='." do
       app.get "foo"
     end
   end

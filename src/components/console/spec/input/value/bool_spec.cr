@@ -32,21 +32,21 @@ describe ACON::Input::Value::Bool do
 
     describe Int do
       it "non-nilable" do
-        expect_raises ACON::Exceptions::Logic, "'false' is not a valid 'Int32'." do
+        expect_raises ACON::Exception::Logic, "'false' is not a valid 'Int32'." do
           ACON::Input::Value::Bool.new(false).get Int32
         end
 
-        expect_raises ACON::Exceptions::Logic, "'true' is not a valid 'UInt8'." do
+        expect_raises ACON::Exception::Logic, "'true' is not a valid 'UInt8'." do
           ACON::Input::Value::Bool.new(true).get UInt8
         end
       end
 
       it "nilable" do
-        expect_raises ACON::Exceptions::Logic, "'false' is not a valid '(Int32 | Nil)'." do
+        expect_raises ACON::Exception::Logic, "'false' is not a valid '(Int32 | Nil)'." do
           ACON::Input::Value::Bool.new(false).get Int32?
         end
 
-        expect_raises ACON::Exceptions::Logic, "'true' is not a valid '(UInt8 | Nil)'." do
+        expect_raises ACON::Exception::Logic, "'true' is not a valid '(UInt8 | Nil)'." do
           ACON::Input::Value::Bool.new(true).get UInt8?
         end
       end
@@ -54,21 +54,21 @@ describe ACON::Input::Value::Bool do
 
     describe Float do
       it "non-nilable" do
-        expect_raises ACON::Exceptions::Logic, "'false' is not a valid 'Float32'." do
+        expect_raises ACON::Exception::Logic, "'false' is not a valid 'Float32'." do
           ACON::Input::Value::Bool.new(false).get Float32
         end
 
-        expect_raises ACON::Exceptions::Logic, "'true' is not a valid 'Float64'." do
+        expect_raises ACON::Exception::Logic, "'true' is not a valid 'Float64'." do
           ACON::Input::Value::Bool.new(true).get Float64
         end
       end
 
       it "nilable" do
-        expect_raises ACON::Exceptions::Logic, "'false' is not a valid '(Float32 | Nil)'." do
+        expect_raises ACON::Exception::Logic, "'false' is not a valid '(Float32 | Nil)'." do
           ACON::Input::Value::Bool.new(false).get Float32?
         end
 
-        expect_raises ACON::Exceptions::Logic, "'true' is not a valid '(Float64 | Nil)'." do
+        expect_raises ACON::Exception::Logic, "'true' is not a valid '(Float64 | Nil)'." do
           ACON::Input::Value::Bool.new(true).get Float64?
         end
       end
@@ -77,19 +77,19 @@ describe ACON::Input::Value::Bool do
     describe Array do
       describe String do
         it "non-nilable" do
-          expect_raises ACON::Exceptions::Logic, "'false' is not a valid 'Array(String)'." do
+          expect_raises ACON::Exception::Logic, "'false' is not a valid 'Array(String)'." do
             ACON::Input::Value::Bool.new(false).get Array(String)
           end
         end
 
         it "nilable" do
-          expect_raises ACON::Exceptions::Logic, "'false' is not a valid '(Array(String) | Nil)'." do
+          expect_raises ACON::Exception::Logic, "'false' is not a valid '(Array(String) | Nil)'." do
             ACON::Input::Value::Bool.new(false).get Array(String)?
           end
         end
 
         it "nilable generic value" do
-          expect_raises ACON::Exceptions::Logic, "'true' is not a valid '(Array(String | Nil) | Nil)'." do
+          expect_raises ACON::Exception::Logic, "'true' is not a valid '(Array(String | Nil) | Nil)'." do
             ACON::Input::Value::Bool.new(true).get Array(String?)?
           end
         end
@@ -97,19 +97,19 @@ describe ACON::Input::Value::Bool do
 
       describe Int32 do
         it "non-nilable" do
-          expect_raises ACON::Exceptions::Logic, "'false' is not a valid 'Array(Int32)'." do
+          expect_raises ACON::Exception::Logic, "'false' is not a valid 'Array(Int32)'." do
             ACON::Input::Value::Bool.new(false).get Array(Int32)
           end
         end
 
         it "nilable" do
-          expect_raises ACON::Exceptions::Logic, "'false' is not a valid '(Array(Int32) | Nil)'." do
+          expect_raises ACON::Exception::Logic, "'false' is not a valid '(Array(Int32) | Nil)'." do
             ACON::Input::Value::Bool.new(false).get Array(Int32)?
           end
         end
 
         it "nilable generic value" do
-          expect_raises ACON::Exceptions::Logic, "'true' is not a valid '(Array(Int32 | Nil) | Nil)'." do
+          expect_raises ACON::Exception::Logic, "'true' is not a valid '(Array(Int32 | Nil) | Nil)'." do
             ACON::Input::Value::Bool.new(true).get Array(Int32?)?
           end
         end
@@ -117,19 +117,19 @@ describe ACON::Input::Value::Bool do
 
       describe Bool do
         it "non-nilable" do
-          expect_raises ACON::Exceptions::Logic, "'false' is not a valid 'Array(Bool)'." do
+          expect_raises ACON::Exception::Logic, "'false' is not a valid 'Array(Bool)'." do
             ACON::Input::Value::Bool.new(false).get Array(Bool)
           end
         end
 
         it "nilable" do
-          expect_raises ACON::Exceptions::Logic, "'false' is not a valid '(Array(Bool) | Nil)'." do
+          expect_raises ACON::Exception::Logic, "'false' is not a valid '(Array(Bool) | Nil)'." do
             ACON::Input::Value::Bool.new(false).get Array(Bool)?
           end
         end
 
         it "nilable generic value" do
-          expect_raises ACON::Exceptions::Logic, "'true' is not a valid '(Array(Bool | Nil) | Nil)'." do
+          expect_raises ACON::Exception::Logic, "'true' is not a valid '(Array(Bool | Nil) | Nil)'." do
             ACON::Input::Value::Bool.new(true).get Array(Bool?)?
           end
         end

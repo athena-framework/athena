@@ -26,7 +26,7 @@ struct Athena::Console::Loader::Factory
     if factory = @factories[name]?
       factory.call
     else
-      raise ACON::Exceptions::CommandNotFound.new "Command '#{name}' does not exist."
+      raise ACON::Exception::CommandNotFound.new "Command '#{name}' does not exist."
     end
   end
 
