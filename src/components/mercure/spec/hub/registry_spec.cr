@@ -25,7 +25,7 @@ describe AMC::Hub::Interface do
 
       registry = AMC::Hub::Registry.new foo_hub, {"foo" => foo_hub} of String => AMC::Hub::Interface
 
-      expect_raises AMC::Exceptions::InvalidArgument, "No hub named 'baz' is available." do
+      expect_raises AMC::Exception::InvalidArgument, "No hub named 'baz' is available." do
         registry.hub "baz"
       end
     end

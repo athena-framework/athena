@@ -5,7 +5,7 @@ class Athena::Negotiation::Exception::InvalidLanguage < RuntimeError
   # Returns the invalid language code.
   getter language : String
 
-  def initialize(@language : String, cause : Exception? = nil)
+  def initialize(@language : String, cause : ::Exception? = nil)
     super "Invalid language: '#{@language}'.", cause
   end
 end

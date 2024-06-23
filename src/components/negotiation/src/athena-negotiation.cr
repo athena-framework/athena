@@ -29,7 +29,6 @@ module Athena::Negotiation
   # Returns a lazily initialized `ANG::LanguageNegotiator` singleton instance.
   class_getter(language_negotiator) { ANG::LanguageNegotiator.new }
 
-  # Contains all custom exceptions defined within `Athena::Negotiation`.
-  # Also acts as a marker that can be used to rescue all negotiation related exceptions.
+  # Both acts as a namespace for exceptions related to the `Athena::Negotiation` component, as well as a way to check for exceptions from the component.
   module Exception; end
 end

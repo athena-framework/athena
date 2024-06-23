@@ -40,8 +40,7 @@ module Athena::Console
   # Includes types related to Athena's [tab completion][Athena::Console::Input::Interface--argumentoption-value-completion] features.
   module Completion; end
 
-  # Contains all custom exceptions defined within `Athena::Console`.
-  # Also acts as a marker that can be used to rescue all console related exceptions.
+  # Both acts as a namespace for exceptions related to the `Athena::Console` component, as well as a way to check for exceptions from the component.
   # Exposes a `#code` method that represents the exit code of a command invocation.
   module Exception
     # Returns the exit code that should be used for this exception.

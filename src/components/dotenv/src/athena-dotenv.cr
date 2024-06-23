@@ -144,7 +144,7 @@ require "./exception/*"
 class Athena::Dotenv
   VERSION = "0.1.2"
 
-  # Also acts as a marker that can be used to rescue all dotenv related exceptions.
+  # Both acts as a namespace for exceptions related to the `Athena::Dotenv` component, as well as a way to check for exceptions from the component.
   module Exception; end
 
   private VARNAME_REGEX = /(?i:_?[A-Z][A-Z0-9_]*+)/

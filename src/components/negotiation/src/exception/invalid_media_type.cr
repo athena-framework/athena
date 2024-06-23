@@ -5,7 +5,7 @@ class Athena::Negotiation::Exception::InvalidMediaType < RuntimeError
   # Returns the invalid media range.
   getter media_range : String
 
-  def initialize(@media_range : String, cause : Exception? = nil)
+  def initialize(@media_range : String, cause : ::Exception? = nil)
     super "Invalid media type: '#{@media_range}'.", cause
   end
 end
