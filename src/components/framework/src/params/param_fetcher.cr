@@ -64,20 +64,18 @@ class Athena::Framework::Params::ParamFetcher
       errors = @validator.start_context(value).at_path(param.name).validate(value, constraints).violations
     rescue ex : ::Exception
       # TODO: Make this part of the `rescue` after Crystal 1.13
-      if ex.is_a? AVD::Exception
-        violation = AVD::Violation::ConstraintViolation.new(
-          ex.message || "Unhandled exception while validating '#{param.name}' param.",
-          ex.message || "Unhandled exception while validating '#{param.name}' param.",
-          Hash(String, String).new,
-          value,
-          "",
-          AVD::ValueContainer.new(value),
-        )
+      raise ex unless ex.is_a? AVD::Exception
 
-        errors = AVD::Violation::ConstraintViolationList.new [violation] of AVD::Violation::ConstraintViolationInterface
-      else
-        errors = AVD::Violation::ConstraintViolationList.new
-      end
+      violation = AVD::Violation::ConstraintViolation.new(
+        ex.message || "Unhandled exception while validating '#{param.name}' param.",
+        ex.message || "Unhandled exception while validating '#{param.name}' param.",
+        Hash(String, String).new,
+        value,
+        "",
+        AVD::ValueContainer.new(value),
+      )
+
+      errors = AVD::Violation::ConstraintViolationList.new [violation] of AVD::Violation::ConstraintViolationInterface
     end
 
     unless errors.empty?
