@@ -44,7 +44,6 @@ class Athena::Framework::Params::ParamFetcher
     )
   end
 
-  # ameba:disable Metrics/CyclomaticComplexity:
   private def validate_param(param : ATH::Params::ParamInterface, value : _, strict : Bool, default : _)
     self.check_not_incompatible_params param
 
