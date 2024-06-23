@@ -261,12 +261,12 @@ module Athena::Serializer::Serializable
                 @{{ivar.id}} = value
               else
                 {% if !ivar.type.nilable? && !ivar.has_default_value? %}
-                  raise ASR::Exceptions::NilRequiredProperty.new {{ivar.name.id.stringify}}, {{ivar.type.id.stringify}}
+                  raise ASR::Exception::NilRequiredProperty.new {{ivar.name.id.stringify}}, {{ivar.type.id.stringify}}
                 {% end %}
               end
             else
               {% if !ivar.type.nilable? && !ivar.has_default_value? %}
-                raise ASR::Exceptions::MissingRequiredProperty.new {{ivar.name.id.stringify}}, {{ivar.type.id.stringify}}
+                raise ASR::Exception::MissingRequiredProperty.new {{ivar.name.id.stringify}}, {{ivar.type.id.stringify}}
               {% end %}
             end
 

@@ -29,7 +29,7 @@ describe ASR::SerializationContext do
 
       context.init
 
-      expect_raises ASR::Exceptions::SerializerException, "This context was already initialized, and cannot be re-used." do
+      expect_raises ASR::Exception::Logic, "This context was already initialized, and cannot be re-used." do
         context.init
       end
     end

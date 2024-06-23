@@ -116,7 +116,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
           return
         {% end %}
       {% end %}
-    rescue ex : JSON::ParseException | ASR::Exceptions::DeserializationException
+    rescue ex : JSON::ParseException | ASR::Exception::DeserializationException
       raise ATH::Exception::BadRequest.new "Malformed JSON payload.", cause: ex
     end
 

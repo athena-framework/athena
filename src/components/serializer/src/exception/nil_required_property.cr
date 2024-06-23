@@ -3,7 +3,7 @@ require "./property_exception"
 # Represents an error due to a required property that was `nil`.
 #
 # Exposes the property's name and type.
-class Athena::Serializer::Exceptions::NilRequiredProperty < Athena::Serializer::Exceptions::PropertyException
+class Athena::Serializer::Exception::NilRequiredProperty < Athena::Serializer::Exception::PropertyException
   getter property_type : String
 
   def initialize(property_name : String, @property_type : String)
