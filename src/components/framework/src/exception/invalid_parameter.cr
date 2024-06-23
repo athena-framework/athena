@@ -1,6 +1,6 @@
 require "./unprocessable_entity"
 
-class Athena::Framework::Exceptions::InvalidParameter < Athena::Framework::Exceptions::UnprocessableEntity
+class Athena::Framework::Exception::InvalidParameter < Athena::Framework::Exception::UnprocessableEntity
   getter parameter : ATH::Params::ParamInterface
   getter violations : AVD::Violation::ConstraintViolationListInterface
 
@@ -8,7 +8,7 @@ class Athena::Framework::Exceptions::InvalidParameter < Athena::Framework::Excep
     new parameter, violations, "Parameter '#{parameter.name}' is invalid."
   end
 
-  def initialize(@parameter : ATH::Params::ParamInterface, @violations : AVD::Violation::ConstraintViolationListInterface, message : String, cause : Exception? = nil, headers : HTTP::Headers = HTTP::Headers.new)
+  def initialize(@parameter : ATH::Params::ParamInterface, @violations : AVD::Violation::ConstraintViolationListInterface, message : String, cause : ::Exception? = nil, headers : HTTP::Headers = HTTP::Headers.new)
     super message, cause, headers
   end
 

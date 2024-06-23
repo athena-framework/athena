@@ -14,7 +14,9 @@ end
 # Also optionally allows adding headers to the resulting response.
 #
 # Can be used directly/inherited from to represent non-typical HTTP errors/codes.
-class Athena::Framework::Exceptions::HTTPException < Exception
+class Athena::Framework::Exception::HTTPException < ::Exception
+  include Athena::Framework::Exception
+
   # The `HTTP::Status` associated with `self`.
   getter status : HTTP::Status
 
@@ -26,14 +28,14 @@ class Athena::Framework::Exceptions::HTTPException < Exception
   # Instantiates `self` with the given *status* and *message*.
   #
   # Optionally includes *cause*, and *headers*.
-  def initialize(@status : HTTP::Status, message : String, cause : Exception? = nil, @headers : HTTP::Headers = HTTP::Headers.new)
+  def initialize(@status : HTTP::Status, message : String, cause : ::Exception? = nil, @headers : HTTP::Headers = HTTP::Headers.new)
     super message, cause
   end
 
   # Instantiates `self` with the given *status_code* and *message*.
   #
   # Optionally includes *cause*, and *headers*.
-  def self.new(status_code : Int32, message : String, cause : Exception? = nil, headers : HTTP::Headers = HTTP::Headers.new)
+  def self.new(status_code : Int32, message : String, cause : ::Exception? = nil, headers : HTTP::Headers = HTTP::Headers.new)
     new HTTP::Status.new(status_code), message, cause, headers
   end
 

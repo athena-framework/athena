@@ -71,7 +71,7 @@
 #   # Be sure to keep you routes consistent!
 #   #
 #   # A non-nilable type denotes it as required. If the parameter is not supplied,
-#   # and no default value is assigned, an `ATH::Exceptions::BadRequest` exception is raised.
+#   # and no default value is assigned, an `ATH::Exception::BadRequest` exception is raised.
 #   @[ARTA::Get("/event/{event_name}/")]
 #   @[ATHA::QueryParam("time", requirements: /\d:\d:\d/)]
 #   def event_time(event_name : String, time : String) : String

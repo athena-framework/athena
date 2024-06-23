@@ -146,7 +146,7 @@ _First release in the [athena-framework/framework](https://github.com/athena-fra
 
 ### Changed
 
-- Include error list in `ATH::Exceptions::InvalidParameter` ([#124](https://github.com/athena-framework/athena/pull/124)) (George Dietrich)
+- Include error list in `ATH::Exception::InvalidParameter` ([#124](https://github.com/athena-framework/athena/pull/124)) (George Dietrich)
 - Set the base path of parameter errors to the name of the parameter ([#124](https://github.com/athena-framework/athena/pull/124)) (George Dietrich)
 
 ## [0.15.0] - 2021-10-30

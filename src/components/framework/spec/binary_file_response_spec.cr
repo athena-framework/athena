@@ -31,7 +31,7 @@ struct ATH::BinaryFileResponseTest < ASPEC::TestCase
   end
 
   def test_set_content : Nil
-    expect_raises(Exception, "The content cannot be set on a BinaryFileResponse instance.") do
+    expect_raises(::Exception, "The content cannot be set on a BinaryFileResponse instance.") do
       ATH::BinaryFileResponse.new(__FILE__).content = "FOO"
     end
   end

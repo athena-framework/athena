@@ -110,7 +110,7 @@ describe ATH::Listeners::CORS do
           request.headers.add "access-control-request-headers", "X-BAD"
         end
 
-        expect_raises ATH::Exceptions::Forbidden, "Unauthorized header: 'X-BAD'" do
+        expect_raises ATH::Exception::Forbidden, "Unauthorized header: 'X-BAD'" do
           listener.on_request event
         end
 

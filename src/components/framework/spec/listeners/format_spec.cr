@@ -49,7 +49,7 @@ struct FormatListenerTest < ASPEC::TestCase
 
     listener = ATH::Listeners::Format.new negotiator
 
-    expect_raises ATH::Exceptions::NotAcceptable, "No matching accepted Response format could be determined." do
+    expect_raises ATH::Exception::NotAcceptable, "No matching accepted Response format could be determined." do
       listener.on_request event
     end
   end

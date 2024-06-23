@@ -268,7 +268,7 @@ struct PaginationListener
     per_page = request.query_params[PER_PAGE_QUERY_PARAM]?.try &.to_i || pagination.per_page
 
     # Raise an exception if `per_page` is higher than the max.
-    raise ATH::Exceptions::BadRequest.new "Query param 'per_page' should be '#{pagination.max_per_page}' or less." if per_page > pagination.max_per_page
+    raise ATH::Exception::BadRequest.new "Query param 'per_page' should be '#{pagination.max_per_page}' or less." if per_page > pagination.max_per_page
 
     # Paginate the resulting data.
     # In the future a more robust pagination service could be injected

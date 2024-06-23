@@ -51,7 +51,7 @@ class Athena::Framework::Params::ParamFetcher
       value = param.type.from_parameter value
     rescue ex : ArgumentError
       # Catch type cast errors and bubble it up as an BadRequest if strict
-      raise ATH::Exceptions::BadRequest.new "Required parameter '#{param.name}' with value '#{value}' could not be converted into a valid '#{param.type}'.", cause: ex if strict
+      raise ATH::Exception::BadRequest.new "Required parameter '#{param.name}' with value '#{value}' could not be converted into a valid '#{param.type}'.", cause: ex if strict
       return default
     end
 
@@ -75,7 +75,7 @@ class Athena::Framework::Params::ParamFetcher
     end
 
     unless errors.empty?
-      raise ATH::Exceptions::InvalidParameter.with_violations param, errors if strict
+      raise ATH::Exception::InvalidParameter.with_violations param, errors if strict
       return default
     end
 
@@ -90,7 +90,7 @@ class Athena::Framework::Params::ParamFetcher
       incompatible_param = self.params.fetch(incompatible_param_name) { raise KeyError.new "Unknown parameter '#{incompatible_param_name}'." }
 
       unless incompatible_param.extract_value(self.request, nil).nil?
-        raise ATH::Exceptions::BadRequest.new "Parameter '#{param.name}' is incompatible with parameter '#{incompatible_param.name}'."
+        raise ATH::Exception::BadRequest.new "Parameter '#{param.name}' is incompatible with parameter '#{incompatible_param.name}'."
       end
     end
   end
