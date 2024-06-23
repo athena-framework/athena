@@ -214,7 +214,7 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
       return match[1].to_i64 * factors[unit].to_i64
     end
 
-    raise ArgumentError.new "'#{max_size}' is not a valid maximum size."
+    raise AVD::Exception::InvalidArgument.new "'#{max_size}' is not a valid maximum size."
   end
 
   class Validator < Athena::Validator::ConstraintValidator

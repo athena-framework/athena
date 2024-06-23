@@ -7,13 +7,13 @@ describe AVD::Constraint do
     end
 
     it "does not add non _ERROR constants" do
-      expect_raises(KeyError, "The error code 'BLAH' does not exist for constraint of type 'CustomConstraint'.") do
+      expect_raises(AVD::Exception::InvalidArgument, "The error code 'BLAH' does not exist for constraint of type 'CustomConstraint'.") do
         CustomConstraint.error_name "BLAH"
       end
     end
 
     it "does not exist" do
-      expect_raises(KeyError, "The error code 'foo' does not exist for constraint of type 'CustomConstraint'.") do
+      expect_raises(AVD::Exception::InvalidArgument, "The error code 'foo' does not exist for constraint of type 'CustomConstraint'.") do
         CustomConstraint.error_name "foo"
       end
     end

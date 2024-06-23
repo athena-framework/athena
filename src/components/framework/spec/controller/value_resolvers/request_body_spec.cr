@@ -58,7 +58,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
       ])
     )
 
-    expect_raises AVD::Exceptions::ValidationFailed, "Validation failed" do
+    expect_raises AVD::Exception::ValidationFailed, "Validation failed" do
       ATHR::RequestBody.new(serializer, validator).resolve new_request(body: %({"id":10,"name":""})), self.get_config(MockValidatableASRSerializableEntity)
     end
   end

@@ -9,7 +9,7 @@ struct AllValidatorTest < AVD::Spec::ConstraintValidatorTestCase
   end
 
   def test_raises_if_value_is_not_hash_or_indexable : Nil
-    expect_raises AVD::Exceptions::UnexpectedValueError, "Expected argument of type 'Hash | Indexable', 'String' given." do
+    expect_raises AVD::Exception::UnexpectedValueError, "Expected argument of type 'Hash | Indexable', 'String' given." do
       self.validator.validate "FOO", self.new_constraint constraints: AVD::Constraints::NotBlank.new
     end
   end

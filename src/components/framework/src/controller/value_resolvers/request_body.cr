@@ -122,7 +122,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
 
     if object.is_a? AVD::Validatable
       errors = @validator.validate object
-      raise AVD::Exceptions::ValidationFailed.new errors unless errors.empty?
+      raise AVD::Exception::ValidationFailed.new errors unless errors.empty?
     end
 
     object.as T

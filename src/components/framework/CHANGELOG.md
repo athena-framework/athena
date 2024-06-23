@@ -167,7 +167,7 @@ _Last release in the [athena-framework/athena](https://github.com/athena-framewo
 ### Fixed
 
 - Fix incorrect parameter type restriction on `ATH::ParameterBag#set` ([#116](https://github.com/athena-framework/athena/pull/116)) (George Dietrich)
-- Fix incorrect ivar type on `AVD::Exceptions::Exceptions::ValidationFailed#violations` ([#116](https://github.com/athena-framework/athena/pull/116)) (George Dietrich)
+- Fix incorrect ivar type on `AVD::Exception::Exceptions::ValidationFailed#violations` ([#116](https://github.com/athena-framework/athena/pull/116)) (George Dietrich)
 - Correctly reject requests with whitespace when converting numeric inputs ([#117](https://github.com/athena-framework/athena/pull/117)) (George Dietrich)
 
 [0.19.1]: https://github.com/athena-framework/framework/releases/tag/v0.19.1
