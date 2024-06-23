@@ -575,8 +575,10 @@ class Athena::Console::Application
 
     begin
       input.bind self.definition
-    rescue ACON::Exception
+    rescue ex : ::Exception
+      # TODO: Make this part of the `rescue` after Crystal 1.13
       # Ignore errors as full binding/validation happens later when command is known
+      raise ex unless ex.is_a? ACON::Exception
     end
 
     command_name = self.command_name input

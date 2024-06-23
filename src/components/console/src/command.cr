@@ -496,8 +496,11 @@ abstract class Athena::Console::Command
 
     begin
       input.bind self.definition
-    rescue ex : ACON::Exception
-      raise ex unless @ignore_validation_errors
+    rescue ex : ::Exception
+      # TODO: Make this part of the `rescue` after Crystal 1.13
+      if ex.is_a?(ACON::Exception)
+        raise ex unless @ignore_validation_errors
+      end
     end
 
     self.setup input, output

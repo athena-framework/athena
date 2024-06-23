@@ -135,8 +135,9 @@ class Athena::Console::Commands::Complete < Athena::Console::Command
 
     begin
       completion_input.bind self.application.definition
-    rescue ACON::Exception
-      # noop
+    rescue ex : ::Exception
+      # TODO: Make this part of the `rescue` after Crystal 1.13
+      raise ex unless ex.is_a? ACON::Exception
     end
 
     completion_input
