@@ -45,7 +45,7 @@ class Athena::Console::Descriptor::Text < Athena::Console::Descriptor
     )
 
     if described_namespace
-      self.write_text %(<comment>Available commands for the "#{described_namespace}" namespace:</comment>), context
+      self.write_text %(<comment>Available commands for the '#{described_namespace}' namespace:</comment>), context
     else
       self.write_text "<comment>Available commands:</comment>", context
     end
