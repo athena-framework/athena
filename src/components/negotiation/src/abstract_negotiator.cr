@@ -26,9 +26,9 @@ abstract class Athena::Negotiation::AbstractNegotiator(HeaderType)
       raise ex if strict
     end
 
-    accepted_priorties = priorities.map { |p| HeaderType.new p }
+    accepted_priorities = priorities.map { |p| HeaderType.new p }
 
-    matches = self.find_matches accepted_headers, accepted_priorties
+    matches = self.find_matches accepted_headers, accepted_priorities
 
     specific_matches = matches.reduce({} of Int32 => ANG::AcceptMatch) do |acc, match|
       ANG::AcceptMatch.reduce acc, match
@@ -38,7 +38,7 @@ abstract class Athena::Negotiation::AbstractNegotiator(HeaderType)
 
     match = specific_matches.shift?
 
-    match.nil? ? nil : accepted_priorties[match.index]
+    match.nil? ? nil : accepted_priorities[match.index]
   end
 
   # Returns an array of `HeaderType` that the provided *header* allows, ordered so that the `#best` match is first.
