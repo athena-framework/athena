@@ -31,7 +31,7 @@
 struct Athena::Framework::Controller::ValueResolvers::Time
   include Athena::Framework::Controller::ValueResolvers::Interface
 
-  # Allows customing the time format and/or location used to parse the string datetime as part of the `ATHR::Time` resolver.
+  # Allows customizing the time format and/or location used to parse the string datetime as part of the `ATHR::Time` resolver.
   # See the related resolver documentation for more information.
   configuration Format, format : String? = nil, location : ::Time::Location = ::Time::Location::UTC
 
