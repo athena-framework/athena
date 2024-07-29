@@ -312,9 +312,13 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
                 )".id}}
               end
 
-              SERVICE_HASH["athena_framework_listeners_format"] = {
+              SERVICE_HASH["athena_framework_view_format_negotiator"] = {
                 class: ATH::View::FormatNegotiator,
                 calls: calls,
+              }
+
+              SERVICE_HASH["athena_framework_listeners_format"] = {
+                class: ATH::Listeners::Format,
               }
             end
           %}
