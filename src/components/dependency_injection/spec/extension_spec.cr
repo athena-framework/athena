@@ -289,13 +289,13 @@ describe ADI::Extension do
       assert_success <<-CR
         module Schema
           include ADI::Extension::Schema
-          array_of rules = [{id: 10, stop: true}], id : Int32, stop : Bool = false
+          array_of rules = [{id: 10}], id : Int32, stop : Bool = false
           def self.validate
             it do
               {{OPTIONS.size}}.should eq 1
               {{OPTIONS[0]["name"].stringify}}.should eq "rules"
               {{OPTIONS[0]["type"].stringify}}.should eq "Array(T)"
-              {{OPTIONS[0]["default"].stringify}}.should eq "[{id: 10, stop: true}]"
+              {{OPTIONS[0]["default"].stringify}}.should eq "[{id: 10, stop: false}]"
               {{OPTIONS[0]["members"].size}}.should eq 3 # Account for __nil
               {{OPTIONS[0]["members"]["id"].type.stringify}}.should eq "Int32"
               {{OPTIONS[0]["members"]["id"].value.stringify}}.should eq ""
@@ -303,7 +303,7 @@ describe ADI::Extension do
               {{OPTIONS[0]["members"]["stop"].value.stringify}}.should eq "false"
 
               {{CONFIG_DOCS.stringify}}.should eq <<-JSON
-              [{"name":"rules","type":"`Array(T)`","default":"`[{id: 10, stop: true}]`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil
+              [{"name":"rules","type":"`Array(T)`","default":"`[{id: 10}]`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil
               JSON
             end
           end

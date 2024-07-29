@@ -137,20 +137,6 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                           prop_type = member_map
                                         end
 
-                                        # The prop type is from an (array|object)_of, so we need to fill in defaults
-                                        if prop_type.is_a?(NamedTupleLiteral)
-                                          provided_keys = cfv.keys
-
-                                          prop_type.keys.reject { |k| k.stringify == "__nil" || provided_keys.includes? k }.each do |k|
-                                            decl = prop_type[k]
-
-                                            # Skip setting required values so that it results in a missing error vs type mismatch error
-                                            cfv[k] = decl.value unless decl.value.is_a?(Nop)
-                                          end
-
-                                          # Use the member_map as is if not processing an `array_of` object so that missing required properties are properly enforced.
-                                        end
-
                                         cfv.each do |k, v|
                                           nt_key_type = prop_type[k]
 
