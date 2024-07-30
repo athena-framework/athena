@@ -506,18 +506,9 @@ class Athena::Dotenv
 
   private def load(override_existing_vars : Bool, paths : Enumerable(String | ::Path)) : Nil
     paths.each do |path|
-      # TODO: Inline this again once 1.13.0 is the new min version
-      {% begin %}
-        {% if compare_versions(Crystal::VERSION, "1.13.0-dev") >= 0 %}
-          is_file_readable = File::Info.readable? path
-        {% else %}
-          is_file_readable = File.readable? path
-        {% end %}
-
-        if !is_file_readable || File.directory?(path)
-          raise Athena::Dotenv::Exceptions::Path.new path
-        end
-      {% end %}
+      if !File::Info.readable?(path) || File.directory?(path)
+        raise Athena::Dotenv::Exceptions::Path.new path
+      end
 
       self.populate(self.parse(File.read(path), path), override_existing_vars)
     end
