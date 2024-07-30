@@ -285,7 +285,7 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
                   end
 
                   if v = rule["host"]
-                    matchers << "ATH::RequestMatcher::Host.new(#{v})".id
+                    matchers << "ATH::RequestMatcher::Hostname.new(#{v})".id
                   end
 
                   if v = rule["methods"]
