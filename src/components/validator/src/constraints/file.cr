@@ -219,6 +219,8 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
 
   class Validator < Athena::Validator::ConstraintValidator
     # :inherit:
+    #
+    # ameba:disable Metrics/CyclomaticComplexity
     def validate(value : _, constraint : AVD::Constraints::File) : Nil
       return if value.nil? || value == ""
 
