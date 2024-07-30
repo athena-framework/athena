@@ -2,7 +2,7 @@ name: athena-validator
 
 version: 0.3.3
 
-crystal: ~> 1.6
+crystal: ~> 1.13
 
 license: MIT
 
