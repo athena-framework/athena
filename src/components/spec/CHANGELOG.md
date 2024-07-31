@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.8] - 2024-07-31
+
+### Added
+
+- Add support for using the `CRYSTAL` ENV var to customize binary used for `ASPEC::Methods.assert_error` and `ASPEC::Methods.assert_success` ([#424](https://github.com/athena-framework/athena/pull/424)) (George Dietrich)
+
 ## [0.3.7] - 2024-04-09
 
 ### Changed
@@ -108,6 +114,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.3.8]: https://github.com/athena-framework/spec/releases/tag/v0.3.8
 [0.3.7]: https://github.com/athena-framework/spec/releases/tag/v0.3.7
 [0.3.6]: https://github.com/athena-framework/spec/releases/tag/v0.3.6
 [0.3.5]: https://github.com/athena-framework/spec/releases/tag/v0.3.5
