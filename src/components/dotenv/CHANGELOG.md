@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.3] - 2024-07-31
+
+### Changed
+
+- Update minimum `crystal` version to `~> 1.13.0` ([#433](https://github.com/athena-framework/athena/pull/433)) (George Dietrich)
+
 ## [0.1.2] - 2024-04-09
 
 ### Changed
@@ -22,6 +28,7 @@ _Administrative release, no functional changes_
 
 _Initial release._
 
+[0.1.3]: https://github.com/athena-framework/dotenv/releases/tag/v0.1.3
 [0.1.2]: https://github.com/athena-framework/dotenv/releases/tag/v0.1.2
 [0.1.1]: https://github.com/athena-framework/dotenv/releases/tag/v0.1.1
 [0.1.0]: https://github.com/athena-framework/dotenv/releases/tag/v0.1.0
