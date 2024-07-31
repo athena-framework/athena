@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.6] - 2024-07-31
+
+### Changed
+
+- **Breaking:** `ACON::Application#getter` and constructor argument must now be a `String` instead of `SemanticVersion` ([#419](https://github.com/athena-framework/athena/pull/419)) (George Dietrich)
+- Changed the default `ACON::Application` version to `UNKNOWN` from `0.1.0` ([#419](https://github.com/athena-framework/athena/pull/419)) (George Dietrich)
+- List commands in a namespace when using it as the command name ([#427](https://github.com/athena-framework/athena/pull/427)) (George Dietrich)
+- Use single quotes in text descriptor to quote values in the output ([#427](https://github.com/athena-framework/athena/pull/427)) (George Dietrich)
+
 ## [0.3.5] - 2024-04-09
 
 ### Changed
@@ -121,6 +130,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.3.6]: https://github.com/athena-framework/console/releases/tag/v0.3.6
 [0.3.5]: https://github.com/athena-framework/console/releases/tag/v0.3.5
 [0.3.4]: https://github.com/athena-framework/console/releases/tag/v0.3.4
 [0.3.3]: https://github.com/athena-framework/console/releases/tag/v0.3.3

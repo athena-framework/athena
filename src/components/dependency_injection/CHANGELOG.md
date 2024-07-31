@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.4.1] - 2024-07-31
+
+### Changed
+
+- **Breaking:** single implementation aliases are now explicit ([#408](https://github.com/athena-framework/athena/pull/408)) (George Dietrich)
+
+### Fixed
+
+- Fix default/nil values related to `object_of` and `array_of` being unavailable in bundle extensions ([#432](https://github.com/athena-framework/athena/pull/432)) (George Dietrich)
+
 ## [0.4.0] - 2024-04-09
 
 ### Changed
@@ -173,6 +183,7 @@ _Major refactor of the component._
 
 _Initial release._
 
+[0.4.1]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.4.1
 [0.4.0]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.4.0
 [0.3.8]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.8
 [0.3.7]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.7
