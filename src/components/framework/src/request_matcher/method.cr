@@ -2,13 +2,13 @@
 struct Athena::Framework::RequestMatcher::Method
   include Interface
 
-  @methods : Enumerable(String)
+  @methods : Array(String)
 
   def self.new(*methods : String)
     new methods.to_a
   end
 
-  def initialize(@methods : Enumerable(String))
+  def initialize(@methods : Array(String))
     methods.map! &.upcase
   end
 
