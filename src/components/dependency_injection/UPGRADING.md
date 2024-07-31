@@ -2,6 +2,44 @@
 
 Documents the changes that may be required when upgrading to a newer component version.
 
+## Upgrade to 0.4.1
+
+### Single implementation aliases are now explicit
+
+Previously if you had a service that implemented an interface (module), that interface would auto resolve to that service if there was only the one implementation.
+This implicit aliasing of the interface was removed and now requires an explicit aliasing.
+
+Before:
+```crystal
+module SomeInterface; end
+
+@[ADI::Register]
+class Foo
+  include SomeInterface
+end
+
+@[ADI::Register(public: true)]
+record Bar, a : SomeInterface
+```
+
+After:
+```crystal
+module SomeInterface; end
+
+@[ADI::Register]
+@[ADI::AsAlias]
+class Foo
+  include SomeInterface
+end
+
+@[ADI::Register(public: true)]
+record Bar, a : SomeInterface
+```
+
+If the service only implements a single interface, you just need to apply the [`@[ADI::AsAlias]`](https://athenaframework.org/DependencyInjection/AsAlias/) annotation to the service.
+If it implements more than one interface, you'll need an annotation for each one.
+See the API docs for more information on how to use the annotation.
+
 ## Upgrade to 0.4.0
 
 _The component went through a large internal refactor as part of this release. Please create an issue or PR if you find a breaking change not captured here._
