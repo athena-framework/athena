@@ -61,7 +61,7 @@ class QueryParamController < ATH::Controller
   @[ATHA::QueryParam("value")]
   @[ARTA::Get("/param/enabled/resolver")]
   def annotation_enabled_resolver_on_query_param_parameter(
-    @[GenericAnnotationEnabledCustomResolver::Enable]
+    @[MyResolverAnnotation]
     value : String
   ) : String
     value
@@ -71,7 +71,7 @@ class QueryParamController < ATH::Controller
   @[ATHA::QueryParam("time")]
   @[ARTA::Get("/nt_time")]
   def nt_time(
-    @[ATHR::Time::Format(format: "%Y--%m//%d  %T")]
+    @[ATHA::MapTime(format: "%Y--%m//%d  %T")]
     time : Time
   ) : String
     "Today is: #{time}"
