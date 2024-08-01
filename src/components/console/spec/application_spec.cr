@@ -374,6 +374,38 @@ struct ApplicationTest < ASPEC::TestCase
     output.should contain "Do you want to run 'foo' instead? (yes/no) [no]:"
   end
 
+  def test_run_namespace : Nil
+    ENV["COLUMNS"] = "120"
+    app = ACON::Application.new "foo"
+    app.auto_exit = false
+    app.add FooCommand.new
+    app.add Foo1Command.new
+    app.add Foo2Command.new
+
+    tester = ACON::Spec::ApplicationTester.new app
+    tester.run(command: "foo", decorated: false) # .should eq ACON::Command::Status::FAILURE
+
+    output = tester.display true
+    output.should contain "Available commands for the 'foo' namespace:"
+    output.should contain "The foo:bar command"
+    output.should contain "The foo:bar1 command"
+  end
+
+  def test_run_with_find_error : Nil
+    app = ACON::Application.new "foo"
+    app.auto_exit = false
+    app.catch_exceptions = false
+    app.command_loader = MockCommandLoader.new(
+      command_or_exception: FooCommand.new,
+      has: false,
+      names: ::Exception.new("Oh noes")
+    )
+
+    expect_raises ::Exception, "Oh noes" do
+      ACON::Spec::ApplicationTester.new(app).run command: "blah"
+    end
+  end
+
   def test_find_alternative_exception_message_multiple : Nil
     ENV["COLUMNS"] = "120"
     app = ACON::Application.new "foo"

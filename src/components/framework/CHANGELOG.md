@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.19.2] - 2024-07-31
+
+### Added
+
+- Add `ATH.run_console` as an easier entrypoint into the console application ([#413](https://github.com/athena-framework/athena/pull/413)) (George Dietrich)
+- Add support for additional boolean conversion values from request attributes ([#422](https://github.com/athena-framework/athena/pull/422)) (George Dietrich)
+
+### Changed
+
+- **Breaking:** `ATH::RequestMatcher::Method` now requires an `Array(String)` as opposed to any `Enumerable(String)` ([#431](https://github.com/athena-framework/athena/pull/431)) (George Dietrich)
+- Update minimum `crystal` version to `~> 1.13.0` ([#433](https://github.com/athena-framework/athena/pull/433)) (George Dietrich)
+- Updates usages of `UTF-8` in response headers to `utf-8` as preferred by the RFC ([#417](https://github.com/athena-framework/athena/pull/417)) (George Dietrich)
+
+### Fixed
+
+- Fix the content negotiation implementation not working ([#431](https://github.com/athena-framework/athena/pull/431)) (George Dietrich)
+
 ## [0.19.1] - 2024-04-27
 
 ### Fixed
@@ -170,6 +187,7 @@ _Last release in the [athena-framework/athena](https://github.com/athena-framewo
 - Fix incorrect ivar type on `AVD::Exceptions::Exceptions::ValidationFailed#violations` ([#116](https://github.com/athena-framework/athena/pull/116)) (George Dietrich)
 - Correctly reject requests with whitespace when converting numeric inputs ([#117](https://github.com/athena-framework/athena/pull/117)) (George Dietrich)
 
+[0.19.2]: https://github.com/athena-framework/framework/releases/tag/v0.19.2
 [0.19.1]: https://github.com/athena-framework/framework/releases/tag/v0.19.1
 [0.19.0]: https://github.com/athena-framework/framework/releases/tag/v0.19.0
 [0.18.2]: https://github.com/athena-framework/framework/releases/tag/v0.18.2

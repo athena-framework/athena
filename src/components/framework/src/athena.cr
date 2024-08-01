@@ -57,7 +57,7 @@ alias ATHA = ATH::Annotations
 alias ATHR = ATH::Controller::ValueResolvers
 
 module Athena::Framework
-  VERSION = "0.19.1"
+  VERSION = "0.19.2"
 
   # The name of the environment variable used to determine Athena's current environment.
   ENV_NAME = "ATHENA_ENV"
@@ -226,11 +226,7 @@ module Athena::Framework
       {% end %}
 
       # Handle exiting correctly on interrupt signals
-      {% if compare_versions(Crystal::VERSION, "1.12.0") >= 0 %}
-        Process.on_terminate { self.stop }
-      {% else %}
-        Process.on_interrupt { self.stop }
-      {% end %}
+      Process.on_terminate { self.stop }
 
       Log.info { %(Server has started and is listening at #{@ssl_context ? "https" : "http"}://#{@server.addresses.first}) }
 

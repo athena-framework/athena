@@ -142,7 +142,7 @@ require "./exceptions/*"
 # They can of course continue to be used in production by distributing the base `.env` file along with the binary, then creating a `.env.local` on the production server and including production values within it.
 # This can work quite well for simple applications, but ultimately a more robust solution that best leverages the features of the server the application is running on is best.
 class Athena::Dotenv
-  VERSION = "0.1.2"
+  VERSION = "0.1.3"
 
   private VARNAME_REGEX = /(?i:_?[A-Z][A-Z0-9_]*+)/
 
@@ -506,18 +506,9 @@ class Athena::Dotenv
 
   private def load(override_existing_vars : Bool, paths : Enumerable(String | ::Path)) : Nil
     paths.each do |path|
-      # TODO: Inline this again once 1.13.0 is the new min version
-      {% begin %}
-        {% if compare_versions(Crystal::VERSION, "1.13.0-dev") >= 0 %}
-          is_file_readable = File::Info.readable? path
-        {% else %}
-          is_file_readable = File.readable? path
-        {% end %}
-
-        if !is_file_readable || File.directory?(path)
-          raise Athena::Dotenv::Exceptions::Path.new path
-        end
-      {% end %}
+      if !File::Info.readable?(path) || File.directory?(path)
+        raise Athena::Dotenv::Exceptions::Path.new path
+      end
 
       self.populate(self.parse(File.read(path), path), override_existing_vars)
     end

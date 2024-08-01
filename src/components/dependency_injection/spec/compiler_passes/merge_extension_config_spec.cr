@@ -520,4 +520,122 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
       end
     CR
   end
+
+  it "merges missing array_of defaults" do
+    ASPEC::Methods.assert_success <<-CR, codegen: true
+      require "../spec_helper"
+
+      module Schema
+        include ADI::Extension::Schema
+        array_of rules, id : Int32, stop : Bool = false
+      end
+
+      ADI.register_extension "test", Schema
+
+      ADI.configure({
+        test: {
+          rules: [
+            {id: 10},
+          ],
+        },
+      })
+
+      macro finished
+        macro finished
+          it { \\{{ADI::CONFIG["test"]["rules"][0]["id"]}}.should eq 10 }
+          it { \\{{ADI::CONFIG["test"]["rules"][0]["stop"]}}.should be_false }
+        end
+      end
+    CR
+  end
+
+  it "merges missing array_of defaults in time for other compiler passes" do
+    ASPEC::Methods.assert_success <<-CR, codegen: true
+      require "../spec_helper"
+
+      module Schema
+        include ADI::Extension::Schema
+        array_of rules, id : Int32, stop : Bool = false
+      end
+
+      module MyExtension
+        macro included
+            macro finished
+              {% verbatim do %}
+                {%
+                  ADI::CONFIG["parameters"]["stop"] = ADI::CONFIG["test"]["rules"][0]["stop"]
+                %}
+              {% end %}
+            end
+          end
+      end
+
+      ADI.register_extension "test", Schema
+      ADI.add_compiler_pass MyExtension, :before_optimization, 500 # Ensure the Config passes run first
+
+      ADI.configure({
+        test: {
+          rules: [
+            {id: 10},
+          ],
+        },
+      })
+
+      macro finished
+        macro finished
+          it { \\{{ADI::CONFIG["parameters"]["stop"]}}.should be_false }
+        end
+      end
+    CR
+  end
+
+  it "fills in missing nilable keys with `nil`" do
+    ASPEC::Methods.assert_success <<-CR, codegen: true
+      require "../spec_helper"
+
+      module Schema
+        include ADI::Extension::Schema
+
+        object_of config, id : Int32, name : String?
+      end
+
+      ADI.register_extension "blah", Schema
+
+      ADI.configure({
+        blah: {
+          config: {id: 10},
+        },
+      })
+
+      macro finished
+        macro finished
+          it { \\{{ADI::CONFIG["blah"]["config"].keys.stringify}}.should eq %([__nil, id, name]) }
+          it { \\{{ADI::CONFIG["blah"]["config"]["id"]}}.should eq 10 }
+          it { \\{{ADI::CONFIG["blah"]["config"]["name"]}}.should be_nil }
+        end
+      end
+    CR
+  end
+
+  it "fills in missing nilable keys with `nil` when missing from default value" do
+    ASPEC::Methods.assert_success <<-CR, codegen: true
+      require "../spec_helper"
+
+      module Schema
+        include ADI::Extension::Schema
+
+        object_of config = {id: 123}, id : Int32, name : String?
+      end
+
+      ADI.register_extension "blah", Schema
+
+      macro finished
+        macro finished
+          it { \\{{ADI::CONFIG["blah"]["config"].keys.stringify}}.should eq %([id, name]) }
+          it { \\{{ADI::CONFIG["blah"]["config"]["id"]}}.should eq 123 }
+          it { \\{{ADI::CONFIG["blah"]["config"]["name"]}}.should be_nil }
+        end
+      end
+    CR
+  end
 end

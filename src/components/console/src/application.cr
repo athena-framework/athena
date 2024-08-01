@@ -599,27 +599,46 @@ class Athena::Console::Application
 
       command = self.find command_name
     rescue ex : Exception
-      if !(ex.is_a?(ACON::Exceptions::CommandNotFound) && !ex.is_a?(ACON::Exceptions::NamespaceNotFound)) ||
-         1 != (alternatives = ex.alternatives).size ||
-         !input.interactive?
+      if (ex.is_a?(ACON::Exceptions::CommandNotFound) && !ex.is_a?(ACON::Exceptions::NamespaceNotFound)) &&
+         1 == (alternatives = ex.alternatives).size &&
+         input.interactive?
+        alternative = alternatives.not_nil!.first
+
+        style = ACON::Style::Athena.new input, output
+        output.puts ""
+        output.puts ACON::Helper::Formatter.new.format_block "Command '#{command_name}' is not defined.", "error", true
+
+        unless style.confirm "Do you want to run '#{alternative}' instead?", false
+          # TODO: Handle dispatching
+
+          return ACON::Command::Status::FAILURE
+        end
+
+        command = self.find alternative
+      else
         # TODO: Handle dispatching
 
-        raise ex
+        begin
+          if ex.is_a?(ACON::Exceptions::CommandNotFound) && (namespace = self.find_namespace command_name)
+            ACON::Helper::Descriptor.new.describe(
+              output.is_a?(ACON::Output::ConsoleOutputInterface) ? output.error_output : output,
+              self,
+              ACON::Descriptor::Context.new(
+                format: "txt",
+                raw_text: false,
+                namespace: namespace,
+                short: false
+              )
+            )
+
+            return ACON::Command::Status::SUCCESS
+          end
+
+          raise ex
+        rescue ACON::Exceptions::NamespaceNotFound
+          raise ex
+        end
       end
-
-      alternative = alternatives.not_nil!.first
-
-      style = ACON::Style::Athena.new input, output
-
-      style.block "\nCommand '#{command_name}' is not defined.\n", style: "error"
-
-      unless style.confirm "Do you want to run '#{alternative}' instead?", false
-        # TODO: Handle dispatching
-
-        return ACON::Command::Status::FAILURE
-      end
-
-      command = self.find alternative
     end
 
     @running_command = command
