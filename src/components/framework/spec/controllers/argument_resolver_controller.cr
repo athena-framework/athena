@@ -2,16 +2,16 @@
 class GenericAnnotationEnabledCustomResolver
   include ATHR::Interface
 
-  configuration Enable
+  configuration ::MyResolverAnnotation
 
   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata(Float64)) : Float64?
-    return unless parameter.annotation_configurations.has? Enable
+    return unless parameter.annotation_configurations.has? MyResolverAnnotation
 
     3.14
   end
 
   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata(String)) : String?
-    return unless parameter.annotation_configurations.has? Enable
+    return unless parameter.annotation_configurations.has? MyResolverAnnotation
 
     "fooo"
   end
@@ -24,7 +24,7 @@ end
 class ArgumentResolverController < ATH::Controller
   @[ARTA::Post("/float")]
   def happy_path1(
-    @[GenericAnnotationEnabledCustomResolver::Enable]
+    @[MyResolverAnnotation]
     value : Float64
   ) : Float64
     value
@@ -32,7 +32,7 @@ class ArgumentResolverController < ATH::Controller
 
   @[ARTA::Post("/string")]
   def happy_path2(
-    @[GenericAnnotationEnabledCustomResolver::Enable]
+    @[MyResolverAnnotation]
     value : String
   ) : String
     value

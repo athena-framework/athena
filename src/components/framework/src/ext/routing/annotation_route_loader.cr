@@ -197,16 +197,12 @@ module Athena::Framework::Routing::AnnotationRouteLoader
 
                 # Process custom annotation types
                 ADI::CUSTOM_ANNOTATIONS.each do |ann_class|
-                  ann_class = ann_class.resolve
                   annotations = [] of Nil
 
-                  (arg.annotations ann_class).each do |ann|
+                  (arg.annotations ann_class.resolve).each do |ann|
                     # See if this annotation relates to a typed resolver interface,
                     # checking the namespace the configuration annotation was defined in for the interface.
-                    #
-                    # If there is only 1 part to the annotation's name, we know it was defined in the top level,
-                    # and as such, does not related to a resolver type
-                    resolver = 1 == ann.name.names.size ? false : parse_type(ann.name.names[0..-2].join "::").resolve
+                    resolver = ATH::Controller::ValueResolvers::Interface::ANNOTATION_RESOLVER_MAP[ann_class.id]
 
                     if resolver && (interface = resolver.resolve.ancestors.find &.<=(ATHR::Interface::Typed))
                       supported_types = interface.type_vars.first.type_vars
@@ -219,7 +215,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                     annotations << "#{ann_class}Configuration.new(#{ann.args.empty? ? "".id : "#{ann.args.splat},".id}#{ann.named_args.double_splat})".id
                   end
 
-                  parameter_annotation_configurations[ann_class] = "(#{annotations} of ADI::AnnotationConfigurations::ConfigurationBase)".id unless annotations.empty?
+                  parameter_annotation_configurations[ann_class.resolve] = "(#{annotations} of ADI::AnnotationConfigurations::ConfigurationBase)".id unless annotations.empty?
                 end
 
                 arg.raise "Route action parameter '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction." if arg.restriction.is_a? Nop
