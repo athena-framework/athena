@@ -1,10 +1,10 @@
 # Attempts to resolve the value from the request's query parameters for any parameter with the `ATHA::MapQueryParameter` annotation.
-# Supports most primitive types, as well as arrays of most primitive types, as well as enums.
+# Supports most primitive types, as well as arrays of most primitive types, and enums.
 #
 # The name of the query parameter is assumed to be the same as the controller action parameter's name.
 # This can be customized via the `name` field on the annotation.
 #
-# If the controller action parameter is not-nilable nor has a default value and is missing, an `ATH::Exceptions::NotFound` exception will be raised.
+# If the controller action parameter is not-nilable nor has a default value and is missing, an `ATH::Exceptions::NotFound` exception will be raised by default.
 # Similarly, an exception will be raised if the value fails to be converted to the expected type.
 # The specific type of exception can be customized via the `validation_failed_status` field on the annotation.
 #
