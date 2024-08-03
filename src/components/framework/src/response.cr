@@ -214,6 +214,18 @@ class Athena::Framework::Response
     @headers["last-modified"] = HTTP.format_time time
   end
 
+  # Returns `true` if this response is a redirect, optionally to the provided *location*.
+  # Otherwise, returns `false`.
+  def redirect?(location : String? = nil) : Bool
+    case @status
+    when .created?, .moved_permanently?, .found?, .see_other?, .temporary_redirect?, .permanent_redirect?
+      # valid redirections statuses
+    else return false
+    end
+
+    location ? location == @headers["location"] : location.nil?
+  end
+
   protected def write(output : IO) : Nil
     @writer.write(output, &.print(@content))
   end

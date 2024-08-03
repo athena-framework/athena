@@ -532,7 +532,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
     {% if base == nil %}
       @@actions["Athena::Framework::Controller::Redirect#redirect_url"] = ATH::Action.new(
         action: Proc(Tuple(ATH::Request, String, Bool, String?, Int32?, Int32?, Bool), ATH::RedirectResponse).new do |arguments|
-          Athena::Framework::Controller::Redirect.new.redirect_url *arguments
+          ADI.container.get(Athena::Framework::Controller::Redirect).redirect_url *arguments
         end,
         parameters: {
           ATH::Controller::ParameterMetadata(ATH::Request).new("request"),
