@@ -43,7 +43,7 @@ class Athena::Framework::Controller::Redirect
 
     if "http" == scheme
       if http_port.nil?
-        # TOOD: Get the port off the request once we know scheme
+        # TODO: Get the port off the request once we know scheme
         http_port = @http_port
       end
 
@@ -52,7 +52,7 @@ class Athena::Framework::Controller::Redirect
       end
     elsif "https" == scheme
       if https_port.nil?
-        # TOOD: Get the port off the request once we know scheme
+        # TODO: Get the port off the request once we know scheme
         https_port = @https_port
       end
 
