@@ -47,22 +47,18 @@ class Athena::Framework::Controller::Redirect
         http_port = @http_port
       end
 
-      if !http_port.nil? && 80 != http_port
-        uri.port = http_port
-      end
+      uri.port = http_port
     elsif "https" == scheme
       if https_port.nil?
         # TODO: Get the port off the request once we know scheme
         https_port = @https_port
       end
 
-      if !https_port.nil? && 443 != https_port
-        uri.port = https_port
-      end
+      uri.port = https_port
     end
 
     uri.host = request.hostname
 
-    ATH::RedirectResponse.new uri.to_s, status
+    ATH::RedirectResponse.new uri.normalize!.to_s, status
   end
 end

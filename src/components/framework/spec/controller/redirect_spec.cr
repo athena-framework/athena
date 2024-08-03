@@ -32,6 +32,22 @@ struct RedirectControllerTest < ASPEC::TestCase
     response.status.found?.should be_true
   end
 
+  def test_non_standard_port : Nil
+    request = ATH::Request.new "GET", "/", headers: HTTP::Headers{"host" => "example.com"}
+    controller = ATH::Controller::Redirect.new
+
+    self.assert_redirect_url controller.redirect_url(request, "/foo", scheme: "http", http_port: 90), "http://example.com:90/foo"
+    self.assert_redirect_url controller.redirect_url(request, "/foo", scheme: "https", https_port: 90), "https://example.com:90/foo"
+  end
+
+  def test_falls_back_on_controller_ports : Nil
+    request = ATH::Request.new "GET", "/", headers: HTTP::Headers{"host" => "example.com"}
+    controller = ATH::Controller::Redirect.new 100, 200
+
+    self.assert_redirect_url controller.redirect_url(request, "/foo", scheme: "http"), "http://example.com:100/foo"
+    self.assert_redirect_url controller.redirect_url(request, "/foo", scheme: "https"), "https://example.com:200/foo"
+  end
+
   def test_full_url_with_method_keep : Nil
     request = ATH::Request.new "GET", "/"
     controller = ATH::Controller::Redirect.new
