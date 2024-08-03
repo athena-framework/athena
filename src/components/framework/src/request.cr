@@ -130,6 +130,29 @@ class Athena::Framework::Request
     @request.method.in? "GET", "HEAD", "OPTIONS", "TRACE"
   end
 
+  # Returns the port on which the request is made.
+  #
+  # TODO: Support reading the `#port` from the `X-Forwarded-Port` header if trusted.
+  def port : Int32?
+    unless host = @request.headers["host"]?
+      return
+    end
+
+    pos = if host.starts_with? '['
+            # Assume the host will have a closing `]` if it has a beginning one
+            host.index ':', host.index!(']')
+          else
+            host.index ':'
+          end
+
+    if pos && (port = host[(pos + 1)..]?)
+      return port.to_i
+    end
+
+    # Ideally should default this to something useful once we are able to know the scheme
+    nil
+  end
+
   private def parse_request_data : HTTP::Params
     HTTP::Params.parse @request.body.try(&.gets_to_end) || ""
   end

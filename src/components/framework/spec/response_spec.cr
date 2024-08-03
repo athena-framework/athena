@@ -288,4 +288,26 @@ describe ATH::Response do
       response.last_modified.should be_nil
     end
   end
+
+  describe "#redirect?" do
+    it "valid redirection response" do
+      [301, 302, 303, 307].each do |status|
+        response = ATH::Response.new status: status
+        response.redirect?.should be_true
+      end
+    end
+
+    it "invalid redirection status" do
+      [304, 200, 404].each do |status|
+        ATH::Response.new(status: status).redirect?.should be_false
+      end
+    end
+
+    it "with specific redirect location" do
+      response = ATH::Response.new status: 301, headers: HTTP::Headers{"location" => "/good-uri"}
+      response.redirect?.should be_true
+      response.redirect?("/bad-uri").should be_false
+      response.redirect?("/good-uri").should be_true
+    end
+  end
 end
