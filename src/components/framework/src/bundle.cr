@@ -259,6 +259,15 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
               },
             }
 
+            SERVICE_HASH["athena_framework_controllers_redirect"] = {
+              class:      Athena::Framework::Controller::Redirect,
+              public:     true,
+              parameters: {
+                http_port:  {value: "%framework.request_listener.http_port%"},
+                https_port: {value: "%framework.request_listener.https_port%"},
+              },
+            }
+
             if default_uri = cfg["default_uri"]
               SERVICE_HASH[request_context_id]["parameters"]["uri"]["value"] = default_uri
             end

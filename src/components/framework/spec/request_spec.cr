@@ -69,4 +69,18 @@ struct ATH::RequestTest < ASPEC::TestCase
     ATH::Request.new("POST", "/").safe?.should be_false
     ATH::Request.new("PUT", "/").safe?.should be_false
   end
+
+  def test_port_no_host_header : Nil
+    ATH::Request.new("GET", "/").port.should be_nil
+  end
+
+  @[TestWith(
+    domain: {"test.com:90", 90},
+    ipv4: {"127.0.0.1:90", 90},
+    ipv6: {"[::1]:90", 90},
+    no_port: {"test.com", nil},
+  )]
+  def test_port(host : String, port : Int32?) : Nil
+    ATH::Request.new("GET", "/", headers: HTTP::Headers{"host" => host}).port.should eq port
+  end
 end
