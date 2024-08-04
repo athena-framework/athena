@@ -153,6 +153,19 @@ class Athena::Framework::Request
     nil
   end
 
+  def scheme : String
+    self.secure? ? "https" : "http"
+  end
+
+  # Returns `true` the request was made over HTTPS, otherwise returns `false`
+  #
+  # TODO: Support reading the `#port` from the `X-Forwarded-Proto` header if trusted.
+  def secure? : Bool
+    # TODO: Possibly have this be based on if server was started with `bind_tls`
+    # or if there is eventually some way to access TLS info off `@request`.
+    false
+  end
+
   private def parse_request_data : HTTP::Params
     HTTP::Params.parse @request.body.try(&.gets_to_end) || ""
   end
