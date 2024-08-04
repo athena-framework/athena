@@ -1,3 +1,5 @@
+require "./request"
+
 @[Athena::Framework::Annotations::Bundle("framework")]
 # The Athena Framework Bundle is responsible for integrating the various Athena components into the Athena Framework.
 # This primarily involves wiring up various types as services, and other DI related tasks.
@@ -15,8 +17,10 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
     include ADI::Extension::Schema
 
     # The default locale is used if no [_locale](/Routing/Route/#Athena::Routing::Route--special-parameters) routing parameter has been set.
-    # It is available with the Request::getDefaultLocale method.
     property default_locale : String = "en"
+
+    property trusted_proxies : Array(String)? = nil
+    property trusted_headers : Athena::Framework::Request::ProxyHeader = Athena::Framework::Request::ProxyHeader[:forwarded_for, :forwarded_port, :forwarded_proto]
 
     # Configuration related to the `ATH::Listeners::Format` listener.
     #
@@ -176,6 +180,11 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
             parameters = CONFIG["parameters"]
 
             parameters["framework.default_locale"] = cfg["default_locale"]
+
+            if (trusted_proxies = cfg["trusted_proxies"]) && (trusted_headers = cfg["trusted_headers"])
+              parameters["framework.trusted_proxies"] = trusted_proxies
+              parameters["framework.trusted_headers"] = trusted_headers
+            end
 
             debug = parameters["framework.debug"]
 

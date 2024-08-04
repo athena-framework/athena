@@ -2,6 +2,19 @@
 #
 # Forwards all additional methods to the wrapped `HTTP::Request` instance.
 class Athena::Framework::Request
+  @[Flags]
+  enum ProxyHeader
+    FORWARDED # RFC 7239
+    FORWARDED_FOR
+    FORWARDED_HOST
+    FORWARDED_PROTO
+    FORWARDED_PORT
+    FORWARDED_PREFIX
+
+    FORWARDED_AWS_ELB
+    FORWARDED_TRAEFIK
+  end
+
   # Represents the supported built in formats; mapping the format name to its valid `MIME` type(s).
   #
   # Additional formats may be registered via `.register_format`.
@@ -19,6 +32,12 @@ class Athena::Framework::Request
     "txt"    => Set{"text/plain"},
     "xml"    => Set{"text/xml", "application/xml", "application/x-xml"},
   }
+
+  class_getter trusted_header_set : ATH::Request::ProxyHeader = :none
+  class_getter trusted_proxies : Array(String) = [] of String
+
+  def self.set_trusted_proxies(@@trusted_proxies : Array(String), @@trusted_header_set : ATH::Request::ProxyHeader) : Nil
+  end
 
   # Registers the provided *format* with the provided *mime_types*.
   # Can also be used to change the *mime_types* supported for an existing *format*.
@@ -153,6 +172,7 @@ class Athena::Framework::Request
     nil
   end
 
+  # Returns the scheme of this request.
   def scheme : String
     self.secure? ? "https" : "http"
   end
@@ -163,6 +183,14 @@ class Athena::Framework::Request
   def secure? : Bool
     # TODO: Possibly have this be based on if server was started with `bind_tls`
     # or if there is eventually some way to access TLS info off `@request`.
+    false
+  end
+
+  def from_trusted_proxy? : Bool
+    return false if (trusted_proxies = @@trusted_proxies).empty?
+
+    pp trusted_proxies, @request.remote_address
+
     false
   end
 

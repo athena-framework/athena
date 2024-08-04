@@ -214,6 +214,11 @@ module Athena::Framework
     end
 
     def start : Nil
+      # TOOD: Is there a better place to do this?
+      {% if (trusted_proxies = ADI::CONFIG["parameters"]["framework.trusted_proxies"]) && (trusted_headers = ADI::CONFIG["parameters"]["framework.trusted_headers"]) %}
+        ATH::Request.set_trusted_proxies({{trusted_proxies}}, {{trusted_headers}})
+      {% end %}
+
       {% if flag?(:without_openssl) %}
         @server.bind_tcp @host, @port, reuse_port: @reuse_port
       {% else %}
@@ -235,3 +240,24 @@ module Athena::Framework
 end
 
 ATH.register_bundle ATH::Bundle
+
+ATH.configure({
+  framework: {
+    trusted_proxies: ["192.0.0.1"],
+  },
+})
+
+class ExampleController < ATH::Controller
+  @[ARTA::Get("/")]
+  def root(request : ATH::Request) : String
+    pp request.from_trusted_proxy?
+
+    request.scheme
+  end
+end
+
+tls = OpenSSL::SSL::Context::Server.new
+tls.certificate_chain = "./localhost.crt"
+tls.private_key = "./localhost.key"
+
+ATH.run ssl_context: tls
