@@ -97,15 +97,7 @@ class Athena::Framework::Request
   # Returns the raw wrapped `HTTP::Request` instance.
   getter request : HTTP::Request
 
-  private getter trusted_proxies : Array(String)? do
-    return if (trusted_proxies = @@trusted_proxies).empty?
-    return unless (remote_address = self.remote_address)
-
-    trusted_proxies.map do |proxy|
-      "REMOTE_ADDRESS" == proxy ? remote_address : proxy
-    end
-  end
-
+  @is_host_valid : Bool = true
   @is_forwarded_valid : Bool = true
 
   @trusted_values_cache = Hash(String, Array(String)).new
@@ -154,10 +146,28 @@ class Athena::Framework::Request
   end
 
   # Returns the host name the request originated from.
-  #
-  # TODO: Support reading the `#hostname` from the `X-Forwarded-Host` header if trusted.
   def hostname : String?
-    @request.hostname
+    if self.from_trusted_proxy? && (host = self.get_trusted_values(ProxyHeader::FORWARDED_HOST))
+      host = host.first
+    elsif !(host = @request.headers["host"]?)
+      return
+    end
+
+    # Trim and ensure there is no port number
+    # downcase as per RFC 952/2181
+    host = host.strip.gsub(/:\d+$/, "").downcase
+
+    # Ensure host does not contain forbidden characters as pert RFC 952/2181
+    if host.presence && !host.gsub(/(?:^\[)?[a-zA-Z0-9-:\]_]+\.?/, "").empty?
+      return unless @is_host_valid
+      @is_host_valid = false
+
+      raise ATH::Exceptions::SuspiciousOperation.new "Invalid Host: '#{host}'."
+    end
+
+    # TODO: Trusted hosts
+
+    host
   end
 
   # Returns an `HTTP::Params` instance based on this request's form data body.
@@ -188,7 +198,11 @@ class Athena::Framework::Request
   #
   # TODO: Support reading the `#port` from the `X-Forwarded-Port` header if trusted.
   def port : Int32?
-    unless host = @request.headers["host"]?
+    if self.from_trusted_proxy? && (host = self.get_trusted_values(ProxyHeader::FORWARDED_PORT))
+      host = host.first
+    elsif self.from_trusted_proxy? && (host = self.get_trusted_values(ProxyHeader::FORWARDED_HOST))
+      host = host.first
+    elsif !(host = @request.headers["host"]?)
       return
     end
 
@@ -203,8 +217,7 @@ class Athena::Framework::Request
       return port.to_i
     end
 
-    # Ideally should default this to something useful once we are able to know the scheme
-    nil
+    self.secure? ? 443 : 80
   end
 
   # Returns the scheme of this request.
@@ -216,8 +229,8 @@ class Athena::Framework::Request
   #
   # TODO: Support reading the `#port` from the `X-Forwarded-Proto` header if trusted.
   def secure? : Bool
-    if self.from_trusted_proxy? && (proto = self.get_trusted_values(ATH::Request::ProxyHeader::FORWARDED_PROTO))
-      return proto[0].in? "https", "on", "ssl", "1"
+    if self.from_trusted_proxy? && (proto = self.get_trusted_values(ProxyHeader::FORWARDED_PROTO))
+      return proto.first.in? "https", "on", "ssl", "1"
     end
 
     # TODO: Possibly have this be based on if server was started with `bind_tls`
@@ -226,13 +239,14 @@ class Athena::Framework::Request
   end
 
   def from_trusted_proxy? : Bool
-    return false unless (trusted_proxies = self.trusted_proxies)
-    return false unless (remote_address = self.remote_address)
+    return false unless trusted_proxies = self.trusted_proxies
+    return false unless remote_address = self.remote_address
 
     ATH::IPUtils.check remote_address, trusted_proxies
   end
 
-  private def get_trusted_values(type : ATH::Request::ProxyHeader) : Array(String)
+  # ameba:disable Metrics/CyclomaticComplexity:
+  private def get_trusted_values(type : ProxyHeader) : Array(String)
     cache_key = "#{type}-#{@@trusted_header_set.includes?(type) ? @request.headers[type.header]? : ""}-#{@request.headers[ProxyHeader::FORWARDED.header]?}"
 
     if result = @trusted_values_cache[cache_key]?
@@ -285,6 +299,15 @@ class Athena::Framework::Request
     @is_forwarded_valid = false
 
     raise "Oh noes"
+  end
+
+  private def trusted_proxies : Array(String)?
+    return if (trusted_proxies = @@trusted_proxies).empty?
+    return unless remote_address = self.remote_address
+
+    trusted_proxies.map do |proxy|
+      "REMOTE_ADDRESS" == proxy ? remote_address : proxy
+    end
   end
 
   private def remote_address : String?

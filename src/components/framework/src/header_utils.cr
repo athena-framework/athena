@@ -187,10 +187,10 @@ module Athena::Framework::HeaderUtils
       end
     end
 
-    part_matches.each_value.map do |matches|
-      if separators.empty? && (unquoted = self.unquote matches[0][0].to_s) && !unquoted.empty?
+    part_matches.each_value.map do |m|
+      if separators.empty? && (unquoted = self.unquote m[0][0].to_s) && !unquoted.empty?
         unquoted
-      elsif (grouped_parts = self.group_parts(matches, separators, false))
+      elsif grouped_parts = self.group_parts(m, separators, false)
         grouped_parts
       end
     end.to_a

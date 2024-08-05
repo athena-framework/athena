@@ -215,7 +215,7 @@ module Athena::Framework
     end
 
     def start : Nil
-      # TOOD: Is there a better place to do this?
+      # TODO: Is there a better place to do this?
       {% if (trusted_proxies = ADI::CONFIG["parameters"]["framework.trusted_proxies"]) && (trusted_headers = ADI::CONFIG["parameters"]["framework.trusted_headers"]) %}
         ATH::Request.set_trusted_proxies({{trusted_proxies}}, {{trusted_headers}})
       {% end %}

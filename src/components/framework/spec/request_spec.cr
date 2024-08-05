@@ -1,6 +1,10 @@
 require "./spec_helper"
 
 struct ATH::RequestTest < ASPEC::TestCase
+  def tear_down : Nil
+    ATH::Request.set_trusted_proxies [] of String, :none
+  end
+
   def test_hostname : Nil
     request = ATH::Request.new "GET", "/"
     request.hostname.should be_nil
@@ -61,6 +65,93 @@ struct ATH::RequestTest < ASPEC::TestCase
     }
   end
 
+  def test_trusted_proxies_forwarded_for : Nil
+    request = ATH::Request.new("GET", "/", headers: HTTP::Headers{
+      "host"              => "example.com",
+      "x-forwarded-for"   => "1.1.1.1, 2.2.2.2",
+      "x-forwarded-host"  => "foo.example.com:1234, real.example.com:8080",
+      "x-forwarded-proto" => "https",
+      "x-forwarded-port"  => "443",
+    })
+    request.remote_address = Socket::IPAddress.v4 3, 3, 3, 3, port: 1
+
+    # No trusted proxies
+    request.from_trusted_proxy?.should be_false
+    request.hostname.should eq "example.com"
+    request.port.should eq 80
+    request.secure?.should be_false
+
+    # Disabling proxy trusting
+    ATH::Request.set_trusted_proxies [] of String, :forwarded_for
+    request.from_trusted_proxy?.should be_false
+    request.hostname.should eq "example.com"
+    request.port.should eq 80
+    request.secure?.should be_false
+
+    # Request is from non trusted proxy
+    ATH::Request.set_trusted_proxies ["2.2.2.2"], :forwarded_for
+    request.from_trusted_proxy?.should be_false
+    request.hostname.should eq "example.com"
+    request.port.should eq 80
+    request.secure?.should be_false
+
+    # Trusted proxy
+    ATH::Request.set_trusted_proxies ["3.3.3.3", "2.2.2.2"], ATH::Request::ProxyHeader[:forwarded_for, :forwarded_host, :forwarded_port, :forwarded_proto]
+    request.from_trusted_proxy?.should be_true
+    request.hostname.should eq "foo.example.com"
+    request.port.should eq 443
+    request.secure?.should be_true
+
+    # Trusted proxy
+    ATH::Request.set_trusted_proxies ["3.3.3.4", "2.2.2.2"], ATH::Request::ProxyHeader[:forwarded_for, :forwarded_host, :forwarded_port, :forwarded_proto]
+    request.from_trusted_proxy?.should be_false
+    request.hostname.should eq "example.com"
+    request.port.should eq 80
+    request.secure?.should be_false
+
+    # Alternate proto header values
+    ATH::Request.set_trusted_proxies ["3.3.3.3"], :forwarded_proto
+    request.headers["x-forwarded-proto"] = "ssl"
+    request.secure?.should be_true
+
+    request.headers["x-forwarded-proto"] = "https, http"
+    request.secure?.should be_true
+  end
+
+  @[TestWith(
+    { %(a#{".a"*40_000}) },
+    {":" * 101}
+  )]
+  def test_very_long_hosts(host : String) : Nil
+    request = ATH::Request.new "GET", "/", headers: HTTP::Headers{"host" => host}
+    request.hostname.should eq host
+  end
+
+  @[TestWith(
+    {".a", false, nil, nil},
+    {"a..", false, nil, nil},
+    {"a.", true, nil, nil},
+    {"é", false, nil, nil},
+    {"[::1]", true, nil, nil},
+    {"[::1]:80", true, "[::1]", 80},
+    {"." * 101, false, nil, nil},
+  )]
+  def test_host_valididy(host : String, is_valid : Bool, expected_host : String?, expected_port : Int32?) : Nil
+    request = ATH::Request.new "GET", "/", headers: HTTP::Headers{"host" => host}
+
+    if is_valid
+      request.hostname.should eq expected_host || host
+
+      if expected_port
+        request.port.should eq expected_port
+      end
+    else
+      expect_raises ATH::Exceptions::SuspiciousOperation, "Invalid Host: " do
+        request.hostname
+      end
+    end
+  end
+
   def test_safe? : Nil
     ATH::Request.new("GET", "/").safe?.should be_true
     ATH::Request.new("HEAD", "/").safe?.should be_true
@@ -78,7 +169,7 @@ struct ATH::RequestTest < ASPEC::TestCase
     domain: {"test.com:90", 90},
     ipv4: {"127.0.0.1:90", 90},
     ipv6: {"[::1]:90", 90},
-    no_port: {"test.com", nil},
+    no_port: {"test.com", 80},
   )]
   def test_port(host : String, port : Int32?) : Nil
     ATH::Request.new("GET", "/", headers: HTTP::Headers{"host" => host}).port.should eq port

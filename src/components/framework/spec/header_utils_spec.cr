@@ -1,6 +1,5 @@
 require "./spec_helper"
 
-@[ASPEC::TestCase::Focus]
 struct ATH::HeaderUtilsTest < ASPEC::TestCase
   @[TestWith(
     {"foo", "foo"},
