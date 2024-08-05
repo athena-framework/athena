@@ -147,7 +147,7 @@ class Athena::Framework::Request
 
   # Returns the host name the request originated from.
   def hostname : String?
-    if self.from_trusted_proxy? && (host = self.get_trusted_values(ProxyHeader::FORWARDED_HOST))
+    if self.from_trusted_proxy? && (host = self.get_trusted_values(ProxyHeader::FORWARDED_HOST)) && !host.empty?
       host = host.first
     elsif !(host = @request.headers["host"]?)
       return
@@ -198,9 +198,9 @@ class Athena::Framework::Request
   #
   # TODO: Support reading the `#port` from the `X-Forwarded-Port` header if trusted.
   def port : Int32?
-    if self.from_trusted_proxy? && (host = self.get_trusted_values(ProxyHeader::FORWARDED_PORT))
+    if self.from_trusted_proxy? && (host = self.get_trusted_values(ProxyHeader::FORWARDED_PORT)) && !host.empty?
       host = host.first
-    elsif self.from_trusted_proxy? && (host = self.get_trusted_values(ProxyHeader::FORWARDED_HOST))
+    elsif self.from_trusted_proxy? && (host = self.get_trusted_values(ProxyHeader::FORWARDED_HOST)) && !host.empty?
       host = host.first
     elsif !(host = @request.headers["host"]?)
       return
@@ -229,8 +229,8 @@ class Athena::Framework::Request
   #
   # TODO: Support reading the `#port` from the `X-Forwarded-Proto` header if trusted.
   def secure? : Bool
-    if self.from_trusted_proxy? && (proto = self.get_trusted_values(ProxyHeader::FORWARDED_PROTO))
-      return proto.first.in? "https", "on", "ssl", "1"
+    if self.from_trusted_proxy? && (proto = self.get_trusted_values(ProxyHeader::FORWARDED_PROTO)) && !proto.empty?
+      return proto.first.downcase.in? "https", "on", "ssl", "1"
     end
 
     # TODO: Possibly have this be based on if server was started with `bind_tls`
@@ -258,7 +258,7 @@ class Athena::Framework::Request
 
     if @@trusted_header_set.includes?(type) && (header_value = @request.headers[type.header]?)
       header_value.split(',').each do |part|
-        client_values << "#{type.forwarded_port? ? "0.0.0.0" : ""}#{part.strip}"
+        client_values << "#{type.forwarded_port? ? "0.0.0.0:" : ""}#{part.strip}"
       end
     end
 

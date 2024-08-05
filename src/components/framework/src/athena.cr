@@ -242,21 +242,21 @@ end
 
 ATH.register_bundle ATH::Bundle
 
-ATH.configure({
-  framework: {
-    trusted_proxies: ["REMOTE_ADDRESS"],
-  },
-})
+# ATH.configure({
+#   framework: {
+#     trusted_proxies: ["REMOTE_ADDRESS"],
+#   },
+# })
 
-class ExampleController < ATH::Controller
-  @[ARTA::Get("/")]
-  def root(request : ATH::Request) : String
-    request.scheme # => https
-  end
-end
+# class ExampleController < ATH::Controller
+#   @[ARTA::Get("/")]
+#   def root(request : ATH::Request) : String
+#     request.scheme # => https
+#   end
+# end
 
-tls = OpenSSL::SSL::Context::Server.new
-tls.certificate_chain = "./localhost.crt"
-tls.private_key = "./localhost.key"
+# tls = OpenSSL::SSL::Context::Server.new
+# tls.certificate_chain = "./localhost.crt"
+# tls.private_key = "./localhost.key"
 
-ATH.run ssl_context: tls
+# ATH.run ssl_context: tls

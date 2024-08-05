@@ -174,4 +174,102 @@ struct ATH::RequestTest < ASPEC::TestCase
   def test_port(host : String, port : Int32?) : Nil
     ATH::Request.new("GET", "/", headers: HTTP::Headers{"host" => host}).port.should eq port
   end
+
+  def test_port_trusted_proxies_none_set : Nil
+    request = ATH::Request.new("GET", "/", headers: HTTP::Headers{
+      "host"              => "example.com",
+      "x-forwarded-proto" => "https",
+      "x-forwarded-port"  => "443",
+    })
+
+    # Ignored without trusted proxy
+    request.port.should eq 80
+  end
+
+  def test_port_trusted_proxies_proto_port_set : Nil
+    ATH::Request.set_trusted_proxies ["1.1.1.1"], ATH::Request::ProxyHeader[:forwarded_proto, :forwarded_port]
+    request = ATH::Request.new("GET", "/", headers: HTTP::Headers{
+      "host"              => "example.com",
+      "x-forwarded-proto" => "https",
+      "x-forwarded-port"  => "8443",
+    })
+
+    # Falls back on scheme on untrusted connection
+    request.port.should eq 80
+
+    # Uses proxy value if trusted
+    request.remote_address = Socket::IPAddress.v4 1, 1, 1, 1, port: 1
+    request.port.should eq 8443
+  end
+
+  def test_port_trusted_proxies_proto_set_https : Nil
+    ATH::Request.set_trusted_proxies ["1.1.1.1"], ATH::Request::ProxyHeader[:forwarded_proto, :forwarded_port]
+    request = ATH::Request.new("GET", "/", headers: HTTP::Headers{
+      "host"              => "example.com",
+      "x-forwarded-proto" => "https",
+    })
+
+    # Falls back on scheme on untrusted connection
+    request.port.should eq 80
+
+    # With only proto, falls back on default port for this scheme
+    request.remote_address = Socket::IPAddress.v4 1, 1, 1, 1, port: 1
+    request.port.should eq 443
+  end
+
+  def test_port_trusted_proxies_proto_set_http : Nil
+    ATH::Request.set_trusted_proxies ["1.1.1.1"], ATH::Request::ProxyHeader[:forwarded_proto, :forwarded_port]
+    request = ATH::Request.new("GET", "/", headers: HTTP::Headers{
+      "host"              => "example.com",
+      "x-forwarded-proto" => "http",
+    })
+
+    # Falls back on scheme on untrusted connection
+    request.port.should eq 80
+
+    # With only proto, falls back on default port for this scheme
+    request.remote_address = Socket::IPAddress.v4 1, 1, 1, 1, port: 1
+    request.port.should eq 80
+  end
+
+  def test_port_trusted_proxies_proto_on : Nil
+    ATH::Request.set_trusted_proxies ["1.1.1.1"], ATH::Request::ProxyHeader[:forwarded_proto, :forwarded_port]
+    request = ATH::Request.new("GET", "/", headers: HTTP::Headers{
+      "host"              => "example.com",
+      "x-forwarded-proto" => "On",
+    })
+
+    # Falls back on scheme on untrusted connection
+    request.port.should eq 80
+
+    # With only proto, falls back on default port for this scheme
+    request.remote_address = Socket::IPAddress.v4 1, 1, 1, 1, port: 1
+    request.port.should eq 443
+  end
+
+  def test_port_trusted_proxies_proto_one : Nil
+    ATH::Request.set_trusted_proxies ["1.1.1.1"], ATH::Request::ProxyHeader[:forwarded_proto, :forwarded_port]
+    request = ATH::Request.new("GET", "/", headers: HTTP::Headers{
+      "host"              => "example.com",
+      "x-forwarded-proto" => "1",
+    })
+
+    # Falls back on scheme on untrusted connection
+    request.port.should eq 80
+
+    # With only proto, falls back on default port for this scheme
+    request.remote_address = Socket::IPAddress.v4 1, 1, 1, 1, port: 1
+    request.port.should eq 443
+  end
+
+  def test_port_trusted_proxies_proto_invalid : Nil
+    ATH::Request.set_trusted_proxies ["1.1.1.1"], ATH::Request::ProxyHeader[:forwarded_proto, :forwarded_port]
+    request = ATH::Request.new("GET", "/", headers: HTTP::Headers{
+      "host"              => "example.com",
+      "x-forwarded-proto" => "foo",
+    })
+
+    request.remote_address = Socket::IPAddress.v4 1, 1, 1, 1, port: 1
+    request.port.should eq 80
+  end
 end
