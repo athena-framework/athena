@@ -1,14 +1,28 @@
 require "./spec_helper"
 
+@[ASPEC::TestCase::Focus]
 struct ATH::HeaderUtilsTest < ASPEC::TestCase
-  def test_unquote : Nil
-    ATH::HeaderUtils.unquote("foo").should eq "foo"
-    ATH::HeaderUtils.unquote("az09!#$%&'*.^_`|~-").should eq "az09!#$%&'*.^_`|~-"
-    ATH::HeaderUtils.unquote("\"foo bar\"").should eq "foo bar"
-    ATH::HeaderUtils.unquote("\"foo [bar]\"").should eq "foo [bar]"
-    ATH::HeaderUtils.unquote("\"foo \\\"bar\\\"\"").should eq "foo \"bar\""
-    ATH::HeaderUtils.unquote("\"foo \\\"\\b\\a\\r\\\"\"").should eq "foo \"bar\""
-    ATH::HeaderUtils.unquote("\"foo \\\\ bar\"").should eq "foo \\ bar"
+  @[TestWith(
+    {"foo", "foo"},
+    {"az09!#$%&'*.^_`|~-", "az09!#$%&'*.^_`|~-"},
+    {"\"foo bar\"", "foo bar"},
+    {"\"foo [bar]\"", "foo [bar]"},
+    {"\"foo \\\"bar\\\"\"", "foo \"bar\""},
+    {"\"foo \\\"\\b\\a\\r\\\"\"", "foo \"bar\""},
+    {"\"foo \\\\ bar\"", "foo \\ bar"},
+  )]
+  def test_unquote(input : String, expected : String) : Nil
+    ATH::HeaderUtils.unquote(input).should eq expected
+  end
+
+  @[TestWith(
+    {[["foo", "123"]], {"foo" => "123"}},
+    {[["foo"]], {"foo" => true}},
+    {[["Foo"]], {"foo" => true}},
+    {[["foo", "123"], ["bar"]], {"foo" => "123", "bar" => true}}
+  )]
+  def test_combine(input : Array, expected : Hash) : Nil
+    ATH::HeaderUtils.combine(input).should eq expected
   end
 
   def test_to_string : Nil

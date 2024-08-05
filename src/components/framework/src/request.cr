@@ -249,8 +249,26 @@ class Athena::Framework::Request
     end
 
     if @@trusted_header_set.includes?(ProxyHeader::FORWARDED) && (forwarded_param = type.forwarded_param) && (forwarded = @request.headers[ProxyHeader::FORWARDED.header]?)
-      # TODO: Support `forwarded` header
-      return [] of String
+      parts = ATH::HeaderUtils.split forwarded, ",;="
+      param = type.forwarded_param
+
+      parts.each do |sub_parts|
+        # In this particular context compiler gets confused, so lets make it happy by skipping unexpected typed parts, which should never happen.
+        next unless sub_parts.is_a?(Array(Array(String)))
+
+        unless v = HeaderUtils.combine(sub_parts)[param]?.as?(String?)
+          next
+        end
+
+        if type.forwarded_port?
+          if v.ends_with?(']') || v.rindex(':').nil?
+            v = self.secure? ? ":443" : ":80"
+          end
+
+          v = "0.0.0.0#{v}"
+        end
+        forwarded_values << v
+      end
     end
 
     if forwarded_values == client_values || client_values.empty?

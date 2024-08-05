@@ -109,6 +109,15 @@ module Athena::Framework::HeaderUtils
     self.group_parts matches.map &.to_a, separators
   end
 
+  def self.combine(parts : Enumerable(Enumerable(String))) : Hash(String, String | Bool)
+    parts.each_with_object({} of String => String | Bool) do |part, hash|
+      next if part.is_a?(String)
+      next if part.nil?
+
+      hash[part[0].downcase] = part[1]? || true
+    end
+  end
+
   # Joins the provided key/value *parts* into a string for use within an `HTTP` header.
   #
   # The key and value of each entry is joined with `=`, quoting the value if needed.
