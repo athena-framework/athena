@@ -26,6 +26,15 @@ class Athena::Framework::Request
         raise "BUG: requested header of unexpected proxy header type"
       end
     end
+
+    def forwarded_param : String?
+      case self
+      when .forwarded_for?   then "for"
+      when .forwarded_host?  then "host"
+      when .forwarded_proto? then "proto"
+      when .forwarded_port?  then "host"
+      end
+    end
   end
 
   # Represents the supported built in formats; mapping the format name to its valid `MIME` type(s).
@@ -223,8 +232,8 @@ class Athena::Framework::Request
     ATH::IPUtils.check remote_address, trusted_proxies
   end
 
-  private def get_trusted_values(type : ATH::Request::ProxyHeader, ip : String? = nil) : Array(String)
-    cache_key = "#{type}-#{@@trusted_header_set.includes?(type) ? @request.headers[type.header]? : ""}-#{ip}-#{@request.headers[ATH::Request::ProxyHeader::FORWARDED.header]?}"
+  private def get_trusted_values(type : ATH::Request::ProxyHeader) : Array(String)
+    cache_key = "#{type}-#{@@trusted_header_set.includes?(type) ? @request.headers[type.header]? : ""}-#{@request.headers[ProxyHeader::FORWARDED.header]?}"
 
     if result = @trusted_values_cache[cache_key]?
       return result
@@ -239,8 +248,9 @@ class Athena::Framework::Request
       end
     end
 
-    if ip
-      # TODO: This
+    if @@trusted_header_set.includes?(ProxyHeader::FORWARDED) && (forwarded_param = type.forwarded_param) && (forwarded = @request.headers[ProxyHeader::FORWARDED.header]?)
+      # TODO: Support `forwarded` header
+      return [] of String
     end
 
     if forwarded_values == client_values || client_values.empty?
@@ -252,7 +262,7 @@ class Athena::Framework::Request
     end
 
     unless @is_forwarded_valid
-      return @trusted_values_cache[cache_key] = ip ? ["0.0.0.0", ip] : [] of String
+      return @trusted_values_cache[cache_key] = [] of String
     end
     @is_forwarded_valid = false
 

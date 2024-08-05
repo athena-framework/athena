@@ -60,6 +60,10 @@ module Athena::Framework::HeaderUtils
     end
   end
 
+  def self.unquote(string : String) : String
+    string.gsub /\\(.)|"/, "\\1"
+  end
+
   def self.parse(header : String) : Hash(String, String | Bool)
     values = Hash(String, String | Bool).new
 
@@ -77,6 +81,32 @@ module Athena::Framework::HeaderUtils
     end
 
     values
+  end
+
+  def self.split(header : String, separators : String) : Array
+    raise ArgumentError.new "At least one separator must be specified." if separators.blank?
+
+    quoted_separators = Regex.escape separators
+
+    matches = header.strip.scan(
+      /
+      (?!\s)
+        (?:
+          # quoted-string
+          "(?:[^"\\]|\\.)*(?:"|\\|$)
+        |
+          # token
+          [^"#{quoted_separators}]+
+        )+
+      (?<!\s)
+    |
+      # separator
+      \s*
+      (?<separator>[#{quoted_separators}])
+      \s*
+    /x)
+
+    self.group_parts matches.map &.to_a, separators
   end
 
   # Joins the provided key/value *parts* into a string for use within an `HTTP` header.
@@ -115,5 +145,45 @@ module Athena::Framework::HeaderUtils
         HTTP.quote_string v.to_s, join_io
       end
     end
+  end
+
+  private def self.group_parts(matches : Array, separators : String, first : Bool = true) : Array
+    separator = separators[0].to_s
+    separators = separators[1..].to_s
+    i = 0
+
+    if separators.empty? && !first
+      parts = [""]
+
+      matches.each do |match|
+        if i.zero? && !match[1]?.nil?
+          i = 1
+          parts.insert 1, ""
+        else
+          parts[i] += self.unquote match.not_nil![0].not_nil!.to_s
+        end
+      end
+
+      return parts
+    end
+
+    parts = [] of String
+    part_matches = Hash(Int32, Array(Array(String?))).new { |hash, key| hash[key] = Array(Array(String?)).new }
+
+    matches.each do |match|
+      if match[1]? == separator
+        i += 1
+      else
+        part_matches[i] << match
+      end
+    end
+
+    part_matches.each_value.map do |matches|
+      if separators.empty? && (unquoted = self.unquote matches[0][0].to_s) && !unquoted.empty?
+        unquoted
+      elsif (grouped_parts = self.group_parts(matches, separators, false))
+        grouped_parts
+      end
+    end.to_a
   end
 end
