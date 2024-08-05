@@ -189,8 +189,6 @@ class Athena::Framework::Request
   def from_trusted_proxy? : Bool
     return false if (trusted_proxies = @@trusted_proxies).empty?
 
-    pp trusted_proxies, @request.remote_address
-
     false
   end
 
