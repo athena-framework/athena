@@ -244,16 +244,14 @@ ATH.register_bundle ATH::Bundle
 
 ATH.configure({
   framework: {
-    trusted_proxies: ["192.0.0.1"],
+    trusted_proxies: ["REMOTE_ADDRESS"],
   },
 })
 
 class ExampleController < ATH::Controller
   @[ARTA::Get("/")]
   def root(request : ATH::Request) : String
-    pp request.from_trusted_proxy?
-
-    request.scheme
+    request.scheme # => https
   end
 end
 

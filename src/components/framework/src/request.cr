@@ -13,6 +13,19 @@ class Athena::Framework::Request
 
     FORWARDED_AWS_ELB
     FORWARDED_TRAEFIK
+
+    def header : String
+      case self
+      when .forwarded?        then "forwarded"
+      when .forwarded_for?    then "x-forwarded-for"
+      when .forwarded_host?   then "x-forwarded-host"
+      when .forwarded_proto?  then "x-forwarded-proto"
+      when .forwarded_port?   then "x-forwarded-port"
+      when .forwarded_prefix? then "x-forwarded-prefix"
+      else
+        raise "BUG: requested header of unexpected proxy header type"
+      end
+    end
   end
 
   # Represents the supported built in formats; mapping the format name to its valid `MIME` type(s).
@@ -74,6 +87,19 @@ class Athena::Framework::Request
 
   # Returns the raw wrapped `HTTP::Request` instance.
   getter request : HTTP::Request
+
+  private getter trusted_proxies : Array(String)? do
+    return if (trusted_proxies = @@trusted_proxies).empty?
+    return unless (remote_address = self.remote_address)
+
+    trusted_proxies.map do |proxy|
+      "REMOTE_ADDRESS" == proxy ? remote_address : proxy
+    end
+  end
+
+  @is_forwarded_valid : Bool = true
+
+  @trusted_values_cache = Hash(String, Array(String)).new
 
   # :nodoc:
   forward_missing_to @request
@@ -181,15 +207,62 @@ class Athena::Framework::Request
   #
   # TODO: Support reading the `#port` from the `X-Forwarded-Proto` header if trusted.
   def secure? : Bool
+    if self.from_trusted_proxy? && (proto = self.get_trusted_values(ATH::Request::ProxyHeader::FORWARDED_PROTO))
+      return proto[0].in? "https", "on", "ssl", "1"
+    end
+
     # TODO: Possibly have this be based on if server was started with `bind_tls`
     # or if there is eventually some way to access TLS info off `@request`.
     false
   end
 
   def from_trusted_proxy? : Bool
-    return false if (trusted_proxies = @@trusted_proxies).empty?
+    return false unless (trusted_proxies = self.trusted_proxies)
+    return false unless (remote_address = self.remote_address)
 
-    false
+    ATH::IPUtils.check remote_address, trusted_proxies
+  end
+
+  private def get_trusted_values(type : ATH::Request::ProxyHeader, ip : String? = nil) : Array(String)
+    cache_key = "#{type}-#{@@trusted_header_set.includes?(type) ? @request.headers[type.header]? : ""}-#{ip}-#{@request.headers[ATH::Request::ProxyHeader::FORWARDED.header]?}"
+
+    if result = @trusted_values_cache[cache_key]?
+      return result
+    end
+
+    client_values = [] of String
+    forwarded_values = [] of String
+
+    if @@trusted_header_set.includes?(type) && (header_value = @request.headers[type.header]?)
+      header_value.split(',').each do |part|
+        client_values << "#{type.forwarded_port? ? "0.0.0.0" : ""}#{part.strip}"
+      end
+    end
+
+    if ip
+      # TODO: This
+    end
+
+    if forwarded_values == client_values || client_values.empty?
+      return @trusted_values_cache[cache_key] = forwarded_values
+    end
+
+    if forwarded_values.empty?
+      return @trusted_values_cache[cache_key] = client_values
+    end
+
+    unless @is_forwarded_valid
+      return @trusted_values_cache[cache_key] = ip ? ["0.0.0.0", ip] : [] of String
+    end
+    @is_forwarded_valid = false
+
+    raise "Oh noes"
+  end
+
+  private def remote_address : String?
+    return unless (remote_address = @request.remote_address).is_a? Socket::IPAddress
+
+    remote_address.address
   end
 
   private def parse_request_data : HTTP::Params
