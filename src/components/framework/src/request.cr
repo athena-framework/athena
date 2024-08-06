@@ -146,7 +146,7 @@ class Athena::Framework::Request
   end
 
   # Returns the host name the request originated from.
-  def hostname : String?
+  def host : String?
     if self.from_trusted_proxy? && (host = self.get_trusted_values(ProxyHeader::FORWARDED_HOST)) && !host.empty?
       host = host.first
     elsif !(host = @request.headers["host"]?)
