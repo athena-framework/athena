@@ -9,19 +9,14 @@ class Athena::Framework::Request
     FORWARDED_HOST
     FORWARDED_PROTO
     FORWARDED_PORT
-    FORWARDED_PREFIX
-
-    FORWARDED_AWS_ELB
-    FORWARDED_TRAEFIK
 
     def header : String
       case self
-      when .forwarded?        then "forwarded"
-      when .forwarded_for?    then "x-forwarded-for"
-      when .forwarded_host?   then "x-forwarded-host"
-      when .forwarded_proto?  then "x-forwarded-proto"
-      when .forwarded_port?   then "x-forwarded-port"
-      when .forwarded_prefix? then "x-forwarded-prefix"
+      when .forwarded?       then "forwarded"
+      when .forwarded_for?   then "x-forwarded-for"
+      when .forwarded_host?  then "x-forwarded-host"
+      when .forwarded_proto? then "x-forwarded-proto"
+      when .forwarded_port?  then "x-forwarded-port"
       else
         raise "BUG: requested header of unexpected proxy header type"
       end
