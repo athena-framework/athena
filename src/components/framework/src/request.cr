@@ -1,13 +1,26 @@
 # Wraps an [HTTP::Request](https://crystal-lang.org/api/HTTP/Request.html) instance to provide additional functionality.
 #
-# Forwards all additional methods to the wrapped `HTTP::Request` instance.
+# Forwards all additional methods to the wrapped [`HTTP::Request`](https://crystal-lang.org/api/HTTP/Request.html) instance.
 class Athena::Framework::Request
+  # Represents the supported [Proxy Headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Proxy_servers_and_tunneling#forwarding_client_information_through_proxies).
+  # Can be used via `ATH::Request.set_trusted_proxies` to whitelist which headers are allowed.
+  #
+  # See the [external documentation](/Framework/guides/proxies) for more information.
   @[Flags]
   enum ProxyHeader
-    FORWARDED # RFC 7239
+    # The [`forwarded`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Forwarded) header as defined by [RFC 7239](https://datatracker.ietf.org/doc/html/rfc7239).
+    FORWARDED
+
+    # The [`x-forwarded-for`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For) header.
     FORWARDED_FOR
+
+    # The [`x-forwarded-host`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host) header.
     FORWARDED_HOST
+
+    # The [`x-forwarded-proto`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto) header.
     FORWARDED_PROTO
+
+    # Similar to `FORWARDED_HOST`, but exclusive to the port number.
     FORWARDED_PORT
 
     def header : String
@@ -50,10 +63,18 @@ class Athena::Framework::Request
     "xml"    => Set{"text/xml", "application/xml", "application/x-xml"},
   }
 
+  # Returns which `ATH::Request::ProxyHeader`s have been whitelisted by the application, defaulting to all of them.
   class_getter trusted_header_set : ATH::Request::ProxyHeader = :all
-  class_getter trusted_proxies : Array(String) = [] of String
 
-  def self.set_trusted_proxies(@@trusted_proxies : Array(String), @@trusted_header_set : ATH::Request::ProxyHeader) : Nil
+  # Returns the list of trusted proxy IP addresses.
+  class_getter trusted_proxies : Enumerable(String) = [] of String
+
+  # Allows setting a list of *trusted_proxies*, and which `ATH::Request::ProxyHeader` should be whitelisted.
+  # The provided proxies are expected to be either IPv4 and/or IPv6 addresses.
+  # The special `"REMOTE_ADDRESS"` string is also supported that will map to the current request's remote address.
+  #
+  # See the [external documentation](/Framework/guides/proxies) for more information.
+  def self.set_trusted_proxies(@@trusted_proxies : Enumerable(String), @@trusted_header_set : ATH::Request::ProxyHeader) : Nil
   end
 
   # Registers the provided *format* with the provided *mime_types*.
@@ -191,8 +212,11 @@ class Athena::Framework::Request
 
   # Returns the port on which the request is made.
   #
-  # ameba:disable Metrics/CyclomaticComplexity:
-  def port : Int32?
+  # Supports reading from both `ATH::Request::ProxyHeader::FORWARDED_PORT` and `ATH::Request::ProxyHeader::FORWARDED_HOST`, falling back on the `host` header.
+  # See the [external documentation](/Framework/guides/proxies) for more information.
+  #
+  # ameba:disable Metrics/CyclomaticComplexity
+  def port : Int32
     if self.from_trusted_proxy? && (host = self.get_trusted_values(ProxyHeader::FORWARDED_PORT)) && !host.empty?
       host = host.first
     elsif self.from_trusted_proxy? && (host = self.get_trusted_values(ProxyHeader::FORWARDED_HOST)) && !host.empty?
@@ -221,6 +245,9 @@ class Athena::Framework::Request
   end
 
   # Returns `true` the request was made over HTTPS, otherwise returns `false`
+  #
+  # Supports reading from `ATH::Request::ProxyHeader::FORWARDED_PROTO`.
+  # See the [external documentation](/Framework/guides/proxies) for more information.
   def secure? : Bool
     if self.from_trusted_proxy? && (proto = self.get_trusted_values(ProxyHeader::FORWARDED_PROTO)) && !proto.empty?
       return proto.first.downcase.in? "https", "on", "ssl", "1"
@@ -231,6 +258,9 @@ class Athena::Framework::Request
     false
   end
 
+  # Returns `true` if this request originated from a trusted proxy.
+  #
+  # See the [external documentation](/Framework/guides/proxies) for more information.
   def from_trusted_proxy? : Bool
     return false unless trusted_proxies = self.trusted_proxies
     return false unless remote_address = self.remote_address

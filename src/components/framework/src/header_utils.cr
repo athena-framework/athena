@@ -1,5 +1,30 @@
 # Includes various `HTTP` header utility methods.
 module Athena::Framework::HeaderUtils
+  # Combines a 2D array of *parts* into a single Hash.
+  #
+  # Each child array should have one or two elements, with the first representing the key and the second representing the value.
+  # If there is no second value, `true` will be used.
+  # The keys of the resulting hash are all downcased.
+  #
+  # ```
+  # ATH::HeaderUtils.combine [["foo", "abc"], ["bar"]] # => {"foo" => "abc", "bar" => true}
+  # ```
+  def self.combine(parts : Enumerable) : Hash(String, String | Bool)
+    parts.each_with_object({} of String => String | Bool) do |part, hash|
+      # Typing gets real funky due to the nested nature of the arrays from `.split`.
+      # Maybe there is a better way to go about it that could avoid that, but for now this seems to work :shrug:.
+      next if part.is_a?(String)
+      next if part.nil?
+
+      key = part[0]
+      value = part[1]?
+
+      next unless key.is_a?(String)
+
+      hash[key.downcase] = value.as?(String) || true
+    end
+  end
+
   # Generates a `HTTP` [content-disposition](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition) header value with the provided *disposition* and *filename*.
   #
   # If *filename* contains non `ASCII` characters, a sanitized version will be used as part of the `filename` directive,
@@ -60,10 +85,6 @@ module Athena::Framework::HeaderUtils
     end
   end
 
-  def self.unquote(string : String) : String
-    string.gsub /\\(.)|"/, "\\1"
-  end
-
   def self.parse(header : String) : Hash(String, String | Bool)
     values = Hash(String, String | Bool).new
 
@@ -83,6 +104,14 @@ module Athena::Framework::HeaderUtils
     values
   end
 
+  # Splits an HTTP *header* by one or more *separators*, provided in priority order.
+  # Returns an array with as many levels as there are *separators*.
+  #
+  # ```
+  # # First splits on `,`, then `;` as defined via the order of the separators.
+  # ATH::HeaderUtils.split "da, en-gb;q=0.8", ",;" # => [["da"], ["en-gb", "q=0.8"]]
+  # ATH::HeaderUtils.split "da, en-gb;q=0.8", ";," # => [["da", "en-gb"], ["q=0.8"]]]
+  # ```
   def self.split(header : String, separators : String) : Array
     raise ArgumentError.new "At least one separator must be specified." if separators.blank?
 
@@ -107,22 +136,6 @@ module Athena::Framework::HeaderUtils
     /x)
 
     self.group_parts matches.map &.to_a, separators
-  end
-
-  def self.combine(parts : Enumerable) : Hash(String, String | Bool)
-    parts.each_with_object({} of String => String | Bool) do |part, hash|
-      # Typing gets real funky due to the nested nature of the arrays from `.split`.
-      # Maybe there is a better way to go about it that could avoid that, but for now this seems to work :shrug:.
-      next if part.is_a?(String)
-      next if part.nil?
-
-      key = part[0]
-      value = part[1]?
-
-      next unless key.is_a?(String)
-
-      hash[key.downcase] = value.as?(String) || true
-    end
   end
 
   # Joins the provided key/value *parts* into a string for use within an `HTTP` header.
