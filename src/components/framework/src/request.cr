@@ -298,7 +298,8 @@ class Athena::Framework::Request
     end
     @is_forwarded_valid = false
 
-    raise "Oh noes"
+    raise ATH::Exceptions::ConflictingHeaders.new "The request has both a trusted '#{ProxyHeader::FORWARDED.header}' header and a trusted '#{type.header}' header, conflicting with each other. \
+      You should either configure your proxy to remove one of them, or configure your project to distrust the offending one."
   end
 
   private def trusted_proxies : Array(String)?

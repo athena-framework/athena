@@ -69,6 +69,21 @@ struct ATH::RequestTest < ASPEC::TestCase
     }
   end
 
+  def test_trusted_proxy_conflict : Nil
+    ATH::Request.set_trusted_proxies ["3.3.3.3"], ATH::Request::ProxyHeader[:forwarded, :forwarded_proto]
+
+    request = ATH::Request.new("GET", "/", headers: HTTP::Headers{
+      "host"              => "example.com",
+      "forwarded"         => "proto=http",
+      "x-forwarded-proto" => "https",
+    })
+    request.remote_address = Socket::IPAddress.v4 3, 3, 3, 3, port: 1
+
+    expect_raises ATH::Exceptions::ConflictingHeaders, "The request has both a trusted 'forwarded' header and a trusted 'x-forwarded-proto' header, conflicting with each other. You should either configure your proxy to remove one of them, or configure your project to distrust the offending one." do
+      request.secure?
+    end
+  end
+
   def test_trusted_proxies_cache : Nil
     request = ATH::Request.new("GET", "/", headers: HTTP::Headers{
       "host"              => "example.com",
