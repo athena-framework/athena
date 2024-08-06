@@ -109,12 +109,19 @@ module Athena::Framework::HeaderUtils
     self.group_parts matches.map &.to_a, separators
   end
 
-  def self.combine(parts : Enumerable(Enumerable(String))) : Hash(String, String | Bool)
+  def self.combine(parts : Enumerable) : Hash(String, String | Bool)
     parts.each_with_object({} of String => String | Bool) do |part, hash|
+      # Typing gets real funky due to the nested nature of the arrays from `.split`.
+      # Maybe there is a better way to go about it that could avoid that, but for now this seems to work :shrug:.
       next if part.is_a?(String)
       next if part.nil?
 
-      hash[part[0].downcase] = part[1]? || true
+      key = part[0]
+      value = part[1]?
+
+      next unless key.is_a?(String)
+
+      hash[key.downcase] = value.as?(String) || true
     end
   end
 

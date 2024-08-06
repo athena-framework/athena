@@ -55,7 +55,7 @@ class Athena::Framework::Request
     "xml"    => Set{"text/xml", "application/xml", "application/x-xml"},
   }
 
-  class_getter trusted_header_set : ATH::Request::ProxyHeader = :none
+  class_getter trusted_header_set : ATH::Request::ProxyHeader = :all
   class_getter trusted_proxies : Array(String) = [] of String
 
   def self.set_trusted_proxies(@@trusted_proxies : Array(String), @@trusted_header_set : ATH::Request::ProxyHeader) : Nil
@@ -196,7 +196,7 @@ class Athena::Framework::Request
 
   # Returns the port on which the request is made.
   #
-  # TODO: Support reading the `#port` from the `X-Forwarded-Port` header if trusted.
+  # ameba:disable Metrics/CyclomaticComplexity:
   def port : Int32?
     if self.from_trusted_proxy? && (host = self.get_trusted_values(ProxyHeader::FORWARDED_PORT)) && !host.empty?
       host = host.first
@@ -226,8 +226,6 @@ class Athena::Framework::Request
   end
 
   # Returns `true` the request was made over HTTPS, otherwise returns `false`
-  #
-  # TODO: Support reading the `#port` from the `X-Forwarded-Proto` header if trusted.
   def secure? : Bool
     if self.from_trusted_proxy? && (proto = self.get_trusted_values(ProxyHeader::FORWARDED_PROTO)) && !proto.empty?
       return proto.first.downcase.in? "https", "on", "ssl", "1"
@@ -268,18 +266,20 @@ class Athena::Framework::Request
 
       parts.each do |sub_parts|
         # In this particular context compiler gets confused, so lets make it happy by skipping unexpected typed parts, which should never happen.
-        next unless sub_parts.is_a?(Array(Array(String)))
+        next if sub_parts.is_a?(String)
+        next if sub_parts.nil?
 
         unless v = HeaderUtils.combine(sub_parts)[param]?.as?(String?)
           next
         end
 
         if type.forwarded_port?
-          if v.ends_with?(']') || v.rindex(':').nil?
+          last_colon_idx = v.rindex(':')
+          if v.ends_with?(']') || last_colon_idx.nil?
             v = self.secure? ? ":443" : ":80"
           end
 
-          v = "0.0.0.0#{v}"
+          v = "0.0.0.0#{v[last_colon_idx..-1]}"
         end
         forwarded_values << v
       end
