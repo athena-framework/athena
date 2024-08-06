@@ -1,6 +1,8 @@
+# Includes various IP address utility methods.
 module Athena::Framework::IPUtils
   @@checked_ips = Hash(String, Bool).new
 
+  # Returns `true` if the provided IPv4 or IPv6 *request_ip* is contained within the list of *ips* or subnets.
   def self.check(request_ip : String, ips : String | Enumerable(String)) : Bool
     ips = ips.is_a?(String) ? {ips} : ips
 
@@ -9,6 +11,7 @@ module Athena::Framework::IPUtils
     ips.any? { |ip| is_ipv6 ? self.check_ipv6(request_ip, ip) : self.check_ipv4(request_ip, ip) }
   end
 
+  # Returns `true` if *request_ip* matches *ip*, or is within the CIDR subnet.
   def self.check_ipv4(request_ip : String, ip : String) : Bool
     cache_key = "#{request_ip}-#{ip}-v4"
 
@@ -47,6 +50,7 @@ module Athena::Framework::IPUtils
     (request_ip_decimal & mask) == (address_decimal & mask)
   end
 
+  # :ditto:
   def self.check_ipv6(request_ip : String, ip : String) : Bool
     cache_key = "#{request_ip}-#{ip}-v6"
 

@@ -279,7 +279,7 @@ struct ATH::RequestTest < ASPEC::TestCase
   end
 
   def test_port_no_host_header : Nil
-    ATH::Request.new("GET", "/").port.should be_nil
+    ATH::Request.new("GET", "/").port.should eq 80
   end
 
   @[TestWith(

@@ -176,6 +176,11 @@ module Athena::Framework::HeaderUtils
     end
   end
 
+  # Decodes a quoted string.
+  def self.unquote(string : String) : String
+    string.gsub /\\(.)|"/, "\\1"
+  end
+
   private def self.group_parts(matches : Array, separators : String, first : Bool = true) : Array
     separator = separators[0].to_s
     separators = separators[1..].to_s

@@ -23,6 +23,11 @@ class Athena::Framework::Request
     # Similar to `FORWARDED_HOST`, but exclusive to the port number.
     FORWARDED_PORT
 
+    # Returns the string header name for a given proxy header.
+    #
+    # ```
+    # ATH::Request::ProxyHeader::FORWARDED_PROTO.header => "x-forwarded-proto"
+    # ```
     def header : String
       case self
       when .forwarded?       then "forwarded"
@@ -35,6 +40,11 @@ class Athena::Framework::Request
       end
     end
 
+    # Returns the `forwarded` param related to a given proxy header.
+    #
+    # ```
+    # ATH::Request::ProxyHeader::FORWARDED_PROTO.forwarded_param => "proto"
+    # ```
     def forwarded_param : String?
       case self
       when .forwarded_for?   then "for"
@@ -67,14 +77,15 @@ class Athena::Framework::Request
   class_getter trusted_header_set : ATH::Request::ProxyHeader = :all
 
   # Returns the list of trusted proxy IP addresses.
-  class_getter trusted_proxies : Enumerable(String) = [] of String
+  class_getter trusted_proxies : Array(String) = [] of String
 
   # Allows setting a list of *trusted_proxies*, and which `ATH::Request::ProxyHeader` should be whitelisted.
   # The provided proxies are expected to be either IPv4 and/or IPv6 addresses.
   # The special `"REMOTE_ADDRESS"` string is also supported that will map to the current request's remote address.
   #
   # See the [external documentation](/Framework/guides/proxies) for more information.
-  def self.set_trusted_proxies(@@trusted_proxies : Enumerable(String), @@trusted_header_set : ATH::Request::ProxyHeader) : Nil
+  def self.set_trusted_proxies(trusted_proxies : Enumerable(String), @@trusted_header_set : ATH::Request::ProxyHeader) : Nil
+    @@trusted_proxies = trusted_proxies.to_a
   end
 
   # Registers the provided *format* with the provided *mime_types*.
@@ -162,6 +173,10 @@ class Athena::Framework::Request
   end
 
   # Returns the host name the request originated from.
+  #
+  # Supports reading from `ATH::Request::ProxyHeader::FORWARDED_HOST`, falling back on the `"host"` header.
+  #
+  # See the [external documentation](/Framework/guides/proxies) for more information.
   def host : String?
     if self.from_trusted_proxy? && (host = self.get_trusted_values(ProxyHeader::FORWARDED_HOST)) && !host.empty?
       host = host.first
@@ -194,8 +209,7 @@ class Athena::Framework::Request
   # Returns the format for this request.
   #
   # First checks if a format was explicitly set via `#request_format=`.
-  # Next, will check for the `_format` request `#attributes`, finally
-  # falling back on the provided *default*.
+  # Next, will check for the `_format` request `#attributes`, finally falling back on the provided *default*.
   def request_format(default : String? = "json") : String?
     if @request_format.nil?
       @request_format = self.attributes.get? "_format", String
@@ -212,7 +226,8 @@ class Athena::Framework::Request
 
   # Returns the port on which the request is made.
   #
-  # Supports reading from both `ATH::Request::ProxyHeader::FORWARDED_PORT` and `ATH::Request::ProxyHeader::FORWARDED_HOST`, falling back on the `host` header.
+  # Supports reading from both `ATH::Request::ProxyHeader::FORWARDED_PORT` and `ATH::Request::ProxyHeader::FORWARDED_HOST`, falling back on the `"host"` header, then `#scheme`.
+  #
   # See the [external documentation](/Framework/guides/proxies) for more information.
   #
   # ameba:disable Metrics/CyclomaticComplexity
@@ -222,7 +237,7 @@ class Athena::Framework::Request
     elsif self.from_trusted_proxy? && (host = self.get_trusted_values(ProxyHeader::FORWARDED_HOST)) && !host.empty?
       host = host.first
     elsif !(host = @request.headers["host"]?)
-      return
+      return self.secure? ? 443 : 80
     end
 
     pos = if host.starts_with? '['
@@ -244,9 +259,10 @@ class Athena::Framework::Request
     self.secure? ? "https" : "http"
   end
 
-  # Returns `true` the request was made over HTTPS, otherwise returns `false`
+  # Returns `true` the request was made over HTTPS, otherwise returns `false`.
   #
   # Supports reading from `ATH::Request::ProxyHeader::FORWARDED_PROTO`.
+  #
   # See the [external documentation](/Framework/guides/proxies) for more information.
   def secure? : Bool
     if self.from_trusted_proxy? && (proto = self.get_trusted_values(ProxyHeader::FORWARDED_PROTO)) && !proto.empty?
