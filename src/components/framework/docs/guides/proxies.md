@@ -5,7 +5,7 @@ For example, instead of reading the request's [`#remote_address`](https://crysta
 
 If you don't configure Athena to look for these headers, you'll get incorrect information about the request, such as if the client is connecting via HTTPS, the client's port and the hostname being requested.
 
-## `ATH::Request.set_trusted_proxies`
+## Trusted Proxies
 
 To solve this problem, you need to tell Athena which IP addresses belong to proxies you trust, and which headers the proxy uses to send information.
 This can be accomplished via the [`framework.trusted_proxies`](/Framework/Bundle/Schema/#Athena::Framework::Bundle::Schema#trusted_proxies) and [`framework.trusted_headers`](http://localhost:8000/Framework/Bundle/Schema/#Athena::Framework::Bundle::Schema#trusted_headers) configuration properties respectively.
