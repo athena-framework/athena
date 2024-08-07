@@ -57,7 +57,7 @@ class Athena::Framework::Controller::Redirect
       uri.port = https_port
     end
 
-    uri.host = request.hostname
+    uri.host = request.host
 
     ATH::RedirectResponse.new uri.normalize!.to_s, status
   end

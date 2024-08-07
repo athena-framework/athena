@@ -6,6 +6,8 @@ repo_url: https://github.com/athena-framework/framework
 
 nav:
   - Back to Manual: project://.
+  - Guides:
+    - Proxies & Load Balancers: guides/proxies.md
   - API:
     - Aliases: aliases.md
     - Top Level: index.md
