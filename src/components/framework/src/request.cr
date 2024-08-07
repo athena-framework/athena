@@ -62,7 +62,7 @@ class Athena::Framework::Request
     "atom"   => Set{"application/atom+xml"},
     "css"    => Set{"text/css"},
     "csv"    => Set{"text/csv"},
-    "form"   => Set{"application/x-www-form-urlencoded"},
+    "form"   => Set{"application/x-www-form-urlencoded", "multipart/form-data"},
     "html"   => Set{"text/html", "application/xhtml+xml"},
     "js"     => Set{"application/javascript", "application/x-javascript", "text/javascript"},
     "json"   => Set{"application/json", "application/x-json"},

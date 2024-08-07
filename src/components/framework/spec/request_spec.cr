@@ -66,6 +66,7 @@ struct ATH::RequestTest < ASPEC::TestCase
       {"xml", {"text/xml", "application/xml", "application/x-xml"}},
       {"rdf", {"application/rdf+xml"}},
       {"atom", {"application/atom+xml"}},
+      {"form", {"application/x-www-form-urlencoded", "multipart/form-data"}},
     }
   end
 
