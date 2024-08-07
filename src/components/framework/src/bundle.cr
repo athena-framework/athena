@@ -19,7 +19,14 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
     # The default locale is used if no [_locale](/Routing/Route/#Athena::Routing::Route--special-parameters) routing parameter has been set.
     property default_locale : String = "en"
 
+    # Controls the IP addresses of trusted proxies that'll be used to get precise information about the client.
+    #
+    # See the [external documentation](/Framework/guides/proxies) for more information.
     property trusted_proxies : Array(String)? = nil
+
+    # Controls which headers your `#trusted_proxies` use.
+    #
+    # See the [external documentation](/Framework/guides/proxies) for more information.
     property trusted_headers : Athena::Framework::Request::ProxyHeader = Athena::Framework::Request::ProxyHeader[:forwarded_for, :forwarded_port, :forwarded_proto]
 
     # Configuration related to the `ATH::Listeners::Format` listener.
