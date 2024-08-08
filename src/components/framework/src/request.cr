@@ -29,6 +29,10 @@ class Athena::Framework::Request
     # ATH::Request::ProxyHeader::FORWARDED_PROTO.header => "x-forwarded-proto"
     # ```
     def header : String
+      if override = ATH::Request.trusted_header_overrides[self]?
+        return override
+      end
+
       case self
       when .forwarded?       then "forwarded"
       when .forwarded_for?   then "x-forwarded-for"
@@ -73,11 +77,13 @@ class Athena::Framework::Request
     "xml"    => Set{"text/xml", "application/xml", "application/x-xml"},
   }
 
-  # Returns which `ATH::Request::ProxyHeader`s have been whitelisted by the application, defaulting to all of them.
+  # Returns which `ATH::Request::ProxyHeader`s have been whitelisted by the application as set via `.set_trusted_proxies`, defaulting to all of them.
   class_getter trusted_header_set : ATH::Request::ProxyHeader = :all
 
-  # Returns the list of trusted proxy IP addresses.
+  # Returns the list of trusted proxy IP addresses as set via `.set_trusted_proxies`.
   class_getter trusted_proxies : Array(String) = [] of String
+
+  protected class_getter trusted_header_overrides : Hash(ATH::Request::ProxyHeader, String) = {} of ATH::Request::ProxyHeader => String
 
   # Allows setting a list of *trusted_proxies*, and which `ATH::Request::ProxyHeader` should be whitelisted.
   # The provided proxies are expected to be either IPv4 and/or IPv6 addresses.
@@ -86,6 +92,14 @@ class Athena::Framework::Request
   # See the [external documentation](/Framework/guides/proxies) for more information.
   def self.set_trusted_proxies(trusted_proxies : Enumerable(String), @@trusted_header_set : ATH::Request::ProxyHeader) : Nil
     @@trusted_proxies = trusted_proxies.to_a
+  end
+
+  # Allows overriding the header name to look for off the request for a given `ATH::Request::ProxyHeader`.
+  # In some cases a proxy might not use the exact `x-forwarded-*` header name.
+  #
+  # See the [external documentation](/Framework/guides/proxies/#custom-headers) for more information.
+  def self.override_trusted_header(header : ATH::Request::ProxyHeader, name : String) : Nil
+    @@trusted_header_overrides[header] = name
   end
 
   # Registers the provided *format* with the provided *mime_types*.

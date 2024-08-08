@@ -29,6 +29,11 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
     # See the [external documentation](/Framework/guides/proxies) for more information.
     property trusted_headers : Athena::Framework::Request::ProxyHeader = Athena::Framework::Request::ProxyHeader[:forwarded_for, :forwarded_port, :forwarded_proto]
 
+    # Allows overriding the header name to use for a given `ATH::Request::ProxyHeader`.
+    #
+    # See the [external documentation](/Framework/guides/proxies/#custom-headers) for more information.
+    property trusted_header_overrides : Hash(Athena::Framework::Request::ProxyHeader, String) = {} of NoReturn => NoReturn
+
     # Configuration related to the `ATH::Listeners::Format` listener.
     #
     # If enabled, the rules are used to determine the best format for the current request based on its
@@ -187,11 +192,6 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
             parameters = CONFIG["parameters"]
 
             parameters["framework.default_locale"] = cfg["default_locale"]
-
-            if (trusted_proxies = cfg["trusted_proxies"]) && (trusted_headers = cfg["trusted_headers"])
-              parameters["framework.trusted_proxies"] = trusted_proxies
-              parameters["framework.trusted_headers"] = trusted_headers
-            end
 
             debug = parameters["framework.debug"]
 

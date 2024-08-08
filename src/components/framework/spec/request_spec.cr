@@ -3,6 +3,7 @@ require "./spec_helper"
 struct ATH::RequestTest < ASPEC::TestCase
   def tear_down : Nil
     ATH::Request.set_trusted_proxies [] of String, :none
+    ATH::Request.trusted_header_overrides.clear
   end
 
   # This spec tests the built-in `#hostname` method
@@ -434,5 +435,15 @@ struct ATH::RequestTest < ASPEC::TestCase
 
     request.remote_address = Socket::IPAddress.v4 1, 1, 1, 1, port: 1
     request.port.should eq 80
+  end
+
+  def test_proxy_header_header_default : Nil
+    ATH::Request::ProxyHeader::FORWARDED_PROTO.header.should eq "x-forwarded-proto"
+  end
+
+  def test_proxy_header_header_override : Nil
+    ATH::Request.override_trusted_header :forwarded_proto, "foo-proto"
+
+    ATH::Request::ProxyHeader::FORWARDED_PROTO.header.should eq "foo-proto"
   end
 end
