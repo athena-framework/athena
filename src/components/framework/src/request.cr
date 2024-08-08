@@ -5,7 +5,7 @@ class Athena::Framework::Request
   # Represents the supported [Proxy Headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Proxy_servers_and_tunneling#forwarding_client_information_through_proxies).
   # Can be used via `ATH::Request.set_trusted_proxies` to whitelist which headers are allowed.
   #
-  # See the [external documentation](/Framework/guides/proxies) for more information.
+  # See the [external documentation](/guides/proxies) for more information.
   @[Flags]
   enum ProxyHeader
     # The [`forwarded`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Forwarded) header as defined by [RFC 7239](https://datatracker.ietf.org/doc/html/rfc7239).
@@ -89,7 +89,7 @@ class Athena::Framework::Request
   # The provided proxies are expected to be either IPv4 and/or IPv6 addresses.
   # The special `"REMOTE_ADDRESS"` string is also supported that will map to the current request's remote address.
   #
-  # See the [external documentation](/Framework/guides/proxies) for more information.
+  # See the [external documentation](/guides/proxies) for more information.
   def self.set_trusted_proxies(trusted_proxies : Enumerable(String), @@trusted_header_set : ATH::Request::ProxyHeader) : Nil
     @@trusted_proxies = trusted_proxies.to_a
   end
@@ -97,7 +97,7 @@ class Athena::Framework::Request
   # Allows overriding the header name to look for off the request for a given `ATH::Request::ProxyHeader`.
   # In some cases a proxy might not use the exact `x-forwarded-*` header name.
   #
-  # See the [external documentation](/Framework/guides/proxies/#custom-headers) for more information.
+  # See the [external documentation](/guides/proxies/#custom-headers) for more information.
   def self.override_trusted_header(header : ATH::Request::ProxyHeader, name : String) : Nil
     @@trusted_header_overrides[header] = name
   end
@@ -190,7 +190,7 @@ class Athena::Framework::Request
   #
   # Supports reading from `ATH::Request::ProxyHeader::FORWARDED_HOST`, falling back on the `"host"` header.
   #
-  # See the [external documentation](/Framework/guides/proxies) for more information.
+  # See the [external documentation](/guides/proxies) for more information.
   def host : String?
     if self.from_trusted_proxy? && (host = self.get_trusted_values(ProxyHeader::FORWARDED_HOST)) && !host.empty?
       host = host.first
@@ -242,7 +242,7 @@ class Athena::Framework::Request
   #
   # Supports reading from both `ATH::Request::ProxyHeader::FORWARDED_PORT` and `ATH::Request::ProxyHeader::FORWARDED_HOST`, falling back on the `"host"` header, then `#scheme`.
   #
-  # See the [external documentation](/Framework/guides/proxies) for more information.
+  # See the [external documentation](/guides/proxies) for more information.
   #
   # ameba:disable Metrics/CyclomaticComplexity
   def port : Int32
@@ -277,7 +277,7 @@ class Athena::Framework::Request
   #
   # Supports reading from `ATH::Request::ProxyHeader::FORWARDED_PROTO`.
   #
-  # See the [external documentation](/Framework/guides/proxies) for more information.
+  # See the [external documentation](/guides/proxies) for more information.
   def secure? : Bool
     if self.from_trusted_proxy? && (proto = self.get_trusted_values(ProxyHeader::FORWARDED_PROTO)) && !proto.empty?
       return proto.first.downcase.in? "https", "on", "ssl", "1"
@@ -290,7 +290,7 @@ class Athena::Framework::Request
 
   # Returns `true` if this request originated from a trusted proxy.
   #
-  # See the [external documentation](/Framework/guides/proxies) for more information.
+  # See the [external documentation](/guides/proxies) for more information.
   def from_trusted_proxy? : Bool
     return false unless trusted_proxies = self.trusted_proxies
     return false unless remote_address = self.remote_address

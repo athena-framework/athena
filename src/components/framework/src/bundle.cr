@@ -21,17 +21,17 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
 
     # Controls the IP addresses of trusted proxies that'll be used to get precise information about the client.
     #
-    # See the [external documentation](/Framework/guides/proxies) for more information.
+    # See the [external documentation](/guides/proxies) for more information.
     property trusted_proxies : Array(String)? = nil
 
     # Controls which headers your `#trusted_proxies` use.
     #
-    # See the [external documentation](/Framework/guides/proxies) for more information.
+    # See the [external documentation](/guides/proxies) for more information.
     property trusted_headers : Athena::Framework::Request::ProxyHeader = Athena::Framework::Request::ProxyHeader[:forwarded_for, :forwarded_port, :forwarded_proto]
 
     # Allows overriding the header name to use for a given `ATH::Request::ProxyHeader`.
     #
-    # See the [external documentation](/Framework/guides/proxies/#custom-headers) for more information.
+    # See the [external documentation](/guides/proxies/#custom-headers) for more information.
     property trusted_header_overrides : Hash(Athena::Framework::Request::ProxyHeader, String) = {} of NoReturn => NoReturn
 
     # Configuration related to the `ATH::Listeners::Format` listener.
