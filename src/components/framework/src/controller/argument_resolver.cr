@@ -13,6 +13,8 @@ struct Athena::Framework::Controller::ArgumentResolver
 
   # :inherit:
   def get_arguments(request : ATH::Request, route : ATH::ActionBase) : Array
+    # TODO: Support named resolvers as defined on the annotation itself.
+
     route.resolve_arguments @value_resolvers, request
   end
 end
