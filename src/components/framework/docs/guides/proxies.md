@@ -49,4 +49,18 @@ That's it! It's critical that you prevent traffic from all non-trusted sources. 
 
 <!-- ## Reverse Proxy in a Subpath -->
 
-<!-- ## Custom Headers -->
+## Custom Headers
+
+Some reverse proxies do not use the common `x-forwarded-*` header names and may force you to use a custom header.
+In such cases you can use the [`framework.trusted_header_overrides`](/Framework/Bundle/Schema/#Athena::Framework::Bundle::Schema#trusted_header_overrides) configuration property to handle this:
+
+```crystal
+ATH.configure({
+  framework: {
+    # Tell Athena to look for `cloudfront-forwarded-proto` instead of the default `x-forwarded-proto`.
+    trusted_header_overrides: {
+      :forwarded_proto => "cloudfront-forwarded-proto",
+    },
+  },
+})
+```

@@ -216,8 +216,12 @@ module Athena::Framework
 
     def start : Nil
       # TODO: Is there a better place to do this?
-      {% if (trusted_proxies = ADI::CONFIG["parameters"]["framework.trusted_proxies"]) && (trusted_headers = ADI::CONFIG["parameters"]["framework.trusted_headers"]) %}
+      {% if (trusted_proxies = ADI::CONFIG["framework"]["trusted_proxies"]) && (trusted_headers = ADI::CONFIG["framework"]["trusted_headers"]) %}
         ATH::Request.set_trusted_proxies({{trusted_proxies}}, {{trusted_headers}})
+      {% end %}
+
+      {% for header, name in ADI::CONFIG["framework"]["trusted_header_overrides"] %}
+        ATH::Request.override_trusted_header({{header}}, {{name}})
       {% end %}
 
       {% if flag?(:without_openssl) %}
