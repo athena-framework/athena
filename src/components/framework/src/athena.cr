@@ -18,6 +18,7 @@ require "./controller_resolver"
 require "./error_renderer_interface"
 require "./error_renderer"
 require "./header_utils"
+require "./ip_utils"
 require "./logging"
 require "./parameter_bag"
 require "./redirect_response"
@@ -215,6 +216,15 @@ module Athena::Framework
     end
 
     def start : Nil
+      # TODO: Is there a better place to do this?
+      {% if (trusted_proxies = ADI::CONFIG["framework"]["trusted_proxies"]) && (trusted_headers = ADI::CONFIG["framework"]["trusted_headers"]) %}
+        ATH::Request.set_trusted_proxies({{trusted_proxies}}, {{trusted_headers}})
+      {% end %}
+
+      {% for header, name in ADI::CONFIG["framework"]["trusted_header_overrides"] %}
+        ATH::Request.override_trusted_header({{header}}, {{name}})
+      {% end %}
+
       {% if flag?(:without_openssl) %}
         @server.bind_tcp @host, @port, reuse_port: @reuse_port
       {% else %}
