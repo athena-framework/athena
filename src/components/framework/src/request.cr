@@ -316,15 +316,12 @@ class Athena::Framework::Request
     end
 
     if @@trusted_header_set.includes?(ProxyHeader::FORWARDED) && (forwarded_param = type.forwarded_param) && (forwarded = @request.headers[ProxyHeader::FORWARDED.header]?)
-      parts = ATH::HeaderUtils.split forwarded, ",;="
-      param = type.forwarded_param
-
-      parts.each do |sub_parts|
+      ATH::HeaderUtils.split(forwarded, ",;=").each do |sub_parts|
         # In this particular context compiler gets confused, so lets make it happy by skipping unexpected typed parts, which should never happen.
         next if sub_parts.is_a?(String)
         next if sub_parts.nil?
 
-        unless v = HeaderUtils.combine(sub_parts)[param]?.as?(String?)
+        unless v = HeaderUtils.combine(sub_parts)[forwarded_param]?.as?(String?)
           next
         end
 
