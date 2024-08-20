@@ -7,7 +7,7 @@ Lint/NotNil:
 Lint/Typos:
   Enabled: false # This has its own dedicated CI job
 Lint/UselessAssign:
-  Enabled: false # TODO: Enable once https://github.com/crystal-ameba/ameba/issues/447 is resolved
+  ExcludeTypeDeclarations: true # TODO: Disable this once https://github.com/crystal-ameba/ameba/issues/447 is resolved
 Naming/AccessorMethodName:
   Enabled: false
 Naming/BlockParameterName:
