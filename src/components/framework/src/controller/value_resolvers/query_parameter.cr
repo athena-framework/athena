@@ -4,7 +4,7 @@
 # The name of the query parameter is assumed to be the same as the controller action parameter's name.
 # This can be customized via the `name` field on the annotation.
 #
-# If the controller action parameter is not-nilable nor has a default value and is missing, an `ATH::Exceptions::NotFound` exception will be raised by default.
+# If the controller action parameter is not-nilable nor has a default value and is missing, an `ATH::Exception::NotFound` exception will be raised by default.
 # Similarly, an exception will be raised if the value fails to be converted to the expected type.
 # The specific type of exception can be customized via the `validation_failed_status` field on the annotation.
 #
@@ -64,7 +64,7 @@ struct Athena::Framework::Controller::ValueResolvers::QueryParameter
     unless params.has_key? name
       return if parameter.nilable? || parameter.has_default?
 
-      raise ATH::Exceptions::HTTPException.from_status validation_failed_status, "Missing query parameter: '#{name}'."
+      raise ATH::Exception::HTTPException.from_status validation_failed_status, "Missing query parameter: '#{name}'."
     end
 
     value = if parameter.instance_of? Array
@@ -77,7 +77,7 @@ struct Athena::Framework::Controller::ValueResolvers::QueryParameter
       parameter.type.from_parameter value
     rescue ex : ArgumentError
       # Catch type cast errors and bubble it up as a BadRequest
-      raise ATH::Exceptions::HTTPException.from_status validation_failed_status, "Invalid query parameter: '#{name}'.", cause: ex
+      raise ATH::Exception::HTTPException.from_status validation_failed_status, "Invalid query parameter: '#{name}'.", cause: ex
     end
   end
 end

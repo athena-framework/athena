@@ -47,25 +47,25 @@ describe ATHR::QueryParameter do
     end
 
     it "missing non-nilable no default" do
-      expect_raises ATH::Exceptions::NotFound, "Missing query parameter: 'foo'." do
+      expect_raises ATH::Exception::NotFound, "Missing query parameter: 'foo'." do
         ATHR::QueryParameter.new.resolve new_request, parameter
       end
     end
 
     it "missing non-nilable no default custom status" do
-      expect_raises ATH::Exceptions::UnprocessableEntity, "Missing query parameter: 'foo'." do
+      expect_raises ATH::Exception::UnprocessableEntity, "Missing query parameter: 'foo'." do
         ATHR::QueryParameter.new.resolve new_request, parameter(validation_failed_status: :unprocessable_entity)
       end
     end
 
     it "invalid" do
-      expect_raises ATH::Exceptions::NotFound, "Invalid query parameter: 'foo'." do
+      expect_raises ATH::Exception::NotFound, "Invalid query parameter: 'foo'." do
         ATHR::QueryParameter.new.resolve new_request(query: "foo=bar"), parameter(Int32)
       end
     end
 
     it "missing non-nilable no default custom status" do
-      expect_raises ATH::Exceptions::UnprocessableEntity, "Invalid query parameter: 'foo'." do
+      expect_raises ATH::Exception::UnprocessableEntity, "Invalid query parameter: 'foo'." do
         ATHR::QueryParameter.new.resolve new_request(query: "foo=bar"), parameter(Int32, validation_failed_status: :unprocessable_entity)
       end
     end

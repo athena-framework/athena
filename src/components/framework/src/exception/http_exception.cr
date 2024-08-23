@@ -30,18 +30,18 @@ class Athena::Framework::Exception::HTTPException < ::Exception
     status = status.is_a?(HTTP::Status) ? status : HTTP::Status.new(status)
 
     case status
-    when .bad_request?            then ATH::Exceptions::BadRequest.new(message, cause, headers)
-    when .forbidden?              then ATH::Exceptions::Forbidden.new(message, cause, headers)
-    when .not_found?              then ATH::Exceptions::NotFound.new(message, cause, headers)
-    when .not_acceptable?         then ATH::Exceptions::NotAcceptable.new(message, cause, headers)
-    when .conflict?               then ATH::Exceptions::Conflict.new(message, cause, headers)
-    when .gone?                   then ATH::Exceptions::Gone.new(message, cause, headers)
-    when .length_required?        then ATH::Exceptions::LengthRequired.new(message, cause, headers)
-    when .precondition_failed?    then ATH::Exceptions::PreconditionFailed.new(message, cause, headers)
-    when .unsupported_media_type? then ATH::Exceptions::UnsupportedMediaType.new(message, cause, headers)
-    when .unprocessable_entity?   then ATH::Exceptions::UnprocessableEntity.new(message, cause, headers)
-    when .too_many_requests?      then ATH::Exceptions::TooManyRequests.new(message, nil, cause, headers)
-    when .service_unavailable?    then ATH::Exceptions::ServiceUnavailable.new(message, nil, cause, headers)
+    when .bad_request?            then ATH::Exception::BadRequest.new(message, cause, headers)
+    when .forbidden?              then ATH::Exception::Forbidden.new(message, cause, headers)
+    when .not_found?              then ATH::Exception::NotFound.new(message, cause, headers)
+    when .not_acceptable?         then ATH::Exception::NotAcceptable.new(message, cause, headers)
+    when .conflict?               then ATH::Exception::Conflict.new(message, cause, headers)
+    when .gone?                   then ATH::Exception::Gone.new(message, cause, headers)
+    when .length_required?        then ATH::Exception::LengthRequired.new(message, cause, headers)
+    when .precondition_failed?    then ATH::Exception::PreconditionFailed.new(message, cause, headers)
+    when .unsupported_media_type? then ATH::Exception::UnsupportedMediaType.new(message, cause, headers)
+    when .unprocessable_entity?   then ATH::Exception::UnprocessableEntity.new(message, cause, headers)
+    when .too_many_requests?      then ATH::Exception::TooManyRequests.new(message, nil, cause, headers)
+    when .service_unavailable?    then ATH::Exception::ServiceUnavailable.new(message, nil, cause, headers)
     else
       new status, message, cause, headers
     end
