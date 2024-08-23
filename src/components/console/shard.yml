@@ -2,7 +2,7 @@ name: athena-console
 
 version: 0.3.6
 
-crystal: ~> 1.11
+crystal: ~> 1.13
 
 license: MIT
 
