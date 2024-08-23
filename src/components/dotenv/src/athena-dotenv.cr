@@ -1,6 +1,6 @@
 class Athena::Dotenv; end
 
-require "./exceptions/*"
+require "./exception/*"
 
 # All usage involves using an `Athena::Dotenv` instance.
 # For example:
@@ -24,7 +24,7 @@ require "./exceptions/*"
 # # .env, .env.local, and .env.$APP_ENV.local or .env.$APP_ENV
 # dotenv.load_environment "./.env"
 # ```
-# A `Athena::Dotenv::Exceptions::Path` error will be raised if the provided file was not found, or is not readable.
+# A `Athena::Dotenv::Exception::Path` error will be raised if the provided file was not found, or is not readable.
 #
 # ## Syntax
 #
@@ -35,7 +35,7 @@ require "./exceptions/*"
 # DATABASE_URL=mysql://db_user:db_password@127.0.0.1:3306/db_name
 # ```
 #
-# A`Athena::Dotenv::Exceptions::Format` error will be raised if a formatting/parsing error is encountered.
+# A`Athena::Dotenv::Exception::Format` error will be raised if a formatting/parsing error is encountered.
 #
 # ### Comments
 #
@@ -143,6 +143,9 @@ require "./exceptions/*"
 # This can work quite well for simple applications, but ultimately a more robust solution that best leverages the features of the server the application is running on is best.
 class Athena::Dotenv
   VERSION = "0.1.3"
+
+  # Both acts as a namespace for exceptions related to the `Athena::Dotenv` component, as well as a way to check for exceptions from the component.
+  module Exception; end
 
   private VARNAME_REGEX = /(?i:_?[A-Z][A-Z0-9_]*+)/
 
@@ -337,10 +340,10 @@ class Athena::Dotenv
     @line_number += string.count '\n'
   end
 
-  private def create_format_exception(message : String) : Athena::Dotenv::Exceptions::Format
-    Athena::Dotenv::Exceptions::Format.new(
+  private def create_format_exception(message : String) : Athena::Dotenv::Exception::Format
+    Athena::Dotenv::Exception::Format.new(
       message,
-      Athena::Dotenv::Exceptions::Format::Context.new(
+      Athena::Dotenv::Exception::Format::Context.new(
         @data,
         @path,
         @line_number,
@@ -508,7 +511,7 @@ class Athena::Dotenv
   private def load(override_existing_vars : Bool, paths : Enumerable(String | ::Path)) : Nil
     paths.each do |path|
       if !File::Info.readable?(path) || File.directory?(path)
-        raise Athena::Dotenv::Exceptions::Path.new path
+        raise Athena::Dotenv::Exception::Path.new path
       end
 
       self.populate(self.parse(File.read(path), path), override_existing_vars)

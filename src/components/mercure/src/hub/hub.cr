@@ -36,7 +36,7 @@ class Athena::Mercure::Hub
       form: URI::Params.build { |form| self.encode form, update }
     ).body
   rescue ex : ::Exception
-    raise AMC::Exceptions::Runtime.new "Failed to send an update.", cause: ex
+    raise AMC::Exception::Runtime.new "Failed to send an update.", cause: ex
   end
 
   private def encode(form : URI::Params::Builder, update : AMC::Update) : Nil

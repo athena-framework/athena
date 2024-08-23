@@ -2,7 +2,7 @@ name: athena-serializer
 
 version: 0.3.6
 
-crystal: ~> 1.4
+crystal: ~> 1.13
 
 license: MIT
 

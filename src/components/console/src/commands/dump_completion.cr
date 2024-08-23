@@ -65,7 +65,7 @@ TEXT
     # Prevent generating the file for *.tmp files.
     # It'll not only run slow, but probably not even valid bash syntax.
     if command_name.ends_with? ".tmp"
-      raise ACON::Exceptions::RuntimeError.new "The shell completion file may only be generated non-temporary binaries.\n\nTry to `crystal build` your application first and try again."
+      raise ACON::Exception::Runtime.new "The shell completion file may only be generated non-temporary binaries.\n\nTry to `crystal build` your application first and try again."
     end
 
     shell = input.argument("shell") || self.class.guess_shell

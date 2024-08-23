@@ -81,7 +81,7 @@ struct ATH::RequestTest < ASPEC::TestCase
     })
     request.remote_address = Socket::IPAddress.v4 3, 3, 3, 3, port: 1
 
-    expect_raises ATH::Exceptions::ConflictingHeaders, "The request has both a trusted 'forwarded' header and a trusted 'x-forwarded-proto' header, conflicting with each other. You should either configure your proxy to remove one of them, or configure your project to distrust the offending one." do
+    expect_raises ATH::Exception::ConflictingHeaders, "The request has both a trusted 'forwarded' header and a trusted 'x-forwarded-proto' header, conflicting with each other. You should either configure your proxy to remove one of them, or configure your project to distrust the offending one." do
       request.secure?
     end
   end
@@ -236,7 +236,7 @@ struct ATH::RequestTest < ASPEC::TestCase
         request.port.should eq expected_port
       end
     else
-      expect_raises ATH::Exceptions::SuspiciousOperation, "Invalid Host: " do
+      expect_raises ATH::Exception::SuspiciousOperation, "Invalid Host: " do
         request.host
       end
     end

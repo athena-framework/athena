@@ -455,6 +455,6 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
   end
 
   private def progress_bar : ACON::Helper::ProgressBar
-    @progress_bar || raise ACON::Exceptions::RuntimeError.new "The ProgressBar is not started."
+    @progress_bar || raise ACON::Exception::Runtime.new "The ProgressBar is not started."
   end
 end

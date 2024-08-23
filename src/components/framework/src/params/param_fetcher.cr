@@ -51,7 +51,7 @@ class Athena::Framework::Params::ParamFetcher
       value = param.type.from_parameter value
     rescue ex : ArgumentError
       # Catch type cast errors and bubble it up as an BadRequest if strict
-      raise ATH::Exceptions::BadRequest.new "Required parameter '#{param.name}' with value '#{value}' could not be converted into a valid '#{param.type}'.", cause: ex if strict
+      raise ATH::Exception::BadRequest.new "Required parameter '#{param.name}' with value '#{value}' could not be converted into a valid '#{param.type}'.", cause: ex if strict
       return default
     end
 
@@ -61,7 +61,10 @@ class Athena::Framework::Params::ParamFetcher
     begin
       # Manually start the context so we can set the base path to the param's name.
       errors = @validator.start_context(value).at_path(param.name).validate(value, constraints).violations
-    rescue ex : AVD::Exceptions::ValidatorError
+    rescue ex : ::Exception
+      # TODO: Make this part of the `rescue` after Crystal 1.13
+      raise ex unless ex.is_a? AVD::Exception
+
       violation = AVD::Violation::ConstraintViolation.new(
         ex.message || "Unhandled exception while validating '#{param.name}' param.",
         ex.message || "Unhandled exception while validating '#{param.name}' param.",
@@ -75,7 +78,7 @@ class Athena::Framework::Params::ParamFetcher
     end
 
     unless errors.empty?
-      raise ATH::Exceptions::InvalidParameter.with_violations param, errors if strict
+      raise ATH::Exception::InvalidParameter.with_violations param, errors if strict
       return default
     end
 
@@ -90,7 +93,7 @@ class Athena::Framework::Params::ParamFetcher
       incompatible_param = self.params.fetch(incompatible_param_name) { raise KeyError.new "Unknown parameter '#{incompatible_param_name}'." }
 
       unless incompatible_param.extract_value(self.request, nil).nil?
-        raise ATH::Exceptions::BadRequest.new "Parameter '#{param.name}' is incompatible with parameter '#{incompatible_param.name}'."
+        raise ATH::Exception::BadRequest.new "Parameter '#{param.name}' is incompatible with parameter '#{incompatible_param.name}'."
       end
     end
   end

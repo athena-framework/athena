@@ -31,19 +31,19 @@ struct RequestBodyResolverTest < ASPEC::TestCase
   end
 
   def test_raises_on_no_body : Nil
-    expect_raises ATH::Exceptions::BadRequest, "Request does not have a body." do
+    expect_raises ATH::Exception::BadRequest, "Request does not have a body." do
       @target.resolve new_request, self.get_config MockJSONSerializableEntity
     end
   end
 
   def test_raises_on_empty_body : Nil
-    expect_raises ATH::Exceptions::BadRequest, "Request does not have a body." do
+    expect_raises ATH::Exception::BadRequest, "Request does not have a body." do
       @target.resolve new_request(body: ""), self.get_config(MockJSONSerializableEntity)
     end
   end
 
   def test_raises_on_invalid_json : Nil
-    expect_raises ATH::Exceptions::BadRequest, "Malformed JSON payload." do
+    expect_raises ATH::Exception::BadRequest, "Malformed JSON payload." do
       @target.resolve new_request(body: "<abc123>"), self.get_config(MockJSONSerializableEntity)
     end
   end
@@ -58,7 +58,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
       ])
     )
 
-    expect_raises AVD::Exceptions::ValidationFailed, "Validation failed" do
+    expect_raises AVD::Exception::ValidationFailed, "Validation failed" do
       ATHR::RequestBody.new(serializer, validator).resolve new_request(body: %({"id":10,"name":""})), self.get_config(MockValidatableASRSerializableEntity)
     end
   end

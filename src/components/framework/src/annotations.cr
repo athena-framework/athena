@@ -11,7 +11,7 @@ module Athena::Framework::Annotations
   # A `description` may also be included to describe what the query param is used for.
   # In the future this may be used for generating OpenAPI documentation for the related parameter.
   #
-  # A non-nilable type denotes it as required. If the parameter is not supplied, and no default value is assigned, an `ATH::Exceptions::UnprocessableEntity` exception is raised.
+  # A non-nilable type denotes it as required. If the parameter is not supplied, and no default value is assigned, an `ATH::Exception::UnprocessableEntity` exception is raised.
   #
   # ```
   # require "athena"
@@ -89,7 +89,7 @@ module Athena::Framework::Annotations
   #
   # ### Strict
   #
-  # By default, parameters are validated strictly; this means an `ATH::Exceptions::BadRequest` exception is raised when the value is considered invalid.
+  # By default, parameters are validated strictly; this means an `ATH::Exception::BadRequest` exception is raised when the value is considered invalid.
   # Such as if the value does not satisfy the parameter's [requirements](#requirements), it's a required parameter and was not provided,
   # or could not be converted into the desired type.
   #

@@ -30,7 +30,7 @@ class Athena::Console::Helper::Question < Athena::Console::Helper
       self.validate_attempts(output, question) do
         self.do_ask output, question
       end
-    rescue ex : ACON::Exceptions::MissingInput
+    rescue ex : ACON::Exception::MissingInput
       input.interactive = false
 
       raise ex
@@ -53,7 +53,7 @@ class Athena::Console::Helper::Question < Athena::Console::Helper
     messages
   end
 
-  protected def write_error(output : ACON::Output::Interface, error : Exception) : Nil
+  protected def write_error(output : ACON::Output::Interface, error : ::Exception) : Nil
     message = if (helper_set = self.helper_set) && (formatter_helper = helper_set[ACON::Helper::Formatter]?)
                 formatter_helper.format_block error.message || "", "error"
               else
@@ -122,13 +122,16 @@ class Athena::Console::Helper::Question < Athena::Console::Helper
         begin
           hidden_response = self.hidden_response output, input_stream
           response = question.trimmable? ? hidden_response.strip : hidden_response
-        rescue ex : ACON::Exceptions::ConsoleException
-          raise ex unless question.hidden_fallback?
+        rescue ex : ::Exception
+          # TODO: Make this part of the `rescue` after Crystal 1.13
+          if ex.is_a?(ACON::Exception)
+            raise ex unless question.hidden_fallback?
+          end
         end
       end
 
       if response.nil?
-        raise ACON::Exceptions::MissingInput.new "Aborted." unless response = self.read_input input_stream, question
+        raise ACON::Exception::MissingInput.new "Aborted." unless response = self.read_input input_stream, question
         response = response.strip if question.trimmable?
       end
     else
@@ -146,7 +149,7 @@ class Athena::Console::Helper::Question < Athena::Console::Helper
 
   private def autocomplete(output : ACON::Output::Interface, question : ACON::Question::Base, input_stream : IO, autocompleter) : String
     # TODO: Support autocompletion.
-    self.read_input(input_stream, question) || raise ACON::Exceptions::MissingInput.new "Aborted."
+    self.read_input(input_stream, question) || raise ACON::Exception::MissingInput.new "Aborted."
   end
 
   private def hidden_response(output : ACON::Output::Interface, input_stream : IO) : String
@@ -158,10 +161,10 @@ class Athena::Console::Helper::Question < Athena::Console::Helper
 
                  input_stream.gets(4096).tap { system "stty #{stty_mode}" }
                elsif input_stream.tty?
-                 raise ACON::Exceptions::RuntimeError.new "Unable to hide the response."
+                 raise ACON::Exception::Runtime.new "Unable to hide the response."
                end
 
-    raise ACON::Exceptions::MissingInput.new "Aborted." if response.nil?
+    raise ACON::Exception::MissingInput.new "Aborted." if response.nil?
 
     output.puts ""
 
@@ -192,9 +195,9 @@ class Athena::Console::Helper::Question < Athena::Console::Helper
 
       begin
         return question.validator.not_nil!.call yield
-      rescue ex : ACON::Exceptions::RuntimeError
+      rescue ex : ACON::Exception::Runtime
         raise ex
-      rescue ex : Exception
+      rescue ex : ::Exception
         error = ex
       ensure
         attempts -= 1 if attempts

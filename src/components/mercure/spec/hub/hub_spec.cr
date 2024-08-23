@@ -41,7 +41,7 @@ describe Athena::Mercure::Hub do
 
       hub = AMC::Hub.new URL, provider, http_client: http_client
 
-      expect_raises AMC::Exceptions::Runtime, "Failed to send an update." do
+      expect_raises AMC::Exception::Runtime, "Failed to send an update." do
         hub.publish(AMC::Update.new(
           "https://demo.mercure.rocks/demo/books/1.jsonld",
           "Hi from Athena!",

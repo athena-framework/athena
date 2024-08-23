@@ -48,7 +48,7 @@ class Athena::Console::Input::Argument
     default = nil,
     @suggested_values : Array(String) | Proc(ACON::Completion::Input, Array(String)) | Nil = nil
   )
-    raise ACON::Exceptions::InvalidArgument.new "An argument name cannot be blank." if name.blank?
+    raise ACON::Exception::InvalidArgument.new "An argument name cannot be blank." if name.blank?
 
     self.default = default
   end
@@ -76,13 +76,13 @@ class Athena::Console::Input::Argument
 
   # Sets the default value of `self`.
   def default=(default = nil)
-    raise ACON::Exceptions::Logic.new "Cannot set a default value when the argument is required." if @mode.required? && !default.nil?
+    raise ACON::Exception::Logic.new "Cannot set a default value when the argument is required." if @mode.required? && !default.nil?
 
     if @mode.is_array?
       if default.nil?
         return @default = ACON::Input::Value::Array.new
       elsif !default.is_a? Array
-        raise ACON::Exceptions::Logic.new "Default value for an array argument must be an array."
+        raise ACON::Exception::Logic.new "Default value for an array argument must be an array."
       end
     end
 

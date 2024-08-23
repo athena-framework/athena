@@ -67,7 +67,7 @@ describe ATHR::UUID do
       request = new_request
       request.attributes.set "foo", "foo"
 
-      expect_raises ATH::Exceptions::BadRequest, "Parameter 'foo' with value 'foo' is not a valid 'UUID'." do
+      expect_raises ATH::Exception::BadRequest, "Parameter 'foo' with value 'foo' is not a valid 'UUID'." do
         ATHR::UUID.new.resolve request, parameter
       end
     end

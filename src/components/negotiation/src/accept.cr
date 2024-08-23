@@ -29,7 +29,7 @@ struct Athena::Negotiation::Accept < Athena::Negotiation::BaseAccept
     parts = @accept_value.split '/'
 
     if parts.size != 2 || !parts[0].presence || !parts[1].presence
-      raise ANG::Exceptions::InvalidMediaType.new @accept_value
+      raise ANG::Exception::InvalidMediaType.new @accept_value
     end
 
     @type = parts[0]

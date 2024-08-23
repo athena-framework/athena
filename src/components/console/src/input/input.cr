@@ -29,7 +29,7 @@ abstract class Athena::Console::Input
 
   # :inherit:
   def argument(name : String) : String?
-    raise ACON::Exceptions::InvalidArgument.new "The '#{name}' argument does not exist." unless @definition.has_argument? name
+    raise ACON::Exception::InvalidArgument.new "The '#{name}' argument does not exist." unless @definition.has_argument? name
 
     value = if @arguments.has_key? name
               @arguments[name]
@@ -46,11 +46,11 @@ abstract class Athena::Console::Input
 
   # :inherit:
   def argument(name : String, type : T.class) : T forall T
-    raise ACON::Exceptions::InvalidArgument.new "The '#{name}' argument does not exist." unless @definition.has_argument? name
+    raise ACON::Exception::InvalidArgument.new "The '#{name}' argument does not exist." unless @definition.has_argument? name
 
     {% unless T.nilable? %}
       if !@definition.argument(name).required? && @definition.argument(name).default.nil?
-        raise ACON::Exceptions::Logic.new "Cannot cast optional argument '#{name}' to non-nilable type '#{T}' without a default."
+        raise ACON::Exception::Logic.new "Cannot cast optional argument '#{name}' to non-nilable type '#{T}' without a default."
       end
     {% end %}
 
@@ -63,7 +63,7 @@ abstract class Athena::Console::Input
 
   # :inherit:
   def set_argument(name : String, value : _) : Nil
-    raise ACON::Exceptions::InvalidArgument.new "The '#{name}' argument does not exist." unless @definition.has_argument? name
+    raise ACON::Exception::InvalidArgument.new "The '#{name}' argument does not exist." unless @definition.has_argument? name
 
     @arguments[name] = ACON::Input::Value.from_value value
   end
@@ -88,7 +88,7 @@ abstract class Athena::Console::Input
       return
     end
 
-    raise ACON::Exceptions::InvalidArgument.new "The '#{name}' option does not exist." unless @definition.has_option? name
+    raise ACON::Exception::InvalidArgument.new "The '#{name}' option does not exist." unless @definition.has_option? name
 
     value = if @options.has_key? name
               @options[name]
@@ -117,15 +117,15 @@ abstract class Athena::Console::Input
       end
     {% end %}
 
-    raise ACON::Exceptions::InvalidArgument.new "The '#{name}' option does not exist." unless @definition.has_option? name
+    raise ACON::Exception::InvalidArgument.new "The '#{name}' option does not exist." unless @definition.has_option? name
 
     {% unless T <= Bool? %}
-      raise ACON::Exceptions::Logic.new "Cannot cast negatable option '#{name}' to non 'Bool?' type." if @definition.option(name).negatable?
+      raise ACON::Exception::Logic.new "Cannot cast negatable option '#{name}' to non 'Bool?' type." if @definition.option(name).negatable?
     {% end %}
 
     {% unless T.nilable? %}
       if !@definition.option(name).value_required? && !@definition.option(name).negatable? && @definition.option(name).default.nil?
-        raise ACON::Exceptions::Logic.new "Cannot cast optional option '#{name}' to non-nilable type '#{T}' without a default."
+        raise ACON::Exception::Logic.new "Cannot cast optional option '#{name}' to non-nilable type '#{T}' without a default."
       end
     {% end %}
 
@@ -142,7 +142,7 @@ abstract class Athena::Console::Input
       return @options[@definition.negation_to_name(name)] = ACON::Input::Value.from_value !value
     end
 
-    raise ACON::Exceptions::InvalidArgument.new "The '#{name}' option does not exist." unless @definition.has_option? name
+    raise ACON::Exception::InvalidArgument.new "The '#{name}' option does not exist." unless @definition.has_option? name
 
     @options[name] = ACON::Input::Value.from_value value
   end
@@ -174,7 +174,7 @@ abstract class Athena::Console::Input
       !@arguments.has_key?(arg) && @definition.argument(arg).required?
     end
 
-    raise ACON::Exceptions::ValidationFailed.new %(Not enough arguments (missing: '#{missing_args.join(", ")}').) unless missing_args.empty?
+    raise ACON::Exception::Runtime.new %(Not enough arguments (missing: '#{missing_args.join(", ")}').) unless missing_args.empty?
   end
 
   # Escapes a token via [Process.quote](https://crystal-lang.org/api/Process.html#quote%28arg%3AString%29%3AString-class-method) if it contains unsafe characters.

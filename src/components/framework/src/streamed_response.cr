@@ -45,7 +45,7 @@ class Athena::Framework::StreamedResponse < Athena::Framework::Response
 
   # :nodoc:
   def content=(content : String?) : Nil
-    raise "The content cannot be set on a StreamedResponse instance." unless content.nil?
+    raise ATH::Exception::Logic.new "The content cannot be set on a StreamedResponse instance." unless content.nil?
 
     @streamed = true
   end

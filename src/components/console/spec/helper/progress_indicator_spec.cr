@@ -89,7 +89,7 @@ struct ProgressIndicatorTest < ASPEC::TestCase
   end
 
   def test_requires_at_least_two_indicator_characters : Nil
-    expect_raises ACON::Exceptions::InvalidArgument, "Must have at least 2 indicator value characters." do
+    expect_raises ACON::Exception::InvalidArgument, "Must have at least 2 indicator value characters." do
       ACON::Helper::ProgressIndicator.new self.output, indicator_values: %w(a)
     end
   end
@@ -98,7 +98,7 @@ struct ProgressIndicatorTest < ASPEC::TestCase
     indicator = ACON::Helper::ProgressIndicator.new self.output
     indicator.start "Starting..."
 
-    expect_raises ACON::Exceptions::Logic, "Progress indicator is already started." do
+    expect_raises ACON::Exception::Logic, "Progress indicator is already started." do
       indicator.start "Starting Again..."
     end
   end
@@ -106,7 +106,7 @@ struct ProgressIndicatorTest < ASPEC::TestCase
   def test_cannot_advance_unstarted_indicator : Nil
     indicator = ACON::Helper::ProgressIndicator.new self.output
 
-    expect_raises ACON::Exceptions::Logic, "Progress indicator has not yet been started." do
+    expect_raises ACON::Exception::Logic, "Progress indicator has not yet been started." do
       indicator.advance
     end
   end
@@ -114,7 +114,7 @@ struct ProgressIndicatorTest < ASPEC::TestCase
   def test_cannot_finish_unstarted_indicator : Nil
     indicator = ACON::Helper::ProgressIndicator.new self.output
 
-    expect_raises ACON::Exceptions::Logic, "Progress indicator has not yet been started." do
+    expect_raises ACON::Exception::Logic, "Progress indicator has not yet been started." do
       indicator.finish "Finishing..."
     end
   end

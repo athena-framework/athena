@@ -8,7 +8,7 @@ private struct MockErrorRenderer
   end
 end
 
-private class MockException < ATH::Exceptions::BadRequest
+private class MockException < ATH::Exception::BadRequest
 end
 
 describe ATH::Listeners::Error do
@@ -35,22 +35,22 @@ describe ATH::Listeners::Error do
     end
 
     it "logs server HTTPExceptions as error" do
-      event = ATH::Events::Exception.new new_request, ATH::Exceptions::NotImplemented.new "nope"
+      event = ATH::Events::Exception.new new_request, ATH::Exception::NotImplemented.new "nope"
 
       Log.capture do |logs|
         ATH::Listeners::Error.new(MockErrorRenderer.new).on_exception event
 
-        logs.check :error, /Athena::Framework::Exceptions::NotImplemented:nope/
+        logs.check :error, /Athena::Framework::Exception::NotImplemented:nope/
       end
     end
 
     it "logs validation errors as notice" do
-      event = ATH::Events::Exception.new new_request, ATH::Exceptions::UnprocessableEntity.new "Vaidation tests failed"
+      event = ATH::Events::Exception.new new_request, ATH::Exception::UnprocessableEntity.new "Vaidation tests failed"
 
       Log.capture do |logs|
         ATH::Listeners::Error.new(MockErrorRenderer.new).on_exception event
 
-        logs.check :notice, /Athena::Framework::Exceptions::UnprocessableEntity:Vaidation tests failed/
+        logs.check :notice, /Athena::Framework::Exception::UnprocessableEntity:Vaidation tests failed/
       end
     end
 

@@ -36,7 +36,7 @@ require "./commands/*"
 require "./controller/**"
 require "./compiler_passes/*"
 require "./events/*"
-require "./exceptions/*"
+require "./exception/*"
 require "./listeners/*"
 require "./params/*"
 require "./request_matcher/*"
@@ -100,16 +100,16 @@ module Athena::Framework
   # See each specific event and the [Getting Started](/getting_started/middleware) docs for more information.
   module Events; end
 
-  # Exception handling in Athena is similar to exception handling in any Crystal program, with the addition of a new unique exception type, `ATH::Exceptions::HTTPException`.
+  # Exception handling in Athena is similar to exception handling in any Crystal program, with the addition of a new unique exception type, `ATH::Exception::HTTPException`.
   #
   # When an exception is raised, Athena emits the `ATH::Events::Exception` event to allow an opportunity for it to be handled. If the exception goes unhandled, i.e. no listener set
   # an `ATH::Response` on the event, then the request is finished and the exception is reraised. Otherwise, that response is returned, setting the status and merging the headers on the exceptions
-  # if it is an `ATH::Exceptions::HTTPException`. See `ATH::Listeners::Error` and `ATH::ErrorRendererInterface` for more information on how exceptions are handled by default.
+  # if it is an `ATH::Exception::HTTPException`. See `ATH::Listeners::Error` and `ATH::ErrorRendererInterface` for more information on how exceptions are handled by default.
   #
-  # To provide the best response to the client, non `ATH::Exceptions::HTTPException` should be rescued and converted into a corresponding `ATH::Exceptions::HTTPException`.
-  # Custom HTTP errors can also be defined by inheriting from `ATH::Exceptions::HTTPException` or a child type. A use case for this could be allowing for additional data/context to be included
+  # To provide the best response to the client, non `ATH::Exception::HTTPException` should be rescued and converted into a corresponding `ATH::Exception::HTTPException`.
+  # Custom HTTP errors can also be defined by inheriting from `ATH::Exception::HTTPException` or a child type. A use case for this could be allowing for additional data/context to be included
   # within the exception that ultimately could be used in a `ATH::Events::Exception` listener.
-  module Exceptions; end
+  module Exception; end
 
   # The event listeners that act upon `ATH::Events` to handle a request.
   # Custom listeners can also be defined, see `AEDA::AsEventListener`.

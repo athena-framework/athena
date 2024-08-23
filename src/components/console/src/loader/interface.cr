@@ -3,7 +3,7 @@
 # which can be more performant since not every command needs instantiated.
 module Athena::Console::Loader::Interface
   # Returns an `ACON::Command` with the provided *name*.
-  # Raises `ACON::Exceptions::CommandNotFound` if it is not defined.
+  # Raises `ACON::Exception::CommandNotFound` if it is not defined.
   abstract def get(name : String) : ACON::Command
 
   # Returns `true` if `self` has a command with the provided *name*, otherwise `false`.

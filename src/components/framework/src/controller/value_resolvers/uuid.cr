@@ -27,6 +27,6 @@ struct Athena::Framework::Controller::ValueResolvers::UUID
     return unless parameter.instance_of? ::UUID # TODO: Test making this not nil
     return unless value = request.attributes.get? parameter.name, String
 
-    ::UUID.parse?(value) || raise ATH::Exceptions::BadRequest.new "Parameter '#{parameter.name}' with value '#{value}' is not a valid 'UUID'."
+    ::UUID.parse?(value) || raise ATH::Exception::BadRequest.new "Parameter '#{parameter.name}' with value '#{value}' is not a valid 'UUID'."
   end
 end

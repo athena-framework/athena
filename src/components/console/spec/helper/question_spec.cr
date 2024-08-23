@@ -35,7 +35,7 @@ struct QuestionHelperTest < AbstractQuestionHelperTest
         question = ACON::Question::Choice.new "Who is your favorite superhero?", heroes, 1
         question.max_attempts = 1
         @helper.ask input, @output, question
-      rescue ex : ACON::Exceptions::InvalidArgument
+      rescue ex : ACON::Exception::InvalidArgument
         ex.message.should eq "Value 'George' is invalid."
       end
 
@@ -65,7 +65,7 @@ struct QuestionHelperTest < AbstractQuestionHelperTest
       begin
         question = ACON::Question::Choice.new "Who is your favorite superhero?", heroes
         @helper.ask input, @output, question
-      rescue ex : ACON::Exceptions::InvalidArgument
+      rescue ex : ACON::Exception::InvalidArgument
         ex.message.should eq "Value '' is invalid."
       end
     end
@@ -117,7 +117,7 @@ struct QuestionHelperTest < AbstractQuestionHelperTest
       begin
         question = ACON::Question::MultipleChoice.new "Who are your favorite superheros?", heroes, ""
         @helper.ask input, @output, question
-      rescue ex : ACON::Exceptions::InvalidArgument
+      rescue ex : ACON::Exception::InvalidArgument
         ex.message.should eq "Value '' is invalid."
       end
     end
@@ -252,7 +252,7 @@ struct QuestionHelperTest < AbstractQuestionHelperTest
     question = ACON::Question.new " What is your favorite color?", "white"
     question.max_attempts = 2
     question.validator do |answer|
-      raise ACON::Exceptions::ValidationFailed.new error unless answer.in? "white", "black"
+      raise ACON::Exception::Runtime.new error unless answer.in? "white", "black"
 
       answer
     end
@@ -263,7 +263,7 @@ struct QuestionHelperTest < AbstractQuestionHelperTest
     end
 
     self.with_input "green\nyellow\norange\n" do |input|
-      expect_raises ACON::Exceptions::ValidationFailed, error do
+      expect_raises ACON::Exception::Runtime, error do
         @helper.ask input, @output, question
       end
     end
@@ -354,7 +354,7 @@ struct QuestionHelperTest < AbstractQuestionHelperTest
     question.max_attempts = 1
 
     self.with_input "My environment\n" do |input|
-      expect_raises ACON::Exceptions::InvalidArgument, "The provided answer is ambiguous. Value should be one of 'env_2' or 'env_3'." do
+      expect_raises ACON::Exception::InvalidArgument, "The provided answer is ambiguous. Value should be one of 'env_2' or 'env_3'." do
         @helper.ask input, @output, question
       end
     end
@@ -372,7 +372,7 @@ struct QuestionHelperTest < AbstractQuestionHelperTest
     question = ACON::Question.new "Some question", "some answer"
 
     self.with_input "" do |input|
-      expect_raises ACON::Exceptions::MissingInput, "Aborted." do
+      expect_raises ACON::Exception::MissingInput, "Aborted." do
         @helper.ask input, @output, question
       end
     end

@@ -89,7 +89,7 @@ class Athena::Validator::Validator::RecursiveContextualValidator
 
       self
     else
-      raise ArgumentError.new "Could not validate values of type '#{value.class}' automatically.  Please provide a constraint."
+      raise AVD::Exception::InvalidArgument.new "Could not validate values of type '#{value.class}' automatically.  Please provide a constraint."
     end
   end
 
@@ -392,7 +392,7 @@ class Athena::Validator::Validator::RecursiveContextualValidator
       validator.context = context
 
       validator.validate value, constraint
-    rescue ex : AVD::Exceptions::UnexpectedValueError
+    rescue ex : AVD::Exception::UnexpectedValueError
       context.add_violation "This value should be a valid: {{ type }}", {"{{ type }}" => ex.supported_types}
     end
   end

@@ -78,7 +78,7 @@ struct ParamFetcherTest < ASPEC::TestCase
       AVD::ValueContainer.new(""),
     )
 
-    ex = expect_raises ATH::Exceptions::InvalidParameter do
+    ex = expect_raises ATH::Exception::InvalidParameter do
       @param_fetcher.get("foo").should eq "default"
     end
 
@@ -91,7 +91,7 @@ struct ParamFetcherTest < ASPEC::TestCase
 
     @request_store.request.query = "foo=value"
 
-    expect_raises ATH::Exceptions::BadRequest, "Required parameter 'foo' with value 'value' could not be converted into a valid 'Int32'" do
+    expect_raises ATH::Exception::BadRequest, "Required parameter 'foo' with value 'value' could not be converted into a valid 'Int32'" do
       @param_fetcher.get "foo"
     end
   end
@@ -99,7 +99,7 @@ struct ParamFetcherTest < ASPEC::TestCase
   def test_get_conversion_error_strict_union : Nil
     self.set_params [new_param("foo", default: 10, type: Int32?)] of ATH::Params::ParamInterface
     @request_store.request.query = "foo=value"
-    expect_raises ATH::Exceptions::BadRequest, "Required parameter 'foo' with value 'value' could not be converted into a valid '(Int32 | Nil)'" do
+    expect_raises ATH::Exception::BadRequest, "Required parameter 'foo' with value 'value' could not be converted into a valid '(Int32 | Nil)'" do
       @param_fetcher.get "foo"
     end
   end
@@ -132,7 +132,7 @@ struct ParamFetcherTest < ASPEC::TestCase
 
     @request_store.request.query = "bar=value&fos=value"
 
-    expect_raises ATH::Exceptions::BadRequest, "Parameter 'bar' is incompatible with parameter 'fos'." do
+    expect_raises ATH::Exception::BadRequest, "Parameter 'bar' is incompatible with parameter 'fos'." do
       @param_fetcher.get "bar"
     end
   end

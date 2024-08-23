@@ -40,7 +40,7 @@ abstract class Athena::Validator::Constraints::Composite < Athena::Validator::Co
                   end
 
     constraints.each_value do |c|
-      raise AVD::Exceptions::Logic.new "The '#{AVD::Constraints::Valid}' constraint cannot be nested inside a '#{self.class}' constraint." if c.is_a? AVD::Constraints::Valid
+      raise AVD::Exception::Logic.new "The '#{AVD::Constraints::Valid}' constraint cannot be nested inside a '#{self.class}' constraint." if c.is_a? AVD::Constraints::Valid
     end
 
     if groups.nil?
@@ -61,7 +61,7 @@ abstract class Athena::Validator::Constraints::Composite < Athena::Validator::Co
     constraints.each_value do |constraint|
       if !constraint.@groups.nil?
         unless (excess_groups = (constraint.groups - self.groups)).empty?
-          raise AVD::Exceptions::Logic.new "The group(s) '#{excess_groups.join ", "}' passed to the constraint '#{constraint.class}' should also be passed to its containing constraint '#{self.class}'."
+          raise AVD::Exception::Logic.new "The group(s) '#{excess_groups.join ", "}' passed to the constraint '#{constraint.class}' should also be passed to its containing constraint '#{self.class}'."
         end
       else
         constraint.groups = self.groups

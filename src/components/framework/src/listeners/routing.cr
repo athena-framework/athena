@@ -45,9 +45,9 @@ struct Athena::Framework::Listeners::Routing
 
       message += "."
 
-      raise ATH::Exceptions::NotFound.new message, ex
+      raise ATH::Exception::NotFound.new message, ex
     rescue ex : ART::Exception::MethodNotAllowed
-      raise ATH::Exceptions::MethodNotAllowed.new(
+      raise ATH::Exception::MethodNotAllowed.new(
         ex.allowed_methods,
         %(No route found for '#{request.method} #{request.resource}': Method Not Allowed (Allow: #{ex.allowed_methods.join ", "}).),
         ex

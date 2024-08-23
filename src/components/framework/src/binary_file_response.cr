@@ -69,7 +69,7 @@ class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
 
   # CAUTION: Cannot set the response content via this method on `self`.
   def content=(data) : Nil
-    raise "The content cannot be set on a BinaryFileResponse instance." unless data.nil?
+    raise ATH::Exception::Logic.new "The content cannot be set on a BinaryFileResponse instance." unless data.nil?
   end
 
   # CAUTION: Cannot get the response content via this method on `self`.

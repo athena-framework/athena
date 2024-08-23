@@ -19,7 +19,7 @@ struct NegotiatorTest < NegotiatorTestCase
   end
 
   def test_invalid_media_type : Nil
-    ex = expect_raises ANG::Exceptions::InvalidMediaType, "Invalid media type: '/qwer'." do
+    ex = expect_raises ANG::Exception::InvalidMediaType, "Invalid media type: '/qwer'." do
       @negotiator.best "foo/bar", {"/qwer"}
     end
 
