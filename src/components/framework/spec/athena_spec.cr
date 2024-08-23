@@ -7,6 +7,12 @@ private class MockHandler
   end
 end
 
+private enum Color
+  Red
+  Green
+  Blue
+end
+
 describe Athena::Framework do
   describe ".from_parameter" do
     describe Number do
@@ -51,6 +57,10 @@ describe Athena::Framework do
           Bool.from_parameter("foo")
         end
       end
+    end
+
+    it Enum do
+      Color.from_parameter("green").should eq Color::Green
     end
 
     it Object do
@@ -119,6 +129,11 @@ describe Athena::Framework do
       it "invalid" do
         Bool.from_parameter?("foo").should be_nil
       end
+    end
+
+    it Enum do
+      Color.from_parameter?("green").should eq Color::Green
+      Color.from_parameter?("black").should be_nil
     end
 
     it Object do

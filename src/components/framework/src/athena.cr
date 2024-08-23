@@ -38,7 +38,6 @@ require "./compiler_passes/*"
 require "./events/*"
 require "./exception/*"
 require "./listeners/*"
-require "./params/*"
 require "./request_matcher/*"
 require "./view/*"
 
@@ -71,6 +70,8 @@ module Athena::Framework
 
   # This type includes all of the built-in resolvers that Athena uses to try and resolve an argument for a particular controller action parameter.
   # They run in the following order:
+  #
+  # 1. `ATHR::QueryParameter` (110) - Attempts to resolve a value from the `ATH::Request` query parameters.
   #
   # 1. `ATHR::Enum` (105) - Attempts to resolve a value from `ATH::Request#attributes` into an enum member of the related type.
   # Works well in conjunction with `ART::Requirement::Enum`.

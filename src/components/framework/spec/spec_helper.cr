@@ -66,7 +66,6 @@ macro create_action(return_type = String, &)
     Proc(typeof(Tuple.new), {{return_type}}).new { {{yield}} },
     Tuple.new,
     ADI::AnnotationConfigurations.new,
-    Array(ATH::Params::ParamInterface).new,
     TestController,
     {{return_type}},
   )
@@ -83,24 +82,30 @@ end
 def new_action(
   *,
   arguments : Tuple = Tuple.new,
-  params : Array(ATH::Params::ParamInterface) = Array(ATH::Params::ParamInterface).new,
   annotation_configurations = nil
 ) : ATH::ActionBase
   ATH::Action.new(
     Proc(typeof(Tuple.new), String).new { test_controller = TestController.new; test_controller.get_test },
     arguments,
     annotation_configurations || ADI::AnnotationConfigurations.new,
-    params,
     TestController,
     String,
   )
 end
 
-def new_request(*, path : String = "/test", method : String = "GET", action : ATH::ActionBase = new_action, body : String | IO | Nil = nil) : ATH::Request
+def new_request(
+  *,
+  path : String = "/test",
+  method : String = "GET",
+  action : ATH::ActionBase = new_action,
+  body : String | IO | Nil = nil,
+  query : String? = nil
+) : ATH::Request
   request = ATH::Request.new method, path, body: body
   request.attributes.set "_controller", "TestController#test", String
   request.attributes.set "_route", "test_controller_test", String
   request.action = action
+  request.query = query
   request
 end
 

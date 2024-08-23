@@ -178,7 +178,6 @@ module Athena::Framework::Routing::AnnotationRouteLoader
 
             {%
               parameters = [] of Nil
-              params = [] of Nil
               annotation_configurations = {} of Nil => Nil
 
               # Logic for creating the `ATH::Action` instances:
@@ -241,73 +240,6 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                 annotation_configurations[ann_class] = "(#{annotations} of ADI::AnnotationConfigurations::ConfigurationBase)".id unless annotations.empty?
               end
 
-              # Process query and request params
-              [{ATHA::QueryParam, "ATH::Params::QueryParam".id}, {ATHA::RequestParam, "ATH::Params::RequestParam".id}].each do |(param_ann, param_class)|
-                m.annotations(param_ann).each do |ann|
-                  unless arg_name = (ann[0] || ann[:name])
-                    ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation but is missing the parameter's name. It was not provided as the first positional argument nor via the 'name' field."
-                  end
-
-                  arg = m.args.find &.name.stringify.==(arg_name)
-
-                  unless arg_names.includes? arg_name
-                    ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation but does not have a corresponding action parameter for '#{arg_name.id}'."
-                  end
-
-                  ann_args = ann.named_args
-
-                  requirements = ann_args[:requirements]
-
-                  if requirements.is_a? RegexLiteral
-                    requirements = ann_args[:requirements]
-                  elsif requirements.is_a? Annotation
-                    if !requirements.stringify.starts_with? "@[Assert::"
-                      requirements.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation whose 'requirements' value is invalid. Expected `Assert` annotation, got '#{requirements}'."
-                    end
-
-                    requirement_name = requirements.stringify.gsub(/Assert::/, "").gsub(/\(.*\)/, "").tr("@[]", "")
-                    if constraint = AVD::Constraint.all_subclasses.reject(&.abstract?).find { |c| requirement_name == c.name(generic_args: false).split("::").last }
-                      default_arg = requirements.args.empty? ? nil : requirements.args.first
-                      requirements = %(#{constraint.name(generic_args: false).id}.new(#{default_arg ? "#{default_arg},".id : "".id}#{requirements.named_args.double_splat})).id
-                    end
-                  elsif requirements.is_a? ArrayLiteral
-                    requirements = requirements.map_with_index do |r, idx|
-                      if !r.is_a?(Annotation) || !r.stringify.starts_with? "@[Assert::"
-                        r.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation whose 'requirements' array contains an invalid value. Expected `Assert` annotation, got '#{r}' at index #{idx}."
-                      end
-
-                      requirement_name = r.stringify.gsub(/Assert::/, "").gsub(/\(.*\)/, "").tr("@[]", "")
-
-                      # Use the name of the annotation as a way to match it up with the constraint until there is a better way.
-                      if constraint = AVD::Constraint.all_subclasses.reject(&.abstract?).find { |c| requirement_name == c.name(generic_args: false).split("::").last }
-                        # Don't support default args of nested annotations due to complexity,
-                        # can revisit when macro code can be shared.
-                        default_arg = r.args.empty? ? nil : r.args.first
-
-                        %(#{constraint.name(generic_args: false).id}.new(#{default_arg ? "#{default_arg},".id : "".id}#{r.named_args.double_splat})).id
-                      end
-                    end
-                  elsif !requirements.is_a? NilLiteral
-                    ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with an invalid 'requirements' type: '#{requirements.class_name.id}'. Only Regex, NamedTuple, or Array values are supported."
-                  end
-
-                  ann_args[:requirements] = requirements
-
-                  # Non strict parameters must be nilable or have a default value.
-                  if ann_args[:strict] == false && !arg.restriction.resolve.nilable? && arg.default_value.is_a?(Nop)
-                    ann.raise "Route action '#{klass.name}##{m.name}' has an #{param_ann} annotation with `strict: false` but the related action parameter is not nilable nor has a default value."
-                  end
-
-                  params << %(#{param_class}(#{arg.restriction}).new(
-                    name: #{arg_name},
-                    has_default: #{!arg.default_value.is_a?(Nop)},
-                    is_nilable: #{arg.restriction.resolve.nilable?},
-                    default: #{arg.default_value.is_a?(Nop) ? nil : arg.default_value},
-                    #{ann_args.double_splat}
-                  )).id
-                end
-              end
-
               # Setup the `ATH::Action` and set the `_controller` default so future logic knows which method it should handle it by default.
               route_name = if (value = route_def[:name]) != nil
                              if !value.is_a?(StringLiteral)
@@ -350,7 +282,6 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                 end,
                 parameters: {{parameters.empty? ? "Tuple.new".id : "{#{parameters.splat}}".id}},
                 annotation_configurations: ADI::AnnotationConfigurations.new({{annotation_configurations}} of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase)),
-                params: ({{params}} of ATH::Params::ParamInterface),
                 _controller: {{klass.id}},
                 _return_type: {{m.return_type}},
               )
@@ -544,7 +475,6 @@ module Athena::Framework::Routing::AnnotationRouteLoader
           ATH::Controller::ParameterMetadata(Bool).new("keep_request_method", true, false),
         },
         annotation_configurations: ADI::AnnotationConfigurations.new,
-        params: ([] of ATH::Params::ParamInterface),
         _controller: Athena::Framework::Controller::Redirect,
         _return_type: ATH::RedirectResponse,
       )
