@@ -2,21 +2,21 @@ require "./spec_helper"
 
 struct CustomAnnotationControllerTest < ATH::Spec::APITestCase
   def test_with_annotation : Nil
-    self.get("/with-ann")
+    self.get "/with-ann"
 
     self.assert_response_header_equals "ANNOTATION", "true"
     self.assert_response_header_equals "ANNOTATION_VALUE", "1"
   end
 
   def test_without_annotation : Nil
-    self.get("/without-ann")
+    self.get "/without-ann"
 
     self.assert_response_not_has_header "ANNOTATION"
     self.assert_response_header_equals "ANNOTATION_VALUE", "1"
   end
 
   def test_overriding_class_annotation : Nil
-    headers = self.get("/with-ann-override").headers
+    self.get "/with-ann-override"
 
     self.assert_response_not_has_header "ANNOTATION"
     self.assert_response_header_equals "ANNOTATION_VALUE", "2"

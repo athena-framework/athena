@@ -1,3 +1,5 @@
+require "./request"
+
 @[Athena::Framework::Annotations::Bundle("framework")]
 # The Athena Framework Bundle is responsible for integrating the various Athena components into the Athena Framework.
 # This primarily involves wiring up various types as services, and other DI related tasks.
@@ -15,8 +17,22 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
     include ADI::Extension::Schema
 
     # The default locale is used if no [_locale](/Routing/Route/#Athena::Routing::Route--special-parameters) routing parameter has been set.
-    # It is available with the Request::getDefaultLocale method.
     property default_locale : String = "en"
+
+    # Controls the IP addresses of trusted proxies that'll be used to get precise information about the client.
+    #
+    # See the [external documentation](/guides/proxies) for more information.
+    property trusted_proxies : Array(String)? = nil
+
+    # Controls which headers your `#trusted_proxies` use.
+    #
+    # See the [external documentation](/guides/proxies) for more information.
+    property trusted_headers : Athena::Framework::Request::ProxyHeader = Athena::Framework::Request::ProxyHeader[:forwarded_for, :forwarded_port, :forwarded_proto]
+
+    # Allows overriding the header name to use for a given `ATH::Request::ProxyHeader`.
+    #
+    # See the [external documentation](/guides/proxies/#custom-headers) for more information.
+    property trusted_header_overrides : Hash(Athena::Framework::Request::ProxyHeader, String) = {} of NoReturn => NoReturn
 
     # Configuration related to the `ATH::Listeners::Format` listener.
     #
@@ -259,6 +275,15 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
               },
             }
 
+            SERVICE_HASH["athena_framework_controllers_redirect"] = {
+              class:      Athena::Framework::Controller::Redirect,
+              public:     true,
+              parameters: {
+                http_port:  {value: "%framework.request_listener.http_port%"},
+                https_port: {value: "%framework.request_listener.https_port%"},
+              },
+            }
+
             if default_uri = cfg["default_uri"]
               SERVICE_HASH[request_context_id]["parameters"]["uri"]["value"] = default_uri
             end
@@ -285,7 +310,7 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
                   end
 
                   if v = rule["host"]
-                    matchers << "ATH::RequestMatcher::Host.new(#{v})".id
+                    matchers << "ATH::RequestMatcher::Hostname.new(#{v})".id
                   end
 
                   if v = rule["methods"]
@@ -312,9 +337,13 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
                 )".id}}
               end
 
-              SERVICE_HASH["athena_framework_listeners_format"] = {
+              SERVICE_HASH["athena_framework_view_format_negotiator"] = {
                 class: ATH::View::FormatNegotiator,
                 calls: calls,
+              }
+
+              SERVICE_HASH["athena_framework_listeners_format"] = {
+                class: ATH::Listeners::Format,
               }
             end
           %}

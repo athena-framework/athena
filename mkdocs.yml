@@ -29,6 +29,9 @@ nav:
     - Commands: getting_started/commands.md
     - Validation: getting_started/validation.md
     - Testing: getting_started/testing.md
+  - Guides:
+    - guides/README.md
+    - Proxies & Load Balancers: guides/proxies.md
   - API Reference:
     - api_reference.md
     - project://clock

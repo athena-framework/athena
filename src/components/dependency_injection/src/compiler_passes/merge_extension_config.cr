@@ -113,11 +113,38 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                                  elsif config_value.is_a?(NumberLiteral) && (type = prop["type"]) <= ::Enum
                                    # Resolve enum value to enum members
                                    config_value = "#{type}.new(#{config_value})".id
+                                 elsif config_value.is_a?(ArrayLiteral)
+                                   # If there is an array literal and the prop has `members`,
+                                   # assume it is an `array_of` schema property array and fill in unprovided fields.
+                                   if member_map = prop["members"]
+                                     config_value.each do |cfv|
+                                       provided_keys = cfv.keys
+
+                                       # We only want to add in missing default values, so reject any properties that were provided, even if they may be incorrect.
+                                       member_map.keys.reject { |k| k.stringify == "__nil" || provided_keys.includes? k }.each do |k|
+                                         decl = member_map[k]
+
+                                         # Skip setting required values so that it results in a missing error vs type mismatch error.
+                                         cfv[k] = decl.value unless decl.value.is_a?(Nop)
+                                       end
+                                     end
+                                   end
+
+                                   config_value
                                  elsif config_value.is_a?(NamedTupleLiteral)
                                    # Fill in `nil` values to missing nilable NT keys
                                    if member_map = prop["members"]
-                                     member_map.each do |k, decl|
-                                       if config_value[k] == nil && decl && decl.type.resolve.nilable?
+                                     provided_keys = config_value.keys
+
+                                     # We only want to add in missing default values, so reject any properties that were provided, even if they may be incorrect.
+                                     member_map.keys.reject { |k| k.stringify == "__nil" || provided_keys.includes? k }.each do |k|
+                                       decl = member_map[k]
+
+                                       # If the value has a default, use it.
+                                       # Otherwise skip setting required values so that it results in a missing error vs type mismatch error.
+                                       if !decl.value.is_a?(Nop)
+                                         config_value[k] = decl.value
+                                       elsif decl.type.resolve.nilable?
                                          config_value[k] = nil
                                        end
                                      end
@@ -152,6 +179,42 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
 
                                      # Resolve symbol literals to enum members
                                      default_value = "#{type}.new(#{default_value})".id
+                                   elsif default_value.is_a?(ArrayLiteral)
+                                     # If there is an array literal and the prop has `members`,
+                                     # assume it is an `array_of` schema property array and fill in unprovided fields.
+                                     if member_map = prop["members"]
+                                       default_value.each do |cfv|
+                                         provided_keys = cfv.keys
+
+                                         # We only want to add in missing default values, so reject any properties that were provided, even if they may be incorrect.
+                                         member_map.keys.reject { |k| k.stringify == "__nil" || provided_keys.includes? k }.each do |k|
+                                           decl = member_map[k]
+
+                                           # Skip setting required values so that it results in a missing error vs type mismatch error.
+                                           cfv[k] = decl.value unless decl.value.is_a?(Nop)
+                                         end
+                                       end
+                                     end
+
+                                     default_value
+                                   elsif default_value.is_a?(NamedTupleLiteral)
+                                     # Fill in `nil` values to missing nilable NT keys
+                                     if member_map = prop["members"]
+                                       provided_keys = default_value.keys
+
+                                       # We only want to add in missing default values, so reject any properties that were provided, even if they may be incorrect.
+                                       member_map.keys.reject { |k| k.stringify == "__nil" || provided_keys.includes? k }.each do |k|
+                                         decl = member_map[k]
+
+                                         # If the value has a default, use it.
+                                         # Otherwise skip setting required values so that it results in a missing error vs type mismatch error.
+                                         if !decl.value.is_a?(Nop)
+                                           default_value[k] = decl.value
+                                         elsif decl.type.resolve.nilable?
+                                           default_value[k] = nil
+                                         end
+                                       end
+                                     end
                                    end
 
                                    default_value

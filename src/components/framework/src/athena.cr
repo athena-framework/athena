@@ -18,6 +18,7 @@ require "./controller_resolver"
 require "./error_renderer_interface"
 require "./error_renderer"
 require "./header_utils"
+require "./ip_utils"
 require "./logging"
 require "./parameter_bag"
 require "./redirect_response"
@@ -58,7 +59,7 @@ alias ATHA = ATH::Annotations
 alias ATHR = ATH::Controller::ValueResolvers
 
 module Athena::Framework
-  VERSION = "0.19.1"
+  VERSION = "0.19.2"
 
   # The name of the environment variable used to determine Athena's current environment.
   ENV_NAME = "ATHENA_ENV"
@@ -76,7 +77,7 @@ module Athena::Framework
   #
   # 1. `ATHR::Time` (105) - Attempts to resolve a value from the request attributes into a `::Time` instance,
   # defaulting to [RFC 3339](https://crystal-lang.org/api/Time.html#parse_rfc3339%28time:String%29-class-method).
-  # Format/location can be customized via the `ATHR::Time::Format` annotation.
+  # Format/location can be customized via the `ATHA::MapTime` annotation.
   #
   # 1. `ATHR::UUID` (105) - Attempts to resolve a value from the request attributes into a `::UUID` instance.
   #
@@ -214,6 +215,15 @@ module Athena::Framework
     end
 
     def start : Nil
+      # TODO: Is there a better place to do this?
+      {% if (trusted_proxies = ADI::CONFIG["framework"]["trusted_proxies"]) && (trusted_headers = ADI::CONFIG["framework"]["trusted_headers"]) %}
+        ATH::Request.set_trusted_proxies({{trusted_proxies}}, {{trusted_headers}})
+      {% end %}
+
+      {% for header, name in ADI::CONFIG["framework"]["trusted_header_overrides"] %}
+        ATH::Request.override_trusted_header({{header}}, {{name}})
+      {% end %}
+
       {% if flag?(:without_openssl) %}
         @server.bind_tcp @host, @port, reuse_port: @reuse_port
       {% else %}
@@ -225,11 +235,7 @@ module Athena::Framework
       {% end %}
 
       # Handle exiting correctly on interrupt signals
-      {% if compare_versions(Crystal::VERSION, "1.12.0") >= 0 %}
-        Process.on_terminate { self.stop }
-      {% else %}
-        Process.on_interrupt { self.stop }
-      {% end %}
+      Process.on_terminate { self.stop }
 
       Log.info { %(Server has started and is listening at #{@ssl_context ? "https" : "http"}://#{@server.addresses.first}) }
 

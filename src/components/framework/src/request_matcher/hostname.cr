@@ -8,7 +8,7 @@ struct Athena::Framework::RequestMatcher::Hostname
 
   # :inherit:
   def matches?(request : ATH::Request) : Bool
-    return false unless hostname = request.hostname
+    return false unless hostname = request.host
 
     hostname.matches? @regex
   end

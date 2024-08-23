@@ -219,6 +219,8 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
 
   class Validator < Athena::Validator::ConstraintValidator
     # :inherit:
+    #
+    # ameba:disable Metrics/CyclomaticComplexity
     def validate(value : _, constraint : AVD::Constraints::File) : Nil
       return if value.nil? || value == ""
 
@@ -241,24 +243,15 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
         return
       end
 
-      # TODO: Inline this again once 1.13.0 is the new min version
-      {% begin %}
-        {% if compare_versions(Crystal::VERSION, "1.13.0-dev") >= 0 %}
-          is_file_readable = ::File::Info.readable? path
-        {% else %}
-          is_file_readable = ::File.readable? path
-        {% end %}
+      unless ::File::Info.readable? path
+        self
+          .context
+          .build_violation(constraint.not_readable_message, NOT_READABLE_ERROR)
+          .add_parameter("{{ file }}", path)
+          .add
 
-        unless is_file_readable
-          self
-            .context
-            .build_violation(constraint.not_readable_message, NOT_READABLE_ERROR)
-            .add_parameter("\{{ file }}", path)
-            .add
-
-          return
-        end
-      {% end %}
+        return
+      end
 
       size_in_bytes = ::File.size path
       base_name = ::File.basename path
