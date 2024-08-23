@@ -199,7 +199,7 @@ struct Athena::Framework::Listeners::CORS
         next if SAFELISTED_HEADERS.includes? header
         next if @config.allow_headers.includes? header
 
-        raise ATH::Exceptions::Forbidden.new "Unauthorized header: '#{header}'."
+        raise ATH::Exception::Forbidden.new "Unauthorized header: '#{header}'."
       end
     end
 

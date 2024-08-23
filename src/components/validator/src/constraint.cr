@@ -260,7 +260,7 @@ abstract class Athena::Validator::Constraint
 
   # Returns the name of the provided *error_code*.
   def self.error_name(error_code : String) : String
-    @@error_names[error_code]? || raise KeyError.new "The error code '#{error_code}' does not exist for constraint of type '#{self}'."
+    @@error_names[error_code]? || raise AVD::Exception::InvalidArgument.new "The error code '#{error_code}' does not exist for constraint of type '#{self}'."
   end
 
   # Returns the message that should be rendered if `self` is found to be invalid.

@@ -41,7 +41,7 @@ require "./definition"
 #
 # The latter syntax is preferred since it correctly types the value.
 # If a provided value cannot be converted to the expected type,
-# an `ACON::Exceptions::Logic` exception will be raised.
+# an `ACON::Exception::Logic` exception will be raised.
 # E.g. `'123' is not a valid 'Bool'.`.
 #
 # TIP: Argument/option modes can be combined.
@@ -176,7 +176,7 @@ module Athena::Console::Input::Interface
   abstract def bind(definition : ACON::Input::Definition) : Nil
 
   # Validates the input, asserting all of the required parameters are provided.
-  # Raises `ACON::Exceptions::ValidationFailed` if not valid.
+  # Raises `ACON::Exception::Runtime` when not enough arguments are given.
   abstract def validate : Nil
 
   # Returns a `::Hash` representing the keys and values of the parsed arguments of `self`.
@@ -188,7 +188,7 @@ module Athena::Console::Input::Interface
   # Returns the value of the argument with the provided *name* converted to the desired *type*.
   # This method is preferred over `#argument` since it provides better typing.
   #
-  # Raises an `ACON::Exceptions::Logic` if the actual argument value could not be converted to a *type*.
+  # Raises an `ACON::Exception::Logic` if the actual argument value could not be converted to a *type*.
   abstract def argument(name : String, type : T.class) forall T
 
   # Sets the *value* of the argument with the provided *name*.
@@ -206,7 +206,7 @@ module Athena::Console::Input::Interface
   # Returns the value of the option with the provided *name* converted to the desired *type*.
   # This method is preferred over `#option` since it provides better typing.
   #
-  # Raises an `ACON::Exceptions::Logic` if the actual option value could not be converted to a *type*.
+  # Raises an `ACON::Exception::Logic` if the actual option value could not be converted to a *type*.
   abstract def option(name : String, type : T.class) forall T
 
   # Sets the *value* of the option with the provided *name*.

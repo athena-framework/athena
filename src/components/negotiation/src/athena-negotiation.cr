@@ -8,7 +8,7 @@ require "./encoding_negotiator"
 require "./language_negotiator"
 require "./negotiator"
 
-require "./exceptions/*"
+require "./exception/*"
 
 # Convenience alias to make referencing `Athena::Negotiation` types easier.
 alias ANG = Athena::Negotiation
@@ -29,6 +29,6 @@ module Athena::Negotiation
   # Returns a lazily initialized `ANG::LanguageNegotiator` singleton instance.
   class_getter(language_negotiator) { ANG::LanguageNegotiator.new }
 
-  # Contains all custom exceptions defined within `Athena::Negotiation`.
-  module Exceptions; end
+  # Both acts as a namespace for exceptions related to the `Athena::Negotiation` component, as well as a way to check for exceptions from the component.
+  module Exception; end
 end

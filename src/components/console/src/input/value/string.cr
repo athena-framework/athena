@@ -5,14 +5,14 @@ struct Athena::Console::Input::Value::String < Athena::Console::Input::Value
   def initialize(@value : ::String); end
 
   def get(type : ::Bool.class) : ::Bool
-    raise ACON::Exceptions::Logic.new "'#{@value}' is not a valid 'Bool'." unless @value.in? "true", "false"
+    raise ACON::Exception::Logic.new "'#{@value}' is not a valid 'Bool'." unless @value.in? "true", "false"
 
     @value == "true"
   end
 
   def get(type : ::Bool?.class) : ::Bool?
     (@value == "true").try do |v|
-      raise ACON::Exceptions::Logic.new "'#{@value}' is not a valid 'Bool?'." unless @value.in? "true", "false"
+      raise ACON::Exception::Logic.new "'#{@value}' is not a valid 'Bool?'." unless @value.in? "true", "false"
       return v
     end
 
@@ -31,13 +31,13 @@ struct Athena::Console::Input::Value::String < Athena::Console::Input::Value
     def get(type : {{type.id}}.class) : {{type.id}}
       {{type.id}}.new @value
     rescue ArgumentError
-      raise ACON::Exceptions::Logic.new "'#{@value}' is not a valid '#{{{type.id}}}'."
+      raise ACON::Exception::Logic.new "'#{@value}' is not a valid '#{{{type.id}}}'."
     end
 
     def get(type : {{type.id}}?.class) : {{type.id}}?
       {{type.id}}.new(@value) || nil
     rescue ArgumentError
-      raise ACON::Exceptions::Logic.new "'#{@value}' is not a valid '#{{{type.id}}}'."
+      raise ACON::Exception::Logic.new "'#{@value}' is not a valid '#{{{type.id}}}'."
     end
   {% end %}
 end

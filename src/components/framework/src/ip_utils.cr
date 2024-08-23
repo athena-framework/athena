@@ -83,7 +83,6 @@ module Athena::Framework::IPUtils
         return self.set_cached_result cache_key, false
       end
 
-      address = ip
       netmask = 128
     end
 

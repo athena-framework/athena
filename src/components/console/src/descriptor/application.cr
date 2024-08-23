@@ -18,7 +18,7 @@ record Athena::Console::Descriptor::Application, application : ACON::Application
 
   def command(name : String) : ACON::Command
     if !@commands.not_nil!.has_key?(name) && !@aliases.not_nil!.has_key?(name)
-      raise ACON::Exceptions::CommandNotFound.new "Command '#{name}' does not exist."
+      raise ACON::Exception::CommandNotFound.new "Command '#{name}' does not exist."
     end
 
     @commands.not_nil![name]? || @aliases.not_nil![name]

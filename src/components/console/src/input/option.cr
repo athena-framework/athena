@@ -75,7 +75,7 @@ class Athena::Console::Input::Option
   )
     @name = name.lchop "--"
 
-    raise ACON::Exceptions::InvalidArgument.new "An option name cannot be blank." if name.blank?
+    raise ACON::Exception::InvalidArgument.new "An option name cannot be blank." if name.blank?
 
     unless shortcut.nil?
       if shortcut.is_a? Enumerable
@@ -87,27 +87,27 @@ class Athena::Console::Input::Option
       # Ensure each grouping contains only the same character
       shortcut.each do |s|
         unless s.split("").uniq!.size == 1
-          raise ACON::Exceptions::InvalidArgument.new "An option shortcut must consist of the same character, got '#{s}'."
+          raise ACON::Exception::InvalidArgument.new "An option shortcut must consist of the same character, got '#{s}'."
         end
       end
 
       shortcut = shortcut.join '|'
 
-      raise ACON::Exceptions::InvalidArgument.new "An option shortcut cannot be blank." if shortcut.blank?
+      raise ACON::Exception::InvalidArgument.new "An option shortcut cannot be blank." if shortcut.blank?
     end
 
     @shortcut = shortcut
 
     if @suggested_values && !self.accepts_value?
-      raise ACON::Exceptions::InvalidArgument.new "Cannot set suggested values if the option does not accept a value."
+      raise ACON::Exception::Logic.new "Cannot set suggested values if the option does not accept a value."
     end
 
     if @value_mode.is_array? && !self.accepts_value?
-      raise ACON::Exceptions::InvalidArgument.new " Cannot have VALUE::IS_ARRAY option mode when the option does not accept a value."
+      raise ACON::Exception::InvalidArgument.new " Cannot have VALUE::IS_ARRAY option mode when the option does not accept a value."
     end
 
     if @value_mode.negatable? && self.accepts_value?
-      raise ACON::Exceptions::InvalidArgument.new " Cannot have VALUE::NEGATABLE option mode if the option also accepts a value."
+      raise ACON::Exception::InvalidArgument.new " Cannot have VALUE::NEGATABLE option mode if the option also accepts a value."
     end
 
     self.default = default
@@ -138,13 +138,13 @@ class Athena::Console::Input::Option
 
   # Sets the default value of `self`.
   def default=(default = nil) : Nil
-    raise ACON::Exceptions::Logic.new "Cannot set a default value when using Value::NONE mode." if @value_mode.none? && !default.nil?
+    raise ACON::Exception::Logic.new "Cannot set a default value when using Value::NONE mode." if @value_mode.none? && !default.nil?
 
     if @value_mode.is_array?
       if default.nil?
         return @default = ACON::Input::Value::Array.new
       else
-        raise ACON::Exceptions::Logic.new "Default value for an array option must be an array." unless default.is_a? Array
+        raise ACON::Exception::Logic.new "Default value for an array option must be an array." unless default.is_a? Array
       end
     end
 

@@ -16,7 +16,7 @@ class Athena::Framework::Controller::Redirect
     keep_request_method : Bool = false
   ) : ATH::RedirectResponse
     if path.empty?
-      raise ATH::Exceptions::HTTPException.new (permanent ? HTTP::Status::GONE : HTTP::Status::NOT_FOUND), ""
+      raise ATH::Exception::HTTPException.new (permanent ? HTTP::Status::GONE : HTTP::Status::NOT_FOUND), ""
     end
 
     status = if keep_request_method

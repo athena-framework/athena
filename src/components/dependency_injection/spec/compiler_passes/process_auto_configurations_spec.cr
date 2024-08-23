@@ -348,7 +348,7 @@ describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
     end
 
     it "handles a non service abstract parent type with service child types" do
-      collection = ADI.container.non_service_abstract_client.services.should eq [NonServiceChild1.new, NonServiceChild2.new]
+      ADI.container.non_service_abstract_client.services.should eq [NonServiceChild1.new, NonServiceChild2.new]
     end
 
     it "provides an empty array if there were no services configured with the desired tag" do

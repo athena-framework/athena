@@ -4,13 +4,13 @@ private alias CONSTRAINT = AVD::Constraints::Choice
 
 struct ChoiceValidatorTest < AVD::Spec::ConstraintValidatorTestCase
   def test_requires_enumerable_if_multiple_is_true : Nil
-    expect_raises AVD::Exceptions::UnexpectedValueError, "Enumerable" do
+    expect_raises AVD::Exception::UnexpectedValueError, "Enumerable" do
       self.validator.validate "foo", self.new_constraint choices: ["foo", "bar"], multiple: true
     end
   end
 
   def test_requires_enumerable_if_multiple_is_false : Nil
-    expect_raises AVD::Exceptions::UnexpectedValueError, "Enumerable" do
+    expect_raises AVD::Exception::UnexpectedValueError, "Enumerable" do
       self.validator.validate [1, 2], self.new_constraint choices: ["foo", "bar"], multiple: false
     end
   end

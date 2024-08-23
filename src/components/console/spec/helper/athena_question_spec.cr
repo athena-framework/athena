@@ -37,7 +37,7 @@ struct AthenaQuestionTest < AbstractQuestionHelperTest
         question = ACON::Question::Choice.new "Who is your favorite superhero?", heroes, 1
         question.max_attempts = 1
         @helper.ask input, @output, question
-      rescue ex : ACON::Exceptions::InvalidArgument
+      rescue ex : ACON::Exception::InvalidArgument
         ex.message.should eq "Value 'George' is invalid."
       end
     end
@@ -123,7 +123,7 @@ struct AthenaQuestionTest < AbstractQuestionHelperTest
     self.with_input "" do |input|
       question = ACON::Question(String?).new "What's your name?", nil
 
-      expect_raises ACON::Exceptions::MissingInput, "Aborted." do
+      expect_raises ACON::Exception::MissingInput, "Aborted." do
         @helper.ask input, @output, question
       end
     end

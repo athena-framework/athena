@@ -8,7 +8,7 @@ struct Athena::Framework::ErrorRenderer
 
   # :inherit:
   def render(exception : ::Exception) : ATH::Response
-    if exception.is_a? ATH::Exceptions::HTTPException
+    if exception.is_a? ATH::Exception::HTTPException
       status = exception.status
       headers = exception.headers
     else

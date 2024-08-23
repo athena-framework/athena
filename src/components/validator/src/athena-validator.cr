@@ -13,7 +13,7 @@ require "./validatable"
 require "./constraints/abstract_comparison"
 require "./constraints/abstract_comparison_validator"
 require "./constraints/*"
-require "./exceptions/*"
+require "./exception/*"
 require "./metadata/*"
 require "./validator/*"
 require "./violation/*"
@@ -48,8 +48,8 @@ module Athena::Validator
   # The `Assert` alias is used to apply these constraints via annotations.
   module Constraints; end
 
-  # Contains all custom exceptions defined within `Athena::Validator`.
-  module Exceptions; end
+  # Both acts as a namespace for exceptions related to the `Athena::Validator` component, as well as a way to check for exceptions from the component.
+  module Exception; end
 
   # Contains types used to store metadata associated with a given `AVD::Validatable` instance.
   #

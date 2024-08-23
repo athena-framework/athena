@@ -3,7 +3,7 @@ require "../../spec_helper"
 describe ACON::Input::Value::Number do
   describe "#get" do
     it Bool do
-      expect_raises ACON::Exceptions::Logic, "'123' is not a valid 'Bool'." do
+      expect_raises ACON::Exception::Logic, "'123' is not a valid 'Bool'." do
         ACON::Input::Value::Number.new(123).get Bool
       end
     end
@@ -36,19 +36,19 @@ describe ACON::Input::Value::Number do
 
     describe Array do
       it String do
-        expect_raises ACON::Exceptions::Logic, "'123' is not a valid 'Array(String)'." do
+        expect_raises ACON::Exception::Logic, "'123' is not a valid 'Array(String)'." do
           ACON::Input::Value::Number.new(123).get Array(String)
         end
       end
 
       it Int32 do
-        expect_raises ACON::Exceptions::Logic, "'123' is not a valid '(Array(Int32) | Nil)'." do
+        expect_raises ACON::Exception::Logic, "'123' is not a valid '(Array(Int32) | Nil)'." do
           ACON::Input::Value::Number.new(123).get Array(Int32)?
         end
       end
 
       it Bool do
-        expect_raises ACON::Exceptions::Logic, "'123' is not a valid 'Array(Bool)'." do
+        expect_raises ACON::Exception::Logic, "'123' is not a valid 'Array(Bool)'." do
           ACON::Input::Value::Number.new(123).get Array(Bool)
         end
       end

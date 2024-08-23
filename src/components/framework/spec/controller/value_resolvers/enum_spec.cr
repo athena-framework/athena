@@ -92,7 +92,7 @@ describe ATHR::Enum do
       request = new_request
       request.attributes.set "enum", "  4  "
 
-      expect_raises ATH::Exceptions::BadRequest, "Parameter 'enum' of enum type 'TestEnum' has no valid member for '  4  '." do
+      expect_raises ATH::Exception::BadRequest, "Parameter 'enum' of enum type 'TestEnum' has no valid member for '  4  '." do
         ATHR::Enum.new.resolve request, parameter
       end
     end

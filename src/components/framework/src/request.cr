@@ -207,7 +207,7 @@ class Athena::Framework::Request
       return unless @is_host_valid
       @is_host_valid = false
 
-      raise ATH::Exceptions::SuspiciousOperation.new "Invalid Host: '#{host}'."
+      raise ATH::Exception::SuspiciousOperation.new "Invalid Host: '#{host}'."
     end
 
     # TODO: Trusted hosts
@@ -316,15 +316,12 @@ class Athena::Framework::Request
     end
 
     if @@trusted_header_set.includes?(ProxyHeader::FORWARDED) && (forwarded_param = type.forwarded_param) && (forwarded = @request.headers[ProxyHeader::FORWARDED.header]?)
-      parts = ATH::HeaderUtils.split forwarded, ",;="
-      param = type.forwarded_param
-
-      parts.each do |sub_parts|
+      ATH::HeaderUtils.split(forwarded, ",;=").each do |sub_parts|
         # In this particular context compiler gets confused, so lets make it happy by skipping unexpected typed parts, which should never happen.
         next if sub_parts.is_a?(String)
         next if sub_parts.nil?
 
-        unless v = HeaderUtils.combine(sub_parts)[param]?.as?(String?)
+        unless v = HeaderUtils.combine(sub_parts)[forwarded_param]?.as?(String?)
           next
         end
 
@@ -353,7 +350,7 @@ class Athena::Framework::Request
     end
     @is_forwarded_valid = false
 
-    raise ATH::Exceptions::ConflictingHeaders.new "The request has both a trusted '#{ProxyHeader::FORWARDED.header}' header and a trusted '#{type.header}' header, conflicting with each other. \
+    raise ATH::Exception::ConflictingHeaders.new "The request has both a trusted '#{ProxyHeader::FORWARDED.header}' header and a trusted '#{type.header}' header, conflicting with each other. \
       You should either configure your proxy to remove one of them, or configure your project to distrust the offending one."
   end
 

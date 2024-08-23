@@ -155,7 +155,7 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
   protected def parse_token(token : String, parse_options : Bool) : Bool
     begin
       return super
-    rescue ex : ACON::Exceptions::InvalidArgument
+    rescue ex : ACON::Exception::Runtime
       # noop, completed input is almost never valid
     end
 
@@ -180,7 +180,7 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
     number_of_tokens = @tokens.size
 
     if @current_index > number_of_tokens
-      raise "Current index is invalid, it must be the number of input tokens."
+      raise RuntimeError.new "Current index is invalid, it must be the number of input tokens."
     end
 
     @current_index >= number_of_tokens

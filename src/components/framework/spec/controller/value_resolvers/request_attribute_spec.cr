@@ -38,7 +38,7 @@ describe ATHR::RequestAttribute do
         request = new_request
         request.attributes.set "id", "foo"
 
-        expect_raises ATH::Exceptions::BadRequest, "Parameter 'id' with value 'foo' could not be converted into a valid 'Int32'." do
+        expect_raises ATH::Exception::BadRequest, "Parameter 'id' with value 'foo' could not be converted into a valid 'Int32'." do
           ATHR::RequestAttribute.new.resolve request, parameter
         end
       end

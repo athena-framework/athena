@@ -67,7 +67,7 @@ class Athena::Console::Application
   # application.default_command "foo", true
   # application.catch_exceptions = false
   #
-  # application.run # => Not enough arguments (missing: 'name'). (Athena::Console::Exceptions::ValidationFailed)
+  # application.run # => Not enough arguments (missing: 'name'). (Athena::Console::Exception::Runtime)
   # ```
   setter catch_exceptions : Bool = true
 
@@ -278,7 +278,7 @@ class Athena::Console::Application
   # Returns the `ACON::Command` with the provided *name*, which can either be the full name, an abbreviation, or an alias.
   # This method will attempt to find the best match given an abbreviation of a name or alias.
   #
-  # Raises an `ACON::Exceptions::CommandNotFound` exception when the provided *name* is incorrect or ambiguous.
+  # Raises an `ACON::Exception::CommandNotFound` exception when the provided *name* is incorrect or ambiguous.
   #
   # ameba:disable Metrics/CyclomaticComplexity
   def find(name : String) : ACON::Command
@@ -328,7 +328,7 @@ class Athena::Console::Application
         message += alternatives.join("\n    ")
       end
 
-      raise ACON::Exceptions::CommandNotFound.new message, alternatives
+      raise ACON::Exception::CommandNotFound.new message, alternatives
     end
 
     # Filter out aliases for commands which are already on the list.
@@ -366,20 +366,20 @@ class Athena::Console::Application
       if commands.size > 1
         suggestions = self.abbreviation_suggestions abbreviations.compact
 
-        raise ACON::Exceptions::CommandNotFound.new "Command '#{name}' is ambiguous.\nDid you mean one of these?\n#{suggestions}", commands
+        raise ACON::Exception::CommandNotFound.new "Command '#{name}' is ambiguous.\nDid you mean one of these?\n#{suggestions}", commands
       end
     end
 
     command = self.get commands.first
 
-    raise ACON::Exceptions::CommandNotFound.new "The command '#{name}' does not exist." if command.hidden?
+    raise ACON::Exception::CommandNotFound.new "The command '#{name}' does not exist." if command.hidden?
 
     command
   end
 
   # Returns the full name of a registered namespace with the provided *name*, which can either be the full name or an abbreviation.
   #
-  # Raises an `ACON::Exceptions::NamespaceNotFound` exception when the provided *name* is incorrect or ambiguous.
+  # Raises an `ACON::Exception::NamespaceNotFound` exception when the provided *name* is incorrect or ambiguous.
   def find_namespace(name : String) : String
     all_namespace_names = self.namespaces
 
@@ -398,13 +398,13 @@ class Athena::Console::Application
         message += alternatives.join("\n    ")
       end
 
-      raise ACON::Exceptions::NamespaceNotFound.new message, alternatives
+      raise ACON::Exception::NamespaceNotFound.new message, alternatives
     end
 
     exact = namespaces.includes? name
 
     if namespaces.size > 1 && !exact
-      raise ACON::Exceptions::NamespaceNotFound.new "The namespace '#{name}' is ambiguous.\nDid you mean one of these?\n#{self.abbreviation_suggestions namespaces}", namespaces
+      raise ACON::Exception::NamespaceNotFound.new "The namespace '#{name}' is ambiguous.\nDid you mean one of these?\n#{self.abbreviation_suggestions namespaces}", namespaces
     end
 
     exact ? name : namespaces.first
@@ -412,14 +412,14 @@ class Athena::Console::Application
 
   # Returns the `ACON::Command` with the provided *name*.
   #
-  # Raises an `ACON::Exceptions::CommandNotFound` exception when a command with the provided *name* does not exist.
+  # Raises an `ACON::Exception::CommandNotFound` exception when a command with the provided *name* does not exist.
   def get(name : String) : ACON::Command
     self.init
 
-    raise ACON::Exceptions::CommandNotFound.new "The command '#{name}' does not exist." unless self.has? name
+    raise ACON::Exception::CommandNotFound.new "The command '#{name}' does not exist." unless self.has? name
 
     if !@commands.has_key? name
-      raise ACON::Exceptions::CommandNotFound.new "The '#{name}' command cannot be found because it is registered under multiple names. Make sure you don't set a different name via constructor or 'name='."
+      raise ACON::Exception::CommandNotFound.new "The '#{name}' command cannot be found because it is registered under multiple names. Make sure you don't set a different name via constructor or 'name='."
     end
 
     command = @commands[name]
@@ -486,24 +486,24 @@ class Athena::Console::Application
     self.configure_io input, output
 
     begin
-      exit_status = self.do_run input, output
+      exit_code = self.do_run input, output
     rescue ex : ::Exception
       raise ex unless @catch_exceptions
 
       self.render_exception ex, output
 
-      exit_status = if ex.is_a? ACON::Exceptions::ConsoleException
-                      ACON::Command::Status.new ex.code
-                    else
-                      ACON::Command::Status::FAILURE
-                    end
+      exit_code = if ex.is_a? ACON::Exception
+                    ACON::Command::Status.new ex.code
+                  else
+                    ACON::Command::Status::FAILURE
+                  end
     end
 
     if @auto_exit
-      exit exit_status.value
+      exit exit_code.value
     end
 
-    exit_status
+    exit_code
   end
 
   # Creates and `#add`s an `ACON::Command` with the provided *name*; executing the block when the command is invoked.
@@ -573,7 +573,13 @@ class Athena::Console::Application
       return ACON::Command::Status::SUCCESS
     end
 
-    input.bind self.definition rescue nil
+    begin
+      input.bind self.definition
+    rescue ex : ::Exception
+      # TODO: Make this part of the `rescue` after Crystal 1.13
+      # Ignore errors as full binding/validation happens later when command is known
+      raise ex unless ex.is_a? ACON::Exception
+    end
 
     command_name = self.command_name input
 
@@ -598,8 +604,8 @@ class Athena::Console::Application
       @running_command = nil
 
       command = self.find command_name
-    rescue ex : Exception
-      if (ex.is_a?(ACON::Exceptions::CommandNotFound) && !ex.is_a?(ACON::Exceptions::NamespaceNotFound)) &&
+    rescue ex : ::Exception
+      if (ex.is_a?(ACON::Exception::CommandNotFound) && !ex.is_a?(ACON::Exception::NamespaceNotFound)) &&
          1 == (alternatives = ex.alternatives).size &&
          input.interactive?
         alternative = alternatives.not_nil!.first
@@ -619,7 +625,7 @@ class Athena::Console::Application
         # TODO: Handle dispatching
 
         begin
-          if ex.is_a?(ACON::Exceptions::CommandNotFound) && (namespace = self.find_namespace command_name)
+          if ex.is_a?(ACON::Exception::CommandNotFound) && (namespace = self.find_namespace command_name)
             ACON::Helper::Descriptor.new.describe(
               output.is_a?(ACON::Output::ConsoleOutputInterface) ? output.error_output : output,
               self,
@@ -635,7 +641,7 @@ class Athena::Console::Application
           end
 
           raise ex
-        rescue ACON::Exceptions::NamespaceNotFound
+        rescue ACON::Exception::NamespaceNotFound
           raise ex
         end
       end
@@ -686,7 +692,7 @@ class Athena::Console::Application
   end
 
   # ameba:disable Metrics/CyclomaticComplexity
-  protected def do_render_exception(ex : Exception, output : ACON::Output::Interface) : Nil
+  protected def do_render_exception(ex : ::Exception, output : ACON::Output::Interface) : Nil
     loop do
       message = (ex.message || "").strip
 
@@ -712,7 +718,7 @@ class Athena::Console::Application
 
       messages = [] of String
 
-      if !ex.is_a?(ACON::Exceptions::ConsoleException) || ACON::Output::Verbosity::VERBOSE <= output.verbosity
+      if !ex.is_a?(ACON::Exception) || ACON::Output::Verbosity::VERBOSE <= output.verbosity
         if trace = ex.backtrace?.try &.first
           filename = nil
           line = nil
@@ -767,11 +773,11 @@ class Athena::Console::Application
     (limit.nil? ? parts : parts[0...limit]).join ':'
   end
 
-  protected def render_exception(ex : Exception, output : ACON::Output::ConsoleOutputInterface) : Nil
+  protected def render_exception(ex : ::Exception, output : ACON::Output::ConsoleOutputInterface) : Nil
     self.render_exception ex, output.error_output
   end
 
-  protected def render_exception(ex : Exception, output : ACON::Output::Interface) : Nil
+  protected def render_exception(ex : ::Exception, output : ACON::Output::Interface) : Nil
     output.puts "", :quiet
 
     self.do_render_exception ex, output

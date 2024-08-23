@@ -22,7 +22,7 @@ abstract struct Athena::Console::Input::Value
   end
 
   def get(type : T.class) : NoReturn forall T
-    raise ACON::Exceptions::Logic.new "'#{self.value}' is not a valid '#{T}'."
+    raise ACON::Exception::Logic.new "'#{self.value}' is not a valid '#{T}'."
   end
 
   def to_s(io : IO) : ::Nil

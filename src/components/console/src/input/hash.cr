@@ -114,14 +114,14 @@ class Athena::Console::Input::Hash < Athena::Console::Input
   end
 
   private def add_argument(name : String, value : ACON::Input::Value) : Nil
-    raise ACON::Exceptions::InvalidArgument.new "The '#{name}' argument does not exist." if !@definition.has_argument? name
+    raise ACON::Exception::InvalidArgument.new "The '#{name}' argument does not exist." if !@definition.has_argument? name
 
     @arguments[name] = value
   end
 
   private def add_long_option(name : String, value : ACON::Input::Value) : Nil
     unless @definition.has_option?(name)
-      raise ACON::Exceptions::InvalidOption.new "The '--#{name}' option does not exist." unless @definition.has_negation? name
+      raise ACON::Exception::InvalidOption.new "The '--#{name}' option does not exist." unless @definition.has_negation? name
 
       option_name = @definition.negation_to_name name
       return @options[option_name] = ACON::Input::Value::Bool.new false
@@ -130,7 +130,7 @@ class Athena::Console::Input::Hash < Athena::Console::Input
     option = @definition.option name
 
     if value.is_a? ACON::Input::Value::Nil
-      raise ACON::Exceptions::InvalidOption.new "The '--#{option.name}' option requires a value." if option.value_required?
+      raise ACON::Exception::InvalidOption.new "The '--#{option.name}' option requires a value." if option.value_required?
       value = ACON::Input::Value::Bool.new(true) if !option.is_array? && !option.value_optional?
     end
 
@@ -140,7 +140,7 @@ class Athena::Console::Input::Hash < Athena::Console::Input
   private def add_short_option(name : String, value : ACON::Input::Value) : Nil
     name = name.to_s
 
-    raise ACON::Exceptions::InvalidOption.new "The '-#{name}' option does not exist." if !@definition.has_shortcut? name
+    raise ACON::Exception::InvalidOption.new "The '-#{name}' option does not exist." if !@definition.has_shortcut? name
 
     self.add_long_option @definition.option_for_shortcut(name).name, value
   end

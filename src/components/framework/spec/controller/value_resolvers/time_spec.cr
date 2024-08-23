@@ -102,12 +102,12 @@ describe ATHR::Time do
       ATHR::Time.new.resolve(request, parameter).should eq Time.local 2020, 4, 7, 12, 34, 56, location: Time::Location.fixed(9001)
     end
 
-    it "raises an ATH::Exceptions::BadRequest if a time could not be parsed from the string" do
+    it "raises an ATH::Exception::BadRequest if a time could not be parsed from the string" do
       parameter = ATH::Controller::ParameterMetadata(::Time).new "foo"
       request = new_request
       request.attributes.set "foo", "foo"
 
-      expect_raises ATH::Exceptions::BadRequest, "Invalid date(time) for parameter 'foo'." do
+      expect_raises ATH::Exception::BadRequest, "Invalid date(time) for parameter 'foo'." do
         ATHR::Time.new.resolve request, parameter
       end
     end

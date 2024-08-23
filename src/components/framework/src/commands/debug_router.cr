@@ -85,7 +85,7 @@ class Athena::Framework::Commands::DebugRouter < ACON::Command
       end
 
       if !route
-        raise ACON::Exceptions::InvalidArgument.new "The route '#{name}' does not exist."
+        raise ACON::Exception::InvalidArgument.new "The route '#{name}' does not exist."
       end
 
       helper

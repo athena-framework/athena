@@ -46,7 +46,7 @@ describe ATH::StreamedResponse do
     it "raises on not nil content" do
       response = (ATH::StreamedResponse.new &.<<("BAZ"))
 
-      expect_raises Exception, "The content cannot be set on a StreamedResponse instance." do
+      expect_raises ATH::Exception::Logic, "The content cannot be set on a StreamedResponse instance." do
         response.content = "FOO"
       end
     end

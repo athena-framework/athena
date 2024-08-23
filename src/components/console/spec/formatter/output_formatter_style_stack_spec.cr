@@ -44,7 +44,7 @@ describe ACON::Formatter::OutputStyleStack do
       stack = ACON::Formatter::OutputStyleStack.new
       stack << ACON::Formatter::OutputStyle.new :white, :black
 
-      expect_raises ACON::Exceptions::InvalidArgument, "Provided style is not present in the stack." do
+      expect_raises ACON::Exception::InvalidArgument, "Provided style is not present in the stack." do
         stack.pop ACON::Formatter::OutputStyle.new :yellow, :blue
       end
     end

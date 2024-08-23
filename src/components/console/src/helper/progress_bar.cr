@@ -380,14 +380,14 @@ class Athena::Console::Helper::ProgressBar
 
       "remaining" => PlaceholderFormatter.new do |bar, _|
         if bar.max_steps.zero?
-          raise ACON::Exceptions::Logic.new "Unable to display the remaining time if the maximum number of steps is not set."
+          raise ACON::Exception::Logic.new "Unable to display the remaining time if the maximum number of steps is not set."
         end
 
         ACON::Helper.format_time bar.remaining
       end,
       "estimated" => PlaceholderFormatter.new do |bar, _|
         if bar.max_steps.zero?
-          raise ACON::Exceptions::Logic.new "Unable to display the remaining time if the maximum number of steps is not set."
+          raise ACON::Exception::Logic.new "Unable to display the remaining time if the maximum number of steps is not set."
         end
 
         ACON::Helper.format_time bar.estimated

@@ -74,7 +74,7 @@ module Athena::Console::Question::Base(T)
 
   # :nodoc:
   def autocompleter_callback(&block : String -> Array(String)) : Nil
-    raise ACON::Exceptions::Logic.new "A hidden question cannot use the autocompleter." if @hidden
+    raise ACON::Exception::Logic.new "A hidden question cannot use the autocompleter." if @hidden
 
     @autocompleter_callback = block
   end
@@ -82,7 +82,7 @@ module Athena::Console::Question::Base(T)
   # Sets if the answer should be *hidden*.
   # See [Hiding User Input][Athena::Console::Question--hiding-user-input].
   def hidden=(hidden : Bool) : self
-    raise ACON::Exceptions::Logic.new "A hidden question cannot use the autocompleter." if @autocompleter_callback
+    raise ACON::Exception::Logic.new "A hidden question cannot use the autocompleter." if @autocompleter_callback
 
     @hidden = hidden
 
@@ -94,7 +94,7 @@ module Athena::Console::Question::Base(T)
   #
   # See [Validating the Answer][Athena::Console::Question--validating-the-answer].
   def max_attempts=(attempts : Int32?) : self
-    raise ACON::Exceptions::InvalidArgument.new "Maximum number of attempts must be a positive value." if attempts && attempts < 0
+    raise ACON::Exception::InvalidArgument.new "Maximum number of attempts must be a positive value." if attempts && attempts < 0
 
     @max_attempts = attempts
     self
