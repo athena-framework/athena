@@ -1,5 +1,3 @@
-class LogicError < ::Exception; end
-
-class Athena::Serializer::Exception::Logic < LogicError
+class Athena::Serializer::Exception::Logic < ::Exception
   include Athena::Serializer::Exception
 end

@@ -1,9 +1,7 @@
-class LogicError < ::Exception; end
+require "./logic"
 
 # Raised when there is a parsing error within a `.env` file.
-class Athena::Dotenv::Exception::Format < LogicError
-  include Athena::Dotenv::Exception
-
+class Athena::Dotenv::Exception::Format < Athena::Dotenv::Exception::Logic
   # Stores contextual information related to an `Athena::Dotenv::Exception::Format`.
   #
   # ```
