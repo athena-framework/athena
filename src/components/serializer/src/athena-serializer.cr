@@ -108,6 +108,64 @@
 
 require "json"
 
+struct SerializedAny
+  alias Type = Nil | Bool | Int64 | Float64 | String | Array(SerializedAny) | Hash(SerializedAny, SerializedAny)
+
+  # :nodoc:
+  def self.new(raw : JSON::Any) : self
+    self.from_value raw.raw
+  end
+
+  def self.from_value(value : _) : self
+    new(
+      case value
+      when Hash
+        value.each_with_object({} of self => self) do |(k, v), hash|
+          key = k.is_a?(self) ? k : SerializedAny.new(k)
+          value = v.is_a?(self) ? v : SerializedAny.new(v)
+
+          hash[key] = value
+        end
+      when Enumerable
+        value.map do |v|
+          v.is_a?(self) ? v : SerializedAny.new(v)
+        end
+      else
+        value
+      end
+    )
+  end
+
+  # Returns the raw underlying value.
+  getter raw : Type
+
+  def initialize(@raw : Type); end
+
+  # Assumes the underlying value is an `Array` and returns the element
+  # at the given index.
+  # Raises if the underlying value is not an `Array`.
+  def [](key_or_index : _) : JSON::Any
+    case object = @raw
+    when Array, Hash
+      object[index]
+    else
+      raise "Expected Array or Hash for #[](index : key_or_index), not #{object.class}"
+    end
+  end
+
+  # Assumes the underlying value is an `Array` and returns the element
+  # at the given index, or `nil` if out of bounds.
+  # Raises if the underlying value is not an `Array`.
+  def []?(key_or_index : _) : JSON::Any?
+    case object = @raw
+    when Array, Hash
+      object[index]?
+    else
+      raise "Expected Array or Hash for #[]?(index : Int), not #{object.class}"
+    end
+  end
+end
+
 module SerializerInterface
   abstract def serialize(data : _, format : String, context = nil) : String
 
@@ -125,7 +183,7 @@ module DenormalizerInterface
 end
 
 module DecoderInterface
-  abstract def decode(data : _, format : String, context = nil)
+  abstract def decode(data : _, format : String, context = nil) : SerializedAny
   abstract def supports_decoding?(format : String, context = nil) : Bool
 end
 
@@ -137,7 +195,7 @@ class ChainDecoder
   def initialize(@decoders : Array(DecoderInterface))
   end
 
-  def decode(data : _, format : String, context = nil)
+  def decode(data : _, format : String, context = nil) : SerializedAny
     self.decoder(format, context).decode data, format, context
   end
 
@@ -167,7 +225,7 @@ class ChainDecoder
 end
 
 module EncoderInterface
-  abstract def encode(data : _, format : String, context = nil) : String
+  abstract def encode(data : SerializedAny, format : String, context = nil) : String
   abstract def supports_encoding?(format : String, context = nil) : Bool
 end
 
@@ -220,7 +278,7 @@ class JSONEncoder
     "json" == format
   end
 
-  def encode(data : _, format : String, context = nil) : String
+  def encode(data : SerializedAny, format : String, context = nil) : String
     data.to_json
   end
 
@@ -228,8 +286,8 @@ class JSONEncoder
     "json" == format
   end
 
-  def decode(data : _, format : String, context = nil)
-    JSON.parse data
+  def decode(data : _, format : String, context = nil) : SerializedAny
+    SerializedAny.from_value JSON.parse(data).raw
   end
 
   def supports_decoding?(format : String, context = nil) : Bool
@@ -237,9 +295,18 @@ class JSONEncoder
   end
 end
 
+# Decode - Format => Array
+# Encode - Array => Format
+
+# Denormalize - Array => Obj
+# Normalize - Obj => Array
+
+# Deserialize - Format => Obj
+# Serialize - Obj => Format
+
 class Serializer
   include EncoderInterface
-  # include DecoderInterface
+  include DecoderInterface
 
   @decoder : DecoderInterface
   @encoder : EncoderInterface
@@ -265,11 +332,11 @@ class Serializer
     @encoder = ChainEncoder.new real_encoders
   end
 
-  def decode(data : _, format : String, context = nil)
+  def decode(data : _, format : String, context = nil) : SerializedAny
     @decoder.decode data, format, context
   end
 
-  def encode(data : _, format : String, context = nil) : String
+  def encode(data : SerializedAny, format : String, context = nil) : String
     @encoder.encode data, format, context
   end
 
@@ -282,8 +349,10 @@ class Serializer
   end
 end
 
-data = %({"foo": 10})
-# data = {"foo" => 10}
+# pp SerializedAny.new({"foo" => "bar", 0 => 19})
+
+data = %({"foo":"bar","age": 0,"owner": {"active":true}})
+# # data = {"foo" => 10}
 
 ser = Serializer.new encoders: [JSONEncoder.new]
 
