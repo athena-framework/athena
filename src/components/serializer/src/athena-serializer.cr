@@ -107,12 +107,14 @@
 # end
 
 require "json"
+require "yaml"
+require "uuid"
 
 struct SerializedAny
   alias Type = Nil | Bool | Int64 | Float64 | String | Array(SerializedAny) | Hash(SerializedAny, SerializedAny)
 
   # :nodoc:
-  def self.new(raw : JSON::Any) : self
+  def self.new(raw : JSON::Any | YAML::Any) : self
     self.from_value raw.raw
   end
 
@@ -168,18 +170,25 @@ end
 
 module SerializerInterface
   abstract def serialize(data : _, format : String, context = nil) : String
-
-  abstract def deserialize(data : _, type : T, format : String, context = nil) : T forall T
+  abstract def deserialize(data : _, type : T.class, format : String, context = nil) forall T
 end
 
 module NormalizerInterface
-  abstract def normalize(data : _, format : String? = nil, context = nil)
+  abstract def normalize(data : _, format : String? = nil, context = nil) : SerializedAny
   abstract def supports_normalization?(data : _, format : String? = nil, context = nil) : Bool
 end
 
 module DenormalizerInterface
-  abstract def denormalize(data : _, type : T, format : String? = nil, context = nil) : T forall T
-  abstract def supports_denormalization?(data : _, type : T, format : String? = nil, context = nil) : Bool forall T
+  abstract def denormalize(data : SerializedAny, type : T.class, format : String? = nil, context = nil) forall T
+  abstract def supports_denormalization?(data : SerializedAny, type : T.class, format : String? = nil, context = nil) : Bool forall T
+
+  def denormalize(data : SerializedAny, type : _, format : String? = nil, context = nil) : NoReturn
+    raise "BUG: Wrong denormalize overload"
+  end
+
+  def supports_denormalization?(data : SerializedAny, type : _, format : String? = nil, context = nil) : Bool
+    false
+  end
 end
 
 module DecoderInterface
@@ -295,6 +304,34 @@ class JSONEncoder
   end
 end
 
+struct TimeNormalizer
+  include DenormalizerInterface
+
+  alias Type = Time.class
+
+  def denormalize(data : SerializedAny, type : Type, format : String? = nil, context = nil)
+    Time.parse_rfc3339 data.raw.as(String)
+  end
+
+  def supports_denormalization?(data : SerializedAny, type : Type, format : String? = nil, context = nil) : Bool forall T
+    true
+  end
+end
+
+struct UUIDNormalizer
+  include DenormalizerInterface
+
+  alias Type = UUID.class
+
+  def denormalize(data : SerializedAny, type : Type, format : String? = nil, context = nil)
+    UUID.parse?(data.raw.as(String)) || raise "Oops"
+  end
+
+  def supports_denormalization?(data : SerializedAny, type : Type, format : String? = nil, context = nil) : Bool forall T
+    true
+  end
+end
+
 # Decode - Format => Array
 # Encode - Array => Format
 
@@ -305,14 +342,16 @@ end
 # Serialize - Obj => Format
 
 class Serializer
-  include EncoderInterface
+  include SerializerInterface
   include DecoderInterface
+  include EncoderInterface
+  include DenormalizerInterface
 
   @decoder : DecoderInterface
   @encoder : EncoderInterface
 
   def initialize(
-    normalizers : Enumerable(NormalizerInterface) = [] of NormalizerInterface,
+    @normalizers : Array(DenormalizerInterface | NormalizerInterface) = [] of DenormalizerInterface | NormalizerInterface,
     encoders : Array(DecoderInterface | EncoderInterface)? = nil # = [] of DecoderInterface | EncoderInterface
   )
     real_decoders = [] of DecoderInterface
@@ -332,6 +371,42 @@ class Serializer
     @encoder = ChainEncoder.new real_encoders
   end
 
+  def serialize(data : _, format : String, context = nil) : String
+  end
+
+  def deserialize(data : _, type : T.class, format : String, context = nil) : T forall T
+    unless self.supports_decoding? format, context
+      raise "Deserialization for the format is not supported."
+    end
+
+    self.denormalize self.decode(data, format, context), T, format, context
+  end
+
+  def denormalize(data : SerializedAny, type : T.class, format : String? = nil, context = nil) : T forall T
+    normalizer = self.denormalizer data, type, format, context
+
+    # if !normalizer && (d = data.raw.as? T)
+    #   return d
+    # end
+
+    # No normalizers
+
+    unless normalizer
+      raise "Could not denoramlize object of type, no supporting normalizer found."
+    end
+
+    # Errors
+
+    pp normalizer, normalizer.class, typeof(normalizer)
+
+    pp normalizer.denormalize data, T, format, context
+    UUID.random
+  end
+
+  def supports_denormalization?(data : SerializedAny, type : T.class, format : String? = nil, context = nil) : Bool forall T
+    true
+  end
+
   def decode(data : _, format : String, context = nil) : SerializedAny
     @decoder.decode data, format, context
   end
@@ -347,13 +422,20 @@ class Serializer
   def supports_encoding?(format : String, context = nil) : Bool
     @encoder.supports_encoding? format
   end
+
+  private def denormalizer(data : SerializedAny, type : T.class, format : String, context = nil) : DenormalizerInterface? forall T
+    @normalizers.each.select(DenormalizerInterface).find do |normalizer|
+      normalizer.supports_denormalization? data, T, format, context
+    end
+  end
 end
 
-# pp SerializedAny.new({"foo" => "bar", 0 => 19})
+raw = %("2024-08-24T19:14:25+00:00")
 
-data = %({"foo":"bar","age": 0,"owner": {"active":true}})
-# # data = {"foo" => 10}
+serializer = Serializer.new encoders: [JSONEncoder.new], normalizers: [TimeNormalizer.new, UUIDNormalizer.new] of DenormalizerInterface | NormalizerInterface
 
-ser = Serializer.new encoders: [JSONEncoder.new]
+# pp serializer.deserialize raw, Time, "json"
 
-pp ser.decode data, "json"
+raw = %("5a6f3411-781f-40ec-aff4-1cd29216d905")
+
+pp serializer.deserialize raw, UUID, "json"
