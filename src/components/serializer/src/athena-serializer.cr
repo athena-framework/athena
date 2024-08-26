@@ -19,7 +19,13 @@ module Athena::Serializer
 
   module Serializable; end
 
-  module Annotations; end
+  module Annotations
+    annotation MaxDepth; end
+    annotation SerializedName; end
+    annotation SerializedPath; end
+    annotation Ignore; end
+    annotation Context; end
+  end
 
   abstract struct AbstractContext; end
 
@@ -83,9 +89,33 @@ module Athena::Serializer
 
   module Mapping
     module ClassMetadataInterface
-      abstract def name : String
+      abstract def name
       abstract def add_property_metadata(metadata : ASR::Mapping::PropertyMetadataInterface) : Nil
       abstract def property_metadata : Hash(String, ASR::Mapping::PropertyMetadataInterface)
+
+      # abstract def class_disriminator_mapping : ASR::Mapping::ClassDiscriminator?
+      # abstract def class_disriminator_mapping=(mapping : ASR::Mapping::ClassDiscriminator?) : Nil
+    end
+
+    struct ClassMetadata(T)
+      include ASR::Mapping::ClassMetadataInterface
+
+      # :inherit:
+      def name : T
+        {{T.instance}}
+      end
+
+      # :inherit:
+      getter property_metadata : Hash(String, ASR::Mapping::PropertyMetadataInterface) = {} of String => ASR::Mapping::PropertyMetadataInterface
+
+      # :inherit:
+      def add_property_metadata(metadata : ASR::Mapping::PropertyMetadataInterface) : Nil
+        @property_metadata[metadata.name] = metadata
+      end
+
+      def short_name : String
+        {{T.instance.name(generic_args: false).split("::").last}}
+      end
     end
 
     module PropertyPathInterface
@@ -101,16 +131,16 @@ module Athena::Serializer
       abstract def add_group(group : String) : Nil
       abstract def groups : Array(String)
 
-      abstract def max_depth=(max_depth : Int32?) : Nil
+      abstract def max_depth=(max_depth : Int32?)
       abstract def max_depth : Int32?
 
       abstract def serialized_name : String?
-      abstract def serialized_name=(name : String?) : Nil
+      abstract def serialized_name=(serialized_name : String?)
 
       abstract def serialized_path : ASR::Mapping::PropertyPath?
-      abstract def serialized_path=(path : ASR::Mapping::PropertyPath?) : Nil
+      abstract def serialized_path=(serialized_path : ASR::Mapping::PropertyPath?)
 
-      abstract def ignored=(ignore : Bool) : Nil
+      abstract def ignored=(ignored : Bool)
       abstract def ignored? : Bool
 
       abstract def normalization_contexts : Hash(String, ASR::AbstractContext)
@@ -120,6 +150,43 @@ module Athena::Serializer
       abstract def denormalization_contexts : Hash(String, ASR::AbstractContext)
       abstract def denormalization_contexts_for_group(groups : String | Enumerable(String)) : Array(ASR::AbstractContext)
       abstract def set_denormalization_contexts_for_group(context : ASR::AbstractContext, groups : String | Enumerable(String)) : Nil
+    end
+
+    struct PropertyMetadata
+      include ASR::Mapping::PropertyMetadataInterface
+
+      getter name : String
+      getter groups : Array(String) = [] of String
+      property max_depth : Int32?
+      property serialized_name : String?
+      property serialized_path : ASR::Mapping::PropertyPath?
+      property? ignored : Bool
+      getter normalization_contexts : Hash(String, ASR::AbstractContext) = {} of String => ASR::AbstractContext
+      getter denormalization_contexts : Hash(String, ASR::AbstractContext) = {} of String => ASR::AbstractContext
+
+      def initialize(
+        @name : String,
+        @max_depth : Int32? = nil,
+        @serialized_name : String? = nil,
+        @serialized_path : ASR::Mapping::PropertyPath? = nil,
+        @ignored : Bool = false
+      ); end
+
+      def add_group(group : String) : Nil
+        @groups << group unless @groups.includes? group
+      end
+
+      def normalization_contexts_for_group(groups : String | Enumerable(String)) : Array(ASR::AbstractContext)
+      end
+
+      def set_normalization_contexts_for_group(context : ASR::AbstractContext, groups : String | Enumerable(String)) : Nil
+      end
+
+      def denormalization_contexts_for_group(groups : String | Enumerable(String)) : Array(ASR::AbstractContext)
+      end
+
+      def set_denormalization_contexts_for_group(context : ASR::AbstractContext, groups : String | Enumerable(String)) : Nil
+      end
     end
   end
 
@@ -184,40 +251,157 @@ module Athena::Serializer
     struct Object
       include DenormalizerInterface
 
+      record Context < ASR::AbstractContext, groups : Array(String)?, ignored_properties : Array(String) = [] of String # , properties : Hash(String)
+
+      @default_context : Context
+
+      def initialize(
+        # @name_converter : ASR::NameConverter::Interface? = nil,
+        *,
+        groups : Array(String)? = nil,
+        ignored_properties : Array(String) = [] of String,
+        # properties : Array(String)? = nil,
+      )
+        @default_context = Context.new groups: groups, ignored_properties: ignored_properties # , properties: properties
+      end
+
       def denormalize(data : ASR::Any, type : T.class, format : String? = nil, context : ASR::Context = ASR::Context.new) : T forall T
         # Cache key?
         # Validate Callbacks
+        # Something about `value_type` context?
 
-        self.construct data, T
+        allowed_properties = self.allowed_properties(T, context).map &.name
+        normalized_data = self.prepare_for_denormalization data
+
+        mapped_class = self.mapped_class data, T, context
+
+        nested_properties = self.nested_properties mapped_class
+
+        # TODO: Handle nested properties
+
+        object = self.instantiate_object data, mapped_class, context, allowed_properties, format
+        resolved_class = object.class
+
+        normalized_data.raw.as(Hash).each do |key, value|
+          name = key.raw.as(String)
+          value = value.raw
+
+          # TODO: Handle name converter
+          # Denormalization context
+
+          if !allowed_properties.includes?(name) || !self.is_allowed_attribute(resolved_class, name, context[self]?)
+            next
+          end
+
+          pp name, value
+        end
+
+        # self.construct data, T
+        Models::User.new "fo", 10
       end
 
       def supports_denormalization?(data : ASR::Any, type : T.class, format : String? = nil, context : ASR::Context = ASR::Context.new) : Bool forall T
-        {{ T <= Serializable }}
+        {{ T <= ASR::Serializable }}
       end
 
       private def construct(data : ASR::Any, type : T.class) : T forall T
         {% begin %}
-      instance = T.allocate
+          instance = T.allocate
 
-      # TODO: Filtering properties and stuff
-      {% for ivar in T.instance_vars %}
-        if any = data[{{ivar.name.stringify}}]?
-          value = any.raw
+          # TODO: Filtering properties and stuff
+          {% for ivar in T.instance_vars %}
+            if any = data[{{ivar.name.stringify}}]?
+              value = any.raw
 
-          {% if ivar.type <= Number %}
-            value = {{ivar.type.id}}.new! value.as Number
-          {% elsif ivar.type <= Serializable %}
-            value =
+              {% if ivar.type <= Number %}
+                value = {{ivar.type.id}}.new! value.as Number
+              {% elsif ivar.type <= Serializable %}
+                value =
+              {% end %}
+
+              if value.is_a? ::{{ivar.type.id}}
+                pointerof(instance.@{{ivar.name.id}}).value = value
+              end
+            end
           {% end %}
 
-          if value.is_a? ::{{ivar.type.id}}
-            pointerof(instance.@{{ivar.name.id}}).value = value
-          end
-        end
-      {% end %}
+          instance
+        {% end %}
+      end
 
-      instance
-    {% end %}
+      private def instantiate_object(data : ASR::Any, type : T.class, context : ASR::Context, allowed_properties : Array(String), format : String? = nil) : T forall T
+        # TODO: Handle object to populate?
+        # TODO: Is there a better/safer way to handle this?
+
+        type.allocate
+      end
+
+      # Overridable
+
+      private def prepare_for_denormalization(data : ASR::Any) : ASR::Any
+        data
+      end
+
+      # Internal
+
+      private def allowed_properties(type : T, context : ASR::Context) : Array(ASR::Mapping::PropertyMetadataInterface) forall T
+        # TODO: Do we actually need dedicated types for loading class metadata?
+        class_metadata = ASR::Mapping::ClassMetadata(T).new
+
+        # Check T for DiscriminatorMap, Groups, and Context annotations
+        {% begin %}
+          {% for ivar, idx in T.instance.instance_vars %}
+
+            class_metadata.add_property_metadata ASR::Mapping::PropertyMetadata.new(
+              {{ivar.name.stringify}},
+              {{(ann = ivar.annotation(ASRA::MaxDepth)) ? ann[0] : nil}},
+              {{(ann = ivar.annotation(ASRA::SerializedName)) ? ann[0] : nil}},
+              nil,
+              {{(ann = ivar.annotation(ASRA::Ignore)) ? true : false}},
+            )
+
+            # Apply class context
+            # Apply class groups
+          {% end %}
+
+          # TODO: Merge in metadata from interfaces?
+        {% end %}
+
+        groups = self.groups context[self]?
+        groups_have_been_defined = !groups.empty?
+        groups = groups.push "Default", class_metadata.short_name
+
+        class_metadata.property_metadata.each_value.select do |property_metadata|
+          next false if property_metadata.ignored?
+          next false if groups_have_been_defined && !((property_metadata.groups + ["*"]) & groups).empty?
+          next false unless self.is_allowed_attribute T, property_metadata.name, context: context[self]?
+
+          true
+        end.to_a
+      end
+
+      private def is_allowed_attribute(type : T.class, name : String, context : Context?) : Bool forall T
+        return false if (context.try(&.ignored_properties) || @default_context.ignored_properties).includes? name
+
+        # TODO: Allow specifying what properties to return.
+
+        true
+      end
+
+      private def groups(context : Context?) : Array(String)
+        context.try(&.groups) || @default_context.groups || [] of String
+      end
+
+      private def nested_properties(type : T.class) : Hash(String, ASR::Mapping::PropertyPath) forall T
+        # TODO: Support this
+
+        {} of String => ASR::Mapping::PropertyPath
+      end
+
+      private def mapped_class(data : ASR::Any, type : T.class, context : ASR::Context) forall T
+        # TODO: Handle object to populate?
+
+        T
       end
     end
   end
@@ -479,7 +663,7 @@ end
 # Deserialize - Format => Obj
 # Serialize - Obj => Format
 
-class User
+class Models::User
   include ASR::Serializable
 
   getter name : String
@@ -493,20 +677,20 @@ record Book, title : String
 
 serializer = ASR::Serializer.new(
   encoders: [ASR::Encoder::JSONEncoder.new],
-  normalizers: [ASR::Normalizer::Time.new, ASR::Normalizer::UUID.new]
+  normalizers: [ASR::Normalizer::Object.new]
 )
 
 context = ASR::Context.new
   .for(ASR::Normalizer::Time, format: "%F")
 
-raw = %("2024-08-24")
-pp serializer.deserialize raw, Time, "json", context
+# raw = %("2024-08-24")
+# pp serializer.deserialize raw, Time, "json", context
 
 # raw = %("9675aab2-63a3-4828-b661-b28ed9deb8a7")
 # pp serializer.deserialize raw, UUID, "json", context
 
-# raw = %({"name":"Jon","age":16})
-# pp serializer.deserialize raw, User, "json"
+raw = %({"name":"Jon","age":16})
+pp serializer.deserialize raw, Models::User, "json"
 
 # raw = %({"title":"Moby"})
 # pp serializer.deserialize raw, Book, "json"
