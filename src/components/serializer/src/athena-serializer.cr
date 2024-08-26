@@ -81,6 +81,48 @@ module Athena::Serializer
     end
   end
 
+  module Mapping
+    module ClassMetadataInterface
+      abstract def name : String
+      abstract def add_property_metadata(metadata : ASR::Mapping::PropertyMetadataInterface) : Nil
+      abstract def property_metadata : Hash(String, ASR::Mapping::PropertyMetadataInterface)
+    end
+
+    module PropertyPathInterface
+    end
+
+    struct PropertyPath
+      include PropertyPathInterface
+    end
+
+    module PropertyMetadataInterface
+      abstract def name : String
+
+      abstract def add_group(group : String) : Nil
+      abstract def groups : Array(String)
+
+      abstract def max_depth=(max_depth : Int32?) : Nil
+      abstract def max_depth : Int32?
+
+      abstract def serialized_name : String?
+      abstract def serialized_name=(name : String?) : Nil
+
+      abstract def serialized_path : ASR::Mapping::PropertyPath?
+      abstract def serialized_path=(path : ASR::Mapping::PropertyPath?) : Nil
+
+      abstract def ignored=(ignore : Bool) : Nil
+      abstract def ignored? : Bool
+
+      abstract def normalization_contexts : Hash(String, ASR::AbstractContext)
+      abstract def normalization_contexts_for_group(groups : String | Enumerable(String)) : Array(ASR::AbstractContext)
+      abstract def set_normalization_contexts_for_group(context : ASR::AbstractContext, groups : String | Enumerable(String)) : Nil
+
+      abstract def denormalization_contexts : Hash(String, ASR::AbstractContext)
+      abstract def denormalization_contexts_for_group(groups : String | Enumerable(String)) : Array(ASR::AbstractContext)
+      abstract def set_denormalization_contexts_for_group(context : ASR::AbstractContext, groups : String | Enumerable(String)) : Nil
+    end
+  end
+
   module SerializerInterface
     abstract def serialize(data : _, format : String, context : ASR::Context = ASR::Context.new) : String
     abstract def deserialize(data : _, type : T.class, format : String, context : ASR::Context = ASR::Context.new) forall T
@@ -111,9 +153,13 @@ module Athena::Serializer
       record Context < ASR::AbstractContext, format : String? = nil, timezone : ::Time::Location? = nil
 
       def denormalize(data : ASR::Any, type : ::Time.class, format : String? = nil, context : ASR::Context = ASR::Context.new) : ::Time
-        pp! typeof(context[self])
+        str = data.raw.as String
 
-        ::Time.parse_rfc3339 data.raw.as(String)
+        if (context = context[self]?) && (format = context.format)
+          ::Time.parse str, format, ::Time::Location::UTC
+        else
+          ::Time.parse_rfc3339 data.raw.as(String)
+        end
       end
 
       def supports_denormalization?(data : ASR::Any, type : ::Time.class, format : String? = nil, context : ASR::Context = ASR::Context.new) : Bool forall T
@@ -297,13 +343,16 @@ module Athena::Serializer
     include ASR::Encoder::EncoderInterface
     include ASR::Normalizer::DenormalizerInterface
 
+    @normalizers : Array(ASR::Normalizer::DenormalizerInterface | ASR::Normalizer::NormalizerInterface)
     @decoder : ASR::Encoder::DecoderInterface
     @encoder : ASR::Encoder::EncoderInterface
 
     def initialize(
-      @normalizers : Array(ASR::Normalizer::DenormalizerInterface | ASR::Normalizer::NormalizerInterface) = [] of ASR::Normalizer::DenormalizerInterface | ASR::Normalizer::NormalizerInterface,
+      normalizers : Array(ASR::Normalizer::DenormalizerInterface | ASR::Normalizer::NormalizerInterface) = [] of ASR::Normalizer::DenormalizerInterface | ASR::Normalizer::NormalizerInterface,
       encoders : Array(ASR::Encoder::DecoderInterface | ASR::Encoder::EncoderInterface)? = nil
     )
+      @normalizers = normalizers.map &.as ASR::Normalizer::DenormalizerInterface | ASR::Normalizer::NormalizerInterface
+
       real_decoders = [] of ASR::Encoder::DecoderInterface
       real_encoders = [] of ASR::Encoder::EncoderInterface
 
@@ -392,8 +441,22 @@ module Athena::Serializer
       {% if T.has_constant? "Context" %}
         @context_map[type.to_s].as T::Context
       {% else %}
-      {% T.raise "Cannot request context for #{T} as it does not define any." %}
-    {% end %}
+        {% T.raise "Cannot request context for #{T} as it does not define any." %}
+      {% end %}
+    end
+
+    def []?(type : _)
+      self.[]?(type.class)
+    end
+
+    def []?(type : T.class) forall T
+      {% if T.has_constant? "Context" %}
+        if typ = @context_map[type.to_s]?
+          return typ.as T::Context
+        end
+      {% else %}
+        {% T.raise "Cannot request context for #{T} as it does not define any." %}
+      {% end %}
     end
 
     def for(type : T.class, **kwargs) : self forall T
@@ -428,13 +491,15 @@ end
 
 record Book, title : String
 
-serializer = ASR::Serializer.new encoders: [ASR::Encoder::JSONEncoder.new], normalizers: [ASR::Normalizer::Time.new, ASR::Normalizer::UUID.new] of ASR::Normalizer::DenormalizerInterface | ASR::Normalizer::NormalizerInterface
+serializer = ASR::Serializer.new(
+  encoders: [ASR::Encoder::JSONEncoder.new],
+  normalizers: [ASR::Normalizer::Time.new, ASR::Normalizer::UUID.new]
+)
 
-context = ASR::Context.new.for(ASR::Normalizer::Time, format: "%D")
+context = ASR::Context.new
+  .for(ASR::Normalizer::Time, format: "%F")
 
-pp context
-
-raw = %("2024-08-24T19:14:25+00:00")
+raw = %("2024-08-24")
 pp serializer.deserialize raw, Time, "json", context
 
 # raw = %("9675aab2-63a3-4828-b661-b28ed9deb8a7")
