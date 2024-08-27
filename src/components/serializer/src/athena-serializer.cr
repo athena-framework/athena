@@ -152,7 +152,7 @@ module Athena::Serializer
       abstract def set_denormalization_contexts_for_group(context : ASR::AbstractContext, groups : String | Enumerable(String)) : Nil
     end
 
-    struct PropertyMetadata
+    struct PropertyMetadata(IvarType, IvarIndex)
       include ASR::Mapping::PropertyMetadataInterface
 
       getter name : String
@@ -171,6 +171,10 @@ module Athena::Serializer
         @serialized_path : ASR::Mapping::PropertyPath? = nil,
         @ignored : Bool = false
       ); end
+
+      def type : IvarType.class
+        IvarType
+      end
 
       def add_group(group : String) : Nil
         @groups << group unless @groups.includes? group
@@ -283,8 +287,11 @@ module Athena::Serializer
         resolved_class = object.class
 
         normalized_data.raw.as(Hash).each do |key, value|
-          name = key.raw.as(String)
-          value = value.raw
+          name = if (v = key.raw).is_a? String
+                   v
+                 else
+                   raise "BUG: Non-String key"
+                 end
 
           # TODO: Handle name converter
           # Denormalization context
@@ -293,41 +300,50 @@ module Athena::Serializer
             next
           end
 
-          pp name, value
+          # Deep object to populate?
+
+          self.set_value object, name, value
         end
 
-        # self.construct data, T
-        Models::User.new "fo", 10
+        # TODO: This or just define a constructor via `ASR::Serializable`?
+        GC.add_finalizer(object) if object.responds_to?(:finalize)
+
+        object
       end
 
       def supports_denormalization?(data : ASR::Any, type : T.class, format : String? = nil, context : ASR::Context = ASR::Context.new) : Bool forall T
         {{ T <= ASR::Serializable }}
       end
 
-      private def construct(data : ASR::Any, type : T.class) : T forall T
+      private def set_value(object : T, name : String, data : ASR::Any) : Nil forall T
         {% begin %}
-          instance = T.allocate
-
-          # TODO: Filtering properties and stuff
+          case name
           {% for ivar in T.instance_vars %}
-            if any = data[{{ivar.name.stringify}}]?
-              value = any.raw
-
-              {% if ivar.type <= Number %}
-                value = {{ivar.type.id}}.new! value.as Number
-              {% elsif ivar.type <= Serializable %}
-                value =
-              {% end %}
-
-              if value.is_a? ::{{ivar.type.id}}
-                pointerof(instance.@{{ivar.name.id}}).value = value
-              end
-            end
+            when {{ivar.name.stringify}} then pointerof(object.@{{ivar.name.id}}).value = self.convert({{ivar.type.id}}, data)
           {% end %}
-
-          instance
+          end
         {% end %}
       end
+
+      # TODO: Better way to handle this?
+
+      private def convert(type : Number.class, data : ASR::Any) : Number
+        type.new! data.raw.as Number
+      end
+
+      private def convert(type : String.class, data : ASR::Any) : String
+        data.raw.as String
+      end
+
+      private def convert(type : Bool.class, data : ASR::Any) : Bool
+        data.raw.as Bool
+      end
+
+      private def convert(type : Array(T).class, data : ASR::Any) : Array(T) forall T
+        data.raw.as(Array).map { |v| self.convert(T, v) }
+      end
+
+      # Overridable
 
       private def instantiate_object(data : ASR::Any, type : T.class, context : ASR::Context, allowed_properties : Array(String), format : String? = nil) : T forall T
         # TODO: Handle object to populate?
@@ -335,8 +351,6 @@ module Athena::Serializer
 
         type.allocate
       end
-
-      # Overridable
 
       private def prepare_for_denormalization(data : ASR::Any) : ASR::Any
         data
@@ -352,7 +366,7 @@ module Athena::Serializer
         {% begin %}
           {% for ivar, idx in T.instance.instance_vars %}
 
-            class_metadata.add_property_metadata ASR::Mapping::PropertyMetadata.new(
+            class_metadata.add_property_metadata ASR::Mapping::PropertyMetadata({{ivar.type.id}}, {{idx.id}}).new(
               {{ivar.name.stringify}},
               {{(ann = ivar.annotation(ASRA::MaxDepth)) ? ann[0] : nil}},
               {{(ann = ivar.annotation(ASRA::SerializedName)) ? ann[0] : nil}},
@@ -669,6 +683,7 @@ class Models::User
   getter name : String
   getter age : Int32
   getter active : Bool = true
+  getter values : Array(Int32) = [] of Int32
 
   def initialize(@name, @age); end
 end
@@ -689,7 +704,7 @@ context = ASR::Context.new
 # raw = %("9675aab2-63a3-4828-b661-b28ed9deb8a7")
 # pp serializer.deserialize raw, UUID, "json", context
 
-raw = %({"name":"Jon","age":16})
+raw = %({"name":"Jon","age":16,"values":[6, 9, 12]})
 pp serializer.deserialize raw, Models::User, "json"
 
 # raw = %({"title":"Moby"})
