@@ -30,7 +30,7 @@ module Athena::Serializer
   abstract struct AbstractContext; end
 
   struct Any
-    alias Type = Nil | Bool | Int64 | Float64 | String | Array(ASR::Any) | Hash(ASR::Any, ASR::Any)
+    alias Type = Nil | Bool | Number::Primitive | String | Array(ASR::Any) | Hash(ASR::Any, ASR::Any)
 
     # :nodoc:
     def self.new(raw : JSON::Any | YAML::Any) : self
@@ -327,6 +327,9 @@ module Athena::Serializer
 
       # TODO: Better way to handle this?
 
+      private def convert(type : Nil.class, data : ASR::Any) : Nil
+      end
+
       private def convert(type : Number.class, data : ASR::Any) : Number
         type.new! data.raw.as Number
       end
@@ -341,6 +344,26 @@ module Athena::Serializer
 
       private def convert(type : Array(T).class, data : ASR::Any) : Array(T) forall T
         data.raw.as(Array).map { |v| self.convert(T, v) }
+      end
+
+      private def convert(type : Hash(K, V).class, data : ASR::Any) : Hash(K, V) forall K, V
+        data.raw.as(Hash).each_with_object type.new do |(k, v), hash|
+          hash[self.convert(K, k)] = self.convert(V, v)
+        end
+      end
+
+      private def convert(type : T.class, data : ASR::Any) : Union(T) forall T
+        {% if T.union? %}
+          {% for t in T.union_types %}
+            begin
+              return self.convert({{t.id}}, data)
+            rescue
+              # no-op
+            end
+          {% end %}
+        {% end %}
+
+        self.convert T, data
       end
 
       # Overridable
@@ -677,13 +700,14 @@ end
 # Deserialize - Format => Obj
 # Serialize - Obj => Format
 
-class Models::User
+class User
   include ASR::Serializable
 
   getter name : String
   getter age : Int32
   getter active : Bool = true
-  getter values : Array(Int32) = [] of Int32
+  getter values : Array(Int32 | String) = [] of Int32 | String
+  getter map : Hash(String, Bool) = {} of String => Bool
 
   def initialize(@name, @age); end
 end
@@ -698,14 +722,14 @@ serializer = ASR::Serializer.new(
 context = ASR::Context.new
   .for(ASR::Normalizer::Time, format: "%F")
 
-# raw = %("2024-08-24")
-# pp serializer.deserialize raw, Time, "json", context
+# # raw = %("2024-08-24")
+# # pp serializer.deserialize raw, Time, "json", context
 
-# raw = %("9675aab2-63a3-4828-b661-b28ed9deb8a7")
-# pp serializer.deserialize raw, UUID, "json", context
+# # raw = %("9675aab2-63a3-4828-b661-b28ed9deb8a7")
+# # pp serializer.deserialize raw, UUID, "json", context
 
-raw = %({"name":"Jon","age":16,"values":[6, 9, 12]})
-pp serializer.deserialize raw, Models::User, "json"
+raw = %({"name":"Jon","age":16,"values":[6, "9", 12],"map":{"0": false,"1":true}})
+pp serializer.deserialize raw, User, "json"
 
-# raw = %({"title":"Moby"})
-# pp serializer.deserialize raw, Book, "json"
+raw = %({"title":"Moby"})
+pp serializer.deserialize raw, Book, "json"
