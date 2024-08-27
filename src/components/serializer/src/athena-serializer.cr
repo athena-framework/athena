@@ -19,6 +19,12 @@ module Athena::Serializer
 
   module Serializable; end
 
+  module SerializerAwareInterface
+    private getter! serializer : ASR::SerializerInterface
+
+    def serializer=(@serializer : ASR::SerializerInterface); end
+  end
+
   module Annotations
     annotation MaxDepth; end
     annotation SerializedName; end
@@ -200,9 +206,10 @@ module Athena::Serializer
   end
 
   module Normalizer
-    module NormalizerInterface
-      abstract def normalize(data : _, format : String? = nil, context : ASR::Context = ASR::Context.new) : ASR::Any
-      abstract def supports_normalization?(data : _, format : String? = nil, context : ASR::Context = ASR::Context.new) : Bool
+    module DenormalizerAwareInterface
+      private getter! denormalizer : ASR::Normalizer::DenormalizerInterface
+
+      def denormalizer=(@denormalizer : ASR::Normalizer::DenormalizerInterface); end
     end
 
     module DenormalizerInterface
@@ -216,6 +223,17 @@ module Athena::Serializer
       def supports_denormalization?(data : ASR::Any, type : _, format : String? = nil, context : ASR::Context = ASR::Context.new) : Bool
         false
       end
+    end
+
+    module NormalizerAwareInterface
+      private getter! normalizer : ASR::Normalizer::NormalizerInterface
+
+      def normalizer=(@normalizer : ASR::Normalizer::NormalizerInterface); end
+    end
+
+    module NormalizerInterface
+      abstract def normalize(data : _, format : String? = nil, context : ASR::Context = ASR::Context.new) : ASR::Any
+      abstract def supports_normalization?(data : _, format : String? = nil, context : ASR::Context = ASR::Context.new) : Bool
     end
 
     struct Time
@@ -252,8 +270,9 @@ module Athena::Serializer
       end
     end
 
-    struct Object
-      include DenormalizerInterface
+    class Object
+      include ASR::Normalizer::DenormalizerInterface
+      include ASR::SerializerAwareInterface
 
       record Context < ASR::AbstractContext, groups : Array(String)?, ignored_properties : Array(String) = [] of String # , properties : Hash(String)
 
@@ -302,7 +321,7 @@ module Athena::Serializer
 
           # Deep object to populate?
 
-          self.set_value object, name, value
+          self.set_value object, name, value, format
         end
 
         # TODO: This or just define a constructor via `ASR::Serializable`?
@@ -315,11 +334,11 @@ module Athena::Serializer
         {{ T <= ASR::Serializable }}
       end
 
-      private def set_value(object : T, name : String, data : ASR::Any) : Nil forall T
+      private def set_value(object : T, name : String, data : ASR::Any, format : String? = nil) : Nil forall T
         {% begin %}
           case name
           {% for ivar in T.instance_vars %}
-            when {{ivar.name.stringify}} then pointerof(object.@{{ivar.name.id}}).value = self.convert({{ivar.type.id}}, data)
+            when {{ivar.name.stringify}} then pointerof(object.@{{ivar.name.id}}).value = self.convert({{ivar.type.id}}, data, format)
           {% end %}
           end
         {% end %}
@@ -327,43 +346,55 @@ module Athena::Serializer
 
       # TODO: Better way to handle this?
 
-      private def convert(type : Nil.class, data : ASR::Any) : Nil
-      end
-
-      private def convert(type : Number.class, data : ASR::Any) : Number
+      private def convert(type : Number.class, data : ASR::Any, format : String? = nil) : Number
         type.new! data.raw.as Number
       end
 
-      private def convert(type : String.class, data : ASR::Any) : String
+      private def convert(type : String.class, data : ASR::Any, format : String? = nil) : String
         data.raw.as String
       end
 
-      private def convert(type : Bool.class, data : ASR::Any) : Bool
+      private def convert(type : Bool.class, data : ASR::Any, format : String? = nil) : Bool
         data.raw.as Bool
       end
 
-      private def convert(type : Array(T).class, data : ASR::Any) : Array(T) forall T
-        data.raw.as(Array).map { |v| self.convert(T, v) }
+      private def convert(type : Array(T).class, data : ASR::Any, format : String? = nil) : Array(T) forall T
+        data.raw.as(Array).map { |v| self.convert(T, v, format) }
       end
 
-      private def convert(type : Hash(K, V).class, data : ASR::Any) : Hash(K, V) forall K, V
+      private def convert(type : Hash(K, V).class, data : ASR::Any, format : String? = nil) : Hash(K, V) forall K, V
         data.raw.as(Hash).each_with_object type.new do |(k, v), hash|
-          hash[self.convert(K, k)] = self.convert(V, v)
+          hash[self.convert(K, k)] = self.convert(V, v, format)
         end
       end
 
-      private def convert(type : T.class, data : ASR::Any) : Union(T) forall T
+      private def convert(type : T.class, data : ASR::Any, format : String? = nil) : Union(T) forall T
         {% if T.union? %}
-          {% for t in T.union_types %}
+          # Sort nilable types last to avoid them always matching the `Nil` overload
+          {% for t in T.union_types.sort_by { |t| t.nilable? ? 1 : 0 } %}
             begin
               return self.convert({{t.id}}, data)
             rescue
               # no-op
             end
           {% end %}
+
+          raise "failed"
+        {% elsif T <= ASR::Serializable %}
+          if !(serializer = @serializer).is_a? ASR::Normalizer::DenormalizerInterface
+            raise "injected serializer is not a denormalizer"
+          end
+
+          child_context = ASR::Context.new
+          if serializer.supports_denormalization? data, T, format, child_context
+            return serializer.denormalize data, T, format, child_context
+          end
         {% end %}
 
-        self.convert T, data
+        raise "BUG: Unsupported type"
+      end
+
+      private def convert(type : Nil.class, data : ASR::Any, format : String? = nil) : Nil
       end
 
       # Overridable
@@ -589,6 +620,26 @@ module Athena::Serializer
 
       @decoder = ASR::Encoder::ChainDecoder.new real_decoders
       @encoder = ASR::Encoder::ChainEncoder.new real_encoders
+
+      @normalizers.each do |normalizer|
+        if normalizer.is_a?(ASR::SerializerAwareInterface)
+          normalizer.serializer = self
+        end
+
+        if normalizer.is_a?(ASR::Normalizer::DenormalizerAwareInterface)
+          normalizer.denormalizer = self
+        end
+
+        if normalizer.is_a?(ASR::Normalizer::NormalizerAwareInterface)
+          normalizer.normalizer = self
+        end
+      end
+
+      encoders.try &.each do |encoder|
+        if encoder.is_a?(ASR::SerializerAwareInterface)
+          encoder.serializer = self
+        end
+      end
     end
 
     def serialize(data : _, format : String, context : ASR::Context = ASR::Context.new) : String
@@ -700,6 +751,12 @@ end
 # Deserialize - Format => Obj
 # Serialize - Obj => Format
 
+class Book
+  include ASR::Serializable
+
+  getter title : String? = nil
+end
+
 class User
   include ASR::Serializable
 
@@ -707,12 +764,14 @@ class User
   getter age : Int32
   getter active : Bool = true
   getter values : Array(Int32 | String) = [] of Int32 | String
+
+  # @[ASRA::Ignore]
   getter map : Hash(String, Bool) = {} of String => Bool
+
+  getter book : Book = Book.new
 
   def initialize(@name, @age); end
 end
-
-record Book, title : String
 
 serializer = ASR::Serializer.new(
   encoders: [ASR::Encoder::JSONEncoder.new],
@@ -728,8 +787,8 @@ context = ASR::Context.new
 # # raw = %("9675aab2-63a3-4828-b661-b28ed9deb8a7")
 # # pp serializer.deserialize raw, UUID, "json", context
 
-raw = %({"name":"Jon","age":16,"values":[6, "9", 12],"map":{"0": false,"1":true}})
+raw = %({"name":"Jon","age":16,"values":[6, "9", 12],"map":{"0": false,"1":true},"book":{"title":"Moby"}})
 pp serializer.deserialize raw, User, "json"
 
-raw = %({"title":"Moby"})
-pp serializer.deserialize raw, Book, "json"
+# raw = %({"title":"Moby"})
+# pp serializer.deserialize raw, Book, "json"
