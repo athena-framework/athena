@@ -17,15 +17,16 @@ module Athena::Serializer
   # Also acts as a marker that can be used to rescue all serializer related exceptions.
   module Exception; end
 
-  module Serializable; end
-
-  module SerializerAwareInterface
-    private getter! serializer : ASR::SerializerInterface
-
-    def serializer=(@serializer : ASR::SerializerInterface); end
+  module Serializable
+    def initialize
+      {% for ivar in @type.instance_vars %}
+        @{{ivar.name.id}} = uninitialized {{ivar.type.id}}
+      {% end %}
+    end
   end
 
   module Annotations
+    annotation DiscriminatorMap; end
     annotation MaxDepth; end
     annotation SerializedName; end
     annotation SerializedPath; end
@@ -99,20 +100,28 @@ module Athena::Serializer
       abstract def add_property_metadata(metadata : ASR::Mapping::PropertyMetadataInterface) : Nil
       abstract def property_metadata : Hash(String, ASR::Mapping::PropertyMetadataInterface)
 
-      # abstract def class_disriminator_mapping : ASR::Mapping::ClassDiscriminator?
-      # abstract def class_disriminator_mapping=(mapping : ASR::Mapping::ClassDiscriminator?) : Nil
+      # abstract def class_disriminator_mapping : ASR::Mapping::ClassDiscriminatorMappingInterface?
+    end
+
+    module ClassDiscriminatorMappingInterface
+      abstract def type_property : String
     end
 
     struct ClassMetadata(T)
       include ASR::Mapping::ClassMetadataInterface
 
       # :inherit:
+      getter property_metadata : Hash(String, ASR::Mapping::PropertyMetadataInterface) = {} of String => ASR::Mapping::PropertyMetadataInterface
+
+      # :inherit:
+      # getter class_disriminator_mapping : ASR::Mapping::ClassDiscriminatorMappingInterface?
+
+      # def initialize(@class_disriminator_mapping : ASR::Mapping::ClassDiscriminatorMappingInterface? = nil); end
+
+      # :inherit:
       def name : T
         {{T.instance}}
       end
-
-      # :inherit:
-      getter property_metadata : Hash(String, ASR::Mapping::PropertyMetadataInterface) = {} of String => ASR::Mapping::PropertyMetadataInterface
 
       # :inherit:
       def add_property_metadata(metadata : ASR::Mapping::PropertyMetadataInterface) : Nil
@@ -122,6 +131,10 @@ module Athena::Serializer
       def short_name : String
         {{T.instance.name(generic_args: false).split("::").last}}
       end
+    end
+
+    record ClassDiscriminatorMapping(Mapping), type_property : String do
+      include ClassDiscriminatorMappingInterface
     end
 
     module PropertyPathInterface
@@ -200,6 +213,12 @@ module Athena::Serializer
     end
   end
 
+  module SerializerAwareInterface
+    private getter! serializer : ASR::SerializerInterface
+
+    def serializer=(@serializer : ASR::SerializerInterface); end
+  end
+
   module SerializerInterface
     abstract def serialize(data : _, format : String, context : ASR::Context = ASR::Context.new) : String
     abstract def deserialize(data : _, type : T.class, format : String, context : ASR::Context = ASR::Context.new) forall T
@@ -241,10 +260,20 @@ module Athena::Serializer
 
       record Context < ASR::AbstractContext, format : String? = nil, timezone : ::Time::Location? = nil
 
+      @default_context : Context
+
+      def initialize(
+        *,
+        format : String? = nil,
+        timezone : ::Time::Location? = nil
+      )
+        @default_context = Context.new format: format, timezone: timezone
+      end
+
       def denormalize(data : ASR::Any, type : ::Time.class, format : String? = nil, context : ASR::Context = ASR::Context.new) : ::Time
         str = data.raw.as String
 
-        if (context = context[self]?) && (format = context.format)
+        if format = (context[self]?.try(&.format) || @default_context.format)
           ::Time.parse str, format, ::Time::Location::UTC
         else
           ::Time.parse_rfc3339 data.raw.as(String)
@@ -260,8 +289,6 @@ module Athena::Serializer
       include DenormalizerInterface
 
       def denormalize(data : ASR::Any, type : ::UUID.class, format : String? = nil, context : ASR::Context = ASR::Context.new) : ::UUID
-        pp! typeof(context[self])
-
         ::UUID.parse?(data.raw.as(String)) || raise "Oops"
       end
 
@@ -274,7 +301,9 @@ module Athena::Serializer
       include ASR::Normalizer::DenormalizerInterface
       include ASR::SerializerAwareInterface
 
-      record Context < ASR::AbstractContext, groups : Array(String)?, ignored_properties : Array(String) = [] of String # , properties : Hash(String)
+      record Context < ASR::AbstractContext,
+        groups : Array(String)?,
+        ignored_properties : Array(String) = [] of String # , properties : Hash(String)
 
       @default_context : Context
 
@@ -321,7 +350,7 @@ module Athena::Serializer
 
           # Deep object to populate?
 
-          self.set_value object, name, value, format
+          self.set_value object, mapped_class, name, value, format
         end
 
         # TODO: This or just define a constructor via `ASR::Serializable`?
@@ -334,8 +363,9 @@ module Athena::Serializer
         {{ T <= ASR::Serializable }}
       end
 
-      private def set_value(object : T, name : String, data : ASR::Any, format : String? = nil) : Nil forall T
+      private def set_value(object : T, type : E.class, name : String, data : ASR::Any, format : String? = nil) : Nil forall T, E
         {% begin %}
+          {% pp T, E %}
           case name
           {% for ivar in T.instance_vars %}
             when {{ivar.name.stringify}} then pointerof(object.@{{ivar.name.id}}).value = self.convert({{ivar.type.id}}, data, format)
@@ -414,12 +444,13 @@ module Athena::Serializer
 
       private def allowed_properties(type : T, context : ASR::Context) : Array(ASR::Mapping::PropertyMetadataInterface) forall T
         # TODO: Do we actually need dedicated types for loading class metadata?
-        class_metadata = ASR::Mapping::ClassMetadata(T).new
+        class_metadata = nil
 
         # Check T for DiscriminatorMap, Groups, and Context annotations
         {% begin %}
-          {% for ivar, idx in T.instance.instance_vars %}
+          class_metadata = ASR::Mapping::ClassMetadata(T).new
 
+          {% for ivar, idx in T.instance.instance_vars %}
             class_metadata.add_property_metadata ASR::Mapping::PropertyMetadata({{ivar.type.id}}, {{idx.id}}).new(
               {{ivar.name.stringify}},
               {{(ann = ivar.annotation(ASRA::MaxDepth)) ? ann[0] : nil}},
@@ -467,7 +498,20 @@ module Athena::Serializer
       end
 
       private def mapped_class(data : ASR::Any, type : T.class, context : ASR::Context) forall T
-        # TODO: Handle object to populate?
+        {% if ann = T.instance.annotation ASRA::DiscriminatorMap %}
+          unless type = data[{{ann["type_property"]}}]?
+            raise "Type property not found for abstract object"
+          end
+
+          unless mapped_class = ({{ann["mapping"]}})[type.raw.as(String)]
+            raise "Type is not a valid value"
+          end
+
+          pp! mapped_class
+
+          return mapped_class
+          {{debug}}
+        {% end %}
 
         T
       end
@@ -757,38 +801,63 @@ class Book
   getter title : String? = nil
 end
 
-class User
-  include ASR::Serializable
+# class User
+#   include ASR::Serializable
 
-  getter name : String
-  getter age : Int32
-  getter active : Bool = true
-  getter values : Array(Int32 | String) = [] of Int32 | String
+#   getter name : String
+#   getter age : Int32
+#   getter active : Bool = true
+#   getter values : Array(Int32 | String) = [] of Int32 | String
 
-  # @[ASRA::Ignore]
-  getter map : Hash(String, Bool) = {} of String => Bool
+#   # @[ASRA::Ignore]
+#   getter map : Hash(String, Bool) = {} of String => Bool
 
-  getter book : Book = Book.new
+#   getter book : Book = Book.new
 
-  def initialize(@name, @age); end
-end
+#   def initialize(@name, @age); end
+# end
 
 serializer = ASR::Serializer.new(
   encoders: [ASR::Encoder::JSONEncoder.new],
   normalizers: [ASR::Normalizer::Object.new]
 )
 
-context = ASR::Context.new
-  .for(ASR::Normalizer::Time, format: "%F")
-
-# # raw = %("2024-08-24")
-# # pp serializer.deserialize raw, Time, "json", context
-
-# # raw = %("9675aab2-63a3-4828-b661-b28ed9deb8a7")
-# # pp serializer.deserialize raw, UUID, "json", context
-
 raw = %({"name":"Jon","age":16,"values":[6, "9", 12],"map":{"0": false,"1":true},"book":{"title":"Moby"}})
-pp serializer.deserialize raw, User, "json"
+# pp serializer.deserialize raw, User, "json"
+# #<User:0x702ca29ae080
+#  @active=true,
+#  @age=16,
+#  @book=#<Book:0x702ca29a9940 @title="Moby">,
+#  @map={"0" => false, "1" => true},
+#  @name="Jon",
+#  @values=[6, "9", 12]>
 
 # raw = %({"title":"Moby"})
 # pp serializer.deserialize raw, Book, "json"
+
+# @[ASRA::DiscriminatorMap(type_property: "type", mapping: {point: Point, circle: Circle})]
+# abstract class Shape
+#   include ASR::Serializable
+
+#   property type : String
+# end
+
+# class Point < Shape
+#   property x : Int32
+#   property y : Int32
+# end
+
+# class Circle < Shape
+#   property x : Int32
+#   property y : Int32
+#   property radius : Int32
+# end
+
+# raw = %({"type": "point", "x": 1, "y": 2})
+# pp serializer.deserialize raw, Shape, "json"
+
+require "big"
+
+left = Big.new 1.9 * (10 ** 9)
+
+pp left
