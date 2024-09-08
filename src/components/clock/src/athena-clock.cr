@@ -42,9 +42,4 @@ class Athena::Clock
   def sleep(span : Time::Span) : Nil
     (@clock || self.class.clock).sleep span
   end
-
-  # :inherit:
-  def sleep(seconds : Number) : Nil
-    (@clock || self.class.clock).sleep seconds
-  end
 end

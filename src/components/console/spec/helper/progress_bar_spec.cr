@@ -61,7 +61,7 @@ struct ProgressBarTest < ASPEC::TestCase
     bar.advance
     bar.advance
 
-    @clock.sleep 1
+    @clock.sleep 1.second
 
     bar.estimated.should eq 600
   end
@@ -72,7 +72,7 @@ struct ProgressBarTest < ASPEC::TestCase
     bar.start at: 599
     bar.advance
 
-    @clock.sleep 1
+    @clock.sleep 1.second
 
     bar.estimated.should eq 1_200
     bar.remaining.should eq 600
@@ -888,9 +888,9 @@ struct ProgressBarTest < ASPEC::TestCase
 
     bar.start
     bar.progress = 1
-    @clock.sleep 10
+    @clock.sleep 10.seconds
     bar.progress = 2
-    @clock.sleep 20
+    @clock.sleep 20.seconds
     bar.progress = 3
 
     self.assert_output(
@@ -908,14 +908,14 @@ struct ProgressBarTest < ASPEC::TestCase
 
     bar.progress = 1 # No threshold hit, no redraw
     bar.maximum_seconds_between_redraws = 2
-    @clock.sleep 1
+    @clock.sleep 1.second
     bar.progress = 2 # Still no redraw because it takes 2 seconds for a redraw
-    @clock.sleep 1
+    @clock.sleep 1.second
     bar.progress = 3 # 1 + 1 = 2 -> redraw
     bar.progress = 4 # step based redraw freq hit, redraw even without sleep
     bar.progress = 5 # No threshold hit, no redraw
     bar.maximum_seconds_between_redraws = 3
-    @clock.sleep 2
+    @clock.sleep 2.seconds
     bar.progress = 6 # No redraw even though 2 seconds passed. Throttling has priority
     bar.maximum_seconds_between_redraws = 2
     bar.progress = 7 # Throttling relaxed, draw
@@ -936,12 +936,12 @@ struct ProgressBarTest < ASPEC::TestCase
     bar.start
 
     bar.progress = 1 # Too fast, should not draw
-    @clock.sleep 1
+    @clock.sleep 1.second
     bar.progress = 2 # 1 second passed, draw
     bar.minimum_seconds_between_redraws = 2
-    @clock.sleep 1
+    @clock.sleep 1.second
     bar.progress = 3 # 1 second passed, but the threshold was changed, should not draw
-    @clock.sleep 1
+    @clock.sleep 1.second
     bar.progress = 4 # 1 + 1 seconds = 2 seconds passed, draw
     bar.progress = 5 # No threshold hit, should not draw
 

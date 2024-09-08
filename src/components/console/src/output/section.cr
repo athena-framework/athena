@@ -16,19 +16,19 @@ require "./io"
 #   section2.puts "World!"
 #   # Output contains "Hello\nWorld!\n"
 #
-#   sleep 1
+#   sleep 1.second
 #
 #   # Replace "Hello" with "Goodbye!"
 #   section1.overwrite "Goodbye!"
 #   # Output now contains "Goodbye\nWorld!\n"
 #
-#   sleep 1
+#   sleep 1.second
 #
 #   # Clear "World!"
 #   section2.clear
 #   # Output now contains "Goodbye!\n"
 #
-#   sleep 1
+#   sleep 1.second
 #
 #   # Delete the last 2 lines of the first section
 #   section1.clear 2
