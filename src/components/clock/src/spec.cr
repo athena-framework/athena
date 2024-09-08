@@ -77,11 +77,6 @@ module Athena::Clock::Spec
     def sleep(span : Time::Span) : Nil
       @now += span
     end
-
-    # :inherit:
-    def sleep(seconds : Number) : Nil
-      self.sleep seconds.seconds
-    end
   end
 
   # An `Athena::Spec::TestCase` mix-in that allows freezing time and restoring the global clock after each test.

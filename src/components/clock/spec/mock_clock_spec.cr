@@ -31,7 +31,7 @@ struct MockClockTest < ASPEC::TestCase
     clock = ACLK::Spec::MockClock.new Time.utc 2023, 9, 16, 23, 53, 0, nanosecond: 999_000_000
     location = clock.now.location
 
-    clock.sleep 2.002_001
+    clock.sleep 2.002_001.seconds
     clock.now.to_s("%F %H:%M:%S.%6N").should eq "2023-09-16 23:53:03.001001"
     clock.now.location.should eq location
   end

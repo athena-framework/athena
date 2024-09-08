@@ -27,7 +27,7 @@ struct MonotonicClockTest < ASPEC::TestCase
     location = clock.now.location
 
     before = Time.local.to_unix_ms
-    clock.sleep 0.5
+    clock.sleep 0.5.seconds
     now = clock.now.to_unix_ms
     sleep 100.milliseconds
     after = Time.local.to_unix_ms
