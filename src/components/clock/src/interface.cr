@@ -8,7 +8,4 @@ module Athena::Clock::Interface
 
   # Sleeps for the provided *span* of time.
   abstract def sleep(span : Time::Span) : Nil
-
-  # Sleeps for the provided amount of *seconds*.
-  abstract def sleep(seconds : Number) : Nil
 end

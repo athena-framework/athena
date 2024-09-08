@@ -201,7 +201,7 @@ class Athena::Console::Helper::Question < Athena::Console::Helper
         error = ex
       ensure
         attempts -= 1 if attempts
-        sleep 0
+        Fiber.yield
       end
     end
 

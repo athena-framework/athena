@@ -36,6 +36,6 @@ berlin_clock = clock.in_location Time::Location.load "Europe/Berlin"
 # From here, get the current time as a `Time` instance
 now = clock.now # : ::Time
 
-# and sleep for any period of time
-clock.sleep 2
+# and sleep for any span of time
+clock.sleep 2.seconds
 ```

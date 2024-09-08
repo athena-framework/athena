@@ -28,9 +28,4 @@ class Athena::Clock::Monotonic
   def sleep(span : Time::Span) : Nil
     ::sleep span
   end
-
-  # :inherit:
-  def sleep(seconds : Number) : Nil
-    ::sleep seconds
-  end
 end

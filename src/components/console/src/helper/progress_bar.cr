@@ -272,7 +272,7 @@ require "../output/interface"
 #   bar1.advance
 #   bar2.advance(4) if idx.divisible_by? 2
 #
-#   sleep 0.05
+#   sleep 0.05.seconds
 # end
 # ```
 #
