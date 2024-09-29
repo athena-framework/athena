@@ -6,9 +6,12 @@ function runSpecs()
   $CRYSTAL spec "${DEFAULT_BUILD_OPTIONS[@]}" "${DEFAULT_OPTIONS[@]}" "src/components/$1/spec"
 }
 
+# Coverage generation logic based on https://hannes.kaeufler.net/posts/measuring-code-coverage-in-crystal-with-kcov
+#
 # $1 component name
 function runSpecsWithCoverage()
 {
+  mkdir -p coverage/bin
   echo "require \"../../src/components/$1/spec/**\"" > "./coverage/bin/$1.cr" && \
   crystal build "${DEFAULT_BUILD_OPTIONS[@]}" "./coverage/bin/$1.cr" -o "./coverage/bin/$1" && \
   kcov --clean --cobertura-only --include-path="./src/components/$1/src" "./coverage/$1" "./coverage/bin/$1" --junit_output="./coverage/$1/junit.xml" "${DEFAULT_OPTIONS[@]}" || EXIT_CODE=1
@@ -41,9 +44,6 @@ then
 fi
 
 EXIT_CODE=0
-
-# Coverage generation logic based on https://hannes.kaeufler.net/posts/measuring-code-coverage-in-crystal-with-kcov
-mkdir -p coverage/bin
 
 if [ $COMPONENT != "all" ]
 then
