@@ -111,7 +111,7 @@ jobs:
         run: ./scripts/test.sh all unit
         shell: bash
         env:
-          WITH_CODE_COVERAGE: {{ (matrix.os == 'macos-latest' && matrix.crystal == 'latest') && '1' || '0' }}
+          WITH_CODE_COVERAGE: ${{ (matrix.os == 'macos-latest' && matrix.crystal == 'latest') && '1' || '0' }}
       - uses: codecov/codecov-action@v4
         if: matrix.os == 'macos-latest' && matrix.crystal == 'latest' # Only want to upload coverage report once in the matrix
         with:
