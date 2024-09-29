@@ -67,6 +67,13 @@ jobs:
       - name: Compiled Specs
         run: ./scripts/test.sh all compiled
         shell: bash
+      - uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          directory: ./coverage/
+          flags: compiled
+          verbose: true
   test_unit:
     strategy:
       fail-fast: false
@@ -97,3 +104,11 @@ jobs:
       - name: Specs
         run: ./scripts/test.sh all unit
         shell: bash
+      - uses: codecov/codecov-action@v4
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest' }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          directory: ./coverage/
+          flags: unit
+          verbose: true

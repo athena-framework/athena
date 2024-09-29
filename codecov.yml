@@ -1,0 +1,57 @@
+comment:
+    layout: "condensed_header, flags, components, condensed_files, condensed_footer"
+
+component_management:
+  individual_components:
+    - component_id: clock_component
+      name: clock
+      paths:
+        - src/components/clock/**
+    - component_id: console_component
+      name: console
+      paths:
+        - src/components/console/**
+    - component_id: dependency_injection_component
+      name: dependency_injection
+      paths:
+        - src/components/dependency_injection/**
+    - component_id: dotenv_component
+      name: dotenv
+      paths:
+        - src/components/dotenv/**
+    - component_id: event_dispatcher_component
+      name: event_dispatcher
+      paths:
+        - src/components/event_dispatcher/**
+    - component_id: framework_component
+      name: framework
+      paths:
+        - src/components/framework/**
+    - component_id: image_size_component
+      name: image_size
+      paths:
+        - src/components/image_size/**
+    - component_id: mercure_component
+      name: mercure
+      paths:
+        - src/components/mercure/**
+    - component_id: negotiation_component
+      name: negotiation
+      paths:
+        - src/components/negotiation/**
+    - component_id: routing_component
+      name: routing
+      paths:
+        - src/components/routing/**
+    - component_id: serializer_component
+      name: serializer
+      paths:
+        - src/components/serializer/**
+    - component_id: spec_component
+      name: spec
+      paths:
+        - src/components/spec/**
+    - component_id: validator_component
+      name: validator
+      paths:
+        - src/components/validator/**
