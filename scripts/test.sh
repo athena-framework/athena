@@ -17,7 +17,7 @@ function runSpecsWithCoverage()
 DEFAULT_BUILD_OPTIONS=(-Dstrict_multi_assign -Dpreview_overload_order --error-on-warnings)
 DEFAULT_OPTIONS=(--order=random)
 CRYSTAL=${CRYSTAL:=crystal}
-WITH_CODE_COVERAGE=${WITH_CODE_COVERAGE:=1}
+WITH_CODE_COVERAGE=${WITH_CODE_COVERAGE:=0}
 
 # Runs the specs for all, or optionally a single component.
 # Optionally generates code coverage report data as well.
