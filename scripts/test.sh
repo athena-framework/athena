@@ -11,7 +11,7 @@ function runSpecsWithCoverage()
 {
   echo "require \"../../src/components/$1/spec/**\"" > "./coverage/bin/$1.cr" && \
   crystal build "${DEFAULT_BUILD_OPTIONS[@]}" "./coverage/bin/$1.cr" -o "./coverage/bin/$1" && \
-  kcov --debug=31 --clean --include-path="./src/components/$1/src" "./coverage/$1" "./coverage/bin/$1" "${DEFAULT_OPTIONS[@]}" || EXIT_CODE=1
+  kcov --clean --cobertura-only --include-path="./src/components/$1/src" "./coverage/$1" "./coverage/bin/$1" "${DEFAULT_OPTIONS[@]}" || EXIT_CODE=1
 }
 
 DEFAULT_BUILD_OPTIONS=(-Dstrict_multi_assign -Dpreview_overload_order --error-on-warnings)

@@ -1,5 +1,9 @@
 comment:
-    layout: "condensed_header, flags, components, condensed_files, condensed_footer"
+  layout: "condensed_header, flags, components, condensed_files, condensed_footer"
+
+flag_management:
+  default_rules:
+    carryforward: true
 
 component_management:
   individual_components:

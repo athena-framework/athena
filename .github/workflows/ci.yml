@@ -53,12 +53,23 @@ jobs:
         crystal:
           - latest
           - nightly
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Install kcov
         if: matrix.crystal == 'latest'
-        run: brew install kcov
+        run: |
+          sudo apt-get update &&
+          sudo apt-get install binutils-dev libssl-dev libcurl4-openssl-dev libelf-dev libstdc++-12-dev zlib1g-dev libdw-dev libiberty-dev
+          curl -L -o ./kcov.tar.gz https://github.com/SimonKagstrom/kcov/archive/refs/tags/v43.tar.gz &&
+          mkdir kcov-source &&
+          tar xzf kcov.tar.gz -C kcov-source --strip-components=1 &&
+          cd kcov-source &&
+          mkdir build &&
+          cd build &&
+          cmake .. &&
+          make &&
+          sudo make install
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
         with:
@@ -100,8 +111,19 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install kcov
-        if: matrix.os == 'macos-latest' && matrix.crystal == 'latest'
-        run: brew install kcov
+        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest'
+        run: |
+          sudo apt-get update &&
+          sudo apt-get install binutils-dev libssl-dev libcurl4-openssl-dev libelf-dev libstdc++-12-dev zlib1g-dev libdw-dev libiberty-dev
+          curl -L -o ./kcov.tar.gz https://github.com/SimonKagstrom/kcov/archive/refs/tags/v43.tar.gz &&
+          mkdir kcov-source &&
+          tar xzf kcov.tar.gz -C kcov-source --strip-components=1 &&
+          cd kcov-source &&
+          mkdir build &&
+          cd build &&
+          cmake .. &&
+          make &&
+          sudo make install
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
         with:
@@ -114,9 +136,9 @@ jobs:
         run: ./scripts/test.sh all unit
         shell: bash
         env:
-          WITH_CODE_COVERAGE: ${{ (matrix.os == 'macos-latest' && matrix.crystal == 'latest') && '1' || '0' }}
+          WITH_CODE_COVERAGE: ${{ (matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest') && '1' || '0' }}
       - uses: codecov/codecov-action@v4
-        if: matrix.os == 'macos-latest' && matrix.crystal == 'latest' # Only want to upload coverage report once in the matrix
+        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest' # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
