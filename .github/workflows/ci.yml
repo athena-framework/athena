@@ -57,6 +57,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install kcov
+        if: matrix.crystal == 'latest'
         run: brew install kcov
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
@@ -70,9 +71,9 @@ jobs:
         run: ./scripts/test.sh all compiled
         shell: bash
         env:
-          WITH_CODE_COVERAGE: ${{ (matrix.os == 'macos-latest' && matrix.crystal == 'latest') && '1' || '0' }}
+          WITH_CODE_COVERAGE: ${{ matrix.crystal == 'latest' && '1' || '0' }}
       - uses: codecov/codecov-action@v4
-        if: matrix.os == 'macos-latest' && matrix.crystal == 'latest' # Only want to upload coverage report once in the matrix
+        if: matrix.crystal == 'latest' # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
