@@ -13,3 +13,5 @@ __pycache__
 .cache
 .venv
 site/
+
+coverage/

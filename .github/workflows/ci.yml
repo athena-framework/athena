@@ -53,9 +53,23 @@ jobs:
         crystal:
           - latest
           - nightly
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install kcov
+        if: matrix.crystal == 'latest'
+        run: |
+          sudo apt-get update &&
+          sudo apt-get install binutils-dev libssl-dev libcurl4-openssl-dev libelf-dev libstdc++-12-dev zlib1g-dev libdw-dev libiberty-dev
+          curl -L -o ./kcov.tar.gz https://github.com/SimonKagstrom/kcov/archive/refs/tags/v43.tar.gz &&
+          mkdir kcov-source &&
+          tar xzf kcov.tar.gz -C kcov-source --strip-components=1 &&
+          cd kcov-source &&
+          mkdir build &&
+          cd build &&
+          cmake .. &&
+          make -j$(nproc) &&
+          sudo make install
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
         with:
@@ -67,6 +81,24 @@ jobs:
       - name: Compiled Specs
         run: ./scripts/test.sh all compiled
         shell: bash
+        env:
+          WITH_CODE_COVERAGE: ${{ matrix.crystal == 'latest' && '1' || '0' }}
+      - uses: codecov/codecov-action@v4
+        if: matrix.crystal == 'latest' # Only want to upload coverage report once in the matrix
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          files: ./coverage/**/cov.xml
+          flags: compiled
+          verbose: true
+      - uses: codecov/test-results-action@v1
+        if: matrix.crystal == 'latest'
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          files: ./coverage/**/junit.xml
+          flags: compiled
+          verbose: true
   test_unit:
     strategy:
       fail-fast: false
@@ -86,6 +118,20 @@ jobs:
         if: github.event_name == 'pull_request'
         with:
           fetch-depth: 0
+      - name: Install kcov
+        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest'
+        run: |
+          sudo apt-get update &&
+          sudo apt-get install binutils-dev libssl-dev libcurl4-openssl-dev libelf-dev libstdc++-12-dev zlib1g-dev libdw-dev libiberty-dev
+          curl -L -o ./kcov.tar.gz https://github.com/SimonKagstrom/kcov/archive/refs/tags/v43.tar.gz &&
+          mkdir kcov-source &&
+          tar xzf kcov.tar.gz -C kcov-source --strip-components=1 &&
+          cd kcov-source &&
+          mkdir build &&
+          cd build &&
+          cmake .. &&
+          make -j$(nproc) &&
+          sudo make install
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
         with:
@@ -97,3 +143,21 @@ jobs:
       - name: Specs
         run: ./scripts/test.sh all unit
         shell: bash
+        env:
+          WITH_CODE_COVERAGE: ${{ (matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest') && '1' || '0' }}
+      - uses: codecov/codecov-action@v4
+        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest' # Only want to upload coverage report once in the matrix
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          files: ./coverage/**/cov.xml
+          flags: unit
+          verbose: true
+      - uses: codecov/test-results-action@v1
+        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest' # Only want to upload coverage report once in the matrix
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          files: ./coverage/**/junit.xml
+          flags: unit
+          verbose: true
