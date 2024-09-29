@@ -92,7 +92,7 @@ jobs:
           flags: compiled
           verbose: true
       - uses: codecov/test-results-action@v1
-        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest' # Only want to upload coverage report once in the matrix
+        if: matrix.crystal == 'latest'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
