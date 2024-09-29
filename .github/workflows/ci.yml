@@ -91,6 +91,14 @@ jobs:
           files: ./coverage/**/cov.xml
           flags: compiled
           verbose: true
+      - uses: codecov/test-results-action@v1
+        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest' # Only want to upload coverage report once in the matrix
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          files: ./coverage/**/junit.xml
+          flags: compiled
+          verbose: true
   test_unit:
     strategy:
       fail-fast: false
@@ -143,5 +151,13 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           files: ./coverage/**/cov.xml
+          flags: unit
+          verbose: true
+      - uses: codecov/test-results-action@v1
+        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest' # Only want to upload coverage report once in the matrix
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          files: ./coverage/**/junit.xml
           flags: unit
           verbose: true
