@@ -68,6 +68,7 @@ jobs:
         run: ./scripts/test.sh all compiled
         shell: bash
       - uses: codecov/codecov-action@v4
+        if: ${{ matrix.crystal == 'latest' }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
