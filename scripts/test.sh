@@ -44,7 +44,6 @@ EXIT_CODE=0
 
 # Coverage generation logic based on https://hannes.kaeufler.net/posts/measuring-code-coverage-in-crystal-with-kcov
 mkdir -p coverage/bin
-mkdir -p /tmp/athena/
 
 if [ $COMPONENT != "all" ]
 then
