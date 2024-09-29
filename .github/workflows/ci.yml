@@ -88,7 +88,7 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
-          directory: ./coverage/
+          directory: ./coverage/**
           flags: compiled
           verbose: true
   test_unit:
@@ -142,6 +142,6 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
-          directory: ./coverage/
+          directory: ./coverage/**
           flags: unit
           verbose: true
