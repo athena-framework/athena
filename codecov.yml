@@ -1,6 +1,15 @@
 comment:
   layout: "condensed_header, flags, components, condensed_files, condensed_footer"
 
+coverage:
+  status:
+    project:
+      default:
+        target: auto # Prevent total coverage from decreasing due to a PR
+    patch:
+      default:
+        target: 100% # Enforce all _new_ code is fully tested
+
 flag_management:
   default_rules:
     carryforward: true

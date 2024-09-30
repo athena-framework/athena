@@ -3,6 +3,14 @@ require "./spec_helper"
 struct ClockTest < ASPEC::TestCase
   include ACLK::Spec::ClockSensitive
 
+  def test_functions_as_a_clock : Nil
+    self.mock_time Time.utc 2023, 9, 16
+
+    clock = ACLK.new
+
+    clock.now.to_s("%F").should eq "2023-09-16"
+  end
+
   def test_supports_mock_clock : Nil
     ACLK.clock.should be_a ACLK::Native
 
