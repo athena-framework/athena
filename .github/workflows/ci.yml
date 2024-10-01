@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Check Spelling
-        uses: crate-ci/typos@v1.24.3
+        uses: crate-ci/typos@v1.25.0
   check_format:
     strategy:
       matrix:
