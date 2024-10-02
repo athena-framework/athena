@@ -81,8 +81,6 @@ jobs:
       - name: Compiled Specs
         run: ./scripts/test.sh all compiled
         shell: bash
-        env:
-          WITH_CODE_COVERAGE: ${{ matrix.crystal == 'latest' && '1' || '0' }}
       - uses: codecov/codecov-action@v4
         if: matrix.crystal == 'latest' # Only want to upload coverage report once in the matrix
         with:
@@ -92,7 +90,7 @@ jobs:
           flags: compiled
           verbose: true
       - uses: codecov/test-results-action@v1
-        if: matrix.crystal == 'latest'
+        if: matrix.crystal == 'latest' # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
@@ -143,8 +141,6 @@ jobs:
       - name: Specs
         run: ./scripts/test.sh all unit
         shell: bash
-        env:
-          WITH_CODE_COVERAGE: ${{ (matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest') && '1' || '0' }}
       - uses: codecov/codecov-action@v4
         if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest' # Only want to upload coverage report once in the matrix
         with:

@@ -14,13 +14,14 @@ function runSpecsWithCoverage()
   mkdir -p coverage/bin
   echo "require \"../../src/components/$1/spec/**\"" > "./coverage/bin/$1.cr" && \
   crystal build "${DEFAULT_BUILD_OPTIONS[@]}" "./coverage/bin/$1.cr" -o "./coverage/bin/$1" && \
-  kcov --clean --cobertura-only --include-path="./src/components/$1/src" "./coverage/$1" "./coverage/bin/$1" --junit_output="./coverage/$1/junit.xml" "${DEFAULT_OPTIONS[@]}" || EXIT_CODE=1
+  kcov $(if $IS_CI != "true"; then echo "--cobertura-only"; fi) --clean --include-path="./src/components/$1/src" "./coverage/$1" "./coverage/bin/$1" --junit_output="./coverage/$1/junit.xml" "${DEFAULT_OPTIONS[@]}" || EXIT_CODE=1
 }
 
 DEFAULT_BUILD_OPTIONS=(-Dstrict_multi_assign -Dpreview_overload_order --error-on-warnings)
 DEFAULT_OPTIONS=(--order=random)
 CRYSTAL=${CRYSTAL:=crystal}
-WITH_CODE_COVERAGE=${WITH_CODE_COVERAGE:=0}
+HAS_KCOV=$(if command -v "kcov" &>/dev/null; then echo "true"; else echo "false"; fi)
+IS_CI=${CI:="false"}
 
 # Runs the specs for all, or optionally a single component.
 # Optionally generates code coverage report data as well.
@@ -47,7 +48,7 @@ EXIT_CODE=0
 
 if [ $COMPONENT != "all" ]
 then
-  if [ $WITH_CODE_COVERAGE == "1" ]
+  if [ $HAS_KCOV = "true" ]
   then
     runSpecsWithCoverage $COMPONENT
   else
@@ -59,7 +60,7 @@ fi
 for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | xargs -I{} basename {} | sort); do
   echo "::group::$component"
 
-  if [ $WITH_CODE_COVERAGE == "1" ]
+  if [ $HAS_KCOV = "true" ]
   then
     runSpecsWithCoverage $component || EXIT_CODE=1
   else
