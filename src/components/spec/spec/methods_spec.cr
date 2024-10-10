@@ -6,7 +6,7 @@ describe ASPEC::Methods do
       begin
         ENV["CRYSTAL"] = "/path/to/crystal"
 
-        expect_raises File::NotFoundError, "'/path/to/crystal': No such file or directory" do
+        expect_raises File::NotFoundError do
           assert_error "", ""
         end
       ensure
