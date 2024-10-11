@@ -16,7 +16,7 @@ private def assert_error(message : String, code : String, *, line : Int32 = __LI
   CR
 end
 
-describe ADI::Extension do
+describe ADI::Extension, tags: "compiled" do
   it "happy path" do
     assert_success <<-CR
       module Schema
