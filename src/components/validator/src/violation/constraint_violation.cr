@@ -41,7 +41,7 @@ struct Athena::Validator::Violation::ConstraintViolation
     @plural : Int32? = nil,
     @code : String? = nil,
     @constraint : AVD::Constraint? = nil,
-    @cause : String? = nil
+    @cause : String? = nil,
   )
     @root_container = root.is_a?(AVD::Container) ? root : AVD::ValueContainer.new(root)
   end

@@ -6,7 +6,7 @@ struct Athena::Framework::Spec::Expectations::Response::HeaderEquals < Athena::F
   def initialize(
     @name : String,
     @value : String,
-    description : String? = nil
+    description : String? = nil,
   )
     super description
   end

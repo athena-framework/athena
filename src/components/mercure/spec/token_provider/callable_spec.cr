@@ -10,6 +10,6 @@ describe AMC::TokenProvider::Callable do
   end
 
   it "proc overload" do
-    AMC::TokenProvider::Callable.new(->{ "BAR" }).jwt.should eq "BAR"
+    AMC::TokenProvider::Callable.new(-> { "BAR" }).jwt.should eq "BAR"
   end
 end

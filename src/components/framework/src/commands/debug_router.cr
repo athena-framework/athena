@@ -39,7 +39,7 @@
 # TIP: Checkout `ATH::Commands::DebugRouterMatch` to test which route a given path resolves to.
 class Athena::Framework::Commands::DebugRouter < ACON::Command
   def initialize(
-    @router : ART::RouterInterface
+    @router : ART::RouterInterface,
   )
     super()
   end

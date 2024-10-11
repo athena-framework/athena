@@ -24,7 +24,7 @@ class Athena::Console::Commands::Lazy < Athena::Console::Command
     description : String,
     hidden : Bool,
     @command : Proc(ACON::Command),
-    @enabled : Bool = true
+    @enabled : Bool = true,
   )
     self
       .name(name)

@@ -25,7 +25,7 @@ class Athena::Framework::View::ViewHandler
     format_handlers : Array(Athena::Framework::View::FormatHandlerInterface),
     @failed_validation_status : HTTP::Status = HTTP::Status::UNPROCESSABLE_ENTITY,
     @empty_content_status : HTTP::Status = HTTP::Status::NO_CONTENT,
-    @emit_nil : Bool = false
+    @emit_nil : Bool = false,
   )
     format_handlers.each do |format_handler|
       self.register_handler format_handler.format, format_handler

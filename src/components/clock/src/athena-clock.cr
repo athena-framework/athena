@@ -22,7 +22,7 @@ class Athena::Clock
 
   def initialize(
     @clock : ACLK::Interface? = nil,
-    @location : Time::Location? = nil
+    @location : Time::Location? = nil,
   )
   end
 

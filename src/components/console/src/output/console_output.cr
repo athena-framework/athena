@@ -14,7 +14,7 @@ class Athena::Console::Output::ConsoleOutput < Athena::Console::Output::IO
   def initialize(
     verbosity : ACON::Output::Verbosity = :normal,
     decorated : Bool? = nil,
-    formatter : ACON::Formatter::Interface? = nil
+    formatter : ACON::Formatter::Interface? = nil,
   )
     super STDOUT, verbosity, decorated, formatter
 

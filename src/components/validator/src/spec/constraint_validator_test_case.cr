@@ -311,7 +311,7 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
     property_path : String,
     value : _,
     constraints : Array(AVD::Constraint) | AVD::Constraint,
-    groups : Array(String) | String | AVD::Constraints::GroupSequence | Nil = nil
+    groups : Array(String) | String | AVD::Constraints::GroupSequence | Nil = nil,
   )
     raise "BUG: Null context" unless c = @context
 

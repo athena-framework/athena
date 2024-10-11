@@ -49,7 +49,7 @@ module Athena::Clock::Spec
 
     def initialize(
       now : Time = Time.local,
-      location : Time::Location? = nil
+      location : Time::Location? = nil,
     )
       @location = location || Time::Location::UTC
       @now = now.in @location

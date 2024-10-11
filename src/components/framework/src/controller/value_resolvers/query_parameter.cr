@@ -26,7 +26,7 @@
 #     @[ATHA::MapQueryParameter] age : Int32,
 #     @[ATHA::MapQueryParameter] color : Color,
 #     @[ATHA::MapQueryParameter] category : String = "",
-#     @[ATHA::MapQueryParameter] theme : String? = nil
+#     @[ATHA::MapQueryParameter] theme : String? = nil,
 #   ) : Nil
 #     ids        # => [1, 2]
 #     first_name # => "Jon"

@@ -17,7 +17,7 @@
 #   def event(
 #     @[ATHA::MapTime("%F", location: Time::Location.load("Europe/Berlin"))]
 #     start_time : Time,
-#     end_time : Time
+#     end_time : Time,
 #   ) : Nil
 #     start_time # => 2020-04-07 00:00:00.0 +02:00 Europe/Berlin
 #     end_time   # => 2020-04-08 12:34:56.0 UTC

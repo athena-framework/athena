@@ -8,7 +8,7 @@ require "mime"
 # See the [Getting Started](/getting_started/routing#content-negotiation) docs for more information.
 struct Athena::Framework::Listeners::Format
   def initialize(
-    @format_negotiator : ATH::View::FormatNegotiator
+    @format_negotiator : ATH::View::FormatNegotiator,
   ); end
 
   @[AEDA::AsEventListener(priority: 34)]

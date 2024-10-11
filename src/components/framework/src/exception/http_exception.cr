@@ -25,7 +25,7 @@ class Athena::Framework::Exception::HTTPException < ::Exception
     status : Int32 | HTTP::Status,
     message : String = "",
     cause : ::Exception? = nil,
-    headers : HTTP::Headers = HTTP::Headers.new
+    headers : HTTP::Headers = HTTP::Headers.new,
   ) : self
     status = status.is_a?(HTTP::Status) ? status : HTTP::Status.new(status)
 

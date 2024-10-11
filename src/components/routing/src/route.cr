@@ -215,7 +215,7 @@ class Athena::Routing::Route
     host : String | Regex | Nil = nil,
     methods : String | Enumerable(String) | Nil = nil,
     schemes : String | Enumerable(String) | Nil = nil,
-    @condition : ART::Route::Condition? = nil
+    @condition : ART::Route::Condition? = nil,
   )
     self.path = @path
     self.add_defaults defaults

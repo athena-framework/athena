@@ -168,7 +168,7 @@ class Athena::Dotenv
   @line_number = 1
 
   def initialize(
-    @env_key : String = "APP_ENV"
+    @env_key : String = "APP_ENV",
   )
     # Can't use a `getter!` macro since that would return a copy of the reader each time :/
     @reader = uninitialized Char::Reader
@@ -212,7 +212,7 @@ class Athena::Dotenv
     env_key : String? = nil,
     default_environment : String = "dev",
     test_environments : Enumerable(String) = {"test"},
-    override_existing_vars : Bool = false
+    override_existing_vars : Bool = false,
   ) : Nil
     env_key = env_key || @env_key
 

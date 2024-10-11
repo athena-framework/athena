@@ -109,7 +109,7 @@ class Athena::Framework::Console::Descriptor::Text < Athena::Framework::Console:
   private def render_event_listener_table(
     output : ACON::Style::Athena,
     event_dispatcher : AED::EventDispatcherInterface,
-    event_listeners : Hash(AED::Event.class, Array(AED::Callable))
+    event_listeners : Hash(AED::Event.class, Array(AED::Callable)),
   ) : Nil
     sorted_listeners = event_listeners
       .to_a
@@ -125,7 +125,7 @@ class Athena::Framework::Console::Descriptor::Text < Athena::Framework::Console:
   private def render_event_listener_table(
     output : ACON::Style::Athena,
     event_dispatcher : AED::EventDispatcherInterface,
-    event_listeners : Array(AED::Callable)
+    event_listeners : Array(AED::Callable),
   ) : Nil
     table_headers = %w(Order Callable Priority)
     table_rows = [] of Array(String | Int32)

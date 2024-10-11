@@ -8,7 +8,7 @@ struct JWTTest < ASPEC::TestCase
     subscribe : Array(String)?,
     publish : Array(String)?,
     additional_claims : Hash?,
-    expected_jwt : String
+    expected_jwt : String,
   ) : Nil
     AMC::TokenFactory::JWT
       .new(secret, algorithm, jwt_lifetime: nil)

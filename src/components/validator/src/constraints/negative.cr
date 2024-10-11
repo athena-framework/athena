@@ -36,7 +36,7 @@ class Athena::Validator::Constraints::Negative < Athena::Validator::Constraints:
   def initialize(
     message : String = "This value should be negative.",
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     super Int32.zero, message, groups, payload
   end

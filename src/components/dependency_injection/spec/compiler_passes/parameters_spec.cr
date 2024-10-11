@@ -24,7 +24,7 @@ class ParametersClient
     array : Array(String),
     nested_array : Array(Array(String) | String),
     nested_hash : Hash(String, Bool | String | Array(String) | Array(Array(String) | String)),
-    non_string : Bool
+    non_string : Bool,
   )
     reference.should eq "google.com"
     with_percent.should eq "foo%bar"

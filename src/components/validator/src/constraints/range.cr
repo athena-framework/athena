@@ -91,7 +91,7 @@ class Athena::Validator::Constraints::Range < Athena::Validator::Constraint
     min_message : String = "This value should be {{ limit }} or more.",
     max_message : String = "This value should be {{ limit }} or less.",
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     range_end = range.end
 
@@ -109,7 +109,7 @@ class Athena::Validator::Constraints::Range < Athena::Validator::Constraint
     @min_message : String,
     @max_message : String,
     groups : Array(String) | String | Nil,
-    payload : Hash(String, String)?
+    payload : Hash(String, String)?,
   )
     super "", groups, payload
   end

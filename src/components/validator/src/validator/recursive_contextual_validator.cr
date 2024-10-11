@@ -12,7 +12,7 @@ class Athena::Validator::Validator::RecursiveContextualValidator
   def initialize(
     @context : AVD::ExecutionContextInterface,
     @constraint_validator_factory : AVD::ConstraintValidatorFactoryInterface,
-    @metadata_factory : AVD::Metadata::MetadataFactoryInterface
+    @metadata_factory : AVD::Metadata::MetadataFactoryInterface,
   )
     @default_groups = [(g = @context.group) ? g : Constraint::DEFAULT_GROUP]
     @default_property_path = @context.property_path
@@ -170,7 +170,7 @@ class Athena::Validator::Validator::RecursiveContextualValidator
     collection : Iterable,
     property_path : String,
     groups : GroupsTypes,
-    context : AVD::ExecutionContextInterface
+    context : AVD::ExecutionContextInterface,
   )
     collection.each_with_index do |item, idx|
       case item
@@ -184,7 +184,7 @@ class Athena::Validator::Validator::RecursiveContextualValidator
     collection : Hash,
     property_path : String,
     groups : GroupsTypes,
-    context : AVD::ExecutionContextInterface
+    context : AVD::ExecutionContextInterface,
   )
     collection.each do |key, value|
       case value
@@ -201,7 +201,7 @@ class Athena::Validator::Validator::RecursiveContextualValidator
     property_path : String,
     groups : GroupsTypes,
     cascaded_groups : Array(String)?,
-    context : AVD::ExecutionContextInterface
+    context : AVD::ExecutionContextInterface,
   )
     context.set_node value, object, metadata, property_path
 
@@ -267,7 +267,7 @@ class Athena::Validator::Validator::RecursiveContextualValidator
     property_path : String,
     groups : GroupsTypes,
     cascaded_groups : Array(String)?,
-    context : AVD::ExecutionContextInterface
+    context : AVD::ExecutionContextInterface,
   ) : Nil
     context.set_node object, object, class_metadata, property_path
 
@@ -347,7 +347,7 @@ class Athena::Validator::Validator::RecursiveContextualValidator
     property_path : String,
     group_sequence : AVD::Constraints::GroupSequence,
     cascaded_groups : String?,
-    context : AVD::ExecutionContextInterface
+    context : AVD::ExecutionContextInterface,
   ) : Nil
     violation_count = context.violations.size
     cascaded_groups = cascaded_groups ? [cascaded_groups] : nil

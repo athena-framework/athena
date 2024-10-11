@@ -4,7 +4,7 @@ class Athena::Mercure::Authorization
   def initialize(
     @hub_registry : AMC::Hub::Registry,
     @cookie_lifetime : Time::Span = 1.hour,
-    @cookie_samesite : HTTP::Cookie::SameSite = :strict
+    @cookie_samesite : HTTP::Cookie::SameSite = :strict,
   ); end
 
   def set_cookie(
@@ -13,7 +13,7 @@ class Athena::Mercure::Authorization
     subscribe : Array(String)? = [] of String,
     publish : Array(String)? = [] of String,
     additional_claims : Hash? = nil,
-    hub_name : String? = nil
+    hub_name : String? = nil,
   )
     self.update_cookies request, response, hub_name, self.create_cookie(request, subscribe, publish, additional_claims, hub_name)
   end
@@ -21,7 +21,7 @@ class Athena::Mercure::Authorization
   def clear_cookie(
     request : HTTP::Request,
     response : HTTP::Server::Response,
-    hub_name : String? = nil
+    hub_name : String? = nil,
   ) : Nil
     self.update_cookies request, response, hub_name, self.create_clear_cookie(request, hub_name)
   end
@@ -31,7 +31,7 @@ class Athena::Mercure::Authorization
     subscribe : Array(String)? = [] of String,
     publish : Array(String)? = [] of String,
     additional_claims : Hash? = nil,
-    hub_name : String? = nil
+    hub_name : String? = nil,
   ) : HTTP::Cookie
     hub = @hub_registry.hub hub_name
     unless token_factory = hub.token_factory
@@ -111,7 +111,7 @@ class Athena::Mercure::Authorization
     request : HTTP::Request,
     response : HTTP::Server::Response,
     hub_name : String?,
-    cookie : HTTP::Cookie
+    cookie : HTTP::Cookie,
   ) : Nil
     unless response.cookies[COOKIE_NAME]?.nil?
       raise AMC::Exception::Runtime.new "The 'mercureAuthorization' cookie for the '#{hub_name ? "#{hub_name} hub" : "default hub"}' has already been set. You cannot set it two times during the same request."

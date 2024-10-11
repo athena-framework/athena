@@ -53,7 +53,7 @@ class Athena::Validator::Constraints::All < Athena::Validator::Constraints::Comp
   def initialize(
     constraints : AVD::Constraints::Composite::Type,
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     super constraints, "", groups, payload
   end

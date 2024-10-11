@@ -48,7 +48,7 @@ class Athena::Validator::Constraints::NotBlank < Athena::Validator::Constraint
     @allow_nil : Bool = false,
     message : String = "This value should not be blank.",
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     super message, groups, payload
   end

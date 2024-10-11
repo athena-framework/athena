@@ -63,7 +63,7 @@ class Athena::Validator::Constraints::Regex < Athena::Validator::Constraint
     @match : Bool = true,
     message : String = "This value should match '{{ pattern }}'.",
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     super message, groups, payload
   end

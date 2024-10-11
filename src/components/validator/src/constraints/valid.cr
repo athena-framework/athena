@@ -56,7 +56,7 @@ class Athena::Validator::Constraints::Valid < Athena::Validator::Constraint
   def initialize(
     @traverse : Bool = true,
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     super "", groups, payload
   end

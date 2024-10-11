@@ -8,7 +8,7 @@ struct Athena::Framework::Spec::Expectations::Response::HasCookie < Athena::Fram
     @name : String,
     @path : String? = nil,
     @domain : String? = nil,
-    description : String? = nil
+    description : String? = nil,
   )
     super description
   end

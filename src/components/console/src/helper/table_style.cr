@@ -242,7 +242,7 @@ class Athena::Console::Helper::Table::Style
     middle_left : String | Char,
     top_left_bottom : String | Char | Nil = nil,
     top_middle_bottom : String | Char | Nil = nil,
-    top_right_bottom : String | Char | Nil = nil
+    top_right_bottom : String | Char | Nil = nil,
   ) : self
     @crossing_char = cross.to_s
     @crossing_top_left_char = top_left.to_s

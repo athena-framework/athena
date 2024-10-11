@@ -4,14 +4,14 @@ struct Athena::Framework::Spec::Expectations::Response::HasStatus < Athena::Fram
 
   def self.new(
     status_code : Int32,
-    description : String? = nil
+    description : String? = nil,
   )
     new ::HTTP::Status.from_value(status_code), description
   end
 
   def initialize(
     @status : ::HTTP::Status,
-    description : String? = nil
+    description : String? = nil,
   )
     super description
   end

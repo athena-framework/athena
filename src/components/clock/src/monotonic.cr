@@ -8,7 +8,7 @@ class Athena::Clock::Monotonic
   @nanosecond_offset : Int128
 
   def initialize(
-    location : Time::Location? = nil
+    location : Time::Location? = nil,
   )
     @location = location || Time::Location.local
     @nanosecond_offset = Time.utc.to_unix_ns - Time.monotonic.total_nanoseconds.to_i128

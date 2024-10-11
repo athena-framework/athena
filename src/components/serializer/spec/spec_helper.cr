@@ -138,7 +138,7 @@ def create_metadata(
   groups : Array(String) = ["default"],
   since_version : String? = nil,
   until_version : String? = nil,
-  annotation_configurations : ADI::AnnotationConfigurations = ADI::AnnotationConfigurations.new
+  annotation_configurations : ADI::AnnotationConfigurations = ADI::AnnotationConfigurations.new,
 ) : ASR::PropertyMetadata forall I
   context = ASR::PropertyMetadata(I, I, EmptyObject).new name, external_name, annotation_configurations, value, skip_when_empty, groups
 

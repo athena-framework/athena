@@ -38,7 +38,7 @@ struct Athena::Mercure::TokenFactory::JWT
     @jwt_secret : String,
     @algorithm : ::JWT::Algorithm = :hs256,
     jwt_lifetime : Int32 | Time::Span | Nil = 3600,
-    @passphrase : String = ""
+    @passphrase : String = "",
   )
     @jwt_lifetime = jwt_lifetime.is_a?(Int32) ? jwt_lifetime.seconds : jwt_lifetime
   end
@@ -46,7 +46,7 @@ struct Athena::Mercure::TokenFactory::JWT
   def create(
     subscribe : Array(String)? = [] of String,
     publish : Array(String)? = [] of String,
-    additional_claims : Hash? = nil
+    additional_claims : Hash? = nil,
   ) : String
     ::JWT.encode(
       Payload.new(MercurePayload.new(subscribe, publish), @jwt_lifetime, additional_claims),

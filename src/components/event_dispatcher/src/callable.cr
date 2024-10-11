@@ -49,7 +49,7 @@ abstract struct Athena::EventDispatcher::Callable
   def initialize(
     @event_class : AED::Event.class,
     name : String?,
-    @priority : Int32
+    @priority : Int32,
   )
     @name = name || "unknown callable"
   end
@@ -74,7 +74,7 @@ abstract struct Athena::EventDispatcher::Callable
       @callback : E -> Nil,
       priority : Int32 = 0,
       name : String? = nil,
-      event_class : E.class = E
+      event_class : E.class = E,
     )
       super event_class, name, priority
     end
@@ -104,7 +104,7 @@ abstract struct Athena::EventDispatcher::Callable
       @callback : E, AED::EventDispatcherInterface -> Nil,
       priority : Int32 = 0,
       name : String? = nil,
-      event_class : E.class = E
+      event_class : E.class = E,
     )
       super event_class, name, priority
     end
@@ -137,7 +137,7 @@ abstract struct Athena::EventDispatcher::Callable
       @instance : I,
       priority : Int32 = 0,
       name : String? = nil,
-      event_class : E.class = E
+      event_class : E.class = E,
     )
       super event_class, name || "unknown #{@instance.class} method", priority
     end

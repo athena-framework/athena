@@ -479,7 +479,7 @@ class Athena::Console::Helper::Table
       value : _ = "",
       @rowspan : Int32 = 1,
       @colspan : Int32 = 1,
-      @style : Table::CellStyle? = nil
+      @style : Table::CellStyle? = nil,
     )
       @value = value.to_s
     end
@@ -496,7 +496,7 @@ class Athena::Console::Helper::Table
     def initialize(
       rowspan : Int32 = 1,
       colspan : Int32 = 1,
-      style : Table::CellStyle? = nil
+      style : Table::CellStyle? = nil,
     )
       super "", rowspan, colspan, style
     end

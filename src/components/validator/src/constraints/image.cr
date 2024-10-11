@@ -350,7 +350,7 @@ class Athena::Validator::Constraints::Image < Athena::Validator::Constraints::Fi
     max_size_message : String = "The file is too large ({{ size }} {{ suffix }}). Allowed maximum size is {{ limit }} {{ suffix }}.",
     mime_type_message : String = "This file is not a valid image.",
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     super max_size, binary_format, mime_types, not_found_message, not_readable_message, empty_message, max_size_message, mime_type_message, groups, payload
 

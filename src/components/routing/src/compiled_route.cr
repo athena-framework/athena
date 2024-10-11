@@ -31,7 +31,7 @@ struct Athena::Routing::CompiledRoute
       @prefix : String,
       @regex : Regex? = nil,
       @var_name : String? = nil,
-      @important : Bool = false
+      @important : Bool = false,
     )
     end
 
@@ -71,7 +71,7 @@ struct Athena::Routing::CompiledRoute
     @host_regex : Regex? = nil,
     @host_tokens : Array(ART::CompiledRoute::Token) = Array(ART::CompiledRoute::Token).new,
     @host_variables : Set(String) = Set(String).new,
-    @variables : Set(String) = Set(String).new
+    @variables : Set(String) = Set(String).new,
   )
   end
 

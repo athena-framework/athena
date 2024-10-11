@@ -5,7 +5,7 @@ class Athena::Framework::Exception::MethodNotAllowed < Athena::Framework::Except
     allow : Array(String),
     message : String,
     cause : ::Exception? = nil,
-    headers : HTTP::Headers = HTTP::Headers.new
+    headers : HTTP::Headers = HTTP::Headers.new,
   )
     headers["allow"] = allow.join ", ", &.upcase
 

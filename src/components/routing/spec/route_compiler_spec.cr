@@ -229,7 +229,7 @@ struct RouteCompilerTest < ASPEC::TestCase
     tokens : Array(ART::CompiledRoute::Token),
     host_regex : Regex,
     host_variables : Set(String),
-    host_tokens : Array(ART::CompiledRoute::Token)
+    host_tokens : Array(ART::CompiledRoute::Token),
   ) : Nil
     compiled_route = route.compile
     compiled_route.static_prefix.should eq prefix

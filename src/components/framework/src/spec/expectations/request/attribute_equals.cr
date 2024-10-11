@@ -7,7 +7,7 @@ struct Athena::Framework::Spec::Expectations::Request::AttributeEquals(T)
   def initialize(
     @name : String,
     @value : T,
-    @description : String? = nil
+    @description : String? = nil,
   ); end
 
   def match(actual_value : ATH::Request) : Bool

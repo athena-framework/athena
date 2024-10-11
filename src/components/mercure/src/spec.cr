@@ -35,7 +35,7 @@ module Athena::Mercure::Spec
       @token : String,
       @subscribe : Array(String)? = [] of String,
       @publish : Array(String)? = [] of String,
-      @additional_claims : Hash(String, String) = {} of String => String
+      @additional_claims : Hash(String, String) = {} of String => String,
     )
     end
 

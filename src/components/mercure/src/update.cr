@@ -12,7 +12,7 @@ struct Athena::Mercure::Update
     @private : Bool = false,
     @id : String? = nil,
     @type : String? = nil,
-    @retry : Int32? = nil
+    @retry : Int32? = nil,
   )
     @topics = topics.is_a?(String) ? [topics] : topics
   end

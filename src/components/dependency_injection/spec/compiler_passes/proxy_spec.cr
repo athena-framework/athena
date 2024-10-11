@@ -29,7 +29,7 @@ class ServiceOne
     @service_two : ADI::Proxy(ServiceTwo),
     @service_three : ADI::Proxy(ServiceThree),
     @namespaced_service : ADI::Proxy(Some::Namespace::Service),
-    @service_two_extra : ADI::Proxy(ServiceTwo)
+    @service_two_extra : ADI::Proxy(ServiceTwo),
   )
   end
 

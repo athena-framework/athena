@@ -18,7 +18,7 @@ class BindingsPriorityClient
     id : Int64,    # Ann has highest priority
     name : String, # Global bind 2nd highest priority
     alive : Bool,  # Autoconfigure lowest priority
-    value : Float32
+    value : Float32,
   )
     id.should eq 30
     name.should eq "Fred"
@@ -57,7 +57,7 @@ class BindingsClient
     service_hash : Hash(String, SomeClassService | SomeStructService),
     service_array : Array(SomeClassService | SomeStructService),
     value : Float64,
-    proxy_service : ADI::Proxy(SomeStructService)
+    proxy_service : ADI::Proxy(SomeStructService),
   )
     some_service.value.should eq 123
     some_parameter.should eq "google.com"
@@ -72,7 +72,7 @@ end
 class Bindings2Client
   def initialize(
     value,
-    proxy_service : SomeStructService
+    proxy_service : SomeStructService,
   )
     value.should eq 88
     proxy_service.should eq SomeStructService.new

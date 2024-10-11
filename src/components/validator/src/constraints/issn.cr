@@ -72,7 +72,7 @@ class Athena::Validator::Constraints::ISSN < Athena::Validator::Constraint
     @require_hyphen : Bool = false,
     message : String = "This value is not a valid International Standard Serial Number (ISSN).",
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     super message, groups, payload
   end

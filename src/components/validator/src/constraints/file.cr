@@ -172,7 +172,7 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
     @max_size_message : String = "The file is too large ({{ size }} {{ suffix }}). Allowed maximum size is {{ limit }} {{ suffix }}.",
     @mime_type_message : String = "The mime type of the file is invalid ({{ type }}). Allowed mime types are {{ types }}.",
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     super "", groups, payload
 

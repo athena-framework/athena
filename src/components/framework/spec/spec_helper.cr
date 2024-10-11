@@ -82,7 +82,7 @@ end
 def new_action(
   *,
   arguments : Tuple = Tuple.new,
-  annotation_configurations = nil
+  annotation_configurations = nil,
 ) : ATH::ActionBase
   ATH::Action.new(
     Proc(typeof(Tuple.new), String).new { test_controller = TestController.new; test_controller.get_test },
@@ -99,7 +99,7 @@ def new_request(
   method : String = "GET",
   action : ATH::ActionBase = new_action,
   body : String | IO | Nil = nil,
-  query : String? = nil
+  query : String? = nil,
 ) : ATH::Request
   request = ATH::Request.new method, path, body: body
   request.attributes.set "_controller", "TestController#test", String
@@ -123,7 +123,7 @@ def new_response(
   *,
   io : IO = IO::Memory.new,
   status : HTTP::Status = :ok,
-  headers : HTTP::Headers = HTTP::Headers.new
+  headers : HTTP::Headers = HTTP::Headers.new,
 ) : HTTP::Server::Response
   HTTP::Server::Response.new(io).tap do |resp|
     headers.each do |k, v|

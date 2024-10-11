@@ -33,7 +33,7 @@
 # ```
 class Athena::Framework::Commands::DebugRouterMatch < ACON::Command
   def initialize(
-    @router : ART::RouterInterface
+    @router : ART::RouterInterface,
   )
     super()
   end

@@ -37,7 +37,7 @@ class Athena::EventDispatcher::GenericEvent(S, V) < Athena::EventDispatcher::Eve
 
   def initialize(
     @subject : S,
-    @arguments : Hash(String, V)
+    @arguments : Hash(String, V),
   ); end
 
   # Returns the argument with the provided *key*, raising if it does not exist.

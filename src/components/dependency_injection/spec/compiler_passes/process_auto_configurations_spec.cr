@@ -40,7 +40,7 @@ class PartnerNamedDefaultClient
 
   def initialize(
     @services : Array(FeedPartner),
-    @status : Status = Status::Active
+    @status : Status = Status::Active,
   )
   end
 end

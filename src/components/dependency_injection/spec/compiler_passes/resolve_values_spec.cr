@@ -40,7 +40,7 @@ class ValuePriorityService
     global_bind : Int32,
     auto_configure_bind : Int32,
     nilable_type : Int32?,
-    default_value : Int32 = 700
+    default_value : Int32 = 700,
   )
     ann_bind.should eq 1000
     global_bind.should eq 900
@@ -67,7 +67,7 @@ class ServiceValuePriorityService
     alias_overridden_by_auto_configure_bind : ResolveValuePriorityInterface,
 
     # Validates container rewrites the alias service ID to the real underlying service ID
-    alias_service_via_string_alias : ResolveValuePriorityInterface
+    alias_service_via_string_alias : ResolveValuePriorityInterface,
   )
     explicit_auto_wire.should be_a ServicePriorityThree
     service_priority_two.should be_a ServicePriorityTwo

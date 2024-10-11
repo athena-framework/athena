@@ -26,7 +26,7 @@ class Athena::Dotenv::Exception::Format < Athena::Dotenv::Exception::Logic
       @data : String,
       path : ::Path | String,
       @line_number : Int32,
-      @offset : Int32
+      @offset : Int32,
     )
       @path = path.to_s
     end

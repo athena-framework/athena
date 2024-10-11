@@ -14,7 +14,7 @@ abstract class Athena::Framework::Console::Descriptor
       raw_output : Bool? = nil,
       namespace : String? = nil,
       total_width : Int32? = nil,
-      short : Bool = false
+      short : Bool = false,
     )
       super format, raw_text, raw_output, namespace, total_width, short
     end
@@ -33,7 +33,7 @@ abstract class Athena::Framework::Console::Descriptor
       raw_output : Bool? = nil,
       namespace : String? = nil,
       total_width : Int32? = nil,
-      short : Bool = false
+      short : Bool = false,
     )
       super output, format, raw_text, raw_output, namespace, total_width, short
     end
@@ -52,7 +52,7 @@ abstract class Athena::Framework::Console::Descriptor
       raw_output : Bool? = nil,
       namespace : String? = nil,
       total_width : Int32? = nil,
-      short : Bool = false
+      short : Bool = false,
     )
       super output, format, raw_text, raw_output, namespace, total_width, short
     end

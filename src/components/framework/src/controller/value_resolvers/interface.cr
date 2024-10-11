@@ -79,7 +79,7 @@
 #   @[ARTA::Get("/{num}")]
 #   def multiply(
 #     @[Multiply::This]
-#     num : Int32
+#     num : Int32,
 #   ) : Int32
 #     num
 #   end
@@ -124,7 +124,7 @@
 #   @[ARTA::Get("/{num}")]
 #   def multiply(
 #     @[Multiply::This(multiplier: 50)]
-#     num : Int32
+#     num : Int32,
 #   ) : Int32
 #     num
 #   end
@@ -178,7 +178,7 @@
 #   @[ARTA::Get("/integer/{value}")]
 #   def integer(
 #     @[MyResolver::Enable]
-#     value : Int32
+#     value : Int32,
 #   ) : Int32
 #     value
 #   end
@@ -186,7 +186,7 @@
 #   @[ARTA::Get("/string/{value}")]
 #   def string(
 #     @[MyResolver::Enable]
-#     value : String
+#     value : String,
 #   ) : String
 #     value
 #   end
@@ -249,7 +249,7 @@
 #   @[ARTA::Get("/integer")]
 #   def integer(
 #     @[MyResolver::Enable]
-#     value : Int32
+#     value : Int32,
 #   ) : Int32
 #     value
 #   end
@@ -257,7 +257,7 @@
 #   @[ARTA::Get("/string")]
 #   def string(
 #     @[MyResolver::Enable]
-#     value : String
+#     value : String,
 #   ) : String
 #     value
 #   end

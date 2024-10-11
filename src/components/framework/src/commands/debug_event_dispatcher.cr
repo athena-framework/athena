@@ -44,7 +44,7 @@
 # TODO: Support dedicated `AED::EventDispatcherInterface` services other than the default.
 class Athena::Framework::Commands::DebugEventDispatcher < ACON::Command
   def initialize(
-    @dispatcher : AED::EventDispatcherInterface
+    @dispatcher : AED::EventDispatcherInterface,
   )
     super()
   end

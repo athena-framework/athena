@@ -3,7 +3,7 @@ class Athena::Mercure::Hub::Registry
 
   def initialize(
     @default_hub : AMC::Hub::Interface,
-    @hubs : Hash(String, AMC::Hub::Interface) = {} of String => AMC::Hub::Interface
+    @hubs : Hash(String, AMC::Hub::Interface) = {} of String => AMC::Hub::Interface,
   ); end
 
   def hub(name : String? = nil) : AMC::Hub::Interface

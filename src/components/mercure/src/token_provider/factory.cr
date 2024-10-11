@@ -6,7 +6,7 @@ struct Athena::Mercure::TokenProvider::Factory
   def initialize(
     @factory : AMC::TokenFactory::Interface,
     @subscribe : Array(String) = ["*"],
-    @publish : Array(String) = ["*"]
+    @publish : Array(String) = ["*"],
   ); end
 
   def jwt : String

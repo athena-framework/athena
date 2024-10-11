@@ -16,7 +16,7 @@ struct Athena::Clock::Native
   @location : Time::Location
 
   def initialize(
-    location : Time::Location? = nil
+    location : Time::Location? = nil,
   )
     @location = location || Time::Location.local
   end

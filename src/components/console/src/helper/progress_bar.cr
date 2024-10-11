@@ -476,7 +476,7 @@ class Athena::Console::Helper::ProgressBar
     minimum_seconds_between_redraws : Float64 = 0.04,
 
     # Use a monotonic clock by default since its better for measuring time
-    @clock : ACLK::Interface = ACLK::Monotonic.new
+    @clock : ACLK::Interface = ACLK::Monotonic.new,
   )
     if output.is_a? ACON::Output::ConsoleOutputInterface
       output = output.error_output

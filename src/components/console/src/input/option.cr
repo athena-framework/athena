@@ -71,7 +71,7 @@ class Athena::Console::Input::Option
     @value_mode : ACON::Input::Option::Value = :none,
     @description : String = "",
     default = nil,
-    @suggested_values : Array(String) | Proc(ACON::Completion::Input, Array(String)) | Nil = nil
+    @suggested_values : Array(String) | Proc(ACON::Completion::Input, Array(String)) | Nil = nil,
   )
     @name = name.lchop "--"
 

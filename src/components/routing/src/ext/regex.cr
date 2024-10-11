@@ -23,7 +23,7 @@ module Regex::PCRE2
       @pos : Int32,
       @ovector : LibC::SizeT*,
       @group_size : Int32,
-      @mark : String?
+      @mark : String?,
     )
     end
   end

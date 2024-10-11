@@ -31,7 +31,7 @@ abstract class Athena::Framework::Spec::AbstractBrowser
     method : String,
     path : String,
     headers : HTTP::Headers,
-    body : String | Bytes | IO | Nil
+    body : String | Bytes | IO | Nil,
   ) : HTTP::Server::Response
     # At the moment this just calls into `do_request`.
     # Kept this as way allow for future expansion.

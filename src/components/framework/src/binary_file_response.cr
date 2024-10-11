@@ -53,7 +53,7 @@ class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
     public : Bool = true,
     content_disposition : ATH::BinaryFileResponse::ContentDisposition? = nil,
     auto_etag : Bool = false,
-    auto_last_modified : Bool = true
+    auto_last_modified : Bool = true,
   )
     super nil, status, headers
 

@@ -1,6 +1,6 @@
 class Athena::Mercure::Discovery
   def initialize(
-    @hub_registry : AMC::Hub::Registry
+    @hub_registry : AMC::Hub::Registry,
   ); end
 
   def add_link(request : HTTP::Request, response : HTTP::Server::Response, hub_name : String? = nil) : Nil

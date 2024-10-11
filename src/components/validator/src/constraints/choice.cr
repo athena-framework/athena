@@ -127,7 +127,7 @@ class Athena::Validator::Constraints::Choice < Athena::Validator::Constraint
     multiple : Bool = false,
     range : ::Range? = nil,
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     new choices.map(&.as(String | Number::Primitive | Symbol)), message, multiple_message, min_message, max_message, multiple, range.try(&.begin), range.try(&.end), groups, payload
   end
@@ -142,7 +142,7 @@ class Athena::Validator::Constraints::Choice < Athena::Validator::Constraint
     @min : Number::Primitive?,
     @max : Number::Primitive?,
     groups : Array(String) | String | Nil,
-    payload : Hash(String, String)?
+    payload : Hash(String, String)?,
   )
     super message, groups, payload
   end

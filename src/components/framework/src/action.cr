@@ -21,7 +21,7 @@ struct Athena::Framework::Action(Controller, ReturnType, ParameterTypeTuple, Par
     @annotation_configurations : ADI::AnnotationConfigurations,
     # Don't bother making these ivars since we just need them to set the generic types
     _controller : Controller.class,
-    _return_type : ReturnType.class
+    _return_type : ReturnType.class,
   ); end
 
   # Returns the type that this action returns.
