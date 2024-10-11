@@ -82,7 +82,7 @@ jobs:
         run: ./scripts/test.sh all compiled
         shell: bash
       - uses: codecov/codecov-action@v4
-        if: matrix.crystal == 'latest' # Only want to upload coverage report once in the matrix
+        if: matrix.crystal == 'latest' && github.event_name == 'pull_request' # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
@@ -90,7 +90,7 @@ jobs:
           flags: compiled
           verbose: true
       - uses: codecov/test-results-action@v1
-        if: matrix.crystal == 'latest' # Only want to upload coverage report once in the matrix
+        if: matrix.crystal == 'latest' && github.event_name == 'pull_request' # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
@@ -142,7 +142,7 @@ jobs:
         run: ./scripts/test.sh all unit
         shell: bash
       - uses: codecov/codecov-action@v4
-        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest' # Only want to upload coverage report once in the matrix
+        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest' && github.event_name == 'pull_request' # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
@@ -150,7 +150,7 @@ jobs:
           flags: unit
           verbose: true
       - uses: codecov/test-results-action@v1
-        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest' # Only want to upload coverage report once in the matrix
+        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest' && github.event_name == 'pull_request' # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
