@@ -10,7 +10,7 @@ struct Athena::Framework::Spec::Expectations::Response::CookieValueEquals < Athe
     @value : String,
     @path : String? = nil,
     @domain : String? = nil,
-    description : String? = nil
+    description : String? = nil,
   )
     super description
   end

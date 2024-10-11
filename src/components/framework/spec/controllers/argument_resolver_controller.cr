@@ -25,7 +25,7 @@ class ArgumentResolverController < ATH::Controller
   @[ARTA::Post("/float")]
   def happy_path1(
     @[MyResolverAnnotation]
-    value : Float64
+    value : Float64,
   ) : Float64
     value
   end
@@ -33,7 +33,7 @@ class ArgumentResolverController < ATH::Controller
   @[ARTA::Post("/string")]
   def happy_path2(
     @[MyResolverAnnotation]
-    value : String
+    value : String,
   ) : String
     value
   end

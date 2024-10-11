@@ -5,7 +5,7 @@ private def parameter(
   *,
   name : String? = nil,
   validation_failed_status : HTTP::Status = :not_found,
-  default : T? = nil
+  default : T? = nil,
 ) forall T
   ATH::Controller::ParameterMetadata(T).new(
     "foo",

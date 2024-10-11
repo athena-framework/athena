@@ -42,7 +42,7 @@ class Athena::Validator::Constraints::NotNil < Athena::Validator::Constraint
   def initialize(
     message : String = "This value should not be null.",
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     super message, groups, payload
   end

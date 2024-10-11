@@ -10,7 +10,7 @@ private class MockURLGenerator
   def initialize(
     @expected_route : String = "some_route",
     @expected_reference_type : ART::Generator::ReferenceType = :absolute_path,
-    @generated_url : String = "URL"
+    @generated_url : String = "URL",
   ); end
 
   def generate(route : String, params : Hash(String, String | ::Nil) = Hash(String, String | ::Nil).new, reference_type : ART::Generator::ReferenceType = :absolute_path) : String

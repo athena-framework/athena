@@ -101,7 +101,7 @@ class Athena::Validator::Constraints::AtLeastOneOf < Athena::Validator::Constrai
     @message_collection : String = "Each element of this collection should satisfy its own set of constraints.",
     message : String = "This value should satisfy at least one of the following constraints:",
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     super constraints, message, groups, payload
   end

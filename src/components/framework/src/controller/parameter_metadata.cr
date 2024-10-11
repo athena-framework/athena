@@ -16,7 +16,7 @@ struct Athena::Framework::Controller::ParameterMetadata(T)
     @name : String,
     @has_default : Bool = false,
     @default_value : T? = nil,
-    @annotation_configurations : ADI::AnnotationConfigurations = ADI::AnnotationConfigurations.new
+    @annotation_configurations : ADI::AnnotationConfigurations = ADI::AnnotationConfigurations.new,
   ); end
 
   # If `nil` is a valid value for the parameter.

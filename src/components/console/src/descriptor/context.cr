@@ -12,7 +12,7 @@ class Athena::Console::Descriptor::Context
     @raw_output : Bool? = nil,
     @namespace : String? = nil,
     @total_width : Int32? = nil,
-    @short : Bool = false
+    @short : Bool = false,
   )
   end
 

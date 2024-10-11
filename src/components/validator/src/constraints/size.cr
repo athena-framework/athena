@@ -94,7 +94,7 @@ class Athena::Validator::Constraints::Size < Athena::Validator::Constraint
     max_message : String = "This value is too long. It should have {{ limit }} {{ type }} or less.|This value is too long. It should have {{ limit }} {{ type }}s or less.",
     exact_message : String = "This value should have exactly {{ limit }} {{ type }}.|This value should have exactly {{ limit }} {{ type }}s.",
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     new range.begin, range.end, min_message, max_message, exact_message, groups, payload
   end
@@ -106,7 +106,7 @@ class Athena::Validator::Constraints::Size < Athena::Validator::Constraint
     @max_message : String = "This value is too long. It should have {{ limit }} {{ type }} or less.|This value is too long. It should have {{ limit }} {{ type }}s or less.",
     @exact_message : String = "This value should have exactly {{ limit }} {{ type }}.|This value should have exactly {{ limit }} {{ type }}s.",
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     super "", groups, payload
   end

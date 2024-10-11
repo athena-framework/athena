@@ -65,7 +65,7 @@ struct Athena::Serializer::PropertyMetadata(IvarType, ValueType, ClassType)
     @since_version : SemanticVersion? = nil,
     @until_version : SemanticVersion? = nil,
     @type : IvarType.class = IvarType,
-    @class : ClassType.class = ClassType
+    @class : ClassType.class = ClassType,
   )
     @groups = groups.to_set
   end

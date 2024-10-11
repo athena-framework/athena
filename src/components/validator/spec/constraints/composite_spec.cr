@@ -2,7 +2,7 @@ private class ConcreteComposite < AVD::Constraints::Composite
   def initialize(
     constraints : Array(AVD::Constraint) | AVD::Constraint = [] of AVD::Constraint,
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     super constraints, "", groups, payload
   end

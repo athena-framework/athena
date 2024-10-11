@@ -20,7 +20,7 @@ struct MockCommandLoader
     *,
     @command_or_exception : ACON::Command | ::Exception? = nil,
     @has : Bool = true,
-    @names : Array(String) | ::Exception = [] of String
+    @names : Array(String) | ::Exception = [] of String,
   )
   end
 

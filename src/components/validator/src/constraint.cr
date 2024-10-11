@@ -209,7 +209,7 @@
 #   def initialize(
 #     message : String = "This value should contain only alphanumeric characters.",
 #     groups : Array(String) | String | Nil = nil,
-#     payload : Hash(String, String)? = nil
+#     payload : Hash(String, String)? = nil,
 #   )
 #     super message, groups, payload
 #   end

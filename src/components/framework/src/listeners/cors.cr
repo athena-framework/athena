@@ -20,7 +20,7 @@ struct Athena::Framework::Listeners::CORS
       @allow_headers : Array(String) = [] of String,
       @allow_methods : Array(String) = Athena::Framework::Listeners::CORS::SAFELISTED_METHODS,
       @expose_headers : Array(String) = [] of String,
-      @max_age : Int32 = 0
+      @max_age : Int32 = 0,
     )
       @allow_origin = allow_origin.map &.as String | Regex
     end

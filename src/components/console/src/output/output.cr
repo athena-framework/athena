@@ -10,7 +10,7 @@ abstract class Athena::Console::Output
   def initialize(
     verbosity : ACON::Output::Verbosity? = :normal,
     decorated : Bool = false,
-    formatter : ACON::Formatter::Interface? = nil
+    formatter : ACON::Formatter::Interface? = nil,
   )
     @verbosity = verbosity || ACON::Output::Verbosity::NORMAL
     @formatter = formatter || ACON::Formatter::Output.new
@@ -79,7 +79,7 @@ abstract class Athena::Console::Output
     message : String | Enumerable(String),
     new_line : Bool,
     verbosity : ACON::Output::Verbosity,
-    output_type : ACON::Output::Type
+    output_type : ACON::Output::Type,
   )
     messages = message.is_a?(String) ? {message} : message
 

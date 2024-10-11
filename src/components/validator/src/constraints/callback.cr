@@ -195,7 +195,7 @@ class Athena::Validator::Constraints::Callback < Athena::Validator::Constraint
     @callback : AVD::Constraints::Callback::CallbackProc? = nil,
     @callback_name : String? = nil,
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     raise AVD::Exception::Logic.new "either `callback` or `callback_name` must be provided." if @callback.nil? && @callback_name.nil?
 

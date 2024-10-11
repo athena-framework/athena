@@ -6,7 +6,7 @@ struct Athena::Framework::Spec::Expectations::Response::FormatEquals < Athena::F
   def initialize(
     @request : ATH::Request,
     @format : String? = nil,
-    description : String? = nil
+    description : String? = nil,
   )
     super description
   end

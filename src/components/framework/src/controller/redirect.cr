@@ -2,7 +2,7 @@
 class Athena::Framework::Controller::Redirect
   def initialize(
     @http_port : Int32? = nil,
-    @https_port : Int32? = nil
+    @https_port : Int32? = nil,
   ); end
 
   # ameba:disable Metrics/CyclomaticComplexity:
@@ -13,7 +13,7 @@ class Athena::Framework::Controller::Redirect
     scheme : String? = nil,
     http_port : Int32? = nil,
     https_port : Int32? = nil,
-    keep_request_method : Bool = false
+    keep_request_method : Bool = false,
   ) : ATH::RedirectResponse
     if path.empty?
       raise ATH::Exception::HTTPException.new (permanent ? HTTP::Status::GONE : HTTP::Status::NOT_FOUND), ""

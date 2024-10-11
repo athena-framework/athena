@@ -14,7 +14,7 @@ class Athena::Validator::Violation::ConstraintViolationBuilder
     @parameters : Hash(String, String),
     @root_container : AVD::Container,
     @property_path : String,
-    @invalid_value : AVD::Container
+    @invalid_value : AVD::Container,
   )
   end
 

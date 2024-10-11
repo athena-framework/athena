@@ -53,7 +53,7 @@ class Athena::Routing::RequestContext
     @http_port : Int32 = 80,
     @https_port : Int32 = 443,
     @path : String = "/",
-    @query_string : String = ""
+    @query_string : String = "",
   )
     self.method = @method
     self.host = @host

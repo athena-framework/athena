@@ -7,7 +7,7 @@ struct Athena::Framework::RouteHandler
     @event_dispatcher : AED::EventDispatcherInterface,
     @request_store : ATH::RequestStore,
     @argument_resolver : ATH::Controller::ArgumentResolverInterface,
-    @controller_resolver : ATH::ControllerResolverInterface
+    @controller_resolver : ATH::ControllerResolverInterface,
   )
   end
 

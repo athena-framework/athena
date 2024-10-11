@@ -4,7 +4,7 @@ private def assert_route(
   route_collection : ART::RouteCollection,
   file : String = __FILE__,
   line : Int32 = __LINE__,
-  **args
+  **args,
 )
   route_collection.size.should eq 1
 
@@ -23,7 +23,7 @@ private def assert_route(
   condition : ART::Route::Condition? = nil,
   name : String? = nil,
   file : String = __FILE__,
-  line : Int32 = __LINE__
+  line : Int32 = __LINE__,
 ) : Nil
   route_name, route = route
 

@@ -14,7 +14,7 @@ class Athena::Framework::Console::Application < ACON::Application
   protected def initialize(
     command_loader : ACON::Loader::Interface? = nil,
     event_dipatcher : AED::EventDispatcherInterface? = nil,
-    eager_commands : Enumerable(ACON::Command)? = nil
+    eager_commands : Enumerable(ACON::Command)? = nil,
   )
     super "Athena", ATH::VERSION
 

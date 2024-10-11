@@ -46,7 +46,7 @@ class Athena::Console::Input::Argument
     @mode : ACON::Input::Argument::Mode = :optional,
     @description : String = "",
     default = nil,
-    @suggested_values : Array(String) | Proc(ACON::Completion::Input, Array(String)) | Nil = nil
+    @suggested_values : Array(String) | Proc(ACON::Completion::Input, Array(String)) | Nil = nil,
   )
     raise ACON::Exception::InvalidArgument.new "An argument name cannot be blank." if name.blank?
 

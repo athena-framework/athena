@@ -27,7 +27,7 @@ class Athena::Routing::Router
     @route_collection : ART::RouteCollection,
     @default_locale : String? = nil,
     @strict_requirements : Bool? = true,
-    context : ART::RequestContext? = nil
+    context : ART::RequestContext? = nil,
   )
     @context = context || ART::RequestContext.new
   end

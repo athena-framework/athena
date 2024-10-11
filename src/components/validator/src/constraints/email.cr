@@ -72,7 +72,7 @@ class Athena::Validator::Constraints::Email < Athena::Validator::Constraint
     @mode : AVD::Constraints::Email::Mode = :html5,
     message : String = "This value is not a valid email address.",
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     super message, groups, payload
   end

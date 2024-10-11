@@ -144,7 +144,7 @@ module Athena::Validator::Spec
     protected property! contextual_validator : AVD::Validator::ContextualValidatorInterface?
 
     def self.new(violations : AVD::Violation::ConstraintViolationListInterface = AVD::Violation::ConstraintViolationList.new) : self
-      new &->{ violations.as AVD::Violation::ConstraintViolationListInterface }
+      new &-> { violations.as AVD::Violation::ConstraintViolationListInterface }
     end
 
     def initialize(
@@ -205,7 +205,7 @@ module Athena::Validator::Spec
     def initialize(
       message : String = "Failed",
       groups : Array(String) | String | Nil = nil,
-      payload : Hash(String, String)? = nil
+      payload : Hash(String, String)? = nil,
     )
       super message, groups, payload
     end

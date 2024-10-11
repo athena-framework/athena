@@ -74,7 +74,7 @@ class Athena::Routing::RoutingHandler
   def initialize(
     matcher : ART::Matcher::URLMatcherInterface? = nil,
     @collection : ART::RouteCollection = ART::RouteCollection.new,
-    @bubble_exceptions : Bool = false
+    @bubble_exceptions : Bool = false,
   )
     @matcher = matcher || ART::Matcher::URLMatcher.new ART::RequestContext.new
   end

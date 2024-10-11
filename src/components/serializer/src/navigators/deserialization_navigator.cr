@@ -8,7 +8,7 @@ struct Athena::Serializer::Navigators::DeserializationNavigator
   def initialize(
     @visitor : ASR::Visitors::DeserializationVisitorInterface,
     @context : ASR::DeserializationContext,
-    @object_constructor : ASR::ObjectConstructorInterface
+    @object_constructor : ASR::ObjectConstructorInterface,
   ); end
 
   def accept(type : T.class, data : ASR::Any) forall T

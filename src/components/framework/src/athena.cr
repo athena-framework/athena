@@ -162,7 +162,7 @@ module Athena::Framework
     reuse_port : Bool = false,
     ssl_context : OpenSSL::SSL::Context::Server? = nil,
     *,
-    prepend_handlers : Array(HTTP::Handler) = [] of HTTP::Handler
+    prepend_handlers : Array(HTTP::Handler) = [] of HTTP::Handler,
   ) : Nil
     ATH::Server.new(port, host, reuse_port, ssl_context, prepend_handlers).start
   end
@@ -183,7 +183,7 @@ module Athena::Framework
       @host : String = "0.0.0.0",
       @reuse_port : Bool = false,
       @ssl_context : OpenSSL::SSL::Context::Server? = nil,
-      prepend_handlers handlers : Array(HTTP::Handler) = [] of HTTP::Handler
+      prepend_handlers handlers : Array(HTTP::Handler) = [] of HTTP::Handler,
     )
       handler_proc = HTTP::Handler::HandlerProc.new do |context|
         # Reinitialize the container since keep-alive requests reuse the same fiber.

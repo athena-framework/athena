@@ -13,7 +13,7 @@ class Athena::Framework::View::FormatNegotiator < ANG::Negotiator
 
   def initialize(
     @request_store : ATH::RequestStore,
-    @mime_types : Hash(String, Array(String)) = Hash(String, Array(String)).new
+    @mime_types : Hash(String, Array(String)) = Hash(String, Array(String)).new,
   )
   end
 

@@ -48,7 +48,7 @@ struct CompleteCommandTest < ASPEC::TestCase
 
   def test_completes_command_name_with_loader : Nil
     @application.command_loader = ACON::Loader::Factory.new({
-      "foo:bar1" => ->{ Foo1Command.new.as ACON::Command },
+      "foo:bar1" => -> { Foo1Command.new.as ACON::Command },
     })
 
     self.execute({"--current" => "0", "--input" => [] of String})

@@ -65,7 +65,7 @@ struct ApplicationTest < ASPEC::TestCase
     commands.size.should eq 1
 
     app.command_loader = ACON::Loader::Factory.new({
-      "foo:bar1" => ->{ Foo1Command.new.as ACON::Command },
+      "foo:bar1" => -> { Foo1Command.new.as ACON::Command },
     })
     commands = app.commands "foo"
     commands.size.should eq 2
@@ -112,7 +112,7 @@ struct ApplicationTest < ASPEC::TestCase
     app.get("afoobar").should be foo
 
     app.command_loader = ACON::Loader::Factory.new({
-      "foo:bar1" => ->{ Foo1Command.new.as ACON::Command },
+      "foo:bar1" => -> { Foo1Command.new.as ACON::Command },
     })
 
     app.has?("afoobar").should be_true
@@ -258,7 +258,7 @@ struct ApplicationTest < ASPEC::TestCase
     app = ACON::Application.new "foo"
 
     app.command_loader = ACON::Loader::Factory.new({
-      "foo:bar" => ->{ FooCommand.new.as ACON::Command },
+      "foo:bar" => -> { FooCommand.new.as ACON::Command },
     })
 
     app.find("foo:bar").should be_a FooCommand
@@ -479,7 +479,7 @@ struct ApplicationTest < ASPEC::TestCase
 
     app = ACON::Application.new "foo"
     app.command_loader = ACON::Loader::Factory.new({
-      "foo3" => ->{ foo_command.as ACON::Command },
+      "foo3" => -> { foo_command.as ACON::Command },
     })
     app.add foo_command
 
@@ -1048,12 +1048,12 @@ struct ApplicationTest < ASPEC::TestCase
     loaded = Hash(String, Bool).new
 
     app.command_loader = ACON::Loader::Factory.new({
-      "foo:bar" => ->do
+      "foo:bar" => -> do
         loaded["foo:bar"] = true
 
         ACON::Commands::Generic.new("foo:bar") { ACON::Command::Status::SUCCESS }.as ACON::Command
       end,
-      "foo" => ->do
+      "foo" => -> do
         loaded["foo"] = true
 
         ACON::Commands::Generic.new("foo") { ACON::Command::Status::SUCCESS }.as ACON::Command
@@ -1069,7 +1069,7 @@ struct ApplicationTest < ASPEC::TestCase
     app = ACON::Application.new "foo"
 
     app.command_loader = ACON::Loader::Factory.new({
-      "foo" => ->{ ACON::Commands::Generic.new("bar") { ACON::Command::Status::SUCCESS }.as ACON::Command },
+      "foo" => -> { ACON::Commands::Generic.new("bar") { ACON::Command::Status::SUCCESS }.as ACON::Command },
     })
 
     expect_raises ACON::Exception::CommandNotFound, "The 'foo' command cannot be found because it is registered under multiple names. Make sure you don't set a different name via constructor or 'name='." do

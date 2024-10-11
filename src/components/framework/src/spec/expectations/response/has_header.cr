@@ -5,7 +5,7 @@ struct Athena::Framework::Spec::Expectations::Response::HasHeader < Athena::Fram
   def initialize(
     @name : String,
 
-    description : String? = nil
+    description : String? = nil,
   )
     super description
   end

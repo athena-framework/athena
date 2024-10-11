@@ -56,7 +56,7 @@ module Athena::Console::Spec
       decorated : Bool? = nil,
       interactive : Bool? = nil,
       verbosity : ACON::Output::Verbosity? = nil,
-      @capture_stderr_separately : Bool = false
+      @capture_stderr_separately : Bool = false,
     ) : Nil
       if !@capture_stderr_separately
         @output = ACON::Output::IO.new IO::Memory.new
@@ -126,7 +126,7 @@ module Athena::Console::Spec
       interactive : Bool? = nil,
       capture_stderr_separately : Bool = false,
       verbosity : ACON::Output::Verbosity? = nil,
-      **input : _
+      **input : _,
     )
       self.run input.to_h.transform_keys(&.to_s), decorated: decorated, interactive: interactive, capture_stderr_separately: capture_stderr_separately, verbosity: verbosity
     end
@@ -138,7 +138,7 @@ module Athena::Console::Spec
       decorated : Bool? = nil,
       interactive : Bool? = nil,
       capture_stderr_separately : Bool = false,
-      verbosity : ACON::Output::Verbosity? = nil
+      verbosity : ACON::Output::Verbosity? = nil,
     ) : ACON::Command::Status
       @input = ACON::Input::Hash.new input
 
@@ -272,7 +272,7 @@ module Athena::Console::Spec
       interactive : Bool? = nil,
       capture_stderr_separately : Bool = false,
       verbosity : ACON::Output::Verbosity? = nil,
-      **input : _
+      **input : _,
     )
       self.execute input.to_h.transform_keys(&.to_s), decorated: decorated, interactive: interactive, capture_stderr_separately: capture_stderr_separately, verbosity: verbosity
     end
@@ -284,7 +284,7 @@ module Athena::Console::Spec
       decorated : Bool = false,
       interactive : Bool? = nil,
       capture_stderr_separately : Bool = false,
-      verbosity : ACON::Output::Verbosity? = nil
+      verbosity : ACON::Output::Verbosity? = nil,
     ) : ACON::Command::Status
       if !input.has_key?("command") && (application = @command.application?) && application.definition.has_argument?("command")
         input = input.merge({"command" => @command.name})

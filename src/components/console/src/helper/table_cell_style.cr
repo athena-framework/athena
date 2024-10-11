@@ -28,7 +28,7 @@ struct Athena::Console::Helper::Table::CellStyle
     @foreground : String = "default",
     @background : String = "default",
     @align : ACON::Helper::Table::Alignment = :left,
-    @format : String? = nil
+    @format : String? = nil,
   )
   end
 

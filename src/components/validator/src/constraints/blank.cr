@@ -39,7 +39,7 @@ class Athena::Validator::Constraints::Blank < Athena::Validator::Constraint
   def initialize(
     message : String = "This value should be blank.",
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     super message, groups, payload
   end

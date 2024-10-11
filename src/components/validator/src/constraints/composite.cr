@@ -21,7 +21,7 @@ abstract class Athena::Validator::Constraints::Composite < Athena::Validator::Co
     constraints : AVD::Constraints::Composite::Type,
     message : String,
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     super message, groups, payload
 

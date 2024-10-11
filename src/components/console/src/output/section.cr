@@ -50,7 +50,7 @@ class Athena::Console::Output::Section < Athena::Console::Output::IO
     @sections : Array(self),
     verbosity : ACON::Output::Verbosity,
     decorated : Bool,
-    formatter : ACON::Formatter::Interface
+    formatter : ACON::Formatter::Interface,
   )
     super io, verbosity, decorated, formatter
 

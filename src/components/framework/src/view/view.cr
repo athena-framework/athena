@@ -70,7 +70,7 @@ class Athena::Framework::View(T)
   def self.create_redirect(
     url : String,
     status : HTTP::Status = HTTP::Status::FOUND,
-    headers : HTTP::Headers = HTTP::Headers.new
+    headers : HTTP::Headers = HTTP::Headers.new,
   ) : self
     view = ATH::View(Nil).new status: status, headers: headers
     view.location = url
@@ -85,7 +85,7 @@ class Athena::Framework::View(T)
     route : String,
     params : Hash(String, _) = Hash(String, String?).new,
     status : HTTP::Status = HTTP::Status::FOUND,
-    headers : HTTP::Headers = HTTP::Headers.new
+    headers : HTTP::Headers = HTTP::Headers.new,
   ) : self
     view = ATH::View(Nil).new status: status, headers: headers
     view.route = route

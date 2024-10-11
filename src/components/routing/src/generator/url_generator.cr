@@ -51,7 +51,7 @@ class Athena::Routing::Generator::URLGenerator
 
   def initialize(
     @context : ART::RequestContext,
-    @default_locale : String? = nil
+    @default_locale : String? = nil,
   )
   end
 
@@ -106,7 +106,7 @@ class Athena::Routing::Generator::URLGenerator
     name : String,
     reference_type : ART::Generator::ReferenceType,
     host_tokens : Array(ART::CompiledRoute::Token),
-    required_schemes : Set(String)?
+    required_schemes : Set(String)?,
   ) : String
     merged_params = Hash(String, String?).new
     merged_params.merge! defaults

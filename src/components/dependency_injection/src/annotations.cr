@@ -409,7 +409,7 @@ module Athena::DependencyInjection
   #   def initialize(
   #     @service_missing : OptionalMissingService?,
   #     @service_existing : OptionalExistingService?,
-  #     @service_default : OptionalMissingService | Int32 | Nil = 12
+  #     @service_default : OptionalMissingService | Int32 | Nil = 12,
   #   ); end
   # end
   #

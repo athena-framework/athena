@@ -67,7 +67,7 @@ class Athena::Validator::Constraints::IP < Athena::Validator::Constraint
     @version : AVD::Constraints::IP::Version = :v4,
     message : String = "This value is not a valid IP address.",
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     super message, groups, payload
   end

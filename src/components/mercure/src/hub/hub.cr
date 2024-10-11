@@ -15,7 +15,7 @@ class Athena::Mercure::Hub
     @token_provider : AMC::TokenProvider::Interface,
     @public_url : String? = nil,
     @token_factory : AMC::TokenFactory::Interface? = nil,
-    http_client : HTTP::Client? = nil
+    http_client : HTTP::Client? = nil,
   )
     @uri = URI.parse url
     @http_client = http_client || HTTP::Client.new @uri

@@ -162,7 +162,7 @@ class Athena::Validator::Constraints::Collection < Athena::Validator::Constraint
     @extra_fields_message : String = "This field was not expected.",
     @missing_fields_message : String = "This field is missing.",
     groups : Array(String) | String | Nil = nil,
-    payload : Hash(String, String)? = nil
+    payload : Hash(String, String)? = nil,
   )
     constraints = Hash(String, AVD::Constraint).new
 

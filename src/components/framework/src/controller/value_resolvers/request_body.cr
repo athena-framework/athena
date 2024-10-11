@@ -32,7 +32,7 @@
 #   @[ATHA::View(status: :created)]
 #   def new_user(
 #     @[ATHA::MapRequestBody]
-#     user_create : UserCreate
+#     user_create : UserCreate,
 #   ) : UserCreate
 #     # Use the provided UserCreate instance to create an actual User DB record.
 #     # For purposes of this example, just return the instance.
@@ -93,7 +93,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
 
   def initialize(
     @serializer : ASR::SerializerInterface,
-    @validator : AVD::Validator::ValidatorInterface
+    @validator : AVD::Validator::ValidatorInterface,
   ); end
 
   # :inherit:

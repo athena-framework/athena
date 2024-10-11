@@ -297,7 +297,7 @@ abstract class Athena::Console::Command
     mode : ACON::Input::Argument::Mode = :optional,
     description : String = "",
     default = nil,
-    suggested_values : Enumerable(String)? = nil
+    suggested_values : Enumerable(String)? = nil,
   ) : self
     @definition << ACON::Input::Argument.new name, mode, description, default, suggested_values.try &.to_a
 
@@ -401,7 +401,7 @@ abstract class Athena::Console::Command
     value_mode : ACON::Input::Option::Value = :none,
     description : String = "",
     default = nil,
-    suggested_values : Enumerable(String)? = nil
+    suggested_values : Enumerable(String)? = nil,
   ) : self
     @definition << ACON::Input::Option.new name, shortcut, value_mode, description, default, suggested_values.try &.to_a
 

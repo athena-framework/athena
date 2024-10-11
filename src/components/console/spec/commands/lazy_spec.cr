@@ -9,7 +9,7 @@ end
 
 describe ACON::Commands::Lazy do
   it "applies metadata to the instantiated command" do
-    lazy_command = ACON::Commands::Lazy.new "cmd_name", ["foo", "bar"], "description", true, ->{ MockCommand.new.as ACON::Command }
+    lazy_command = ACON::Commands::Lazy.new "cmd_name", ["foo", "bar"], "description", true, -> { MockCommand.new.as ACON::Command }
     command = lazy_command.command
 
     command.should be_a MockCommand
@@ -22,7 +22,7 @@ describe ACON::Commands::Lazy do
   it "forwards methods to the wrapped command instance" do
     mock_command = MockCommand.new
 
-    lazy_command = ACON::Commands::Lazy.new "cmd_name", ["foo", "bar"], "description", true, ->{ mock_command.as ACON::Command }
+    lazy_command = ACON::Commands::Lazy.new "cmd_name", ["foo", "bar"], "description", true, -> { mock_command.as ACON::Command }
     command = lazy_command.command
 
     command.helper_set = ACON::Helper::HelperSet.new ACON::Helper::Question.new
