@@ -2,9 +2,12 @@ name: CI
 
 on:
   merge_group:
+  push:
+    branches:
+      - master # Allows codecov to receive current HEAD information for each commit merged into master
   pull_request:
     branches:
-      - 'master'
+      - master
   schedule:
     - cron: '15 1 * * *' # Nightly at 01:15
 
@@ -82,7 +85,7 @@ jobs:
         run: ./scripts/test.sh all compiled
         shell: bash
       - uses: codecov/codecov-action@v4
-        if: matrix.crystal == 'nightly' && github.event_name == 'pull_request' # Only want to upload coverage report once in the matrix
+        if: matrix.crystal == 'nightly' && github.event_name != 'schedule' # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
@@ -91,7 +94,7 @@ jobs:
           flags: compiled
           verbose: true
       - uses: codecov/test-results-action@v1
-        if: matrix.crystal == 'nightly' && github.event_name == 'pull_request' # Only want to upload coverage report once in the matrix
+        if: matrix.crystal == 'nightly' && github.event_name != 'schedule' # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
@@ -144,7 +147,7 @@ jobs:
         run: ./scripts/test.sh all unit
         shell: bash
       - uses: codecov/codecov-action@v4
-        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'nightly' && github.event_name == 'pull_request' # Only want to upload coverage report once in the matrix
+        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'nightly' && github.event_name != 'schedule' # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
@@ -153,7 +156,7 @@ jobs:
           flags: unit
           verbose: true
       - uses: codecov/test-results-action@v1
-        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'nightly' && github.event_name == 'pull_request' # Only want to upload coverage report once in the matrix
+        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'nightly' && github.event_name != 'schedule' # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
