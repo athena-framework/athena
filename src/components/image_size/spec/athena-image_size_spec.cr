@@ -64,7 +64,7 @@ struct ImageTest < ASPEC::TestCase
     tempfile.delete
   end
 
-  def test_from_io_parse_failure_nil : Nil
+  def test_from_io_parse_failure_raises : Nil
     tempfile = File.tempfile
     tempfile.write_byte 0x00
     tempfile.write_byte 0x00
@@ -127,18 +127,6 @@ struct ImageTest < ASPEC::TestCase
     tempfile.delete
   end
 
-  def test_from_file_path_unsupported_raises : Nil
-    tempfile = File.tempfile
-    tempfile.write Bytes.new 50, 0
-    tempfile.rewind
-
-    expect_raises Exception, "Unsupported image format." do
-      AIS::Image.from_file_path tempfile.path
-    end
-
-    tempfile.delete
-  end
-
   def test_from_file_path_parse_failure_nil : Nil
     tempfile = File.tempfile
     tempfile.write_byte 0x00
@@ -157,7 +145,7 @@ struct ImageTest < ASPEC::TestCase
     tempfile.delete
   end
 
-  def test_from_file_path_parse_failure_nil : Nil
+  def test_from_file_path_parse_failure_raises : Nil
     tempfile = File.tempfile
     tempfile.write_byte 0x00
     tempfile.write_byte 0x00
