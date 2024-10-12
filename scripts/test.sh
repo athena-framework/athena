@@ -16,6 +16,9 @@ function runSpecsWithCoverage()
   $CRYSTAL build "${DEFAULT_BUILD_OPTIONS[@]}" "./coverage/bin/$1.cr" -o "./coverage/bin/$1" && \
   kcov $(if $IS_CI != "true"; then echo "--cobertura-only"; fi) --clean --include-path="./src/components/$1/src" "./coverage/$1" "./coverage/bin/$1" --junit_output="./coverage/$1/junit.xml" "${DEFAULT_OPTIONS[@]}"
 
+  # junit filename is an absolute path from root. This cuts it down to be relative from the root of the project.
+  sed -i 's|file="[^"]*/\(src/[^"]*\)"|file="\1"|' "./coverage/$1/junit.xml"
+
   # We're using nightly Crystal to have access to this for now.
   # When Crystal 1.15 releases, make this no longer scoped to $IS_CI as local `crystal` will also have it.
   if [ $IS_CI = "true" ] && [ $TYPE != "compiled" ]
