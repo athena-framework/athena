@@ -57,7 +57,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install kcov
-        if: matrix.crystal == 'latest'
+        if: matrix.crystal == 'nightly'
         run: |
           sudo apt-get update &&
           sudo apt-get install binutils-dev libssl-dev libcurl4-openssl-dev libelf-dev libstdc++-12-dev zlib1g-dev libdw-dev libiberty-dev
@@ -82,19 +82,21 @@ jobs:
         run: ./scripts/test.sh all compiled
         shell: bash
       - uses: codecov/codecov-action@v4
-        if: matrix.crystal == 'latest' && github.event_name == 'pull_request' # Only want to upload coverage report once in the matrix
+        if: matrix.crystal == 'nightly' && github.event_name == 'pull_request' # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
-          files: ./coverage/**/cov.xml
+          directory: coverage
+          files: '**/cov.xml' # There is no `unreachable.codecov.json` file when running _only_ compiled specs
           flags: compiled
           verbose: true
       - uses: codecov/test-results-action@v1
-        if: matrix.crystal == 'latest' && github.event_name == 'pull_request' # Only want to upload coverage report once in the matrix
+        if: matrix.crystal == 'nightly' && github.event_name == 'pull_request' # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
-          files: ./coverage/**/junit.xml
+          directory: coverage
+          files: '**/junit.xml'
           flags: compiled
           verbose: true
   test_unit:
@@ -117,7 +119,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install kcov
-        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest'
+        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'nightly'
         run: |
           sudo apt-get update &&
           sudo apt-get install binutils-dev libssl-dev libcurl4-openssl-dev libelf-dev libstdc++-12-dev zlib1g-dev libdw-dev libiberty-dev
@@ -142,18 +144,20 @@ jobs:
         run: ./scripts/test.sh all unit
         shell: bash
       - uses: codecov/codecov-action@v4
-        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest' && github.event_name == 'pull_request' # Only want to upload coverage report once in the matrix
+        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'nightly' && github.event_name == 'pull_request' # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
-          files: ./coverage/**/cov.xml
+          directory: coverage
+          files: '**/cov.xml,**/unreachable.codecov.json'
           flags: unit
           verbose: true
       - uses: codecov/test-results-action@v1
-        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest' && github.event_name == 'pull_request' # Only want to upload coverage report once in the matrix
+        if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'nightly' && github.event_name == 'pull_request' # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
-          files: ./coverage/**/junit.xml
+          directory: coverage
+          files: '**/junit.xml'
           flags: unit
           verbose: true

@@ -13,8 +13,15 @@ function runSpecsWithCoverage()
 {
   mkdir -p coverage/bin
   echo "require \"../../src/components/$1/spec/**\"" > "./coverage/bin/$1.cr" && \
-  crystal build "${DEFAULT_BUILD_OPTIONS[@]}" "./coverage/bin/$1.cr" -o "./coverage/bin/$1" && \
-  kcov $(if $IS_CI != "true"; then echo "--cobertura-only"; fi) --clean --include-path="./src/components/$1/src" "./coverage/$1" "./coverage/bin/$1" --junit_output="./coverage/$1/junit.xml" "${DEFAULT_OPTIONS[@]}" || EXIT_CODE=1
+  $CRYSTAL build "${DEFAULT_BUILD_OPTIONS[@]}" "./coverage/bin/$1.cr" -o "./coverage/bin/$1" && \
+  kcov $(if $IS_CI != "true"; then echo "--cobertura-only"; fi) --clean --include-path="./src/components/$1/src" "./coverage/$1" "./coverage/bin/$1" --junit_output="./coverage/$1/junit.xml" "${DEFAULT_OPTIONS[@]}"
+
+  # We're using nightly Crystal to have access to this for now.
+  # When Crystal 1.15 releases, make this no longer scoped to $IS_CI as local `crystal` will also have it.
+  if [ $IS_CI = "true" ] && [ $TYPE != "compiled" ]
+  then
+    $CRYSTAL tool unreachable --format=codecov "./coverage/bin/$1.cr" > "./coverage/$1/unreachable.codecov.json"
+  fi
 }
 
 DEFAULT_BUILD_OPTIONS=(-Dstrict_multi_assign -Dpreview_overload_order --error-on-warnings)
@@ -50,9 +57,9 @@ if [ $COMPONENT != "all" ]
 then
   if [ $HAS_KCOV = "true" ]
   then
-    runSpecsWithCoverage $COMPONENT
+    runSpecsWithCoverage $COMPONENT || EXIT_CODE=1
   else
-    runSpecs $COMPONENT
+    runSpecs $COMPONENT || EXIT_CODE=1
   fi
   exit $?
 fi
@@ -64,7 +71,7 @@ for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xa
   then
     runSpecsWithCoverage $component || EXIT_CODE=1
   else
-    runSpecs $component
+    runSpecs $component || EXIT_CODE=1
   fi
 
   echo "::endgroup::"
