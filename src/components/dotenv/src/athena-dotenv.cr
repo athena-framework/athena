@@ -223,7 +223,6 @@ class Athena::Dotenv
       self.load override_existing_vars, {dist_path}
     end
 
-    # ameba:disable Lint/UselessAssign
     unless env = ENV[env_key]?
       self.populate({env_key => env = default_environment}, override_existing_vars)
     end
