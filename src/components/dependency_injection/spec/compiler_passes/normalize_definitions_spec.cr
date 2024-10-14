@@ -32,7 +32,7 @@ end
 describe ADI::ServiceContainer::NormalizeDefinitions, tags: "compiled" do
   describe "compiler errors" do
     it "`class` is not provided" do
-      assert_error "Service 'some_service' is missing required 'class' property.", <<-CR
+      assert_error "Service 'some_service' is missing required 'class' property.", <<-'CR'
         SERVICE_HASH["some_service"] = {
           public: false,
         }
@@ -41,7 +41,7 @@ describe ADI::ServiceContainer::NormalizeDefinitions, tags: "compiled" do
   end
 
   it "applies defaults to missing properties" do
-    ASPEC::Methods.assert_success <<-CR, codegen: true
+    ASPEC::Methods.assert_success <<-'CR'
       require "../spec_helper.cr"
       module MySchema
         include ADI::Extension::Schema
@@ -71,13 +71,17 @@ describe ADI::ServiceContainer::NormalizeDefinitions, tags: "compiled" do
 
       macro finished
         macro finished
-          it { \\{{ADI::ServiceContainer::SERVICE_HASH["some_service"]["class"].stringify}}.should eq "SomeService" }
-          it { \\{{ADI::ServiceContainer::SERVICE_HASH["some_service"]["public"]}}.should be_false }
-          it { \\{{ADI::ServiceContainer::SERVICE_HASH["some_service"]["calls"].stringify}}.should eq "[]" }
-          it { \\{{ADI::ServiceContainer::SERVICE_HASH["some_service"]["tags"].stringify}}.should eq "{}" }
-          it { \\{{ADI::ServiceContainer::SERVICE_HASH["some_service"]["generics"].stringify}}.should eq "[]" }
-          it { \\{{ADI::ServiceContainer::SERVICE_HASH["some_service"]["parameters"].stringify}}.should eq "{}" }
-          it { \\{{ADI::ServiceContainer::SERVICE_HASH["some_service"]["shared"]}}.should be_true }
+          \{%
+            some_service = ADI::ServiceContainer::SERVICE_HASH["some_service"]
+
+            raise "#{some_service}" unless some_service["class"] == SomeService
+            raise "#{some_service}" unless some_service["public"] == false
+            raise "#{some_service}" unless some_service["calls"].size == 0
+            raise "#{some_service}" unless some_service["tags"].size == 0
+            raise "#{some_service}" unless some_service["generics"].size == 0
+            raise "#{some_service}" unless some_service["parameters"].size == 0
+            raise "#{some_service}" unless some_service["shared"] == true
+          %}
         end
       end
     CR

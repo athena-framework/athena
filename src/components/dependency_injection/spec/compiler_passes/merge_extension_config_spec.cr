@@ -12,7 +12,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
   describe "compiler errors" do
     describe "root level" do
       it "errors if a required configuration value has not been provided" do
-        assert_error "Required configuration property 'test.id : Int32' must be provided.", <<-CR
+        assert_error "Required configuration property 'test.id : Int32' must be provided.", <<-'CR'
           module Schema
             include ADI::Extension::Schema
 
@@ -31,7 +31,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
       end
 
       it "errors if there is a collection type mismatch" do
-        assert_error "Expected configuration value 'test.foo' to be a 'Array(Int32)', but got 'Array(String)'.", <<-CR
+        assert_error "Expected configuration value 'test.foo' to be a 'Array(Int32)', but got 'Array(String)'.", <<-'CR'
           module Schema
             include ADI::Extension::Schema
 
@@ -49,7 +49,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
       end
 
       it "errors if there is a type mismatch within an array" do
-        assert_error "Expected configuration value 'test.foo[0]' to be a 'Int32', but got 'UInt64'.", <<-CR
+        assert_error "Expected configuration value 'test.foo[0]' to be a 'Int32', but got 'UInt64'.", <<-'CR'
           module Schema
             include ADI::Extension::Schema
 
@@ -67,7 +67,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
       end
 
       it "errors if a configuration value not found in the schema is encountered" do
-        assert_error "Encountered unexpected property 'test.name' with value '\"Fred\"'.", <<-CR
+        assert_error "Encountered unexpected property 'test.name' with value '\"Fred\"'.", <<-'CR'
           module Schema
             include ADI::Extension::Schema
 
@@ -88,7 +88,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
 
     describe "nested level" do
       it "errors if a configuration value has the incorrect type" do
-        assert_error "Required configuration property 'test.sub_config.defaults.id : Int32' must be provided.", <<-CR
+        assert_error "Required configuration property 'test.sub_config.defaults.id : Int32' must be provided.", <<-'CR'
           module Schema
             include ADI::Extension::Schema
 
@@ -119,7 +119,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
       end
 
       it "errors if there is a collection type mismatch" do
-        assert_error "Expected configuration value 'test.sub_config.defaults.foo' to be a 'Array(Int32)', but got 'Array(String)'.", <<-CR
+        assert_error "Expected configuration value 'test.sub_config.defaults.foo' to be a 'Array(Int32)', but got 'Array(String)'.", <<-'CR'
           module Schema
             include ADI::Extension::Schema
 
@@ -149,7 +149,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
       end
 
       it "errors if there is a type mismatch within an array" do
-        assert_error "Expected configuration value 'test.sub_config.defaults.foo[1]' to be a 'Int32', but got 'UInt64'.", <<-CR
+        assert_error "Expected configuration value 'test.sub_config.defaults.foo[1]' to be a 'Int32', but got 'UInt64'.", <<-'CR'
           module Schema
             include ADI::Extension::Schema
 
@@ -179,7 +179,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
       end
 
       it "errors if there is a type mismatch within an array without type hint" do
-        assert_error "Expected configuration value 'test.sub_config.defaults.foo[1]' to be a 'Int32', but got 'UInt64'.", <<-CR
+        assert_error "Expected configuration value 'test.sub_config.defaults.foo[1]' to be a 'Int32', but got 'UInt64'.", <<-'CR'
           module Schema
             include ADI::Extension::Schema
 
@@ -209,7 +209,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
       end
 
       it "errors if there is a type mismatch within an array using NoReturn schema default" do
-        assert_error "Expected configuration value 'test.sub_config.defaults.foo[1]' to be a 'Int32', but got 'UInt64'.", <<-CR
+        assert_error "Expected configuration value 'test.sub_config.defaults.foo[1]' to be a 'Int32', but got 'UInt64'.", <<-'CR'
           module Schema
             include ADI::Extension::Schema
 
@@ -239,7 +239,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
       end
 
       it "errors if a configuration value not found in the schema is encountered" do
-        assert_error "Encountered unexpected property 'test.sub_config.defaults.name' with value '\"Fred\"'.", <<-CR
+        assert_error "Encountered unexpected property 'test.sub_config.defaults.name' with value '\"Fred\"'.", <<-'CR'
           module Schema
             include ADI::Extension::Schema
 
@@ -271,7 +271,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
     end
 
     it "errors if a configuration value has the incorrect type" do
-      assert_error "Extension 'foo' is configured, but no extension with that name has been registered.", <<-CR
+      assert_error "Extension 'foo' is configured, but no extension with that name has been registered.", <<-'CR'
         ADI.configure({
           foo: {
             id: 1
@@ -281,7 +281,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
     end
 
     it "errors if nothing is configured, but a property is required" do
-      assert_error "Required configuration property 'test.id : Int32' must be provided.", <<-CR
+      assert_error "Required configuration property 'test.id : Int32' must be provided.", <<-'CR'
         require "../spec_helper"
 
         module Schema
@@ -296,7 +296,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
   end
 
   it "extension configuration value resolution" do
-    ASPEC::Methods.assert_success <<-CR, codegen: true
+    ASPEC::Methods.assert_success <<-'CR'
       require "../spec_helper"
 
       enum Color
@@ -335,22 +335,26 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
 
       macro finished
         macro finished
-          it { \\{{ADI::CONFIG["blah"]["id"]}}.should eq 123 }
-          it { \\{{ADI::CONFIG["blah"]["name"]}}.should eq "fred" }
-          it { \\{{ADI::CONFIG["blah"]["float"]}}.should eq 10 }
-          it { \\{{ADI::CONFIG["blah"]["nilable"]}}.should be_nil }
-          it { \\{{ADI::CONFIG["blah"]["color_type"]}}.should eq Color::Red }
-          it { \\{{ADI::CONFIG["blah"]["color_sym"]}}.should eq Color::Blue }
-          it { \\{{ADI::CONFIG["blah"]["color_default"]}}.should eq Color::Green }
-          it { \\{{ADI::CONFIG["blah"]["value"]}}.should eq({"id" => "10", "name" => "fred"}) }
-          it { \\{{ADI::CONFIG["blah"]["regex"]}}.should eq /foo/ }
+          \{%
+            config = ADI::CONFIG["blah"]
+
+            raise "#{config}" unless config["id"] == 123
+            raise "#{config}" unless config["name"] == "fred"
+            raise "#{config}" unless config["float"] == 10.0
+            raise "#{config}" unless config["nilable"].nil?
+            raise "#{config}" unless config["color_type"].stringify == "Color.new(0)"
+            raise "#{config}" unless config["color_sym"].stringify == "Color.new(:blue)"
+            raise "#{config}" unless config["color_default"].stringify == "Color.new(:green)"
+            raise "#{config}" unless config["value"] == {"id" => "10", "name" => "fred"}
+            raise "#{config}" unless config["regex"] == /foo/
+          %}
         end
       end
     CR
   end
 
   it "does not error if nothing is configured, but all properties have defaults or are nilable" do
-    ASPEC::Methods.assert_success <<-CR, codegen: true
+    ASPEC::Methods.assert_success <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -363,14 +367,18 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
 
       macro finished
         macro finished
-          it { \\{{ADI::CONFIG["blah"]["id"]}}.should eq 123 }
+          \{%
+            config = ADI::CONFIG["blah"]
+
+            raise "#{config}" unless config["id"] == 123
+          %}
         end
       end
     CR
   end
 
   it "inherits type of arrays from property if not explicitly set" do
-    ASPEC::Methods.assert_success <<-CR, codegen: true
+    ASPEC::Methods.assert_success <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -389,14 +397,18 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
 
       macro finished
         macro finished
-          it { \\{{ADI::CONFIG["test"]["foo"]}}.should eq [1, 2] }
+          \{%
+            config = ADI::CONFIG["test"]
+
+            raise "#{config}" unless config["foo"] == [1, 2]
+          %}
         end
       end
     CR
   end
 
   it "allows using NoReturn to type empty arrays in schema" do
-    ASPEC::Methods.assert_success <<-CR, codegen: true
+    ASPEC::Methods.assert_success <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -409,15 +421,18 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
 
       macro finished
         macro finished
-          it { (\\{{ADI::CONFIG["test"]["foo"]}}).should be_empty }
-          it { \\{{ADI::CONFIG["test"]["foo"].stringify}}.should eq "Array(Int32 | String).new" }
+          \{%
+            config = ADI::CONFIG["test"]
+
+            raise "#{config}" unless config["foo"].stringify == "Array(Int32 | String).new"
+          %}
         end
       end
     CR
   end
 
   it "allows customizing values when using NoReturn to type empty arrays defaults in schema" do
-    ASPEC::Methods.assert_success <<-CR, codegen: true
+    ASPEC::Methods.assert_success <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -436,14 +451,18 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
 
       macro finished
         macro finished
-          it { \\{{ADI::CONFIG["test"]["foo"]}}.should eq [1, 2] }
+          \{%
+            config = ADI::CONFIG["test"]
+
+            raise "#{config}" unless config["foo"] == [1, 2]
+          %}
         end
       end
     CR
   end
 
   it "expands schema to include expected structure/defaults if not configuration is provided" do
-    ASPEC::Methods.assert_success <<-CR, codegen: true
+    ASPEC::Methods.assert_success <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -466,15 +485,19 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
 
       macro finished
         macro finished
-          it { \\{{ADI::CONFIG["test"]["one"]["enabled"]}}.should be_false }
-          it { \\{{ADI::CONFIG["test"]["two"]["enabled"]}}.should be_false }
+          \{%
+            config = ADI::CONFIG["test"]
+
+            raise "#{config}" unless config["one"]["enabled"] == false
+            raise "#{config}" unless config["two"]["enabled"] == false
+          %}
         end
       end
     CR
   end
 
   it "expands schema to include expected structure/defaults if not explicitly provided" do
-    ASPEC::Methods.assert_success <<-CR, codegen: true
+    ASPEC::Methods.assert_success <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -512,17 +535,22 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
 
       macro finished
         macro finished
-          it { \\{{ADI::CONFIG["test"]["one"]["enabled"]}}.should be_false }
-          it { \\{{ADI::CONFIG["test"]["one"]["id"]}}.should eq 10 }
-          it { \\{{ADI::CONFIG["test"]["two"]["enabled"]}}.should be_false }
-          it { \\{{ADI::CONFIG["test"]["two"]["three"]["enabled"]}}.should be_false }
+          \{%
+            config = ADI::CONFIG["test"]
+
+            raise "#{config}" unless config["one"]["enabled"] == false
+            raise "#{config}" unless config["one"]["id"] == 10
+
+            raise "#{config}" unless config["two"]["enabled"] == false
+            raise "#{config}" unless config["two"]["three"]["enabled"] == false
+          %}
         end
       end
     CR
   end
 
   it "merges missing array_of defaults" do
-    ASPEC::Methods.assert_success <<-CR, codegen: true
+    ASPEC::Methods.assert_success <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -542,15 +570,19 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
 
       macro finished
         macro finished
-          it { \\{{ADI::CONFIG["test"]["rules"][0]["id"]}}.should eq 10 }
-          it { \\{{ADI::CONFIG["test"]["rules"][0]["stop"]}}.should be_false }
+          \{%
+            config = ADI::CONFIG["test"]
+
+            raise "#{config}" unless config["rules"][0]["id"] == 10
+            raise "#{config}" unless config["rules"][0]["stop"] == false
+          %}
         end
       end
     CR
   end
 
   it "merges missing array_of defaults in time for other compiler passes" do
-    ASPEC::Methods.assert_success <<-CR, codegen: true
+    ASPEC::Methods.assert_success <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -583,14 +615,18 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
 
       macro finished
         macro finished
-          it { \\{{ADI::CONFIG["parameters"]["stop"]}}.should be_false }
+          \{%
+            parameters = ADI::CONFIG["parameters"]
+
+            raise "#{parameters}" unless parameters["stop"] == false
+          %}
         end
       end
     CR
   end
 
   it "fills in missing nilable keys with `nil`" do
-    ASPEC::Methods.assert_success <<-CR, codegen: true
+    ASPEC::Methods.assert_success <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -609,16 +645,20 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
 
       macro finished
         macro finished
-          it { \\{{ADI::CONFIG["blah"]["config"].keys.stringify}}.should eq %([__nil, id, name]) }
-          it { \\{{ADI::CONFIG["blah"]["config"]["id"]}}.should eq 10 }
-          it { \\{{ADI::CONFIG["blah"]["config"]["name"]}}.should be_nil }
+          \{%
+            config = ADI::CONFIG["blah"]
+
+            raise "#{config}" unless config["config"].keys.stringify == %([__nil, id, name])
+            raise "#{config}" unless config["config"]["id"] == 10
+            raise "#{config}" unless config["config"]["name"].nil?
+          %}
         end
       end
     CR
   end
 
   it "fills in missing nilable keys with `nil` when missing from default value" do
-    ASPEC::Methods.assert_success <<-CR, codegen: true
+    ASPEC::Methods.assert_success <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -631,9 +671,13 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
 
       macro finished
         macro finished
-          it { \\{{ADI::CONFIG["blah"]["config"].keys.stringify}}.should eq %([id, name]) }
-          it { \\{{ADI::CONFIG["blah"]["config"]["id"]}}.should eq 123 }
-          it { \\{{ADI::CONFIG["blah"]["config"]["name"]}}.should be_nil }
+          \{%
+            config = ADI::CONFIG["blah"]
+
+            raise "#{config}" unless config["config"].keys.stringify == %([id, name])
+            raise "#{config}" unless config["config"]["id"] == 123
+            raise "#{config}" unless config["config"]["name"].nil?
+          %}
         end
       end
     CR

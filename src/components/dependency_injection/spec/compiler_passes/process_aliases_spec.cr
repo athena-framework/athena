@@ -1,7 +1,7 @@
 require "../spec_helper"
 
 private def assert_success(code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_success <<-CR, codegen: true, line: line
+  ASPEC::Methods.assert_success <<-CR, line: line
     require "../spec_helper.cr"
     #{code}
     ADI::ServiceContainer.new
@@ -18,7 +18,7 @@ end
 
 describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
   it "errors if unable to determine the alias name" do
-    assert_error "Alias cannot be automatically determined for 'foo' (Foo). If the type includes multiple interfaces, provide the interface to alias as the first positional argument to `@[ADI::AsAlias]`.", <<-CR
+    assert_error "Alias cannot be automatically determined for 'foo' (Foo). If the type includes multiple interfaces, provide the interface to alias as the first positional argument to `@[ADI::AsAlias]`.", <<-'CR'
       module SomeInterface; end
       module OtherInterface; end
 
@@ -28,35 +28,29 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
         include SomeInterface
         include OtherInterface
       end
-
-      macro finished
-        macro finished
-          it { \\{{ADI::ServiceContainer::ALIASES.keys}}.should eq [SomeInterface] }
-          it { \\{{ADI::ServiceContainer::ALIASES[SomeInterface]["id"].stringify}}.should eq %("foo") }
-          it { \\{{ADI::ServiceContainer::ALIASES[SomeInterface]["public"]}}.should be_false }
-        end
-      end
     CR
   end
 
   it "allows explicit string alias name" do
-    assert_success <<-CR
+    assert_success <<-'CR'
       @[ADI::Register]
       @[ADI::AsAlias("bar")]
       class Foo; end
 
       macro finished
         macro finished
-          it { \\{{ADI::ServiceContainer::ALIASES.keys}}.should eq ["bar"] }
-          it { \\{{ADI::ServiceContainer::ALIASES["bar"]["id"].stringify}}.should eq %("foo") }
-          it { \\{{ADI::ServiceContainer::ALIASES["bar"]["public"]}}.should be_false }
+          \{%
+            raise "" unless ADI::ServiceContainer::ALIASES.keys == ["bar"]
+            raise "" unless ADI::ServiceContainer::ALIASES["bar"]["id"] == "foo"
+            raise "" unless ADI::ServiceContainer::ALIASES["bar"]["public"] == false
+          %}
         end
       end
     CR
   end
 
   it "allows explicit const alias name" do
-    assert_success <<-CR
+    assert_success <<-'CR'
       BAR = "bar"
 
       @[ADI::Register]
@@ -65,16 +59,18 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
 
       macro finished
         macro finished
-          it { \\{{ADI::ServiceContainer::ALIASES.keys}}.should eq ["bar"] }
-          it { \\{{ADI::ServiceContainer::ALIASES["bar"]["id"].stringify}}.should eq %("foo") }
-          it { \\{{ADI::ServiceContainer::ALIASES["bar"]["public"]}}.should be_false }
+          \{%
+            raise "" unless ADI::ServiceContainer::ALIASES.keys == ["bar"]
+            raise "" unless ADI::ServiceContainer::ALIASES["bar"]["id"] == "foo"
+            raise "" unless ADI::ServiceContainer::ALIASES["bar"]["public"] == false
+          %}
         end
       end
     CR
   end
 
   it "allows explicit TypeNode alias name" do
-    assert_success <<-CR
+    assert_success <<-'CR'
       module SomeInterface; end
 
       @[ADI::Register]
@@ -85,16 +81,18 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
 
       macro finished
         macro finished
-          it { \\{{ADI::ServiceContainer::ALIASES.keys}}.should eq [SomeInterface] }
-          it { \\{{ADI::ServiceContainer::ALIASES[SomeInterface]["id"].stringify}}.should eq %("foo") }
-          it { \\{{ADI::ServiceContainer::ALIASES[SomeInterface]["public"]}}.should be_true }
+          \{%
+            raise "" unless ADI::ServiceContainer::ALIASES.keys == [SomeInterface]
+            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface]["id"] == "foo"
+            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface]["public"] == true
+          %}
         end
       end
     CR
   end
 
   it "uses included interface type as alias name if there is only 1" do
-    assert_success <<-CR
+    assert_success <<-'CR'
       module SomeInterface; end
 
       @[ADI::Register]
@@ -105,16 +103,18 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
 
       macro finished
         macro finished
-          it { \\{{ADI::ServiceContainer::ALIASES.keys}}.should eq [SomeInterface] }
-          it { \\{{ADI::ServiceContainer::ALIASES[SomeInterface]["id"].stringify}}.should eq %("foo") }
-          it { \\{{ADI::ServiceContainer::ALIASES[SomeInterface]["public"]}}.should be_false }
+          \{%
+            raise "" unless ADI::ServiceContainer::ALIASES.keys == [SomeInterface]
+            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface]["id"] == "foo"
+            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface]["public"] == false
+          %}
         end
       end
     CR
   end
 
   it "allows aliasing more than one interface" do
-    assert_success <<-CR
+    assert_success <<-'CR'
       module SomeInterface; end
       module OtherInterface; end
 
@@ -128,7 +128,9 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
 
       macro finished
         macro finished
-          it { \\{{ADI::ServiceContainer::ALIASES.keys}}.should eq [SomeInterface, OtherInterface] }
+          \{%
+            raise "" unless ADI::ServiceContainer::ALIASES.keys == [SomeInterface, OtherInterface]
+          %}
         end
       end
     CR
