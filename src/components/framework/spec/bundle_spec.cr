@@ -7,8 +7,8 @@ private def assert_error(message : String, code : String, *, line : Int32 = __LI
   CR
 end
 
-private def assert_success(code : String, *, codegen : Bool = false, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_success <<-CR, line: line, codegen: codegen
+private def assert_success(code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_success <<-CR, line: line
     require "./spec_helper.cr"
     #{code}
   CR
@@ -39,7 +39,7 @@ describe ATH::Bundle, tags: "compiled" do
     end
 
     it "correctly wires up the listener based on its configuration" do
-      assert_success <<-'CODE', codegen: true
+      assert_success <<-'CODE'
           ATH.configure({
             framework: {
               cors: {
@@ -56,14 +56,20 @@ describe ATH::Bundle, tags: "compiled" do
             },
           })
 
-          it do
-            config = ADI.container.athena_framework_listeners_cors.@config
-            config.allow_credentials?.should be_true
-            config.allow_origin.should eq ["allow_origin", /foo/]
-            config.allow_headers.should eq ["allow_headers"]
-            config.allow_methods.should eq ["allow_methods"]
-            config.expose_headers.should eq ["expose_headers"]
-            config.max_age.should eq 123
+          macro finished
+            macro finished
+              \{%
+                 service = ADI::ServiceContainer::SERVICE_HASH["athena_framework_listeners_cors"]
+                 arg = service["parameters"]["config"]["value"]
+
+                 raise "#{arg}" unless arg =~ /allow_credentials: true/
+                 raise "#{arg}" unless arg =~ /allow_origin: \["allow_origin", \/foo\/\]/
+                 raise "#{arg}" unless arg =~ /allow_headers: \["allow_headers"]/
+                 raise "#{arg}" unless arg =~ /allow_methods: \["allow_methods"]/
+                 raise "#{arg}" unless arg =~ /expose_headers: \["expose_headers"]/
+                 raise "#{arg}" unless arg =~ /max_age: 123/
+              %}
+            end
           end
         CODE
     end
@@ -71,7 +77,7 @@ describe ATH::Bundle, tags: "compiled" do
 
   describe ATH::Listeners::Format do
     it "correctly wires up the listener based on its configuration" do
-      assert_success <<-'CODE', codegen: true
+      assert_success <<-'CODE'
         ATH.configure({
           framework: {
             format_listener: {
@@ -86,33 +92,57 @@ describe ATH::Bundle, tags: "compiled" do
           },
         })
 
-        it do
-          negotiator = ADI.container.athena_framework_listeners_format.as(ATH::Listeners::Format).@format_negotiator.as(ATH::View::FormatNegotiator)
-          map = negotiator.@map
-          map.size.should eq 4
+        macro finished
+          macro finished
+            \{%
+               service = ADI::ServiceContainer::SERVICE_HASH["athena_framework_listeners_format"]
+               raise "" unless service["parameters"]["format_negotiator"]["value"].stringify == "athena_framework_view_format_negotiator"
+            %}
 
-          # Hostname rule
-          matcher, rule = map[0]
-          rule.should eq ATH::View::FormatNegotiator::Rule.new(fallback_format: "json", prefer_extension: true, priorities: ["json", "xml"], stop: false)
-          m0 = matcher.should be_a ATH::RequestMatcher
-          m0.@matchers.should eq [ATH::RequestMatcher::Hostname.new(/api\.example\.com/)]
+            \{%
+               service = ADI::ServiceContainer::SERVICE_HASH["athena_framework_view_format_negotiator"]
+               map = service["calls"]
 
-          # Path rule
-          matcher, rule = map[1]
-          rule.should eq ATH::View::FormatNegotiator::Rule.new(fallback_format: false, prefer_extension: true, priorities: ["jpeg", "gif"], stop: true)
-          m1 = matcher.should be_a ATH::RequestMatcher
-          m1.@matchers.should eq [ATH::RequestMatcher::Path.new(/^\/image/)]
+               raise "#{map}" unless map.size == 4
 
-          # Methods rule
-          matcher, rule = map[2]
-          rule.should eq ATH::View::FormatNegotiator::Rule.new(fallback_format: "json", prefer_extension: false, priorities: ["xml", "html"], stop: false)
-          m2 = matcher.should be_a ATH::RequestMatcher
-          m2.@matchers.should eq [ATH::RequestMatcher::Method.new("HEAD")]
+               # Hostname rule
+               m0, rule = map[0][1]
+               matcher = ADI::ServiceContainer::SERVICE_HASH[m0.stringify]["parameters"]["matchers"]["value"]
+               raise "#{matcher}" unless matcher.includes? %(ATH::RequestMatcher::Hostname.new(/api\\.example\\.com/))
 
-          # Tests matcher reuse logic
-          matcher, _ = map[3]
-          m3 = matcher.should be_a ATH::RequestMatcher
-          m3.should be m1
+               raise "#{rule}" unless rule.includes? "ATH::View::FormatNegotiator::Rule.new"
+               raise "#{rule}" unless rule =~ /fallback_format: "json"/
+               raise "#{rule}" unless rule =~ /prefer_extension: true/
+               raise "#{rule}" unless rule =~ /priorities: \["json", "xml"\]/
+               raise "#{rule}" unless rule =~ /stop: false/
+
+               # Path rule
+               m1, rule = map[1][1]
+               matcher = ADI::ServiceContainer::SERVICE_HASH[m1.stringify]["parameters"]["matchers"]["value"]
+               raise "#{matcher}" unless matcher.includes? %(ATH::RequestMatcher::Path.new(/^\\/image/))
+
+               raise "#{rule}" unless rule.includes? "ATH::View::FormatNegotiator::Rule.new"
+               raise "#{rule}" unless rule =~ /fallback_format: false/
+               raise "#{rule}" unless rule =~ /prefer_extension: true/
+               raise "#{rule}" unless rule =~ /priorities: \["jpeg", "gif"\]/
+               raise "#{rule}" unless rule =~ /stop: true/
+
+               # Methods rule
+               m2, rule = map[2][1]
+               matcher = ADI::ServiceContainer::SERVICE_HASH[m2.stringify]["parameters"]["matchers"]["value"]
+               raise "#{matcher}" unless matcher.includes? %(ATH::RequestMatcher::Method.new(["HEAD"]))
+
+               raise "#{rule}" unless rule.includes? "ATH::View::FormatNegotiator::Rule.new"
+               raise "#{rule}" unless rule =~ /fallback_format: "json"/
+               raise "#{rule}" unless rule =~ /prefer_extension: false/
+               raise "#{rule}" unless rule =~ /priorities: \["xml", "html"\]/
+               raise "#{rule}" unless rule =~ /stop: false/
+
+               # Tests matcher reuse logic
+               m3, rule = map[3][1]
+               raise "#{m3} == #{m1}" unless m3 == m1
+            %}
+          end
         end
       CODE
     end

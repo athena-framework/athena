@@ -11,7 +11,7 @@ end
 describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
   describe "compiler errors" do
     it "errors if a expects a string value parameter but it is not of that type" do
-      assert_error "Parameter 'value : String' of service 'foo' (Foo) expects a String but got '123'.", <<-CR
+      assert_error "Parameter 'value : String' of service 'foo' (Foo) expects a String but got '123'.", <<-'CR'
         @[ADI::Register(_value: "%value%")]
         record Foo, value : String
 
@@ -24,7 +24,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
     end
 
     it "errors if a parameter resolves to a service of the incorrect type" do
-      assert_error "Parameter 'value : Int32' of service 'foo' (Foo) expects 'Int32' but the resolved service 'bar' is of type 'Bar'.", <<-CR
+      assert_error "Parameter 'value : Int32' of service 'foo' (Foo) expects 'Int32' but the resolved service 'bar' is of type 'Bar'.", <<-'CR'
         @[ADI::Register]
         record Bar
 
@@ -35,7 +35,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
 
     describe NamedTuple do
       it "errors if configuration is missing a non-nilable property" do
-        assert_error "Configuration value 'test.connection' is missing required value for 'port' of type 'Int32'.", <<-CR
+        assert_error "Configuration value 'test.connection' is missing required value for 'port' of type 'Int32'.", <<-'CR'
           module Schema
             include ADI::Extension::Schema
 
@@ -57,7 +57,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
       end
 
       it "errors if there is a type mismatch" do
-        assert_error "Expected configuration value 'test.connection.hostname' to be a 'String', but got 'Int32'.", <<-CR
+        assert_error "Expected configuration value 'test.connection.hostname' to be a 'String', but got 'Int32'.", <<-'CR'
           module Schema
             include ADI::Extension::Schema
             property connection : NamedTuple(hostname: String)
@@ -74,7 +74,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
       end
 
       it "errors if there is a type mismatch within an array type" do
-        assert_error "Expected configuration value 'test.connection.ports[1]' to be a 'Int32', but got 'String'.", <<-CR
+        assert_error "Expected configuration value 'test.connection.ports[1]' to be a 'Int32', but got 'String'.", <<-'CR'
           module Schema
             include ADI::Extension::Schema
             property connection : NamedTuple(ports: Array(Int32))
@@ -94,7 +94,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
       end
 
       it "errors if there is a type mismatch within a nilable array type" do
-        assert_error "Expected configuration value 'test.connection.ports[1]' to be a 'Int32', but got 'String'.", <<-CR
+        assert_error "Expected configuration value 'test.connection.ports[1]' to be a 'Int32', but got 'String'.", <<-'CR'
           module Schema
             include ADI::Extension::Schema
             property connection : NamedTuple(ports: Array(Int32)?)
@@ -116,7 +116,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
 
     describe "array_of" do
       it "errors on type mismatch in array within array_of object" do
-        assert_error "Expected configuration value 'test.rules[0].priorities[2]' to be a 'String', but got 'Int32'.", <<-CR
+        assert_error "Expected configuration value 'test.rules[0].priorities[2]' to be a 'String', but got 'Int32'.", <<-'CR'
           require "../spec_helper"
 
           module Schema
@@ -141,7 +141,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
 
     describe "object_of" do
       it "errors on type mismatch in array within object_of object" do
-        assert_error "Expected configuration value 'test.rule.priorities[2]' to be a 'String', but got 'Int32'.", <<-CR
+        assert_error "Expected configuration value 'test.rule.priorities[2]' to be a 'String', but got 'Int32'.", <<-'CR'
           require "../spec_helper"
 
           module Schema
@@ -163,7 +163,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
   end
 
   it "sets missing NT keys to `nil` if the type is nilable" do
-    ASPEC::Methods.assert_success <<-CR, codegen: true
+    ASPEC::Methods.assert_success <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -186,14 +186,14 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
 
       macro finished
         macro finished
-          it { \\{{ADI::CONFIG["test"]["connection"]["port"]}}.should be_nil }
+          \{% raise "" unless ADI::CONFIG["test"]["connection"]["port"].nil? %}
         end
       end
     CR
   end
 
   it "properly checks type within array of array_of object" do
-    ASPEC::Methods.assert_success <<-CR
+    ASPEC::Methods.assert_success <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -216,7 +216,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
   end
 
   it "properly checks type within array of object_of object" do
-    ASPEC::Methods.assert_success <<-CR
+    ASPEC::Methods.assert_success <<-'CR'
       require "../spec_helper"
 
       module Schema
