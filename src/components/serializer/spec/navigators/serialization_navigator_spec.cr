@@ -253,7 +253,7 @@ describe ASR::Navigators::SerializationNavigator do
       end
 
       describe "that is in the default group" do
-        it "should include properties without groups explicitally defined" do
+        it "should include properties without groups explicitly defined" do
           obj = Group.new
           ctx = ASR::SerializationContext.new.groups = ["list", "default"]
 
