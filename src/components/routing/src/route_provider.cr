@@ -81,17 +81,17 @@ class Athena::Routing::RouteProvider
   # :nodoc:
   def self.inspect(io : IO) : Nil
     io << "Match Host:  "
-    self.match_host.inspect io
+    @@match_host.inspect io
     io << "\n\nStatic Routes:  "
-    self.static_routes.inspect io
+    @@static_routes.inspect io
     io << "\n\nRegexes:  "
-    self.route_regexes.inspect io
+    @@route_regexes.inspect io
     io << "\n\nDynamic Routes:  "
-    self.dynamic_routes.inspect io
+    @@dynamic_routes.inspect io
     io << "\n\nConditions:  "
-    self.conditions.inspect io
+    @@conditions.inspect io
     io << "\n\nRoute Generation Data:  "
-    self.route_generation_data.inspect io
+    @@route_generation_data.inspect io
     io << "\n\n"
   end
 
