@@ -66,8 +66,9 @@ class Athena::Routing::RouteProvider
   protected class_getter conditions : Hash(Int32, Condition) = Hash(Int32, Condition).new
   protected class_getter route_generation_data : Hash(String, RouteGenerationData) = Hash(String, RouteGenerationData).new
 
-  protected class_getter! routes : ART::RouteCollection
   protected class_getter? compiled : Bool = false
+
+  @@routes : ART::RouteCollection? = nil
 
   def self.compile(routes : ART::RouteCollection) : Nil
     return if @@compiled
