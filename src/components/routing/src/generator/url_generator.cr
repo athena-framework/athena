@@ -52,7 +52,7 @@ class Athena::Routing::Generator::URLGenerator
   def initialize(
     @context : ART::RequestContext,
     @default_locale : String? = nil,
-    @route_provider : ART::RouteProvider.class = ART::RouteProvider
+    @route_provider : ART::RouteProvider.class = ART::RouteProvider,
   )
   end
 

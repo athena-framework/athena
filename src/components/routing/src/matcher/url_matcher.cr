@@ -11,7 +11,7 @@ class Athena::Routing::Matcher::URLMatcher
 
   def initialize(
     @context : ART::RequestContext,
-    @route_provider : ART::RouteProvider.class = ART::RouteProvider
+    @route_provider : ART::RouteProvider.class = ART::RouteProvider,
   ); end
 
   # :inherit:

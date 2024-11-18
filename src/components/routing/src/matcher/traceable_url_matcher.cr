@@ -23,7 +23,7 @@ class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::
   def initialize(
     @routes : ART::RouteCollection,
     context : ART::RequestContext,
-    route_provider : ART::RouteProvider.class = ART::RouteProvider
+    route_provider : ART::RouteProvider.class = ART::RouteProvider,
   )
     super context, route_provider
   end
