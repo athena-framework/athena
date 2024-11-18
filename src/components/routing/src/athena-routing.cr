@@ -7,10 +7,10 @@ require "./compiled_route"
 require "./request_context"
 require "./request_context_aware_interface"
 require "./route"
-require "./routing_handler"
 require "./route_collection"
 require "./route_compiler"
 require "./route_provider"
+require "./routing_handler"
 require "./router"
 
 require "./exception/*"
@@ -53,9 +53,9 @@ module Athena::Routing
   # This process compiles each route into its `ART::CompiledRoute` representation,
   # then merges them all together into a more efficient cacheable format.
   #
-  # The specifics of this process should be seen as an implementation detail.
-  # All you need to worry about is calling this method with your `ART::RouteCollection`.
-  def self.compile(routes : ART::RouteCollection) : Nil
-    ART::RouteProvider.compile routes
+  # A custom *route_provider* type may be provided to compile the routes into a different provider.
+  # By default, the default global `ART::RouteProvider` is used.
+  def self.compile(routes : ART::RouteCollection, *, route_provider : ART::RouteProvider.class = ART::RouteProvider) : Nil
+    route_provider.compile routes
   end
 end

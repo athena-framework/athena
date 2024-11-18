@@ -165,7 +165,9 @@ describe ART::RoutingHandler do
       handler = ART::RoutingHandler.new
       handler.add "a_route", ART::Route.new "/foo"
       handler.compile
-      ART::RouteProvider.static_routes.size.should eq 1
+      ART::RoutingHandler::RouteProvider.compiled?.should be_true
+      ART::RoutingHandler::RouteProvider.static_routes.size.should eq 1
+      ART::RouteProvider.compiled?.should be_false
     end
   end
 end

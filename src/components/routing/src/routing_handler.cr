@@ -64,6 +64,10 @@
 class Athena::Routing::RoutingHandler
   include HTTP::Handler
 
+  # :nodoc:
+  class RouteProvider < ::Athena::Routing::RouteProvider
+  end
+
   @handlers : Hash(String, Proc(HTTP::Server::Context, Hash(String, String?), Nil)) = {} of String => HTTP::Server::Context, Hash(String, String?) -> Nil
 
   # :nodoc:
@@ -76,7 +80,7 @@ class Athena::Routing::RoutingHandler
     @collection : ART::RouteCollection = ART::RouteCollection.new,
     @bubble_exceptions : Bool = false,
   )
-    @matcher = matcher || ART::Matcher::URLMatcher.new ART::RequestContext.new
+    @matcher = matcher || ART::Matcher::URLMatcher.new ART::RequestContext.new, RouteProvider
   end
 
   # :inherit:
@@ -138,7 +142,7 @@ class Athena::Routing::RoutingHandler
   # ])
   # ```
   def compile : self
-    ART.compile @collection
+    ART.compile @collection, route_provider: RouteProvider
 
     self
   end
