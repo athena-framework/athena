@@ -23,8 +23,9 @@ class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::
   def initialize(
     @routes : ART::RouteCollection,
     context : ART::RequestContext,
+    route_provider : ART::RouteProvider.class = ART::RouteProvider,
   )
-    super context
+    super context, route_provider
   end
 
   # Returns an array of `ART::Matcher::TraceableURLMatcher::Trace` representing the history of the matching logic when trying to match the provided *request*.

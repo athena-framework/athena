@@ -36,6 +36,22 @@ struct RouteProviderTest < ASPEC::TestCase
     {% end %}
   {% end %}
 
+  def test_inspect : Nil
+    routes = ART::RouteCollection.new
+    routes.add "static", ART::Route.new "/static"
+    routes.add "dynamic", ART::Route.new "/user/{id}"
+
+    ART::RouteProvider.compile routes
+
+    data = ART::RouteProvider.inspect
+
+    data.should contain "Match Host:  false"
+    data.should contain "Static Routes:  {\"/static\" =>"
+    data.should contain "Regexes:  {0 =>"
+    data.should contain "Dynamic Routes:  {\"21\" =>"
+    data.should contain "Route Generation Data:  {\"static\" =>"
+  end
+
   def self.default_collection : ART::RouteCollection
     collection = ART::RouteCollection.new
 

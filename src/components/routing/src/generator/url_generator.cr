@@ -52,6 +52,7 @@ class Athena::Routing::Generator::URLGenerator
   def initialize(
     @context : ART::RequestContext,
     @default_locale : String? = nil,
+    @route_provider : ART::RouteProvider.class = ART::RouteProvider,
   )
   end
 
@@ -62,12 +63,12 @@ class Athena::Routing::Generator::URLGenerator
   # :inherit:
   def generate(route : String, params : Hash(String, String?) = Hash(String, String?).new, reference_type : ART::Generator::ReferenceType = :absolute_path) : String
     if locale = params["_locale"]? || @context.parameters["_locale"]? || @default_locale
-      if (locale_route = ART::RouteProvider.route_generation_data["#{route}.#{locale}"]?) && (route == locale_route[1]["_canonical_route"]?)
+      if (locale_route = @route_provider.route_generation_data["#{route}.#{locale}"]?) && (route == locale_route[1]["_canonical_route"]?)
         route = "#{route}.#{locale}"
       end
     end
 
-    unless generation_data = ART::RouteProvider.route_generation_data[route]?
+    unless generation_data = @route_provider.route_generation_data[route]?
       raise ART::Exception::RouteNotFound.new "No route with the name '#{route}' exists."
     end
 

@@ -1,22 +1,37 @@
 require "./static_prefix_collection"
 
-# :nodoc:
+# Stores the compiled route data on the class level for performance reasons.
 #
-# Exposes getters to static/dynamic routes as well as the full route regex.
-# Values are cached on the class level for performance resaons.
+# This type is default location, but can be extended to support multiple routers using different route collections without affecting one another.
+#
+# ```
+# class MyCustomProvider < ART::RouteProvider
+# end
+#
+# # ...
+#
+# # Compile the provided routes into MyCustomProvider, instead of the default provider.
+# ART.compile routes, route_provider: MyCustomProvider
+# ```
 class Athena::Routing::RouteProvider
   private alias Condition = Athena::Routing::Route::Condition
 
   # We store this as a tuple in order to get splatting/unpacking features.
   # defaults, variables, methods, schemas, trailing slash?, trailing var?, conditions
+  #
+  # :nodoc:
   alias DynamicRouteData = Tuple(Hash(String, String?), Set(String)?, Set(String)?, Set(String)?, Bool, Bool, Int32?)
 
   # We store this as a tuple in order to get splatting/unpacking features.
   # defaults, host, methods, schemas, trailing slash?, trailing var?, conditions
+  #
+  # :nodoc:
   alias StaticRouteData = Tuple(Hash(String, String?), String | Regex | Nil, Set(String)?, Set(String)?, Bool, Bool, Int32?)
 
   # We store this as a tuple in order to get splatting/unpacking features.
   # variables, defaults, requirements, tokens, host tokens, schemes
+  #
+  # :nodoc:
   alias RouteGenerationData = Tuple(Set(String), Hash(String, String?), Hash(String, Regex), Array(ART::CompiledRoute::Token), Array(ART::CompiledRoute::Token), Set(String)?)
 
   private record PreCompiledStaticRoute, route : ART::Route, has_trailing_slash : Bool
@@ -44,14 +59,16 @@ class Athena::Routing::RouteProvider
     end
   end
 
-  class_getter? match_host : Bool = false
-  class_getter static_routes : Hash(String, Array(StaticRouteData)) = Hash(String, Array(StaticRouteData)).new
-  class_getter route_regexes : Hash(Int32, Regex) = Hash(Int32, Regex).new
-  class_getter dynamic_routes : Hash(String, Array(DynamicRouteData)) = Hash(String, Array(DynamicRouteData)).new
-  class_getter conditions : Hash(Int32, Condition) = Hash(Int32, Condition).new
-  class_getter route_generation_data : Hash(String, RouteGenerationData) = Hash(String, RouteGenerationData).new
+  protected class_getter? match_host : Bool = false
+  protected class_getter static_routes : Hash(String, Array(StaticRouteData)) = Hash(String, Array(StaticRouteData)).new
+  protected class_getter route_regexes : Hash(Int32, Regex) = Hash(Int32, Regex).new
+  protected class_getter dynamic_routes : Hash(String, Array(DynamicRouteData)) = Hash(String, Array(DynamicRouteData)).new
+  protected class_getter conditions : Hash(Int32, Condition) = Hash(Int32, Condition).new
+  protected class_getter route_generation_data : Hash(String, RouteGenerationData) = Hash(String, RouteGenerationData).new
 
   protected class_getter? compiled : Bool = false
+
+  @@routes : ART::RouteCollection? = nil
 
   def self.compile(routes : ART::RouteCollection) : Nil
     return if @@compiled
@@ -61,19 +78,20 @@ class Athena::Routing::RouteProvider
     self.compile
   end
 
+  # :nodoc:
   def self.inspect(io : IO) : Nil
     io << "Match Host:  "
-    self.match_host.inspect io
+    @@match_host.inspect io
     io << "\n\nStatic Routes:  "
-    self.static_routes.inspect io
+    @@static_routes.inspect io
     io << "\n\nRegexes:  "
-    self.route_regexes.inspect io
+    @@route_regexes.inspect io
     io << "\n\nDynamic Routes:  "
-    self.dynamic_routes.inspect io
+    @@dynamic_routes.inspect io
     io << "\n\nConditions:  "
-    self.conditions.inspect io
+    @@conditions.inspect io
     io << "\n\nRoute Generation Data:  "
-    self.route_generation_data.inspect io
+    @@route_generation_data.inspect io
     io << "\n\n"
   end
 
@@ -420,6 +438,8 @@ class Athena::Routing::RouteProvider
   end
 
   private def self.routes : ART::RouteCollection
-    @@routes || raise "Routes have not been compiled. Did you forget to call `ART.compile`?"
+    @@routes || raise "Routes have not been compiled. Did you forget to call `ART.compile` for #{self.class}?"
   end
+
+  private def initialize; end
 end

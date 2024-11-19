@@ -9,7 +9,10 @@ class Athena::Routing::Matcher::URLMatcher
 
   @request : ART::Request? = nil
 
-  def initialize(@context : ART::RequestContext); end
+  def initialize(
+    @context : ART::RequestContext,
+    @route_provider : ART::RouteProvider.class = ART::RouteProvider,
+  ); end
 
   # :inherit:
   def match(@request : ART::Request) : Hash(String, String?)
@@ -76,14 +79,14 @@ class Athena::Routing::Matcher::URLMatcher
     trimmed_path = path.rstrip('/').presence || "/"
     request_method = canonical_method = @context.method
 
-    host = @context.host.downcase if ART::RouteProvider.match_host?
+    host = @context.host.downcase if @route_provider.match_host?
 
     canonical_method = "GET" if "HEAD" == request_method
 
     supports_redirect = "GET" == canonical_method && self.is_a? ART::Matcher::RedirectableURLMatcherInterface
 
-    ART::RouteProvider.static_routes[trimmed_path]?.try &.each do |data, required_host, required_methods, required_schemes, has_trailing_slash, _, condition|
-      if condition && !(ART::RouteProvider.conditions[condition].call(@context, @request || self.build_request(path)))
+    @route_provider.static_routes[trimmed_path]?.try &.each do |data, required_host, required_methods, required_schemes, has_trailing_slash, _, condition|
+      if condition && !(@route_provider.conditions[condition].call(@context, @request || self.build_request(path)))
         next
       end
 
@@ -135,15 +138,15 @@ class Athena::Routing::Matcher::URLMatcher
       return data
     end
 
-    matched_path = ART::RouteProvider.match_host? ? "#{host}.#{path}" : path
+    matched_path = @route_provider.match_host? ? "#{host}.#{path}" : path
 
-    ART::RouteProvider.route_regexes.each do |offset, regex|
+    @route_provider.route_regexes.each do |offset, regex|
       while match = regex.match matched_path
-        ART::RouteProvider.dynamic_routes[matched_mark = match.mark.not_nil!]?.try &.each do |data, vars, required_methods, required_schemes, has_trailing_slash, has_trailing_var, condition|
+        @route_provider.dynamic_routes[matched_mark = match.mark.not_nil!]?.try &.each do |data, vars, required_methods, required_schemes, has_trailing_slash, has_trailing_var, condition|
           # Dup the data hash so we don't mutate the original.
           data = data.dup
 
-          if condition && !(ART::RouteProvider.conditions[condition].call(@context, @request || self.build_request(path)))
+          if condition && !(@route_provider.conditions[condition].call(@context, @request || self.build_request(path)))
             next
           end
 
@@ -151,7 +154,7 @@ class Athena::Routing::Matcher::URLMatcher
 
           if has_trailing_var &&
              (has_trailing_slash || (!vars || (n = match[vars.size]?).nil?) || ('/' != (n.try &.[-1]? || '/'))) &&
-             (sub_match = regex.match(ART::RouteProvider.match_host? ? "#{host}.#{trimmed_path}" : trimmed_path)) && (matched_mark == sub_match.mark.not_nil!)
+             (sub_match = regex.match(@route_provider.match_host? ? "#{host}.#{trimmed_path}" : trimmed_path)) && (matched_mark == sub_match.mark.not_nil!)
             if has_trailing_slash
               match = sub_match
             else

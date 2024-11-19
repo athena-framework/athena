@@ -14,11 +14,11 @@ class Athena::Routing::Router
   # TODO: Should the matcher/generator types be customizable?
 
   getter matcher : ART::Matcher::URLMatcherInterface do
-    ART::Matcher::URLMatcher.new(@context)
+    ART::Matcher::URLMatcher.new(@context, @route_provider)
   end
 
   getter generator : ART::Generator::Interface do
-    generator = ART::Generator::URLGenerator.new @context, @default_locale
+    generator = ART::Generator::URLGenerator.new @context, @default_locale, @route_provider
     generator.strict_requirements = @strict_requirements
     generator
   end
@@ -28,6 +28,7 @@ class Athena::Routing::Router
     @default_locale : String? = nil,
     @strict_requirements : Bool? = true,
     context : ART::RequestContext? = nil,
+    @route_provider : ART::RouteProvider.class = ART::RouteProvider,
   )
     @context = context || ART::RequestContext.new
   end
