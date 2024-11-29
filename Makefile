@@ -11,12 +11,12 @@ build: ## Build website into build directory
 build: $(OUTPUT_DIR)
 
 $(OUTPUT_DIR): $(MKDOCS)
-	$(MKDOCS) build -d $(OUTPUT_DIR)
+	CRYSTAL_PATH="$$(pwd)/lib:$$(crystal env CRYSTAL_PATH)" $(MKDOCS) build -d $(OUTPUT_DIR)
 
 .PHONY: serve
 serve: ## Run live-preview server
 serve: $(MKDOCS)
-	$(MKDOCS) serve
+	CRYSTAL_PATH="$$(pwd)/lib:$$(crystal env CRYSTAL_PATH)" $(MKDOCS) serve
 
 deps: $(MKDOCS)
 

@@ -25,7 +25,7 @@ plugins:
       handlers:
         crystal:
           crystal_docs_flags:
-            - ./docs/index.cr
-            - ./lib/athena-spec/src/athena-spec.cr
+            - ../../../docs/index.cr
+            - ../../../lib/athena-spec/src/athena-spec.cr
           source_locations:
             lib/athena-spec: https://github.com/athena-framework/spec/blob/v{shard_version}/{file}#L{line}

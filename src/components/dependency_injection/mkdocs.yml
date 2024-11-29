@@ -25,7 +25,7 @@ plugins:
       handlers:
         crystal:
           crystal_docs_flags:
-            - ./docs/index.cr
-            - ./lib/athena-dependency_injection/src/athena-dependency_injection.cr
+            - ../../../docs/index.cr
+            - ../../../lib/athena-dependency_injection/src/athena-dependency_injection.cr
           source_locations:
             lib/athena-dependency_injection: https://github.com/athena-framework/dependency-injection/blob/v{shard_version}/{file}#L{line}
