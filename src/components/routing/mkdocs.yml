@@ -25,7 +25,7 @@ plugins:
       handlers:
         crystal:
           crystal_docs_flags:
-            - ./docs/index.cr
-            - ./lib/athena-routing/src/athena-routing.cr
+            - ../../../docs/index.cr
+            - ../../../lib/athena-routing/src/athena-routing.cr
           source_locations:
             lib/athena-routing: https://github.com/athena-framework/routing/blob/v{shard_version}/{file}#L{line}

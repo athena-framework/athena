@@ -30,6 +30,7 @@ validation:
   absolute_links: ignore
   unrecognized_links: warn
   not_found: warn
+  anchors: warn
 
 extra_css:
   - ../../../css/index.css
