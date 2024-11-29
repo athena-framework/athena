@@ -16,7 +16,7 @@ $(OUTPUT_DIR): $(MKDOCS)
 .PHONY: serve
 serve: ## Run live-preview server
 serve: $(MKDOCS)
-	CRYSTAL_PATH="$$(pwd)/lib:$$(crystal env CRYSTAL_PATH)" $(MKDOCS) serve
+	CRYSTAL_PATH="$$(pwd)/lib:$$(crystal env CRYSTAL_PATH)" $(MKDOCS) serve --open
 
 deps: $(MKDOCS)
 
