@@ -1,3 +1,5 @@
+require "log"
+
 # Provides basic routing functionality to an [HTTP::Server](https://crystal-lang.org/api/HTTP/Server.html).
 #
 # This type works as both a [HTTP::Handler](https://crystal-lang.org/api/HTTP/Handler.html) and
@@ -64,6 +66,8 @@
 class Athena::Routing::RoutingHandler
   include HTTP::Handler
 
+  private LOG = Log.for "athena.routing"
+
   # :nodoc:
   class RouteProvider < ::Athena::Routing::RouteProvider
   end
@@ -113,6 +117,7 @@ class Athena::Routing::RoutingHandler
       @handlers[parameters["_route"]].call context, parameters
     rescue ex : ::Exception
       raise ex if @bubble_exceptions
+      LOG.error(exception: ex) { "Unhandled exception" }
       context.response.respond_with_status(:internal_server_error)
     end
   end
