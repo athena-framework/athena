@@ -37,10 +37,8 @@ jobs:
       - name: Build Docs
         run: make build
       - name: Publish to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: athenaframework
-          directory: site
-          branch: dev
+          command: pages deploy ./site --project-name=athenaframework --branch=dev
