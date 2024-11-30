@@ -83,7 +83,16 @@ class Athena::Framework::Request
   # Returns the list of trusted proxy IP addresses as set via `.set_trusted_proxies`.
   class_getter trusted_proxies : Array(String) = [] of String
 
+  # Returns the list of trusted host patterns.
+  class_getter trusted_host_patterns : Array(Regex) = [] of Regex
+
   protected class_getter trusted_header_overrides : Hash(ATH::Request::ProxyHeader, String) = {} of ATH::Request::ProxyHeader => String
+  protected class_getter trusted_hosts : Array(String) = [] of String
+
+  def self.set_trusted_hosts(host_patterns : Array(Regex)) : Nil
+    @@trusted_host_patterns = host_patterns.map! { |pattern| /#{pattern}/i }
+    @@trusted_hosts.clear
+  end
 
   # Allows setting a list of *trusted_proxies*, and which `ATH::Request::ProxyHeader` should be whitelisted.
   # The provided proxies are expected to be either IPv4 and/or IPv6 addresses.
@@ -210,7 +219,21 @@ class Athena::Framework::Request
       raise ATH::Exception::SuspiciousOperation.new "Invalid Host: '#{host}'."
     end
 
-    # TODO: Trusted hosts
+    unless @@trusted_host_patterns.empty?
+      return host if @@trusted_hosts.includes? host
+
+      @@trusted_host_patterns.each do |pattern|
+        if host.matches? pattern
+          @@trusted_hosts << host
+          return host
+        end
+      end
+
+      return unless @is_host_valid
+      @is_host_valid = false
+
+      raise ATH::Exception::SuspiciousOperation.new "Untrusted Host: '#{host}'."
+    end
 
     host
   end

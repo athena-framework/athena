@@ -29,6 +29,8 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
     # See the [external documentation](/guides/proxies) for more information.
     property trusted_headers : Athena::Framework::Request::ProxyHeader = Athena::Framework::Request::ProxyHeader[:forwarded_for, :forwarded_port, :forwarded_proto]
 
+    property trusted_hosts : Array(Regex) = [] of Regex
+
     # Allows overriding the header name to use for a given `ATH::Request::ProxyHeader`.
     #
     # See the [external documentation](/guides/proxies/#custom-headers) for more information.

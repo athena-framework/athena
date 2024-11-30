@@ -2,6 +2,7 @@ require "./spec_helper"
 
 struct ATH::RequestTest < ASPEC::TestCase
   def tear_down : Nil
+    ATH::Request.set_trusted_hosts [] of Regex
     ATH::Request.set_trusted_proxies [] of String, :none
     ATH::Request.trusted_header_overrides.clear
   end
@@ -20,9 +21,6 @@ struct ATH::RequestTest < ASPEC::TestCase
     request = ATH::Request.new "GET", "/", HTTP::Headers{"host" => "[::1]:8080"}
     request.hostname.should eq "::1"
   end
-
-  # def test_hostname_trusted : Nil
-  # end
 
   @[DataProvider("mime_type_provider")]
   def test_mime_type(format : String, mime_types : Indexable(String)) : Nil
@@ -445,5 +443,55 @@ struct ATH::RequestTest < ASPEC::TestCase
     ATH::Request.override_trusted_header :forwarded_proto, "foo-proto"
 
     ATH::Request::ProxyHeader::FORWARDED_PROTO.header.should eq "foo-proto"
+  end
+
+  def test_truested_host_not_set : Nil
+    request = ATH::Request.new "GET", "/", headers: HTTP::Headers{
+      "host" => "evil.com",
+    }
+
+    request.host.should eq "evil.com"
+  end
+
+  def test_truested_host_untrusted : Nil
+    # Add trusted domain, including subdomains
+    ATH::Request.set_trusted_hosts([/^([a-z]{9}\.)?trusted\.com$/])
+
+    request = ATH::Request.new "GET", "/", headers: HTTP::Headers{
+      "host" => "evil.com",
+    }
+
+    # Untrusted host
+    expect_raises ATH::Exception::SuspiciousOperation, "Untrusted Host: 'evil.com'" do
+      request.host
+    end
+  end
+
+  def test_truested_host_trusted : Nil
+    # Add trusted domain, including subdomains
+    ATH::Request.set_trusted_hosts([/^([a-z]{9}\.)?trusted\.com$/])
+
+    request = ATH::Request.new "GET", "/"
+
+    # Trusted host
+    request.headers["host"] = "trusted.com"
+    request.host.should eq "trusted.com"
+    request.port.should eq 80
+
+    request.headers["host"] = "trusted.com:8080"
+    request.host.should eq "trusted.com"
+    request.port.should eq 8080
+
+    request.headers["host"] = "subdomain.trusted.com:8080"
+    request.host.should eq "subdomain.trusted.com"
+  end
+
+  def test_truested_host_special_characters : Nil
+    ATH::Request.set_trusted_hosts([/localhost(\.local){0,1}#,example.com/, /localhost/])
+
+    request = ATH::Request.new "GET", "/"
+
+    request.headers["host"] = "localhost"
+    request.host.should eq "localhost"
   end
 end

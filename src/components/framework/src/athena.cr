@@ -217,6 +217,10 @@ module Athena::Framework
 
     def start : Nil
       # TODO: Is there a better place to do this?
+      {% if (trusted_hosts = ADI::CONFIG["framework"]["trusted_hosts"]) && !trusted_hosts.empty? %}
+        ATH::Request.set_trusted_hosts({{trusted_hosts}})
+      {% end %}
+
       {% if (trusted_proxies = ADI::CONFIG["framework"]["trusted_proxies"]) && (trusted_headers = ADI::CONFIG["framework"]["trusted_headers"]) %}
         ATH::Request.set_trusted_proxies({{trusted_proxies}}, {{trusted_headers}})
       {% end %}
