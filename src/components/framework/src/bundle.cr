@@ -29,6 +29,13 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
     # See the [external documentation](/guides/proxies) for more information.
     property trusted_headers : Athena::Framework::Request::ProxyHeader = Athena::Framework::Request::ProxyHeader[:forwarded_for, :forwarded_port, :forwarded_proto]
 
+    # By default the application can handle requests from any host.
+    # This property allows configuring regular expression patterns to control what hostnames the application is allowed to serve.
+    # This effectively prevents [host header attacks](https://www.skeletonscribe.net/2013/05/practical-http-host-header-attacks.html).
+    #
+    # If there is at least one pattern defined, requests whose hostname does _NOT_ match any of the patterns, will receive a 400 response.
+    property trusted_hosts : Array(Regex) = [] of Regex
+
     # Allows overriding the header name to use for a given `ATH::Request::ProxyHeader`.
     #
     # See the [external documentation](/guides/proxies/#custom-headers) for more information.
