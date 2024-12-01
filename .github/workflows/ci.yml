@@ -84,7 +84,7 @@ jobs:
       - name: Compiled Specs
         run: ./scripts/test.sh all compiled
         shell: bash
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         if: matrix.crystal == 'nightly' && github.event_name != 'schedule' # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -146,7 +146,7 @@ jobs:
       - name: Specs
         run: ./scripts/test.sh all unit
         shell: bash
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'nightly' && github.event_name != 'schedule' # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
