@@ -25,15 +25,18 @@ class Athena::Framework::Controller::Redirect
                permanent ? HTTP::Status::MOVED_PERMANENTLY : HTTP::Status::FOUND
              end
 
+    scheme ||= request.scheme
+
+    if path.starts_with? "//"
+      path = "#{scheme}:#{path}"
+    end
+
     uri = URI.parse path
 
     # If the path has a scheme, assume it is a full URI
     if uri.scheme.presence
       return ATH::RedirectResponse.new path, status
     end
-
-    # TODO: Get the scheme off of the request
-    uri.scheme = scheme
 
     # If the request has query params of its own, be sure to retain both sets of params.
     if request.query.presence
@@ -43,21 +46,28 @@ class Athena::Framework::Controller::Redirect
 
     if "http" == scheme
       if http_port.nil?
-        # TODO: Get the port off the request once we know scheme
-        http_port = @http_port
+        http_port = if "http" == request.scheme
+                      request.port
+                    else
+                      @http_port
+                    end
       end
 
-      uri.port = http_port
+      uri.port = http_port if http_port && 80 != http_port
     elsif "https" == scheme
       if https_port.nil?
-        # TODO: Get the port off the request once we know scheme
-        https_port = @https_port
+        https_port = if "https" == request.scheme
+                       request.port
+                     else
+                       @https_port
+                     end
       end
 
-      uri.port = https_port
+      uri.port = https_port if https_port && 443 != https_port
     end
 
     uri.host = request.host
+    uri.scheme = scheme
 
     ATH::RedirectResponse.new uri.normalize!.to_s, status
   end
