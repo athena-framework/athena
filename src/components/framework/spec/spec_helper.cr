@@ -23,6 +23,11 @@ end
 
 ASPEC.run_all
 
+# TODO: Is there a better way to handle customizing the scheme of a request w/o monkey patching it?
+class ATH::Request
+  property scheme : String = "http"
+end
+
 class TestController < ATH::Controller
   get "test" do
     "TEST"

@@ -219,27 +219,27 @@ struct RoutingTest < ATH::Spec::APITestCase
   end
 
   def test_redirects_get_request_to_route_without_trailing_slash : Nil
-    self.get "/macro/get-nil/"
+    self.get "/macro/get-nil/", headers: HTTP::Headers{"host" => "localhost"}
 
-    self.assert_response_redirects "/macro/get-nil"
+    self.assert_response_redirects "http://localhost/macro/get-nil"
   end
 
   def test_redirects_head_request_to_route_without_trailing_slash : Nil
-    self.head "/head/"
+    self.head "/head/", headers: HTTP::Headers{"host" => "localhost"}
 
-    self.assert_response_redirects "/head"
+    self.assert_response_redirects "http://localhost/head"
   end
 
   def test_redirects_get_request_to_route_with_trailing_slash : Nil
-    self.get "/head-get"
+    self.get "/head-get", headers: HTTP::Headers{"host" => "localhost"}
 
-    self.assert_response_redirects "/head-get/"
+    self.assert_response_redirects "http://localhost/head-get/"
   end
 
   def test_redirects_head_request_to_route_with_trailing_slash : Nil
-    self.head "/head-get"
+    self.head "/head-get", headers: HTTP::Headers{"host" => "localhost"}
 
-    self.assert_response_redirects "/head-get/"
+    self.assert_response_redirects "http://localhost/head-get/"
   end
 
   def test_does_not_redirect_post_requests : Nil
