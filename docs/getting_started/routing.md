@@ -88,7 +88,6 @@ end
 ATH.run
 
 # GET /add/2/3    # => 5
-# GET /add/5/5    # => -10
 # GET /add/foo/12 # => {"code":400,"message":"Required parameter 'value1' with value 'foo' could not be converted into a valid 'Int32'"}
 ```
 
@@ -112,7 +111,7 @@ ATH.run
 
 # GET /          # => {"code":404,"message":"Missing query parameter: 'page'."}
 # GET /?page=10  # => 10
-# GET /?page=bar # => {"code":400,"message":"Invalid query parameter: 'page'."}
+# GET /?page=bar # => {"code":404,"message":"Invalid query parameter: 'page'."}
 ```
 
 This works well enough for one-off parameters.
