@@ -120,7 +120,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     form_object = form_object.should_not be_nil
 
     json_object = resolver.resolve json_request, self.get_config(MockJSONAndURISerializableEntity)
-    json_object = form_object.should_not be_nil
+    json_object = json_object.should_not be_nil
 
     form_object.id.should eq 10
     form_object.name.should eq "Fred"

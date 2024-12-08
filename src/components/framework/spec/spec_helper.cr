@@ -100,7 +100,7 @@ def new_request(
   action : ATH::ActionBase = new_action,
   body : String | IO | Nil = nil,
   query : String? = nil,
-  format : String = "json"
+  format : String = "json",
 ) : ATH::Request
   request = ATH::Request.new method, path, body: body
   request.attributes.set "_controller", "TestController#test", String

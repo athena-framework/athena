@@ -3,8 +3,14 @@ require "uri/params/serializable"
 @[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 105}])]
 # Attempts to resolve the value of any parameter with the `ATHA::MapRequestBody` annotation by
 # deserializing the request body into an object of the type of the related parameter.
-# Also handles running any validations defined on it, if it is `AVD::Validatable`.
-# Requires the type of the related parameter to include either `ASR::Serializable` or `JSON::Serializable`.
+# The `ATHA::MapQueryString` annotation works similarly, but uses the request's query string instead of its body.
+#
+# If the object is also [AVD::Validatable](/Validator/Validatable), any validations defined on it are executed before returning the object.
+# Requires the type of the related parameter to include one or more of:
+#
+# * `ASR::Serializable`
+# * `JSON::Serializable`
+# * `URI::Params::Serializable`
 #
 # ```
 # require "athena"
@@ -56,6 +62,8 @@ require "uri/params/serializable"
 # }
 # ```
 #
+# TIP: This resolver also supports `application/x-www-form-urlencoded` payloads.
+#
 # Would return the response:
 #
 # ```json
@@ -89,10 +97,12 @@ require "uri/params/serializable"
 struct Athena::Framework::Controller::ValueResolvers::RequestBody
   include Athena::Framework::Controller::ValueResolvers::Interface::Typed(Athena::Serializer::Serializable, JSON::Serializable, URI::Params::Serializable)
 
-  # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to.
+  # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on the request's body.
   # See the related resolver documentation for more information.
   configuration ::Athena::Framework::Annotations::MapRequestBody
 
+  # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on the request's query string.
+  # See the related resolver documentation for more information.
   configuration ::Athena::Framework::Annotations::MapQueryString
 
   def initialize(
@@ -102,9 +112,6 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
 
   # :inherit:
   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata)
-    # Eventually, when the Security component comes around, we'll need to come up with some alternative to this current approach
-    # so that we can assure users have access to an endpoint before resolving its parameters.
-
     object = if parameter.annotation_configurations.has?(ATHA::MapQueryString)
                self.map_query_string request, parameter
              elsif parameter.annotation_configurations.has?(ATHA::MapRequestBody)

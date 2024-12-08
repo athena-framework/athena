@@ -22,6 +22,16 @@ struct ATH::RequestTest < ASPEC::TestCase
     request.hostname.should eq "::1"
   end
 
+  def test_content_type_format_present : Nil
+    ATH::Request.new("GET", "/", headers: HTTP::Headers{
+      "content-type" => "application/json",
+    }).content_type_format.should eq "json"
+  end
+
+  def test_content_type_format_missing : Nil
+    ATH::Request.new("GET", "/").content_type_format.should be_nil
+  end
+
   @[DataProvider("mime_type_provider")]
   def test_mime_type(format : String, mime_types : Indexable(String)) : Nil
     request = ATH::Request.new "GET", "/"
