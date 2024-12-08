@@ -1,7 +1,7 @@
 # The core of any framework is routing; how a route is tied to an action.
 # Athena takes an annotation based approach; an annotation, such as `ARTA::Get` is applied to an instance method of a controller class, which will be executed when that endpoint receives a request.
 #
-# Additional annotation also exist for defining a query parameter. See `ATHA::QueryParam` for more information.
+# Additional annotations also exist for defining [query parameters](/getting_started/routing/#query-parameters).
 #
 # Child controllers must inherit from `ATH::Controller` (or an abstract child of it). Each request gets its own instance of the controller to better allow for DI via `Athena::DependencyInjection`.
 #
@@ -38,7 +38,7 @@
 #     end
 #   end
 #
-#   # A GET endpoint with no params returning a `String`.
+#   # A GET endpoint with no parameters returning a `String`.
 #   #
 #   # Action return type restrictions are required.
 #   @[ARTA::Get("/me")]
@@ -46,7 +46,7 @@
 #     "Jim"
 #   end
 #
-#   # A GET endpoint with no params returning `Nil`.
+#   # A GET endpoint with no parameters returning `Nil`.
 #   # `Nil` return types are returned with a status
 #   # of 204 no content
 #   @[ARTA::Get("/no_content")]
@@ -54,7 +54,7 @@
 #     # Do stuff
 #   end
 #
-#   # A GET endpoint with two `Int32` params returning an `Int32`.
+#   # A GET endpoint with two `Int32` parameters returning an `Int32`.
 #   #
 #   # The parameters of a route _MUST_ match the parameters of the action.
 #   # Type restrictions on action parameters are required.
@@ -63,8 +63,8 @@
 #     val1 + val2
 #   end
 #
-#   # A GET endpoint with a required trailing slash, a `String` route param,
-#   # and a required string query param that must match the given pattern; returning a `String`.
+#   # A GET endpoint with a required trailing slash, a `String` route parameter,
+#   # and a required string query parameter; returning a `String`.
 #   #
 #   # Athena treats non `GET`/`HEAD` routes with a trailing slash as unique
 #   # E.g. `POST /foo/bar/` versus `POST /foo/bar`.
@@ -73,20 +73,18 @@
 #   # A non-nilable type denotes it as required. If the parameter is not supplied,
 #   # and no default value is assigned, an `ATH::Exception::BadRequest` exception is raised.
 #   @[ARTA::Get("/event/{event_name}/")]
-#   @[ATHA::QueryParam("time", requirements: /\d:\d:\d/)]
-#   def event_time(event_name : String, time : String) : String
+#   def event_time(event_name : String, @[ATHA::MapQueryParameter] time : String) : String
 #     "#{event_name} occurred at #{time}"
 #   end
 #
-#   # A GET endpoint with an optional query parameter and optional path param
+#   # A GET endpoint with an optional query parameter and optional path parameter
 #   # with a default value; returning a `NamedTuple(user_id : Int32?, page : Int32)`.
 #   #
 #   # A nilable type denotes it as optional.
 #   # If the parameter is not supplied (or could not be converted),
 #   # and no default value is assigned, it is `nil`.
-#   @[ATHA::QueryParam("user_id")]
 #   @[ARTA::Get("/events/{page}")]
-#   def events(user_id : Int32?, page : Int32 = 1) : NamedTuple(user_id: Int32?, page: Int32)
+#   def events(@[ATHA::MapQueryParameter] user_id : Int32?, page : Int32 = 1) : NamedTuple(user_id: Int32?, page: Int32)
 #     {user_id: user_id, page: page}
 #   end
 #
@@ -100,9 +98,9 @@
 #     time
 #   end
 #
-#   # A POST endpoint with a route param and accessing the request body; returning a `Bool`.
+#   # A POST endpoint with a route parameter and accessing the request body; returning a `Bool`.
 #   #
-#   # It is recommended to use param converters to pass an actual object representing the data (assuming the body is JSON)
+#   # It is recommended to use `ATHR::RequestBody` to allow passing an actual object representing the data
 #   # to the route's action; however the raw request body can be accessed by typing an action argument as `ATH::Request`.
 #   @[ARTA::Post("/test/{expected}")]
 #   def post_body(expected : String, request : ATH::Request) : Bool
