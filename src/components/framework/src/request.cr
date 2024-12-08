@@ -181,6 +181,10 @@ class Athena::Framework::Request
     self.class.mime_types(format).first?
   end
 
+  def content_type_format : String?
+    self.format @request.headers.fetch "content-type", ""
+  end
+
   # Returns the format for the provided *mime_type*.
   #
   # ```

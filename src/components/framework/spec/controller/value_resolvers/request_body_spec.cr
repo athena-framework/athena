@@ -13,6 +13,15 @@ private record MockValidatableASRSerializableEntity, id : Int32, name : String d
   include AVD::Validatable
 end
 
+private record MockURISerializableEntity, id : Int32, name : String do
+  include URI::Params::Serializable
+end
+
+private record MockJSONAndURISerializableEntity, id : Int32, name : String do
+  include JSON::Serializable
+  include URI::Params::Serializable
+end
+
 struct RequestBodyResolverTest < ASPEC::TestCase
   @target : ATHR::RequestBody
 
@@ -84,6 +93,40 @@ struct RequestBodyResolverTest < ASPEC::TestCase
 
     object.id.should eq 10
     object.name.should eq "Fred"
+  end
+
+  def test_it_supports_uri_params_serializable : Nil
+    serializer = DeserializableMockSerializer(MockURISerializableEntity).new
+    serializer.deserialized_response = MockURISerializableEntity.new 10, "Fred"
+
+    request = new_request body: "id=10&name=Fred", format: "form"
+
+    object = ATHR::RequestBody.new(serializer, @validator).resolve request, self.get_config(MockURISerializableEntity)
+    object = object.should_not be_nil
+
+    object.id.should eq 10
+    object.name.should eq "Fred"
+  end
+
+  def test_it_supports_multiple_serializable : Nil
+    serializer = DeserializableMockSerializer(MockJSONAndURISerializableEntity).new
+    serializer.deserialized_response = MockJSONAndURISerializableEntity.new 10, "Fred"
+
+    form_request = new_request body: "id=10&name=Fred", format: "form"
+    json_request = new_request body: %({"id":10,"name":"Fred"})
+
+    resolver = ATHR::RequestBody.new serializer, @validator
+    form_object = resolver.resolve form_request, self.get_config(MockJSONAndURISerializableEntity)
+    form_object = form_object.should_not be_nil
+
+    json_object = resolver.resolve json_request, self.get_config(MockJSONAndURISerializableEntity)
+    json_object = form_object.should_not be_nil
+
+    form_object.id.should eq 10
+    form_object.name.should eq "Fred"
+
+    json_object.id.should eq 10
+    json_object.name.should eq "Fred"
   end
 
   def test_it_supports_avd_validatable : Nil

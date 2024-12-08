@@ -379,7 +379,7 @@ describe Athena::Framework do
 
     describe ATHR::RequestBody do
       it "when the action parameter is not serializable" do
-        assert_error " The annotation '@[ATHA::MapRequestBody]' cannot be applied to 'CompileController#action:foo : Foo' since the 'Athena::Framework::Controller::ValueResolvers::RequestBody' resolver only supports parameters of type 'Athena::Serializer::Serializable | JSON::Serializable'.", <<-CODE
+        assert_error " The annotation '@[ATHA::MapRequestBody]' cannot be applied to 'CompileController#action:foo : Foo' since the 'Athena::Framework::Controller::ValueResolvers::RequestBody' resolver only supports parameters of type 'Athena::Serializer::Serializable | JSON::Serializable | URI::Params::Serializable'.", <<-CODE
           record Foo, text : String
 
           class CompileController < ATH::Controller
