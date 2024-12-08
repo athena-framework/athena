@@ -13,6 +13,15 @@ private record MockValidatableASRSerializableEntity, id : Int32, name : String d
   include AVD::Validatable
 end
 
+private record MockURISerializableEntity, id : Int32, name : String do
+  include URI::Params::Serializable
+end
+
+private record MockJSONAndURISerializableEntity, id : Int32, name : String do
+  include JSON::Serializable
+  include URI::Params::Serializable
+end
+
 struct RequestBodyResolverTest < ASPEC::TestCase
   @target : ATHR::RequestBody
 
@@ -45,6 +54,18 @@ struct RequestBodyResolverTest < ASPEC::TestCase
   def test_raises_on_invalid_json : Nil
     expect_raises ATH::Exception::BadRequest, "Malformed JSON payload." do
       @target.resolve new_request(body: "<abc123>"), self.get_config(MockJSONSerializableEntity)
+    end
+  end
+
+  def test_raises_on_missing_www_form_data : Nil
+    expect_raises ATH::Exception::BadRequest, "Malformed www form data payload." do
+      @target.resolve new_request(body: "id=10", format: "form"), self.get_config(MockURISerializableEntity)
+    end
+  end
+
+  def test_raises_on_missing_query_string_data : Nil
+    expect_raises ATH::Exception::BadRequest, "Malformed query string." do
+      @target.resolve new_request(query: "id=10"), self.get_config(MockURISerializableEntity, ATHA::MapQueryString, ATHA::MapQueryStringConfiguration.new)
     end
   end
 
@@ -86,6 +107,63 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     object.name.should eq "Fred"
   end
 
+  def test_it_supports_uri_params_serializable : Nil
+    serializer = DeserializableMockSerializer(MockURISerializableEntity).new
+    serializer.deserialized_response = MockURISerializableEntity.new 10, "Fred"
+
+    request = new_request body: "id=10&name=Fred", format: "form"
+
+    object = ATHR::RequestBody.new(serializer, @validator).resolve request, self.get_config(MockURISerializableEntity)
+    object = object.should_not be_nil
+
+    object.id.should eq 10
+    object.name.should eq "Fred"
+  end
+
+  def test_it_supports_query_string_serializable : Nil
+    serializer = DeserializableMockSerializer(MockURISerializableEntity).new
+    serializer.deserialized_response = MockURISerializableEntity.new 10, "Fred"
+
+    request = new_request query: "id=10&name=Fred"
+
+    object = ATHR::RequestBody.new(serializer, @validator).resolve request, self.get_config(MockURISerializableEntity, ATHA::MapQueryString, ATHA::MapQueryStringConfiguration.new)
+    object = object.should_not be_nil
+
+    object.id.should eq 10
+    object.name.should eq "Fred"
+  end
+
+  def test_it_supports_query_string_serializable_no_query_string : Nil
+    serializer = DeserializableMockSerializer(MockURISerializableEntity).new
+    serializer.deserialized_response = MockURISerializableEntity.new 10, "Fred"
+
+    ATHR::RequestBody
+      .new(serializer, @validator)
+      .resolve(new_request, self.get_config(MockURISerializableEntity, ATHA::MapQueryString, ATHA::MapQueryStringConfiguration.new))
+      .should be_nil
+  end
+
+  def test_it_supports_multiple_serializable : Nil
+    serializer = DeserializableMockSerializer(MockJSONAndURISerializableEntity).new
+    serializer.deserialized_response = MockJSONAndURISerializableEntity.new 10, "Fred"
+
+    form_request = new_request body: "id=10&name=Fred", format: "form"
+    json_request = new_request body: %({"id":10,"name":"Fred"})
+
+    resolver = ATHR::RequestBody.new serializer, @validator
+    form_object = resolver.resolve form_request, self.get_config(MockJSONAndURISerializableEntity)
+    form_object = form_object.should_not be_nil
+
+    json_object = resolver.resolve json_request, self.get_config(MockJSONAndURISerializableEntity)
+    json_object = json_object.should_not be_nil
+
+    form_object.id.should eq 10
+    form_object.name.should eq "Fred"
+
+    json_object.id.should eq 10
+    json_object.name.should eq "Fred"
+  end
+
   def test_it_supports_avd_validatable : Nil
     serializer = DeserializableMockSerializer(MockValidatableASRSerializableEntity).new
     serializer.deserialized_response = MockValidatableASRSerializableEntity.new 10, "Fred"
@@ -99,12 +177,12 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     object.name.should eq "Fred"
   end
 
-  private def get_config(type : T.class) forall T
+  private def get_config(type : T.class, ann = ATHA::MapRequestBody, configuration = ATHA::MapRequestBodyConfiguration.new) forall T
     ATH::Controller::ParameterMetadata(T).new(
       "foo",
       annotation_configurations: ADI::AnnotationConfigurations.new({
-        ATHA::MapRequestBody => [
-          ATHA::MapRequestBodyConfiguration.new,
+        ann => [
+          configuration,
         ] of ADI::AnnotationConfigurations::ConfigurationBase,
       } of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase))
     )

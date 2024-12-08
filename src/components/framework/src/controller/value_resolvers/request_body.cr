@@ -1,8 +1,16 @@
+require "uri/params/serializable"
+
 @[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 105}])]
 # Attempts to resolve the value of any parameter with the `ATHA::MapRequestBody` annotation by
 # deserializing the request body into an object of the type of the related parameter.
-# Also handles running any validations defined on it, if it is `AVD::Validatable`.
-# Requires the type of the related parameter to include either `ASR::Serializable` or `JSON::Serializable`.
+# The `ATHA::MapQueryString` annotation works similarly, but uses the request's query string instead of its body.
+#
+# If the object is also [AVD::Validatable](/Validator/Validatable), any validations defined on it are executed before returning the object.
+# Requires the type of the related parameter to include one or more of:
+#
+# * `ASR::Serializable`
+# * `JSON::Serializable`
+# * `URI::Params::Serializable`
 #
 # ```
 # require "athena"
@@ -54,6 +62,8 @@
 # }
 # ```
 #
+# TIP: This resolver also supports `application/x-www-form-urlencoded` payloads.
+#
 # Would return the response:
 #
 # ```json
@@ -85,11 +95,15 @@
 # }
 # ```
 struct Athena::Framework::Controller::ValueResolvers::RequestBody
-  include Athena::Framework::Controller::ValueResolvers::Interface::Typed(Athena::Serializer::Serializable, JSON::Serializable)
+  include Athena::Framework::Controller::ValueResolvers::Interface::Typed(Athena::Serializer::Serializable, JSON::Serializable, URI::Params::Serializable)
 
-  # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to.
+  # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on the request's body.
   # See the related resolver documentation for more information.
   configuration ::Athena::Framework::Annotations::MapRequestBody
+
+  # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on the request's query string.
+  # See the related resolver documentation for more information.
+  configuration ::Athena::Framework::Annotations::MapQueryString
 
   def initialize(
     @serializer : ASR::SerializerInterface,
@@ -98,19 +112,13 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
 
   # :inherit:
   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata)
-    return unless parameter.annotation_configurations.has? ATHA::MapRequestBody
-
-    if !(body = request.body) || body.peek.try &.empty?
-      raise ATH::Exception::BadRequest.new "Request does not have a body."
-    end
-
-    begin
-      unless object = self.map_request_body body, parameter.type
-        return
-      end
-    rescue ex : JSON::ParseException | ASR::Exception::DeserializationException
-      raise ATH::Exception::BadRequest.new "Malformed JSON payload.", cause: ex
-    end
+    object = if parameter.annotation_configurations.has?(ATHA::MapQueryString)
+               self.map_query_string request, parameter
+             elsif parameter.annotation_configurations.has?(ATHA::MapRequestBody)
+               self.map_request_body request, parameter
+             else
+               return
+             end
 
     if object.is_a? AVD::Validatable
       errors = @validator.validate object
@@ -120,14 +128,54 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
     object
   end
 
-  private def map_request_body(body : IO, klass : ASR::Serializable.class)
+  private def map_query_string(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata)
+    return unless query = request.query
+    return if query.nil? && (parameter.nilable? || parameter.has_default?)
+
+    self.deserialize_form query, parameter.type
+  rescue ex : URI::SerializableError
+    raise ATH::Exception::BadRequest.new "Malformed query string.", cause: ex
+  end
+
+  private def map_request_body(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata)
+    if !(body = request.body) || body.peek.try &.empty?
+      raise ATH::Exception::BadRequest.new "Request does not have a body."
+    end
+
+    # We have to use separate deserialization methods with the case such that a type that includes multiple modules is handled as expected.
+    case request.content_type_format
+    when "form"
+      self.deserialize_form body, parameter.type
+    when "json"
+      self.deserialize_json body, parameter.type
+    else
+      raise ATH::Exception::UnsupportedMediaType.new "Unsupported format."
+    end
+  rescue ex : JSON::ParseException | ASR::Exception::DeserializationException
+    raise ATH::Exception::BadRequest.new "Malformed JSON payload.", cause: ex
+  rescue ex : URI::SerializableError
+    raise ATH::Exception::BadRequest.new "Malformed www form data payload.", cause: ex
+  end
+
+  private def deserialize_json(body : IO, klass : ASR::Serializable.class)
     @serializer.deserialize klass, body, :json
   end
 
-  private def map_request_body(body : IO, klass : JSON::Serializable.class)
+  private def deserialize_json(body : IO, klass : JSON::Serializable.class)
     klass.from_json body
   end
 
-  private def map_request_body(body : IO, klass : _) : Nil
+  private def deserialize_json(body : IO, klass : _) : Nil
+  end
+
+  private def deserialize_form(body : IO, klass : URI::Params::Serializable.class)
+    klass.from_www_form body.gets_to_end
+  end
+
+  private def deserialize_form(body : String, klass : URI::Params::Serializable.class)
+    klass.from_www_form body
+  end
+
+  private def deserialize_form(body : IO | String, klass : _)
   end
 end

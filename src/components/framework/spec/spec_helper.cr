@@ -100,12 +100,16 @@ def new_request(
   action : ATH::ActionBase = new_action,
   body : String | IO | Nil = nil,
   query : String? = nil,
+  format : String = "json",
 ) : ATH::Request
   request = ATH::Request.new method, path, body: body
   request.attributes.set "_controller", "TestController#test", String
   request.attributes.set "_route", "test_controller_test", String
   request.action = action
   request.query = query
+  request.headers = HTTP::Headers{
+    "content-type" => ATH::Request::FORMATS[format].first,
+  }
   request
 end
 
