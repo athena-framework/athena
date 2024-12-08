@@ -80,44 +80,44 @@ require "athena"
 
 class ExampleController < ATH::Controller
   @[ARTA::Get("/add/{value1}/{value2}")]
-  @[ATHA::QueryParam("negative")]
-  def add(value1 : Int32, value2 : Int32, negative : Bool = false) : Int32
-    sum = value1 + value2
-    negative ? -sum : sum
+  def add(value1 : Int32, value2 : Int32) : Int32
+    value1 + value2
   end
 end
 
 ATH.run
 
-# GET /add/2/3               # => 5
-# GET /add/5/5?negative=true # => -10
-# GET /add/foo/12            # => {"code":400,"message":"Required parameter 'value1' with value 'foo' could not be converted into a valid 'Int32'"}
+# GET /add/2/3    # => 5
+# GET /add/5/5    # => -10
+# GET /add/foo/12 # => {"code":400,"message":"Required parameter 'value1' with value 'foo' could not be converted into a valid 'Int32'"}
 ```
 
 TIP: For more complex conversions, consider creating a [Value Resolver](/Framework/Controller/ValueResolvers/Interface) to encapsulate the logic.
 
-#### Query Params
+#### Query Parameters
 
-[ATHA::QueryParam](/Framework/Annotations/QueryParam) and [ATHA::RequestParam](/Framework/Annotations/RequestParam)s are defined via annotations and map directly to the method's arguments.
+[ATHA::MapQueryParameter](/Framework/Annotations/MapQueryParameter) can be used to map a query parameter directly to a controller action parameter.
 
 ```crystal
 require "athena"
 
 class ExampleController < ATH::Controller
   @[ARTA::Get("/")]
-  @[ATHA::QueryParam("page", requirements: /\d{2}/)]
-  def index(page : Int32) : Int32
+  def index(@[ATHA::MapQueryParameter] page : Int32) : Int32
     page
   end
 end
 
 ATH.run
 
-# GET /          # => {"code":422,"message":"Parameter 'page' of value '' violated a constraint: 'This value should not be null.'\n"}
+# GET /          # => {"code":404,"message":"Missing query parameter: 'page'."}
 # GET /?page=10  # => 10
-# GET /?page=bar # => {"code":400,"message":"Required parameter 'page' with value 'bar' could not be converted into a valid 'Int32'."}
-# GET /?page=5   # => {"code":422,"message":"Parameter 'page' of value '5' violated a constraint: 'Parameter 'page' value does not match requirements: (?-imsx:^(?-imsx:\\d{2})$)'\n"}
+# GET /?page=bar # => {"code":400,"message":"Invalid query parameter: 'page'."}
 ```
+
+This works well enough for one-off parameters.
+However [ATHA::MapQueryString](/Framework/Annotations/MapQueryString) can be used to the request's query string into a DTO type, much like how `JSON::Serializable` works for example.
+In addition to making it easier to reuse, it also allows for enhanced validation of the query parameters via the [`Athena::Validator`](/Validator/#validating-objects) component.
 
 ### Raw Request
 
@@ -143,7 +143,6 @@ ATH.run
 
 # POST /data body: {"id":1,"name":"Jim"} # => Jim
 ```
-
 
 ### Streaming Response
 

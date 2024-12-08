@@ -118,11 +118,6 @@ module Athena::Framework
   # See each listener and the [Getting Started](/getting_started/middleware) docs for more information.
   module Listeners; end
 
-  # Namespace for types related to request parameter processing.
-  #
-  # See `ATHA::QueryParam` and `ATHA::RequestParam`.
-  module Params; end
-
   # :nodoc:
   module CompilerPasses; end
 

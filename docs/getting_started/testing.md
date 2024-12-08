@@ -47,9 +47,8 @@ require "athena"
 require "athena/spec"
 
 class ExampleController < ATH::Controller
-  @[ATHA::QueryParam("negative")]
   @[ARTA::Get("/add/{value1}/{value2}")]
-  def add(value1 : Int32, value2 : Int32, negative : Bool = false) : Int32
+  def add(value1 : Int32, value2 : Int32, @[ATHA::MapQueryParameter] negative : Bool = false) : Int32
     sum = value1 + value2
     negative ? -sum : sum
   end
