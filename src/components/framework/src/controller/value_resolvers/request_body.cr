@@ -134,7 +134,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
 
     self.deserialize_form query, parameter.type
   rescue ex : URI::SerializableError
-    raise ATH::Exception::BadRequest.new "Malformed www form data payload.", cause: ex
+    raise ATH::Exception::BadRequest.new "Malformed query string.", cause: ex
   end
 
   private def map_request_body(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata)

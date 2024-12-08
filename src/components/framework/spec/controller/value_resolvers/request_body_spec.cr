@@ -63,6 +63,12 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     end
   end
 
+  def test_raises_on_missing_query_string_data : Nil
+    expect_raises ATH::Exception::BadRequest, "Malformed query string." do
+      @target.resolve new_request(query: "id=10"), self.get_config(MockURISerializableEntity, ATHA::MapQueryString, ATHA::MapQueryStringConfiguration.new)
+    end
+  end
+
   def test_it_raises_on_constraint_violations : Nil
     serializer = DeserializableMockSerializer(MockValidatableASRSerializableEntity).new
     serializer.deserialized_response = MockValidatableASRSerializableEntity.new 10, ""
