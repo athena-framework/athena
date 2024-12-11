@@ -40,7 +40,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
           }
 
           if controller_ann = klass.annotation ARTA::Route
-            if (ann_path = controller_ann[:path]) && ann_path.is_a? HashLiteral
+            if (ann_path = (controller_ann[:path] || controller_ann[0])) && ann_path.is_a? HashLiteral
               globals[:localized_paths] = ann_path
             elsif ann_path != nil
               ann_path = ann_path.resolve if ann_path.is_a?(Path)

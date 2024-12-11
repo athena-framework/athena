@@ -92,6 +92,21 @@ class PrefixedController < ATH::Controller
   def slash_param(id : String) : Nil; end
 end
 
+@[ARTA::Route("pos-prefix")]
+class PositionalPrefixedController < ATH::Controller
+  @[ARTA::Post("")]
+  def empty : Nil; end
+
+  @[ARTA::Post("/")]
+  def slash : Nil; end
+
+  @[ARTA::Get("{id}")]
+  def empty_param(id : String) : Nil; end
+
+  @[ARTA::Get("/{id}")]
+  def slash_param(id : String) : Nil; end
+end
+
 @[ARTA::Route(
   schemes: ["BAR", "foo", "baz"],
   methods: ["foo", "baz", "bar"],
@@ -502,6 +517,46 @@ describe ATH::Routing::AnnotationRouteLoader do
           route,
           name: "prefixed_controller_slash_param",
           path: "/prefix/{id}",
+        )
+      end
+
+      it "normalizes positional prefixed route paths" do
+        routes = ATH::Routing::AnnotationRouteLoader.populate_collection(PositionalPrefixedController).routes.to_a
+
+        routes.size.should eq 4
+
+        route = routes[0]
+
+        assert_route(
+          route,
+          name: "positional_prefixed_controller_empty",
+          path: "/pos-prefix",
+          methods: Set{"POST"}
+        )
+
+        route = routes[1]
+
+        assert_route(
+          route,
+          name: "positional_prefixed_controller_slash",
+          path: "/pos-prefix/",
+          methods: Set{"POST"}
+        )
+
+        route = routes[2]
+
+        assert_route(
+          route,
+          name: "positional_prefixed_controller_empty_param",
+          path: "/pos-prefix/{id}",
+        )
+
+        route = routes[3]
+
+        assert_route(
+          route,
+          name: "positional_prefixed_controller_slash_param",
+          path: "/pos-prefix/{id}",
         )
       end
     end
