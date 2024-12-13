@@ -1,5 +1,19 @@
 # Allows wrapping `AVD::Constraint`(s) to denote it as being required within an `AVD::Constraints::Collection`.
 # See [this][Athena::Validator::Constraints::Collection--required-and-optional-constraints] for more information.
+#
+# ```crystal
+# class Post
+#   include AVD::Validatable
+#
+#   def initialize(@title : String, @description : String); end
+#
+#   @[Assert::Required]
+#   property title : String
+#
+#   @[Assert::Required]
+#   property description : String
+# end
+# ```
 class Athena::Validator::Constraints::Required < Athena::Validator::Constraints::Existence
   # :inherit:
   def validated_by : NoReturn
