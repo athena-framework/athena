@@ -1,7 +1,7 @@
 # Validates that a value is a positive number, or `0`.
 # Use `AVD::Constraints::Positive` if you don't want to allow `0`.
 #
-# ```crystal
+# ```
 # class Account
 #   include AVD::Validatable
 #

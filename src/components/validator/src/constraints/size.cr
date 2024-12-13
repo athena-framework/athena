@@ -1,6 +1,6 @@
 # Validates that the `#size` of a `String` or `Indexable` value is between some minimum and maximum.
 #
-# ```crystal
+# ```
 # class User
 #   include AVD::Validatable
 #

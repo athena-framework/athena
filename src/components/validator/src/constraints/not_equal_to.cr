@@ -1,6 +1,6 @@
 # Validates that a value is not equal to another.
 #
-# ```crystal
+# ```
 # class User
 #   include AVD::Validatable
 #

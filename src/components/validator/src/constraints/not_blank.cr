@@ -1,6 +1,6 @@
 # Validates that a value is not blank; meaning not equal to a blank string, an empty `Iterable`, `false`, or optionally `nil`.
 #
-# ```crystal
+# ```
 # class User
 #   include AVD::Validatable
 #

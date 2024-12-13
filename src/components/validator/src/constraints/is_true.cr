@@ -1,6 +1,6 @@
 # Validates that a value is `true`.
 #
-# ```crystal
+# ```
 # class Post
 #   include AVD::Validatable
 #

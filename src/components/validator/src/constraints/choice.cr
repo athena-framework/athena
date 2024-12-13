@@ -1,7 +1,7 @@
 # Validates that a value is one of a given set of valid choices;
 # can also be used to validate that each item in a collection is one of those valid values.
 #
-# ```crystal
+# ```
 # class User
 #   include AVD::Validatable
 #

@@ -1,6 +1,6 @@
 # Validates that a value is `nil`.
 #
-# ```crystal
+# ```
 # class Post
 #   include AVD::Validatable
 #

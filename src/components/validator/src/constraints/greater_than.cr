@@ -1,6 +1,6 @@
 # Validates that a value is greater than another.
 #
-# ```crystal
+# ```
 # class Person
 #   include AVD::Validatable
 #

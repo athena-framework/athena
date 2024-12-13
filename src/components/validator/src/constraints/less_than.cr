@@ -1,6 +1,6 @@
 # Validates that a value is less than another.
 #
-# ```crystal
+# ```
 # class Employee
 #   include AVD::Validatable
 #

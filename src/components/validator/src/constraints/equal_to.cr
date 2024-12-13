@@ -1,6 +1,6 @@
 # Validates that a value is equal to another.
 #
-# ```crystal
+# ```
 # class Project
 #   include AVD::Validatable
 #

@@ -3,7 +3,7 @@
 # NOTE: Due to Crystal's static typing, when validating objects the property's type must be nilable,
 # otherwise `nil` is inherently not allowed due to the compiler's type checking.
 #
-# ```crystal
+# ```
 # class Post
 #   include AVD::Validatable
 #

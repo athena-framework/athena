@@ -1,6 +1,6 @@
 # Validates that a `Number` or `Time` value is between some minimum and maximum.
 #
-# ```crystal
+# ```
 # class House
 #   include AVD::Validatable
 #

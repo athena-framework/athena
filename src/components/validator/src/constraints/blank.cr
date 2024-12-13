@@ -1,6 +1,6 @@
 # Validates that a value is blank; meaning equal to an empty string or `nil`.
 #
-# ```crystal
+# ```
 # class Profile
 #   include AVD::Validatable
 #

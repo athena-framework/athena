@@ -1,7 +1,7 @@
 # Validates that a value is a negative number, or `0`.
 # Use `AVD::Constraints::Negative` if you don't want to allow `0`.
 #
-# ```crystal
+# ```
 # class Mall
 #   include AVD::Validatable
 #

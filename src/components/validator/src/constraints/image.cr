@@ -5,7 +5,7 @@ require "athena-image_size"
 #
 # See `AVD::Constraints::File` for common documentation.
 #
-# ```crystal
+# ```
 # class Profile
 #   include AVD::Validatable
 #

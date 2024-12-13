@@ -1,6 +1,6 @@
 # Validates that all elements of an `Indexable` are unique.
 #
-# ```crystal
+# ```
 # class School
 #   include AVD::Validatable
 #
