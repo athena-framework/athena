@@ -1,5 +1,16 @@
 # Validates that a value is less than or equal to another.
 #
+# ```
+# class Employee
+#   include AVD::Validatable
+#
+#   def initialize(@age : Number); end
+#
+#   @[Assert::LessThanOrEqual(60)]
+#   property age : Number
+# end
+# ```
+#
 # # Configuration
 #
 # ## Required Arguments

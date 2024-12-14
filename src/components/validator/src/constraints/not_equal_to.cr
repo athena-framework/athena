@@ -1,5 +1,16 @@
 # Validates that a value is not equal to another.
 #
+# ```
+# class User
+#   include AVD::Validatable
+#
+#   def initialize(@name : String); end
+#
+#   @[Assert::NotEqualTo("John Doe")]
+#   property name : String
+# end
+# ```
+#
 # # Configuration
 #
 # ## Required Arguments

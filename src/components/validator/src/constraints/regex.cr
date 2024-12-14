@@ -4,6 +4,19 @@
 # NOTE: As with most other constraints, `nil` and empty strings are considered valid values, in order to allow the value to be optional.
 # If the value is required, consider combining this constraint with `AVD::Constraints::NotBlank`.
 #
+# ```
+# class User
+#   include AVD::Validatable
+#
+#   def initialize(@username : String); end
+#
+#   # this regex verifies that username contains alphanumeric chars
+#   # and some special characters (underscore, space and dash).
+#   @[Assert::Regex(/^[a-zA-Z0-9]+([_ -]?[a-zA-Z0-9])*$/)]
+#   property username : String
+# end
+# ```
+#
 # # Configuration
 #
 # ## Required Arguments

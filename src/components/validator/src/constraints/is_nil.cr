@@ -1,5 +1,16 @@
 # Validates that a value is `nil`.
 #
+# ```
+# class Post
+#   include AVD::Validatable
+#
+#   def initialize(@updated_at : Time?); end
+#
+#   @[Assert::IsNil]
+#   property updated_at : Time?
+# end
+# ```
+#
 # # Configuration
 #
 # ## Optional Arguments

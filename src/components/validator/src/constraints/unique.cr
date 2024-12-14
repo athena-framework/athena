@@ -1,5 +1,15 @@
 # Validates that all elements of an `Indexable` are unique.
 #
+# ```
+# class School
+#   include AVD::Validatable
+#
+#   def initialize(@rooms : Array(String)); end
+#
+#   @[Assert::Unique]
+#   property rooms : Array(String)
+# end
+#
 # # Configuration
 #
 # ## Optional Arguments

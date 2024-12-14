@@ -1,5 +1,16 @@
 # Validates that a value is greater than another.
 #
+# ```
+# class Person
+#   include AVD::Validatable
+#
+#   def initialize(@age : Int64); end
+#
+#   @[Assert::GreaterThan(18)]
+#   property age : Int64
+# end
+# ```
+#
 # # Configuration
 #
 # ## Required Arguments

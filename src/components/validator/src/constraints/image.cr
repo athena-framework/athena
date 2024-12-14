@@ -5,6 +5,17 @@ require "athena-image_size"
 #
 # See `AVD::Constraints::File` for common documentation.
 #
+# ```
+# class Profile
+#   include AVD::Validatable
+#
+#   def initialize(@avatar : ::File); end
+#
+#   @[Assert::Image]
+#   property avatar : ::File
+# end
+# ```
+#
 # # Configuration
 #
 # ## Optional Arguments

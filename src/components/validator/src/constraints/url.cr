@@ -4,6 +4,16 @@
 # NOTE: As with most other constraints, `nil` and empty strings are considered valid values, in order to allow the value to be optional.
 # If the value is required, consider combining this constraint with `AVD::Constraints::NotBlank`.
 #
+# ```
+# class Profile
+#   include AVD::Validatable
+#
+#   def initialize(@avatar_url : String); end
+#
+#   @[Assert::URL]
+#   property avatar_url : String
+# end
+#
 # # Configuration
 #
 # ## Optional Arguments

@@ -1,5 +1,16 @@
 # Validates that a value is `true`.
 #
+# ```
+# class Post
+#   include AVD::Validatable
+#
+#   def initialize(@is_published : Bool); end
+#
+#   @[Assert::IsTrue]
+#   property is_published : Bool
+# end
+# ```
+#
 # # Configuration
 #
 # ## Optional Arguments

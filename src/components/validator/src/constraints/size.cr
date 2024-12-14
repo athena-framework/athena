@@ -1,5 +1,15 @@
 # Validates that the `#size` of a `String` or `Indexable` value is between some minimum and maximum.
 #
+# ```
+# class User
+#   include AVD::Validatable
+#
+#   def initialize(@username : String); end
+#
+#   @[Assert::Size(3..30)]
+#   property username : String
+# end
+#
 # # Configuration
 #
 # ## Required Arguments

@@ -1,5 +1,16 @@
 # Validates that a `Number` or `Time` value is between some minimum and maximum.
 #
+# ```
+# class House
+#   include AVD::Validatable
+#
+#   def initialize(@area : Number); end
+#
+#   @[Assert::Range(15..100)]
+#   property area : Number
+# end
+# ```
+#
 # # Configuration
 #
 # ## Required Arguments

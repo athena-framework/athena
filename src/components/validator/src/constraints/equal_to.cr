@@ -1,5 +1,16 @@
 # Validates that a value is equal to another.
 #
+# ```
+# class Project
+#   include AVD::Validatable
+#
+#   def initialize(@name : String); end
+#
+#   @[Assert::EqualTo("Athena")]
+#   property name : String
+# end
+# ```
+#
 # # Configuration
 #
 # ## Required Arguments

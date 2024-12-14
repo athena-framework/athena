@@ -3,6 +3,20 @@
 # NOTE: Due to Crystal's static typing, when validating objects the property's type must be nilable,
 # otherwise `nil` is inherently not allowed due to the compiler's type checking.
 #
+# ```
+# class Post
+#   include AVD::Validatable
+#
+#   def initialize(@title : String?, @description : String?); end
+#
+#   @[Assert::NotNil]
+#   property title : String?
+#
+#   @[Assert::NotNil]
+#   property description : String?
+# end
+# ```
+#
 # # Configuration
 #
 # ## Optional Arguments

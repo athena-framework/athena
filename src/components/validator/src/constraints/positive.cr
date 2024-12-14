@@ -1,6 +1,17 @@
 # Validates that a value is a positive number.
 # Use `AVD::Constraints::PositiveOrZero` if you wish to also allow `0`.
 #
+# ```
+# class Account
+#   include AVD::Validatable
+#
+#   def initialize(@balance : Number); end
+#
+#   @[Assert::Positive]
+#   property balance : Number
+# end
+# ```
+#
 # # Configuration
 #
 # ## Optional Arguments

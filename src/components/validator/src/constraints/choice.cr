@@ -1,6 +1,17 @@
 # Validates that a value is one of a given set of valid choices;
 # can also be used to validate that each item in a collection is one of those valid values.
 #
+# ```
+# class User
+#   include AVD::Validatable
+#
+#   def initialize(@role : String); end
+#
+#   @[Assert::Choice(["member", "moderator", "admin"])]
+#   property role : String
+# end
+# ```
+#
 # # Configuration
 #
 # ## Required Arguments

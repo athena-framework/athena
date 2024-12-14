@@ -1,6 +1,17 @@
 # Validates that a value is a negative number, or `0`.
 # Use `AVD::Constraints::Negative` if you don't want to allow `0`.
 #
+# ```
+# class Mall
+#   include AVD::Validatable
+#
+#   def initialize(@lowest_floor : Number); end
+#
+#   @[Assert::NegativeOrZero]
+#   property lowest_floor : Number
+# end
+# ```
+#
 # # Configuration
 #
 # ## Optional Arguments

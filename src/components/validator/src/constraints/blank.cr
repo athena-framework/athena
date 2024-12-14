@@ -1,5 +1,16 @@
 # Validates that a value is blank; meaning equal to an empty string or `nil`.
 #
+# ```
+# class Profile
+#   include AVD::Validatable
+#
+#   def initialize(@username : String); end
+#
+#   @[Assert::NotBlank]
+#   property username : String
+# end
+# ```
+#
 # # Configuration
 #
 # ## Optional Arguments
