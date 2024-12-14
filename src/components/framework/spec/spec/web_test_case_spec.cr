@@ -1,4 +1,4 @@
-@[ASPEC::TestCase::Skip]
+@[Athena::Spec::TestCase::Skip]
 private struct MockWebTestCase < ATH::Spec::WebTestCase
   def initialize(@client : ATH::Spec::AbstractBrowser); end
 
