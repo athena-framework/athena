@@ -12,7 +12,8 @@ function runSpecs()
 function runSpecsWithCoverage()
 {
   mkdir -p coverage/bin
-  echo "require \"../../src/components/$1/spec/**\"" > "./coverage/bin/$1.cr" && \
+  echo "require \"../../src/components/$1/spec/spec_helper\"" > "./coverage/bin/$1.cr" && \
+  echo "require \"../../src/components/$1/spec/**\"" >> "./coverage/bin/$1.cr" && \
   $CRYSTAL build "${DEFAULT_BUILD_OPTIONS[@]}" "./coverage/bin/$1.cr" -o "./coverage/bin/$1" && \
   kcov $(if $IS_CI != "true"; then echo "--cobertura-only"; fi) --clean --include-path="./src/components/$1/src" "./coverage/$1" "./coverage/bin/$1" --junit_output="./coverage/$1/junit.xml" "${DEFAULT_OPTIONS[@]}"
 
