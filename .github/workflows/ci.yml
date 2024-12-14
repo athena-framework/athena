@@ -143,6 +143,8 @@ jobs:
         run: shards install --skip-postinstall --skip-executables
         env:
           SHARDS_OVERRIDE: shard.dev.yml
+      - name: Order
+        run: crystal eval 'pp Dir["src/components/framework/spec/**/*_spec.cr"]'
       - name: Specs
         run: ./scripts/test.sh framework unit
         shell: bash
