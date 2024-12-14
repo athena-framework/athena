@@ -1,10 +1,10 @@
 require "spec"
+require "athena-spec"
 require "log/spec"
 
 require "../src/athena"
 require "./controllers/*"
 
-require "athena-spec"
 require "athena-event_dispatcher/spec"
 require "athena-console/spec"
 require "athena-validator/spec"
