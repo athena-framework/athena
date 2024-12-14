@@ -3,7 +3,7 @@
 # $1 component name
 function runSpecs()
 {
-  $CRYSTAL spec "${DEFAULT_BUILD_OPTIONS[@]}" "${DEFAULT_OPTIONS[@]}" "src/components/$1/spec"
+  $CRYSTAL spec "${DEFAULT_BUILD_OPTIONS[@]}" "${DEFAULT_OPTIONS[@]}" "src/components/$1"
 }
 
 # Coverage generation logic based on https://hannes.kaeufler.net/posts/measuring-code-coverage-in-crystal-with-kcov
@@ -61,7 +61,7 @@ then
   else
     runSpecs $COMPONENT || EXIT_CODE=1
   fi
-  exit $?
+  exit $EXIT_CODE
 fi
 
 for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | xargs -I{} basename {} | sort); do
