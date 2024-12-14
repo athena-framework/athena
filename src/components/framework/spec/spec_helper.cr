@@ -1,14 +1,13 @@
 require "spec"
-require "athena-spec"
 require "log/spec"
 
 require "../src/athena"
 require "./controllers/*"
 
+require "../src/spec"
 require "athena-event_dispatcher/spec"
 require "athena-console/spec"
 require "athena-validator/spec"
-require "../src/spec"
 
 Spec.before_each do
   ART.compile ATH::Routing::AnnotationRouteLoader.route_collection

@@ -12,8 +12,7 @@ function runSpecs()
 function runSpecsWithCoverage()
 {
   mkdir -p coverage/bin
-  echo "require \"../../src/components/$1/spec/spec_helper\"" > "./coverage/bin/$1.cr" && \
-  echo "require \"../../src/components/$1/spec/**\"" >> "./coverage/bin/$1.cr" && \
+  echo "require \"../../src/components/$1/spec/**\"" > "./coverage/bin/$1.cr" && \
   $CRYSTAL build "${DEFAULT_BUILD_OPTIONS[@]}" "./coverage/bin/$1.cr" -o "./coverage/bin/$1" && \
   kcov $(if $IS_CI != "true"; then echo "--cobertura-only"; fi) --clean --include-path="./src/components/$1/src" "./coverage/$1" "./coverage/bin/$1" --junit_output="./coverage/$1/junit.xml" "${DEFAULT_OPTIONS[@]}"
 
@@ -25,7 +24,7 @@ function runSpecsWithCoverage()
   fi
 }
 
-DEFAULT_BUILD_OPTIONS=(-Dstrict_multi_assign -Dpreview_overload_order --error-on-warnings)
+DEFAULT_BUILD_OPTIONS=(-Dstrict_multi_assign -Dpreview_overload_order --error-on-warnings --error-trace)
 DEFAULT_OPTIONS=(--order=random)
 CRYSTAL=${CRYSTAL:=crystal}
 HAS_KCOV=$(if command -v "kcov" &>/dev/null; then echo "true"; else echo "false"; fi)
