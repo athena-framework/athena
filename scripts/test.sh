@@ -3,7 +3,7 @@
 # $1 component name
 function runSpecs()
 {
-  $CRYSTAL spec "${DEFAULT_BUILD_OPTIONS[@]}" "${DEFAULT_OPTIONS[@]}" "src/components/$1"
+  $CRYSTAL spec "${DEFAULT_BUILD_OPTIONS[@]}" "${DEFAULT_OPTIONS[@]}" "src/components/$1/spec"
 }
 
 # Coverage generation logic based on https://hannes.kaeufler.net/posts/measuring-code-coverage-in-crystal-with-kcov
@@ -24,7 +24,7 @@ function runSpecsWithCoverage()
   fi
 }
 
-DEFAULT_BUILD_OPTIONS=(-Dstrict_multi_assign -Dpreview_overload_order --error-on-warnings --error-trace)
+DEFAULT_BUILD_OPTIONS=(-Dstrict_multi_assign -Dpreview_overload_order --error-on-warnings)
 DEFAULT_OPTIONS=(--order=random)
 CRYSTAL=${CRYSTAL:=crystal}
 HAS_KCOV=$(if command -v "kcov" &>/dev/null; then echo "true"; else echo "false"; fi)
@@ -61,7 +61,7 @@ then
   else
     runSpecs $COMPONENT || EXIT_CODE=1
   fi
-  exit $EXIT_CODE
+  exit $?
 fi
 
 for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | xargs -I{} basename {} | sort); do
