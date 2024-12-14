@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 
 # $1 component name
-function runSpecs()
-{
+function runSpecs() (
+  set -e
   $CRYSTAL spec "${DEFAULT_BUILD_OPTIONS[@]}" "${DEFAULT_OPTIONS[@]}" "src/components/$1/spec"
-}
+)
 
 # Coverage generation logic based on https://hannes.kaeufler.net/posts/measuring-code-coverage-in-crystal-with-kcov
 #
 # $1 component name
-function runSpecsWithCoverage()
-{
+function runSpecsWithCoverage() (
+  set -e
   mkdir -p coverage/bin
   echo "require \"../../src/components/$1/spec/**\"" > "./coverage/bin/$1.cr" && \
   $CRYSTAL build "${DEFAULT_BUILD_OPTIONS[@]}" "./coverage/bin/$1.cr" -o "./coverage/bin/$1" && \
@@ -22,7 +22,7 @@ function runSpecsWithCoverage()
   then
     $CRYSTAL tool unreachable --format=codecov "./coverage/bin/$1.cr" > "./coverage/$1/unreachable.codecov.json"
   fi
-}
+)
 
 DEFAULT_BUILD_OPTIONS=(-Dstrict_multi_assign -Dpreview_overload_order --error-on-warnings)
 DEFAULT_OPTIONS=(--order=random)
@@ -57,9 +57,9 @@ if [ $COMPONENT != "all" ]
 then
   if [ $HAS_KCOV = "true" ]
   then
-    runSpecsWithCoverage $COMPONENT || EXIT_CODE=1
+    runSpecsWithCoverage $COMPONENT
   else
-    runSpecs $COMPONENT || EXIT_CODE=1
+    runSpecs $COMPONENT
   fi
   exit $?
 fi
@@ -69,9 +69,13 @@ for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xa
 
   if [ $HAS_KCOV = "true" ]
   then
-    runSpecsWithCoverage $component || EXIT_CODE=1
+    runSpecsWithCoverage $component
   else
-    runSpecs $component || EXIT_CODE=1
+    runSpecs $component
+  fi
+
+  if [ $? -ne 0 ]; then
+    EXIT_CODE=1
   fi
 
   echo "::endgroup::"
