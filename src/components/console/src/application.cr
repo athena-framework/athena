@@ -533,16 +533,20 @@ class Athena::Console::Application
       input.interactive = false
     end
 
-    case shell_verbosity = ENV["SHELL_VERBOSITY"]?.try &.to_i
+    shell_verbosity = ENV["SHELL_VERBOSITY"]?.try(&.to_i) || 0
+
+    case shell_verbosity
+    when -2 then output.verbosity = :silent
     when -1 then output.verbosity = :quiet
     when  1 then output.verbosity = :verbose
     when  2 then output.verbosity = :very_verbose
     when  3 then output.verbosity = :debug
-    else
-      shell_verbosity = 0
     end
 
-    if input.has_parameter? "--quiet", "-q", only_params: true
+    if input.has_parameter? "--silent", only_params: true
+      output.verbosity = :silent
+      shell_verbosity = -2
+    elsif input.has_parameter? "--quiet", "-q", only_params: true
       output.verbosity = :quiet
       shell_verbosity = -1
     else
@@ -558,7 +562,7 @@ class Athena::Console::Application
       end
     end
 
-    if -1 == shell_verbosity
+    if 0 > shell_verbosity
       input.interactive = false
     end
 
@@ -667,7 +671,8 @@ class Athena::Console::Application
     ACON::Input::Definition.new(
       ACON::Input::Argument.new("command", :required, "The command to execute"),
       ACON::Input::Option.new("help", "h", description: "Display help for the given command. When no command is given display help for the <info>#{@default_command}</info> command"),
-      ACON::Input::Option.new("quiet", "q", description: "Do not output any message"),
+      ACON::Input::Option.new("silent", description: "Do not output any message"),
+      ACON::Input::Option.new("quiet", "q", description: "Only errors are displayed. All other output is suppressed"),
       ACON::Input::Option.new("verbose", "v|vv|vvv", description: "Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug"),
       ACON::Input::Option.new("version", "V", description: "Display this application version"),
       ACON::Input::Option.new("ansi", value_mode: :negatable, description: "Force (or disable --no-ansi) ANSI output", default: false),

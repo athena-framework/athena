@@ -22,7 +22,7 @@ class Athena::Console::Output::Null
 
   # :inherit:
   def verbosity : ACON::Output::Verbosity
-    ACON::Output::Verbosity::QUIET
+    ACON::Output::Verbosity::SILENT
   end
 
   # :inherit:
