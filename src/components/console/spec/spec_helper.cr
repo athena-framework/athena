@@ -45,11 +45,8 @@ struct MockCommandLoader
 end
 
 def with_isolated_env(&) : Nil
-  old_values = {} of String => String
+  old_values = ENV.dup
   begin
-    ENV.each do |key, value|
-      old_values[key] = value
-    end
     ENV.clear
 
     yield

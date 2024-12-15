@@ -47,7 +47,7 @@ struct IOTest < ASPEC::TestCase
     end
   end
 
-  def test_decorated_no_color_empty : Nil
+  def test_decorated_force_color_empty : Nil
     with_isolated_env do
       ENV["FORCE_COLOR"] = ""
       ACON::Output::IO.new(@io).decorated?.should be_false
