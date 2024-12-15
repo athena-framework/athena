@@ -22,7 +22,6 @@ private record MockJSONAndURISerializableEntity, id : Int32, name : String do
   include URI::Params::Serializable
 end
 
-@[ASPEC::TestCase::Focus]
 struct RequestBodyResolverTest < ASPEC::TestCase
   @target : ATHR::RequestBody
 
