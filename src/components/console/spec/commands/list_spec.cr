@@ -46,7 +46,8 @@ struct ListCommandTest < ASPEC::TestCase
 
       Options:
         -h, --help            Display help for the given command. When no command is given display help for the list command
-        -q, --quiet           Do not output any message
+            --silent          Do not output any message
+        -q, --quiet           Only errors are displayed. All other output is suppressed
         -V, --version         Display this application version
             --ansi|--no-ansi  Force (or disable --no-ansi) ANSI output
         -n, --no-interaction  Do not ask any interactive question

@@ -580,11 +580,14 @@ struct ApplicationTest < ASPEC::TestCase
     ENV["COLUMNS"] = "120"
     tester = ACON::Spec::ApplicationTester.new app
 
-    tester.run command: "foo", decorated: false, capture_stderr_separately: true
+    tester.run command: "foo", decorated: false, verbosity: :quiet, capture_stderr_separately: true
     self.assert_file_equals_string "text/application_renderexception1.txt", tester.error_output true
 
-    tester.run command: "foo", decorated: false, capture_stderr_separately: true, verbosity: :verbose
+    tester.run command: "foo", decorated: false, verbosity: :verbose, capture_stderr_separately: true
     tester.error_output.should contain "Exception trace"
+
+    tester.run command: "foo", decorated: false, verbosity: :silent, capture_stderr_separately: true
+    tester.error_output(true).should be_empty
 
     tester.run command: "list", "--foo": true, decorated: false, capture_stderr_separately: true
     self.assert_file_equals_string "text/application_renderexception2.txt", tester.error_output true

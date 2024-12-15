@@ -4,6 +4,9 @@
 #
 # ```sh
 # # Output nothing
+# ./console my-command --silent
+#
+# # Output only errors
 # ./console my-command -q
 # ./console my-command --quiet
 #
@@ -42,6 +45,10 @@
 # TIP: The full stack trace of an exception is printed in `ACON::Output::Verbosity::VERBOSE` mode or higher.
 enum Athena::Console::Output::Verbosity
   # Silences all output.
+  # Equivalent to `--silent` CLI option or `SHELL_VERBOSITY=-2`.
+  SILENT = -2
+
+  # Output only errors.
   # Equivalent to `-q`, `--quiet` CLI options or `SHELL_VERBOSITY=-1`.
   QUIET = -1
 
