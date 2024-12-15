@@ -128,16 +128,9 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   # **Type:** `Array(String) | AVD::Constraints::GroupSequence | Nil` **Default:** `nil`
   #
   # The [validation groups](/Validator/Constraint/#Athena::Validator::Constraint--validation-groups) that should be used when validating the resolved object.
-  #
-  # ### validation_failed_status
-  #
-  # **Type:** `HTTP::Status` **Default:** `:unprocessable_entity`
-  #
-  # The `HTTP::Status` to use for the error response if the resolved object fails validation.
   configuration ::Athena::Framework::Annotations::MapRequestBody,
     accept_format : Array(String)? = nil,
-    validation_groups : Array(String) | AVD::Constraints::GroupSequence | Nil = nil,
-    validation_failed_status : HTTP::Status = :unprocessable_entity
+    validation_groups : Array(String) | AVD::Constraints::GroupSequence | Nil = nil
 
   # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on the request's query string.
   # See the related resolver documentation for more information.
@@ -163,15 +156,8 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   # **Type:** `Array(String) | AVD::Constraints::GroupSequence | Nil` **Default:** `nil`
   #
   # The [validation groups](/Validator/Constraint/#Athena::Validator::Constraint--validation-groups) that should be used when validating the resolved object.
-  #
-  # ### validation_failed_status
-  #
-  # **Type:** `HTTP::Status` **Default:** `:not_found`
-  #
-  # The `HTTP::Status` to use for the error response if the resolved object fails validation.
   configuration ::Athena::Framework::Annotations::MapQueryString,
-    validation_groups : Array(String) | AVD::Constraints::GroupSequence | Nil = nil,
-    validation_failed_status : HTTP::Status = :not_found
+    validation_groups : Array(String) | AVD::Constraints::GroupSequence | Nil = nil
 
   def initialize(
     @serializer : ASR::SerializerInterface,
@@ -180,23 +166,27 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
 
   # :inherit:
   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata)
-    object = if parameter.annotation_configurations.has?(ATHA::MapQueryString)
-               self.map_query_string request, parameter
-             elsif parameter.annotation_configurations.has?(ATHA::MapRequestBody)
-               self.map_request_body request, parameter
+    validation_groups = nil
+
+    object = if configuration = parameter.annotation_configurations[ATHA::MapQueryString]?
+               validation_groups = configuration.validation_groups
+               self.map_query_string request, parameter, configuration
+             elsif configuration = parameter.annotation_configurations[ATHA::MapRequestBody]?
+               validation_groups = configuration.validation_groups
+               self.map_request_body request, parameter, configuration
              else
                return
              end
 
     if object.is_a? AVD::Validatable
-      errors = @validator.validate object
+      errors = @validator.validate object, groups: validation_groups
       raise AVD::Exception::ValidationFailed.new errors unless errors.empty?
     end
 
     object
   end
 
-  private def map_query_string(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata)
+  private def map_query_string(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata, configuration : ATHA::MapQueryStringConfiguration)
     return unless query = request.query
     return if query.nil? && (parameter.nilable? || parameter.has_default?)
 
@@ -205,13 +195,19 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
     raise ATH::Exception::BadRequest.new "Malformed query string.", cause: ex
   end
 
-  private def map_request_body(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata)
+  private def map_request_body(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata, configuration : ATHA::MapRequestBodyConfiguration)
     if !(body = request.body) || body.peek.try &.empty?
       raise ATH::Exception::BadRequest.new "Request does not have a body."
     end
 
+    format = request.content_type_format
+
+    if (accept_format = configuration.accept_format) && !accept_format.includes? format
+      raise ATH::Exception::UnsupportedMediaType.new "Unsupported format, expects one of: '#{accept_format.join(", ")}', but got '#{format}'."
+    end
+
     # We have to use separate deserialization methods with the case such that a type that includes multiple modules is handled as expected.
-    case request.content_type_format
+    case format
     when "form"
       self.deserialize_form body, parameter.type
     when "json"

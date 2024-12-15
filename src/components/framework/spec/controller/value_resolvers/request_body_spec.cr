@@ -22,6 +22,7 @@ private record MockJSONAndURISerializableEntity, id : Int32, name : String do
   include URI::Params::Serializable
 end
 
+@[ASPEC::TestCase::Focus]
 struct RequestBodyResolverTest < ASPEC::TestCase
   @target : ATHR::RequestBody
 
@@ -118,6 +119,15 @@ struct RequestBodyResolverTest < ASPEC::TestCase
 
     object.id.should eq 10
     object.name.should eq "Fred"
+  end
+
+  def test_it_supports_specifiying_accepted_formats : Nil
+    expect_raises ATH::Exception::UnsupportedMediaType, %(Unsupported format, expects one of: 'json, xml', but got 'form'.) do
+      @target.resolve(
+        new_request(body: "id=10&name=Fred", format: "form"),
+        self.get_config(MockURISerializableEntity, configuration: ATHA::MapRequestBodyConfiguration.new(["json", "xml"]))
+      )
+    end
   end
 
   def test_it_supports_query_string_serializable : Nil
