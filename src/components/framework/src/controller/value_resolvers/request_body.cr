@@ -192,9 +192,12 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
 
     self.deserialize_form query, parameter.type
   rescue ex : URI::SerializableError
-    raise ATH::Exception::BadRequest.new "Malformed query string.", cause: ex
+    raise ATH::Exception::UnprocessableEntity.new ex.message.not_nil!, cause: ex
+  rescue ex : URI::Error
+    raise ATH::Exception::BadRequest.new "Malformed www form data payload.", cause: ex
   end
 
+  # ameba:disable Metrics/CyclomaticComplexity:
   private def map_request_body(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata, configuration : ATHA::MapRequestBodyConfiguration)
     if !(body = request.body) || body.peek.try &.empty?
       raise ATH::Exception::BadRequest.new "Request does not have a body."
@@ -215,9 +218,21 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
     else
       raise ATH::Exception::UnsupportedMediaType.new "Unsupported format."
     end
+  rescue ex : JSON::SerializableError
+    # JSON::Serializable seems to sometimes re-raise parse exceptions as `JSON::SerializableError`,
+    # so we handle those first based on the cause.
+    case cause = ex.cause
+    when JSON::ParseException
+      raise ATH::Exception::BadRequest.new "Malformed JSON payload.", cause: cause
+    else
+      raise ATH::Exception::UnprocessableEntity.new ex.message.not_nil!
+    end
   rescue ex : JSON::ParseException | ASR::Exception::DeserializationException
+    # Otherwise if it really is a `ParseException` we can be assured it's just malformed
     raise ATH::Exception::BadRequest.new "Malformed JSON payload.", cause: ex
   rescue ex : URI::SerializableError
+    raise ATH::Exception::UnprocessableEntity.new ex.message.not_nil!, cause: ex
+  rescue ex : URI::Error
     raise ATH::Exception::BadRequest.new "Malformed www form data payload.", cause: ex
   end
 
