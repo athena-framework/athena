@@ -116,7 +116,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   #
   # ## Optional Arguments
   #
-  # ### accept_format
+  # ### accept_formats
   #
   # **Type:** `Array(String)?` **Default:** `nil`
   #
@@ -129,7 +129,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   #
   # The [validation groups](/Validator/Constraint/#Athena::Validator::Constraint--validation-groups) that should be used when validating the resolved object.
   configuration ::Athena::Framework::Annotations::MapRequestBody,
-    accept_format : Array(String)? = nil,
+    accept_formats : Array(String)? = nil,
     validation_groups : Array(String) | AVD::Constraints::GroupSequence | Nil = nil
 
   # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on the request's query string.
@@ -202,8 +202,8 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
 
     format = request.content_type_format
 
-    if (accept_format = configuration.accept_format) && !accept_format.includes? format
-      raise ATH::Exception::UnsupportedMediaType.new "Unsupported format, expects one of: '#{accept_format.join(", ")}', but got '#{format}'."
+    if (accept_formats = configuration.accept_formats) && !accept_formats.includes? format
+      raise ATH::Exception::UnsupportedMediaType.new "Unsupported format, expects one of: '#{accept_formats.join(", ")}', but got '#{format}'."
     end
 
     # We have to use separate deserialization methods with the case such that a type that includes multiple modules is handled as expected.
