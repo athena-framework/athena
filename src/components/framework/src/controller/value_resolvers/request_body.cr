@@ -99,11 +99,79 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
 
   # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on the request's body.
   # See the related resolver documentation for more information.
-  configuration ::Athena::Framework::Annotations::MapRequestBody
+  #
+  # ```
+  # class UserController < ATH::Controller
+  #   @[ARTA::Post("/user")]
+  #   def new_user(
+  #     @[ATHA::MapRequestBody]
+  #     user_create : UserCreateDTO,
+  #   ) : UserCreateDTO
+  #     user_create
+  #   end
+  # end
+  # ```
+  #
+  # # Configuration
+  #
+  # ## Optional Arguments
+  #
+  # ### accept_format
+  #
+  # **Type:** `Array(String)?` **Default:** `nil`
+  #
+  # Allows whitelisting the allowed [request format(s)][ATH::Request::FORMATS].
+  # If the `ATH::Request#content_type_format` is not included in this list, a `ATH::Exception::UnsupportedMediaType` error will be raised.
+  #
+  # ### validation_groups
+  #
+  # **Type:** `Array(String) | AVD::Constraints::GroupSequence | Nil` **Default:** `nil`
+  #
+  # The [validation groups](/Validator/Constraint/#Athena::Validator::Constraint--validation-groups) that should be used when validating the resolved object.
+  #
+  # ### validation_failed_status
+  #
+  # **Type:** `HTTP::Status` **Default:** `:unprocessable_entity`
+  #
+  # The `HTTP::Status` to use for the error response if the resolved object fails validation.
+  configuration ::Athena::Framework::Annotations::MapRequestBody,
+    accept_format : Array(String)? = nil,
+    validation_groups : Array(String) | AVD::Constraints::GroupSequence | Nil = nil,
+    validation_failed_status : HTTP::Status = :unprocessable_entity
 
   # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on the request's query string.
   # See the related resolver documentation for more information.
-  configuration ::Athena::Framework::Annotations::MapQueryString
+  #
+  # ```
+  # class ArticleController < ATH::Controller
+  #   @[ARTA::Get("/articles")]
+  #   def articles(
+  #     @[ATHA::MapQueryString]
+  #     pagination_context : PaginationContext,
+  #   ) : Array(Article)
+  #     # ...
+  #   end
+  # end
+  # ```
+  #
+  # # Configuration
+  #
+  # ## Optional Arguments
+  #
+  # ### validation_groups
+  #
+  # **Type:** `Array(String) | AVD::Constraints::GroupSequence | Nil` **Default:** `nil`
+  #
+  # The [validation groups](/Validator/Constraint/#Athena::Validator::Constraint--validation-groups) that should be used when validating the resolved object.
+  #
+  # ### validation_failed_status
+  #
+  # **Type:** `HTTP::Status` **Default:** `:not_found`
+  #
+  # The `HTTP::Status` to use for the error response if the resolved object fails validation.
+  configuration ::Athena::Framework::Annotations::MapQueryString,
+    validation_groups : Array(String) | AVD::Constraints::GroupSequence | Nil = nil,
+    validation_failed_status : HTTP::Status = :not_found
 
   def initialize(
     @serializer : ASR::SerializerInterface,

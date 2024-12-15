@@ -223,7 +223,7 @@
 #
 # In all of the examples so far, the resolvers could be applied to any parameter of any type and all of the logic to resolve a value would happen at runtime.
 # In some cases a specific resolver may only support a single, or small subset of types.
-# Such as how the `ATHR::RequestBody` resolver only allows `ASR::Serializable` or `JSON::Serializable` types.
+# Such as how the `ATHR::RequestBody` resolver only allows `ASR::Serializable`, `JSON::Serializable`, or `URI::Params::Serializable` types.
 # In this case, the `ATHR::Interface::Typed` module may be used to define the allowed parameter types.
 #
 # WARNING: Strict typing is _ONLY_ supported when a configuration annotation is used to enable the resolver.
