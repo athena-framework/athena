@@ -74,7 +74,7 @@ for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xa
     runSpecs $component
   fi
 
-  if [ $? -ne 0 ]; then
+  if [ $? -eq 1 ]; then
     EXIT_CODE=1
   fi
 
