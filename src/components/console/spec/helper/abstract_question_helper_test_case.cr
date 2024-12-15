@@ -4,7 +4,7 @@ abstract struct AbstractQuestionHelperTest < ASPEC::TestCase
   def initialize
     @helper_set = ACON::Helper::HelperSet.new ACON::Helper::Formatter.new
 
-    @output = ACON::Output::IO.new IO::Memory.new
+    @output = ACON::Output::IO.new IO::Memory.new, decorated: false
   end
 
   protected def with_input(data : String, interactive : Bool = true, & : ACON::Input::Interface -> Nil) : Nil

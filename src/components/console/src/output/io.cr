@@ -29,9 +29,23 @@ class Athena::Console::Output::IO < Athena::Console::Output
 
   private def has_color_support? : Bool
     # Respect https://no-color.org.
-    return false if "false" == ENV["NO_COLOR"]?
-    return true if "Hyper" == ENV["TERM_PROGRAM"]?
+    return false if ENV["NO_COLOR"]?.presence
 
-    @io.tty?
+    # Respect https://force-color.org.
+    return true if ENV["FORCE_COLOR"]?.presence
+
+    if "Hyper" == ENV["TERM_PROGRAM"]? ||
+       ENV.has_key?("COLORTERM") ||
+       ENV.has_key?("ANSICON") ||
+       "ON" == ENV["ConEmuANSI"]?
+      return true
+    end
+
+    return @io.tty? unless term = ENV["TERM"]?
+
+    return false if "dumb" == term
+
+    # See https://github.com/chalk/supports-color/blob/d4f413efaf8da045c5ab440ed418ef02dbb28bf1/index.js#L157
+    term.matches? /^((screen|xterm|vt100|vt220|putty|rxvt|ansi|cygwin|linux).*)|(.*-256(color)?(-bce)?)$/
   end
 end
