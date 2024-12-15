@@ -120,7 +120,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     object.name.should eq "Fred"
   end
 
-  def test_it_supports_specifiying_accepted_formats : Nil
+  def test_it_supports_specifying_accepted_formats : Nil
     expect_raises ATH::Exception::UnsupportedMediaType, %(Unsupported format, expects one of: 'json, xml', but got 'form'.) do
       @target.resolve(
         new_request(body: "id=10&name=Fred", format: "form"),
