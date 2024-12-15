@@ -44,4 +44,21 @@ struct MockCommandLoader
   end
 end
 
+def with_isolated_env(&) : Nil
+  old_values = {} of String => String
+  begin
+    ENV.each do |key, value|
+      old_values[key] = value
+    end
+    ENV.clear
+
+    yield
+  ensure
+    ENV.clear
+    old_values.each do |key, old_value|
+      ENV[key] = old_value
+    end
+  end
+end
+
 ASPEC.run_all
