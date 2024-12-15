@@ -82,7 +82,7 @@ module Athena::Framework
   #
   # 1. `ATHR::UUID` (105) - Attempts to resolve a value from the request attributes into a `::UUID` instance.
   #
-  # 1. `ATHR::RequestBody` (105) - If enabled, attempts to deserialize the request body into the type of the related parameter, running any validations, if any.
+  # 1. `ATHR::RequestBody` (105) - If enabled, attempts to deserialize the request body/query string into the type of the related parameter, running any defined validations if applicable.
   #
   # 1. `ATHR::RequestAttribute` (100) - Provides a value stored in `ATH::Request#attributes` if one with the same name as the action parameter exists.
   #

@@ -120,6 +120,15 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     object.name.should eq "Fred"
   end
 
+  def test_it_supports_specifying_accepted_formats : Nil
+    expect_raises ATH::Exception::UnsupportedMediaType, %(Unsupported format, expects one of: 'json, xml', but got 'form'.) do
+      @target.resolve(
+        new_request(body: "id=10&name=Fred", format: "form"),
+        self.get_config(MockURISerializableEntity, configuration: ATHA::MapRequestBodyConfiguration.new(["json", "xml"]))
+      )
+    end
+  end
+
   def test_it_supports_query_string_serializable : Nil
     serializer = DeserializableMockSerializer(MockURISerializableEntity).new
     serializer.deserialized_response = MockURISerializableEntity.new 10, "Fred"
