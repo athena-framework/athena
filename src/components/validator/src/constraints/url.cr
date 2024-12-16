@@ -30,6 +30,29 @@
 #
 # If `true` the protocol is considered optional.
 #
+# ### require_tld
+#
+# **Type:** `Bool` **Default:** `true`
+#
+# The [URL spec](https://datatracker.ietf.org/doc/html/rfc1738) considers URLs like `https://aaa` or `https://foobar` to be valid
+# However, this is most likely not desirable for most use cases.
+# As such, this argument defaults to `true` and can be used to require that the host part of the URL will have to include a TLD (top-level domain name).
+# E.g. `https://example.com` is valid but `https://example` is not.
+#
+# NOTE: This constraint does _NOT_ validate that the provided TLD is a valid one according to the [official list](https://en.wikipedia.org/wiki/List_of_Internet_top-level_domains).
+#
+# ### tld_message
+#
+# **Type:** `String` **Default:** `This URL is missing a top-level domain.`
+#
+# The message that will be shown if `#require_tld?` is `true` and the URL does not contain at least one TLD.
+#
+# #### Placeholders
+#
+# The following placeholders can be used in this message:
+#
+# * `{{ value }}` - The current (invalid) value.
+#
 # ### message
 #
 # **Type:** `String` **Default:** `This value is not a valid URL.`
@@ -57,17 +80,23 @@
 # The [payload][Athena::Validator::Constraint--payload] is not used by `Athena::Validator`, but its processing is completely up to you.
 class Athena::Validator::Constraints::URL < Athena::Validator::Constraint
   INVALID_URL_ERROR = "e87ceba6-a896-4906-9957-b102045272ee"
+  MISSING_TLD_ERROR = "4507f4cc-90fd-4616-989b-2166fc0d1083"
 
   @@error_names = {
     INVALID_URL_ERROR => "INVALID_URL_ERROR",
+    MISSING_TLD_ERROR => "MISSING_TLD_ERROR",
   }
 
   getter protocols : Array(String)
   getter? relative_protocol : Bool
+  getter? require_tld : Bool
+  getter tld_message : String
 
   def initialize(
     @protocols : Array(String) = ["http", "https"],
     @relative_protocol : Bool = false,
+    @require_tld : Bool = true,
+    @tld_message : String = "This URL is missing a top-level domain.",
     message : String = "This value is not a valid URL.",
     groups : Array(String) | String | Nil = nil,
     payload : Hash(String, String)? = nil,
@@ -81,9 +110,17 @@ class Athena::Validator::Constraints::URL < Athena::Validator::Constraint
       value = value.to_s
 
       return if value.nil? || value.empty?
-      return if value.matches? self.pattern(constraint)
+      unless value.matches? self.pattern(constraint)
+        self.context.add_violation constraint.message, INVALID_URL_ERROR, value
+      end
 
-      self.context.add_violation constraint.message, INVALID_URL_ERROR, value
+      return unless constraint.require_tld?
+      return unless url_host = URI.parse(value).host
+
+      # URL with a TLD must include at least a `.`, but cannot be an IP address
+      if !url_host.includes?('.') || Socket::IPAddress.valid?(url_host)
+        self.context.add_violation constraint.tld_message, MISSING_TLD_ERROR, value
+      end
     end
 
     def pattern(constraint : AVD::Constraints::URL) : ::Regex
