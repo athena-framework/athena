@@ -13,6 +13,7 @@
 #   @[Assert::URL]
 #   property avatar_url : String
 # end
+# ```
 #
 # # Configuration
 #
