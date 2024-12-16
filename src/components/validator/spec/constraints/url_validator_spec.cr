@@ -25,14 +25,14 @@ struct URLValidatorTest < AVD::Spec::ConstraintValidatorTestCase
 
   @[DataProvider("valid_urls")]
   def test_valid_urls(value : String) : Nil
-    self.validator.validate value, self.new_constraint
+    self.validator.validate value, self.new_constraint require_tld: false
     self.assert_no_violation
   end
 
   @[DataProvider("valid_urls")]
   @[DataProvider("valid_relative_urls")]
   def test_valid_relative_urls(value : String) : Nil
-    self.validator.validate value, self.new_constraint relative_protocol: true
+    self.validator.validate value, self.new_constraint relative_protocol: true, require_tld: false
     self.assert_no_violation
   end
 
@@ -118,14 +118,14 @@ struct URLValidatorTest < AVD::Spec::ConstraintValidatorTestCase
 
   @[DataProvider("invalid_urls")]
   def test_invalid_urls(value : String) : Nil
-    self.validator.validate value, self.new_constraint message: "my_message"
+    self.validator.validate value, self.new_constraint message: "my_message", require_tld: false
     self.assert_violation "my_message", CONSTRAINT::INVALID_URL_ERROR, value
   end
 
   @[DataProvider("invalid_urls")]
   @[DataProvider("invalid_relative_urls")]
   def test_invalid_relative_urls(value : String) : Nil
-    self.validator.validate value, self.new_constraint message: "my_message", relative_protocol: true
+    self.validator.validate value, self.new_constraint message: "my_message", relative_protocol: true, require_tld: false
     self.assert_violation "my_message", CONSTRAINT::INVALID_URL_ERROR, value
   end
 
@@ -176,7 +176,7 @@ struct URLValidatorTest < AVD::Spec::ConstraintValidatorTestCase
 
   @[DataProvider("valid_custom_urls")]
   def test_custom_protocols_are_valid(value : String) : Nil
-    self.validator.validate value, self.new_constraint protocols: ["ftp", "file", "git"]
+    self.validator.validate value, self.new_constraint protocols: ["ftp", "file", "git"], require_tld: false
     self.assert_no_violation
   end
 
@@ -186,6 +186,34 @@ struct URLValidatorTest < AVD::Spec::ConstraintValidatorTestCase
       {"file://127.0.0.1"},
       {"git://[::1]/"},
     }
+  end
+
+  @[TestWith(
+    {"https://aaa", true, false},
+    {"https://aaa", false, true},
+    {"https://localhost", true, false},
+    {"https://localhost", false, true},
+    {"http://127.0.0.1", false, true},
+    {"http://127.0.0.1", true, false},
+    {"http://user.pass@local", false, true},
+    {"http://user.pass@local", true, false},
+    {"https://example.com", true, true},
+    {"https://example.com", false, true},
+    {"http://foo/bar.png", false, true},
+    {"http://foo/bar.png", true, false},
+    {"https://example.com.org", true, true},
+    {"https://example.com.org", false, true},
+  )]
+  def test_require_tld(value : String, require_tld : Bool, is_valid : Bool) : Nil
+    self.validator.validate value, self.new_constraint require_tld: require_tld, tld_message: "my_message"
+
+    if is_valid
+      self.assert_no_violation
+    else
+      self
+        .build_violation("my_message", CONSTRAINT::MISSING_TLD_ERROR, value)
+        .assert_violation
+    end
   end
 
   private def create_validator : AVD::ConstraintValidatorInterface

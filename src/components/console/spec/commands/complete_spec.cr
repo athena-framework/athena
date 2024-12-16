@@ -116,9 +116,9 @@ struct CompleteCommandTest < ASPEC::TestCase
 
   def provide_input_definition_inputs : Hash
     {
-      "definition"         => {["hello", "-"], ["--help", "--quiet", "--verbose", "--version", "--ansi", "--no-ansi", "--no-interaction"]},
+      "definition"         => {["hello", "-"], ["--help", "--silent", "--quiet", "--verbose", "--version", "--ansi", "--no-ansi", "--no-interaction"]},
       "custom"             => {["hello"], ["Athena", "Crystal", "Ruby"]},
-      "aliased definition" => {["ahoy", "-"], ["--help", "--quiet", "--verbose", "--version", "--ansi", "--no-ansi", "--no-interaction"]},
+      "aliased definition" => {["ahoy", "-"], ["--help", "--silent", "--quiet", "--verbose", "--version", "--ansi", "--no-ansi", "--no-interaction"]},
       "aliased custom"     => {["ahoy"], ["Athena", "Crystal", "Ruby"]},
     }
   end

@@ -9,6 +9,7 @@
 #   @[Assert::Size(3..30)]
 #   property username : String
 # end
+# ```
 #
 # # Configuration
 #

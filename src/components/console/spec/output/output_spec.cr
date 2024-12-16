@@ -79,6 +79,7 @@ struct OutputTest < ASPEC::TestCase
 
   def verbosity_provider : Tuple
     {
+      {ACON::Output::Verbosity::SILENT, ""},
       {ACON::Output::Verbosity::QUIET, "2"},
       {ACON::Output::Verbosity::NORMAL, "123"},
       {ACON::Output::Verbosity::VERBOSE, "1234"},

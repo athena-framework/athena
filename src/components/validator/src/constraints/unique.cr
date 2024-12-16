@@ -9,6 +9,7 @@
 #   @[Assert::Unique]
 #   property rooms : Array(String)
 # end
+# ```
 #
 # # Configuration
 #

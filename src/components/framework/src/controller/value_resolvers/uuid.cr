@@ -18,7 +18,7 @@ require "uuid"
 # # GET /uuid/b115c7a5-0a13-47b4-b4ac-55b3e2686946 # => "Version: V4 - Variant: RFC4122"
 # ```
 #
-# TIP: Checkout `ART::Requirement` for an easy way to restrict/validate the version of the UUID that is allowed.
+# TIP: Checkout [ART::Requirement](/Routing/Requirement/) for an easy way to restrict/validate the version of the UUID that is allowed.
 struct Athena::Framework::Controller::ValueResolvers::UUID
   include Athena::Framework::Controller::ValueResolvers::Interface
 
