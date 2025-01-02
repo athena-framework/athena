@@ -102,12 +102,9 @@ class Athena::MIME::Header::Parameterized < Athena::MIME::Header::Unstructured
     value_lines = (encoder = @encoder) ? value.split("\r\n") : [value]
 
     if value_lines.size > 1
-      idx = 0
-      value_lines.join io, ";\r\n " do |line, io|
+      value_lines.each_with_index.join io, ";\r\n " do |(line, idx), io|
         io << "#{name}*#{idx}"
         self.write_end_of_parameter_value io, line, true, idx.zero?
-      ensure
-        idx += 1
       end
 
       return

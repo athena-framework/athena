@@ -27,6 +27,13 @@ struct MessageTest < ASPEC::TestCase
     end
   end
 
+  def test_prepared_headers_uses_sender_if_present_but_no_from : Nil
+    m = AMIME::Message.new
+    m.headers.add_mailbox_header "sender", "sender@example.com"
+
+    m.prepared_headers["from"].should eq AMIME::Header::MailboxList.new "from", [AMIME::Address.new "sender@example.com"]
+  end
+
   def test_prepared_headers_clone_headers : Nil
     m = AMIME::Message.new
     m.headers.add_mailbox_list_header "from", ["me@example.com"]
