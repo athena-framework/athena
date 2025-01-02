@@ -1,5 +1,4 @@
 require "spec"
-
 require "athena-spec"
 
 require "../src/athena-mime"
