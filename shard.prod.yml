@@ -25,6 +25,9 @@ dependencies:
   athena-mercure:
     github: athena-framework/mercure
     branch: docs
+  athena-mime:
+    github: athena-framework/mime
+    branch: docs
   athena-negotiation:
     github: athena-framework/negotiation
     branch: docs

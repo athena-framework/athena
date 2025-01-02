@@ -44,6 +44,7 @@ diff dotenv
 diff event-dispatcher
 diff image-size
 diff mercure
+diff mime
 diff framework
 diff negotiation
 diff routing

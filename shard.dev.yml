@@ -16,6 +16,8 @@ dependencies:
     path: ./src/components/image_size
   athena-mercure:
     path: ./src/components/mercure
+  athena-mime:
+    path: ./src/components/mime
   athena-negotiation:
     path: ./src/components/negotiation
   athena-routing:
