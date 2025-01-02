@@ -13,7 +13,7 @@ struct Athena::Validator::Violation::ConstraintViolationList
     end
   end
 
-  # Returns a new `AVD::Violation::ConstraintViolationInterface` that conists only of violations with the provided *error_code*.
+  # Returns a new `AVD::Violation::ConstraintViolationInterface` that consists only of violations with the provided *error_code*.
   def find_by_code(error_code : String) : AVD::Violation::ConstraintViolationListInterface
     self.class.new @violations.select &.code.==(error_code)
   end
