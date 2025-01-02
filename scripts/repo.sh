@@ -38,6 +38,7 @@ case $METHOD in
     maybeSync "src/components/image_size" image-size https://github.com/athena-framework/image-size.git
     maybeSync "src/components/framework" framework https://github.com/athena-framework/framework.git
     maybeSync "src/components/mercure" mercure https://github.com/athena-framework/mercure.git
+    maybeSync "src/components/mime" mime https://github.com/athena-framework/mime.git
     maybeSync "src/components/negotiation" negotiation https://github.com/athena-framework/negotiation.git
     maybeSync "src/components/routing" routing https://github.com/athena-framework/routing.git
     maybeSync "src/components/serializer" serializer https://github.com/athena-framework/serializer.git

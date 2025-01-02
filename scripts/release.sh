@@ -29,6 +29,7 @@ function tag()
   componentNameMap[dotenv]="Dotenv"
   componentNameMap[event-dispatcher]="Event Dispatcher"
   componentNameMap[mercure]=Mercure
+  componentNameMap[mime]=MIME
   componentNameMap[framework]=Framework
   componentNameMap[image-size]="Image Size"
   componentNameMap[negotiation]=Negotiation

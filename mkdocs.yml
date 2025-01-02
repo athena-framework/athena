@@ -42,6 +42,7 @@ nav:
     - project://framework
     - project://image_size
     - project://mercure
+    - project://mime
     - project://negotiation
     - project://routing
     - project://serializer
