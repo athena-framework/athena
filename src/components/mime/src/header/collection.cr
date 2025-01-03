@@ -121,6 +121,18 @@ class Athena::MIME::Header::Collection
     self << AMIME::Header::Parameterized.new name, body, params
   end
 
+  protected def header_parameter(name : String, parameter : String)
+    unless header = self.[name]?
+      raise "BUG: Missing header"
+    end
+
+    unless header.is_a? Parameterized
+      raise "BUG: Not parameterizable"
+    end
+
+    header[parameter]
+  end
+
   protected def header_parameter(name : String, parameter : String, value : String?) : Nil
     unless header = self.[name]?
       raise "BUG: Missing header"

@@ -22,6 +22,16 @@ class Athena::MIME::Email < Athena::MIME::Message
   # Used to avoid wrong body hash in DKIM signatures with multiple parts (e.g. HTML + TEXT) due to multiple boundaries.
   @cached_body : AMIME::Part::Abstract? = nil
 
+  def ==(other : self)
+    {% if @type.class? %}
+      return true if same?(other)
+    {% end %}
+    {% for field in @type.instance_vars %}
+      return false unless @{{field.id}} == other.@{{field.id}}
+    {% end %}
+    true
+  end
+
   def subject : String?
     if header = @headers["subject"]?
       return header.body.as String
@@ -243,7 +253,8 @@ class Athena::MIME::Email < Athena::MIME::Message
     self.generate_body
   end
 
-  private def generate_body : AMIME::Part::Abstract
+  # Used in specs
+  protected def generate_body : AMIME::Part::Abstract
     if cached_body = @cached_body
       return cached_body
     end

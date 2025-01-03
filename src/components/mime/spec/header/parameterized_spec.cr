@@ -1,3 +1,5 @@
+require "../spec_helper"
+
 struct ParameterizedHeaderTest < ASPEC::TestCase
   @lang = "en-us"
 

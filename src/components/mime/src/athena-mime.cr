@@ -3,6 +3,8 @@ require "./message"
 require "./email"
 require "./draft_email"
 
+require "./message_converter"
+
 require "./encoder/*"
 require "./exception/*"
 require "./header/*"
