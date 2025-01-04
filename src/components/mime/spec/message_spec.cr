@@ -59,7 +59,7 @@ struct MessageTest < ASPEC::TestCase
 
     headers = m.prepared_headers
 
-    headers.headers.size.should eq 4
+    headers.all.size.should eq 4
     headers["from"].should eq AMIME::Header::MailboxList.new "from", [AMIME::Address.new "me@example.com"]
     headers["mime-version"].should eq AMIME::Header::Unstructured.new "mime-version", "1.0"
     headers["date"].should eq AMIME::Header::Date.new "date", now

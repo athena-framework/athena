@@ -13,14 +13,46 @@ class Athena::MIME::Header::Collection
     "to",
   ]
 
+  private HEADER_CLASS_MAP = {
+    "date" => AMIME::Header::Date,
+  } of String => AMIME::Header::Abstract.class | Array(AMIME::Header::Abstract.class)
+
   # :nodoc:
   enum Type
     TEXT
     DATE
   end
 
-  getter headers = Hash(String, Array(AMIME::Header::Interface)).new { |hash, key| hash[key] = Array(AMIME::Header::Interface).new }
-  @line_length = 76
+  def self.check_header_class(header : AMIME::Header::Interface) : Nil
+    is_valid, header_clases = case header.name.downcase
+                              when "date"        then {header.is_a?(AMIME::Header::Date), {AMIME::Header::Date}}
+                              when "from"        then {header.is_a?(AMIME::Header::MailboxList), {AMIME::Header::MailboxList}}
+                              when "sender"      then {header.is_a?(AMIME::Header::Mailbox), {AMIME::Header::Mailbox}}
+                              when "reply-to"    then {header.is_a?(AMIME::Header::MailboxList), {AMIME::Header::MailboxList}}
+                              when "to"          then {header.is_a?(AMIME::Header::MailboxList), {AMIME::Header::MailboxList}}
+                              when "cc"          then {header.is_a?(AMIME::Header::MailboxList), {AMIME::Header::MailboxList}}
+                              when "bcc"         then {header.is_a?(AMIME::Header::MailboxList), {AMIME::Header::MailboxList}}
+                              when "message-id"  then {header.is_a?(AMIME::Header::Identification), {AMIME::Header::Identification}}
+                              when "return-path" then {header.is_a?(AMIME::Header::Path), {AMIME::Header::MailboxList}}
+                                # `in-reply-to` and `references` are less strict than RFC 2822 (3.6.4) to allow users entering the original email's `message-id`, even if that is no valid `message-id`
+                              when "in-reply-to" then {header.is_a?(AMIME::Header::Unstructured) || header.is_a?(AMIME::Header::Identification), {AMIME::Header::Unstructured, AMIME::Header::Identification}}
+                              when "references"  then {header.is_a?(AMIME::Header::Unstructured) || header.is_a?(AMIME::Header::Identification), {AMIME::Header::Unstructured, AMIME::Header::Identification}}
+                              else
+                                {true, [] of NoReturn}
+                              end
+
+    return if is_valid
+
+    raise AMIME::Exception::Logic.new "The '#{header.name}' header must be an instance of '#{header_clases.join("' or '")}' (got '#{header.class}')."
+  end
+
+  def self.is_unique_header?(name : String) : Bool
+    UNIQUE_HEADERS.includes? name.downcase
+  end
+
+  getter line_length : Int32 = 76
+
+  @headers = Hash(String, Array(AMIME::Header::Interface)).new { |hash, key| hash[key] = Array(AMIME::Header::Interface).new }
 
   def self.new(*headers : AMIME::Header::Interface)
     new headers
@@ -36,13 +68,51 @@ class Athena::MIME::Header::Collection
 
   def_equals @headers, @line_length
 
+  def line_length=(@line_length : Int32) : Nil
+    self.all do |header|
+      header.max_line_length = @line_length
+    end
+  end
+
   def to_s(io : IO) : Nil
-    @headers.each do |_, collection|
-      collection.each do |header|
-        header.to_s(io)
-        io << '\r' << '\n'
+    self.all do |header|
+      header.to_s(io)
+      io << '\r' << '\n'
+    end
+  end
+
+  def to_a : Array(String)
+    headers = [] of String
+
+    self.all do |header|
+      headers << header.to_s unless header.body_to_s.blank?
+    end
+
+    headers
+  end
+
+  def all : Array(AMIME::Header::Interface)
+    @headers.each_value.flat_map do |headers|
+      headers
+    end.to_a
+  end
+
+  def all(& : AMIME::Header::Interface ->) : Nil
+    @headers.each_value do |headers|
+      headers.each do |header|
+        yield header
       end
     end
+  end
+
+  def all(name : String, & : AMIME::Header::Interface ->) : Nil
+    @headers[name.downcase]?.try &.each do |header|
+      yield header
+    end
+  end
+
+  def names : Array(String)
+    @headers.keys
   end
 
   def delete(name : String) : Nil
@@ -50,11 +120,17 @@ class Athena::MIME::Header::Collection
   end
 
   def [](name : String) : AMIME::Header::Interface
-    @headers[name].first
+    name = name.downcase
+
+    if !(header_list = @headers[name]?) || !(first_header = header_list.first?)
+      raise AMIME::Exception::HeaderNotFound.new "No headers with the name '#{name}' exist."
+    end
+
+    first_header
   end
 
   def [](name : String, _type : T.class) : T forall T
-    @headers[name].first.as T
+    self.[name].as T
   end
 
   def []?(name : String, _type : T.class) : T? forall T
@@ -72,11 +148,14 @@ class Athena::MIME::Header::Collection
   end
 
   def <<(header : AMIME::Header::Interface) : self
-    # Check header class
+    self.class.check_header_class header
+
     header.max_line_length = @line_length
     name = header.name.downcase
 
-    # Check for unique headers
+    if UNIQUE_HEADERS.includes?(name) && (header_list = @headers[name]?) && header_list.size > 0
+      raise AMIME::Exception::Logic.new "Cannot set header '#{name}' as it is already defined and must be unique."
+    end
 
     @headers[name] << header
 
@@ -121,25 +200,21 @@ class Athena::MIME::Header::Collection
     self << AMIME::Header::Parameterized.new name, body, params
   end
 
-  protected def header_parameter(name : String, parameter : String)
-    unless header = self.[name]?
-      raise "BUG: Missing header"
-    end
+  def header_parameter(name : String, parameter : String) : String?
+    header = self.[name]
 
     unless header.is_a? Parameterized
-      raise "BUG: Not parameterizable"
+      raise AMIME::Exception::Logic.new "Unable to get parameter '#{parameter}' on header '#{name}' as the header is not of class '#{AMIME::Header::Parameterized}'."
     end
 
     header[parameter]
   end
 
   protected def header_parameter(name : String, parameter : String, value : String?) : Nil
-    unless header = self.[name]?
-      raise "BUG: Missing header"
-    end
+    header = self.[name]
 
     unless header.is_a? Parameterized
-      raise "BUG: Not parameterizable"
+      raise AMIME::Exception::Logic.new "Unable to set parameter '#{parameter}' on header '#{name}' as the header is not of class '#{AMIME::Header::Parameterized}'."
     end
 
     header[parameter] = value
