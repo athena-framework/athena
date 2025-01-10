@@ -91,7 +91,8 @@ class Athena::MIME::Part::Text < Athena::MIME::Part::Abstract
 
   private def encoder : AMIME::Encoder::ContentEncoderInterface
     case @encoding
-    when "quoted-printable" then @@encoders[@encoding] = AMIME::Encoder::QuotedPrintableContent.new
+    when "quoted-printable" then @@encoders[@encoding] ||= AMIME::Encoder::QuotedPrintableContent.new
+    when "base64"           then @@encoders[@encoding] ||= AMIME::Encoder::Base64Content.new
     else
       @@encoders[@encoding]
     end

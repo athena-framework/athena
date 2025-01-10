@@ -34,6 +34,8 @@ struct EmailTest < ASPEC::TestCase
     thomas = AMIME::Address.new "thomas@example.com"
     caramel = AMIME::Address.new "caramel@example.com"
 
+    e.from.should be_empty
+
     e.from "fred@example.com", helene, thomas
 
     v = e.from
@@ -74,6 +76,8 @@ struct EmailTest < ASPEC::TestCase
     helene = AMIME::Address.new "helene@example.com"
     thomas = AMIME::Address.new "thomas@example.com"
     caramel = AMIME::Address.new "caramel@example.com"
+
+    e.reply_to.should be_empty
 
     e.reply_to "fred@example.com", helene, thomas
 
@@ -116,6 +120,8 @@ struct EmailTest < ASPEC::TestCase
     thomas = AMIME::Address.new "thomas@example.com"
     caramel = AMIME::Address.new "caramel@example.com"
 
+    e.to.should be_empty
+
     e.to "fred@example.com", helene, thomas
 
     v = e.to
@@ -157,6 +163,8 @@ struct EmailTest < ASPEC::TestCase
     thomas = AMIME::Address.new "thomas@example.com"
     caramel = AMIME::Address.new "caramel@example.com"
 
+    e.cc.should be_empty
+
     e.cc "fred@example.com", helene, thomas
 
     v = e.cc
@@ -197,6 +205,8 @@ struct EmailTest < ASPEC::TestCase
     helene = AMIME::Address.new "helene@example.com"
     thomas = AMIME::Address.new "thomas@example.com"
     caramel = AMIME::Address.new "caramel@example.com"
+
+    e.bcc.should be_empty
 
     e.bcc "fred@example.com", helene, thomas
 
@@ -486,6 +496,28 @@ struct EmailTest < ASPEC::TestCase
     e.attachments.map(&.prepared_headers).should eq [data_part.prepared_headers, inline.prepared_headers]
   end
 
+  def test_attachments_attach_helper_methods : Nil
+    # Inline part
+    contents = ::File.read path = "#{__DIR__}/fixtures/mimetypes/test"
+    data_part = AMIME::Part::Data.new file = ::File.open(path), "test"
+    inline = AMIME::Part::Data.new(contents, "test").as_inline
+
+    e = AMIME::Email.new
+    e.attach file, "test"
+    e.embed contents, "test"
+    e.attachments.should eq [data_part, inline]
+
+    # Inline part from path
+    data_part = AMIME::Part::Data.from_path path, "test"
+    inline = AMIME::Part::Data.from_path(path, "test").as_inline
+    e = AMIME::Email.new
+    e.attach_from_path path, "test"
+    e.embed_from_path path, "test"
+
+    e.attachments.map(&.body_to_s).should eq [data_part.body_to_s, inline.body_to_s]
+    e.attachments.map(&.prepared_headers).should eq [data_part.prepared_headers, inline.prepared_headers]
+  end
+
   def test_body_cache_same : Nil
     e = AMIME::Email.new.from("me@example.com").to("you@example.com")
     e.text "text content"
@@ -506,6 +538,14 @@ struct EmailTest < ASPEC::TestCase
 
     # Must not be the same due to the content changing
     body1.should_not be body2
+  end
+
+  def test_ensure_validity : Nil
+    AMIME::Email.new
+      .from("me@example.com")
+      .to("you@example.com")
+      .text("content")
+      .ensure_validity
   end
 
   private def generate_some_parts : {AMIME::Part::Text, AMIME::Part::Text, AMIME::Part::Data, ::File, AMIME::Part::Data, ::File}

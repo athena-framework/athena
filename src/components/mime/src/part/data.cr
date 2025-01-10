@@ -7,7 +7,7 @@ class Athena::MIME::Part::Data < Athena::MIME::Part::Text
 
   getter media_type : String
 
-  @filename : String?
+  getter filename : String?
   @content_id : String?
 
   def initialize(
@@ -24,7 +24,7 @@ class Athena::MIME::Part::Data < Athena::MIME::Part::Text
 
     @media_type, sub_type = content_type.split '/'
 
-    super body, sub_type: sub_type, encoding: encoding
+    super body, nil, sub_type, encoding
 
     if filename
       @filename = filename
