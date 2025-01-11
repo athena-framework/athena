@@ -47,19 +47,23 @@ abstract class Athena::MIME::Header::Abstract(T)
     header_lines = ["#{@name}: "]
 
     current_line = header_lines[line_count]
+    line_count += 1
 
     tokens.each_with_index do |token, i|
-      if (token == "\r\n") || (i > 0 && (current_line + token).size > @max_line_length) && current_line != ""
+      p(line_count: line_count)
+      if (token == "\r\n") || (i > 0 && (current_line + token).bytesize > @max_line_length) && !current_line.empty?
         header_lines << ""
         header_lines[line_count] = current_line
+        current_line = ""
         line_count += 1
-        current_line = header_lines[line_count]
       end
 
       unless token == "\r\n"
-        header_lines[line_count] += token
+        current_line += token
       end
     end
+
+    header_lines[line_count - 1] = current_line
 
     header_lines.join("\r\n")
   end
@@ -170,7 +174,7 @@ abstract class Athena::MIME::Header::Abstract(T)
   private def create_phrase(header : AMIME::Header::Interface, input : String, charset : String, shorten : Bool = false) : String
     phrase_str = input
 
-    if !phrase_str.matches? PHRASE_REGEX
+    if !phrase_str.matches? PHRASE_REGEX, options: :no_utf_check
       # If it's just ASCII try escaping some chars and make it a quoted string
       if phrase_str.ascii_only?
         {'\\', '"'}.each do |char|

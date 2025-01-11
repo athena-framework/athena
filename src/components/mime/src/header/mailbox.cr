@@ -16,7 +16,7 @@ class Athena::MIME::Header::Mailbox < Athena::MIME::Header::Abstract(Athena::MIM
   def body_to_s(io : IO) : Nil
     str = @value.encoded_address
 
-    if name = @value.name
+    if name = @value.name.presence
       str = "#{self.create_phrase(self, name, @charset, true)} <#{str}>"
     end
 

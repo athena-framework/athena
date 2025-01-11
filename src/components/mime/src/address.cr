@@ -32,7 +32,7 @@ struct Athena::MIME::Address
 
   def initialize(address : String, name : String = "")
     @address = address.strip
-    @name = name.gsub(/\n|\r/, "").strip
+    @name = name.gsub(/\n|\r/, "", options: :no_utf_check).strip
 
     # TODO: Validate the email
   end

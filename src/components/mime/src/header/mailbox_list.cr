@@ -38,6 +38,6 @@ class Athena::MIME::Header::MailboxList < Athena::MIME::Header::Abstract(Array(A
   end
 
   private def token_needs_encoding?(token : String) : Bool
-    token.matches?(/[()<>\[\]:;@\,."]/) || super
+    token.matches?(/[()<>\[\]:;@\,."]/, options: :no_utf_check) || super
   end
 end
