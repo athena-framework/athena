@@ -43,29 +43,25 @@ abstract class Athena::MIME::Header::Abstract(T)
   end
 
   private def tokens_to_string(tokens : Array(String)) : String
-    line_count = 0
-    header_lines = ["#{@name}: "]
+    line_pos = 0
 
-    current_line = header_lines[line_count]
-    line_count += 1
+    String.build do |io|
+      io << @name << ':' << ' '
+      line_pos += @name.bytesize + 2
 
-    tokens.each_with_index do |token, i|
-      p(line_count: line_count)
-      if (token == "\r\n") || (i > 0 && (current_line + token).bytesize > @max_line_length) && !current_line.empty?
-        header_lines << ""
-        header_lines[line_count] = current_line
-        current_line = ""
-        line_count += 1
-      end
+      tokens.each do |token|
+        if "\r\n" == token
+          line_pos = 0
+        elsif (line_pos + token.bytesize) > @max_line_length
+          io << "\r\n"
+          line_pos = token.bytesize
+        else
+          line_pos += token.bytesize
+        end
 
-      unless token == "\r\n"
-        current_line += token
+        io << token
       end
     end
-
-    header_lines[line_count - 1] = current_line
-
-    header_lines.join("\r\n")
   end
 
   private def to_tokens(string : String? = nil) : Array(String)

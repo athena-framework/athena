@@ -8,7 +8,7 @@ abstract class Athena::MIME::Part::AbstractMultipart < Athena::MIME::Part::Abstr
     new parts
   end
 
-  def initialize(parts : Enumerable(AMIME::Part::Abstract))
+  def initialize(parts : Enumerable(AMIME::Part::Abstract) = [] of AMIME::Part::Abstract)
     parts.each do |part|
       @parts << part
     end
@@ -26,17 +26,6 @@ abstract class Athena::MIME::Part::AbstractMultipart < Athena::MIME::Part::Abstr
 
     headers
   end
-
-  # :inherit:
-  # def inspect(io : IO)  : Nil
-  #   super
-
-  #   @parts.each do |part|
-  #     part.inspect.each_line do |line|
-
-  #     end
-  #   end
-  # end
 
   # :inherit:
   def body_to_s(io : IO) : Nil

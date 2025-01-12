@@ -1,5 +1,5 @@
 class Athena::MIME::Part::Text < Athena::MIME::Part::Abstract
-  private DEFAULT_ENCODERS = ["quoted-printable", "base64"]
+  private DEFAULT_ENCODERS = ["quoted-printable", "base64", "8bit"]
 
   @@encoders = Hash(String, AMIME::Encoder::ContentEncoderInterface).new
 
@@ -7,7 +7,7 @@ class Athena::MIME::Part::Text < Athena::MIME::Part::Abstract
   property name : String? = nil
 
   @body : String | IO | AMIME::Part::File
-  @encoding : String
+  protected setter encoding : String
 
   def initialize(
     body : String | IO | AMIME::Part::File,
@@ -91,6 +91,7 @@ class Athena::MIME::Part::Text < Athena::MIME::Part::Abstract
 
   private def encoder : AMIME::Encoder::ContentEncoderInterface
     case @encoding
+    when "8bit"             then @@encoders[@encoding] ||= AMIME::Encoder::EightBitContent.new
     when "quoted-printable" then @@encoders[@encoding] ||= AMIME::Encoder::QuotedPrintableContent.new
     when "base64"           then @@encoders[@encoding] ||= AMIME::Encoder::Base64Content.new
     else
