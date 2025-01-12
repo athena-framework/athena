@@ -32,6 +32,13 @@ class Athena::MIME::Part::Text < Athena::MIME::Part::Abstract
     end
   end
 
+  def finalize
+    case body = @body
+    when IO
+      body.close
+    end
+  end
+
   # :inherit:
   def media_type : String
     "text"
