@@ -142,7 +142,7 @@ struct MessageTest < ASPEC::TestCase
     m.headers.add_mailbox_list_header "from", ["me@example.com"]
     m.headers.add_mailbox_list_header "to", ["you@example.com"]
 
-    m.ensure_validity
+    m.ensure_validity!
   end
 
   @[TestWith(
@@ -160,7 +160,7 @@ struct MessageTest < ASPEC::TestCase
     end
 
     expect_raises exception_class, exception_message do
-      m.ensure_validity
+      m.ensure_validity!
     end
   end
 end

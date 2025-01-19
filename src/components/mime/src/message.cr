@@ -51,7 +51,7 @@ class Athena::MIME::Message
     body.to_s io
   end
 
-  def ensure_validity : Nil
+  def ensure_validity! : Nil
     if (!(tos = @headers.header_body("to")) || tos.as(Array(AMIME::Address)).empty?) && (!(ccs = @headers.header_body("cc")) || ccs.as(Array(AMIME::Address)).empty?) && (!(bccs = @headers.header_body("bcc")) || bccs.as(Array(AMIME::Address)).empty?)
       raise AMIME::Exception::Logic.new "An email must have a 'to', 'cc', or 'bcc' header."
     end

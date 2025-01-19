@@ -1,3 +1,14 @@
+# Represent an un-sent `AMIME::Email` message.
+#
+# ```
+# draft_email = AMIME::DraftEmail
+#   .new
+#   .to("you@example.com")
+#   .subject("Important Notification")
+#   .text("Lorem ipsum...")
+#
+# # ...
+# ```
 class Athena::MIME::DraftEmail < Athena::MIME::Email
   def initialize(
     headers : AMIME::Header::Collection? = nil,
@@ -8,9 +19,11 @@ class Athena::MIME::DraftEmail < Athena::MIME::Email
     @headers.add_text_header "x-unsent", "1"
   end
 
-  # Override default behavior as draft emails do not need from/sender/date/message-id headers.
-  # These are added by the client that sends the email.
+  # :inherit:
   def prepared_headers : AMIME::Header::Collection
+    # Override default behavior as draft emails do not need from/sender/date/message-id headers.
+    # These are added by the client that sends the email.
+
     headers = @headers.clone
 
     unless headers.has_key? "mime-version"

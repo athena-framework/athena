@@ -23,7 +23,7 @@ struct DraftEmailTest < ASPEC::TestCase
 
   def test_ensure_validity_always_fails : Nil
     expect_raises AMIME::Exception::Logic, "Cannot send messages marked as 'draft'." do
-      AMIME::DraftEmail.new.text("text content").to("you@example.com").from("me@example.com").ensure_validity
+      AMIME::DraftEmail.new.text("text content").to("you@example.com").from("me@example.com").ensure_validity!
     end
   end
 end

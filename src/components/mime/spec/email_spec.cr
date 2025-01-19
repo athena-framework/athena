@@ -545,7 +545,7 @@ struct EmailTest < ASPEC::TestCase
       .from("me@example.com")
       .to("you@example.com")
       .text("content")
-      .ensure_validity
+      .ensure_validity!
   end
 
   private def generate_some_parts : {AMIME::Part::Text, AMIME::Part::Text, AMIME::Part::Data, ::File, AMIME::Part::Data, ::File}
