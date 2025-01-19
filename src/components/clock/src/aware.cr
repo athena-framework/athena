@@ -21,9 +21,9 @@ class Athena::Clock; end
 module Athena::Clock::Aware
   # TODO: Wire this up with an `@[ADI::Required]` annotation.
 
-  setter clock : ACLK? = nil
+  setter clock : ACLK::Interface? = nil
 
-  def now : ACLK::Interface
+  def now : ::Time
     (@clock ||= ACLK.new).now
   end
 end
