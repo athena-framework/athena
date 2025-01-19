@@ -172,31 +172,31 @@ class Athena::MIME::Header::Collection
     @headers.has_key? name.downcase
   end
 
-  def add_id_header(name : String, body : String | Array(String)) : Nil
+  def add_id_header(name : String, body : String | Array(String)) : self
     self << AMIME::Header::Identification.new name, body
   end
 
-  def add_text_header(name : String, body : String) : Nil
+  def add_text_header(name : String, body : String) : self
     self << AMIME::Header::Unstructured.new name, body
   end
 
-  def add_date_header(name : String, body : Time) : Nil
+  def add_date_header(name : String, body : Time) : self
     self << AMIME::Header::Date.new name, body
   end
 
-  def add_path_header(name : String, body : AMIME::Address | String) : Nil
+  def add_path_header(name : String, body : AMIME::Address | String) : self
     self << AMIME::Header::Path.new name, AMIME::Address.create(body)
   end
 
-  def add_mailbox_header(name : String, body : AMIME::Address | String) : Nil
+  def add_mailbox_header(name : String, body : AMIME::Address | String) : self
     self << AMIME::Header::Mailbox.new name, AMIME::Address.create(body)
   end
 
-  def add_mailbox_list_header(name : String, body : Array(AMIME::Address | String)) : Nil
+  def add_mailbox_list_header(name : String, body : Enumerable(AMIME::Address | String)) : self
     self << AMIME::Header::MailboxList.new name, AMIME::Address.create_multiple(body)
   end
 
-  def add_parameterized_header(name : String, body : String, params : Hash(String, String) = {} of String => String) : Nil
+  def add_parameterized_header(name : String, body : String, params : Hash(String, String) = {} of String => String) : self
     self << AMIME::Header::Parameterized.new name, body, params
   end
 

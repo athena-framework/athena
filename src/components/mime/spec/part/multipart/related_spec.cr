@@ -17,4 +17,19 @@ struct RelatedPartTest < ASPEC::TestCase
     b.headers.has_key?("content-id").should be_true
     c.headers.has_key?("content-id").should be_true
   end
+
+  def test_body_to_s
+    body = AMIME::Part::Multipart::Related
+      .new(
+        AMIME::Part::Multipart::Alternative.new(
+          AMIME::Part::Text.new("text content"),
+          AMIME::Part::Text.new("html content", sub_type: "html")
+        ),
+        [] of AMIME::Part::Abstract
+      )
+      .body_to_s
+
+    body.should contain "text content"
+    body.should contain "html content"
+  end
 end

@@ -29,7 +29,7 @@ abstract class Athena::MIME::Part::AbstractMultipart < Athena::MIME::Part::Abstr
 
   # :inherit:
   def body_to_s(io : IO) : Nil
-    @parts.each do |part|
+    self.parts.each do |part|
       io << self.boundary
       io << '\r' << '\n'
       part.to_s io

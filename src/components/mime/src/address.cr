@@ -37,8 +37,10 @@ struct Athena::MIME::Address
     # TODO: Validate the email
   end
 
+  # :nodoc:
   def_clone
 
+  # :nodoc:
   def to_s(io : IO) : Nil
     if name = self.encoded_name.presence
       return io << %("#{name}" <#{self.encoded_address}>)
