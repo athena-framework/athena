@@ -5,7 +5,7 @@ struct NullStyleTest < ASPEC::TestCase
     ACON::Formatter::NullStyle.new.apply("foo").should eq "foo"
   end
 
-  def test_set_forground : Nil
+  def test_set_foreground : Nil
     style = ACON::Formatter::NullStyle.new
     style.foreground = :red
     style.apply("foo").should eq "foo"
