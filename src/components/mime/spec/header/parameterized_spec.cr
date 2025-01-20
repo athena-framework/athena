@@ -76,44 +76,44 @@ struct ParameterizedHeaderTest < ASPEC::TestCase
   end
 
   def test_value_can_be_encoded_if_not_ascii : Nil
-    value = "fo\x8Fbar"
+    value = "go\x8Fbar"
     header = AMIME::Header::Parameterized.new "x-foo", value
     header.charset = "iso-8859-1"
     header["lookslike"] = "foobar"
-    header.to_s.should eq "x-foo: =?iso-8859-1?Q?fo=8Fbar?=; lookslike=foobar"
+    header.to_s.should eq "x-foo: =?iso-8859-1?Q?go=8Fbar?=; lookslike=foobar"
   end
 
   def test_value_and_param_can_be_encoded_if_not_ascii : Nil
-    value = "fo\x8Fbar"
+    value = "go\x8Fbar"
     header = AMIME::Header::Parameterized.new "x-foo", value
     header.charset = "iso-8859-1"
     header["says"] = value
-    header.to_s.should eq "x-foo: =?iso-8859-1?Q?fo=8Fbar?=; says*=iso-8859-1''fo%8Fbar"
+    header.to_s.should eq "x-foo: =?iso-8859-1?Q?go=8Fbar?=; says*=iso-8859-1''go%8Fbar"
   end
 
   def test_param_are_encoded_if_not_ascii : Nil
-    value = "fo\x8Fbar"
+    value = "go\x8Fbar"
     header = AMIME::Header::Parameterized.new "x-foo", "bar"
     header.charset = "iso-8859-1"
     header["says"] = value
-    header.to_s.should eq "x-foo: bar; says*=iso-8859-1''fo%8Fbar"
+    header.to_s.should eq "x-foo: bar; says*=iso-8859-1''go%8Fbar"
   end
 
   def test_params_are_encoded_with_legacy_encoding_enabled : Nil
-    value = "fo\x8Fbar"
+    value = "go\x8Fbar"
     header = AMIME::Header::Parameterized.new "content-type", "bar"
     header.charset = "iso-8859-1"
     header["says"] = value
-    header.to_s.should eq %(content-type: bar; says="=?iso-8859-1?Q?fo=8Fbar?=")
+    header.to_s.should eq %(content-type: bar; says="=?iso-8859-1?Q?go=8Fbar?=")
   end
 
   def test_language_information_appears_in_encoded_words : Nil
-    value = "fo\x8Fbar"
+    value = "go\x8Fbar"
     header = AMIME::Header::Parameterized.new "x-foo", value
     header.charset = "iso-8859-1"
     header.lang = "en"
     header["says"] = value
-    header.to_s.should eq "x-foo: =?iso-8859-1*en?Q?fo=8Fbar?=; says*=iso-8859-1'en'fo%8Fbar"
+    header.to_s.should eq "x-foo: =?iso-8859-1*en?Q?go=8Fbar?=; says*=iso-8859-1'en'go%8Fbar"
   end
 
   def test_set_body : Nil

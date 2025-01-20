@@ -31,30 +31,33 @@ class Athena::MIME::Header::Collection
   # AMIME::Header::Collection.check_header_class AMIME::Header::Unstructured.new("date", "blah")
   # # => AMIME::Exception::Logic: The 'date' header must be an instance of 'Athena::MIME::Header::Date' (got 'Athena::MIME::Header::Unstructured').
   # ```
+  #
+  # ameba:disable Metrics/CyclomaticComplexity:
   def self.check_header_class(header : AMIME::Header::Interface) : Nil
-    is_valid, header_clases = case header.name.downcase
-                              when "date"        then {header.is_a?(AMIME::Header::Date), {AMIME::Header::Date}}
-                              when "from"        then {header.is_a?(AMIME::Header::MailboxList), {AMIME::Header::MailboxList}}
-                              when "sender"      then {header.is_a?(AMIME::Header::Mailbox), {AMIME::Header::Mailbox}}
-                              when "reply-to"    then {header.is_a?(AMIME::Header::MailboxList), {AMIME::Header::MailboxList}}
-                              when "to"          then {header.is_a?(AMIME::Header::MailboxList), {AMIME::Header::MailboxList}}
-                              when "cc"          then {header.is_a?(AMIME::Header::MailboxList), {AMIME::Header::MailboxList}}
-                              when "bcc"         then {header.is_a?(AMIME::Header::MailboxList), {AMIME::Header::MailboxList}}
-                              when "message-id"  then {header.is_a?(AMIME::Header::Identification), {AMIME::Header::Identification}}
-                              when "return-path" then {header.is_a?(AMIME::Header::Path), {AMIME::Header::MailboxList}}
-                                # `in-reply-to` and `references` are less strict than RFC 2822 (3.6.4) to allow users entering the original email's `message-id`, even if that is no valid `message-id`
-                              when "in-reply-to" then {header.is_a?(AMIME::Header::Unstructured) || header.is_a?(AMIME::Header::Identification), {AMIME::Header::Unstructured, AMIME::Header::Identification}}
-                              when "references"  then {header.is_a?(AMIME::Header::Unstructured) || header.is_a?(AMIME::Header::Identification), {AMIME::Header::Unstructured, AMIME::Header::Identification}}
-                              else
-                                {true, [] of NoReturn}
-                              end
+    is_valid, header_classes = case header.name.downcase
+                               when "date"        then {header.is_a?(AMIME::Header::Date), {AMIME::Header::Date}}
+                               when "from"        then {header.is_a?(AMIME::Header::MailboxList), {AMIME::Header::MailboxList}}
+                               when "sender"      then {header.is_a?(AMIME::Header::Mailbox), {AMIME::Header::Mailbox}}
+                               when "reply-to"    then {header.is_a?(AMIME::Header::MailboxList), {AMIME::Header::MailboxList}}
+                               when "to"          then {header.is_a?(AMIME::Header::MailboxList), {AMIME::Header::MailboxList}}
+                               when "cc"          then {header.is_a?(AMIME::Header::MailboxList), {AMIME::Header::MailboxList}}
+                               when "bcc"         then {header.is_a?(AMIME::Header::MailboxList), {AMIME::Header::MailboxList}}
+                               when "message-id"  then {header.is_a?(AMIME::Header::Identification), {AMIME::Header::Identification}}
+                               when "return-path" then {header.is_a?(AMIME::Header::Path), {AMIME::Header::MailboxList}}
+                                 # `in-reply-to` and `references` are less strict than RFC 2822 (3.6.4) to allow users entering the original email's `message-id`, even if that is no valid `message-id`
+                               when "in-reply-to" then {header.is_a?(AMIME::Header::Unstructured) || header.is_a?(AMIME::Header::Identification), {AMIME::Header::Unstructured, AMIME::Header::Identification}}
+                               when "references"  then {header.is_a?(AMIME::Header::Unstructured) || header.is_a?(AMIME::Header::Identification), {AMIME::Header::Unstructured, AMIME::Header::Identification}}
+                               else
+                                 {true, [] of NoReturn}
+                               end
 
     return if is_valid
 
-    raise AMIME::Exception::Logic.new "The '#{header.name}' header must be an instance of '#{header_clases.join("' or '")}' (got '#{header.class}')."
+    raise AMIME::Exception::Logic.new "The '#{header.name}' header must be an instance of '#{header_classes.join("' or '")}' (got '#{header.class}')."
   end
 
-  def self.is_unique_header?(name : String) : Bool
+  # Returns `true` if the provided *header* name is required to be unique.
+  def self.unique_header?(name : String) : Bool
     UNIQUE_HEADERS.includes? name.downcase
   end
 

@@ -62,7 +62,7 @@ struct UnstructuredHeaderTest < ASPEC::TestCase
     non_printable_bytes << 0x7F_u8
 
     non_printable_bytes.each do |byte|
-      char = String.build { |io| io.write_byte byte }
+      char = String.build(&.write_byte(byte))
       encoded_char = sprintf "=%02X", byte
 
       AMIME::Header::Unstructured
@@ -74,7 +74,7 @@ struct UnstructuredHeaderTest < ASPEC::TestCase
 
   def test_encoded_words_are_used_to_encode8_bit_octets : Nil
     (0x80_u8..0xFF).each do |byte|
-      char = String.build { |io| io.write_byte byte }
+      char = String.build(&.write_byte(byte))
       encoded_char = sprintf "=%02X", byte
 
       header = AMIME::Header::Unstructured.new("x-test", char)
@@ -85,7 +85,7 @@ struct UnstructuredHeaderTest < ASPEC::TestCase
   end
 
   def test_are_no_longer_than_75_chars_per_line : Nil
-    non_ascii_char = String.build { |io| io.write_byte 0x8F_u8 }
+    non_ascii_char = String.build(&.write_byte(143_u8))
 
     header = AMIME::Header::Unstructured.new("x-test", non_ascii_char)
     header.charset = "iso-8859-1"
@@ -101,10 +101,10 @@ struct UnstructuredHeaderTest < ASPEC::TestCase
   end
 
   def test_language_information_appears_in_encoded_words : Nil
-    header = AMIME::Header::Unstructured.new "subject", "fo\x8Fbar"
+    header = AMIME::Header::Unstructured.new "subject", "go\x8Fbar"
     header.charset = "iso-8859-1"
     header.lang = "en"
 
-    header.to_s.should eq "subject: =?iso-8859-1*en?Q?fo=8Fbar?="
+    header.to_s.should eq "subject: =?iso-8859-1*en?Q?go=8Fbar?="
   end
 end

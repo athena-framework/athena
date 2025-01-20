@@ -42,10 +42,10 @@ class Athena::MIME::Header::Identification < Athena::MIME::Header::Abstract(Arra
   end
 
   protected def body_to_s(io : IO) : Nil
-    @ids_as_addresses.join io, ' ' do |address, io|
-      io << '<'
-      address.to_s io
-      io << '>'
+    @ids_as_addresses.join io, ' ' do |address, i|
+      i << '<'
+      address.to_s i
+      i << '>'
     end
   end
 end

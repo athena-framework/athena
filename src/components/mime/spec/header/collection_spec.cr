@@ -58,8 +58,8 @@ struct HeaderCollectionTest < ASPEC::TestCase
   end
 
   def test_is_unique_header : Nil
-    AMIME::Header::Collection.is_unique_header?("date").should be_true
-    AMIME::Header::Collection.is_unique_header?("foo").should be_false
+    AMIME::Header::Collection.unique_header?("date").should be_true
+    AMIME::Header::Collection.unique_header?("foo").should be_false
   end
 
   @[TestWith(

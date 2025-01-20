@@ -49,6 +49,7 @@ class Athena::MIME::Header::Parameterized < Athena::MIME::Header::Unstructured
   end
 
   # Write an RFC 2047 compliant header parameter from the *name* and *value* to *io*.
+  # ameba:disable Metrics/CyclomaticComplexity:
   private def write_parameter(io : IO, name : String, value : String) : Nil
     orig_value = value
 
@@ -103,12 +104,12 @@ class Athena::MIME::Header::Parameterized < Athena::MIME::Header::Unstructured
       end
     end
 
-    value_lines = (encoder = @encoder) ? value.split("\r\n") : [value]
+    value_lines = @encoder ? value.split("\r\n") : [value]
 
     if value_lines.size > 1
-      value_lines.each_with_index.join io, ";\r\n " do |(line, idx), io|
-        io << "#{name}*#{idx}"
-        self.write_end_of_parameter_value io, line, true, idx.zero?
+      value_lines.each_with_index.join io, ";\r\n " do |(line, idx), i|
+        i << "#{name}*#{idx}"
+        self.write_end_of_parameter_value i, line, true, idx.zero?
       end
 
       return

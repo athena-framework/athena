@@ -1,7 +1,7 @@
 require "../spec_helper"
 
 struct QuotedPrintableMIMEHeaderTest < ASPEC::TestCase
-  def test_name_is_Q : Nil
+  def test_name_is_q : Nil
     AMIME::Encoder::QuotedPrintableMIMEHeader.new.name.should eq "Q"
   end
 
@@ -61,8 +61,6 @@ struct QuotedPrintableMIMEHeaderTest < ASPEC::TestCase
   end
 
   def test_equals_never_appears_at_end_of_line : Nil
-    input = "a" * 140
-
     AMIME::Encoder::QuotedPrintableMIMEHeader
       .new
       .encode("a" * 140)

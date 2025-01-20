@@ -346,6 +346,7 @@ class Athena::MIME::Email < Athena::MIME::Message
     @cached_body = part.not_nil!
   end
 
+  # ameba:disable Metrics/CyclomaticComplexity:
   private def prepare_parts : {AMIME::Part::Text?, Array(AMIME::Part::Abstract), Array(AMIME::Part::Abstract)}
     names = [] of String
     html_part = nil

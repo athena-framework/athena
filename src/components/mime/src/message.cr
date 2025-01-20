@@ -38,8 +38,8 @@ class Athena::MIME::Message
     end
 
     # Determine the "real" sender
-    if !headers.has_key?("sender") && (froms = headers["from", AMIME::Header::MailboxList].body) && froms.size > 1
-      headers.add_mailbox_header "sender", froms.first
+    if !headers.has_key?("sender") && (from_addresses = headers["from", AMIME::Header::MailboxList].body) && from_addresses.size > 1
+      headers.add_mailbox_header "sender", from_addresses.first
     end
 
     unless headers.has_key? "message-id"
@@ -66,7 +66,7 @@ class Athena::MIME::Message
       raise AMIME::Exception::Logic.new "An email must have a 'to', 'cc', or 'bcc' header."
     end
 
-    if (!(froms = @headers.header_body("from")) || froms.as(Array(AMIME::Address)).empty?) && !@headers.header_body("sender")
+    if (!(from_addresses = @headers.header_body("from")) || from_addresses.as(Array(AMIME::Address)).empty?) && !@headers.header_body("sender")
       raise AMIME::Exception::Logic.new "An email must have a 'from' or a 'sender' header."
     end
   end
@@ -76,11 +76,11 @@ class Athena::MIME::Message
     sender = if sender_header = @headers["sender", AMIME::Header::Mailbox]?
                sender_header.body
              elsif from_header = @headers["from", AMIME::Header::MailboxList]?
-               if (froms = from_header.body).empty?
+               if (from_addresses = from_header.body).empty?
                  raise AMIME::Exception::Logic.new "A 'from' header must have at least one email address."
                end
 
-               froms.first
+               from_addresses.first
              else
                raise AMIME::Exception::Logic.new "An email must have a 'from' or 'sender' header."
              end

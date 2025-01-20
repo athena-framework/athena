@@ -5,6 +5,8 @@ struct Athena::MIME::Encoder::QuotedPrintableContent
   private MAX_LINE_LENGTH = 75
 
   # Encodes a string as per https://datatracker.ietf.org/doc/html/rfc2045#section-6.7.
+  #
+  # ameba:disable Metrics/CyclomaticComplexity:
   def self.quoted_printable_encode(string : String) : String
     # TODO: Refactor this to be more idiomatic.
 
@@ -86,7 +88,7 @@ struct Athena::MIME::Encoder::QuotedPrintableContent
 
     return string if string.empty?
 
-    case last_char = string[-1].ord
+    case string[-1].ord
     when 0x09 then string.sub(-1, "=09")
     when 0x20 then string.sub(-1, "=20")
     else

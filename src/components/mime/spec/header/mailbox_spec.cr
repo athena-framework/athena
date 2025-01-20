@@ -40,9 +40,9 @@ struct MailboxHeaderTest < ASPEC::TestCase
   end
 
   def test_body_to_s_with_encoded_byte : Nil
-    header = AMIME::Header::Mailbox.new("sender", AMIME::Address.new "me@example.com", %(Jon S\x8Fo))
+    header = AMIME::Header::Mailbox.new("sender", AMIME::Address.new "me@example.com", %(Jon S\x8F o))
     header.charset = "iso-8859-1"
-    header.body_to_s.should eq %(Jon =?iso-8859-1?Q?S=8Fo?= <me@example.com>)
+    header.body_to_s.should eq %(Jon =?iso-8859-1?Q?S=8F?= o <me@example.com>)
   end
 
   def test_utf8_chars_in_local_part : Nil

@@ -27,14 +27,14 @@ class Athena::MIME::Part::Multipart::Form < Athena::MIME::Part::AbstractMultipar
 
     case value
     when Hash
-      value.each do |key, value|
-        self.visit_field key, value, field_name
+      value.each do |k, v|
+        self.visit_field k, v, field_name
       end
 
       return
     when Array
-      value.each_with_index do |value, idx|
-        self.visit_field idx.to_s, value, field_name
+      value.each_with_index do |v, idx|
+        self.visit_field idx.to_s, v, field_name
       end
 
       return

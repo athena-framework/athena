@@ -305,7 +305,7 @@ struct EmailTest < ASPEC::TestCase
     )
   end
 
-  def test_geneate_body_with_text_content_and_attachment : Nil
+  def test_generate_body_with_text_content_and_attachment : Nil
     text, _, file_part, file, _, _ = self.generate_some_parts
 
     e = AMIME::Email.new.from("me@example.com").to("you@example.com")
@@ -315,7 +315,7 @@ struct EmailTest < ASPEC::TestCase
     e.body.should eq AMIME::Part::Multipart::Mixed.new text, file_part
   end
 
-  def test_geneate_body_with_html_content_and_attachment : Nil
+  def test_generate_body_with_html_content_and_attachment : Nil
     _, html, file_part, file, _, _ = self.generate_some_parts
 
     e = AMIME::Email.new.from("me@example.com").to("you@example.com")
@@ -325,7 +325,7 @@ struct EmailTest < ASPEC::TestCase
     e.body.should eq AMIME::Part::Multipart::Mixed.new html, file_part
   end
 
-  def test_geneate_body_with_html_content_and_inlined_image_not_reference : Nil
+  def test_generate_body_with_html_content_and_inlined_image_not_reference : Nil
     _, html, _, _, _, _ = self.generate_some_parts
     image_part = AMIME::Part::Data.new image = ::File.open("#{__DIR__}/fixtures/mimetypes/test.gif", "r")
     image_part.as_inline
@@ -337,7 +337,7 @@ struct EmailTest < ASPEC::TestCase
     e.body.should eq AMIME::Part::Multipart::Mixed.new(html, image_part)
   end
 
-  def test_geneate_body_attached_file_only : Nil
+  def test_generate_body_attached_file_only : Nil
     _, _, file_part, file, _, _ = self.generate_some_parts
 
     e = AMIME::Email.new.from("me@example.com").to("you@example.com")
@@ -346,7 +346,7 @@ struct EmailTest < ASPEC::TestCase
     e.body.should eq AMIME::Part::Multipart::Mixed.new file_part
   end
 
-  def test_geneate_body_inline_image_only : Nil
+  def test_generate_body_inline_image_only : Nil
     image_part = AMIME::Part::Data.new image = ::File.open("#{__DIR__}/fixtures/mimetypes/test.gif", "r")
     image_part.as_inline
 
@@ -356,7 +356,7 @@ struct EmailTest < ASPEC::TestCase
     e.body.should eq AMIME::Part::Multipart::Mixed.new image_part
   end
 
-  def test_geneate_body_with_text_and_html_content_and_attachment : Nil
+  def test_generate_body_with_text_and_html_content_and_attachment : Nil
     text, html, file_part, file, _, _ = self.generate_some_parts
 
     e = AMIME::Email.new.from("me@example.com").to("you@example.com")
@@ -367,7 +367,7 @@ struct EmailTest < ASPEC::TestCase
     e.body.should eq AMIME::Part::Multipart::Mixed.new(AMIME::Part::Multipart::Alternative.new(text, html), file_part)
   end
 
-  def test_geneate_body_with_text_and_html_content_and_attachment_and_attached_image_not_referenced : Nil
+  def test_generate_body_with_text_and_html_content_and_attachment_and_attached_image_not_referenced : Nil
     text, html, file_part, file, image_part, image = self.generate_some_parts
 
     e = AMIME::Email.new.from("me@example.com").to("you@example.com")
@@ -379,7 +379,7 @@ struct EmailTest < ASPEC::TestCase
     e.body.should eq AMIME::Part::Multipart::Mixed.new(AMIME::Part::Multipart::Alternative.new(text, html), file_part, image_part)
   end
 
-  def test_geneate_body_with_text_and_attached_file_and_attached_image_not_referenced : Nil
+  def test_generate_body_with_text_and_attached_file_and_attached_image_not_referenced : Nil
     text, _, file_part, file, image_part, image = self.generate_some_parts
 
     e = AMIME::Email.new.from("me@example.com").to("you@example.com")
@@ -407,7 +407,7 @@ struct EmailTest < ASPEC::TestCase
     _, _, file_part, file, _, image = self.generate_some_parts
 
     e = AMIME::Email.new.from("me@example.com").to("you@example.com")
-    e.html content = %(html content <img src="cid:test.gif">)
+    e.html %(html content <img src="cid:test.gif">)
     e.text "text content"
     e.add_part AMIME::Part::Data.new(file)
     e.add_part AMIME::Part::Data.new(image, "test.gif")

@@ -119,8 +119,8 @@ struct Athena::MIME::Address
   # Otherwise returns `false`.
   #
   # ```
-  # AMIME::Address.new("info@dømi.fo").has_unicode_local_part? # => false
-  # AMIME::Address.new("dømi@dømi.fo").has_unicode_local_part? # => true
+  # AMIME::Address.new("info@dømi.com").has_unicode_local_part? # => false
+  # AMIME::Address.new("dømi@dømi.com").has_unicode_local_part? # => true
   # ```
   def has_unicode_local_part? : Bool
     local, _, _ = @address.partition '@'

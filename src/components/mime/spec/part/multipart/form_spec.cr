@@ -3,7 +3,7 @@ require "../../spec_helper"
 struct FormPartTest < ASPEC::TestCase
   def test_constructor : Nil
     b = AMIME::Part::Text.new "content"
-    c = AMIME::Part::Data.from_path file_path = "#{__DIR__}/../../fixtures/mimetypes/test.gif"
+    c = AMIME::Part::Data.from_path "#{__DIR__}/../../fixtures/mimetypes/test.gif"
     part = AMIME::Part::Multipart::Form.new({
       "foo" => content = "very very long content that will not be cut even if the length is way more than 76 characters, ok?",
       "bar" => b.dup,

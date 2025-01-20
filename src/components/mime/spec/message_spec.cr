@@ -7,7 +7,7 @@ struct MessageTest < ASPEC::TestCase
     m.headers.should eq AMIME::Header::Collection.new
 
     m = AMIME::Message.new(
-      headers = AMIME::Header::Collection.new.tap { |h| h.add_date_header("date", Time.utc) },
+      headers = AMIME::Header::Collection.new.tap(&.add_date_header("date", Time.utc)),
       body = AMIME::Part::Text.new("content"),
     )
     m.headers.should be headers

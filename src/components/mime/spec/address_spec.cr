@@ -39,9 +39,9 @@ struct AddressTest < ASPEC::TestCase
   end
 
   def test_unicode_local_part : Nil
-    # dømi means example and is reserved by the .fo registry
-    AMIME::Address.new("info@dømi.fo").has_unicode_local_part?.should be_false
-    AMIME::Address.new("dømi@dømi.fo").has_unicode_local_part?.should be_true
+    # dømi means example and is reserved by the `.fo` registry # spellchecker:disable-line
+    AMIME::Address.new("info@dømi.fo").has_unicode_local_part?.should be_false # spellchecker:disable-line
+    AMIME::Address.new("dømi@dømi.fo").has_unicode_local_part?.should be_true  # spellchecker:disable-line
   end
 
   @[TestWith(
