@@ -42,7 +42,7 @@ struct ISBNValidatorTest < AVD::Spec::ConstraintValidatorTestCase
   end
 
   @[DataProvider("valid_isbn13s")]
-  def test_valid_isbn10s(value : String) : Nil
+  def test_valid_isbn13s(value : String) : Nil
     self.validator.validate value, self.new_constraint type: CONSTRAINT::Type::ISBN13
     self.assert_no_violation
   end

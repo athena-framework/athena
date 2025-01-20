@@ -16,9 +16,8 @@ abstract class Athena::Validator::Constraints::ComparisonValidator < Athena::Val
 
     self
       .context
-      .build_violation(constraint.message, self.error_code, value)
-      .add_parameter("{{ compared_value }}", compared_value)
-      .add_parameter("{{ compared_value_type }}", constraint.value_type)
+      .build_violation(constraint.message, self.error_code)
+      .set_parameters({"{{ value }}" => value.to_s, "{{ compared_value }}" => compared_value.to_s, "{{ compared_value_type }}" => constraint.value_type.to_s})
       .add
   end
 end
