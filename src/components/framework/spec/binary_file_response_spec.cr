@@ -285,4 +285,9 @@ struct ATH::BinaryFileResponseTest < ASPEC::TestCase
       {"bytes=40-50"},
     }
   end
+
+  def test_content_disposition_to_s : Nil
+    ATH::BinaryFileResponse::ContentDisposition::Attachment.to_s.should eq "attachment"
+    ATH::BinaryFileResponse::ContentDisposition::Inline.to_s.should eq "inline"
+  end
 end

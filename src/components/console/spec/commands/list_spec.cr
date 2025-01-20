@@ -83,6 +83,16 @@ struct ListCommandTest < ASPEC::TestCase
     suggestions.should eq expected_suggestions
   end
 
+  def test_complete_var_arg : Nil
+    app = ACON::Application.new "foo"
+    app.add FooCommand.new
+
+    ACON::Spec::CommandCompletionTester
+      .new(app.get "list")
+      .complete("--format")
+      .should eq ["txt"]
+  end
+
   def complete_provider : Hash
     {
       "--format option"   => {["--format"], ["txt"]},

@@ -23,18 +23,29 @@ struct Athena::Console::Input::Value::Array < Athena::Console::Input::Value
   end
 
   def get(type : ::Array(T).class) : ::Array(T) forall T
-    @value.map &.get(T)
+    arr = ::Array(T).new
+
+    @value.each do |v|
+      arr << v.get T
+    end
+
+    arr
   end
 
   def get(type : ::Array(T)?.class) : ::Array(T)? forall T
-    @value.map(&.get(T)) || nil
-  end
+    arr = ::Array(T).new
 
-  def resolve
-    self.value.map &.resolve
+    @value.each do |v|
+      arr << v.get T
+    end
+
+    arr || nil
   end
 
   def to_s(io : IO) : ::Nil
     @value.join io, ','
   end
+
+  # :nodoc:
+  forward_missing_to @value
 end

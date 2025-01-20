@@ -504,4 +504,11 @@ struct ATH::RequestTest < ASPEC::TestCase
     request.headers["host"] = "localhost"
     request.host.should eq "localhost"
   end
+
+  def test_request_data : Nil
+    request = ATH::Request.new "GET", "/", body: "foo=bar&biz=baz"
+    params = request.request_data
+    params.should eq p = URI::Params.new({"foo" => ["bar"], "biz" => ["baz"]})
+    request.request_data.should eq p
+  end
 end

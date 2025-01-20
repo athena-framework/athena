@@ -173,6 +173,19 @@ struct AthenaStyleTest < ASPEC::TestCase
         end),
         "style/non_interactive_question.txt",
       },
+      "non-hidden questions do not output anything when input is non-interactive" => {
+        (ACON::Commands::Generic::Proc.new do |input, output|
+          style = ACON::Style::Athena.new input, output
+          style.title "Title"
+          style.ask "Hidden question", nil
+          style.choice "Choice question with default", {"choice1", "choice2"}, "choice1"
+          style.confirm "Confirmation with yes default", true
+          style.text "Duis aute irure dolor in reprehenderit in voluptate velit esse"
+
+          ACON::Command::Status::SUCCESS
+        end),
+        "style/non_interactive_question.txt",
+      },
       # TODO: Test table formatting with multiple headers + TableCell
       "Lines are aligned to the beginning of the first line in a multi-line block" => {
         (ACON::Commands::Generic::Proc.new do |input, output|
@@ -416,5 +429,36 @@ struct AthenaStyleTest < ASPEC::TestCase
 
     tester.execute interactive: false, decorated: false
     self.assert_file_equals_string "style/table_vertical.txt", tester.display true
+  end
+
+  def test_customize_formatter : Nil
+    output = ACON::Output::IO.new IO::Memory.new
+    style = ACON::Style::Athena.new ACON::Input::Hash.new({} of String => String), output
+
+    style.formatter = ACON::Formatter::Null.new
+  end
+
+  def test_progress_bar : Nil
+    output = ACON::Output::IO.new IO::Memory.new
+    style = ACON::Style::Athena.new ACON::Input::Hash.new({} of String => String), output
+
+    style.progress_start 123
+    bar = style.progress_bar.not_nil!
+    bar.max_steps.should eq 123
+    bar.progress.should eq 0
+
+    style.progress_advance 4
+    bar.progress.should eq 4
+
+    style.progress_finish
+
+    style.progress_iterate([1, 2, 3]) { }
+
+    output = output.to_s
+    output.should contain "0/123"
+    output.should contain "123/123"
+
+    output.should contain "0/3"
+    output.should contain "3/3"
   end
 end

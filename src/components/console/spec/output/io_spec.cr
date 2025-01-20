@@ -14,7 +14,15 @@ struct IOTest < ASPEC::TestCase
   def test_do_write : Nil
     output = ACON::Output::IO.new @io
     output.puts "foo"
-    output.to_s.should eq "foo#{EOL}"
+    output.print "bar"
+    output.to_s.should eq "foo#{EOL}bar"
+  end
+
+  def test_do_write_var_args : Nil
+    output = ACON::Output::IO.new @io
+    output.puts "foo", "bar"
+    output.print "biz", "baz"
+    output.to_s.should eq "foo#{EOL}bar#{EOL}bizbaz"
   end
 
   def test_decorated_dumb_term : Nil

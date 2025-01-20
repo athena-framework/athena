@@ -7,6 +7,18 @@ struct ProgressIndicatorTest < ASPEC::TestCase
     @clock = ACLK::Spec::MockClock.new
   end
 
+  def test_set_placeholder_formatter : Nil
+    ACON::Helper::ProgressIndicator.set_placeholder_formatter "custom-message" do
+      # Return any arbitrary string
+      "My Custom Message"
+    end
+
+    ACON::Helper::ProgressIndicator
+      .placeholder_formatter("custom-message")
+      .try(&.call(ACON::Helper::ProgressIndicator.new self.output(decorated: false)))
+      .should eq "My Custom Message"
+  end
+
   def test_default_indicator : Nil
     indicator = ACON::Helper::ProgressIndicator.new output = self.output, clock: @clock
 
@@ -131,10 +143,6 @@ struct ProgressIndicatorTest < ASPEC::TestCase
     indicator.advance
 
     output.io.to_s.should_not be_empty
-  end
-
-  private def output(decorated : Bool = true, verbosity : ACON::Output::Verbosity = :normal) : ACON::Output::Interface
-    ACON::Output::IO.new IO::Memory.new, decorated: decorated, verbosity: verbosity
   end
 
   private def generate_output(expected : String) : String

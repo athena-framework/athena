@@ -199,4 +199,14 @@ struct CommandTesterTest < ASPEC::TestCase
 
     tester.error_output.should eq "foo"
   end
+
+  def test_assert_command_is_not_successful : Nil
+    command = ACON::Commands::Generic.new "foo" do |_, _|
+      ACON::Command::Status::FAILURE
+    end
+
+    tester = ACON::Spec::CommandTester.new command
+    tester.execute
+    tester.assert_command_is_not_successful
+  end
 end

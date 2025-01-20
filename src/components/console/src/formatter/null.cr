@@ -4,7 +4,7 @@ require "./interface"
 class Athena::Console::Formatter::Null
   include Athena::Console::Formatter::Interface
 
-  @style : ACON::Formatter::OutputStyle? = nil
+  @style : ACON::Formatter::NullStyle? = nil
 
   def decorated=(@decorated : Bool)
   end

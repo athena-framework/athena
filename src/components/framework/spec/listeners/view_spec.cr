@@ -59,6 +59,19 @@ describe ATH::Listeners::View do
       view_handler.view.context.groups.try &.should be_empty
     end
 
+    it "mutating response" do
+      request = new_request
+      event = ATH::Events::View.new request, "FOO"
+      view_handler = MockViewHandler.new
+
+      event.action_result = "BAR"
+      ATH::Listeners::View.new(view_handler).on_view event
+
+      view_handler.view.data.should eq "BAR"
+      view_handler.view.format.should eq "json"
+      view_handler.view.context.groups.try &.should be_empty
+    end
+
     describe ATHA::View do
       describe "status" do
         it "with status" do

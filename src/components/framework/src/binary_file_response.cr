@@ -30,10 +30,10 @@ class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
     Inline
 
     # :inherit:
-    def to_s(io : IO) : Nil
+    def to_s : String
       case self
-      in .attachment? then io << "attachment"
-      in .inline?     then io << "inline"
+      in .attachment? then "attachment"
+      in .inline?     then "inline"
       end
     end
   end

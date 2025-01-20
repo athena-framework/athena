@@ -28,4 +28,13 @@ struct AcceptLanguageTest < ASPEC::TestCase
       {"en-GB;q=0.8", "en-GB;q=0.8"},
     }
   end
+
+  @[TestWith(
+    {"en;q=0.7", "en"},
+    {"en-GB;q=0.8", "en-gb"},
+    {"zh-Hans-CN;q=0.8", "zh-hans-cn"},
+  )]
+  def test_language_range(header : String, expected : String) : Nil
+    ANG::AcceptLanguage.new(header).language_range.should eq expected
+  end
 end

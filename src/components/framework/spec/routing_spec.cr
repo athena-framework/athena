@@ -127,6 +127,7 @@ struct RoutingTest < ATH::Spec::APITestCase
   {% for method in ["POST", "PUT", "PATCH", "DELETE", "LINK", "UNLINK"] %}
     def test_macro_dsl_{{method.downcase.id}} : Nil
       self.request({{method}}, "/macro").body.should eq %({{method}})
+      self.{{method.downcase.id}}("/macro").body.should eq %({{method}})
     end
   {% end %}
 
@@ -246,5 +247,11 @@ struct RoutingTest < ATH::Spec::APITestCase
     self.post "/art/response/"
 
     self.assert_response_has_status :not_found
+  end
+
+  def test_unprocessable : Nil
+    self.post "/unprocessable"
+
+    self.assert_response_is_unprocessable
   end
 end

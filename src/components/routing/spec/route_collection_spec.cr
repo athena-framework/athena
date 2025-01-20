@@ -27,6 +27,17 @@ struct RouteCollectionTest < ASPEC::TestCase
     collection["foo"].should be route2
   end
 
+  def test_each_iterator : Nil
+    collection = ART::RouteCollection.new
+    route1 = ART::Route.new "/foo"
+    route2 = ART::Route.new "/bar"
+
+    collection.add "foo", route1
+    collection.add "bar", route2
+
+    assert_iterates_iterator [{"foo", route1}, {"bar", route2}], collection.each
+  end
+
   def test_deep_overridden_route : Nil
     collection = ART::RouteCollection.new
     collection.add "foo", ART::Route.new "/foo"
@@ -204,7 +215,7 @@ struct RouteCollectionTest < ASPEC::TestCase
     b.schemes.should eq Set{"http", "https"}
   end
 
-  def test_set_scheme : Nil
+  def test_set_methods : Nil
     collection = ART::RouteCollection.new
     collection.add "a", a = ART::Route.new "/a", methods: {"get", "POST"}
     collection.add "b", b = ART::Route.new "/b"

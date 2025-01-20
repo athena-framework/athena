@@ -157,7 +157,7 @@ abstract struct Athena::Framework::Spec::APITestCase < ATH::Spec::WebTestCase
 
   # Makes a `UNLINK` request to the provided *path*, optionally with the provided *headers*.
   def unlink(path : String, headers : HTTP::Headers = HTTP::Headers.new) : HTTP::Server::Response
-    self.request "UNLINK", path, body, headers
+    self.request "UNLINK", path, headers: headers
   end
 
   # See `AbstractBrowser#request`.

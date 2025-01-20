@@ -72,10 +72,6 @@ macro create_action(return_type = String, &)
   )
 end
 
-def new_context(*, request : ATH::Request = new_request, response : HTTP::Server::Response = new_response) : HTTP::Server::Context
-  HTTP::Server::Context.new request, response
-end
-
 def new_parameter : ATH::Controller::ParameterMetadata
   ATH::Controller::ParameterMetadata(Int32).new "id"
 end

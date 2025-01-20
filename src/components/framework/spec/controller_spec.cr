@@ -40,4 +40,18 @@ describe ATH::Controller do
       response.content.should be_empty
     end
   end
+
+  it "#redirect_view" do
+    response = TestController.new.redirect_view "URL", :im_a_teapot
+    view = response.should be_a ATH::View(Nil)
+    view.location.should eq "URL"
+    view.status.should eq HTTP::Status::IM_A_TEAPOT
+  end
+
+  it "#route_redirect_view" do
+    response = TestController.new.route_redirect_view "get_user_me"
+    view = response.should be_a ATH::View(Nil)
+    view.route.should eq "get_user_me"
+    view.route_params.should be_empty
+  end
 end

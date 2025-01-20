@@ -33,6 +33,17 @@ describe ATH::StreamedResponse do
       io.to_s.should eq "FOO"
     end
 
+    it "allows overriding the callback" do
+      io = IO::Memory.new
+
+      response = (ATH::StreamedResponse.new &.<<("BAZ"))
+      response.content = ->(i : IO) { i << "BAR" }
+
+      response.write io
+
+      io.to_s.should eq "BAR"
+    end
+
     it "accepts an Int status" do
       (ATH::StreamedResponse.new(status: 201, &.<<("BAZ"))).status.should eq HTTP::Status::CREATED
     end

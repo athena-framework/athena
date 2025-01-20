@@ -64,6 +64,16 @@ struct CursorTest < ASPEC::TestCase
     @output.to_s.should eq "\x1b[2K"
   end
 
+  def test_clear_line_after : Nil
+    @cursor.clear_line_after
+    @output.to_s.should eq "\x1b[K"
+  end
+
+  def test_clear_screen : Nil
+    @cursor.clear_screen
+    @output.to_s.should eq "\x1b[2J"
+  end
+
   def test_save_position : Nil
     @cursor.save_position
     @output.to_s.should eq "\x1b7"
