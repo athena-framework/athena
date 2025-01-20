@@ -18,6 +18,7 @@ struct ImageTest < ASPEC::TestCase
 
       image.width.should eq expected_width.to_i
       image.height.should eq expected_height.to_i
+      image.size.should eq({expected_width.to_i, expected_height.to_i})
       image.bits.should eq expected_bits
       image.channels.should eq expected_channels
       image.format.should eq AIS::Image::Format.parse(expected_format)
