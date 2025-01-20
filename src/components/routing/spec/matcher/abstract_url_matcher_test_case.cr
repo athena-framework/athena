@@ -752,7 +752,7 @@ abstract struct AbstractURLMatcherTestCase < ASPEC::TestCase
     end
   end
 
-  def test_match_scheme_and_method_mismatch : Nil
+  def test_sibling_routes : Nil
     routes = self.build_collection do
       add "a", ART::Route.new "/a{a}", methods: "POST"
       add "b", ART::Route.new "/a{a}", methods: "PUT"
