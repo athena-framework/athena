@@ -10,6 +10,7 @@ function runSpecs() (
 #
 # $1 component name
 function runSpecsWithCoverage() (
+  rm -rf "coverage/$1"
   mkdir -p coverage/bin "coverage/$1"
   echo "require \"../../src/components/$1/spec/**\"" > "./coverage/bin/$1.cr" && \
   $CRYSTAL build "${DEFAULT_BUILD_OPTIONS[@]}" "./coverage/bin/$1.cr" -o "./coverage/bin/$1" && \
