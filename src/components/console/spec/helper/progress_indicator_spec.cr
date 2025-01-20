@@ -15,7 +15,7 @@ struct ProgressIndicatorTest < ASPEC::TestCase
 
     ACON::Helper::ProgressIndicator
       .placeholder_formatter("custom-message")
-      .try(&.call(ACON::Helper::ProgressIndicator.new output = self.output(decorated: false)))
+      .try(&.call(ACON::Helper::ProgressIndicator.new self.output(decorated: false)))
       .should eq "My Custom Message"
   end
 

@@ -19,6 +19,8 @@ class Athena::Routing::RequestContext
 
   # Creates a new instance of self from the provided *uri*.
   # The *host*, *scheme*, *http_port*, and *https_port* optionally act as fallbacks if they are not contained within the *uri*.
+  #
+  # ameba:disable Metrics/CyclomaticComplexity:
   def self.from_uri(uri : String, host : String = "localhost", scheme : String = "http", http_port : Int32 = 80, https_port : Int32 = 443) : self
     if (idx = uri.index('\\')) && (i = uri.index(/\?|\#/) || uri.bytesize) && idx < i
       uri = ""

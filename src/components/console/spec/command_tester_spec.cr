@@ -186,7 +186,7 @@ struct CommandTesterTest < ASPEC::TestCase
   end
 
   def test_error_output : Nil
-    command = ACON::Commands::Generic.new "foo" do |_, output|
+    command = ACON::Commands::Generic.new "foo" do |_, _|
       ACON::Command::Status::FAILURE
     end
 

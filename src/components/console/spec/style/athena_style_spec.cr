@@ -432,14 +432,14 @@ struct AthenaStyleTest < ASPEC::TestCase
   end
 
   def test_customize_formatter : Nil
-    output = ACON::Output::IO.new io = IO::Memory.new
+    output = ACON::Output::IO.new IO::Memory.new
     style = ACON::Style::Athena.new ACON::Input::Hash.new({} of String => String), output
 
     style.formatter = ACON::Formatter::Null.new
   end
 
   def test_progress_bar : Nil
-    output = ACON::Output::IO.new io = IO::Memory.new
+    output = ACON::Output::IO.new IO::Memory.new
     style = ACON::Style::Athena.new ACON::Input::Hash.new({} of String => String), output
 
     style.progress_start 123
