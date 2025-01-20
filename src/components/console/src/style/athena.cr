@@ -36,8 +36,8 @@ class Athena::Console::Style::Athena < Athena::Console::Style::Output
   end
 
   # :inherit:
-  def ask(question : String, default : _)
-    self.ask ACON::Question.new question, default
+  def ask(question : String, default : String?)
+    self.ask ACON::Question(String?).new question, default
   end
 
   # :ditto:

@@ -7,6 +7,29 @@ struct ChoiceQuestionTest < ASPEC::TestCase
     end
   end
 
+  def test_custom_validator : Nil
+    question = ACON::Question::Choice.new(
+      "A question",
+      [
+        "First response",
+        "Second response",
+        "Third response",
+        "Fourth response",
+      ]
+    )
+
+    question.validator do
+      "FOO"
+    end
+
+    {"First response", "First response ", " First response", " First response "}.each do |answer|
+      validator = question.validator.not_nil!
+      actual = validator.call answer
+
+      actual.should eq "FOO"
+    end
+  end
+
   def test_validator_exact_match : Nil
     question = ACON::Question::Choice.new(
       "A question",
