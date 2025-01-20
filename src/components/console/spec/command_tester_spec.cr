@@ -186,6 +186,21 @@ struct CommandTesterTest < ASPEC::TestCase
   end
 
   def test_error_output : Nil
+    command = ACON::Commands::Generic.new "foo" do |_, output|
+      output.as(ACON::Output::ConsoleOutput).error_output.print "foo"
+
+      ACON::Command::Status::SUCCESS
+    end
+    command.argument "command"
+    command.argument "foo"
+
+    tester = ACON::Spec::CommandTester.new command
+    tester.execute foo: "bar", capture_stderr_separately: true
+
+    tester.error_output.should eq "foo"
+  end
+
+  def test_assert_command_is_not_successful : Nil
     command = ACON::Commands::Generic.new "foo" do |_, _|
       ACON::Command::Status::FAILURE
     end

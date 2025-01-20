@@ -10,18 +10,18 @@ function runSpecs() (
 #
 # $1 component name
 function runSpecsWithCoverage() (
+  set -e
   rm -rf "coverage/$1"
   mkdir -p coverage/bin "coverage/$1"
   echo "require \"../../src/components/$1/spec/**\"" > "./coverage/bin/$1.cr" && \
   $CRYSTAL build "${DEFAULT_BUILD_OPTIONS[@]}" "./coverage/bin/$1.cr" -o "./coverage/bin/$1" && \
+  kcov $(if $IS_CI != "true"; then echo "--cobertura-only"; fi) --clean --include-path="./src/components/$1" "./coverage/$1" "./coverage/bin/$1" --junit_output="./coverage/$1/junit.xml" "${DEFAULT_OPTIONS[@]}"
 
-  # Run this first so spec failures are reported as an error.
+  # Scope this to only non-compiled tests as that's all it's relevant for.
   if [ $TYPE != "compiled" ]
   then
     $CRYSTAL tool unreachable --format=codecov "./coverage/bin/$1.cr" > "./coverage/$1/unreachable.codecov.json"
   fi
-
-  kcov $(if $IS_CI != "true"; then echo "--cobertura-only"; fi) --clean --include-path="./src/components/$1" "./coverage/$1" "./coverage/bin/$1" --junit_output="./coverage/$1/junit.xml" "${DEFAULT_OPTIONS[@]}"
 )
 
 DEFAULT_BUILD_OPTIONS=(-Dstrict_multi_assign -Dpreview_overload_order --error-on-warnings)
