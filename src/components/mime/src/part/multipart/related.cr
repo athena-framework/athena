@@ -1,3 +1,4 @@
+# Represents a `related` part.
 class Athena::MIME::Part::Multipart::Related < Athena::MIME::Part::AbstractMultipart
   @main_part : AMIME::Part::Abstract
 
@@ -15,6 +16,7 @@ class Athena::MIME::Part::Multipart::Related < Athena::MIME::Part::AbstractMulti
     "related"
   end
 
+  # :inherit:
   def parts : Array(AMIME::Part::Abstract)
     super.unshift @main_part
   end

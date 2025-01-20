@@ -1,7 +1,10 @@
 require "mime/multipart"
 
+# Base type of all *multipart* based parts.
 abstract class Athena::MIME::Part::AbstractMultipart < Athena::MIME::Part::Abstract
   private getter boundary : String { ::MIME::Multipart.generate_boundary }
+
+  # Returns the parts that make up this multipart part.
   getter parts : Array(Athena::MIME::Part::Abstract) = [] of AMIME::Part::Abstract
 
   def self.new(*parts : AMIME::Part::Abstract) : self
@@ -19,6 +22,7 @@ abstract class Athena::MIME::Part::AbstractMultipart < Athena::MIME::Part::Abstr
     "multipart"
   end
 
+  # :inherit:
   def prepared_headers : AMIME::Header::Collection
     headers = super
 
@@ -27,8 +31,7 @@ abstract class Athena::MIME::Part::AbstractMultipart < Athena::MIME::Part::Abstr
     headers
   end
 
-  # :inherit:
-  def body_to_s(io : IO) : Nil
+  protected def body_to_s(io : IO) : Nil
     self.parts.each do |part|
       io << self.boundary
       io << '\r' << '\n'

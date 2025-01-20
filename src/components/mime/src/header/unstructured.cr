@@ -1,3 +1,4 @@
+# Represents a simple MIME Header (key/value).
 class Athena::MIME::Header::Unstructured < Athena::MIME::Header::Abstract(String)
   @value : String
 
@@ -5,15 +6,17 @@ class Athena::MIME::Header::Unstructured < Athena::MIME::Header::Abstract(String
     super name
   end
 
+  # :inherit:
   def body : String
     @value
   end
 
+  # :inherit:
   def body=(body : String)
     @value = body
   end
 
-  def body_to_s(io : IO) : Nil
+  protected def body_to_s(io : IO) : Nil
     io << self.encode_words self, @value
   end
 end

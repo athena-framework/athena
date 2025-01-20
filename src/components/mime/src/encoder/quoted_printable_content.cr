@@ -1,3 +1,4 @@
+# A content encoder based on the [quoted-printable](https://datatracker.ietf.org/doc/html/rfc2045#section-6.7) spec.
 struct Athena::MIME::Encoder::QuotedPrintableContent
   include Athena::MIME::Encoder::ContentEncoderInterface
 

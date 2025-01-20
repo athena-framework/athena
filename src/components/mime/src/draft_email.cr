@@ -12,7 +12,7 @@
 class Athena::MIME::DraftEmail < Athena::MIME::Email
   def initialize(
     headers : AMIME::Header::Collection? = nil,
-    body : AMIME::Part::Abstract? = nil
+    body : AMIME::Part::Abstract? = nil,
   )
     super
 

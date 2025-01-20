@@ -1,5 +1,6 @@
 require "./content_encoder_interface"
 
+# A content encoder based on the [8bit](https://datatracker.ietf.org/doc/html/rfc1428) spec.
 struct Athena::MIME::Encoder::EightBitContent
   include Athena::MIME::Encoder::ContentEncoderInterface
 

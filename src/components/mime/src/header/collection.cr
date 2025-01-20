@@ -1,3 +1,4 @@
+# Represents a collection of MIME headers.
 class Athena::MIME::Header::Collection
   private UNIQUE_HEADERS = [
     "bcc",
@@ -23,6 +24,13 @@ class Athena::MIME::Header::Collection
     DATE
   end
 
+  # Checks the provided *header* to ensure its name and type are compatible.
+  #
+  # ```
+  # AMIME::Header::Collection.check_header_class AMIME::Header::Date.new("date", Time.utc) # => nil
+  # AMIME::Header::Collection.check_header_class AMIME::Header::Unstructured.new("date", "blah")
+  # # => AMIME::Exception::Logic: The 'date' header must be an instance of 'Athena::MIME::Header::Date' (got 'Athena::MIME::Header::Unstructured').
+  # ```
   def self.check_header_class(header : AMIME::Header::Interface) : Nil
     is_valid, header_clases = case header.name.downcase
                               when "date"        then {header.is_a?(AMIME::Header::Date), {AMIME::Header::Date}}
@@ -50,6 +58,7 @@ class Athena::MIME::Header::Collection
     UNIQUE_HEADERS.includes? name.downcase
   end
 
+  # Returns the
   getter line_length : Int32 = 76
 
   @headers = Hash(String, Array(AMIME::Header::Interface)).new { |hash, key| hash[key] = Array(AMIME::Header::Interface).new }
@@ -68,12 +77,14 @@ class Athena::MIME::Header::Collection
 
   def_equals @headers, @line_length
 
+  # Sets the max line length to use for this collection.
   def line_length=(@line_length : Int32) : Nil
     self.all do |header|
       header.max_line_length = @line_length
     end
   end
 
+  # :nodoc:
   def to_s(io : IO) : Nil
     self.all do |header|
       header.to_s(io)
@@ -81,6 +92,7 @@ class Athena::MIME::Header::Collection
     end
   end
 
+  # Returns the string representation of each header in the collection as an array of strings.
   def to_a : Array(String)
     headers = [] of String
 
@@ -91,12 +103,14 @@ class Athena::MIME::Header::Collection
     headers
   end
 
+  # Returns an array of all `AMIME::Header::Interface` instances stored within the collection.
   def all : Array(AMIME::Header::Interface)
     @headers.each_value.flat_map do |headers|
       headers
     end.to_a
   end
 
+  # Yields each `AMIME::Header::Interface` instance stored within the collection.
   def all(& : AMIME::Header::Interface ->) : Nil
     @headers.each_value do |headers|
       headers.each do |header|
@@ -105,20 +119,25 @@ class Athena::MIME::Header::Collection
     end
   end
 
+  # Yields each `AMIME::Header::Interface` instance stored within the collection with the provided *name*.
   def all(name : String, & : AMIME::Header::Interface ->) : Nil
     @headers[name.downcase]?.try &.each do |header|
       yield header
     end
   end
 
+  # Returns the names of all headers stored within the collection as an array of strings.
   def names : Array(String)
     @headers.keys
   end
 
+  # Removes the header(s) with the provided *name* from the collection.
   def delete(name : String) : Nil
     @headers.delete name
   end
 
+  # Returns the first header with the provided *name*.
+  # Raises an `AMIME::Exception::HeaderNotFound` exception if no header with that name exists.
   def [](name : String) : AMIME::Header::Interface
     name = name.downcase
 
@@ -129,16 +148,20 @@ class Athena::MIME::Header::Collection
     first_header
   end
 
+  # Returns the first header with the provided *name* casted to type `T`.
+  # Raises an `AMIME::Exception::HeaderNotFound` exception if no header with that name exists.
   def [](name : String, _type : T.class) : T forall T
     self.[name].as T
   end
 
+  # Returns the first header with the provided *name* casted to type `T`, or `nil` if no headers with that name exist.
   def []?(name : String, _type : T.class) : T? forall T
     return unless header = self.[name]?
 
     header.as T
   end
 
+  # Returns the first header with the provided *name*, or `nil` if no headers with that name exist.
   def []?(name : String) : AMIME::Header::Interface?
     name = name.downcase
 
@@ -147,6 +170,7 @@ class Athena::MIME::Header::Collection
     headers.first?
   end
 
+  # Adds the provided *header* to the collection.
   def <<(header : AMIME::Header::Interface) : self
     self.class.check_header_class header
 
@@ -162,44 +186,60 @@ class Athena::MIME::Header::Collection
     self
   end
 
+  # Returns the body of the first header with the provided *name*.
   def header_body(name : String)
     return unless header = self.[name]?
 
     header.body
   end
 
+  # Returns `true` if the collection contains a header with the provided *name*, otherwise `false`.
   def has_key?(name : String) : Bool
     @headers.has_key? name.downcase
   end
 
+  # Adds an `AMIME::Header::Identification` header to the collection with the provided *name* and *body*.
   def add_id_header(name : String, body : String | Array(String)) : self
     self << AMIME::Header::Identification.new name, body
   end
 
+  # Adds an `AMIME::Header::Unstructured` header to the collection with the provided *name* and *body*.
   def add_text_header(name : String, body : String) : self
     self << AMIME::Header::Unstructured.new name, body
   end
 
+  # Adds an `AMIME::Header::Date` header to the collection with the provided *name* and *body*.
   def add_date_header(name : String, body : Time) : self
     self << AMIME::Header::Date.new name, body
   end
 
+  # Adds an `AMIME::Header::Path` header to the collection with the provided *name* and *body*.
   def add_path_header(name : String, body : AMIME::Address | String) : self
     self << AMIME::Header::Path.new name, AMIME::Address.create(body)
   end
 
+  # Adds an `AMIME::Header::Mailbox` header to the collection with the provided *name* and *body*.
   def add_mailbox_header(name : String, body : AMIME::Address | String) : self
     self << AMIME::Header::Mailbox.new name, AMIME::Address.create(body)
   end
 
+  # Adds an `AMIME::Header::MailboxList` header to the collection with the provided *name* and *body*.
   def add_mailbox_list_header(name : String, body : Enumerable(AMIME::Address | String)) : self
     self << AMIME::Header::MailboxList.new name, AMIME::Address.create_multiple(body)
   end
 
+  # Adds an `AMIME::Header::Parameterized` header to the collection with the provided *name* and *body*.
   def add_parameterized_header(name : String, body : String, params : Hash(String, String) = {} of String => String) : self
     self << AMIME::Header::Parameterized.new name, body, params
   end
 
+  # Returns the value of the provided *parameter* for the first `AMIME::Header::Parameterized` header with the provided *name*.
+  #
+  # ```
+  # headers = AMIME::Header::Collection.new
+  # headers.add_parameterized_header "content-type", "text/plain", {"charset" => "UTF-8"}
+  # headers.header_parameter "content-type", "charset" # => "UTF-8"
+  # ```
   def header_parameter(name : String, parameter : String) : String?
     header = self.[name]
 

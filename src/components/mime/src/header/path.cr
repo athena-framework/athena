@@ -1,3 +1,4 @@
+# Represents a Path MIME Header for something like `return-path` (one address).
 class Athena::MIME::Header::Path < Athena::MIME::Header::Abstract(Athena::MIME::Address)
   @value : AMIME::Address
 
@@ -5,15 +6,17 @@ class Athena::MIME::Header::Path < Athena::MIME::Header::Abstract(Athena::MIME::
     super name
   end
 
+  # :inherit:
   def body : AMIME::Address
     @value
   end
 
+  # :inherit:
   def body=(body : AMIME::Address)
     @value = body
   end
 
-  def body_to_s(io : IO) : Nil
+  protected def body_to_s(io : IO) : Nil
     io << '<'
     @value.to_s io
     io << '>'

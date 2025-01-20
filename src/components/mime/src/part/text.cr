@@ -1,9 +1,13 @@
+# Represents textual content a part of an email.
 class Athena::MIME::Part::Text < Athena::MIME::Part::Abstract
   private DEFAULT_ENCODERS = ["quoted-printable", "base64", "8bit"]
 
   @@encoders = Hash(String, AMIME::Encoder::ContentEncoderInterface).new
 
+  # Controls the `content-disposition` header value for this part.
   property disposition : String? = nil
+
+  # Returns the name of this part.
   property name : String? = nil
 
   @body : String | IO | AMIME::Part::File
@@ -13,7 +17,7 @@ class Athena::MIME::Part::Text < Athena::MIME::Part::Abstract
     body : String | IO | AMIME::Part::File,
     @charset : String? = "UTF-8",
     @sub_type : String = "plain",
-    encoding : String? = nil
+    encoding : String? = nil,
   )
     if body.is_a? AMIME::Part::File
       if !::File::Info.readable?(body.path) || ::File.directory?(body.path)
@@ -42,11 +46,12 @@ class Athena::MIME::Part::Text < Athena::MIME::Part::Abstract
     @sub_type
   end
 
-  # :inherit:
-  def body_to_s(io : IO) : Nil
+  protected def body_to_s(io : IO) : Nil
     io << self.encoder.encode self.body, @charset
   end
 
+  # Returns the raw contents of this part as a string.
+  # Use `#body_to_s` to get a properly encoded representation.
   def body : String
     case body = @body
     in AMIME::Part::File

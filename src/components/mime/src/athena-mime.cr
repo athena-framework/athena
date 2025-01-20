@@ -18,12 +18,18 @@ alias AMIME = Athena::MIME
 module Athena::MIME
   VERSION = "0.1.0"
 
+  # Namespace for types related to encoding part of the MIME message.
   module Encoder; end
 
   # Both acts as a namespace for exceptions related to the `Athena::MIME` component, as well as a way to check for exceptions from the component.
   module Exception; end
 
+  # Namespace for the types used to represent MIME headers.
   module Header; end
 
-  module Part; end
+  # Namespace for the types used to represent the parts used to compose a MIME message.
+  module Part
+    # Namespace for Multipart related parts.
+    module Multipart; end
+  end
 end

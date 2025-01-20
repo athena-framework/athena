@@ -25,6 +25,7 @@ class Athena::MIME::Email < Athena::MIME::Message
     LOW
     LOWEST
 
+    # :nodoc:
     def to_s : String
       "#{self.value} (#{super.titleize})"
     end
@@ -276,18 +277,22 @@ class Athena::MIME::Email < Athena::MIME::Message
     @html
   end
 
+  # Adds an attachment with the provided *body*, optionally with the provided *name* and *content_type*.
   def attach(body : String | IO, name : String? = nil, content_type : String? = nil) : self
     self.add_part AMIME::Part::Data.new body, name, content_type
   end
 
+  # Attaches the file at the provided *path* as an attachment, optionally with the provided *name* and *content_type*.
   def attach_from_path(path : String | Path, name : String? = nil, content_type : String? = nil) : self
     self.add_part AMIME::Part::Data.new AMIME::Part::File.new(path), name, content_type
   end
 
+  # Adds an embedded attachment with the provided *body*, optionally with the provided *name* and *content_type*.
   def embed(body : String | IO, name : String? = nil, content_type : String? = nil) : self
     self.add_part AMIME::Part::Data.new(body, name, content_type).as_inline
   end
 
+  # Embeds the file at the provided *path* as an attachment, optionally with the provided *name* and *content_type*.
   def embed_from_path(path : String | Path, name : String? = nil, content_type : String? = nil) : self
     self.add_part AMIME::Part::Data.new(AMIME::Part::File.new(path), name, content_type).as_inline
   end
@@ -401,7 +406,7 @@ class Athena::MIME::Email < Athena::MIME::Message
     {html_part, other_parts, related_parts.values}
   end
 
-  # Asserts that this email is in a valid state to be sent, raising an error if not.
+  # :inherit:
   def ensure_validity! : Nil
     self.ensure_body_is_valid
 

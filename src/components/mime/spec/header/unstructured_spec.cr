@@ -107,6 +107,4 @@ struct UnstructuredHeaderTest < ASPEC::TestCase
 
     header.to_s.should eq "subject: =?iso-8859-1*en?Q?fo=8Fbar?="
   end
-
-
 end

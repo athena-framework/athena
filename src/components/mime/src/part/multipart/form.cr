@@ -1,8 +1,9 @@
+# Represents a `form-data` part.
 class Athena::MIME::Part::Multipart::Form < Athena::MIME::Part::AbstractMultipart
   getter parts : Array(Athena::MIME::Part::Abstract) = Array(Athena::MIME::Part::Abstract).new
 
   def initialize(
-    fields : Hash = {} of NoReturn => NoReturn
+    fields : Hash = {} of NoReturn => NoReturn,
   )
     super()
 

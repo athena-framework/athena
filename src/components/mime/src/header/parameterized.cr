@@ -1,9 +1,11 @@
 require "./unstructured"
 
+# Represents a MIME Header for something like `content-type` (key/value pairs of metadata included in the value).
 class Athena::MIME::Header::Parameterized < Athena::MIME::Header::Unstructured
   # RFC 2231's definition of a token.
   private TOKEN_REGEX = Regex.new "^(?:[\x21\x23-\x27\x2A\x2B\x2D\x2E\x30-\x39\x41-\x5A\x5E-\x7E]+)$", :dollar_endonly
 
+  # Represents the parameters associated with this header.
   property parameters : Hash(String, String) = {} of String => String
 
   @encoder : AMIME::Encoder::RFC2231? = nil
@@ -11,7 +13,7 @@ class Athena::MIME::Header::Parameterized < Athena::MIME::Header::Unstructured
   def initialize(
     name : String,
     value : String,
-    parameters : Hash(String, String) = {} of String => String
+    parameters : Hash(String, String) = {} of String => String,
   )
     super name, value
 
@@ -24,15 +26,17 @@ class Athena::MIME::Header::Parameterized < Athena::MIME::Header::Unstructured
     end
   end
 
+  # Returns the value of the parameter with the provided *name*
   def [](name : String) : String
     @parameters[name]? || ""
   end
 
+  # Set the value of the parameter with the provided *name* to *value*.
   def []=(key : String, value : String) : Nil
     @parameters.merge!({key => value})
   end
 
-  def body_to_s(io : IO) : Nil
+  protected def body_to_s(io : IO) : Nil
     super
 
     @parameters.each do |k, v|

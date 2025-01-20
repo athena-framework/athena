@@ -1,15 +1,23 @@
+# Provides a low-level API for creating an email.
+#
+# See [Creating Raw Email Message](/MIME/#creating-raw-email-messages) for more information.
 class Athena::MIME::Message
+  # Represents the `AMIME::Header`s a part of this message.
   property headers : AMIME::Header::Collection
+
+  # Represents the `AMIME::Part`s that comprise this message.
   property body : AMIME::Part::Abstract?
 
   def initialize(
     headers : AMIME::Header::Collection? = nil,
-    @body : AMIME::Part::Abstract? = nil
+    @body : AMIME::Part::Abstract? = nil,
   )
     # TODO: Need to clone this?
     @headers = headers || AMIME::Header::Collection.new
   end
 
+  # Returns a cloned `AMIME::Header::Collection` consisting of a final representation of the headers associated with this message.
+  # I.e. Ensures the message's headers include the required ones.
   def prepared_headers : AMIME::Header::Collection
     headers = @headers.clone
 
@@ -44,6 +52,7 @@ class Athena::MIME::Message
     headers
   end
 
+  # :nodoc:
   def to_s(io : IO) : Nil
     body = self.body || AMIME::Part::Text.new ""
 
@@ -51,6 +60,7 @@ class Athena::MIME::Message
     body.to_s io
   end
 
+  # Asserts that this message is in a valid state to be sent, raising an `AMIME::Exception::Logic` error if not.
   def ensure_validity! : Nil
     if (!(tos = @headers.header_body("to")) || tos.as(Array(AMIME::Address)).empty?) && (!(ccs = @headers.header_body("cc")) || ccs.as(Array(AMIME::Address)).empty?) && (!(bccs = @headers.header_body("bcc")) || bccs.as(Array(AMIME::Address)).empty?)
       raise AMIME::Exception::Logic.new "An email must have a 'to', 'cc', or 'bcc' header."
@@ -61,6 +71,7 @@ class Athena::MIME::Message
     end
   end
 
+  # Returns a string that uniquely represents this message.
   def generate_message_id : String
     sender = if sender_header = @headers["sender", AMIME::Header::Mailbox]?
                sender_header.body

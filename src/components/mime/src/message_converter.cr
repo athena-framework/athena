@@ -1,4 +1,5 @@
 module Athena::MIME::MessageConverter
+  # Utility method to convert `AMIME::Message`s to `AMIME::Email`s.
   def self.to_email(message : AMIME::Message) : AMIME::Email
     return message if message.is_a? AMIME::Email
 
@@ -77,7 +78,7 @@ module Athena::MIME::MessageConverter
     self.add_parts email, parts
   end
 
-  def self.add_parts(email : AMIME::Email, parts : Enumerable(AMIME::Part::Abstract)) : AMIME::Email
+  private def self.add_parts(email : AMIME::Email, parts : Enumerable(AMIME::Part::Abstract)) : AMIME::Email
     parts.each do |part|
       unless part.is_a? AMIME::Part::Data
         raise AMIME::Exception::Runtime.new "Unable to create an Email from an instance of '#{email.class}' as the body is too complex."

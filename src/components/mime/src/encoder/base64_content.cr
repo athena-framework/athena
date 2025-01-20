@@ -2,6 +2,7 @@ require "./content_encoder_interface"
 
 require "base64"
 
+# A content encoder based on the [Base64](https://datatracker.ietf.org/doc/html/rfc4648) spec.
 struct Athena::MIME::Encoder::Base64Content
   include Athena::MIME::Encoder::ContentEncoderInterface
 
