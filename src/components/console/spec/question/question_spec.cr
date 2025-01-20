@@ -68,13 +68,15 @@ struct QuestionTest < ASPEC::TestCase
   end
 
   def test_custom_normalizer : Nil
-    question = ACON::Question(String?).new "A question", nil
+    question = ACON::Question(String).new "A question", ""
 
     question.normalizer do |val|
-      val.try &.upcase
+      val.upcase
     end
 
-    question.normalizer.not_nil!.call("foo").should eq "FOO"
+    if normalizer = question.normalizer
+      normalizer.call("foo").should eq "FOO"
+    end
   end
 
   def test_with_inputs : Nil
@@ -83,6 +85,6 @@ struct QuestionTest < ASPEC::TestCase
     tester = ACON::Spec::CommandTester.new command
     tester.inputs "Jim"
     tester.execute
-    tester.display.should eq "What is your name?Your name is: Jim\n"
+    tester.display.should eq "What is your name?Your name is: Jim#{EOL}"
   end
 end

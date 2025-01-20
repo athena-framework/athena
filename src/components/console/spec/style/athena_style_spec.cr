@@ -443,7 +443,7 @@ struct AthenaStyleTest < ASPEC::TestCase
     style = ACON::Style::Athena.new ACON::Input::Hash.new({} of String => String), output
 
     style.progress_start 123
-    bar = style.@progress_bar.not_nil!
+    bar = style.progress_bar.not_nil!
     bar.max_steps.should eq 123
     bar.progress.should eq 0
 

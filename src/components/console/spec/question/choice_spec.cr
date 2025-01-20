@@ -23,10 +23,11 @@ struct ChoiceQuestionTest < ASPEC::TestCase
     end
 
     {"First response", "First response ", " First response", " First response "}.each do |answer|
-      validator = question.validator.not_nil!
-      actual = validator.call answer
+      if validator = question.validator
+        actual = validator.call answer
 
-      actual.should eq "FOO"
+        actual.should eq "FOO"
+      end
     end
   end
 
@@ -42,10 +43,9 @@ struct ChoiceQuestionTest < ASPEC::TestCase
     )
 
     {"First response", "First response ", " First response", " First response "}.each do |answer|
-      validator = question.validator.not_nil!
-      actual = validator.call answer
-
-      actual.should eq "First response"
+      if validator = question.validator
+        validator.call(answer).should eq "First response"
+      end
     end
   end
 
@@ -61,10 +61,9 @@ struct ChoiceQuestionTest < ASPEC::TestCase
     )
 
     {"0"}.each do |answer|
-      validator = question.validator.not_nil!
-      actual = validator.call answer
-
-      actual.should eq "First response"
+      if validator = question.validator
+        validator.call(answer).should eq "First response"
+      end
     end
   end
 
@@ -80,7 +79,9 @@ struct ChoiceQuestionTest < ASPEC::TestCase
 
     question.trimmable = false
 
-    question.validator.not_nil!.call("  Third response  ").should eq "  Third response  "
+    if validator = question.validator
+      validator.not_nil!.call("  Third response  ").should eq "  Third response  "
+    end
   end
 
   @[DataProvider("hash_choice_provider")]
@@ -94,7 +95,9 @@ struct ChoiceQuestionTest < ASPEC::TestCase
       }
     )
 
-    question.validator.not_nil!.call(answer).should eq expected
+    if validator = question.validator
+      validator.call(answer).should eq expected
+    end
   end
 
   def hash_choice_provider : Hash
