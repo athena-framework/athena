@@ -96,6 +96,9 @@ struct ConsoleSectionOutputTest < ASPEC::TestCase
     output.clear
     expected << "\e[1A\e[0J"
 
+    output.overwrite "biz", "baz"
+    expected << "biz" << EOL << "baz" << EOL
+
     @io.to_s.should eq expected.to_s
   end
 

@@ -50,7 +50,9 @@ struct OutputTest < ASPEC::TestCase
   def test_write_decorated : Nil
     foo_style = ACON::Formatter::OutputStyle.new :yellow, :red, :blink
     output = MockOutput.new
+    output.formatter.has_style?("FOO").should be_false
     output.formatter.set_style "FOO", foo_style
+    output.formatter.has_style?("FOO").should be_true
     output.decorated = true
     output.puts "<foo>foo</foo>"
     output.output.should eq "\e[33;41;5mfoo\e[0m\n"

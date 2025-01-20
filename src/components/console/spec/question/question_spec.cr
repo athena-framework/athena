@@ -1,5 +1,20 @@
 require "../spec_helper"
 
+private class QuestionCommand < ACON::Command
+  protected def configure : Nil
+    self
+      .name("question:command")
+  end
+
+  protected def execute(input : ACON::Input::Interface, output : ACON::Output::Interface) : ACON::Command::Status
+    name = self.helper(ACON::Helper::Question).ask input, output, ACON::Question(String?).new "What is your name?", nil
+
+    output.puts "Your name is: #{name}"
+
+    ACON::Command::Status::SUCCESS
+  end
+end
+
 struct QuestionTest < ASPEC::TestCase
   @question : ACON::Question(String?)
 
@@ -50,5 +65,26 @@ struct QuestionTest < ASPEC::TestCase
         ["b", "d"],
       },
     }
+  end
+
+  def test_custom_normalizer : Nil
+    question = ACON::Question(String).new "A question", ""
+
+    question.normalizer do |val|
+      val.upcase
+    end
+
+    if normalizer = question.normalizer
+      normalizer.call("foo").should eq "FOO"
+    end
+  end
+
+  def test_with_inputs : Nil
+    command = QuestionCommand.new
+    command.helper_set = ACON::Helper::HelperSet.new ACON::Helper::Question.new
+    tester = ACON::Spec::CommandTester.new command
+    tester.inputs "Jim"
+    tester.execute
+    tester.display.should eq "What is your name?Your name is: Jim#{EOL}"
   end
 end

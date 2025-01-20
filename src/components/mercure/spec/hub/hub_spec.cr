@@ -53,4 +53,15 @@ describe Athena::Mercure::Hub do
       end
     end
   end
+
+  it "#url" do
+    AMC::Hub
+      .new(URL, AMC::TokenProvider::Static.new("FOO"), http_client: MockHTTPClient.new URI.parse URL)
+      .url.should eq URL
+  end
+
+  it "#publish" do
+    foo_hub = AMC::Spec::MockHub.new("https://foo.com", AMC::TokenProvider::Static.new("FOO")) { "foo" }
+    foo_hub.publish(AMC::Update.new("https://demo.mercure.rocks/demo/books/1.jsonld")).should eq "foo"
+  end
 end

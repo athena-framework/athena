@@ -21,7 +21,7 @@ abstract struct Athena::Console::Input::Value
     self.to_s.presence
   end
 
-  def get(type : T.class) : NoReturn forall T
+  def get(type : T.class) forall T
     raise ACON::Exception::Logic.new "'#{self.value}' is not a valid '#{T}'."
   end
 

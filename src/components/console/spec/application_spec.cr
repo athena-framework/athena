@@ -28,6 +28,12 @@ struct ApplicationTest < ASPEC::TestCase
     end
   end
 
+  def test_defaults : Nil
+    application = ACON::Application.new "foo", "1.0.0"
+    application.auto_exit?.should be_true
+    application.catch_exceptions?.should be_true
+  end
+
   def test_long_version : Nil
     ACON::Application.new("foo", "1.2.3").long_version.should eq "foo <info>1.2.3</info>"
   end
