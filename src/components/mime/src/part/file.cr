@@ -5,7 +5,7 @@ class Athena::MIME::Part::File
 
   def initialize(
     path : String | Path,
-    @filename : String? = nil
+    @filename : String? = nil,
   )
     @path = path.to_s
   end
@@ -18,7 +18,7 @@ class Athena::MIME::Part::File
     "application/octet-stream"
   end
 
-  def size : Int32
+  def size : Int
     ::File.size @path
   end
 

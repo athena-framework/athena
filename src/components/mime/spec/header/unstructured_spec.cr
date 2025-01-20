@@ -9,10 +9,10 @@ struct UnstructuredHeaderTest < ASPEC::TestCase
   end
 
   def test_body : Nil
-    AMIME::Header::Unstructured
-      .new("subject", "content")
-      .body
-      .should eq "content"
+    header = AMIME::Header::Unstructured.new "foo", "bar"
+    header.body.should eq "bar"
+    header.body = "baz"
+    header.body.should eq "baz"
   end
 
   def test_to_s : Nil
@@ -108,10 +108,5 @@ struct UnstructuredHeaderTest < ASPEC::TestCase
     header.to_s.should eq "subject: =?iso-8859-1*en?Q?fo=8Fbar?="
   end
 
-  def test_body : Nil
-    header = AMIME::Header::Unstructured.new "foo", "bar"
-    header.body.should eq "bar"
-    header.body = "baz"
-    header.body.should eq "baz"
-  end
+
 end

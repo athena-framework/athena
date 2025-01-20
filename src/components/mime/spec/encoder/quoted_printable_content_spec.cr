@@ -152,4 +152,38 @@ struct QuotedPrintableEncoderTest < ASPEC::TestCase
     # Allows spaces
     AMIME::Encoder::QuotedPrintableContent.quoted_printable_encode(" ").should eq " "
   end
+
+  def test_name : Nil
+    AMIME::Encoder::QuotedPrintableContent.new.name.should eq "quoted-printable"
+  end
+
+  def test_encode : Nil
+    AMIME::Encoder::QuotedPrintableContent.new.encode("test").should eq "test"
+    AMIME::Encoder::QuotedPrintableContent.new.encode("this is a foo").should eq "this is a foo"
+
+    AMIME::Encoder::QuotedPrintableContent.new.encode("This is a sample string with special characters: ä, ö, ü, and ß.").should eq <<-TXT
+      This is a sample string with special characters: =C3=A4, =C3=B6, =C3=BC, an=\r
+      d =C3=9F.
+      TXT
+
+    AMIME::Encoder::QuotedPrintableContent.new.encode("Iñtërnâtiônàlizætiøn☃💩").should eq <<-TXT
+      I=C3=B1t=C3=ABrn=C3=A2ti=C3=B4n=C3=A0liz=C3=A6ti=C3=B8n=E2=98=83=\r
+      =F0=9F=92=A9
+      TXT
+  end
+
+  def test_quoted_printable_encode_io : Nil
+    AMIME::Encoder::QuotedPrintableContent.new.encode(IO::Memory.new "test").should eq "test"
+    AMIME::Encoder::QuotedPrintableContent.new.encode(IO::Memory.new "this is a foo").should eq "this is a foo"
+
+    AMIME::Encoder::QuotedPrintableContent.new.encode(IO::Memory.new "This is a sample string with special characters: ä, ö, ü, and ß.").should eq <<-TXT
+      This is a sample string with special characters: =C3=A4, =C3=B6, =C3=BC, an=\r
+      d =C3=9F.
+      TXT
+
+    AMIME::Encoder::QuotedPrintableContent.new.encode("Iñtërnâtiônàlizætiøn☃💩").should eq <<-TXT
+      I=C3=B1t=C3=ABrn=C3=A2ti=C3=B4n=C3=A0liz=C3=A6ti=C3=B8n=E2=98=83=\r
+      =F0=9F=92=A9
+      TXT
+  end
 end

@@ -1,6 +1,10 @@
 require "../spec_helper"
 
 struct Base64ContentEncoderTest < ASPEC::TestCase
+  def test_name : Nil
+    AMIME::Encoder::Base64Content.new.name.should eq "base64"
+  end
+
   def test_encodes_string : Nil
     AMIME::Encoder::Base64Content.new.encode("123").should eq "MTIz\n"
     AMIME::Encoder::Base64Content.new.encode("123456").should eq "MTIzNDU2\n"

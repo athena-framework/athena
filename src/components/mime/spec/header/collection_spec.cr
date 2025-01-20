@@ -118,7 +118,7 @@ struct HeaderCollectionTest < ASPEC::TestCase
     names.should eq ["foo", "biz"]
   end
 
-  def test_all_no_args : Nil
+  def test_all_specific_name : Nil
     headers = AMIME::Header::Collection.new
     headers.add_text_header "text", "bar"
     headers.add_text_header "text", "baz"
