@@ -92,19 +92,19 @@ struct CookieValueEqualsExpectationTest < ASPEC::TestCase
       .should contain "Failed asserting that the response does not have cookie 'foo' with value 'bar'."
   end
 
-  def test_failure_message_with_path : Nil
+  def test_negative_failure_message_with_path : Nil
     ATH::Spec::Expectations::Response::CookieValueEquals.new("foo", "bar", path: "/path")
       .negative_failure_message(new_response)
       .should contain "Failed asserting that the response does not have cookie 'foo' with path '/path' with value 'bar'."
   end
 
-  def test_failure_message_with_domain : Nil
+  def test_negative_failure_message_with_domain : Nil
     ATH::Spec::Expectations::Response::CookieValueEquals.new("foo", "bar", domain: "example.com")
       .negative_failure_message(new_response)
       .should contain "Failed asserting that the response does not have cookie 'foo' for domain 'example.com' with value 'bar'."
   end
 
-  def test_failure_message_with_path_and_domain : Nil
+  def test_negative_failure_message_with_path_and_domain : Nil
     ATH::Spec::Expectations::Response::CookieValueEquals.new("foo", "bar", path: "/path", domain: "example.com")
       .negative_failure_message(new_response)
       .should contain "Failed asserting that the response does not have cookie 'foo' with path '/path' for domain 'example.com' with value 'bar'."

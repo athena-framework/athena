@@ -38,6 +38,11 @@ class RoutingController < ATH::Controller
     response
   end
 
+  @[ARTA::Post("unprocessable")]
+  def unprocessable : ATH::Response
+    ATH::Response.new "", :unprocessable_entity
+  end
+
   @[ARTA::Get("art/response")]
   def response : ATH::Response
     ATH::Response.new "FOO", 418, HTTP::Headers{"content-type" => "BAR"}
