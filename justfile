@@ -31,19 +31,19 @@ watch component:
 watch-test component:
     watchexec --restart --watch=src/ --emit-events-to=none --clear -- {{ CRYSTAL }} spec src/components/{{ component }}/
 
-# Runs the test suite of the provided `component`, or `all` for all components
+# Runs the test suite of the provided `component`, defaulting to `all` components
 [group('dev')]
-test component:
+test component='all':
     ./scripts/test.sh {{ component }}
 
-# Runs the unit test suite of the provided `component`, or `all` for all components
+# Runs the unit test suite of the provided `component`, defaulting to `all` components
 [group('dev')]
-test-unit component:
+test-unit component='all':
     ./scripts/test.sh {{ component }} unit
 
-# Runs the compiled test suite of the provided `component`, or `all` for all components
+# Runs the compiled test suite of the provided `component`, defaulting to `all` components
 [group('dev')]
-test-compiled component:
+test-compiled component='all':
     ./scripts/test.sh {{ component }} compiled
 
 # Runs all check related tasks

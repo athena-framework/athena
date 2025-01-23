@@ -31,24 +31,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: extractions/setup-just@v2
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
         with:
           crystal: ${{ matrix.crystal }}
       - name: Check Format
-        run: crystal tool format --check
+        run: just format
   coding_standards:
     runs-on: ubuntu-latest
     container:
       image: crystallang/crystal:latest
     steps:
       - uses: actions/checkout@v4
+      - uses: extractions/setup-just@v2
       - name: Install Dependencies
         run: shards install
         env:
           SHARDS_OVERRIDE: shard.dev.yml
       - name: Ameba
-        run: ./bin/ameba
+        run: just ameba
   test_compiled:
     strategy:
       fail-fast: false
@@ -59,6 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: extractions/setup-just@v2
       - name: Install kcov
         if: matrix.crystal == 'nightly'
         run: |
@@ -82,7 +85,7 @@ jobs:
         env:
           SHARDS_OVERRIDE: shard.dev.yml
       - name: Compiled Specs
-        run: ./scripts/test.sh all compiled
+        run: just test-compiled
         shell: bash
       - uses: codecov/codecov-action@v5
         if: matrix.crystal == 'nightly' && github.event_name != 'schedule' # Only want to upload coverage report once in the matrix
@@ -116,6 +119,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+      - uses: extractions/setup-just@v2
         if: github.event_name != 'pull_request'
       - uses: actions/checkout@v4
         if: github.event_name == 'pull_request'
@@ -144,7 +148,7 @@ jobs:
         env:
           SHARDS_OVERRIDE: shard.dev.yml
       - name: Specs
-        run: ./scripts/test.sh all unit
+        run: just test-unit
         shell: bash
       - uses: codecov/codecov-action@v5
         if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'nightly' && github.event_name != 'schedule' # Only want to upload coverage report once in the matrix
