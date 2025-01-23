@@ -1,21 +1,22 @@
 # Configuration
 
 OUTPUT_DIR := './site'
-DEFAULT_BUILD_OPTIONS := '-Dstrict_multi_assign -Dpreview_overload_order --error-on-warnings'
-DEFAULT_OPTIONS := '--order=random'
 
 # Binaries
+# Scoped to the justfile so do not need to be exported
 
-CRYSTAL := 'crystal'
-KCOV := `command -v 'kcovv' || echo ''`
 MKDOCS := './.venv/bin/mkdocs'
 PIP := './.venv/bin/pip3'
 PIP_COMPILE := './.venv/bin/pip-compile'
 
+# Needs to be exported so that the `spec` component can pick up on the customized $CRYSTAL env var.
+
+export CRYSTAL := 'crystal'
+
 # Ensure when MkDocs is generating the docs for each component it's able to find their shard dependencies
 # via the monorepo's `lib/` dir versus `src/components/<name>/lib` which doesn't exist.
 
-export CRYSTAL_PATH := invocation_directory() + '/lib:' + `crystal env CRYSTAL_PATH`
+export CRYSTAL_PATH := invocation_directory() + '/lib:' + shell( '$1 env CRYSTAL_PATH', CRYSTAL )
 
 _default:
     @just --list --unsorted
@@ -23,22 +24,27 @@ _default:
 # Runs and watches for changes to the main entrypoint file of the provided `component`
 [group('dev')]
 watch component:
-    watchexec --restart --watch=src/ --emit-events-to=none --clear -- crystal run src/components/{{ component }}/src/athena-{{ component }}.cr
+    watchexec --restart --watch=src/ --emit-events-to=none --clear -- {{ CRYSTAL }} run src/components/{{ component }}/src/athena-{{ component }}.cr
+
+# Runs the test suite of the provided `component`, or `all` for all components, and watches for changes
+[group('dev')]
+watch-test component:
+    watchexec --restart --watch=src/ --emit-events-to=none --clear -- {{ CRYSTAL }} spec src/components/{{ component }}/
 
 # Runs the test suite of the provided `component`, or `all` for all components
 [group('dev')]
-@test component:
-    echo {{ foo }}
+test component:
+    ./scripts/test.sh {{ component }}
 
-#     just _test-{{ if KCOV != '' { 'with-coverage' } else { 'without-coverage' } }} {{ component }}
+# Runs the unit test suite of the provided `component`, or `all` for all components
+[group('dev')]
+test-unit component:
+    ./scripts/test.sh {{ component }} unit
 
-foo := '-type'
-
-_test-with-coverage component:
-    echo 'with kcov'
-
-_test-without-coverage component:
-    {{ CRYSTAL }} spec {{ DEFAULT_BUILD_OPTIONS }} {{ DEFAULT_OPTIONS }} "src/components/{{ component }}/spec"
+# Runs the compiled test suite of the provided `component`, or `all` for all components
+[group('dev')]
+test-compiled component:
+    ./scripts/test.sh {{ component }} compiled
 
 # Runs all check related tasks
 [group('check')]
