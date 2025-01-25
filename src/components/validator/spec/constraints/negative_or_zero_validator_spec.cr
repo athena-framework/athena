@@ -1,3 +1,5 @@
+require "../spec_helper"
+
 private alias CONSTRAINT = AVD::Constraints::NegativeOrZero
 
 struct NegativeOrZeroValidatorTest < AVD::Spec::ConstraintValidatorTestCase
