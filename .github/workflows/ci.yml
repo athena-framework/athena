@@ -119,12 +119,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: extractions/setup-just@v2
         if: github.event_name != 'pull_request'
       - uses: actions/checkout@v4
         if: github.event_name == 'pull_request'
         with:
           fetch-depth: 0
+      - uses: extractions/setup-just@v2
       - name: Install kcov
         if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'nightly'
         run: |
