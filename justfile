@@ -44,7 +44,7 @@ test component='all':
 # Runs the unit test suite of the provided `component`, defaulting to `all` components
 [group('dev')]
 test-unit component='all':
-    @-echo {{ join(invocation_directory_native(), 'lib:') }}
+    @-echo {{ invocation_directory() / 'lib:' }}
     @echo {{ CRYSTAL }}
     @echo {{ shell( '$1 env CRYSTAL_PATH', CRYSTAL ) }}
     ./scripts/test.sh {{ component }} unit
