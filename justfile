@@ -16,7 +16,7 @@ export CRYSTAL := 'crystal'
 # Ensure when MkDocs is generating the docs for each component it's able to find their shard dependencies
 # via the monorepo's `lib/` dir versus `src/components/<name>/lib` which doesn't exist.
 
-export CRYSTAL_PATH := (invocation_directory_native() / ('lib' + if os() == 'windows' { ';' } else { ':' })) + shell( '$1 env CRYSTAL_PATH', CRYSTAL )
+export CRYSTAL_PATH := (invocation_directory_native() / ('lib' + if os() == 'windows' { ';' } else { ':' })) + shell('$1 env CRYSTAL_PATH', CRYSTAL)
 
 _default:
     @just --list --unsorted
@@ -44,7 +44,6 @@ test component='all':
 # Runs the unit test suite of the provided `component`, defaulting to `all` components
 [group('dev')]
 test-unit component='all':
-    @echo '{{ CRYSTAL_PATH }}'
     ./scripts/test.sh {{ component }} unit
 
 # Runs the compiled test suite of the provided `component`, defaulting to `all` components
