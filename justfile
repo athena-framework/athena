@@ -39,16 +39,19 @@ watch-test component:
 # Runs the test suite of the provided `component`, defaulting to `all` components
 [group('dev')]
 test component='all':
+    @echo {{ CRYSTAL_PATH }}
     ./scripts/test.sh {{ component }}
 
 # Runs the unit test suite of the provided `component`, defaulting to `all` components
 [group('dev')]
 test-unit component='all':
+    @echo {{ CRYSTAL_PATH }}
     ./scripts/test.sh {{ component }} unit
 
 # Runs the compiled test suite of the provided `component`, defaulting to `all` components
 [group('dev')]
 test-compiled component='all':
+    @echo {{ CRYSTAL_PATH }}
     ./scripts/test.sh {{ component }} compiled
 
 # Runs all check related tasks
