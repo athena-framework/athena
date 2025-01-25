@@ -10,7 +10,7 @@ alias ACLK = Athena::Clock
 class Athena::Clock
   include Athena::Clock::Interface
 
-  VERSION = "0.1.2"
+  VERSION = "0.2.0"
 
   # Represents the global clock used by all `Athena::Clock` instances.
   #

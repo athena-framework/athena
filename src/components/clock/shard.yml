@@ -1,6 +1,6 @@
 name: athena-clock
 
-version: 0.1.2
+version: 0.2.0
 
 crystal: '>= 0.36.0'
 
