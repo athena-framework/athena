@@ -16,34 +16,59 @@ The [issue tracker](https://github.com/athena-framework/athena/issues) is the he
 
 Please always **open a new issue before sending a pull request** if you want to add a new feature to Athena, unless it is a minor obvious fix, or is in relation to an already open & approved issue. This reduces the likelihood of wasted effort, and ensures the end result is robust by being able to work out implementation details _before_ the work is started.
 
-## Testing
+## Local Development
 
-Due to Athena's usage of a monorepo, testing is handled slightly differently than with a normal shard. Mainly that all testing is done directly from the root of the monorepo itself. Athena's `./scripts/test.sh` helper script can be used to make this easier by providing a singular entrypoint that defines all of the common options and flags needed to run the tests for all, or a single component. However, before it can be used the components themselves need installed.
+Due to Athena's usage of a monorepo, the same single repo can be used to contribute code to all components.
 
-Shards are ideally installed via symlink, which allows for updates to be instantly available for testing without having to juggle branches/edit each component's `shard.yml`. The `shard.dev.yml` file can be used in conjunction with the `SHARDS_OVERRIDE` environmental variable for this purpose:
+In addition to Crystal itself, Athena makes use of [just](https://just.systems/man/en/introduction.html) as its command runner.
+`just` provides a simple way of executing common commands needed for development.
 
-```sh
-$ SHARDS_OVERRIDE=shard.dev.yml shards update
-```
-
-From here, the tests for a specific component may be ran via the helper script:
+Once you have it installed, and have cloned the monorepo, first install all the shard dependencies by running:
 
 ```sh
-$ ./scripts/test.sh routing
+just install
 ```
 
-Or alternatively, for all components:
+And that's it, you are now ready to start coding!
+From here there are some additional optional tools that will come in handy:
 
-```sh
-$ ./scripts/test.sh
-```
+1. [typos](https://github.com/crate-ci/typos) - Source code spell checker, used as part of the `spellcheck` recipe.
+1. [watchexec](https://github.com/watchexec/watchexec) - Executes commands in response to file modifications, used as part of the `watch` and `watch-spec` recipes.
+1. [kcov](https://github.com/SimonKagstrom/kcov) - Code coverage tool, used to generate coverage reports/files as part of the `test` recipes.
+1. [python](https://www.python.org/) - The programming language, used for the `docs` related recipes.
 
-Athena also leverages [ameba](https://github.com/crystal-ameba/ameba) as its form of static code analysis. It too can be ran directly from the root of the monorepo after the required shards are installed:
+**TIP:** Running `just` will provide a summary of available recipes.
 
-```sh
-$ ./bin/ameba
-```
+### Development
 
-### Athena Spec
+Because of Athena's usage of a monorepo some interactions may be different than a normal shard.
+Mainly that most things can be done from the root of the repo; no need to `cd` to whatever component you're working on, and need to go through `just`.
+
+For exploratory work, the suggested workflow is to have your code in the related component's entry point file.
+E.g. `src/components/clock/src/athena-clock.cr` for the `clock` component.
+From here you can run `just watch clock` and that will re-run the file when changes are made.
+This makes it simple to play around with early implementations before there is proper test coverage.
+
+#### Testing
+
+Similar to development itself, running the specs are also done through `just`: `just test clock` would run the spec suite for that component, and generate coverage information if you have `kcov` installed.
+The `watch-test` recipe can come in handy to provide quicker feedback while the tests are under development.
+
+##### Athena Spec
 
 Many Athena components make use of [Athena Spec](https://athenaframework.org/Spec/) for their unit/integration tests. This library provides an alternate DSL that is 100% compatible with the standard library's `Spec` module. I.e. they can be used together seamlessly, using whatever DSL is more appropriate for what is being tested. Being familiar with  the base [ASPEC::TestCase](https://athenaframework.org/Spec/TestCase/) type will not only make reading the specs easier, but writing them as well. It comes with various features to make the tests simpler, reusable, and extensible. You may even want to use it in your own projects :wink:.
+
+### Linting
+
+Beyond testing, Athena makes use of various forms of linting, including:
+
+* [ameba](https://github.com/crystal-ameba/ameba) for static code analysis
+* [typos](https://github.com/crate-ci/typos) for spell checking
+* The Crystal [formatter](https://crystal-lang.org/reference/guides/writing_shards.html#coding-style) for code formatting
+
+All of these can be executed at once via the `just lint` recipe, but may also be ran individual as needed via their related `just` recipe.
+
+### Documentation
+
+Athena's [documentation](https://athenaframework.org/) site may be built locally via the `just build-docs` recipe.
+Alternatively, a live-updating server may be started via the `just serve-docs` recipe.
