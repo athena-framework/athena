@@ -2,6 +2,10 @@
 
 ## [0.4.0] - 2025-01-??
 
+### Changed
+
+- **Breaking:** Normalize exception types ([#428](https://github.com/athena-framework/athena/pull/428)) (George Dietrich)
+
 ### Added
 
 - **Breaking:** Add `ACON::Output::Verbosity::SILENT` verbosity level ([#489](https://github.com/athena-framework/athena/pull/489)) (George Dietrich)
@@ -9,10 +13,6 @@
 - Update minimum `crystal` version to `~> 1.13.0` ([#498](https://github.com/athena-framework/athena/pull/498)) (George Dietrich)
 - Add `#assert_command_is_not_successful` spec expectation method ([#498](https://github.com/athena-framework/athena/pull/498)) (George Dietrich)
 - Add support for [`FORCE_COLOR`](https://force-color.org/) and improve color support logic ([#488](https://github.com/athena-framework/athena/pull/488)) (George Dietrich)
-
-### Changed
-
-- **Breaking:** Normalize exception types ([#428](https://github.com/athena-framework/athena/pull/428)) (George Dietrich)
 
 ### Fixed
 
