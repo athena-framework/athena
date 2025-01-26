@@ -24,8 +24,8 @@ jobs:
         uses: crate-ci/typos@v1.29.0
   check_format:
     strategy:
+      fail-fast: false
       matrix:
-        fail-fast: false
         crystal:
           - latest
           - nightly
