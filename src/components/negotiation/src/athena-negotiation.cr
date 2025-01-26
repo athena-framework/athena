@@ -15,7 +15,7 @@ alias ANG = Athena::Negotiation
 
 # The `Athena::Negotiation` component allows an application to support [content negotiation](https://tools.ietf.org/html/rfc7231#section-5.3).
 module Athena::Negotiation
-  VERSION = "0.1.5"
+  VERSION = "0.2.0"
 
   # Returns a lazily initialized `ANG::Negotiator` singleton instance.
   class_getter(negotiator) { ANG::Negotiator.new }

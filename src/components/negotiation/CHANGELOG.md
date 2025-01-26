@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.0] - 2025-01-??
+
+### Changed
+
+- **Breaking:** Normalize exception types ([#428](https://github.com/athena-framework/athena/pull/428)) (George Dietrich)
+- Use lowercase `utf-8` within header values ([#417](https://github.com/athena-framework/athena/pull/417)) (George Dietrich)
+- Update minimum `crystal` version to `~> 1.13.0` ([#428](https://github.com/athena-framework/athena/pull/428)) (George Dietrich)
+
 ## [0.1.5] - 2024-04-09
 
 ### Changed
@@ -43,6 +51,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.2.0]: https://github.com/athena-framework/negotiation/releases/tag/v0.2.0
 [0.1.5]: https://github.com/athena-framework/negotiation/releases/tag/v0.1.5
 [0.1.4]: https://github.com/athena-framework/negotiation/releases/tag/v0.1.4
 [0.1.3]: https://github.com/athena-framework/negotiation/releases/tag/v0.1.3

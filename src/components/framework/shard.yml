@@ -31,7 +31,7 @@ dependencies:
     version: ~> 0.3.0
   athena-negotiation:
     github: athena-framework/negotiation
-    version: ~> 0.1.0
+    version: ~> 0.2.0
   athena-routing:
     github: athena-framework/routing
     version: ~> 0.1.4
