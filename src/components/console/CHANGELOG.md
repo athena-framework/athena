@@ -1,8 +1,9 @@
 # Changelog
 
-## [0.4.0] - 2024-01-??
+## [0.4.0] - 2025-01-??
 
 ### Added
+
 - **Breaking:** Add `ACON::Output::Verbosity::SILENT` verbosity level ([#489](https://github.com/athena-framework/athena/pull/489)) (George Dietrich)
 - **Breaking:** Rename `ACON::Completion::Input#must_suggest_values_for?` to `#must_suggest_option_values_for?` ([#498](https://github.com/athena-framework/athena/pull/498)) (George Dietrich)
 - Update minimum `crystal` version to `~> 1.13.0` ([#498](https://github.com/athena-framework/athena/pull/498)) (George Dietrich)
