@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0] - 2025-01-??
+
+### Changed
+
+- **Breaking:** Normalize exception types ([#428](https://github.com/athena-framework/athena/pull/428)) (George Dietrich)
+- Update minimum `crystal` version to `~> 1.13.0` ([#428](https://github.com/athena-framework/athena/pull/428)) (George Dietrich)
+
 ## [0.3.6] - 2024-04-27
 
 ### Fixed
@@ -150,6 +157,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.4.0]: https://github.com/athena-framework/serializer/releases/tag/v0.4.0
 [0.3.6]: https://github.com/athena-framework/serializer/releases/tag/v0.3.6
 [0.3.5]: https://github.com/athena-framework/serializer/releases/tag/v0.3.5
 [0.3.4]: https://github.com/athena-framework/serializer/releases/tag/v0.3.4
