@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.0] - 2025-01-26
+
+### Changed
+
+- **Breaking:** Normalize exception types ([#428](https://github.com/athena-framework/athena/pull/428)) (George Dietrich)
+
 ## [0.1.3] - 2024-07-31
 
 ### Changed
@@ -28,6 +34,7 @@ _Administrative release, no functional changes_
 
 _Initial release._
 
+[0.2.0]: https://github.com/athena-framework/dotenv/releases/tag/v0.2.0
 [0.1.3]: https://github.com/athena-framework/dotenv/releases/tag/v0.1.3
 [0.1.2]: https://github.com/athena-framework/dotenv/releases/tag/v0.1.2
 [0.1.1]: https://github.com/athena-framework/dotenv/releases/tag/v0.1.1

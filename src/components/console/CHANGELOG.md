@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.4.0] - 2025-01-26
+
+### Changed
+
+- **Breaking:** Normalize exception types ([#428](https://github.com/athena-framework/athena/pull/428)) (George Dietrich)
+
+### Added
+
+- **Breaking:** Add `ACON::Output::Verbosity::SILENT` verbosity level ([#489](https://github.com/athena-framework/athena/pull/489)) (George Dietrich)
+- **Breaking:** Rename `ACON::Completion::Input#must_suggest_values_for?` to `#must_suggest_option_values_for?` ([#498](https://github.com/athena-framework/athena/pull/498)) (George Dietrich)
+- Update minimum `crystal` version to `~> 1.13.0` ([#498](https://github.com/athena-framework/athena/pull/498)) (George Dietrich)
+- Add `#assert_command_is_not_successful` spec expectation method ([#498](https://github.com/athena-framework/athena/pull/498)) (George Dietrich)
+- Add support for [`FORCE_COLOR`](https://force-color.org/) and improve color support logic ([#488](https://github.com/athena-framework/athena/pull/488)) (George Dietrich)
+
+### Fixed
+
+- Fix unexpected completion value when given an array of options ([#498](https://github.com/athena-framework/athena/pull/498)) (George Dietrich)
+- Fix error when trying to set `ACON::Helper::Table::Style#padding_char` ([#498](https://github.com/athena-framework/athena/pull/498)) (George Dietrich)
+
 ## [0.3.6] - 2024-07-31
 
 ### Changed
@@ -130,6 +149,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.4.0]: https://github.com/athena-framework/console/releases/tag/v0.4.0
 [0.3.6]: https://github.com/athena-framework/console/releases/tag/v0.3.6
 [0.3.5]: https://github.com/athena-framework/console/releases/tag/v0.3.5
 [0.3.4]: https://github.com/athena-framework/console/releases/tag/v0.3.4

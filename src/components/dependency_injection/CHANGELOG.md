@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.2] - 2025-01-26
+
+_Administrative release, no functional changes_
+
 ## [0.4.1] - 2024-07-31
 
 ### Changed
@@ -183,6 +187,7 @@ _Major refactor of the component._
 
 _Initial release._
 
+[0.4.2]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.4.2
 [0.4.1]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.4.1
 [0.4.0]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.4.0
 [0.3.8]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.3.8

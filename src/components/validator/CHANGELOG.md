@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.0] - 2025-01-26
+
+### Changed
+
+- **Breaking:** Normalize exception types ([#428](https://github.com/athena-framework/athena/pull/428)) (George Dietrich)
+
+### Added
+
+- **Breaking:** Add and make `require_tld: true` the default for `AVD::Constraints::URL` ([#492](https://github.com/athena-framework/athena/pull/492)) (George Dietrich)
+- Add example usages to `AVD::Constraints::*` docs ([#483](https://github.com/athena-framework/athena/pull/483), [#493](https://github.com/athena-framework/athena/pull/493)) (Zohir Tamda, George Dietrich)
+
 ## [0.3.4] - 2024-07-31
 
 ### Changed
@@ -152,6 +163,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.4.0]: https://github.com/athena-framework/validator/releases/tag/v0.4.0
 [0.3.4]: https://github.com/athena-framework/validator/releases/tag/v0.3.4
 [0.3.3]: https://github.com/athena-framework/validator/releases/tag/v0.3.3
 [0.3.2]: https://github.com/athena-framework/validator/releases/tag/v0.3.2

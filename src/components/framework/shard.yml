@@ -1,6 +1,6 @@
 name: athena
 
-version: 0.19.2
+version: 0.20.0
 
 crystal: ~> 1.14
 
@@ -19,10 +19,10 @@ authors:
 dependencies:
   athena-clock:
     github: athena-framework/clock
-    version: ~> 0.1.0
+    version: ~> 0.2.0
   athena-console:
     github: athena-framework/console
-    version: ~> 0.3.5
+    version: ~> 0.4.0
   athena-dependency_injection:
     github: athena-framework/dependency-injection
     version: ~> 0.4.0
@@ -31,13 +31,13 @@ dependencies:
     version: ~> 0.3.0
   athena-negotiation:
     github: athena-framework/negotiation
-    version: ~> 0.1.0
+    version: ~> 0.2.0
   athena-routing:
     github: athena-framework/routing
     version: ~> 0.1.4
   athena-serializer:
     github: athena-framework/serializer
-    version: ~> 0.3.0
+    version: ~> 0.4.0
   athena-validator:
     github: athena-framework/validator
-    version: ~> 0.3.0
+    version: ~> 0.4.0

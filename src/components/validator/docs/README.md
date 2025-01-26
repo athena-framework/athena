@@ -15,7 +15,7 @@ First, install the component by adding the following to your `shard.yml`, then r
 dependencies:
   athena-validator:
     github: athena-framework/validator
-    version: ~> 0.3.0
+    version: ~> 0.4.0
 ```
 
 ## Usage

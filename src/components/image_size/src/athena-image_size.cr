@@ -7,7 +7,7 @@ alias AIS = Athena::ImageSize
 
 # Allows measuring the size of various [image formats][Athena::ImageSize::Image::Format].
 module Athena::ImageSize
-  VERSION = "0.1.3"
+  VERSION = "0.1.4"
 
   # Represents the [DPI (Dots Per Inch)](https://en.wikipedia.org/wiki/Dots_per_inch) used to calculate dimensions of `AIS::Image::Format::SVG` images, defaulting to `72.0`.
   class_property dpi : Float64 = 72.0
