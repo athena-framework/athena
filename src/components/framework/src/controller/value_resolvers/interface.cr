@@ -61,7 +61,8 @@
 # struct Multiply
 #   include ATHR::Interface
 #
-#   configuration This
+#   # The value provided to the macro maps to the name of the annotation.
+#   configuration Multiply::This
 #
 #   # :inherit:
 #   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata) : Int32?
@@ -106,7 +107,7 @@
 # struct Multiply
 #   include ATHR::Interface
 #
-#   configuration This, multiplier : Int32 = 10
+#   configuration Multiply::This, multiplier : Int32 = 10
 #
 #   # :inherit:
 #   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata) : Int32?
@@ -135,7 +136,10 @@
 # # GET /10 # => 500
 # ```
 #
-# A more real-world example of this pattern is the `ATHR::Time` resolver which allows customizing the format and/or location that should be used to parse the datetime string.
+# A more real-world example of this pattern is how the `ATHR::Time` resolver allows customizing the format and/or location that should be used to parse the datetime string via `ATHA::MapTime` annotation.
+#
+# TIP: The configuration annotation may be defined in another namespace via prefixing the FQN of the path with `::`.
+# E.g. `configuration ::MyApp::Annotation::Multiply`.
 #
 # ## Handling Multiple Types
 #
@@ -151,7 +155,7 @@
 # struct MyResolver
 #   include ATHR::Interface
 #
-#   configuration Enable
+#   configuration MyResolver::Enable
 #
 #   # :inherit:
 #   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata(Int32)) : Int32?
@@ -235,7 +239,7 @@
 #   # If `nil` is a valid option, the `Nil` type should also be included.
 #   include ATHR::Interface::Typed(String)
 #
-#   configuration Enable
+#   configuration MyResolver::Enable
 #
 #   # :inherit:
 #   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata) : String?
