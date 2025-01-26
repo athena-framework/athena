@@ -25,6 +25,7 @@ jobs:
   check_format:
     strategy:
       matrix:
+        fail-fast: false
         crystal:
           - latest
           - nightly
