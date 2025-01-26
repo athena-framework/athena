@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.1.4] - 2025-01-??
+## [0.1.4] - 2025-01-26
 
 _Administrative release, no functional changes_
 
