@@ -23,6 +23,29 @@ class TypedGetterAlias
   include TypedGetterAliasInterface
 end
 
+module ExplicitArrayServiceInterface; end
+
+@[ADI::Register]
+@[ADI::AsAlias]
+struct ExplicitArrayOne
+  include ExplicitArrayServiceInterface
+end
+
+@[ADI::Register]
+@[ADI::AsAlias]
+struct ExplicitArrayTwo
+  include ExplicitArrayServiceInterface
+end
+
+@[ADI::Register]
+@[ADI::AsAlias]
+struct ExplicitArrayThree
+  include ExplicitArrayServiceInterface
+end
+
+@[ADI::Register(_services: ["@explicit_array_one", "@explicit_array_three"], public: true)]
+record ExplicitArrayClient, services : Array(ExplicitArrayServiceInterface)
+
 describe ADI::ServiceContainer::DefineGetters, tags: "compiled" do
   describe "compiler errors" do
     describe "aliases" do
@@ -63,6 +86,10 @@ describe ADI::ServiceContainer::DefineGetters, tags: "compiled" do
 
     it "exposes typed getter for public typed alias" do
       ADI.container.get(TypedGetterAliasInterface).should be_a TypedGetterAlias
+    end
+
+    it "applies `of Type` restrictions to array values" do
+      ADI.container.explicit_array_client.services.should eq [ExplicitArrayOne.new, ExplicitArrayThree.new]
     end
   end
 end

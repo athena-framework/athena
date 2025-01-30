@@ -52,7 +52,7 @@ module Athena::DependencyInjection::ServiceContainer::ResolveValues
                   end
                 end
 
-                resolved_value = %((#{tagged_services.map(&.first.id)} of Union(#{param["resolved_restriction"].type_vars.splat}))).id
+                resolved_value = tagged_services.map &.first.id
 
                 # Array, could contain nested references
               elsif unresolved_value.is_a?(ArrayLiteral) || unresolved_value.is_a?(TupleLiteral)
