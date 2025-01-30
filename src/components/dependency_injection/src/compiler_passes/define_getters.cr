@@ -24,7 +24,7 @@ module Athena::DependencyInjection::ServiceContainer::DefineGetters
                                                                              metadata["parameters"].map do |name, param|
                                                                                str = "#{name.id}: #{param["value"]}"
 
-                                                                               if (resolved_restriction = param["resolved_restriction"]) && resolved_restriction <= Array
+                                                                               if (resolved_restriction = param["resolved_restriction"]) && resolved_restriction <= Array && param["value"].of.is_a?(Nop)
                                                                                  str += " of Union(#{resolved_restriction.type_vars.splat})"
                                                                                end
 

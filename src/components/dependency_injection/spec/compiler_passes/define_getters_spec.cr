@@ -23,28 +23,31 @@ class TypedGetterAlias
   include TypedGetterAliasInterface
 end
 
-module ExplicitArrayServiceInterface; end
+module ArrayServiceInterface; end
 
 @[ADI::Register]
 @[ADI::AsAlias]
-struct ExplicitArrayOne
-  include ExplicitArrayServiceInterface
+struct ArrayOne
+  include ArrayServiceInterface
 end
 
 @[ADI::Register]
 @[ADI::AsAlias]
-struct ExplicitArrayTwo
-  include ExplicitArrayServiceInterface
+struct ArrayTwo
+  include ArrayServiceInterface
 end
 
 @[ADI::Register]
 @[ADI::AsAlias]
-struct ExplicitArrayThree
-  include ExplicitArrayServiceInterface
+struct ArrayThree
+  include ArrayServiceInterface
 end
 
-@[ADI::Register(_services: ["@explicit_array_one", "@explicit_array_three"], public: true)]
-record ExplicitArrayClient, services : Array(ExplicitArrayServiceInterface)
+@[ADI::Register(_services: ["@array_one", "@array_three"], public: true)]
+record ImplicitArrayClient, services : Array(ArrayServiceInterface)
+
+@[ADI::Register(public: true)]
+record ExplicitArrayClient, services : Array(ArrayServiceInterface) = [] of ArrayServiceInterface
 
 describe ADI::ServiceContainer::DefineGetters, tags: "compiled" do
   describe "compiler errors" do
@@ -88,8 +91,12 @@ describe ADI::ServiceContainer::DefineGetters, tags: "compiled" do
       ADI.container.get(TypedGetterAliasInterface).should be_a TypedGetterAlias
     end
 
-    it "applies `of Type` restrictions to array values" do
-      ADI.container.explicit_array_client.services.should eq [ExplicitArrayOne.new, ExplicitArrayThree.new]
+    it "implicitly applies `of Type` restrictions to array values" do
+      ADI.container.implicit_array_client.services.should eq [ArrayOne.new, ArrayThree.new]
+    end
+
+    it "does not apply `of Type` restriction to values that already explicitly have one" do
+      ADI.container.explicit_array_client.services.should be_empty
     end
   end
 end
