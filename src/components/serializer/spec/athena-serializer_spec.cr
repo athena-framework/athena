@@ -16,6 +16,21 @@ describe ASR::Serializable do
         p.type.should eq String
         p.class.should eq GetterAccessor
       end
+
+      it "handles when getter value has a diff type than ivar" do
+        properties = GetterAccessorDiffType.new.serialization_properties
+        properties.size.should eq 1
+
+        p = properties[0]
+
+        p.name.should eq "value"
+        p.external_name.should eq "value"
+        p.value.should eq "100"
+        p.value.should be_a String
+        p.skip_when_empty?.should be_false
+        p.type.should eq Int32
+        p.class.should eq GetterAccessorDiffType
+      end
     end
 
     describe ASRA::AccessorOrder do

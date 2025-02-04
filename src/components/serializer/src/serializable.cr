@@ -110,16 +110,20 @@ module Athena::Serializer::Serializable
               {% annotation_configurations[ann_class] = "#{annotations} of ADI::AnnotationConfigurations::ConfigurationBase".id unless annotations.empty? %}
             {% end %}
 
-            {% property_hash[external_name] = %(ASR::PropertyMetadata(#{ivar.type}, #{ivar.type}, #{@type}).new(
+            {%
+              value = (accessor = ivar.annotation(ASRA::Accessor)) && nil != accessor[:getter] ? accessor[:getter].id : %(@#{ivar.id}).id
+
+              property_hash[external_name] = %(ASR::PropertyMetadata(#{ivar.type}, typeof(#{value}), #{@type}).new(
                 name: #{ivar.name.stringify},
                 external_name: #{external_name},
                 annotation_configurations: ADI::AnnotationConfigurations.new(#{annotation_configurations} of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase)),
-                value: #{(accessor = ivar.annotation(ASRA::Accessor)) && nil != accessor[:getter] ? accessor[:getter].id : %(@#{ivar.id}).id},
+                value: #{value},
                 skip_when_empty: #{!!ivar.annotation(ASRA::SkipWhenEmpty)},
                 groups: #{(ann = ivar.annotation(ASRA::Groups)) && !ann.args.empty? ? [ann.args.splat] : ["default"]},
                 since_version: #{(ann = ivar.annotation(ASRA::Since)) && nil != ann[0] ? "SemanticVersion.parse(#{ann[0]})".id : nil},
                 until_version: #{(ann = ivar.annotation(ASRA::Until)) && nil != ann[0] ? "SemanticVersion.parse(#{ann[0]})".id : nil},
-              )).id %}
+              )).id
+            %}
             {% end %}
 
           {% for m in @type.methods.select &.annotation(ASRA::VirtualProperty) %}
