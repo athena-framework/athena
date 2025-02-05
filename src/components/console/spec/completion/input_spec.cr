@@ -18,6 +18,7 @@ struct CompletionInputTest < ASPEC::TestCase
     input.completion_type.should eq expected_type
     input.completion_name.should eq expected_name
     input.completion_value.should eq expected_value
+    input.must_suggest_option_values_for?("with-required-value").should be_true if expected_value.starts_with? "athe"
   end
 
   def bind_data_provider : Hash
@@ -56,9 +57,9 @@ struct CompletionInputTest < ASPEC::TestCase
   end
 
   @[DataProvider("last_array_argument_provider")]
-  def tets_bind_with_last_array_argument(input : Input, expected_value : String?) : Nil
+  def test_bind_with_last_array_argument(input : Input, expected_value : String?) : Nil
     definition = ACON::Input::Definition.new(
-      ACON::Input::Argument.new("list-arg", Input::Type[:required, :is_array]),
+      ACON::Input::Argument.new("list-arg", ACON::Input::Argument::Mode[:required, :is_array]),
     )
 
     input.bind definition
@@ -70,8 +71,8 @@ struct CompletionInputTest < ASPEC::TestCase
 
   def last_array_argument_provider : Tuple
     {
-      {Input.from_tokens([] of String, 0), nil},
-      {Input.from_tokens(["athena", "crystal"], 2), nil},
+      {Input.from_tokens([] of String, 0), ""},
+      {Input.from_tokens(["athena", "crystal"], 2), ""},
       {Input.from_tokens(["athena", "cry"], 1), "cry"},
     }
   end
@@ -87,6 +88,7 @@ struct CompletionInputTest < ASPEC::TestCase
     input.completion_type.should eq Input::Type::ARGUMENT_VALUE
     input.completion_name.should eq "arg-with-default"
     input.completion_value.should eq ""
+    input.must_suggest_argument_values_for?("arg-with-default").should be_true
   end
 
   @[DataProvider("from_string_provider")]

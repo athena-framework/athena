@@ -268,7 +268,7 @@ struct URLGeneratorTest < ASPEC::TestCase
       .generate("test").should eq "ftp://localhost/base/"
   end
 
-  def test_generate_scheme_requirement_creates_url_for_first_required_scheme : Nil
+  def test_path_with_two_starting_slashes : Nil
     self
       .generator(self.routes(ART::Route.new("//path-and-not-domain")), context: ART::RequestContext.new)
       .generate("test").should eq "/path-and-not-domain"

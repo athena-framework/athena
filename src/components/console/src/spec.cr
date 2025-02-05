@@ -52,6 +52,11 @@ module Athena::Console::Spec
       self.status.should ACON::Spec::Expectations::CommandIsSuccessful.new, file: file, line: line, failure_message: message.presence
     end
 
+    # Asserts that the return `#status` is _NOT_ successful.
+    def assert_command_is_not_successful(message : String = "", *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
+      self.status.should_not ACON::Spec::Expectations::CommandIsSuccessful.new, file: file, line: line, failure_message: message.presence
+    end
+
     protected def init_output(
       decorated : Bool? = nil,
       interactive : Bool? = nil,
@@ -316,7 +321,7 @@ module Athena::Console::Spec
     end
 
     def complete(input : Enumerable(String)) : Array(String)
-      completion_input = ACON::Completion::Input.from_tokens input, (input.size - 1).clamp(0, nil)
+      completion_input = ACON::Completion::Input.from_tokens input.to_a, (input.size - 1).clamp(0, nil)
       completion_input.bind @command.definition
       suggestions = ACON::Completion::Suggestions.new
 

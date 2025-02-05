@@ -90,13 +90,13 @@ struct RangeValidatorTest < AVD::Spec::ConstraintValidatorTestCase
   end
 
   @[DataProvider("ten_to_twnentieth_april_2020")]
-  def test_valid_datetimes_min(value : Time) : Nil
+  def test_valid_datetimes_max(value : Time) : Nil
     self.validator.validate value, self.new_constraint range: (..Time.utc(2020, 4, 20))
     self.assert_no_violation
   end
 
   @[DataProvider("ten_to_twnentieth_april_2020")]
-  def test_valid_datetimes_min(value : Time) : Nil
+  def test_valid_datetimes_range(value : Time) : Nil
     self.validator.validate value, self.new_constraint range: (Time.utc(2020, 4, 10)..Time.utc(2020, 4, 20))
     self.assert_no_violation
   end

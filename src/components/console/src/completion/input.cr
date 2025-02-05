@@ -102,11 +102,11 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
       argument_value = @arguments[arg_name]
       @completion_name = arg_name
 
-      if argument_value.is_a? Array
-        @completion_value = argument_value.empty? ? "" : argument_value.last.to_s
-      else
-        @completion_value = argument_value.to_s
-      end
+      @completion_value = if argument_value.is_a?(Array) || argument_value.is_a?(ACON::Input::Value::Array)
+                            argument_value.empty? ? "" : argument_value.last.to_s
+                          else
+                            argument_value.to_s
+                          end
     end
 
     if @current_index >= @tokens.size
@@ -123,7 +123,7 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
   end
 
   # Returns `true` if this input is able to suggest values for the provided *option_name*.
-  def must_suggest_values_for?(option_name : String) : Bool
+  def must_suggest_option_values_for?(option_name : String) : Bool
     @completion_type.option_value? && option_name == @completion_name
   end
 

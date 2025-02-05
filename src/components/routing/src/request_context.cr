@@ -19,7 +19,17 @@ class Athena::Routing::RequestContext
 
   # Creates a new instance of self from the provided *uri*.
   # The *host*, *scheme*, *http_port*, and *https_port* optionally act as fallbacks if they are not contained within the *uri*.
+  #
+  # ameba:disable Metrics/CyclomaticComplexity:
   def self.from_uri(uri : String, host : String = "localhost", scheme : String = "http", http_port : Int32 = 80, https_port : Int32 = 443) : self
+    if (idx = uri.index('\\')) && (i = uri.index(/\?|\#/) || uri.bytesize) && idx < i
+      uri = ""
+    end
+
+    if (u = uri.presence) && (u[0].ord <= 32 || u[-1].ord <= 32 || ((idx = u.index(/\r|\n|\t/) || u.bytesize) && (u.bytesize != idx)))
+      uri = ""
+    end
+
     self.from_uri URI.parse(uri), host, scheme, http_port, https_port
   end
 
@@ -72,6 +82,7 @@ class Athena::Routing::RequestContext
                   "localhost"
                 end
 
+    self.path = request.path
     self.query_string = request.query || ""
 
     # TODO: Support this once it's exposed.
@@ -112,13 +123,29 @@ class Athena::Routing::RequestContext
     self
   end
 
+  def http_port=(@http_port : Int32) : self
+    self
+  end
+
+  def https_port=(@https_port : Int32) : self
+    self
+  end
+
+  def parameter(name : String)
+    @parameters[name]
+  end
+
   def set_parameter(name : String, value : String?) : self
     @parameters[name] = value
 
     self
   end
 
+  def parameters=(@parameters : Hash(String, String?)) : self
+    self
+  end
+
   def has_parameter?(name : String) : Bool
-    @parameters.has_key name
+    @parameters.has_key? name
   end
 end

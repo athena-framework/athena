@@ -103,7 +103,7 @@ module ArticlePersisterInterface
 end
 ```
 
-From here the constructor of `MyService` should be updated to use it:
+From here the constructor of `MyService` should be updated to be:
 
 ```crystal
 def initialize(
@@ -111,7 +111,8 @@ def initialize(
 ); end
 ```
 
-Also being sure to include the interface in our service:
+Additionally, a [`@[ADI::AsAlias]`](https://athenaframework.org/DependencyInjection/AsAlias/) must be applied to the class.
+Also be sure to include the interface within `ArticlePersister`:
 
 ```crystal
 @[ADI::Register]

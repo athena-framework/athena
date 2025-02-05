@@ -142,7 +142,7 @@ require "./exception/*"
 # They can of course continue to be used in production by distributing the base `.env` file along with the binary, then creating a `.env.local` on the production server and including production values within it.
 # This can work quite well for simple applications, but ultimately a more robust solution that best leverages the features of the server the application is running on is best.
 class Athena::Dotenv
-  VERSION = "0.1.3"
+  VERSION = "0.2.0"
 
   # Both acts as a namespace for exceptions related to the `Athena::Dotenv` component, as well as a way to check for exceptions from the component.
   module Exception; end

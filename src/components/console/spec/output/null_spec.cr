@@ -6,6 +6,9 @@ struct NullSpec < ASPEC::TestCase
   end
 
   def test_formatter : Nil
-    ACON::Output::Null.new.formatter.should be_a ACON::Formatter::Null
+    output = ACON::Output::Null.new
+    output.formatter.should be_a ACON::Formatter::Null
+    output.formatter = ACON::Formatter::Output.new
+    output.formatter.should be_a ACON::Formatter::Null
   end
 end

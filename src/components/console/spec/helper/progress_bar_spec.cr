@@ -386,6 +386,16 @@ struct ProgressBarTest < ASPEC::TestCase
     )
   end
 
+  def test_message : Nil
+    bar = ACON::Helper::ProgressBar.new self.output, minimum_seconds_between_redraws: 0
+    bar.message.should be_nil
+    bar.set_message "other message", "other-message"
+    bar.set_message "my message"
+
+    bar.message.should eq "my message"
+    bar.message("other-message").should eq "other message"
+  end
+
   def test_overwrite_with_new_lines_in_message : Nil
     ACON::Helper::ProgressBar.set_format_definition "test", "%current%/%max% [%bar%] %percent:3s%% %message% EXISTING TEXT."
 

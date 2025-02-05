@@ -1,5 +1,52 @@
 # Changelog
 
+## [0.20.0] - 2025-01-26
+
+### Changed
+
+- **Breaking:** Normalize exception types ([#428](https://github.com/athena-framework/athena/pull/428)) (George Dietrich)
+- **Breaking:** The `ATHR::Interface.configuration` macro is no longer scoped to the resolver namespace ([#425](https://github.com/athena-framework/athena/pull/425)) (George Dietrich)
+- **Breaking:** Rename `ATHR::RequestBody::Extract` to `ATHA::MapRequestBody` ([#425](https://github.com/athena-framework/athena/pull/425)) (George Dietrich)
+- **Breaking:** Rename `ATHR::Time::Format` to `ATHA::MapTime` ([#425](https://github.com/athena-framework/athena/pull/425)) (George Dietrich)
+- Update minimum `crystal` version to `~> 1.14.0` ([#433](https://github.com/athena-framework/athena/pull/433)) (George Dietrich)
+- Refactor auto redirection logic to be more robust ([#436](https://github.com/athena-framework/athena/pull/436), [#480](https://github.com/athena-framework/athena/pull/480)) (George Dietrich)
+- Refactor `ATHR::RequestBody` to raise more accurate deserialization errors ([#490](https://github.com/athena-framework/athena/pull/490)) (George Dietrich)
+
+### Added
+
+- Add support for [Proxies & Load Balancers](https://athenaframework.org/guides/proxies/) ([#440](https://github.com/athena-framework/athena/pull/440), [#444](https://github.com/athena-framework/athena/pull/444)) (George Dietrich)
+- Add new `trusted_host` bundle scheme property to allow setting trusted hostnames ([#474](https://github.com/athena-framework/athena/pull/474)) (George Dietrich)
+- Add support for deserializing `application/x-www-form-urlencoded` bodies via `ATHA::MapRequestBody` ([#477](https://github.com/athena-framework/athena/pull/477)) (George Dietrich)
+- Add `ATHA::MapQueryString` to map a request's query string into a DTO type ([#477](https://github.com/athena-framework/athena/pull/477)) (George Dietrich)
+- Add `ATH::Exception.from_status` helper method ([#426](https://github.com/athena-framework/athena/pull/426)) (George Dietrich)
+- Add `ATHA::MapQueryParameter` for handling query parameters ([#426](https://github.com/athena-framework/athena/pull/426)) (George Dietrich)
+- Add `#validation_groups` and `#accept_formats` annotation properties to `ATHA::MapRequestBody` ([#486](https://github.com/athena-framework/athena/pull/486)) (George Dietrich)
+- Add `#validation_groups` annotation property to `ATHA::MapQueryString` ([#486](https://github.com/athena-framework/athena/pull/486)) (George Dietrich)
+- Add `ATH::Request#port` and `ATH::Response#redirect?` methods ([#436](https://github.com/athena-framework/athena/pull/436)) (George Dietrich)
+- Add `#host`, `#scheme`, `#secure?`, and `#from_trusted_proxy?` methods to `ATH::Request` ([#440](https://github.com/athena-framework/athena/pull/440)) (George Dietrich)
+- Add `ATH::Request#content_type_format` to return the request format's name from its `content-type` header ([#477](https://github.com/athena-framework/athena/pull/477)) (George Dietrich)
+- Add `ATH::IPUtils` module ([#440](https://github.com/athena-framework/athena/pull/440)) (George Dietrich)
+- Add `.unquote`, `.split`, and `.combine` methods `ATH::HeaderUtils` ([#440](https://github.com/athena-framework/athena/pull/440)) (George Dietrich)
+- Add request matchers for headers and query parameters ([#491](https://github.com/athena-framework/athena/pull/491)) (George Dietrich)
+
+### Removed
+
+- **Breaking:** Remove `ATHA::QueryParam` ([#426](https://github.com/athena-framework/athena/pull/426)) (George Dietrich)
+- **Breaking:** Remove `ATHA::RequestParam` ([#426](https://github.com/athena-framework/athena/pull/426)) (George Dietrich)
+- **Breaking:** Remove `ATH::Exception::InvalidParameter` ([#426](https://github.com/athena-framework/athena/pull/426)) (George Dietrich)
+- **Breaking:** Remove everything within `ATH::Params` namespace ([#426](https://github.com/athena-framework/athena/pull/426)) (George Dietrich)
+- **Breaking:** Remove `ATH::Action#params` ([#426](https://github.com/athena-framework/athena/pull/426)) (George Dietrich)
+- **Breaking:** Remove `ATH::Listeners::ParamFetcher` ([#426](https://github.com/athena-framework/athena/pull/426)) (George Dietrich)
+
+### Fixed
+
+- Fix query parameters being dropped when redirecting to a trailing/non-trailing slash endpoint ([#436](https://github.com/athena-framework/athena/pull/436)) (George Dietrich)
+- Fix auto redirection with non-standard ports ([#480](https://github.com/athena-framework/athena/pull/480)) (George Dietrich)
+- Fix `multipart/form-data` not being mapped to the `form` format ([#441](https://github.com/athena-framework/athena/pull/441)) (George Dietrich)
+- Fix being unable to provide the path of an `ARTA::Route` annotation on a class as a positional argument ([#482](https://github.com/athena-framework/athena/pull/482)) (George Dietrich)
+- Fix error when attempting to use `ATH::Controller#redirect_view` and `ATH::Controller#route_redirect_view` ([#498](https://github.com/athena-framework/athena/pull/498)) (George Dietrich)
+- Fix error when attempting to use `ATH::Spec::APITestCase#unlink` ([#498](https://github.com/athena-framework/athena/pull/498)) (George Dietrich)
+
 ## [0.19.2] - 2024-07-31
 
 ### Added
@@ -187,6 +234,7 @@ _Last release in the [athena-framework/athena](https://github.com/athena-framewo
 - Fix incorrect ivar type on `AVD::Exception::Exceptions::ValidationFailed#violations` ([#116](https://github.com/athena-framework/athena/pull/116)) (George Dietrich)
 - Correctly reject requests with whitespace when converting numeric inputs ([#117](https://github.com/athena-framework/athena/pull/117)) (George Dietrich)
 
+[0.20.0]: https://github.com/athena-framework/framework/releases/tag/v0.20.0
 [0.19.2]: https://github.com/athena-framework/framework/releases/tag/v0.19.2
 [0.19.1]: https://github.com/athena-framework/framework/releases/tag/v0.19.1
 [0.19.0]: https://github.com/athena-framework/framework/releases/tag/v0.19.0

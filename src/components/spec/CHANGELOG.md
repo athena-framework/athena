@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.9] - 2025-01-26
+
+_Administrative release, no functional changes_
+
 ## [0.3.8] - 2024-07-31
 
 ### Added
@@ -114,6 +118,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.3.9]: https://github.com/athena-framework/spec/releases/tag/v0.3.9
 [0.3.8]: https://github.com/athena-framework/spec/releases/tag/v0.3.8
 [0.3.7]: https://github.com/athena-framework/spec/releases/tag/v0.3.7
 [0.3.6]: https://github.com/athena-framework/spec/releases/tag/v0.3.6

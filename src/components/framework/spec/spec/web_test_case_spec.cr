@@ -2,11 +2,7 @@ require "../spec_helper"
 
 @[ASPEC::TestCase::Skip]
 private struct MockWebTestCase < ATH::Spec::WebTestCase
-  def initialize(@client : ATH::Spec::AbstractBrowser); end
-
-  def create_client : ATH::Spec::AbstractBrowser
-    @client
-  end
+  def client=(@client : ATH::Spec::AbstractBrowser); end
 end
 
 private class MockClient < ATH::Spec::AbstractBrowser
@@ -201,6 +197,8 @@ struct WebTestCaseTest < ASPEC::TestCase
   end
 
   private def tester(client : ATH::Spec::AbstractBrowser) : ATH::Spec::WebTestCase
-    MockWebTestCase.new client
+    obj = MockWebTestCase.new
+    obj.client = client
+    obj
   end
 end

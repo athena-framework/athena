@@ -23,6 +23,32 @@ class TypedGetterAlias
   include TypedGetterAliasInterface
 end
 
+module ArrayServiceInterface; end
+
+@[ADI::Register]
+@[ADI::AsAlias]
+struct ArrayOne
+  include ArrayServiceInterface
+end
+
+@[ADI::Register]
+@[ADI::AsAlias]
+struct ArrayTwo
+  include ArrayServiceInterface
+end
+
+@[ADI::Register]
+@[ADI::AsAlias]
+struct ArrayThree
+  include ArrayServiceInterface
+end
+
+@[ADI::Register(_services: ["@array_one", "@array_three"], public: true)]
+record ImplicitArrayClient, services : Array(ArrayServiceInterface)
+
+@[ADI::Register(public: true)]
+record ExplicitArrayClient, services : Array(ArrayServiceInterface) = [] of ArrayServiceInterface
+
 describe ADI::ServiceContainer::DefineGetters, tags: "compiled" do
   describe "compiler errors" do
     describe "aliases" do
@@ -63,6 +89,14 @@ describe ADI::ServiceContainer::DefineGetters, tags: "compiled" do
 
     it "exposes typed getter for public typed alias" do
       ADI.container.get(TypedGetterAliasInterface).should be_a TypedGetterAlias
+    end
+
+    it "implicitly applies `of Type` restrictions to array values" do
+      ADI.container.implicit_array_client.services.should eq [ArrayOne.new, ArrayThree.new]
+    end
+
+    it "does not apply `of Type` restriction to values that already explicitly have one" do
+      ADI.container.explicit_array_client.services.should be_empty
     end
   end
 end

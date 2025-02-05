@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.10] - 2025-01-26
+
+### Changed
+
+- Allow having multiple independent compiled route collections ([#468](https://github.com/athena-framework/athena/pull/468)) (George Dietrich)
+- Log unhandled `ART::RoutingHandler` exceptions ([#470](https://github.com/athena-framework/athena/pull/470)) (George Dietrich)
+
+### Fixed
+
+- Make `ART::RequestContext.from_uri` more robust ([#498](https://github.com/athena-framework/athena/pull/498)) (George Dietrich)
+
 ## [0.1.9] - 2024-04-09
 
 ### Changed
@@ -97,6 +108,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.1.10]: https://github.com/athena-framework/routing/releases/tag/v0.1.10
 [0.1.9]: https://github.com/athena-framework/routing/releases/tag/v0.1.9
 [0.1.8]: https://github.com/athena-framework/routing/releases/tag/v0.1.8
 [0.1.7]: https://github.com/athena-framework/routing/releases/tag/v0.1.7

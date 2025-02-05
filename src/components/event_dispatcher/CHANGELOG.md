@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.1] - 2025-01-26
+
+_Administrative release, no functional changes_
+
 ## [0.3.0] - 2024-04-09
 
 ### Changed
@@ -85,6 +89,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.3.1]: https://github.com/athena-framework/event-dispatcher/releases/tag/v0.3.1
 [0.3.0]: https://github.com/athena-framework/event-dispatcher/releases/tag/v0.3.0
 [0.2.3]: https://github.com/athena-framework/event-dispatcher/releases/tag/v0.2.3
 [0.2.2]: https://github.com/athena-framework/event-dispatcher/releases/tag/v0.2.2

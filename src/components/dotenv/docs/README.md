@@ -14,7 +14,7 @@ First, install the component by adding the following to your `shard.yml`, then r
 dependencies:
   athena-dotenv:
     github: athena-framework/dotenv
-    version: ~> 0.1.0
+    version: ~> 0.2.0
 ```
 
 ## Usage

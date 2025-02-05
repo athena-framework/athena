@@ -460,9 +460,8 @@ struct TableSpec < ASPEC::TestCase
     }
   end
 
-  @[Pending]
   # TODO: Enable when multi byte string widths are supported
-  def test_render_multi_byte : Nil
+  def ptest_render_multi_byte : Nil
     table = ACON::Helper::Table.new output = self.io_output
     table
       .headers(["🍝"])

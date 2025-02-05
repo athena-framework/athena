@@ -93,5 +93,21 @@ describe Athena::Spec do
         CODE
       end
     end
+
+    it "errors if defining a non-argless initializer" do
+      assert_error "`ASPEC::TestCase` initializers must be argless and non-yielding.", <<-CODE
+        struct TestTestCase < ASPEC::TestCase
+          def initialize(id : Int32); end
+        end
+        CODE
+    end
+
+    it "errors if defining a yielding initializer" do
+      assert_error "`ASPEC::TestCase` initializers must be argless and non-yielding.", <<-CODE
+        struct TestTestCase < ASPEC::TestCase
+          def initialize(&); end
+        end
+        CODE
+    end
   end
 end

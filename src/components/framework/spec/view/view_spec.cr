@@ -58,6 +58,12 @@ struct ViewTest < ASPEC::TestCase
     headers = view.response.headers
     view.headers.has_key?("foo").should be_true
     headers["foo"].should eq "bar"
+
+    view.set_header "string", "str"
+    view.set_header "non-string", 10
+
+    headers["string"].should eq "str"
+    headers["non-string"].should eq "10"
   end
 
   def test_status : Nil

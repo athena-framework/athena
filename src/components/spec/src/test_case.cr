@@ -305,6 +305,20 @@ abstract struct Athena::Spec::TestCase
   def initialize(__init init : Nil)
   end
 
+  macro inherited
+    macro finished
+      {% verbatim do %}
+        {%
+          @type.methods.select(&.name.==("initialize")).each do |a_def|
+            if a_def.accepts_block? || a_def.args.size > 0
+              a_def.raise "`ASPEC::TestCase` initializers must be argless and non-yielding."
+            end
+          end
+        %}
+      {% end %}
+    end
+  end
+
   # Runs the tests contained within `self`.
   #
   # See `Athena::Spec.run_all` to run all test cases.

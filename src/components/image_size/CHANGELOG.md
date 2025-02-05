@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.4] - 2025-01-26
+
+_Administrative release, no functional changes_
+
 ## [0.1.3] - 2024-04-09
 
 ### Changed
@@ -30,6 +34,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.1.4]: https://github.com/athena-framework/image-size/releases/tag/v0.1.4
 [0.1.3]: https://github.com/athena-framework/image-size/releases/tag/v0.1.3
 [0.1.2]: https://github.com/athena-framework/image-size/releases/tag/v0.1.2
 [0.1.1]: https://github.com/athena-framework/image-size/releases/tag/v0.1.1

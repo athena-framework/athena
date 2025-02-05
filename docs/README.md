@@ -10,6 +10,7 @@ These include:
 * [EventDispatcher](/EventDispatcher) (`AED`) - A Mediator and Observer pattern event library
 * [ImageSize](/ImageSize) (`AIS`) - Measures the size of various image formats
 * [Mercure](/Mercure) (`AMC`) - Allows easily pushing updates to web browsers and other HTTP clients using the Mercure protocol
+* [MIME](/MIME) (`AMIME`) - Allows manipulating `MIME` messages
 * [Negotiation](/Negotiation) (`ANG`) - Framework agnostic content negotiation library
 * [Routing](/Routing) (`ART`) - A performant and robust HTTP based routing library/framework
 * [Serializer](/Serializer) (`ASR`) - Object (de)serialization library

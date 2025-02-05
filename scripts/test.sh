@@ -11,14 +11,14 @@ function runSpecs() (
 # $1 component name
 function runSpecsWithCoverage() (
   set -e
-  mkdir -p coverage/bin
+  rm -rf "coverage/$1"
+  mkdir -p coverage/bin "coverage/$1"
   echo "require \"../../src/components/$1/spec/**\"" > "./coverage/bin/$1.cr" && \
   $CRYSTAL build "${DEFAULT_BUILD_OPTIONS[@]}" "./coverage/bin/$1.cr" -o "./coverage/bin/$1" && \
-  kcov $(if $IS_CI != "true"; then echo "--cobertura-only"; fi) --clean --include-path="./src/components/$1/src" "./coverage/$1" "./coverage/bin/$1" --junit_output="./coverage/$1/junit.xml" "${DEFAULT_OPTIONS[@]}"
+  kcov $(if $IS_CI != "true"; then echo "--cobertura-only"; fi) --clean --include-path="./src/components/$1" "./coverage/$1" "./coverage/bin/$1" --junit_output="./coverage/$1/junit.xml" "${DEFAULT_OPTIONS[@]}"
 
-  # We're using nightly Crystal to have access to this for now.
-  # When Crystal 1.15 releases, make this no longer scoped to $IS_CI as local `crystal` will also have it.
-  if [ $IS_CI = "true" ] && [ $TYPE != "compiled" ]
+  # Scope this to only non-compiled tests as that's all it's relevant for.
+  if [ $TYPE != "compiled" ]
   then
     $CRYSTAL tool unreachable --format=codecov "./coverage/bin/$1.cr" > "./coverage/$1/unreachable.codecov.json"
   fi

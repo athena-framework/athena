@@ -22,7 +22,13 @@ module Athena::DependencyInjection::ServiceContainer::DefineGetters
             {% if !metadata[:public] %}protected {% end %}getter {{service_id.id}} : {{ivar_type}} do
               instance = {{constructor_service}}.{{constructor_method.id}}({{
                                                                              metadata["parameters"].map do |name, param|
-                                                                               "#{name.id}: #{param["value"]}".id
+                                                                               str = "#{name.id}: #{param["value"]}"
+
+                                                                               if (resolved_restriction = param["resolved_restriction"]) && resolved_restriction <= Array && param["value"].of.is_a?(Nop)
+                                                                                 str += " of Union(#{resolved_restriction.type_vars.splat})"
+                                                                               end
+
+                                                                               str.id
                                                                              end.splat
                                                                            }})
 

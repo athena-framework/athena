@@ -1,6 +1,6 @@
 name: athena-dependency_injection
 
-version: 0.4.1
+version: 0.4.2
 
 crystal: ~> 1.4
 

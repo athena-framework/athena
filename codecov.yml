@@ -48,6 +48,10 @@ component_management:
       name: mercure
       paths:
         - src/components/mercure/**
+    - component_id: mime_component
+      name: mime
+      paths:
+        - src/components/mime/**
     - component_id: negotiation_component
       name: negotiation
       paths:

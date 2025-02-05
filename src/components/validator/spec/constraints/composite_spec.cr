@@ -1,3 +1,5 @@
+require "../spec_helper"
+
 private class ConcreteComposite < AVD::Constraints::Composite
   def initialize(
     constraints : Array(AVD::Constraint) | AVD::Constraint = [] of AVD::Constraint,
