@@ -119,6 +119,12 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
               %}
 
               {%
+                unless SERVICE_HASH[service_id].nil?
+                  ann.raise "Failed to auto register service for '#{service_id.id}' (#{klass}). It is already registered."
+                end
+              %}
+
+              {%
                 SERVICE_HASH[service_id] = {
                   class:             klass.resolve,
                   factory:           factory,
