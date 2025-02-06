@@ -38,7 +38,7 @@ describe ACON::Helper::Formatter do
     it "escapes < within the block" do
       ACON::Helper::Formatter.new.format_block("<info>some info</info>", "error", true).should eq normalize <<-BLOCK
       <error>                            </error>
-      <error>  \\<info>some info\\</info>  </error>
+      <error>  \\<info>some info\\</info>    </error>
       <error>                            </error>
       BLOCK
     end
