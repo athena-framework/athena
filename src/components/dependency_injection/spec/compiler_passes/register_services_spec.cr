@@ -115,6 +115,29 @@ describe ADI::ServiceContainer::RegisterServices do
       CR
     end
 
+    it "errors if the service is already registered" do
+      assert_error "Failed to auto register service for 'my_service' (MyService). It is already registered.", <<-CR
+        @[ADI::Register]
+        record MyService
+
+        module MyExtension
+          macro included
+            macro finished
+              {% verbatim do %}
+                {%
+                  SERVICE_HASH["my_service"] = {
+                    class:      MyService,
+                  }
+                %}
+              {% end %}
+            end
+          end
+        end
+
+        ADI.add_compiler_pass MyExtension, :before_optimization, 1028
+        CR
+    end
+
     describe "factory" do
       it "errors if method is an instance method" do
         assert_error "Failed to auto register service 'foo'. Factory method 'foo' within 'Foo' is an instance method.", <<-CR
