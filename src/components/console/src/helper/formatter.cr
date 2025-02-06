@@ -42,7 +42,7 @@ class Athena::Console::Helper::Formatter < Athena::Console::Helper
     messages = large ? [" " * len] : [] of String
 
     lines.each do |line|
-      messages << %(#{line}#{" " * (len - line.size)})
+      messages << %(#{line}#{" " * (len - line.delete('\\').size)})
     end
 
     if large
