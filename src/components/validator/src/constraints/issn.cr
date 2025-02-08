@@ -8,7 +8,7 @@
 # class Journal
 #   include AVD::Validatable
 #
-#   def initialize(@isin : String); end
+#   def initialize(@issn : String); end
 #
 #   @[Assert::ISSN]
 #   property issn : String
