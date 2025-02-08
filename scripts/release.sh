@@ -61,7 +61,7 @@ function tag()
 # Requires there be an `ATHENA_GH_TOKEN` ENV var set in order to authenticate with GitHub.
 # The token must be a Fine-grained personal access token with `contents:write` permissions.
 # It must also be approved by an `athena-framework` admin.
-function rebuildDocs()
+function buildDocs()
 {
   curl -LsS \
     -X POST \
@@ -90,7 +90,7 @@ case $METHOD in
     done
 
     # Re-build the docs after tagging every component
-    rebuildDocs
+    buildDocs
     ;;
   docPick)
     ensureRepoExists $2 docs
@@ -100,7 +100,7 @@ case $METHOD in
 
     ;;
   buildDocs)
-    rebuildDocs
+    buildDocs
 
     ;;
 esac
