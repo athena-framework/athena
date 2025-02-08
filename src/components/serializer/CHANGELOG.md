@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.1] - 2025-02-08
+
+### Fixed
+
+- Fix serialization of value when its type is different type than the ivar ([#514](https://github.com/athena-framework/athena/pull/514)) (George Dietrich)
+
 ## [0.4.0] - 2025-01-26
 
 ### Changed
@@ -157,6 +163,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.4.1]: https://github.com/athena-framework/serializer/releases/tag/v0.4.1
 [0.4.0]: https://github.com/athena-framework/serializer/releases/tag/v0.4.0
 [0.3.6]: https://github.com/athena-framework/serializer/releases/tag/v0.3.6
 [0.3.5]: https://github.com/athena-framework/serializer/releases/tag/v0.3.5

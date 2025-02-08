@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.10] - 2025-02-08
+
+### Changed
+
+- **Breaking:** prevent defining `ASPEC::TestCase#initialize` methods that accepts arguments/blocks ([#516](https://github.com/athena-framework/athena/pull/516)) (George Dietrich)
+
 ## [0.3.9] - 2025-01-26
 
 _Administrative release, no functional changes_
