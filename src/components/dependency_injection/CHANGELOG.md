@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.4.3] - 2025-02-08
+
+### Changed
+
+- **Breaking:** prevent auto registering of already registered services ([#520](https://github.com/athena-framework/athena/pull/520)) (George Dietrich)
+
+### Fixed
+
+- Ensure all array values have proper `#of` type ([#508](https://github.com/athena-framework/athena/pull/508)) (George Dietrich)
+
 ## [0.4.2] - 2025-01-26
 
 _Administrative release, no functional changes_
@@ -187,6 +197,7 @@ _Major refactor of the component._
 
 _Initial release._
 
+[0.4.3]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.4.3
 [0.4.2]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.4.2
 [0.4.1]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.4.1
 [0.4.0]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.4.0
