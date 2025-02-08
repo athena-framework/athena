@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.1] - 2025-02-08
+
+### Fixed
+
+- Fix incorrectly aligned block ([#519](https://github.com/athena-framework/athena/pull/519)) (Zohir Tamda)
+
 ## [0.4.0] - 2025-01-26
 
 ### Changed
@@ -149,6 +155,7 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.4.1]: https://github.com/athena-framework/console/releases/tag/v0.4.1
 [0.4.0]: https://github.com/athena-framework/console/releases/tag/v0.4.0
 [0.3.6]: https://github.com/athena-framework/console/releases/tag/v0.3.6
 [0.3.5]: https://github.com/athena-framework/console/releases/tag/v0.3.5
