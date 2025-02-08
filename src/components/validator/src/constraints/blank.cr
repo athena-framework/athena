@@ -6,7 +6,7 @@
 #
 #   def initialize(@username : String); end
 #
-#   @[Assert::NotBlank]
+#   @[Assert::Blank]
 #   property username : String
 # end
 # ```
