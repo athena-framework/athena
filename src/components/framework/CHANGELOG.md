@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.20.1] - 2025-02-08
+
+### Fixed
+
+-Fix `ATH::ViewHandler` bundle configuration values not being correctly set ([#520](https://github.com/athena-framework/athena/pull/520)) (George Dietrich)
+
 ## [0.20.0] - 2025-01-26
 
 ### Changed
@@ -234,6 +240,7 @@ _Last release in the [athena-framework/athena](https://github.com/athena-framewo
 - Fix incorrect ivar type on `AVD::Exception::Exceptions::ValidationFailed#violations` ([#116](https://github.com/athena-framework/athena/pull/116)) (George Dietrich)
 - Correctly reject requests with whitespace when converting numeric inputs ([#117](https://github.com/athena-framework/athena/pull/117)) (George Dietrich)
 
+[0.20.1]: https://github.com/athena-framework/framework/releases/tag/v0.20.1
 [0.20.0]: https://github.com/athena-framework/framework/releases/tag/v0.20.0
 [0.19.2]: https://github.com/athena-framework/framework/releases/tag/v0.19.2
 [0.19.1]: https://github.com/athena-framework/framework/releases/tag/v0.19.1
