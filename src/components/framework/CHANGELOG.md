@@ -4,7 +4,7 @@
 
 ### Fixed
 
--Fix `ATH::ViewHandler` bundle configuration values not being correctly set ([#520](https://github.com/athena-framework/athena/pull/520)) (George Dietrich)
+- Fix `ATH::ViewHandler` bundle configuration values not being correctly set ([#520](https://github.com/athena-framework/athena/pull/520)) (George Dietrich)
 
 ## [0.20.0] - 2025-01-26
 
