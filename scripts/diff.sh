@@ -13,6 +13,7 @@ function diff()
         cd "../$1"
     else
         cd "../$1"
+        git checkout --quiet master
         git fetch --quiet --tags
         git pull --quiet origin master
     fi
