@@ -32,6 +32,10 @@ struct Athena::Framework::Listeners::View
           context.groups = groups
         end
       end
+
+      configuration.emit_nil.try do |emit_nil|
+        context.emit_nil = emit_nil
+      end
     end
 
     if view.format.nil?

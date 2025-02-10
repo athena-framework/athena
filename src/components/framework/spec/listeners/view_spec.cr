@@ -43,6 +43,7 @@ describe ATH::Listeners::View do
       view_handler.view.data.should eq "FOO"
       view_handler.view.format.should eq "json"
       view_handler.view.context.groups.try &.should be_empty
+      view_handler.view.context.emit_nil?.should be_nil
     end
 
     it ATH::View do
@@ -153,6 +154,20 @@ describe ATH::Listeners::View do
           groups = view_handler.view.context.groups.should_not be_nil
           groups.should eq Set{"three", "four", "one", "two"}
         end
+      end
+
+      it "emit_nil" do
+        request = new_request(
+          action: new_action(
+            annotation_configurations: get_ann_configs(ATHA::ViewConfiguration.new(emit_nil: true))
+          )
+        )
+        event = ATH::Events::View.new request, "FOO"
+        view_handler = MockViewHandler.new
+
+        ATH::Listeners::View.new(view_handler).on_view event
+
+        view_handler.view.context.emit_nil?.should be_true
       end
     end
   end
