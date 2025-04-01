@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: extractions/setup-just@v2
+      - uses: extractions/setup-just@v3
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
         with:
@@ -45,7 +45,7 @@ jobs:
       image: crystallang/crystal:latest
     steps:
       - uses: actions/checkout@v4
-      - uses: extractions/setup-just@v2
+      - uses: extractions/setup-just@v3
       - name: Install Dependencies
         run: shards install
         env:
@@ -62,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: extractions/setup-just@v2
+      - uses: extractions/setup-just@v3
       - name: Install kcov
         if: matrix.crystal == 'latest'
         run: |
@@ -125,7 +125,7 @@ jobs:
         if: github.event_name == 'pull_request'
         with:
           fetch-depth: 0
-      - uses: extractions/setup-just@v2
+      - uses: extractions/setup-just@v3
       - name: Install kcov
         if: matrix.os == 'ubuntu-latest' && matrix.crystal == 'latest'
         run: |
