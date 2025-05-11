@@ -141,6 +141,15 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
   TOO_LARGE_ERROR         = "4ce61d7c-43a0-44c2-bfe0-a59072b6cd17"
   INVALID_MIME_TYPE_ERROR = "96c8591c-e990-48f6-b82b-75c878ae9fd9"
 
+  # :nodoc:
+  #
+  # Compatablity layer to handle `ATH::UploadedFile`s if used with the `Framework` component.
+  module UploadedFile
+    abstract def path : String
+    abstract def client_original_name : String
+    abstract def valid? : Bool
+  end
+
   private KB_BYTES  =     1_000
   private MB_BYTES  = 1_000_000
   private KIB_BYTES =     1_024
@@ -235,11 +244,12 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
     def validate(value : _, constraint : AVD::Constraints::File) : Nil
       return if value.nil? || value == ""
 
-      # TODO: Support UploadedFile
+      if value.is_a?(UploadedFile) && !value.valid?
+      end
 
       path = case value
-             when Path   then value
-             when ::File then value.path
+             when Path                 then value
+             when ::File, UploadedFile then value.path
              else
                value.to_s
              end
@@ -265,7 +275,7 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
       end
 
       size_in_bytes = ::File.size path
-      base_name = ::File.basename path
+      base_name = value.is_a?(UploadedFile) ? value.client_original_name : ::File.basename path
 
       if size_in_bytes.zero?
         self

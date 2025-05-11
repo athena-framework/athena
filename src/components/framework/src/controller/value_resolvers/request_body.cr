@@ -171,6 +171,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   # :inherit:
   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata)
     validation_groups = nil
+    constraints = nil
 
     object = if configuration = parameter.annotation_configurations[ATHA::MapQueryString]?
                validation_groups = configuration.validation_groups
@@ -179,13 +180,14 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
                validation_groups = configuration.validation_groups
                self.map_request_body request, parameter, configuration
              elsif configuration = parameter.annotation_configurations[ATHA::MapUploadedFile]?
+               constraints = configuration.constraints
                self.map_uploaded_file request, parameter, configuration
              else
                return
              end
 
-    if object.is_a? AVD::Validatable
-      errors = @validator.validate object, groups: validation_groups
+    if object.is_a?(AVD::Validatable) || !configuration.nil?
+      errors = @validator.validate object, constraints: constraints, groups: validation_groups
       raise AVD::Exception::ValidationFailed.new errors unless errors.empty?
     end
 

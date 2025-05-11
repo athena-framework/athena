@@ -1,4 +1,4 @@
-class Athena::Framework::UploadedFile
+struct Athena::Framework::UploadedFile
   enum Status
     OK
   end
@@ -13,5 +13,9 @@ class Athena::Framework::UploadedFile
     @test : Bool = false,
   )
     @path = path.to_s
+  end
+
+  def client_original_name : String
+    @original_name
   end
 end

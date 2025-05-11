@@ -24,9 +24,7 @@ struct Athena::Framework::Listeners::File
 
   @[AEDA::AsEventListener]
   def on_terminate(event : ATH::Events::Terminate) : Nil
-    return if (files = event.request.files).empty?
-
-    files.each_value do |uploaded_files|
+    event.request.files.each_value do |uploaded_files|
       uploaded_files.each do |uploaded_file|
         ::File.delete? uploaded_file.path
       rescue ex
