@@ -249,13 +249,14 @@ end
 
 ATH.register_bundle ATH::Bundle
 
-# class FileController < ATH::Controller
-#   @[ARTA::Post("/files")]
-#   def upload_picture(
-#     @[ATHA::MapUploadedFile(name: "sloth")] picture : ATH::UploadedFile,
-#   ) : String?
-#     picture.path
-#   end
-# end
+class FileController < ATH::Controller
+  @[ARTA::Post("/files")]
+  def upload_picture(
+    request : ATH::Request,
+  ) : String?
+    pp request.files
+    ""
+  end
+end
 
-# ATH.run
+ATH.run
