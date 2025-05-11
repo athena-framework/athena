@@ -143,6 +143,8 @@ class Athena::Framework::Request
   # See `ATH::ParameterBag`.
   getter attributes : ATH::ParameterBag = ATH::ParameterBag.new
 
+  getter files : Hash(String, Array(ATH::UploadedFile)) = Hash(String, Array(ATH::UploadedFile)).new { |hash, key| hash[key] = [] of ATH::UploadedFile }
+
   @request_data : HTTP::Params?
 
   # Sets the `#request_format` to the explicitly passed format.

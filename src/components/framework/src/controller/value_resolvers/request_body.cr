@@ -95,7 +95,7 @@ require "uri/params/serializable"
 # }
 # ```
 struct Athena::Framework::Controller::ValueResolvers::RequestBody
-  include Athena::Framework::Controller::ValueResolvers::Interface::Typed(Athena::Serializer::Serializable, JSON::Serializable, URI::Params::Serializable)
+  include Athena::Framework::Controller::ValueResolvers::Interface::Typed(Athena::Serializer::Serializable, JSON::Serializable, URI::Params::Serializable, Athena::Framework::UploadedFile?, Enumerable(Athena::Framework::UploadedFile))
 
   # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on the request's body.
   # See the related resolver documentation for more information.
@@ -159,6 +159,10 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   configuration ::Athena::Framework::Annotations::MapQueryString,
     validation_groups : Array(String) | AVD::Constraints::GroupSequence | Nil = nil
 
+  configuration ::Athena::Framework::Annotations::MapUploadedFile,
+    constraints : AVD::Constraint | Array(AVD::Constraint) | Nil = nil,
+    name : String? = nil
+
   def initialize(
     @serializer : ASR::SerializerInterface,
     @validator : AVD::Validator::ValidatorInterface,
@@ -174,6 +178,8 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
              elsif configuration = parameter.annotation_configurations[ATHA::MapRequestBody]?
                validation_groups = configuration.validation_groups
                self.map_request_body request, parameter, configuration
+             elsif configuration = parameter.annotation_configurations[ATHA::MapUploadedFile]?
+               self.map_uploaded_file request, parameter, configuration
              else
                return
              end
@@ -256,5 +262,21 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   end
 
   private def deserialize_form(body : IO | String, klass : _)
+  end
+
+  private def map_uploaded_file(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata, configuration : ATHA::MapUploadedFileConfiguration) : ATH::UploadedFile | Enumerable(ATH::UploadedFile) | Nil
+    files = request.files[file_name = configuration.name || parameter.name]? || [] of ATH::UploadedFile
+
+    if parameter.instance_of?(Array(ATH::UploadedFile))
+      return files
+    end
+
+    file = files.first?
+
+    if !file && !parameter.nilable?
+      raise ATH::Exception::UnprocessableEntity.new "Missing required file parameter: '#{file_name}'."
+    end
+
+    file
   end
 end
