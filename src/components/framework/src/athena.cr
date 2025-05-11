@@ -31,6 +31,7 @@ require "./request_matcher"
 require "./request_store"
 require "./route_handler"
 require "./streamed_response"
+require "./uploaded_file.cr"
 
 require "./ext/serializer"
 
@@ -247,3 +248,14 @@ module Athena::Framework
 end
 
 ATH.register_bundle ATH::Bundle
+
+# class FileController < ATH::Controller
+#   @[ARTA::Post("/files")]
+#   def upload_picture(
+#     @[ATHA::MapUploadedFile(name: "sloth")] picture : ATH::UploadedFile,
+#   ) : String?
+#     picture.path
+#   end
+# end
+
+# ATH.run
