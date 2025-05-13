@@ -9,16 +9,16 @@ class Athena::MIME::Types
 
   class_getter default : self { new }
 
-  @extensions = Map.new
-  @mime_types = Map.new
+  @extensions = Map.new { |hash, key| hash[key] = [] of String }
+  @mime_types = Map.new { |hash, key| hash[key] = [] of String }
   @guessers : Array(AMIME::TypesGuesserInterface) = [] of AMIME::TypesGuesserInterface
 
-  def initialize(map : Map = Map.new)
+  def initialize(map : Hash(String, Enumerable(String)) = Map.new)
     map.each do |mime_type, extensions|
-      @extensions[mime_type] = extensions
+      @extensions[mime_type] = extensions.to_a
 
       extensions.each do |ext|
-        @mime_types[extensions] << mime_type
+        @mime_types[ext] << mime_type
       end
     end
 

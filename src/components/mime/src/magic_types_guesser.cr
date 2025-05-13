@@ -52,7 +52,7 @@ struct Athena::MIME::MagicTypesGuesser
 
     # :inherit:
     def guess_mime_type(path : String | Path) : String?
-      if !File.exists?(path) || !File::Info.readable?(path)
+      if !File.file?(path) || !File::Info.readable?(path)
         raise AMIME::Exception::InvalidArgument.new "The file '#{path}' does not exist or is not readable."
       end
 
