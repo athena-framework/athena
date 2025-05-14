@@ -9,7 +9,7 @@ on:
     branches:
       - master
   schedule:
-    - cron: "15 1 * * *" # Nightly at 01:15
+    - cron: '15 1 * * *' # Nightly at 01:15
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -81,6 +81,8 @@ jobs:
         uses: crystal-lang/install-crystal@v1
         with:
           crystal: ${{ matrix.crystal }}
+      - name: Install System Dependencies
+        run: sudo apt-get update && sudo apt install -y libmagic-dev
       - name: Install Dependencies
         run: shards install --skip-postinstall --skip-executables
         env:
@@ -94,7 +96,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           directory: coverage
-          files: "**/cov.xml" # There is no `unreachable.codecov.json` file when running _only_ compiled specs
+          files: '**/cov.xml' # There is no `unreachable.codecov.json` file when running _only_ compiled specs
           flags: compiled
           verbose: true
       - uses: codecov/test-results-action@v1
@@ -103,7 +105,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           directory: coverage
-          files: "**/junit.xml"
+          files: '**/junit.xml'
           flags: compiled
           verbose: true
   test_unit:
@@ -145,6 +147,9 @@ jobs:
         with:
           crystal: ${{ matrix.crystal }}
       - name: Install System Dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get update && sudo apt install -y libmagic-dev
+      - name: Install System Dependencies
         if: matrix.os == 'macos-latest'
         run: brew install libmagic
       - name: Install Dependencies
@@ -160,7 +165,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           directory: coverage
-          files: "**/cov.xml,**/unreachable.codecov.json"
+          files: '**/cov.xml,**/unreachable.codecov.json'
           flags: unit
           verbose: true
       - uses: codecov/test-results-action@v1
@@ -169,6 +174,6 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           directory: coverage
-          files: "**/junit.xml"
+          files: '**/junit.xml'
           flags: unit
           verbose: true
