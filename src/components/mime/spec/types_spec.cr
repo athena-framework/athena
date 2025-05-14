@@ -27,6 +27,15 @@ struct MIMETypesTest < AbstractTypesGusserTestCase
     self.guesser.guess_mime_type("#{__DIR__}/fixtures/mimetypes/test").should eq "image/gif"
   end
 
+  def test_no_supported_guessers_raise : Nil
+    guesser = self.guesser
+    guesser.@guessers.clear
+
+    expect_raises AMIME::Exception::Logic, "Unable to guess the MIME type as no guessers are available." do
+      guesser.guess_mime_type "#{__DIR__}/fixtures/mimetypes/test"
+    end
+  end
+
   def test_extensions : Nil
     types = AMIME::Types.new
     types.extensions("application/mbox").should eq({"mbox"})
