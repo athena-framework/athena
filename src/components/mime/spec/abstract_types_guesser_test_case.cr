@@ -1,3 +1,5 @@
+require "./spec_helper"
+
 abstract struct AbstractTypesGusserTestCase < ASPEC::TestCase
   protected abstract def guesser : AMIME::TypesGuesserInterface
 
