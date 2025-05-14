@@ -81,8 +81,6 @@ jobs:
         uses: crystal-lang/install-crystal@v1
         with:
           crystal: ${{ matrix.crystal }}
-      - name: Install System Dependencies
-        run: sudo apt install -y file pkg-config
       - name: Install Dependencies
         run: shards install --skip-postinstall --skip-executables
         env:
@@ -147,11 +145,8 @@ jobs:
         with:
           crystal: ${{ matrix.crystal }}
       - name: Install System Dependencies
-        if: matrix.os == 'ubuntu-latest'
-        run: sudo apt install -y file pkg-config
-      - name: Install System Dependencies
         if: matrix.os == 'macos-latest'
-        run: brew install libmagic pkg-config
+        run: brew install libmagic
       - name: Install Dependencies
         run: shards install --skip-postinstall --skip-executables
         env:

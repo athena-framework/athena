@@ -14,7 +14,7 @@ struct Athena::MIME::MagicTypesGuesser
   # As of now `libmagic` is only really supported on Unix and MSYS2.
   # Respect this by default, but also allow using a dedicated flag to enable just in case.
   {% if flag?("athena_use_libmagic") || flag?("unix") || (flag?("windows") && flag?("gnu")) %}
-    @[Link("magic")]
+    @[Link("magic", pkg_config: "libmagic")]
     lib LibMagic
       type MagicT = Void*
 
