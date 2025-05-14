@@ -18,7 +18,7 @@ alias AMIME = Athena::MIME
 
 # Allows manipulating the MIME messages used to send emails and provides utilities related to MIME types.
 module Athena::MIME
-  VERSION = "0.1.0"
+  VERSION = "0.2.0"
 
   # Namespace for types related to encoding part of the MIME message.
   module Encoder; end
