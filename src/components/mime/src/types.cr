@@ -1,13 +1,29 @@
 require "./types/data"
 require "./types_interface"
 
+# Default implementation of `AMIME::TypesInterface`.
+#
+# Also supports guessing a MIME type based on a given file path.
+# Custom guessers can be registered via the `#register_guesser` method.
+# Custom guessers are always called before any default ones.
+#
+# ```
+# mime_types = AMIME::Types.new
+#
+# mime_types.mime_types "png"                     # => {"image/png", "image/apng", "image/vnd.mozilla.apng"}
+# mime_types.extensions "image/png"               # => {"png"}
+# mime_types.guess_mime_type "/path/to/image.png" # => "image/png"
+# ```
 class Athena::MIME::Types
-  include Athena::MIME::TypesInteface
+  include Athena::MIME::TypesInterface
 
+  # :nodoc:
+  #
   # Key: MIME Type, Value: Array of extensions
   alias Map = Hash(String, Array(String))
 
-  class_getter default : self { new }
+  # Returns/sets the default singleton instance.
+  class_property default : self { new }
 
   @extensions = Map.new { |hash, key| hash[key] = [] of String }
   @mime_types = Map.new { |hash, key| hash[key] = [] of String }
@@ -25,6 +41,8 @@ class Athena::MIME::Types
     self.register_guesser AMIME::MagicTypesGuesser.new
   end
 
+  # Registers the provided *guesser*.
+  # The last registered guesser is preferred over previously registered ones.
   def register_guesser(guesser : AMIME::TypesGuesserInterface) : Nil
     @guessers.unshift guesser
   end
