@@ -1,7 +1,7 @@
-require "mime"
-
 # An abstraction that allows representing a file without needing to keep the file open.
 class Athena::MIME::Part::File
+  class_getter mime_types : AMIME::Types { AMIME::Types.new }
+
   # Returns the path to the file on the filesystem.
   getter path : String
 
@@ -15,7 +15,7 @@ class Athena::MIME::Part::File
   # Attempts to guess the content type of the file based on its path.
   # Falls back to `application/octet-stream`.
   def content_type : String
-    if mime_type = ::MIME.from_filename?(@path)
+    if mime_type = self.class.mime_types.mime_types(::File.extname(@path).lstrip('.')).first?
       return mime_type
     end
 

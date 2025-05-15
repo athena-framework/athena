@@ -1,4 +1,5 @@
 The `Athena::MIME` component allows manipulating the MIME messages used to send emails and provides utilities related to MIME types.
+Additionally it also exposes MIME guessing and MIME Type <=> file extension translations via the [AMIME::Types][] type.
 
 [MIME](https://en.wikipedia.org/wiki/MIME) (Multipurpose Internet Mail Extensions) is an Internet standard that extends the original basic format of emails to support features like:
 
@@ -19,7 +20,7 @@ First, install the component by adding the following to your `shard.yml`, then r
 dependencies:
   athena-mime:
     github: athena-framework/mime
-    version: ~> 0.1.0
+    version: ~> 0.2.0
 ```
 
 ## Usage
