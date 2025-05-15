@@ -13,7 +13,7 @@ private struct MockGuesser
   end
 end
 
-struct MIMETypesTest < AbstractTypesGusserTestCase
+struct MIMETypesTest < AbstractTypesGuesserTestCase
   protected def guesser : AMIME::TypesGuesserInterface
     AMIME::Types.new
   end
