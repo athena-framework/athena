@@ -52,11 +52,11 @@ struct ProgressIndicatorTest < ASPEC::TestCase
       self.generate_output(" \\ Starting..."),
       self.generate_output(" \\ Advancing..."),
       self.generate_output(" | Advancing..."),
-      self.generate_output(" | Done..."),
+      self.generate_output(" ✔ Done..."),
       EOL,
       self.generate_output(" - Starting Again..."),
       self.generate_output(" \\ Starting Again..."),
-      self.generate_output(" \\ Done Again..."),
+      self.generate_output(" ✔ Done Again..."),
       EOL,
     )
   end
@@ -97,6 +97,36 @@ struct ProgressIndicatorTest < ASPEC::TestCase
       self.generate_output(" b Starting..."),
       self.generate_output(" c Starting..."),
       self.generate_output(" a Starting..."),
+    )
+  end
+
+  def test_custom_finished_indicator_value : Nil
+    indicator = ACON::Helper::ProgressIndicator.new output = self.output, finished_indicator: "✅", clock: @clock
+
+    indicator.start "Starting..."
+    @clock.sleep 101.milliseconds
+    indicator.finish "Done"
+
+    self.assert_output(
+      output,
+      self.generate_output(" - Starting..."),
+      self.generate_output(" ✅ Done"),
+      EOL
+    )
+  end
+
+  def test_custom_finished_indicator_value_finish : Nil
+    indicator = ACON::Helper::ProgressIndicator.new output = self.output, clock: @clock
+
+    indicator.start "Starting..."
+    @clock.sleep 101.milliseconds
+    indicator.finish "Done", "|==|"
+
+    self.assert_output(
+      output,
+      self.generate_output(" - Starting..."),
+      self.generate_output(" |==| Done"),
+      EOL
     )
   end
 
