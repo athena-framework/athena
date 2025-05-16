@@ -159,9 +159,11 @@ class Athena::Console::Helper::ProgressIndicator
   private def self.init_placeholder_formatters : Hash(String, PlaceholderFormatter)
     {
       "elapsed"   => PlaceholderFormatter.new { |indicator| ACON::Helper.format_time indicator.clock.now - indicator.start_time },
-      "indicator" => PlaceholderFormatter.new { |indicator| indicator.indicator_values[indicator.indicator_index % indicator.indicator_values.size] },
-      "memory"    => PlaceholderFormatter.new { (GC.stats.heap_size - GC.stats.free_bytes).humanize_bytes },
-      "message"   => PlaceholderFormatter.new(&.message.to_s),
+      "indicator" => PlaceholderFormatter.new do |indicator|
+        indicator.finished? ? indicator.finished_indicator : indicator.indicator_values[indicator.indicator_index % indicator.indicator_values.size]
+      end,
+      "memory"  => PlaceholderFormatter.new { (GC.stats.heap_size - GC.stats.free_bytes).humanize_bytes },
+      "message" => PlaceholderFormatter.new(&.message.to_s),
     }
   end
 
@@ -171,6 +173,8 @@ class Athena::Console::Helper::ProgressIndicator
 
   protected getter message : String? = nil
   protected getter clock : ACLK::Interface
+  protected getter? finished : Bool = false
+  protected getter finished_indicator : String
 
   @output : ACON::Output::Interface
   @format : Format
@@ -186,6 +190,7 @@ class Athena::Console::Helper::ProgressIndicator
 
     # Use a monotonic clock by default since its better for measuring time
     @clock : ACLK::Interface = ACLK::Monotonic.new,
+    @finished_indicator : String = "✔",
   )
     indicator_values ||= ["-", "\\", "|", "/"]
 
@@ -213,6 +218,7 @@ class Athena::Console::Helper::ProgressIndicator
     @start_time = @clock.now
     @indicator_update_time = @clock.now + @indicator_change_interval
     @indicator_index = 0
+    @finished = false
 
     self.display
   end
@@ -249,9 +255,14 @@ class Athena::Console::Helper::ProgressIndicator
   end
 
   # Completes the indicator with the provided *message*.
-  def finish(@message : String) : Nil
+  def finish(@message : String, finished_indicator : String? = nil) : Nil
     raise ACON::Exception::Logic.new "Progress indicator has not yet been started." unless @started
 
+    if finished_indicator
+      @finished_indicator = finished_indicator
+    end
+
+    @finished = true
     self.display
     @output.puts ""
     @started = false
