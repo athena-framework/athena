@@ -191,6 +191,7 @@
 # * compact
 # * box
 # * double-box
+# * markdown
 #
 # The desired can be set via the `#style` method.
 #
@@ -250,6 +251,17 @@
 # ║ 960-425-059-0 │ The Lord of the Rings    │ J. R. R. Tolkien ║
 # ║ 80-902734-1-6 │ And Then There Were None │ Agatha Christie  ║
 # ╚═══════════════╧══════════════════════════╧══════════════════╝
+# ```
+#
+# ### markdown
+#
+# ```text
+# | ISBN          | Title                    | Author           |
+# |---------------|--------------------------|------------------|
+# | 99921-58-10-7 | Divine Comedy            | Dante Alighieri  |
+# | 9971-5-0210-0 | A Tale of Two Cities     | Charles Dickens  |
+# | 960-425-059-0 | The Lord of the Rings    | J. R. R. Tolkien |
+# | 80-902734-1-6 | And Then There Were None | Agatha Christie  |
 # ```
 #
 # ## Custom Styles
@@ -585,45 +597,45 @@ class Athena::Console::Helper::Table
 
   # INTERNAL
   private def self.init_styles : Hash(String, ACON::Helper::Table::Style)
+    markdown = Table::Style.new
+      .default_crossing_char('|')
+      .display_outside_border(false)
+
     borderless = Table::Style.new
-    borderless
       .horizontal_border_chars("=")
       .vertical_border_chars(" ")
       .default_crossing_char(" ")
 
     compact = Table::Style.new
-    compact
       .horizontal_border_chars("")
       .vertical_border_chars("")
       .default_crossing_char("")
       .cell_row_content_format("%s ")
 
     suggested = Table::Style.new
-    suggested
       .horizontal_border_chars("-")
       .vertical_border_chars(" ")
       .default_crossing_char(" ")
       .cell_header_format("%s")
 
     box = Table::Style.new
-    box
       .horizontal_border_chars("─")
       .vertical_border_chars("│")
       .crossing_chars("┼", "┌", "┬", "┐", "┤", "┘", "┴", "└", "├")
 
     double_box = Table::Style.new
-    double_box
       .horizontal_border_chars("═", "─")
       .vertical_border_chars("║", "│")
       .crossing_chars("┼", "╔", "╤", "╗", "╢", "╝", "╧", "╚", "╟", "╠", "╪", "╣")
 
     {
       "borderless" => borderless,
-      "compact"    => compact,
-      "suggested"  => suggested,
       "box"        => box,
-      "double-box" => double_box,
+      "compact"    => compact,
       "default"    => ACON::Helper::Table::Style.new,
+      "double-box" => double_box,
+      "markdown"   => markdown,
+      "suggested"  => suggested,
     }
   end
 
@@ -915,7 +927,7 @@ class Athena::Console::Helper::Table
 
         # TODO: Handle empty/nil rows?
 
-        if is_header && !is_header_separator_rendered
+        if is_header && !is_header_separator_rendered && @style.display_outside_border?
           self.render_row_separator(
             is_header ? RowSeparator::TOP : RowSeparator::TOP_BOTTOM,
             has_title ? @header_title : nil,
@@ -950,7 +962,9 @@ class Athena::Console::Helper::Table
       end
     end
 
-    self.render_row_separator :bottom, @footer_title, @style.footer_title_format
+    if @style.display_outside_border?
+      self.render_row_separator :bottom, @footer_title, @style.footer_title_format
+    end
 
     self.cleanup
     @rendered = true

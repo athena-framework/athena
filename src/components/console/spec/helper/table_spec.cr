@@ -70,6 +70,13 @@ struct TableSpec < ASPEC::TestCase
         self.get_table_contents(style),
         false,
       },
+      "Markdown style" => {
+        [["ISBN", "Title", "Author"]],
+        books,
+        style = "markdown",
+        self.get_table_contents(style),
+        false,
+      },
       "Compact style" => {
         [["ISBN", "Title", "Author"]],
         books,
