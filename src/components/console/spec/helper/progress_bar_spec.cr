@@ -1126,6 +1126,78 @@ struct ProgressBarTest < ASPEC::TestCase
     )
   end
 
+  def test_overwrite_with_section_output_and_eol : Nil
+    sections = Array(ACON::Output::Section).new
+    acon_output = self.output
+
+    output = ACON::Output::Section.new acon_output.io, sections, verbosity: acon_output.verbosity, decorated: acon_output.decorated?, formatter: ACON::Formatter::Output.new
+
+    bar = ACON::Helper::ProgressBar.new output, 50, 0
+    bar.format = "[%bar%] %percent:3s%%#{EOL}%message%#{EOL}"
+    bar.set_message ""
+    bar.start
+    bar.display
+    bar.set_message "Doing something..."
+    bar.advance
+    bar.set_message "Doing something foo..."
+    bar.advance
+
+    self.assert_output(
+      output,
+      "[>---------------------------]   0%#{EOL}#{EOL}",
+      "\x1b[2A\x1b[0J[>---------------------------]   2%#{EOL}Doing something...#{EOL}",
+      "\x1b[2A\x1b[0J[=>--------------------------]   4%#{EOL}Doing something foo...#{EOL}",
+    )
+  end
+
+  def test_overwrite_with_section_output_and_eol_with_empty_message : Nil
+    sections = Array(ACON::Output::Section).new
+    acon_output = self.output
+
+    output = ACON::Output::Section.new acon_output.io, sections, verbosity: acon_output.verbosity, decorated: acon_output.decorated?, formatter: ACON::Formatter::Output.new
+
+    bar = ACON::Helper::ProgressBar.new output, 50, 0
+    bar.format = "[%bar%] %percent:3s%%#{EOL}%message%"
+    bar.set_message "Start"
+    bar.start
+    bar.display
+    bar.set_message ""
+    bar.advance
+    bar.set_message "Doing something..."
+    bar.advance
+
+    self.assert_output(
+      output,
+      "[>---------------------------]   0%#{EOL}Start#{EOL}",
+      "\x1b[2A\x1b[0J[>---------------------------]   2%#{EOL}",
+      "\x1b[1A\x1b[0J[=>--------------------------]   4%#{EOL}Doing something...#{EOL}",
+    )
+  end
+
+  def test_overwrite_with_section_output_and_eol_with_empty_message_comment : Nil
+    sections = Array(ACON::Output::Section).new
+    acon_output = self.output
+
+    output = ACON::Output::Section.new acon_output.io, sections, verbosity: acon_output.verbosity, decorated: acon_output.decorated?, formatter: ACON::Formatter::Output.new
+
+    bar = ACON::Helper::ProgressBar.new output, 50, 0
+    bar.format = "[%bar%] %percent:3s%%#{EOL}<comment>%message%</comment>"
+    bar.set_message "Start"
+    bar.start
+    bar.display
+    bar.set_message ""
+    bar.advance
+    bar.set_message "Doing something..."
+    bar.advance
+
+    self.assert_output(
+      output,
+      "[>---------------------------]   0%#{EOL}\x1b[33mStart\x1b[0m#{EOL}",
+      "\x1b[2A\x1b[0J[>---------------------------]   2%#{EOL}",
+      "\x1b[1A\x1b[0J[=>--------------------------]   4%#{EOL}\x1b[33mDoing something...\x1b[0m#{EOL}",
+    )
+  end
+
   private def generate_output(*expected : String) : String
     self.generate_output expected.join
   end

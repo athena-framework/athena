@@ -752,8 +752,15 @@ class Athena::Console::Helper::ProgressBar
     if @overwrite
       if previous_message = @previous_message
         if (output = @output).is_a? ACON::Output::Section
-          message_lines = previous_message.lines
+          message_lines = previous_message.split '\n' # Don't use `#lines` to retain empty values
           line_count = message_lines.size
+
+          last_line_without_decoration = ACON::Helper.remove_decoration output.formatter, (message_lines.last? || "")
+
+          # When the last previous line is empty (without formatting) it is already cleared by the section output, so we don't need to clear it again
+          if last_line_without_decoration.empty?
+            line_count -= 1
+          end
 
           message_lines.each do |line|
             message_line_length = ACON::Helper.width ACON::Helper.remove_decoration output.formatter, line
