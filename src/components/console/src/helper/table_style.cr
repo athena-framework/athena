@@ -28,6 +28,7 @@ class Athena::Console::Helper::Table::Style
   protected getter cell_row_format : String = "%s"
   protected getter cell_row_content_format : String = " %s "
   protected getter border_format : String = "%s"
+  protected getter? display_outside_border : Bool = true
   protected getter align : ACON::Helper::Table::Alignment = :left
 
   def_clone
@@ -36,6 +37,10 @@ class Athena::Console::Helper::Table::Style
   #
   # See `ACON::Helper::Table::Alignment`.
   def align(@align : ACON::Helper::Table::Alignment) : self
+    self
+  end
+
+  def display_outside_border(@display_outside_border : Bool) : self
     self
   end
 
