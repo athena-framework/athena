@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.11] - 2025-05-19
+
+### Fixed
+
+- Fix duplicate test case runs with abstract generic parent test case ([#538](https://github.com/athena-framework/athena/pull/538)) (George Dietrich)
+
 ## [0.3.10] - 2025-02-08
 
 ### Changed
@@ -124,6 +130,8 @@ _First release a part of the monorepo._
 
 _Initial release._
 
+[0.3.11]: https://github.com/athena-framework/spec/releases/tag/v0.3.11
+[0.3.10]: https://github.com/athena-framework/spec/releases/tag/v0.3.10
 [0.3.9]: https://github.com/athena-framework/spec/releases/tag/v0.3.9
 [0.3.8]: https://github.com/athena-framework/spec/releases/tag/v0.3.8
 [0.3.7]: https://github.com/athena-framework/spec/releases/tag/v0.3.7
