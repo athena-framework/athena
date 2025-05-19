@@ -163,3 +163,32 @@ struct BeforeAllTest < ASPEC::TestCase
     # no-op
   end
 end
+
+abstract struct GenericTestCase(T) < ASPEC::TestCase
+end
+
+struct GenericIntTest < GenericTestCase(Int32)
+  @@count : Int32 = 0
+
+  def test_runs_once
+    1.should eq 1
+    @@count += 1
+  end
+
+  def after_all : Nil
+    it "runs generic string inheritance test cases only once" { @@count.should eq 1 }
+  end
+end
+
+struct GenericStringTest < GenericTestCase(String)
+  @@count : Int32 = 0
+
+  def test_runs_once
+    1.should eq 1
+    @@count += 1
+  end
+
+  def after_all : Nil
+    it "runs generic int inheritance test cases only once" { @@count.should eq 1 }
+  end
+end
