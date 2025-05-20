@@ -24,28 +24,26 @@ abstract struct Athena::Validator::Spec::CompoundConstraintTestCase(T) < ASPEC::
 
   protected abstract def create_compound : AVD::Constraints::Compound
 
-  def assert_violations_raised_by_compound(constraints : AVD::Constraint | Array(AVD::Constraint)) : Nil
-    constraints = constraints.is_a?(AVD::Constraint) ? [constraints] : constraints
-
+  def assert_violations_raised_by_compound(*constraints : AVD::Constraint) : Nil
     validator = AVD::Constraints::Compound::Validator.new
     context = self.create_context
     validator.context = context
 
-    validator.validate self.validated_value.value, MockCompoundValidator.new(constraints.map(&.as(AVD::Constraint)))
+    validator.validate self.validated_value.value, MockCompoundValidator.new(constraints.to_a.map(&.as(AVD::Constraint)))
 
-    violations = context.violations
+    expected_violations = context.violations
 
-    violations.should_not be_empty, failure_message: "Expected at least one violation for constraint(s): '#{constraints.join(", ", &.class)}', got none."
+    expected_violations.should_not be_empty, failure_message: "Expected at least one violation for constraint(s): '#{constraints.join(", ", &.class)}', got none."
 
     failed_to_assert_violations = [] of AVD::Violation::ConstraintViolationInterface
 
-    context.violations.each_with_index do |violation, idx|
-      if violation != violations[idx]
+    @context.violations.each_with_index do |violation, idx|
+      if violation != expected_violations[idx]?
         failed_to_assert_violations << violation
       end
     end
 
-    failed_to_assert_violations.should be_empty
+    failed_to_assert_violations.should be_empty, failure_message: "Expected violation(s) for constraint(s) '#{failed_to_assert_violations.join(", ", &.constraint.class)}' to be raised by compound."
   end
 
   protected def validate_value(value : T) : Nil
