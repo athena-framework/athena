@@ -11,7 +11,6 @@ private class DummyCompoundConstraint < AVD::Constraints::Compound
   end
 end
 
-@[ASPEC::TestCase::Focus]
 struct CompoundConstraintTestCaseTest < AVD::Spec::CompoundConstraintTestCase(String)
   protected def create_compound : AVD::Constraints::Compound
     DummyCompoundConstraint.new
