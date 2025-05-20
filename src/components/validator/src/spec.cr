@@ -1,6 +1,7 @@
 require "athena-spec"
 
 require "./spec/abstract_validator_test_case"
+require "./spec/compound_constraint_test_case"
 require "./spec/constraint_validator_test_case"
 require "./spec/validator_test_case"
 

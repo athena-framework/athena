@@ -313,6 +313,17 @@ abstract class Athena::Validator::Constraint
       def validated_by : AVD::ConstraintValidator.class
         Validator
       end
+
+      # :nodoc:
+      def ==(other : self) : Bool
+        \{% if @type.class? %}
+          return true if same?(other)
+        \{% end %}
+        \{% for field in @type.instance_vars %}
+          return false unless @\{{field.id}} == other.@\{{field.id}}
+        \{% end %}
+        true
+      end
     {% end %}
   end
 end
