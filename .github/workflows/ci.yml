@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Check Spelling
-        uses: crate-ci/typos@v1.32.0
+        uses: crate-ci/typos@v1.33.1
   check_format:
     strategy:
       fail-fast: false
