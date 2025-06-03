@@ -40,6 +40,7 @@ fi
 
 diff clock
 diff console
+diff contracts
 diff dependency-injection
 diff dotenv
 diff event-dispatcher

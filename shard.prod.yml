@@ -10,6 +10,9 @@ dependencies:
   athena-console:
     github: athena-framework/console
     branch: docs
+  athena-contracts:
+    github: athena-framework/contracts
+    branch: docs
   athena-dependency_injection:
     github: athena-framework/dependency-injection
     branch: docs

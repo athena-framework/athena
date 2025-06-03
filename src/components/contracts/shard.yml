@@ -1,0 +1,17 @@
+name: athena-contracts
+
+version: 0.1.0
+
+crystal: '>= 0.36.0'
+
+license: MIT
+
+repository: https://github.com/athena-framework/contracts
+
+documentation: https://athenaframework.org/Contracts
+
+description: |
+  A set of abstractions extracted out of the Athena components.
+
+authors:
+  - George Dietrich <dev@dietrich.pub>

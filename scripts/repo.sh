@@ -32,6 +32,7 @@ case $METHOD in
   sync)
     maybeSync "src/components/clock" clock https://github.com/athena-framework/clock.git
     maybeSync "src/components/console" console https://github.com/athena-framework/console.git
+    maybeSync "src/components/contracts" contracts https://github.com/athena-framework/contracts.git
     maybeSync "src/components/dependency_injection" dependency-injection https://github.com/athena-framework/dependency-injection.git
     maybeSync "src/components/dotenv" dotenv https://github.com/athena-framework/dotenv.git
     maybeSync "src/components/event_dispatcher" event-dispatcher https://github.com/athena-framework/event-dispatcher.git

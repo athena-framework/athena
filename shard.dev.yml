@@ -6,6 +6,8 @@ dependencies:
     path: ./src/components/clock
   athena-console:
     path: ./src/components/console
+  athena-contracts:
+    path: ./src/components/contracts
   athena-dependency_injection:
     path: ./src/components/dependency_injection
   athena-dotenv:

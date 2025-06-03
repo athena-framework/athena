@@ -25,6 +25,7 @@ function tag()
   declare -A componentNameMap
   componentNameMap[clock]=Clock
   componentNameMap[console]=Console
+  componentNameMap[contracts]=Contracts
   componentNameMap[dependency-injection]="Dependency Injection"
   componentNameMap[dotenv]="Dotenv"
   componentNameMap[event-dispatcher]="Event Dispatcher"

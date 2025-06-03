@@ -21,33 +21,34 @@ nav:
   - Introducton: README.md
   - Why Athena: why_athena.md
   - Getting Started:
-    - getting_started/README.md
-    - Routing & HTTP: getting_started/routing.md
-    - Configuration: getting_started/configuration.md
-    - Middleware: getting_started/middleware.md
-    - Error Handling: getting_started/error_handling.md
-    - Commands: getting_started/commands.md
-    - Validation: getting_started/validation.md
-    - Testing: getting_started/testing.md
+      - getting_started/README.md
+      - Routing & HTTP: getting_started/routing.md
+      - Configuration: getting_started/configuration.md
+      - Middleware: getting_started/middleware.md
+      - Error Handling: getting_started/error_handling.md
+      - Commands: getting_started/commands.md
+      - Validation: getting_started/validation.md
+      - Testing: getting_started/testing.md
   - Guides:
-    - guides/README.md
-    - Proxies & Load Balancers: guides/proxies.md
+      - guides/README.md
+      - Proxies & Load Balancers: guides/proxies.md
   - API Reference:
-    - api_reference.md
-    - project://clock
-    - project://console
-    - project://dependency_injection
-    - project://dotenv
-    - project://event_dispatcher
-    - project://framework
-    - project://image_size
-    - project://mercure
-    - project://mime
-    - project://negotiation
-    - project://routing
-    - project://serializer
-    - project://spec
-    - project://validator
+      - api_reference.md
+      - project://clock
+      - project://console
+      - project://contracts
+      - project://dependency_injection
+      - project://dotenv
+      - project://event_dispatcher
+      - project://framework
+      - project://image_size
+      - project://mercure
+      - project://mime
+      - project://negotiation
+      - project://routing
+      - project://serializer
+      - project://spec
+      - project://validator
 
 extra:
   social:
