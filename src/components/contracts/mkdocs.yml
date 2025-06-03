@@ -1,16 +1,14 @@
 INHERIT: ../../../mkdocs-common.yml
 
-site_name: NAMESPACE_NAME
-site_url: https://athenaframework.org/NAMESPACE_NAME/
-repo_url: https://github.com/athena-framework/COMPONENT_NAME
+site_name: Contracts
+site_url: https://athenaframework.org/Contracts/
+repo_url: https://github.com/athena-framework/contracts
 
 nav:
   - Introduction: README.md
   - Back to Manual: project://.
   - API:
-    - Aliases: aliases.md
-    - Top Level: top_level.md
-    - '*'
+      - '*'
 
 plugins:
   - search
@@ -26,6 +24,6 @@ plugins:
         crystal:
           crystal_docs_flags:
             - ../../../docs/index.cr
-            - ../../../lib/athena-COMPONENT_NAME/src/athena-COMPONENT_NAME.cr
+            - ../../../lib/athena-contracts/src/athena-contracts.cr
           source_locations:
-            lib/athena-COMPONENT_NAME: https://github.com/athena-framework/COMPONENT_NAME/blob/v{shard_version}/{file}#L{line}
+            lib/athena-contracts: https://github.com/athena-framework/contracts/blob/v{shard_version}/{file}#L{line}

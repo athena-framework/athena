@@ -5,6 +5,7 @@ These include:
 
 * [Clock](/Clock) (`ACLK`) - Decouples applications from the system clock
 * [Console](/Console) (`ACON`) - Allows the creation of CLI based commands
+* [Contracts](/Contracts) (`ACTR`) - A set of abstractions extracted out of the Athena components
 * [DependencyInjection](/DependencyInjection) (`ADI`) - Robust dependency injection service container framework
 * [Dotenv](/Dotenv) - Registers environment variables from a `.env` file
 * [EventDispatcher](/EventDispatcher) (`AED`) - A Mediator and Observer pattern event library

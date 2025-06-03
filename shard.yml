@@ -20,6 +20,8 @@ dependencies:
     github: athena-framework/clock
   athena-console:
     github: athena-framework/console
+  athena-contracts:
+    github: athena-framework/contracts
   athena-dependency_injection:
     github: athena-framework/dependency-injection
   athena-dotenv:
