@@ -1,5 +1,3 @@
-require "athena-contracts/event_dispatcher"
-
 # Extension of [ACTR::EventDispatcher::Event](/Contracts/EventDispatcher/Event/) to add additional functionality.
 #
 # ## Generics
