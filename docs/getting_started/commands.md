@@ -14,7 +14,7 @@ If using the preferred [ACONA::AsCommand](/Console/Annotations/AsCommand) annota
 class AdminCreateUser < ACON::Command
   # A constructor can be defined to leverage existing services if applicable
   #def initialize(
-  #  @some_serive : MyService
+  #  @some_service : MyService
   #)
   #  # Just be sure to call `super()`!
   #  super()
