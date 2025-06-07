@@ -4,7 +4,7 @@
 @[ADI::Register(name: "athena_route_handler", public: true)]
 struct Athena::Framework::RouteHandler
   def initialize(
-    @event_dispatcher : AED::EventDispatcherInterface,
+    @event_dispatcher : ACTR::EventDispatcher::Interface,
     @request_store : ATH::RequestStore,
     @argument_resolver : ATH::Controller::ArgumentResolverInterface,
     @controller_resolver : ATH::ControllerResolverInterface,

@@ -1,31 +1,4 @@
-require "./stoppable_event"
-
-# An event consists of a subclass of this type, usually with extra context specific information.
-# The metaclass of the event type is used as a unique identifier, which generally should end in a verb that indicates what action has been taken.
-# The `AED::GenericEvent` type may be used for simple use cases, but dedicated event types are still considered a best practice.
-#
-# ```
-# # Define a custom event
-# class ExceptionRaisedEvent < AED::Event
-#   getter exception : Exception
-#
-#   def initialize(@exception : Exception); end
-# end
-#
-# # Dispatch a custom event
-# exception = ArgumentError.new "Value cannot be negative"
-# dispatcher.dispatch ExceptionRaisedEvent.new exception
-# ```
-#
-# Abstract event classes may also be used to share common data/methods between a group of related events.
-# However they cannot be used as a catchall to listen on all events that extend it.
-#
-# ## Stopping Propagation
-#
-# In some cases it may make sense for a listener to prevent any other listeners from being called for a specific event.
-# In order to do this, the listener needs a way to tell the dispatcher that it should stop propagation, i.e. do not notify any more listeners.
-# The base event type includes `AED::StoppableEvent` that enables this behavior.
-# Checkout the related module for more information.
+# Extension of [ACTR::EventDispatcher::Event](/Contracts/EventDispatcher/Event/) to add additional functionality.
 #
 # ## Generics
 #
@@ -63,9 +36,7 @@ require "./stoppable_event"
 # ```
 # alias UserCreatedEvent = AED::GenericEvent(User, String)
 # ```
-abstract class Athena::EventDispatcher::Event
-  include Athena::EventDispatcher::StoppableEvent
-
+abstract class Athena::EventDispatcher::Event < Athena::Contracts::EventDispatcher::Event
   # Returns an `AED::Callable` based on the event class the method was called on.
   # Optionally allows customizing the *priority* and *name* of the listener.
   #

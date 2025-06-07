@@ -23,6 +23,9 @@ dependencies:
   athena-console:
     github: athena-framework/console
     version: ~> 0.4.0
+  athena-contracts:
+    github: athena-framework/contracts
+    version: ~> 0.1.0
   athena-dependency_injection:
     github: athena-framework/dependency-injection
     version: ~> 0.4.0
