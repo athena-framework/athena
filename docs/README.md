@@ -3,20 +3,20 @@
 Athena is a collection of general-purpose, robust, independent, and reusable components with the goal of powering a software ecosystem.
 These include:
 
-* [Clock](/Clock) (`ACLK`) - Decouples applications from the system clock
-* [Console](/Console) (`ACON`) - Allows the creation of CLI based commands
-* [Contracts](/Contracts) (`ACTR`) - A set of abstractions extracted out of the Athena components
-* [DependencyInjection](/DependencyInjection) (`ADI`) - Robust dependency injection service container framework
-* [Dotenv](/Dotenv) - Registers environment variables from a `.env` file
-* [EventDispatcher](/EventDispatcher) (`AED`) - A Mediator and Observer pattern event library
-* [ImageSize](/ImageSize) (`AIS`) - Measures the size of various image formats
-* [Mercure](/Mercure) (`AMC`) - Allows easily pushing updates to web browsers and other HTTP clients using the Mercure protocol
-* [MIME](/MIME) (`AMIME`) - Allows manipulating `MIME` messages
-* [Negotiation](/Negotiation) (`ANG`) - Framework agnostic content negotiation library
-* [Routing](/Routing) (`ART`) - A performant and robust HTTP based routing library/framework
-* [Serializer](/Serializer) (`ASR`) - Object (de)serialization library
-* [Spec](/Spec) (`ASPEC`) - Common/helpful [Spec](https://crystal-lang.org/api/Spec.html) compliant testing utilities
-* [Validator](/Validator) (`AVD`) - Object/value validation library
+* [Clock](/Clock/) (`ACLK`) - Decouples applications from the system clock
+* [Console](/Console/) (`ACON`) - Allows the creation of CLI based commands
+* [Contracts](/Contracts/) (`ACTR`) - A set of abstractions extracted out of the Athena components
+* [DependencyInjection](/DependencyInjection/) (`ADI`) - Robust dependency injection service container framework
+* [Dotenv](/Dotenv/) - Registers environment variables from a `.env` file
+* [EventDispatcher](/EventDispatcher/) (`AED`) - A Mediator and Observer pattern event library
+* [ImageSize](/ImageSize/) (`AIS`) - Measures the size of various image formats
+* [Mercure](/Mercure/) (`AMC`) - Allows easily pushing updates to web browsers and other HTTP clients using the Mercure protocol
+* [MIME](/MIME/) (`AMIME`) - Allows manipulating `MIME` messages
+* [Negotiation](/Negotiation/) (`ANG`) - Framework agnostic content negotiation library
+* [Routing](/Routing/) (`ART`) - A performant and robust HTTP based routing library/framework
+* [Serializer](/Serializer/) (`ASR`) - Object (de)serialization library
+* [Spec](/Spec/) (`ASPEC`) - Common/helpful [Spec](https://crystal-lang.org/api/Spec.html) compliant testing utilities
+* [Validator](/Validator/) (`AVD`) - Object/value validation library
 
 These components may be used on their own to aid in existing projects or integrated into existing (or new) frameworks.
 

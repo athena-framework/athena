@@ -2,6 +2,8 @@ require "ecr"
 require "http/server"
 require "json"
 
+require "athena-contracts/event_dispatcher"
+
 require "athena-clock"
 require "athena-console"
 require "athena-dependency_injection"

@@ -12,7 +12,7 @@ class Athena::EventDispatcher::EventDispatcher
   @sorted = Set(AED::Event.class).new
 
   # :inherit:
-  def dispatch(event : AED::Event) : AED::Event
+  def dispatch(event : ACTR::EventDispatcher::Event) : ACTR::EventDispatcher::Event
     self.call_listeners event, self.listeners event.class
 
     event
