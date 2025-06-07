@@ -1,4 +1,5 @@
 # An event dispatcher is the primary type of `Athena::EventDispatcher`.
+# Extends [ACTR::EventDispatcher::Interface](/Contracts/EventDispatcher/Interface/) to add additional functionality.
 # It maintains a registry of listeners, with events also being dispatched via this type.
 # When dispatched, the dispatcher notifies all listeners registered with that event.
 #
@@ -48,9 +49,7 @@
 #
 # NOTE: While the priority can be any `Int32`, best practices suggest keeping it in the `-255..255` range.
 module Athena::EventDispatcher::EventDispatcherInterface
-  # Dispatches the provided *event* to all listeners listening on that event.
-  # Listeners are executed in priority order, highest first.
-  abstract def dispatch(event : AED::Event) : AED::Event
+  include Athena::Contracts::EventDispatcher::Interface
 
   # Returns `true` if there are any listeners on any event.
   abstract def has_listeners? : Bool

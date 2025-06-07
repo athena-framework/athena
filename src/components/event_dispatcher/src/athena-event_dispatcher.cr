@@ -1,3 +1,5 @@
+require "athena-contracts/event_dispatcher"
+
 require "./annotations"
 require "./event_dispatcher"
 require "./generic_event"

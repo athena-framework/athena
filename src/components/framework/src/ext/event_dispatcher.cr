@@ -1,5 +1,6 @@
 @[ADI::Register(name: "event_dispatcher", public: true)]
 @[ADI::AsAlias(AED::EventDispatcherInterface)]
+@[ADI::AsAlias(ACTR::EventDispatcher::Interface)]
 class AED::EventDispatcher; end
 
 # :nodoc:
