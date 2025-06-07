@@ -160,7 +160,7 @@ class Athena::EventDispatcher::EventDispatcher
 
   private def call_listeners(event : AED::Event, listeners : Array(AED::Callable)) : Nil
     listeners.each do |listener|
-      break if event.is_a?(AED::StoppableEvent) && !event.propagate?
+      break if event.is_a?(ACTR::EventDispatcher::StoppableEvent) && !event.propagate?
 
       listener.call event, self
     end
