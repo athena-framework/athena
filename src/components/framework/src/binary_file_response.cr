@@ -1,6 +1,6 @@
 require "./response"
 require "digest/sha256"
-require "mime"
+require "athena-mime"
 
 # Represents a static file that should be returned the client; includes various options to enhance the response headers. See `.new` for details.
 #
@@ -112,7 +112,7 @@ class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
     end
 
     unless @headers.has_key? "content-type"
-      @headers["content-type"] = MIME.from_filename(@file_path, "application/octet-stream")
+      @headers["content-type"] = AMIME::Types.default.guess_mime_type(@file_path) || "application/octet-stream"
     end
 
     file_size = File.info(@file_path).size
