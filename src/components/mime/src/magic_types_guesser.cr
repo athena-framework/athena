@@ -56,10 +56,6 @@ struct Athena::MIME::MagicTypesGuesser
         raise AMIME::Exception::InvalidArgument.new "The file '#{path}' does not exist or is not readable."
       end
 
-      unless self.supported?
-        raise AMIME::Exception::Logic.new "The '#{self.class}' guesser is not supported."
-      end
-
       unless magic = LibMagic.magic_open LibMagic::Flags::MIME_TYPE
         raise AMIME::Exception::Runtime.new "Failed to open libmagic."
       end
