@@ -1,4 +1,4 @@
-require "mime"
+require "athena-mime"
 
 # Validates that a value is a valid file.
 # If the underlying value is a [::File](https://crystal-lang.org/api/File.html), then its path is used as the value.
@@ -294,7 +294,7 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
         return
       end
 
-      if (mime_types = constraint.mime_types) && (mime = MIME.from_filename? path)
+      if (mime_types = constraint.mime_types) && (mime = AMIME::Types.default.guess_mime_type path)
         mime_types.each do |mime_type|
           return if mime == mime_type
 
