@@ -6,23 +6,5 @@ struct NativeTypesGuesserTest < AbstractTypesGuesserTestCase
     AMIME::NativeTypesGuesser.new
   end
 
-  # Override these tests as the native types guesser only works on the file extension.
-
-  def test_guess_with_leading_dash : Nil
-    assert_supported!
-
-    self.guesser.guess_mime_type("#{__DIR__}/fixtures/mimetypes/-test").should be_nil
-  end
-
-  def test_guess_without_extension : Nil
-    assert_supported!
-
-    self.guesser.guess_mime_type("#{__DIR__}/fixtures/mimetypes/test").should be_nil
-  end
-
-  def test_guess_with_unknown_extension : Nil
-    assert_supported!
-
-    self.guesser.guess_mime_type("#{__DIR__}/fixtures/mimetypes/.unknownextension").should be_nil
-  end
+  include FileExtensionOnlyOverrides
 end
