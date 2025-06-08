@@ -3,8 +3,7 @@ require "mime"
 
 # A `AMIME::TypesGuesserInterface` implementation based Crystal's [MIME](https://crystal-lang.org/api/MIME.html) module.
 #
-# This guesser is mainly intended as a fallback for when `AMIME::MagicTypesGuesser` isn't available.
-#
+# This guesser is mainly intended as a fallback for when `AMIME::MagicTypesGuesser` isn't available (MSVC Windows).
 struct Athena::MIME::NativeTypesGuesser
   include Athena::MIME::TypesGuesserInterface
 

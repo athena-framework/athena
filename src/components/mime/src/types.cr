@@ -39,7 +39,9 @@ class Athena::MIME::Types
     end
 
     self.register_guesser AMIME::NativeTypesGuesser.new
-    self.register_guesser AMIME::MagicTypesGuesser.new
+    {% if flag?("windows") && !flag?("gnu") %}
+      self.register_guesser AMIME::MagicTypesGuesser.new
+    {% end %}
   end
 
   # Registers the provided *guesser*.
