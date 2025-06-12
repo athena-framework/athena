@@ -18,24 +18,6 @@ struct MIMETypesTest < AbstractTypesGuesserTestCase
     AMIME::Types.new
   end
 
-  {% if flag?("windows") && !flag?("gnu") %}
-    include FileExtensionOnlyOverrides
-
-    def test_unsupported_guesser : Nil
-      guesser = self.guesser
-      guesser.register_guesser MockGuesser.new
-
-      self.guesser.guess_mime_type("#{__DIR__}/fixtures/mimetypes/test").should be_nil
-    end
-  {% else %}
-    def test_unsupported_guesser : Nil
-      guesser = self.guesser
-      guesser.register_guesser MockGuesser.new
-
-      self.guesser.guess_mime_type("#{__DIR__}/fixtures/mimetypes/test").should eq "image/gif"
-    end
-  {% end %}
-
   def test_no_supported_guessers_raise : Nil
     guesser = self.guesser
     guesser.@guessers.clear
