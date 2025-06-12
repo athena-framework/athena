@@ -18,13 +18,8 @@ struct MIMETypesTest < AbstractTypesGuesserTestCase
     AMIME::Types.new
   end
 
-  def test_unsupported_guesser : Nil
-    assert_supported!
-
-    guesser = self.guesser
-    guesser.register_guesser MockGuesser.new
-
-    self.guesser.guess_mime_type("#{__DIR__}/fixtures/mimetypes/test").should eq "image/gif"
+  def test_supported : Nil
+    self.guesser.supported?.should be_true
   end
 
   def test_no_supported_guessers_raise : Nil

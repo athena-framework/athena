@@ -12,6 +12,7 @@ require "./part/*"
 require "./part/multipart/*"
 require "./types"
 require "./magic_types_guesser"
+require "./native_types_guesser"
 
 # Convenience alias to make referencing `Athena::MIME` types easier.
 alias AMIME = Athena::MIME

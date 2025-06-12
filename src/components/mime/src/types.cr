@@ -38,6 +38,7 @@ class Athena::MIME::Types
       end
     end
 
+    self.register_guesser AMIME::NativeTypesGuesser.new
     self.register_guesser AMIME::MagicTypesGuesser.new
   end
 
