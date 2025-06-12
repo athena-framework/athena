@@ -19,6 +19,9 @@ struct NativeTypesGuesserTest < AbstractTypesGuesserTestCase
   end
 
   def test_guess_with_duplicated_file_type : Nil
+    # The MIME DB on windows CI doesn't know about this type, but works elsewhere
+    pending! "Guesser is not supported" if {{ flag?("windows") && !flag?("gnu") }}
+
     self.guesser.guess_mime_type("#{__DIR__}/fixtures/test.docx").should eq "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
   end
 end
