@@ -18,6 +18,10 @@ struct MIMETypesTest < AbstractTypesGuesserTestCase
     AMIME::Types.new
   end
 
+  def test_supported : Nil
+    self.guesser.supported?.should be_true
+  end
+
   def test_no_supported_guessers_raise : Nil
     guesser = self.guesser
     guesser.@guessers.clear
