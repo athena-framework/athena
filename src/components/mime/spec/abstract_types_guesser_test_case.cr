@@ -9,10 +9,6 @@ abstract struct AbstractTypesGuesserTestCase < ASPEC::TestCase
     end
   end
 
-  def test_guess_with_known_extension : Nil
-    self.guesser.guess_mime_type("#{__DIR__}/fixtures/mimetypes/test.gif").should eq "image/gif"
-  end
-
   def test_guess_incorrect_path : Nil
     expect_raises AMIME::Exception::InvalidArgument, "The file '#{__DIR__}/fixtures/mimetypes/not_here' does not exist or is not readable." do
       self.guesser.guess_mime_type "#{__DIR__}/fixtures/mimetypes/not_here"

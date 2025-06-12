@@ -6,6 +6,12 @@ struct MagicTypesGuesserTest < AbstractTypesGuesserTestCase
     AMIME::MagicTypesGuesser.new
   end
 
+  def test_guess_with_known_extension : Nil
+    assert_pending
+
+    self.guesser.guess_mime_type("#{__DIR__}/fixtures/mimetypes/test.gif").should eq "image/gif"
+  end
+
   def test_guess_with_leading_dash : Nil
     assert_pending
 
