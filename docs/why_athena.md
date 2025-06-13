@@ -177,7 +177,8 @@ It is worth noting again that while dependency injection is a big part of the fr
 Athena Framework is almost fully overridable/customizable in part since it embraces dependency injection. Want to globally customize how errors are rendered? Create a service implementing [ATH::ErrorRendererInterface](/Framework/ErrorRendererInterface/) and make it an alias of the interface:
 
 ```crystal
-@[ADI::Register(alias: ATH::ErrorRendererInterface)]
+@[ADI::Register]
+@[ADI::AsAlias] # Defaults to first included module ending in `Interface`
 class MyCustomErrorRenderer
   include Athena::Framework::ErrorRendererInterface
 
