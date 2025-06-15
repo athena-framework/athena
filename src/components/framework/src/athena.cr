@@ -228,8 +228,8 @@ module Athena::Framework
         ATH::Request.override_trusted_header({{header}}, {{name}})
       {% end %}
 
-      {% if true %}
-        ATH::UploadedFile.max_file_size = 1024 * 1024 * 10 # 10 MiB
+      {% if (file_uploads = ADI::CONFIG["framework"]["file_uploads"]) && file_uploads["enabled"] %}
+        ATH::UploadedFile.max_file_size = {{file_uploads["max_file_size"]}}
       {% end %}
 
       {% if flag?(:without_openssl) %}

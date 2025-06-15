@@ -186,6 +186,22 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
       # Currently not used. Included for future work.
       property failed_validation_status : HTTP::Status = :unprocessable_entity
     end
+
+    module FileUploads
+      include ADI::Extension::Schema
+
+      # If `false`, native file upload support will be disabled and related types will not be included in the resulting binary.
+      property enabled : Bool = false
+
+      property temp_dir : String = begin
+        temp_dir = Path.new Dir.tempdir, "athena"
+        Dir.mkdir_p temp_dir
+        temp_dir.to_s
+      end
+
+      property max_uploads : Int32 = 25
+      property max_file_size : Int64 = 1024 * 1024 * 10 # 10 MiB
+    end
   end
 
   # :nodoc:
@@ -367,6 +383,26 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
                 empty_content_status:     {value: cfg["empty_content_status"]},
               },
             }
+          %}
+
+          # File Uploads
+          {%
+            cfg = CONFIG["framework"]["file_uploads"]
+
+            if cfg["enabled"]
+              SERVICE_HASH["athena_framework_listeners_file"] = {
+                class: Athena::Framework::Listeners::File,
+              }
+
+              SERVICE_HASH["athena_framework_file_parser"] = {
+                class:      ATH::FileParser,
+                parameters: {
+                  temp_dir:      {value: cfg["temp_dir"]},
+                  max_uploads:   {value: cfg["max_uploads"]},
+                  max_file_size: {value: cfg["max_file_size"]},
+                },
+              }
+            end
           %}
         {% end %}
       end
