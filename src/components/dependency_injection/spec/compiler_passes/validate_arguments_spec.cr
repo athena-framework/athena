@@ -12,14 +12,17 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
   describe "compiler errors" do
     it "errors if a expects a string value parameter but it is not of that type" do
       assert_error "Parameter 'value : String' of service 'foo' (Foo) expects a String but got '123'.", <<-'CR'
-        @[ADI::Register(_value: "%value%")]
+        @[ADI::Register(_value: 123)]
+        record Foo, value : String
+      CR
+    end
+
+    it "still errors with explicit calls even if they are not of the proper type" do
+      assert_error "expected argument 'value' to 'Foo.new' to be String, not Int32", <<-'CR'
+        @[ADI::Register(_value: "123".to_i, public: true)]
         record Foo, value : String
 
-        ADI.configure({
-          parameters: {
-            value: 123
-          }
-        })
+        ADI.container.foo
       CR
     end
 
@@ -232,6 +235,17 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
           rule: {priorities: ["json", "xml"]},
         },
       })
+    CR
+  end
+
+  it "allows calls to `String` parameters" do
+    ASPEC::Methods.assert_success <<-'CR'
+      require "../spec_helper"
+
+      @[ADI::Register(_value: 123.to_s, public: true)]
+      record Foo, value : String
+
+      ADI.container.foo
     CR
   end
 end
