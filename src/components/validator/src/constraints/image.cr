@@ -360,10 +360,11 @@ class Athena::Validator::Constraints::Image < Athena::Validator::Constraints::Fi
     empty_message : String = "An empty file is not allowed.",
     max_size_message : String = "The file is too large ({{ size }} {{ suffix }}). Allowed maximum size is {{ limit }} {{ suffix }}.",
     mime_type_message : String = "This file is not a valid image.",
+    upload_file_size_message : String = "The file is too large. Allowed maximum size is {{ limit }} {{ suffix }}.",
     groups : Array(String) | String | Nil = nil,
     payload : Hash(String, String)? = nil,
   )
-    super max_size, binary_format, mime_types, not_found_message, not_readable_message, empty_message, max_size_message, mime_type_message, groups, payload
+    super max_size, binary_format, mime_types, not_found_message, not_readable_message, empty_message, max_size_message, mime_type_message, upload_file_size_message, groups, payload
 
     # Use the default message `File` uses when only specific mime types are shown such that it renders the valid types.
     # OPTIMIZE: Figure out a better way to know if the message has been customized.

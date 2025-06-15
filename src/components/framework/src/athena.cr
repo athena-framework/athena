@@ -253,15 +253,3 @@ module Athena::Framework
 end
 
 ATH.register_bundle ATH::Bundle
-
-class FileController < ATH::Controller
-  @[ARTA::Post("/files")]
-  def upload_picture(
-    request : ATH::Request,
-  ) : String?
-    pp request.files
-    ""
-  end
-end
-
-ATH.run
