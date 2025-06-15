@@ -56,11 +56,12 @@ struct Base64ContentEncoderTest < ASPEC::TestCase
     AMIME::Encoder::Base64Content
       .new
       .encode(input)
-      .should eq <<-TXT
-        YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXpBQkNERUZHSElKS0xNTk9QUVJT
-        VFVWV1hZWjEyMzQ1Njc4OTBhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ekFC
-        Q0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaMTIzNDU2Nzg5MEFCQ0RFRkdISUpL
-        TE1OT1BRUlNUVVZXWFla\n
-        TXT
+      .lines(chomp: false) # Use lines here to allow ignoring the typos
+      .should eq([
+        "YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXpBQkNERUZHSElKS0xNTk9QUVJT\n",
+        "VFVWV1hZWjEyMzQ1Njc4OTBhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ekFC\n", # spellchecker:disable-line
+        "Q0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaMTIzNDU2Nzg5MEFCQ0RFRkdISUpL\n", # spellchecker:disable-line
+        "TE1OT1BRUlNUVVZXWFla\n",                                         # spellchecker:disable-line
+      ])
   end
 end

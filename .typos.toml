@@ -2,7 +2,6 @@
 extend-ignore-re = [
   "(?Rm)^.*#\\s*spellchecker:disable-line$", # All disabling specific lines
   "[=0-9A-F \n\r]{2}", # Disable checking Quoted-Printable encoded strings
-  "\\b[0-9A-Za-z+/]{0, 60}(=|==)?\\b", # Disable for Base64 like strings that are 60 chars or less all together
 ]
 
 [default.extend-words]
@@ -11,5 +10,6 @@ referer = "referrer"
 [files]
 extend-exclude = [
   "src/components/routing/spec/fixtures/route_provider/*",
+  "src/components/mime/src/types/data.cr",
   "src/components/mime/spec/fixtures/*",
 ]
