@@ -39,6 +39,7 @@ struct Athena::Framework::UploadedFile
   #
   # Or requiring DI in the validator component.
   private def uploaded_file?
-    ADI.container.athena_framework_file_parser.uploaded_file? @path
+    return false if (path = @path).empty?
+    ADI.container.athena_framework_file_parser.uploaded_file? path
   end
 end

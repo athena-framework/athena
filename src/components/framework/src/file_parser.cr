@@ -3,6 +3,12 @@ MAX_FILE_SIZE = 1024 * 1024 * 10 # 10 MiB
 # :nodoc:
 @[ADI::Register(public: true)]
 class Athena::Framework::FileParser
+  TEMP_DIR = begin
+    temp_dir = Path.new Dir.tempdir, "athena"
+    Dir.mkdir_p temp_dir
+    temp_dir.to_s
+  end
+
   # Store the tmp uploaded paths to use to validate `ATH::UploadedFile`s.
   @uploaded_files : Set(String) = Set(String).new
 
@@ -10,16 +16,27 @@ class Athena::Framework::FileParser
     HTTP::FormData.parse(request.request) do |part|
       next unless filename = part.filename.presence
 
-      temp_dir = Path.new(Dir.tempdir, "athena").to_s
-      Dir.mkdir_p temp_dir
       status : ATH::UploadedFile::Status = :ok
 
-      temp_file = ::File.tempfile "file_upload.", nil, dir: temp_dir do |file|
+      size : Int64? = 0
+
+      temp_file = ::File.tempfile "file_upload.", nil, dir: TEMP_DIR do |file|
         size = self.copy_with_max part.body, file
-        status = :size_limit_exceeded if size.nil?
       end
 
-      request.files[part.name] << UploadedFile.new temp_file.path, filename, part.headers["content-type"], status
+      file_path = temp_file.path
+
+      if size.nil?
+        status = :size_limit_exceeded
+        temp_file.delete
+        file_path = ""
+      end
+
+      if status.ok?
+        @uploaded_files << file_path
+      end
+
+      request.files[part.name] << UploadedFile.new file_path, filename, part.headers["content-type"], status
     end
   end
 
