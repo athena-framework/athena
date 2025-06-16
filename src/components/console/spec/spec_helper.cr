@@ -45,7 +45,8 @@ struct MockCommandLoader
 end
 
 def with_isolated_env(&) : Nil
-  old_values = ENV.dup
+  old_values = ENV.to_h
+
   begin
     ENV.clear
 

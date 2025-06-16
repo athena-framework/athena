@@ -4,12 +4,10 @@ require "./ext/terminal"
 struct Athena::Console::Terminal
   @@width : Int32? = nil
   @@height : Int32? = nil
-  @@stty : Bool = false
+  @@stty : Bool? = nil
 
   def self.has_stty_available? : Bool
-    if stty = @@stty
-      return stty
-    end
+    @@stty.try { |stty| return stty }
 
     @@stty = !Process.find_executable("stty").nil?
   end
