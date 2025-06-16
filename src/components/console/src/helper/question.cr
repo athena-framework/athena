@@ -122,11 +122,8 @@ class Athena::Console::Helper::Question < Athena::Console::Helper
         begin
           hidden_response = self.hidden_response output, input_stream
           response = question.trimmable? ? hidden_response.strip : hidden_response
-        rescue ex : ::Exception
-          # TODO: Make this part of the `rescue` after Crystal 1.13
-          if ex.is_a?(ACON::Exception)
-            raise ex unless question.hidden_fallback?
-          end
+        rescue ex : ACON::Exception
+          raise ex unless question.hidden_fallback?
         end
       end
 

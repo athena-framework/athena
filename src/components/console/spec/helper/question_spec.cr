@@ -10,6 +10,10 @@ struct QuestionHelperTest < AbstractQuestionHelperTest
     super
   end
 
+  def tear_down : Nil
+    ENV.delete "COLUMNS"
+  end
+
   def test_ask_choice_question : Nil
     heroes = ["Superman", "Batman", "Spiderman"]
     self.with_input "\n1\n  1  \nGeorge\n1\nGeorge\n\n\n" do |input|
