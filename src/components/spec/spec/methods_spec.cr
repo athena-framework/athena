@@ -36,27 +36,19 @@ describe ASPEC::Methods do
     end
   end
 
-  describe ".assert_success", tags: "compiled" do
-    describe "no codegen" do
-      it do
-        assert_success <<-CR
-          pp 1 + 1
-        CR
-      end
-
-      it do
-        assert_success <<-CR
+  describe ".assert_compiles", tags: "compiled" do
+    it do
+      assert_compiles <<-CR
           raise "Oh no"
         CR
-      end
     end
+  end
 
-    describe "with codegen" do
-      it do
-        assert_success <<-CR, codegen: true
-          pp 1 + 1
+  describe ".assert_executes", tags: "compiled" do
+    it do
+      assert_executes <<-CR
+        puts 1 + 1
         CR
-      end
     end
   end
 

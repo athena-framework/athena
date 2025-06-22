@@ -83,8 +83,8 @@ then
   fi
   exit $?
 fi
-$HAS_KCOV
-for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml -print0 | xargs -0 -I{} dirname {} | xargs -0 -I{} basename {} | sort); do
+
+for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | xargs -I{} basename {} | sort); do
   echo "::group::$component"
 
   if [ "$HAS_KCOV" = "true" ]

@@ -7,8 +7,8 @@ private def assert_compile_time_error(message : String, code : String, *, line :
   CR
 end
 
-private def assert_success(code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_success <<-CR, line: line
+private def assert_compiles(code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compiles <<-CR, line: line
     require "./spec_helper.cr"
     #{code}
   CR
@@ -39,7 +39,7 @@ describe ATH::Bundle, tags: "compiled" do
     end
 
     it "correctly wires up the listener based on its configuration" do
-      assert_success <<-'CODE'
+      assert_compiles <<-'CODE'
           ATH.configure({
             framework: {
               cors: {
@@ -77,7 +77,7 @@ describe ATH::Bundle, tags: "compiled" do
 
   describe ATH::Listeners::Format do
     it "correctly wires up the listener based on its configuration" do
-      assert_success <<-'CODE'
+      assert_compiles <<-'CODE'
         ATH.configure({
           framework: {
             format_listener: {

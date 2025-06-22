@@ -296,7 +296,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
   end
 
   it "extension configuration value resolution" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
 
       enum Color
@@ -354,7 +354,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
   end
 
   it "does not error if nothing is configured, but all properties have defaults or are nilable" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -378,7 +378,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
   end
 
   it "inherits type of arrays from property if not explicitly set" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -408,7 +408,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
   end
 
   it "allows using NoReturn to type empty arrays in schema" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -432,7 +432,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
   end
 
   it "allows customizing values when using NoReturn to type empty arrays defaults in schema" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -462,7 +462,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
   end
 
   it "expands schema to include expected structure/defaults if not configuration is provided" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -497,7 +497,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
   end
 
   it "expands schema to include expected structure/defaults if not explicitly provided" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -550,7 +550,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
   end
 
   it "merges missing array_of defaults" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -582,7 +582,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
   end
 
   it "merges missing array_of defaults in time for other compiler passes" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -626,7 +626,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
   end
 
   it "fills in missing nilable keys with `nil`" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -658,7 +658,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
   end
 
   it "fills in missing nilable keys with `nil` when missing from default value" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
 
       module Schema

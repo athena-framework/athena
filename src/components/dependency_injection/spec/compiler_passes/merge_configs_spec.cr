@@ -2,7 +2,7 @@ require "../spec_helper"
 
 describe ADI::ServiceContainer::MergeConfigs do
   it "deep merges consecutive `ADI.configure` call", tags: "compiled" do
-    ASPEC::Methods.assert_success <<-CR
+    ASPEC::Methods.assert_compiles <<-CR
       require "../spec_helper"
 
       module Schema

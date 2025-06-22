@@ -166,7 +166,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
   end
 
   it "sets missing NT keys to `nil` if the type is nilable" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -196,7 +196,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
   end
 
   it "properly checks type within array of array_of object" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -219,7 +219,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
   end
 
   it "properly checks type within array of object_of object" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -239,7 +239,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
   end
 
   it "allows calls to `String` parameters" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
 
       @[ADI::Register(_value: 123.to_s, public: true)]

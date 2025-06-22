@@ -41,7 +41,7 @@ describe ADI::ServiceContainer::NormalizeDefinitions, tags: "compiled" do
   end
 
   it "applies defaults to missing properties" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper.cr"
 
       module MySchema

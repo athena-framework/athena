@@ -8,8 +8,8 @@ private def assert_compile_time_error(message : String, code : String, *, line :
   CR
 end
 
-private def assert_success(code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_success <<-CR, line: line
+private def assert_compiles(code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compiles <<-CR, line: line
     require "./spec_helper.cr"
     #{code}
     ATH.run
@@ -80,7 +80,7 @@ describe Athena::Framework do
       end
 
       it "within a different controller" do
-        assert_success <<-CODE
+        assert_compiles <<-CODE
           class ExampleController < ATH::Controller
             @[ARTA::Get(path: "/foo")]
             def action : String

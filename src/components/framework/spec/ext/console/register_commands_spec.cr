@@ -8,8 +8,8 @@ private def assert_compile_time_error(message : String, code : String, *, line :
   CR
 end
 
-private def assert_success(code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
-  ASPEC::Methods.assert_success <<-CR, line: line, file: file
+private def assert_compiles(code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
+  ASPEC::Methods.assert_compiles <<-CR, line: line, file: file
     require "../../spec_helper.cr"
 
     #{code}
