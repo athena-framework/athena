@@ -17,7 +17,7 @@ end
 describe ATH::Bundle, tags: "compiled" do
   describe ATH::Listeners::CORS do
     it "wildcard allow_headers with allow_credentials" do
-      assert_compile_time_error "'expose_headers' cannot contain a wildcard ('*') when 'allow_credentials' is 'true'.", <<-'CODE'
+      assert_compile_time_error "'expose_headers' cannot contain a wildcard ('*') when 'allow_credentials' is 'true'.", <<-'CR'
           ATH.configure({
             framework: {
               cors: {
@@ -29,17 +29,17 @@ describe ATH::Bundle, tags: "compiled" do
               },
             },
           })
-        CODE
+        CR
     end
 
     it "does not exist if not enabled" do
-      assert_compile_time_error "undefined method 'athena_framework_listeners_cors'", <<-CODE
+      assert_compile_time_error "undefined method 'athena_framework_listeners_cors'", <<-CR
           ADI.container.athena_framework_listeners_cors
-        CODE
+        CR
     end
 
     it "correctly wires up the listener based on its configuration" do
-      assert_compiles <<-'CODE'
+      assert_compiles <<-'CR'
           ATH.configure({
             framework: {
               cors: {
@@ -71,13 +71,13 @@ describe ATH::Bundle, tags: "compiled" do
               %}
             end
           end
-        CODE
+        CR
     end
   end
 
   describe ATH::Listeners::Format do
     it "correctly wires up the listener based on its configuration" do
-      assert_compiles <<-'CODE'
+      assert_compiles <<-'CR'
         ATH.configure({
           framework: {
             format_listener: {
@@ -144,7 +144,7 @@ describe ATH::Bundle, tags: "compiled" do
             %}
           end
         end
-      CODE
+      CR
     end
   end
 end
