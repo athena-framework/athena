@@ -7,8 +7,8 @@ private def assert_success(code : String, *, line : Int32 = __LINE__) : Nil
   CR
 end
 
-private def assert_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_error message, <<-CR, line: line
+private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line
     require "./spec_helper.cr"
     #{code}
     ADI::ServiceContainer.new
@@ -117,7 +117,7 @@ describe ADI::Extension, tags: "compiled" do
     end
 
     it "errors if a required configuration value has not been provided" do
-      assert_error "Configuration value 'test.connection' is missing required value for 'port' of type 'Int32'.", <<-'CR'
+      assert_compile_time_error "Configuration value 'test.connection' is missing required value for 'port' of type 'Int32'.", <<-'CR'
         module Schema
           include ADI::Extension::Schema
 
@@ -138,7 +138,7 @@ describe ADI::Extension, tags: "compiled" do
     end
 
     it "errors if a configuration value has been provided a value of the wrong type" do
-      assert_error "Expected configuration value 'test.connection.port' to be a 'Int32', but got 'Bool'.", <<-'CR'
+      assert_compile_time_error "Expected configuration value 'test.connection.port' to be a 'Int32', but got 'Bool'.", <<-'CR'
         module Schema
           include ADI::Extension::Schema
 

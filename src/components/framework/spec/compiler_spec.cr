@@ -1,7 +1,7 @@
 require "./spec_helper"
 
-private def assert_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_error message, <<-CR, line: line
+private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line
     require "./spec_helper.cr"
     #{code}
     ATH.run
@@ -19,7 +19,7 @@ end
 describe Athena::Framework do
   describe "compiler errors", tags: "compiled" do
     it "action parameter missing type restriction" do
-      assert_error "Route action parameter 'CompileController#action:id' must have a type restriction.", <<-CODE
+      assert_compile_time_error "Route action parameter 'CompileController#action:id' must have a type restriction.", <<-CODE
         class CompileController < ATH::Controller
           @[ARTA::Get(path: "/:id")]
           def action(id) : Int32
@@ -30,7 +30,7 @@ describe Athena::Framework do
     end
 
     it "action missing return type" do
-      assert_error "Route action return type must be set for 'CompileController#action'.", <<-CODE
+      assert_compile_time_error "Route action return type must be set for 'CompileController#action'.", <<-CODE
         class CompileController < ATH::Controller
           @[ARTA::Get(path: "/")]
           def action
@@ -41,7 +41,7 @@ describe Athena::Framework do
     end
 
     it "class method action" do
-      assert_error "Routes can only be defined as instance methods. Did you mean 'CompileController#class_method'?", <<-CODE
+      assert_compile_time_error "Routes can only be defined as instance methods. Did you mean 'CompileController#class_method'?", <<-CODE
         class CompileController < ATH::Controller
           @[ARTA::Get(path: "/")]
           def self.class_method : Int32
@@ -52,7 +52,7 @@ describe Athena::Framework do
     end
 
     it "when action does not have a path" do
-      assert_error "Route action 'CompileController#action' is missing its path.", <<-CODE
+      assert_compile_time_error "Route action 'CompileController#action' is missing its path.", <<-CODE
         class CompileController < ATH::Controller
           @[ARTA::Get]
           def action : Int32
@@ -64,7 +64,7 @@ describe Athena::Framework do
 
     describe "when a controller action is mistakenly overridden" do
       it "within the same controller" do
-        assert_error "A controller action named '#action' already exists within 'CompileController'.", <<-CODE
+        assert_compile_time_error "A controller action named '#action' already exists within 'CompileController'.", <<-CODE
           class CompileController < ATH::Controller
             @[ARTA::Get(path: "/foo")]
             def action : String
@@ -100,7 +100,7 @@ describe Athena::Framework do
 
     describe ARTA::Route do
       it "when there is a prefix for a controller action with a locale that does not have a route" do
-        assert_error "Route action 'CompileController#action' is missing paths for locale(s) 'de'.", <<-CODE
+        assert_compile_time_error "Route action 'CompileController#action' is missing paths for locale(s) 'de'.", <<-CODE
           @[ARTA::Route(path: {"de" => "/german", "fr" => "/france"})]
           class CompileController < ATH::Controller
             @[ARTA::Get(path: {"fr" => ""})]
@@ -111,7 +111,7 @@ describe Athena::Framework do
       end
 
       it "when a controller action has a locale that is missing a prefix" do
-        assert_error "Route action 'CompileController#action' is missing a corresponding route prefix for the 'de' locale.", <<-CODE
+        assert_compile_time_error "Route action 'CompileController#action' is missing a corresponding route prefix for the 'de' locale.", <<-CODE
           @[ARTA::Route(path: {"fr" => "/france"})]
           class CompileController < ATH::Controller
             @[ARTA::Get(path: {"de" => "/foo", "fr" => "/bar"})]
@@ -122,7 +122,7 @@ describe Athena::Framework do
       end
 
       it "has an unexpected type as the #methods" do
-        assert_error "Route action 'CompileController#action' expects a 'StringLiteral | ArrayLiteral | TupleLiteral' for its 'ARTA::Route#methods' field, but got a 'NumberLiteral'.", <<-CODE
+        assert_compile_time_error "Route action 'CompileController#action' expects a 'StringLiteral | ArrayLiteral | TupleLiteral' for its 'ARTA::Route#methods' field, but got a 'NumberLiteral'.", <<-CODE
           class CompileController < ATH::Controller
             @[ARTA::Route("/", methods: 123)]
             def action : Nil
@@ -132,7 +132,7 @@ describe Athena::Framework do
       end
 
       it "requires ARTA::Route to use 'methods'" do
-        assert_error "Route action 'CompileController#action' cannot change the required methods when _NOT_ using the 'ARTA::Route' annotation.", <<-CODE
+        assert_compile_time_error "Route action 'CompileController#action' cannot change the required methods when _NOT_ using the 'ARTA::Route' annotation.", <<-CODE
           class CompileController < ATH::Controller
             @[ARTA::Get("/", methods: "SEARCH")]
             def action : Nil; end
@@ -143,7 +143,7 @@ describe Athena::Framework do
       describe "invalid field types" do
         describe "path" do
           it "controller ann" do
-            assert_error "Route action 'CompileController' expects a 'StringLiteral | HashLiteral(StringLiteral, StringLiteral)' for its 'ARTA::Route#path' field, but got a 'NumberLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController' expects a 'StringLiteral | HashLiteral(StringLiteral, StringLiteral)' for its 'ARTA::Route#path' field, but got a 'NumberLiteral'.", <<-CODE
               @[ARTA::Route(path: 10)]
               class CompileController < ATH::Controller
                 @[ARTA::Get(path: "/")]
@@ -153,7 +153,7 @@ describe Athena::Framework do
           end
 
           it "route ann" do
-            assert_error "Route action 'CompileController#action' expects a 'StringLiteral | HashLiteral(StringLiteral, StringLiteral)' for its 'ARTA::Get#path' field, but got a 'NumberLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController#action' expects a 'StringLiteral | HashLiteral(StringLiteral, StringLiteral)' for its 'ARTA::Get#path' field, but got a 'NumberLiteral'.", <<-CODE
               class CompileController < ATH::Controller
                 @[ARTA::Get(path: 10)]
                 def action : Nil; end
@@ -164,7 +164,7 @@ describe Athena::Framework do
 
         describe "defaults" do
           it "controller ann" do
-            assert_error "Route action 'CompileController' expects a 'HashLiteral(StringLiteral, _)' for its 'ARTA::Route#defaults' field, but got a 'NumberLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController' expects a 'HashLiteral(StringLiteral, _)' for its 'ARTA::Route#defaults' field, but got a 'NumberLiteral'.", <<-CODE
               @[ARTA::Route(defaults: 10)]
               class CompileController < ATH::Controller
                 @[ARTA::Get(path: "/")]
@@ -174,7 +174,7 @@ describe Athena::Framework do
           end
 
           it "route ann" do
-            assert_error "Route action 'CompileController#action' expects a 'HashLiteral(StringLiteral, _)' for its 'ARTA::Get#defaults' field, but got a 'NumberLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController#action' expects a 'HashLiteral(StringLiteral, _)' for its 'ARTA::Get#defaults' field, but got a 'NumberLiteral'.", <<-CODE
               class CompileController < ATH::Controller
                 @[ARTA::Get(defaults: 10)]
                 def action : Nil; end
@@ -185,7 +185,7 @@ describe Athena::Framework do
 
         describe "locale" do
           it "controller ann" do
-            assert_error "Route action 'CompileController' expects a 'StringLiteral' for its 'ARTA::Route#locale' field, but got a 'NumberLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController' expects a 'StringLiteral' for its 'ARTA::Route#locale' field, but got a 'NumberLiteral'.", <<-CODE
               @[ARTA::Route(locale: 10)]
               class CompileController < ATH::Controller
                 @[ARTA::Get(path: "/")]
@@ -195,7 +195,7 @@ describe Athena::Framework do
           end
 
           it "route ann" do
-            assert_error "Route action 'CompileController#action' expects a 'StringLiteral' for its 'ARTA::Get#locale' field, but got a 'NumberLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController#action' expects a 'StringLiteral' for its 'ARTA::Get#locale' field, but got a 'NumberLiteral'.", <<-CODE
               class CompileController < ATH::Controller
                 @[ARTA::Get(locale: 10)]
                 def action : Nil; end
@@ -206,7 +206,7 @@ describe Athena::Framework do
 
         describe "format" do
           it "controller ann" do
-            assert_error "Route action 'CompileController' expects a 'StringLiteral' for its 'ARTA::Route#format' field, but got a 'NumberLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController' expects a 'StringLiteral' for its 'ARTA::Route#format' field, but got a 'NumberLiteral'.", <<-CODE
               @[ARTA::Route(format: 10)]
               class CompileController < ATH::Controller
                 @[ARTA::Get(path: "/")]
@@ -216,7 +216,7 @@ describe Athena::Framework do
           end
 
           it "route ann" do
-            assert_error "Route action 'CompileController#action' expects a 'StringLiteral' for its 'ARTA::Get#format' field, but got a 'NumberLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController#action' expects a 'StringLiteral' for its 'ARTA::Get#format' field, but got a 'NumberLiteral'.", <<-CODE
               class CompileController < ATH::Controller
                 @[ARTA::Get(format: 10)]
                 def action : Nil; end
@@ -227,7 +227,7 @@ describe Athena::Framework do
 
         describe "stateless" do
           it "controller ann" do
-            assert_error "Route action 'CompileController' expects a 'BoolLiteral' for its 'ARTA::Route#stateless' field, but got a 'NumberLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController' expects a 'BoolLiteral' for its 'ARTA::Route#stateless' field, but got a 'NumberLiteral'.", <<-CODE
               @[ARTA::Route(stateless: 10)]
               class CompileController < ATH::Controller
                 @[ARTA::Get(path: "/")]
@@ -237,7 +237,7 @@ describe Athena::Framework do
           end
 
           it "route ann" do
-            assert_error "Route action 'CompileController#action' expects a 'BoolLiteral' for its 'ARTA::Get#stateless' field, but got a 'NumberLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController#action' expects a 'BoolLiteral' for its 'ARTA::Get#stateless' field, but got a 'NumberLiteral'.", <<-CODE
               class CompileController < ATH::Controller
                 @[ARTA::Get(stateless: 10)]
                 def action : Nil; end
@@ -248,7 +248,7 @@ describe Athena::Framework do
 
         describe "name" do
           it "controller ann" do
-            assert_error "Route action 'CompileController' expects a 'StringLiteral' for its 'ARTA::Route#name' field, but got a 'NumberLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController' expects a 'StringLiteral' for its 'ARTA::Route#name' field, but got a 'NumberLiteral'.", <<-CODE
               @[ARTA::Route(name: 10)]
               class CompileController < ATH::Controller
                 @[ARTA::Get(path: "/")]
@@ -258,7 +258,7 @@ describe Athena::Framework do
           end
 
           it "route ann" do
-            assert_error "Route action 'CompileController#action' expects a 'StringLiteral' for its 'ARTA::Get#name' field, but got a 'NumberLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController#action' expects a 'StringLiteral' for its 'ARTA::Get#name' field, but got a 'NumberLiteral'.", <<-CODE
               class CompileController < ATH::Controller
                 @[ARTA::Get(path: "/", name: 10)]
                 def action : Nil; end
@@ -269,7 +269,7 @@ describe Athena::Framework do
 
         describe "requirements" do
           it "controller ann" do
-            assert_error "Route action 'CompileController' expects a 'HashLiteral(StringLiteral, StringLiteral | RegexLiteral)' for its 'ARTA::Route#requirements' field, but got a 'NumberLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController' expects a 'HashLiteral(StringLiteral, StringLiteral | RegexLiteral)' for its 'ARTA::Route#requirements' field, but got a 'NumberLiteral'.", <<-CODE
               @[ARTA::Route(requirements: 10)]
               class CompileController < ATH::Controller
                 @[ARTA::Get(path: "/")]
@@ -279,7 +279,7 @@ describe Athena::Framework do
           end
 
           it "route ann" do
-            assert_error "Route action 'CompileController#action' expects a 'HashLiteral(StringLiteral, StringLiteral | RegexLiteral)' for its 'ARTA::Get#requirements' field, but got a 'NumberLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController#action' expects a 'HashLiteral(StringLiteral, StringLiteral | RegexLiteral)' for its 'ARTA::Get#requirements' field, but got a 'NumberLiteral'.", <<-CODE
               class CompileController < ATH::Controller
                 @[ARTA::Get(path: "/", requirements: 10)]
                 def action : Nil; end
@@ -290,7 +290,7 @@ describe Athena::Framework do
 
         describe "schemes" do
           it "controller ann" do
-            assert_error "Route action 'CompileController' expects a 'StringLiteral | Enumerable(StringLiteral)' for its 'ARTA::Route#schemes' field, but got a 'NumberLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController' expects a 'StringLiteral | Enumerable(StringLiteral)' for its 'ARTA::Route#schemes' field, but got a 'NumberLiteral'.", <<-CODE
               @[ARTA::Route(schemes: 10)]
               class CompileController < ATH::Controller
                 @[ARTA::Get(path: "/")]
@@ -302,7 +302,7 @@ describe Athena::Framework do
 
         describe "methods" do
           it "controller ann" do
-            assert_error "Route action 'CompileController' expects a 'StringLiteral | Enumerable(StringLiteral)' for its 'ARTA::Route#methods' field, but got a 'NumberLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController' expects a 'StringLiteral | Enumerable(StringLiteral)' for its 'ARTA::Route#methods' field, but got a 'NumberLiteral'.", <<-CODE
               @[ARTA::Route(methods: 10)]
               class CompileController < ATH::Controller
                 @[ARTA::Get(path: "/")]
@@ -314,7 +314,7 @@ describe Athena::Framework do
 
         describe "host" do
           it "controller ann" do
-            assert_error "Route action 'CompileController' expects a 'StringLiteral | RegexLiteral' for its 'ARTA::Route#host' field, but got a 'NumberLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController' expects a 'StringLiteral | RegexLiteral' for its 'ARTA::Route#host' field, but got a 'NumberLiteral'.", <<-CODE
               @[ARTA::Route(host: 10)]
               class CompileController < ATH::Controller
                 @[ARTA::Get(path: "/")]
@@ -324,7 +324,7 @@ describe Athena::Framework do
           end
 
           it "route ann" do
-            assert_error "Route action 'CompileController#action' expects a 'StringLiteral | RegexLiteral' for its 'ARTA::Get#host' field, but got a 'NumberLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController#action' expects a 'StringLiteral | RegexLiteral' for its 'ARTA::Get#host' field, but got a 'NumberLiteral'.", <<-CODE
               class CompileController < ATH::Controller
                 @[ARTA::Get(path: "/", host: 10)]
                 def action : Nil; end
@@ -335,7 +335,7 @@ describe Athena::Framework do
 
         describe "condition" do
           it "controller ann" do
-            assert_error "Route action 'CompileController' expects an 'ART::Route::Condition' for its 'ARTA::Route#condition' field, but got a 'NumberLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController' expects an 'ART::Route::Condition' for its 'ARTA::Route#condition' field, but got a 'NumberLiteral'.", <<-CODE
               @[ARTA::Route(condition: 10)]
               class CompileController < ATH::Controller
                 @[ARTA::Get(path: "/")]
@@ -345,7 +345,7 @@ describe Athena::Framework do
           end
 
           it "route ann" do
-            assert_error "Route action 'CompileController#action' expects an 'ART::Route::Condition' for its 'ARTA::Get#condition' field, but got a 'NumberLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController#action' expects an 'ART::Route::Condition' for its 'ARTA::Get#condition' field, but got a 'NumberLiteral'.", <<-CODE
               class CompileController < ATH::Controller
                 @[ARTA::Get(path: "/", condition: 10)]
                 def action : Nil; end
@@ -356,7 +356,7 @@ describe Athena::Framework do
 
         describe "priority" do
           it "controller ann" do
-            assert_error "Route action 'CompileController' expects a 'NumberLiteral' for its 'ARTA::Route#priority' field, but got a 'BoolLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController' expects a 'NumberLiteral' for its 'ARTA::Route#priority' field, but got a 'BoolLiteral'.", <<-CODE
               @[ARTA::Route(priority: true)]
               class CompileController < ATH::Controller
                 @[ARTA::Get(path: "/")]
@@ -366,7 +366,7 @@ describe Athena::Framework do
           end
 
           it "route ann" do
-            assert_error "Route action 'CompileController#action' expects a 'NumberLiteral' for its 'ARTA::Get#priority' field, but got a 'BoolLiteral'.", <<-CODE
+            assert_compile_time_error "Route action 'CompileController#action' expects a 'NumberLiteral' for its 'ARTA::Get#priority' field, but got a 'BoolLiteral'.", <<-CODE
               class CompileController < ATH::Controller
                 @[ARTA::Get(priority: false)]
                 def action : Nil; end
@@ -379,7 +379,7 @@ describe Athena::Framework do
 
     describe ATHR::RequestBody do
       it "when the action parameter is not serializable" do
-        assert_error " The annotation '@[ATHA::MapRequestBody]' cannot be applied to 'CompileController#action:foo : Foo' since the 'Athena::Framework::Controller::ValueResolvers::RequestBody' resolver only supports parameters of type 'Athena::Serializer::Serializable | JSON::Serializable | URI::Params::Serializable'.", <<-CODE
+        assert_compile_time_error " The annotation '@[ATHA::MapRequestBody]' cannot be applied to 'CompileController#action:foo : Foo' since the 'Athena::Framework::Controller::ValueResolvers::RequestBody' resolver only supports parameters of type 'Athena::Serializer::Serializable | JSON::Serializable | URI::Params::Serializable'.", <<-CODE
           record Foo, text : String
 
           class CompileController < ATH::Controller

@@ -1,7 +1,7 @@
 require "./spec_helper"
 
-private def assert_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_error message, <<-CR, line: line
+private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line
     require "./spec_helper.cr"
     #{code}
   CR
@@ -17,7 +17,7 @@ end
 describe ATH::Bundle, tags: "compiled" do
   describe ATH::Listeners::CORS do
     it "wildcard allow_headers with allow_credentials" do
-      assert_error "'expose_headers' cannot contain a wildcard ('*') when 'allow_credentials' is 'true'.", <<-'CODE'
+      assert_compile_time_error "'expose_headers' cannot contain a wildcard ('*') when 'allow_credentials' is 'true'.", <<-'CODE'
           ATH.configure({
             framework: {
               cors: {
@@ -33,7 +33,7 @@ describe ATH::Bundle, tags: "compiled" do
     end
 
     it "does not exist if not enabled" do
-      assert_error "undefined method 'athena_framework_listeners_cors'", <<-CODE
+      assert_compile_time_error "undefined method 'athena_framework_listeners_cors'", <<-CODE
           ADI.container.athena_framework_listeners_cors
         CODE
     end

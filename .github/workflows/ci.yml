@@ -96,7 +96,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           directory: coverage
-          files: '**/cov.xml' # There is no `unreachable.codecov.json` file when running _only_ compiled specs
+          files: '**/cov.xml,**/macro_coverage.*.codecov.json' # There is no `unreachable.codecov.json` file when running _only_ compiled specs
           flags: compiled
           verbose: true
       - uses: codecov/test-results-action@v1

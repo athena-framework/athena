@@ -20,7 +20,7 @@ _Administrative release, no functional changes_
 
 ### Added
 
-- Add support for using the `CRYSTAL` ENV var to customize binary used for `ASPEC::Methods.assert_error` and `ASPEC::Methods.assert_success` ([#424](https://github.com/athena-framework/athena/pull/424)) (George Dietrich)
+- Add support for using the `CRYSTAL` ENV var to customize binary used for `ASPEC::Methods.assert_compile_time_error` and `ASPEC::Methods.assert_success` ([#424](https://github.com/athena-framework/athena/pull/424)) (George Dietrich)
 
 ## [0.3.7] - 2024-04-09
 
@@ -65,7 +65,7 @@ _Administrative release, no functional changes_
 
 ### Added
 
-- Add support for *codegen* for the `ASPEC.assert_error` and `ASPEC.assert_success` methods ([#219](https://github.com/athena-framework/athena/pull/219)) (George Dietrich)
+- Add support for *codegen* for the `ASPEC.assert_compile_time_error` and `ASPEC.assert_success` methods ([#219](https://github.com/athena-framework/athena/pull/219)) (George Dietrich)
 - Add ability to skip running all examples within a test case via the `ASPEC::TestCase::Skip` annotation ([#248](https://github.com/athena-framework/athena/pull/248)) (George Dietrich)
 
 ## [0.3.0] - 2022-05-14
@@ -74,7 +74,7 @@ _First release a part of the monorepo._
 
 ### Changed
 
-- **Breaking:** change the `assert_error` to no longer be file based. Code should now be provided as a HEREDOC argument to the method ([#173](https://github.com/athena-framework/athena/pull/173)) (George Dietrich)
+- **Breaking:** change the `assert_compile_time_error` to no longer be file based. Code should now be provided as a HEREDOC argument to the method ([#173](https://github.com/athena-framework/athena/pull/173)) (George Dietrich)
 - Update minimum `crystal` version to `~> 1.4.0` ([#169](https://github.com/athena-framework/athena/pull/169)) (George Dietrich)
 
 ### Added

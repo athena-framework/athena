@@ -8,8 +8,8 @@ private def assert_success(code : String, *, line : Int32 = __LINE__) : Nil
   CR
 end
 
-private def assert_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_error message, <<-CR, line: line
+private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line
     require "../spec_helper.cr"
     #{code}
     ADI::ServiceContainer.new
@@ -18,7 +18,7 @@ end
 
 describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
   it "errors if unable to determine the alias name" do
-    assert_error "Alias cannot be automatically determined for 'foo' (Foo). If the type includes multiple interfaces, provide the interface to alias as the first positional argument to `@[ADI::AsAlias]`.", <<-'CR'
+    assert_compile_time_error "Alias cannot be automatically determined for 'foo' (Foo). If the type includes multiple interfaces, provide the interface to alias as the first positional argument to `@[ADI::AsAlias]`.", <<-'CR'
       module SomeInterface; end
       module OtherInterface; end
 
