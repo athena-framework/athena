@@ -9,7 +9,7 @@
 module Athena::Spec::Methods
   extend self
 
-  # Executes the provided Crystal *code* asserts it results in a compile time error with the provided *message*.
+  # Executes the provided Crystal *code* and asserts it results in a compile time error with the provided *message*.
   #
   # ```
   # ASPEC::Methods.assert_compile_time_error "can't instantiate abstract class Foo", <<-CR
@@ -40,7 +40,7 @@ module Athena::Spec::Methods
     std_out.close
   end
 
-  # Executes the provided Crystal *code* asserts it results in a runtime error with the provided *message*.
+  # Executes the provided Crystal *code* and asserts it results in a runtime error with the provided *message*.
   # This can be helpful in order to test something in isolation, without affecting other test cases.
   #
   # ```
@@ -63,7 +63,7 @@ module Athena::Spec::Methods
   #
   # ```
   # ASPEC::Methods.assert_compiles <<-CR
-  #   puts 2 + 2
+  #   raise "Still passes"
   # CR
   # ```
   #
