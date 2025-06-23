@@ -32,7 +32,7 @@ module Athena::Spec::Methods
     # Ignore coverage report output if the output dir is not defined, or if there is no report.
     # TODO: Maybe default this to something?
     if !std_out.empty? && (macro_coverage_output_dir = ENV["ATHENA_SPEC_COVERAGE_OUTPUT_DIR"]?.presence)
-      File.open ::Path[macro_coverage_output_dir, "macro_coverage.#{Time.utc.to_unix_ms}.codecov.json"], "w" do |coverage_report|
+      File.open ::Path[macro_coverage_output_dir, "macro_coverage.#{Path[file].stem}:#{line}.codecov.json"], "w" do |coverage_report|
         IO.copy std_out.rewind, coverage_report
       end
     end
