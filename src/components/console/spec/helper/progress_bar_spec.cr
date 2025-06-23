@@ -1,21 +1,15 @@
 require "../spec_helper"
 
 struct ProgressBarTest < ASPEC::TestCase
-  @col_size : String?
   @clock : ACLK::Spec::MockClock
 
   def initialize
-    @col_size = ENV["COLUMNS"]?
     ENV["COLUMNS"] = "120"
     @clock = ACLK::Spec::MockClock.new
   end
 
   protected def tear_down : Nil
-    if col_size = @col_size
-      ENV["COLUMNS"] = col_size
-    else
-      ENV.delete "COLUMNS"
-    end
+    ENV.delete "COLUMNS"
   end
 
   def test_multiple_start : Nil
