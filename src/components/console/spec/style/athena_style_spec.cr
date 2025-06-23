@@ -1,19 +1,12 @@
 require "../spec_helper"
 
 struct AthenaStyleTest < ASPEC::TestCase
-  @col_size : String?
-
   def initialize
-    @col_size = ENV["COLUMNS"]?
     ENV["COLUMNS"] = "121"
   end
 
   def tear_down : Nil
-    if size = @col_size
-      ENV["COLUMNS"] = size
-    else
-      ENV.delete "COLUMNS"
-    end
+    ENV.delete "COLUMNS"
   end
 
   private def assert_file_equals_string(filepath : String, string : String, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
