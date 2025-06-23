@@ -1,19 +1,8 @@
 require "./spec_helper"
 
 struct ApplicationTest < ASPEC::TestCase
-  @col_size : Int32?
-
-  def initialize
-    @col_size = ENV["COLUMNS"]?.try &.to_i
-  end
-
   def tear_down : Nil
-    if size = @col_size
-      ENV["COLUMNS"] = size.to_s
-    else
-      ENV.delete "COLUMNS"
-    end
-
+    ENV.delete "COLUMNS"
     ENV.delete "SHELL_VERBOSITY"
   end
 
