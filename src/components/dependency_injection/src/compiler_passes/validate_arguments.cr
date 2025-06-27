@@ -26,7 +26,9 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                 error = "Failed to resolve value for parameter '#{param["declaration"]}' of service '#{service_id.id}' (#{definition["class"]})."
               end
 
-              param["declaration"].raise error if error
+              if error
+                param["declaration"].raise error
+              end
             end
           end
         %}

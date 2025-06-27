@@ -1,7 +1,7 @@
 require "../spec_helper"
 
-private def assert_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_error message, <<-CR, line: line
+private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line
     require "../spec_helper.cr"
     #{code}
   CR
@@ -53,7 +53,7 @@ describe ADI::ServiceContainer::DefineGetters, tags: "compiled" do
   describe "compiler errors" do
     describe "aliases" do
       it "does not expose named getter for non-public string aliases" do
-        assert_error "undefined method 'bar' for Athena::DependencyInjection::ServiceContainer", <<-'CR'
+        assert_compile_time_error "undefined method 'bar' for Athena::DependencyInjection::ServiceContainer", <<-'CR'
           module SomeInterface; end
 
           @[ADI::Register]
@@ -67,7 +67,7 @@ describe ADI::ServiceContainer::DefineGetters, tags: "compiled" do
       end
 
       it "does not expose typed getter for non-public typed aliases" do
-        assert_error "undefined method 'get' for Athena::DependencyInjection::ServiceContainer", <<-'CR'
+        assert_compile_time_error "undefined method 'get' for Athena::DependencyInjection::ServiceContainer", <<-'CR'
           module SomeInterface; end
 
           @[ADI::Register]

@@ -1,58 +1,54 @@
 require "./spec_helper"
 
 describe ASPEC::Methods do
-  describe ".assert_error", tags: "compiled" do
+  describe ".assert_compile_time_error", tags: "compiled" do
     it "allows customizing crystal binary via CRYSTAL env var" do
+      old_val = ENV["CRYSTAL"]?.presence
+
       begin
         ENV["CRYSTAL"] = "/path/to/crystal"
 
         expect_raises File::NotFoundError do
-          assert_error "", ""
+          assert_compile_time_error "", ""
         end
       ensure
-        ENV.delete "CRYSTAL"
+        if old_val
+          ENV["CRYSTAL"] = old_val
+        else
+          ENV.delete "CRYSTAL"
+        end
       end
     end
 
-    describe "no codegen" do
-      it do
-        assert_error "can't instantiate abstract class Foo", <<-CR
+    it do
+      assert_compile_time_error "can't instantiate abstract class Foo", <<-CR
           abstract class Foo; end
           Foo.new
         CR
-      end
-    end
-
-    describe "with codegen" do
-      it do
-        assert_error "Oh no", <<-CR, codegen: true
-          raise "Oh no"
-        CR
-      end
     end
   end
 
-  describe ".assert_success", tags: "compiled" do
-    describe "no codegen" do
-      it do
-        assert_success <<-CR
-          pp 1 + 1
-        CR
-      end
-
-      it do
-        assert_success <<-CR
+  describe ".assert_runtime_error", tags: "compiled" do
+    it do
+      assert_runtime_error "Oh no", <<-CR
           raise "Oh no"
         CR
-      end
     end
+  end
 
-    describe "with codegen" do
-      it do
-        assert_success <<-CR, codegen: true
-          pp 1 + 1
+  describe ".assert_compiles", tags: "compiled" do
+    it do
+      assert_compiles <<-CR
+          raise "Oh no"
         CR
-      end
+    end
+  end
+
+  describe ".assert_executes", tags: "compiled" do
+    it do
+      assert_executes <<-CR
+        puts 1 + 1
+        CR
     end
   end
 

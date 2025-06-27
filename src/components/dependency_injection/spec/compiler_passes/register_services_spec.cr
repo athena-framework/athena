@@ -1,7 +1,7 @@
 require "../spec_helper"
 
-private def assert_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_error message, <<-CR, line: line
+private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line
     require "../spec_helper.cr"
     #{code}
     ADI::ServiceContainer.new
@@ -101,7 +101,7 @@ end
 describe ADI::ServiceContainer::RegisterServices do
   describe "compiler errors", tags: "compiled" do
     it "errors if a service has multiple ADI::Register annotations but not all of them have a name" do
-      assert_error "Failed to auto register services for 'Foo'. Each service must explicitly provide a name when auto registering more than one service based on the same type.", <<-CR
+      assert_compile_time_error "Failed to auto register services for 'Foo'. Each service must explicitly provide a name when auto registering more than one service based on the same type.", <<-CR
         @[ADI::Register(name: "one")]
         @[ADI::Register]
         record Foo
@@ -109,14 +109,14 @@ describe ADI::ServiceContainer::RegisterServices do
     end
 
     it "errors if the generic service does not have a name." do
-      assert_error "Failed to auto register service for 'Foo(T)'. Generic services must explicitly provide a name.", <<-CR
+      assert_compile_time_error "Failed to auto register service for 'Foo(T)'. Generic services must explicitly provide a name.", <<-CR
         @[ADI::Register]
         record Foo(T)
       CR
     end
 
     it "errors if the service is already registered" do
-      assert_error "Failed to auto register service for 'my_service' (MyService). It is already registered.", <<-CR
+      assert_compile_time_error "Failed to auto register service for 'my_service' (MyService). It is already registered.", <<-CR
         @[ADI::Register]
         record MyService
 
@@ -140,7 +140,7 @@ describe ADI::ServiceContainer::RegisterServices do
 
     describe "factory" do
       it "errors if method is an instance method" do
-        assert_error "Failed to auto register service 'foo'. Factory method 'foo' within 'Foo' is an instance method.", <<-CR
+        assert_compile_time_error "Failed to auto register service 'foo'. Factory method 'foo' within 'Foo' is an instance method.", <<-CR
         @[ADI::Register(factory: "foo")]
         record Foo do
           def foo; end
@@ -149,7 +149,7 @@ describe ADI::ServiceContainer::RegisterServices do
       end
 
       it "errors if the method is missing" do
-        assert_error "Failed to auto register service 'foo'. Factory method 'foo' within 'Foo' does not exist.", <<-CR
+        assert_compile_time_error "Failed to auto register service 'foo'. Factory method 'foo' within 'Foo' does not exist.", <<-CR
         @[ADI::Register(factory: "foo")]
         record Foo
       CR
@@ -158,14 +158,14 @@ describe ADI::ServiceContainer::RegisterServices do
 
     describe "tags" do
       it "errors if not all tags have a `name` field" do
-        assert_error "Failed to auto register service 'foo'. All tags must have a name.", <<-CR
+        assert_compile_time_error "Failed to auto register service 'foo'. All tags must have a name.", <<-CR
           @[ADI::Register(tags: [{priority: 100}])]
           record Foo
         CR
       end
 
       it "errors if not all tags are of the proper type" do
-        assert_error "Tag '100' must be a 'StringLiteral' or 'NamedTupleLiteral', got 'NumberLiteral'.", <<-CR
+        assert_compile_time_error "Tag '100' must be a 'StringLiteral' or 'NamedTupleLiteral', got 'NumberLiteral'.", <<-CR
           @[ADI::Register(tags: [100])]
           record Foo
         CR
@@ -174,14 +174,14 @@ describe ADI::ServiceContainer::RegisterServices do
 
     describe "calls" do
       it "errors if the method of a call is empty" do
-        assert_error "Method name cannot be empty.", <<-CR
+        assert_compile_time_error "Method name cannot be empty.", <<-CR
         @[ADI::Register(calls: [{""}])]
         record Foo
       CR
       end
 
       it "errors if the method does not exist on the type" do
-        assert_error "Failed to auto register service for 'foo' (Foo). Call references non-existent method 'foo'.", <<-CR
+        assert_compile_time_error "Failed to auto register service for 'foo' (Foo). Call references non-existent method 'foo'.", <<-CR
         @[ADI::Register(calls: [{"foo"}])]
         record Foo
       CR

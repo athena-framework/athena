@@ -34,7 +34,11 @@ module Athena::Console::Question::Base(T)
   property? trimmable : Bool = true
 
   def initialize(@question : String, @default : T)
-    {% T.raise "An ACON::Question generic argument cannot be 'Nil'. Use 'String?' instead." if T == Nil %}
+    {%
+      if T == Nil
+        T.raise "An ACON::Question generic argument cannot be 'Nil'. Use 'String?' instead."
+      end
+    %}
   end
 
   # :nodoc:

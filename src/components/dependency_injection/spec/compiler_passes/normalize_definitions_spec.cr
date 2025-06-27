@@ -1,7 +1,7 @@
 require "../spec_helper"
 
-private def assert_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_error message, <<-CR, line: line
+private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line
     require "../spec_helper.cr"
     module MySchema
       include ADI::Extension::Schema
@@ -32,7 +32,7 @@ end
 describe ADI::ServiceContainer::NormalizeDefinitions, tags: "compiled" do
   describe "compiler errors" do
     it "`class` is not provided" do
-      assert_error "Service 'some_service' is missing required 'class' property.", <<-'CR'
+      assert_compile_time_error "Service 'some_service' is missing required 'class' property.", <<-'CR'
         SERVICE_HASH["some_service"] = {
           public: false,
         }
@@ -41,8 +41,9 @@ describe ADI::ServiceContainer::NormalizeDefinitions, tags: "compiled" do
   end
 
   it "applies defaults to missing properties" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper.cr"
+
       module MySchema
         include ADI::Extension::Schema
 
