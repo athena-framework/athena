@@ -52,34 +52,52 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             end
 
             if (value = controller_ann[:defaults]) != nil
-              value.raise "Route action '#{klass.name}' expects a 'HashLiteral(StringLiteral, _)' for its 'ARTA::Route#defaults' field, but got a '#{value.class_name.id}'." unless value.is_a? HashLiteral
+              unless value.is_a? HashLiteral
+                value.raise "Route action '#{klass.name}' expects a 'HashLiteral(StringLiteral, _)' for its 'ARTA::Route#defaults' field, but got a '#{value.class_name.id}'."
+              end
+
               globals[:defaults] = value
             end
 
             if (value = controller_ann[:locale]) != nil
-              value.raise "Route action '#{klass.name}' expects a 'StringLiteral' for its 'ARTA::Route#locale' field, but got a '#{value.class_name.id}'." unless value.is_a? StringLiteral
+              unless value.is_a? StringLiteral
+                value.raise "Route action '#{klass.name}' expects a 'StringLiteral' for its 'ARTA::Route#locale' field, but got a '#{value.class_name.id}'."
+              end
+
               globals[:defaults]["_locale"] = value
             end
 
             if (value = controller_ann[:format]) != nil
-              value.raise "Route action '#{klass.name}' expects a 'StringLiteral' for its 'ARTA::Route#format' field, but got a '#{value.class_name.id}'." unless value.is_a? StringLiteral
+              unless value.is_a? StringLiteral
+                value.raise "Route action '#{klass.name}' expects a 'StringLiteral' for its 'ARTA::Route#format' field, but got a '#{value.class_name.id}'."
+              end
+
               globals[:defaults]["_format"] = value
             end
 
             if controller_ann[:stateless] != nil
               value = controller_ann[:stateless]
 
-              value.raise "Route action '#{klass.name}' expects a 'BoolLiteral' for its 'ARTA::Route#stateless' field, but got a '#{value.class_name.id}'." unless value.is_a? BoolLiteral
+              unless value.is_a? BoolLiteral
+                value.raise "Route action '#{klass.name}' expects a 'BoolLiteral' for its 'ARTA::Route#stateless' field, but got a '#{value.class_name.id}'."
+              end
+
               globals[:defaults]["_stateless"] = value
             end
 
             if (value = controller_ann[:name]) != nil
-              value.raise "Route action '#{klass.name}' expects a 'StringLiteral' for its 'ARTA::Route#name' field, but got a '#{value.class_name.id}'." unless value.is_a? StringLiteral
+              unless value.is_a? StringLiteral
+                value.raise "Route action '#{klass.name}' expects a 'StringLiteral' for its 'ARTA::Route#name' field, but got a '#{value.class_name.id}'."
+              end
+
               globals[:name] = value
             end
 
             if (value = controller_ann[:requirements]) != nil
-              value.raise "Route action '#{klass.name}' expects a 'HashLiteral(StringLiteral, StringLiteral | RegexLiteral)' for its 'ARTA::Route#requirements' field, but got a '#{value.class_name.id}'." unless value.is_a? HashLiteral
+              unless value.is_a? HashLiteral
+                value.raise "Route action '#{klass.name}' expects a 'HashLiteral(StringLiteral, StringLiteral | RegexLiteral)' for its 'ARTA::Route#requirements' field, but got a '#{value.class_name.id}'."
+              end
+
               globals[:requirements] = value
             end
 
@@ -217,7 +235,10 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                   parameter_annotation_configurations[ann_class.resolve] = "(#{annotations} of ADI::AnnotationConfigurations::ConfigurationBase)".id unless annotations.empty?
                 end
 
-                arg.raise "Route action parameter '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction." if arg.restriction.is_a? Nop
+                if arg.restriction.is_a? Nop
+                  arg.raise "Route action parameter '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction."
+                end
+
                 parameters << %(ATH::Controller::ParameterMetadata(#{arg.restriction}).new(
                   #{arg.name.stringify},
                   #{!arg.default_value.is_a? Nop},
@@ -298,19 +319,28 @@ module Athena::Framework::Routing::AnnotationRouteLoader
               globals[:requirements].each { |k, v| requirements[k] = v }
 
               if (value = route_def[:locale]) != nil
-                value.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral' for its '#{route_def.name}#locale' field, but got a '#{value.class_name.id}'." unless value.is_a? StringLiteral
+                unless value.is_a? StringLiteral
+                  value.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral' for its '#{route_def.name}#locale' field, but got a '#{value.class_name.id}'."
+                end
+
                 defaults["_locale"] = value
               end
 
               if (value = route_def[:format]) != nil
-                value.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral' for its '#{route_def.name}#format' field, but got a '#{value.class_name.id}'." unless value.is_a? StringLiteral
+                unless value.is_a? StringLiteral
+                  value.raise "Route action '#{klass.name}##{m.name}' expects a 'StringLiteral' for its '#{route_def.name}#format' field, but got a '#{value.class_name.id}'."
+                end
+
                 defaults["_format"] = value
               end
 
               if route_def[:stateless] != nil
                 value = route_def[:stateless]
 
-                value.raise "Route action '#{klass.name}##{m.name}' expects a 'BoolLiteral' for its '#{route_def.name}#stateless' field, but got a '#{value.class_name.id}'." unless value.is_a? BoolLiteral
+                unless value.is_a? BoolLiteral
+                  value.raise "Route action '#{klass.name}##{m.name}' expects a 'BoolLiteral' for its '#{route_def.name}#stateless' field, but got a '#{value.class_name.id}'."
+                end
+
                 defaults["_stateless"] = value
               end
               if ann_defaults = route_def[:defaults]

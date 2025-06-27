@@ -40,8 +40,13 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
                 if factory
                   factory_class, factory_method = factory
 
-                  raise "Failed to auto register service '#{service_id.id}'. Factory method '#{factory_method.id}' within '#{factory_class}' is an instance method." if factory_class.instance.has_method? factory_method
-                  raise "Failed to auto register service '#{service_id.id}'. Factory method '#{factory_method.id}' within '#{factory_class}' does not exist." unless factory_class.class.has_method? factory_method
+                  if factory_class.instance.has_method? factory_method
+                    raise "Failed to auto register service '#{service_id.id}'. Factory method '#{factory_method.id}' within '#{factory_class}' is an instance method."
+                  end
+
+                  unless factory_class.class.has_method? factory_method
+                    raise "Failed to auto register service '#{service_id.id}'. Factory method '#{factory_method.id}' within '#{factory_class}' does not exist."
+                  end
                 end
               %}
 
@@ -60,7 +65,9 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
                                      elsif tag.is_a?(Path)
                                        {tag.resolve.id.stringify, {} of Nil => Nil}
                                      elsif tag.is_a?(NamedTupleLiteral) || tag.is_a?(HashLiteral)
-                                       tag.raise "Failed to auto register service '#{service_id.id}'. All tags must have a name." unless tag[:name]
+                                       unless tag[:name]
+                                         tag.raise "Failed to auto register service '#{service_id.id}'. All tags must have a name."
+                                       end
 
                                        # Resolve a constant to its value if used as a tag name
                                        if tag["name"].is_a? Path

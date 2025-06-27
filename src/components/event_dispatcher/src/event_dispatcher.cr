@@ -40,7 +40,11 @@ class Athena::EventDispatcher::EventDispatcher
 
   # :inherit:
   def listener(event_class : E.class, *, priority : Int32 = 0, name : String? = nil, &block : E, AED::EventDispatcherInterface -> Nil) : AED::Callable forall E
-    {% @def.args[0].raise "expected argument #1 to '#{@def.name}' to be #{AED::Event.class}, not #{E}." unless E <= AED::Event %}
+    {%
+      unless E <= AED::Event
+        @def.args[0].raise "expected argument #1 to '#{@def.name}' to be #{AED::Event.class}, not #{E}."
+      end
+    %}
 
     self.add_callable AED::Callable::EventDispatcher(E).new block, priority, name
   end
@@ -67,12 +71,22 @@ class Athena::EventDispatcher::EventDispatcher
           event_arg = m.args[0]
 
           # Validate the type restriction of the first parameter, if present
-          event_arg.raise "Expected parameter #1 of '#{T.name}##{m.name}' to have a type restriction of an 'AED::Event' instance, but it is not restricted." if event_arg.restriction.is_a?(Nop)
-          event_arg.raise "Expected parameter #1 of '#{T.name}##{m.name}' to have a type restriction of an 'AED::Event' instance, not '#{event_arg.restriction}'." if !(event_arg.restriction.resolve <= AED::Event)
+          if event_arg.restriction.is_a?(Nop)
+            event_arg.raise "Expected parameter #1 of '#{T.name}##{m.name}' to have a type restriction of an 'AED::Event' instance, but it is not restricted."
+          end
+
+          if !(event_arg.restriction.resolve <= AED::Event)
+            event_arg.raise "Expected parameter #1 of '#{T.name}##{m.name}' to have a type restriction of an 'AED::Event' instance, not '#{event_arg.restriction}'."
+          end
 
           if dispatcher_arg = m.args[1]
-            event_arg.raise "Expected parameter #2 of '#{T.name}##{m.name}' to have a type restriction of 'AED::EventDispatcherInterface', but it is not restricted." if dispatcher_arg.restriction.is_a?(Nop)
-            event_arg.raise "Expected parameter #2 of '#{T.name}##{m.name}' to have a type restriction of 'AED::EventDispatcherInterface', not '#{dispatcher_arg.restriction}'." if !(dispatcher_arg.restriction.resolve <= AED::EventDispatcherInterface)
+            if dispatcher_arg.restriction.is_a?(Nop)
+              event_arg.raise "Expected parameter #2 of '#{T.name}##{m.name}' to have a type restriction of 'AED::EventDispatcherInterface', but it is not restricted."
+            end
+
+            if !(dispatcher_arg.restriction.resolve <= AED::EventDispatcherInterface)
+              event_arg.raise "Expected parameter #2 of '#{T.name}##{m.name}' to have a type restriction of 'AED::EventDispatcherInterface', not '#{dispatcher_arg.restriction}'."
+            end
           end
 
           priority = m.annotation(AEDA::AsEventListener)[:priority] || 0

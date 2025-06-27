@@ -117,7 +117,9 @@ module Athena::DependencyInjection
     {%
       pass_type = pass.resolve
 
-      pass.raise "Pass type must be a module." unless pass_type.module?
+      unless pass_type.module?
+        pass.raise "Pass type must be a module."
+      end
 
       type = type || :before_optimization
       priority = priority || 0

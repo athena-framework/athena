@@ -31,7 +31,11 @@ class Athena::Console::Helper::HelperSet
 
   # Returns the helper of the provided *helper_class*, or `nil` if it is not defined.
   def []?(helper_class : T.class) : T? forall T
-    {% T.raise "Helper class type '#{T}' is not an 'ACON::Helper::Interface'." unless T <= ACON::Helper::Interface %}
+    {%
+      unless T <= ACON::Helper::Interface
+        T.raise "Helper class type '#{T}' is not an 'ACON::Helper::Interface'."
+      end
+    %}
 
     @helpers[helper_class]?.as? T
   end
