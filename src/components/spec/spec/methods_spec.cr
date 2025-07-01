@@ -3,21 +3,14 @@ require "./spec_helper"
 describe ASPEC::Methods do
   describe ".assert_compile_time_error", tags: "compiled" do
     it "allows customizing crystal binary via CRYSTAL env var" do
-      old_val = ENV["CRYSTAL"]?.presence
+      # Do this in its own sub-process to avoid mucking with ENV.
+      assert_runtime_error "'/path/to/crystal': No such file or directory", <<-CR
+        require "./spec_helper"
 
-      begin
         ENV["CRYSTAL"] = "/path/to/crystal"
 
-        expect_raises File::NotFoundError do
-          assert_compile_time_error "", ""
-        end
-      ensure
-        if old_val
-          ENV["CRYSTAL"] = old_val
-        else
-          ENV.delete "CRYSTAL"
-        end
-      end
+        assert_compile_time_error "", ""
+      CR
     end
 
     it do
