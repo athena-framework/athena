@@ -267,18 +267,16 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   end
 
   private def map_uploaded_file(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata, configuration : ATHA::MapUploadedFileConfiguration) : ATH::UploadedFile | Enumerable(ATH::UploadedFile) | Nil
-    files = request.files[file_name = configuration.name || parameter.name]? || [] of ATH::UploadedFile
+    files = request.files[configuration.name || parameter.name]? || [] of ATH::UploadedFile
+
+    if files.empty? && (parameter.nilable? || parameter.has_default?)
+      return
+    end
 
     if parameter.instance_of?(Array(ATH::UploadedFile))
       return files
     end
 
-    file = files.first?
-
-    if !file && !parameter.nilable?
-      raise ATH::Exception::UnprocessableEntity.new "Missing required file parameter: '#{file_name}'."
-    end
-
-    file
+    files.first
   end
 end
