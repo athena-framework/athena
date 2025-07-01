@@ -31,6 +31,8 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAutoconfigureAnnota
           types_to_process = types_to_process.uniq
 
           SERVICE_HASH.each do |service_id, definition|
+            klass = definition["class"]
+
             types_to_process.each do |t|
               if definition["class"] <= t
                 tags = [] of Nil
@@ -77,7 +79,6 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAutoconfigureAnnota
                   v.each do |call|
                     method = call[0]
                     args = call[1] || nil
-                    klass = definition["class"]
 
                     if method.empty?
                       method.raise "Method name cannot be empty."
@@ -111,7 +112,7 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAutoconfigureAnnota
                                        {tag.resolve.id.stringify, {} of Nil => Nil}
                                      elsif tag.is_a?(NamedTupleLiteral) || tag.is_a?(HashLiteral)
                                        unless tag[:name]
-                                         tag.raise "Failed to auto register service '#{service_id.id}'. All tags must have a name."
+                                         tag.raise "Failed to auto register service '#{service_id.id}' (#{klass}). All tags must have a name."
                                        end
 
                                        # Resolve a constant to its value if used as a tag name
