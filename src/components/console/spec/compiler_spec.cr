@@ -4,7 +4,7 @@ describe Athena::Console do
   describe "compiler errors", tags: "compiled" do
     describe "when a command configured via annotation doesn't have a name" do
       it "non hidden no aliases" do
-        ASPEC::Methods.assert_error "Console command 'NoNameCommand' has an 'ACONA::AsCommand' annotation but is missing the commands's name. It was not provided as the first positional argument nor via the 'name' field.", <<-CR
+        ASPEC::Methods.assert_compile_time_error "Console command 'NoNameCommand' has an 'ACONA::AsCommand' annotation but is missing the commands's name. It was not provided as the first positional argument nor via the 'name' field.", <<-CR
           require "./spec_helper.cr"
 
           @[ACONA::AsCommand]
@@ -19,7 +19,7 @@ describe Athena::Console do
       end
 
       it "hidden" do
-        ASPEC::Methods.assert_error "Console command 'NoNameCommand' has an 'ACONA::AsCommand' annotation but is missing the commands's name. It was not provided as the first positional argument nor via the 'name' field.", <<-CR
+        ASPEC::Methods.assert_compile_time_error "Console command 'NoNameCommand' has an 'ACONA::AsCommand' annotation but is missing the commands's name. It was not provided as the first positional argument nor via the 'name' field.", <<-CR
           require "./spec_helper.cr"
 
           @[ACONA::AsCommand(hidden: true)]

@@ -36,6 +36,16 @@ struct EventDispatcherTest < ASPEC::TestCase
     @dispatcher = AED::EventDispatcher.new
   end
 
+  @[Tags("compiled")]
+  def test_listener_not_passed_event_class : Nil
+    ASPEC::Methods.assert_compile_time_error "expected argument #1 to 'listener' to be Athena::EventDispatcher::Event.class, not String.", <<-CR
+      require "./spec_helper.cr"
+
+      AED::EventDispatcher.new.listener String do
+      end
+    CR
+  end
+
   def test_initial_state : Nil
     @dispatcher.listeners.should be_empty
     @dispatcher.has_listeners?.should be_false

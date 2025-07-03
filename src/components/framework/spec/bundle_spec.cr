@@ -1,14 +1,14 @@
 require "./spec_helper"
 
-private def assert_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_error message, <<-CR, line: line
+private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line
     require "./spec_helper.cr"
     #{code}
   CR
 end
 
-private def assert_success(code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_success <<-CR, line: line
+private def assert_compiles(code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compiles <<-CR, line: line
     require "./spec_helper.cr"
     #{code}
   CR
@@ -17,7 +17,7 @@ end
 describe ATH::Bundle, tags: "compiled" do
   describe ATH::Listeners::CORS do
     it "wildcard allow_headers with allow_credentials" do
-      assert_error "'expose_headers' cannot contain a wildcard ('*') when 'allow_credentials' is 'true'.", <<-'CODE'
+      assert_compile_time_error "'expose_headers' cannot contain a wildcard ('*') when 'allow_credentials' is 'true'.", <<-'CR'
           ATH.configure({
             framework: {
               cors: {
@@ -29,17 +29,17 @@ describe ATH::Bundle, tags: "compiled" do
               },
             },
           })
-        CODE
+        CR
     end
 
     it "does not exist if not enabled" do
-      assert_error "undefined method 'athena_framework_listeners_cors'", <<-CODE
+      assert_compile_time_error "undefined method 'athena_framework_listeners_cors'", <<-CR
           ADI.container.athena_framework_listeners_cors
-        CODE
+        CR
     end
 
     it "correctly wires up the listener based on its configuration" do
-      assert_success <<-'CODE'
+      assert_compiles <<-'CR'
           ATH.configure({
             framework: {
               cors: {
@@ -71,13 +71,13 @@ describe ATH::Bundle, tags: "compiled" do
               %}
             end
           end
-        CODE
+        CR
     end
   end
 
   describe ATH::Listeners::Format do
     it "correctly wires up the listener based on its configuration" do
-      assert_success <<-'CODE'
+      assert_compiles <<-'CR'
         ATH.configure({
           framework: {
             format_listener: {
@@ -144,7 +144,7 @@ describe ATH::Bundle, tags: "compiled" do
             %}
           end
         end
-      CODE
+      CR
     end
   end
 end

@@ -50,7 +50,11 @@ struct Athena::Routing::Requirement::Enum(EnumType)
   end
 
   def initialize(@members : Set(EnumType)? = nil)
-    {% raise "'#{EnumType}' is not an Enum type." unless EnumType <= ::Enum %}
+    {%
+      unless EnumType <= ::Enum
+        raise "'#{EnumType}' is not an Enum type."
+      end
+    %}
   end
 
   # :nodoc:

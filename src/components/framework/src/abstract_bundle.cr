@@ -11,11 +11,15 @@ module Athena::Framework
     {%
       resolved_bundle = bundle.resolve
 
-      bundle.raise "Must be a child of 'ATH::AbstractBundle'." unless resolved_bundle <= AbstractBundle
+      unless resolved_bundle <= AbstractBundle
+        bundle.raise "The provided bundle '#{bundle}' be inherit from 'ATH::AbstractBundle'."
+      end
 
       ann = resolved_bundle.annotation Athena::Framework::Annotations::Bundle
 
-      bundle.raise "Unable to determine extension name." unless name = ann[0] || ann["name"]
+      unless name = ann[0] || ann["name"]
+        bundle.raise "Unable to determine extension name. It was not provided as the first positional argument nor via the 'name' field."
+      end
     %}
 
     ADI.register_extension {{name}}, {{"#{bundle.resolve.id}::Schema".id}}

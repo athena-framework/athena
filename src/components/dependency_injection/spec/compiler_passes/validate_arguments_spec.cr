@@ -1,7 +1,7 @@
 require "../spec_helper"
 
-private def assert_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_error message, <<-CR, line: line
+private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line
     require "../spec_helper.cr"
     #{code}
     ADI::ServiceContainer.new
@@ -11,14 +11,14 @@ end
 describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
   describe "compiler errors" do
     it "errors if a expects a string value parameter but it is not of that type" do
-      assert_error "Parameter 'value : String' of service 'foo' (Foo) expects a String but got '123'.", <<-'CR'
+      assert_compile_time_error "Parameter 'value : String' of service 'foo' (Foo) expects a String but got '123'.", <<-'CR'
         @[ADI::Register(_value: 123)]
         record Foo, value : String
       CR
     end
 
     it "still errors with explicit calls even if they are not of the proper type" do
-      assert_error "expected argument 'value' to 'Foo.new' to be String, not Int32", <<-'CR'
+      assert_compile_time_error "expected argument 'value' to 'Foo.new' to be String, not Int32", <<-'CR'
         @[ADI::Register(_value: "123".to_i, public: true)]
         record Foo, value : String
 
@@ -27,7 +27,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
     end
 
     it "errors if a parameter resolves to a service of the incorrect type" do
-      assert_error "Parameter 'value : Int32' of service 'foo' (Foo) expects 'Int32' but the resolved service 'bar' is of type 'Bar'.", <<-'CR'
+      assert_compile_time_error "Parameter 'value : Int32' of service 'foo' (Foo) expects 'Int32' but the resolved service 'bar' is of type 'Bar'.", <<-'CR'
         @[ADI::Register]
         record Bar
 
@@ -38,7 +38,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
 
     describe NamedTuple do
       it "errors if configuration is missing a non-nilable property" do
-        assert_error "Configuration value 'test.connection' is missing required value for 'port' of type 'Int32'.", <<-'CR'
+        assert_compile_time_error "Configuration value 'test.connection' is missing required value for 'port' of type 'Int32'.", <<-'CR'
           module Schema
             include ADI::Extension::Schema
 
@@ -60,7 +60,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
       end
 
       it "errors if there is a type mismatch" do
-        assert_error "Expected configuration value 'test.connection.hostname' to be a 'String', but got 'Int32'.", <<-'CR'
+        assert_compile_time_error "Expected configuration value 'test.connection.hostname' to be a 'String', but got 'Int32'.", <<-'CR'
           module Schema
             include ADI::Extension::Schema
             property connection : NamedTuple(hostname: String)
@@ -77,7 +77,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
       end
 
       it "errors if there is a type mismatch within an array type" do
-        assert_error "Expected configuration value 'test.connection.ports[1]' to be a 'Int32', but got 'String'.", <<-'CR'
+        assert_compile_time_error "Expected configuration value 'test.connection.ports[1]' to be a 'Int32', but got 'String'.", <<-'CR'
           module Schema
             include ADI::Extension::Schema
             property connection : NamedTuple(ports: Array(Int32))
@@ -97,7 +97,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
       end
 
       it "errors if there is a type mismatch within a nilable array type" do
-        assert_error "Expected configuration value 'test.connection.ports[1]' to be a 'Int32', but got 'String'.", <<-'CR'
+        assert_compile_time_error "Expected configuration value 'test.connection.ports[1]' to be a 'Int32', but got 'String'.", <<-'CR'
           module Schema
             include ADI::Extension::Schema
             property connection : NamedTuple(ports: Array(Int32)?)
@@ -119,7 +119,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
 
     describe "array_of" do
       it "errors on type mismatch in array within array_of object" do
-        assert_error "Expected configuration value 'test.rules[0].priorities[2]' to be a 'String', but got 'Int32'.", <<-'CR'
+        assert_compile_time_error "Expected configuration value 'test.rules[0].priorities[2]' to be a 'String', but got 'Int32'.", <<-'CR'
           require "../spec_helper"
 
           module Schema
@@ -144,7 +144,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
 
     describe "object_of" do
       it "errors on type mismatch in array within object_of object" do
-        assert_error "Expected configuration value 'test.rule.priorities[2]' to be a 'String', but got 'Int32'.", <<-'CR'
+        assert_compile_time_error "Expected configuration value 'test.rule.priorities[2]' to be a 'String', but got 'Int32'.", <<-'CR'
           require "../spec_helper"
 
           module Schema
@@ -166,7 +166,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
   end
 
   it "sets missing NT keys to `nil` if the type is nilable" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -196,7 +196,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
   end
 
   it "properly checks type within array of array_of object" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -219,7 +219,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
   end
 
   it "properly checks type within array of object_of object" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -239,7 +239,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
   end
 
   it "allows calls to `String` parameters" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
 
       @[ADI::Register(_value: 123.to_s, public: true)]

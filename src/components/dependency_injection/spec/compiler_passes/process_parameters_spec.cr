@@ -2,7 +2,7 @@ require "../spec_helper"
 
 describe ADI::ServiceContainer::ProcessParameters, tags: "compiled" do
   it "populates parameter information of registered services" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper.cr"
 
       @[ADI::Register(_id: 123)]
@@ -34,7 +34,7 @@ describe ADI::ServiceContainer::ProcessParameters, tags: "compiled" do
   end
 
   it "does not override value of manually wired up parameters" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper.cr"
 
       class SomeService
@@ -70,7 +70,7 @@ describe ADI::ServiceContainer::ProcessParameters, tags: "compiled" do
   end
 
   it "does not override value of manually wired up parameters with default value" do
-    ASPEC::Methods.assert_success <<-'CR'
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper.cr"
 
       class SomeService

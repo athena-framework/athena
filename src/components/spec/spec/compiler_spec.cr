@@ -1,7 +1,15 @@
 require "./spec_helper"
 
-private def assert_error(message : String, code : String, *, codegen : Bool = false, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_error message, <<-CR, line: line, codegen: codegen
+private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line
+    require "./spec_helper.cr"
+    #{code}
+    TestTestCase.run
+  CR
+end
+
+private def assert_runtime_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_runtime_error message, <<-CR, line: line
     require "./spec_helper.cr"
     #{code}
     TestTestCase.run
@@ -13,7 +21,7 @@ describe Athena::Spec do
     describe ASPEC::TestCase::TestWith do
       describe "args" do
         it "non tuple value" do
-          assert_error "Expected argument #0 of the 'ASPEC::TestCase::TestWith' annotation applied to 'TestTestCase#test_case' to be a Tuple, but got 'NumberLiteral'.", <<-CODE
+          assert_compile_time_error "Expected argument #0 of the 'ASPEC::TestCase::TestWith' annotation applied to 'TestTestCase#test_case' to be a Tuple, but got 'NumberLiteral'.", <<-CODE
             struct TestTestCase < ASPEC::TestCase
               @[TestWith(
                 125
@@ -25,7 +33,7 @@ describe Athena::Spec do
         end
 
         it "argument count mismatch" do
-          assert_error "Expected argument #0 of the 'ASPEC::TestCase::TestWith' annotation applied to 'TestTestCase#test_case' to contain 2 values, but got 1.", <<-CODE
+          assert_compile_time_error "Expected argument #0 of the 'ASPEC::TestCase::TestWith' annotation applied to 'TestTestCase#test_case' to contain 2 values, but got 1.", <<-CODE
             struct TestTestCase < ASPEC::TestCase
               @[TestWith(
                 {125}
@@ -39,7 +47,7 @@ describe Athena::Spec do
 
       describe "named args" do
         it "non tuple value" do
-          assert_error " Expected the value of argument 'value' of the 'ASPEC::TestCase::TestWith' annotation applied to 'TestTestCase#test_case' to be a Tuple, but got 'NumberLiteral'.", <<-CODE
+          assert_compile_time_error " Expected the value of argument 'value' of the 'ASPEC::TestCase::TestWith' annotation applied to 'TestTestCase#test_case' to be a Tuple, but got 'NumberLiteral'.", <<-CODE
             struct TestTestCase < ASPEC::TestCase
               @[TestWith(
                 value: 125
@@ -51,7 +59,7 @@ describe Athena::Spec do
         end
 
         it "argument count mismatch" do
-          assert_error "Expected the value of argument 'value' of the 'ASPEC::TestCase::TestWith' annotation applied to 'TestTestCase#test_case' to contain 2 values, but got 1.", <<-CODE
+          assert_compile_time_error "Expected the value of argument 'value' of the 'ASPEC::TestCase::TestWith' annotation applied to 'TestTestCase#test_case' to contain 2 values, but got 1.", <<-CODE
             struct TestTestCase < ASPEC::TestCase
               @[TestWith(
                 value: {125}
@@ -66,7 +74,7 @@ describe Athena::Spec do
 
     describe "exception during initialize" do
       it "reports the errors once per test case" do
-        assert_error "oh noes", <<-CODE, codegen: true
+        assert_runtime_error "oh noes", <<-CODE
           struct TestTestCase < ASPEC::TestCase
             def initialize
               raise "oh noes"
@@ -84,7 +92,7 @@ describe Athena::Spec do
       end
 
       it "reports actual failing tests" do
-        assert_error " Expected: 2\n            got: 1", <<-CODE, codegen: true
+        assert_runtime_error " Expected: 2\n            got: 1", <<-CODE
           struct TestTestCase < ASPEC::TestCase
             def test_one
               1.should eq 2
@@ -95,7 +103,7 @@ describe Athena::Spec do
     end
 
     it "errors if defining a non-argless initializer" do
-      assert_error "`ASPEC::TestCase` initializers must be argless and non-yielding.", <<-CODE
+      assert_compile_time_error "`ASPEC::TestCase` initializers must be argless and non-yielding.", <<-CODE
         struct TestTestCase < ASPEC::TestCase
           def initialize(id : Int32); end
         end
@@ -103,7 +111,7 @@ describe Athena::Spec do
     end
 
     it "errors if defining a yielding initializer" do
-      assert_error "`ASPEC::TestCase` initializers must be argless and non-yielding.", <<-CODE
+      assert_compile_time_error "`ASPEC::TestCase` initializers must be argless and non-yielding.", <<-CODE
         struct TestTestCase < ASPEC::TestCase
           def initialize(&); end
         end

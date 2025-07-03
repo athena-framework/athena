@@ -1,7 +1,7 @@
 require "../spec_helper"
 
-private def assert_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_error message, <<-CR, line: line
+private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line
     require "../spec_helper.cr"
     #{code}
     ADI::ServiceContainer.new
@@ -19,14 +19,14 @@ end
 describe ADI::ServiceContainer::ValidateGenerics do
   describe "compiler errors", tags: "compiled" do
     it "errors if the generic service does not provide the generic arguments." do
-      assert_error "Failed to register service 'foo_service'. Generic services must provide the types to use via the 'generics' field.", <<-CR
+      assert_compile_time_error "Failed to register service 'foo_service'. Generic services must provide the types to use via the 'generics' field.", <<-CR
         @[ADI::Register(name: "foo_service")]
         record Foo(T)
       CR
     end
 
     it "errors if there is a generic argument count mismatch." do
-      assert_error "Failed to register service 'foo_service'. Expected 1 generics types got 2.", <<-CR
+      assert_compile_time_error "Failed to register service 'foo_service'. Expected 1 generics types got 2.", <<-CR
         @[ADI::Register(String, Bool, name: "foo_service")]
         record Foo(T)
       CR

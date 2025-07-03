@@ -22,6 +22,15 @@ struct QuestionTest < ASPEC::TestCase
     @question = ACON::Question(String?).new "Test Question", nil
   end
 
+  @[Tags("compiled")]
+  def test_nil_generic_arg : Nil
+    ASPEC::Methods.assert_compile_time_error "An ACON::Question generic argument cannot be 'Nil'. Use 'String?' instead.", <<-CR
+      require "../spec_helper.cr"
+
+      ACON::Question(Nil).new "Nil Question", nil
+    CR
+  end
+
   def test_default : Nil
     @question.default.should be_nil
     default = ACON::Question(String).new("Test Question", "FOO").default
