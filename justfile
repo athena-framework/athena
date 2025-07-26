@@ -13,11 +13,6 @@ PIP_COMPILE := './.venv/bin/pip-compile'
 
 export CRYSTAL := 'crystal'
 
-# Ensure when MkDocs is generating the docs for each component it's able to find their shard dependencies
-# via the monorepo's `lib/` dir versus `src/components/<name>/lib` which doesn't exist.
-
-export CRYSTAL_PATH := (invocation_directory_native() / ('lib' + if os() == 'windows' { ';' } else { ':' })) + shell('$1 env CRYSTAL_PATH', CRYSTAL)
-
 _default:
     @just --list --unsorted
 
@@ -77,12 +72,12 @@ spellcheck:
 
 # Build the docs
 [group('docs')]
-build-docs: _mkdocs
+build-docs: _mkdocs _symlink_lib
     {{ MKDOCS }} build -d {{ OUTPUT_DIR }}
 
 # Serve live-preview of the docs
 [group('docs')]
-serve-docs: _mkdocs
+serve-docs: _mkdocs _symlink_lib
     {{ MKDOCS }} serve --open
 
 # Clean MKDocs build artifacts
@@ -107,3 +102,8 @@ _pip:
 
 _mkdocs: _pip
     {{ PIP }} install -q -r requirements.txt
+
+_symlink_lib:
+    @ for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | xargs -I{} basename {} | sort); do \
+      ln --force --verbose --symbolic "lib" "src/components/$component/lib"; \
+    done
