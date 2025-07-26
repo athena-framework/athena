@@ -104,6 +104,7 @@ _mkdocs: _pip
     {{ PIP }} install -q -r requirements.txt
 
 _symlink_lib:
+    @ unlink lib/lib || true # If present this seems to cause problems in GH actions context
     @ for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | xargs -I{} basename {} | sort); do \
       ln --force --verbose --symbolic "lib" "src/components/$component/lib"; \
     done
