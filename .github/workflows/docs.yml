@@ -1,0 +1,33 @@
+name: Temp Docs
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+      - uses: actions/checkout@v4
+      - uses: extractions/setup-just@v3
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+      - name: Install Components
+        run: shards install --without-development
+        env:
+          SHARDS_OVERRIDE: shard.dev.yml
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - name: Build Docs
+        run: just build-docs
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ./site --project-name=athenaframework --branch=dev
