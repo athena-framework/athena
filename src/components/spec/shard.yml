@@ -1,8 +1,8 @@
 name: athena-spec
 
-version: 0.3.11
+version: 0.4.0
 
-crystal: ~> 1.4
+crystal: ~> 1.17
 
 license: MIT
 

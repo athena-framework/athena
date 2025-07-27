@@ -1,7 +1,7 @@
 require "../spec_helper"
 
-private def assert_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_error message, <<-CR, line: line
+private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line
     require "../spec_helper.cr"
     #{code}
     ADI::ServiceContainer.new
@@ -226,15 +226,27 @@ describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
   describe "compiler errors", tags: "compiled" do
     describe "tags" do
       it "errors if the `tags` field is not of a valid type" do
-        assert_error "Tags for 'foo' must be an 'ArrayLiteral', got 'NumberLiteral'.", <<-CR
+        assert_compile_time_error "Tags for 'foo' must be an 'ArrayLiteral', got 'NumberLiteral'.", <<-CR
           @[ADI::Register(tags: 123)]
           record Foo
         CR
       end
 
       it "errors if the `tags` field on the auto configuration is not of a valid type" do
-        assert_error "Tags for auto configuration of 'Test' must be an 'ArrayLiteral', got 'NumberLiteral'.", <<-CR
+        assert_compile_time_error "Tags for auto configuration of 'Test' must be an 'ArrayLiteral', got 'NumberLiteral'.", <<-CR
           @[ADI::Autoconfigure(tags: 123)]
+          module Test; end
+
+          @[ADI::Register]
+          record Foo do
+            include Test
+          end
+        CR
+      end
+
+      it "errors if not all tags have a name" do
+        assert_compile_time_error "Failed to auto register service 'foo' (Foo). All tags must have a name.", <<-CR
+          @[ADI::Autoconfigure(tags: [{ name: "A" }, { priority: 123 }])]
           module Test; end
 
           @[ADI::Register]
@@ -246,7 +258,7 @@ describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
 
       describe ADI::TaggedIterator do
         it "errors if used with unsupported collection type" do
-          assert_error "Failed to register service 'fqn_tagged_iterator_named_client' (FQNTaggedIteratorNamedClient). Collection parameter '@[ADI::TaggedIterator] services : Set(String)' type must be one of `Indexable`, `Iterator`, or `Enumerable`. Got 'Set'.", <<-CR
+          assert_compile_time_error "Failed to register service 'fqn_tagged_iterator_named_client' (FQNTaggedIteratorNamedClient). Collection parameter '@[ADI::TaggedIterator] services : Set(String)' type must be one of `Indexable`, `Iterator`, or `Enumerable`. Got 'Set'.", <<-CR
             @[ADI::Register]
             class FQNTaggedIteratorNamedClient
               getter services
@@ -260,7 +272,7 @@ describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
 
     describe "calls" do
       it "errors if the method of a call is empty" do
-        assert_error "Method name cannot be empty.", <<-CR
+        assert_compile_time_error "Method name cannot be empty.", <<-CR
           @[ADI::Autoconfigure(calls: [{""}])]
           module Test; end
 
@@ -272,7 +284,7 @@ describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
       end
 
       it "errors if the method does not exist on the type" do
-        assert_error "Failed to auto register service for 'foo' (Foo). Call references non-existent method 'foo'.", <<-CR
+        assert_compile_time_error "Failed to auto register service for 'foo' (Foo). Call references non-existent method 'foo'.", <<-CR
           @[ADI::Autoconfigure(calls: [{"foo"}])]
           module Test; end
 

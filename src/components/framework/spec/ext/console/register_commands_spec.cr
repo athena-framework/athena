@@ -1,15 +1,7 @@
 require "../../spec_helper"
 
-private def assert_error(message : String, code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
-  ASPEC::Methods.assert_error message, <<-CR, line: line, file: file
-    require "../../spec_helper.cr"
-
-    #{code}
-  CR
-end
-
-private def assert_success(code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
-  ASPEC::Methods.assert_success <<-CR, line: line, file: file
+private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
+  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line, file: file
     require "../../spec_helper.cr"
 
     #{code}
@@ -69,7 +61,7 @@ end
 describe ATH do
   describe "Console", tags: "compiled" do
     it "errors if no name is provided" do
-      assert_error "Console command 'TestCommand' has an 'ACONA::AsCommand' annotation but is missing the commands's name. It was not provided as the first positional argument nor via the 'name' field.", <<-CR
+      assert_compile_time_error "Console command 'TestCommand' has an 'ACONA::AsCommand' annotation but is missing the commands's name. It was not provided as the first positional argument nor via the 'name' field.", <<-CR
         require "../../spec_helper.cr"
 
         @[ADI::Register]

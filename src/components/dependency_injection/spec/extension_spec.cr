@@ -1,14 +1,14 @@
 require "./spec_helper"
 
-private def assert_success(code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_success <<-CR, line: line
+private def assert_compiles(code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compiles <<-CR, line: line
     require "./spec_helper.cr"
     #{code}
   CR
 end
 
-private def assert_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_error message, <<-CR, line: line
+private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line
     require "./spec_helper.cr"
     #{code}
     ADI::ServiceContainer.new
@@ -17,7 +17,7 @@ end
 
 describe ADI::Extension, tags: "compiled" do
   it "happy path" do
-    assert_success <<-'CR'
+    assert_compiles <<-'CR'
       module Schema
         include ADI::Extension::Schema
         property id : Int32
@@ -54,7 +54,7 @@ describe ADI::Extension, tags: "compiled" do
   end
 
   it "allows using NoReturn array default to inherit type of the array" do
-    assert_success <<-'CR'
+    assert_compiles <<-'CR'
       module Schema
         include ADI::Extension::Schema
         property values : Array(Int32 | String) = [] of NoReturn
@@ -82,7 +82,7 @@ describe ADI::Extension, tags: "compiled" do
 
   describe "object_of / object_of?" do
     it "is able to resolve parameters from the object value" do
-      assert_success <<-'CR'
+      assert_compiles <<-'CR'
         module Schema
           include ADI::Extension::Schema
           object_of connection, username : String, password : String, port : Int32 = 1234
@@ -117,7 +117,7 @@ describe ADI::Extension, tags: "compiled" do
     end
 
     it "errors if a required configuration value has not been provided" do
-      assert_error "Configuration value 'test.connection' is missing required value for 'port' of type 'Int32'.", <<-'CR'
+      assert_compile_time_error "Configuration value 'test.connection' is missing required value for 'port' of type 'Int32'.", <<-'CR'
         module Schema
           include ADI::Extension::Schema
 
@@ -138,7 +138,7 @@ describe ADI::Extension, tags: "compiled" do
     end
 
     it "errors if a configuration value has been provided a value of the wrong type" do
-      assert_error "Expected configuration value 'test.connection.port' to be a 'Int32', but got 'Bool'.", <<-'CR'
+      assert_compile_time_error "Expected configuration value 'test.connection.port' to be a 'Int32', but got 'Bool'.", <<-'CR'
         module Schema
           include ADI::Extension::Schema
 
@@ -160,7 +160,7 @@ describe ADI::Extension, tags: "compiled" do
     end
 
     it "object_of" do
-      assert_success <<-'CR'
+      assert_compiles <<-'CR'
         module Schema
           include ADI::Extension::Schema
           object_of rule, id : Int32, stop : Bool = false
@@ -203,7 +203,7 @@ describe ADI::Extension, tags: "compiled" do
     end
 
     it "object_of with assign" do
-      assert_success <<-'CR'
+      assert_compiles <<-'CR'
         module Schema
           include ADI::Extension::Schema
           object_of rule = {id: 999}, id : Int32, stop : Bool = false
@@ -238,7 +238,7 @@ describe ADI::Extension, tags: "compiled" do
     end
 
     it "object_of?" do
-      assert_success <<-'CR'
+      assert_compiles <<-'CR'
         module Schema
           include ADI::Extension::Schema
           object_of? rule, id : Int32, stop : Bool = false
@@ -273,7 +273,7 @@ describe ADI::Extension, tags: "compiled" do
     end
 
     it "object_of? with assign" do
-      assert_success <<-'CR'
+      assert_compiles <<-'CR'
         module Schema
           include ADI::Extension::Schema
           object_of? rule = {id: 999}, id : Int32, stop : Bool = false
@@ -310,7 +310,7 @@ describe ADI::Extension, tags: "compiled" do
 
   describe "array_of / array_of?" do
     it "array_of" do
-      assert_success <<-'CR'
+      assert_compiles <<-'CR'
         module Schema
           include ADI::Extension::Schema
           array_of rules, id : Int32, stop : Bool = false
@@ -343,7 +343,7 @@ describe ADI::Extension, tags: "compiled" do
     end
 
     it "array_of with assign" do
-      assert_success <<-'CR'
+      assert_compiles <<-'CR'
         module Schema
           include ADI::Extension::Schema
           array_of rules = [{id: 10}], id : Int32, stop : Bool = false
@@ -378,7 +378,7 @@ describe ADI::Extension, tags: "compiled" do
     end
 
     it "array_of?" do
-      assert_success <<-'CR'
+      assert_compiles <<-'CR'
         module Schema
           include ADI::Extension::Schema
           array_of? rules, id : Int32, stop : Bool = false

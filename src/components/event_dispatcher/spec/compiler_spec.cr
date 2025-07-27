@@ -4,7 +4,7 @@ require "./spec_helper"
 describe Athena::EventDispatcher do
   describe "compiler errors", tags: "compiled" do
     it "when the listener method is static" do
-      ASPEC::Methods.assert_error "Event listener methods can only be defined as instance methods. Did you mean 'MyListener#listener'?", <<-CR
+      ASPEC::Methods.assert_compile_time_error "Event listener methods can only be defined as instance methods. Did you mean 'MyListener#listener'?", <<-CR
         require "./spec_helper.cr"
         class MyListener
           @[AEDA::AsEventListener]
@@ -16,7 +16,7 @@ describe Athena::EventDispatcher do
     end
 
     it "with no parameters" do
-      ASPEC::Methods.assert_error "Expected 'MyListener#listener' to have 1..2 parameters, got '0'.", <<-CR
+      ASPEC::Methods.assert_compile_time_error "Expected 'MyListener#listener' to have 1..2 parameters, got '0'.", <<-CR
         require "./spec_helper.cr"
         class MyListener
           @[AEDA::AsEventListener]
@@ -28,7 +28,7 @@ describe Athena::EventDispatcher do
     end
 
     it "with too many parameters" do
-      ASPEC::Methods.assert_error "Expected 'MyListener#listener' to have 1..2 parameters, got '3'.", <<-CR
+      ASPEC::Methods.assert_compile_time_error "Expected 'MyListener#listener' to have 1..2 parameters, got '3'.", <<-CR
         require "./spec_helper.cr"
         class MyListener
           @[AEDA::AsEventListener]
@@ -40,7 +40,7 @@ describe Athena::EventDispatcher do
     end
 
     it "first parameter unrestricted" do
-      ASPEC::Methods.assert_error "Expected parameter #1 of 'MyListener#listener' to have a type restriction of an 'AED::Event' instance, but it is not restricted.", <<-CR
+      ASPEC::Methods.assert_compile_time_error "Expected parameter #1 of 'MyListener#listener' to have a type restriction of an 'AED::Event' instance, but it is not restricted.", <<-CR
         require "./spec_helper.cr"
         class MyListener
           @[AEDA::AsEventListener]
@@ -52,7 +52,7 @@ describe Athena::EventDispatcher do
     end
 
     it "first parameter non AED::Event restriction" do
-      ASPEC::Methods.assert_error "Expected parameter #1 of 'MyListener#listener' to have a type restriction of an 'AED::Event' instance, not 'String'.", <<-CR
+      ASPEC::Methods.assert_compile_time_error "Expected parameter #1 of 'MyListener#listener' to have a type restriction of an 'AED::Event' instance, not 'String'.", <<-CR
         require "./spec_helper.cr"
         class MyListener
           @[AEDA::AsEventListener]
@@ -64,7 +64,7 @@ describe Athena::EventDispatcher do
     end
 
     it "second parameter unrestricted" do
-      ASPEC::Methods.assert_error "Expected parameter #2 of 'MyListener#listener' to have a type restriction of 'AED::EventDispatcherInterface', but it is not restricted.", <<-CR
+      ASPEC::Methods.assert_compile_time_error "Expected parameter #2 of 'MyListener#listener' to have a type restriction of 'AED::EventDispatcherInterface', but it is not restricted.", <<-CR
         require "./spec_helper.cr"
         class MyListener
           @[AEDA::AsEventListener]
@@ -76,7 +76,7 @@ describe Athena::EventDispatcher do
     end
 
     it "second parameter non AED::EventDispatcherInterface restriction" do
-      ASPEC::Methods.assert_error "Expected parameter #2 of 'MyListener#listener' to have a type restriction of 'AED::EventDispatcherInterface', not 'String'.", <<-CR
+      ASPEC::Methods.assert_compile_time_error "Expected parameter #2 of 'MyListener#listener' to have a type restriction of 'AED::EventDispatcherInterface', not 'String'.", <<-CR
         require "./spec_helper.cr"
         class MyListener
           @[AEDA::AsEventListener]
@@ -88,7 +88,7 @@ describe Athena::EventDispatcher do
     end
 
     it "non integer priority field" do
-      ASPEC::Methods.assert_error "Event listener method 'MyListener#listener' expects a 'NumberLiteral' for its 'AEDA::AsEventListener#priority' field, but got a 'StringLiteral'.", <<-CR
+      ASPEC::Methods.assert_compile_time_error "Event listener method 'MyListener#listener' expects a 'NumberLiteral' for its 'AEDA::AsEventListener#priority' field, but got a 'StringLiteral'.", <<-CR
         require "./spec_helper.cr"
         class MyListener
           @[AEDA::AsEventListener(priority: "foo")]

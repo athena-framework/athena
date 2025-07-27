@@ -1,7 +1,7 @@
 require "../spec_helper"
 
-private def assert_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_error message, <<-CR, line: line
+private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line
     require "../spec_helper.cr"
     #{code}
   CR
@@ -36,7 +36,7 @@ record SameInstanceClient, a : SameInstancePrimary, b : SameInstanceAliasInterfa
 describe ADI::ServiceContainer do
   describe "compiler errors", tags: "compiled" do
     it "does not resolve an un-aliased interface when there is only 1 implementation" do
-      assert_error "Failed to resolve value for parameter 'a : SomeInterface' of service 'bar' (Bar).", <<-CR
+      assert_compile_time_error "Failed to resolve value for parameter 'a : SomeInterface' of service 'bar' (Bar).", <<-CR
         module SomeInterface; end
 
         @[ADI::Register]

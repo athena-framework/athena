@@ -9,70 +9,108 @@
 module Athena::Spec::Methods
   extend self
 
-  # Executes the provided Crystal *code* asserts it errors with the provided *message*.
-  # The main purpose of this method is to test compile time errors.
+  # Executes the provided Crystal *code* and asserts it results in a compile time error with the provided *message*.
   #
   # ```
-  # ASPEC::Methods.assert_error "can't instantiate abstract class Foo", <<-CR
+  # ASPEC::Methods.assert_compile_time_error "can't instantiate abstract class Foo", <<-CR
   #   abstract class Foo; end
   #   Foo.new
   # CR
   # ```
   #
   # NOTE: When files are required within the *code*, they are relative to the file calling this method.
-  #
-  # By default this method does not perform any codegen; meaning it only validates that the code can be successfully compiled,
-  # excluding any runtime exceptions.
-  #
-  # The *codegen* option can be used to enable codegen, thus allowing runtime logic to also be tested.
+  def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
+    std_out = IO::Memory.new
+    std_err = IO::Memory.new
+
+    result = execute code, std_out, std_err, file, codegen: false, macro_code_coverage: true
+
+    fail std_err.to_s, line: line if result.success?
+    std_err.to_s.should contain(message), line: line
+    std_err.close
+
+    # Ignore coverage report output if the output dir is not defined, or if there is no report.
+    # TODO: Maybe default this to something?
+    if !std_out.empty? && (macro_coverage_output_dir = ENV["ATHENA_SPEC_COVERAGE_OUTPUT_DIR"]?.presence)
+      File.open ::Path[macro_coverage_output_dir, "macro_coverage.#{Path[file].stem}:#{line}.codecov.json"], "w" do |coverage_report|
+        IO.copy std_out.rewind, coverage_report
+      end
+    end
+
+    std_out.close
+  end
+
+  # Executes the provided Crystal *code* and asserts it results in a runtime error with the provided *message*.
   # This can be helpful in order to test something in isolation, without affecting other test cases.
-  def assert_error(message : String, code : String, *, codegen : Bool = false, line : Int32 = __LINE__, file : String = __FILE__) : Nil
+  #
+  # ```
+  # ASPEC::Methods.assert_runtime_error "Oh noes!", <<-CR
+  #  raise "Oh noes!"
+  # CR
+  # ```
+  #
+  # NOTE: When files are required within the *code*, they are relative to the file calling this method.
+  def assert_runtime_error(message : String, code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
     buffer = IO::Memory.new
-    result = execute code, buffer, file, codegen
+    result = execute code, buffer, buffer, file, codegen: true
 
     fail buffer.to_s, line: line if result.success?
     buffer.to_s.should contain(message), line: line
     buffer.close
   end
 
-  # Similar to `.assert_error`, but asserts the provided Crystal *code* successfully compiles.
+  # Similar to `.assert_compile_time_error`, but asserts the provided Crystal *code* successfully compiles.
   #
   # ```
-  # ASPEC::Methods.assert_success <<-CR
-  #   puts 2 + 2
+  # ASPEC::Methods.assert_compiles <<-CR
+  #   raise "Still passes"
   # CR
   # ```
   #
   # NOTE: When files are required within the *code*, they are relative to the file calling this method.
-  #
-  # By default this method does not perform any codegen; meaning it only validates that the code can be successfully compiled,
-  # excluding any runtime exceptions.
-  #
-  # The *codegen* option can be used to enable codegen, thus allowing runtime logic to also be tested.
-  # This can be helpful in order to test something in isolation, without affecting other test cases.
-  def assert_success(code : String, *, codegen : Bool = false, line : Int32 = __LINE__, file : String = __FILE__) : Nil
+  def assert_compiles(code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
     buffer = IO::Memory.new
-    result = execute code, buffer, file, codegen
+    result = execute code, buffer, buffer, file, codegen: false
 
     fail buffer.to_s, line: line unless result.success?
     buffer.close
   end
 
-  private def execute(code : String, buffer : IO, file : String, codegen : Bool) : Process::Status
+  # Similar to `.assert_runtime_error`, but asserts the provided Crystal *code* successfully executes.
+  #
+  # ```
+  # ASPEC::Methods.assert_executes <<-CR
+  #   puts 2 + 2
+  # CR
+  # ```
+  #
+  # NOTE: When files are required within the *code*, they are relative to the file calling this method.
+  def assert_executes(code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
+    buffer = IO::Memory.new
+    result = execute code, buffer, buffer, file, codegen: true
+
+    fail buffer.to_s, line: line unless result.success?
+    buffer.close
+  end
+
+  private def execute(code : String, std_out : IO, std_err : IO, file : String, codegen : Bool, macro_code_coverage : Bool = false) : Process::Status
     input = IO::Memory.new <<-CR
       #{code}
     CR
 
-    args = [
-      "run",
-      "--no-color",
-      "--stdin-filename",
-      "#{file}",
-    ]
+    args = [] of String
 
-    args << "--no-codegen" unless codegen
+    if macro_code_coverage
+      args.push "tool", "macro_code_coverage"
+    else
+      args << "run"
+    end
 
-    Process.run(ENV["CRYSTAL"]? || "crystal", args, input: input.rewind, output: buffer, error: buffer)
+    args << "--no-color"
+    args.push "--stdin-filename", file
+    args << "--no-codegen" if !macro_code_coverage && !codegen
+
+    Process.run(ENV["CRYSTAL"]? || "crystal", args, input: input.rewind, output: std_out, error: std_err)
   end
 
   # Runs the executable at the given *path*, optionally with the provided *args*.

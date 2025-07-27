@@ -6,6 +6,16 @@ class ValueStore
 end
 
 describe Athena::DependencyInjection do
+  describe "compiler errors", tags: "compiled" do
+    it "errors when passing a non-module to add_compiler_pass" do
+      ASPEC::Methods.assert_compile_time_error "Pass type must be a module.", <<-CR
+        require "./spec_helper.cr"
+
+        ADI.add_compiler_pass String
+      CR
+    end
+  end
+
   describe ".container" do
     it "returns a container" do
       ADI.container.should be_a ADI::ServiceContainer

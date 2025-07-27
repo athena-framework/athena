@@ -2,7 +2,7 @@ require "../spec_helper"
 
 describe ADI::ServiceContainer::MergeConfigs do
   it "deep merges consecutive `ADI.configure` call", tags: "compiled" do
-    ASPEC::Methods.assert_success <<-CR
+    ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
 
       module Schema
@@ -53,9 +53,14 @@ describe ADI::ServiceContainer::MergeConfigs do
 
       macro finished
         macro finished
-          it { \\{{ADI::CONFIG["test"]["default_locale"]}}.should eq "en" }
-          it { \\{{ADI::CONFIG["test"]["cors"]["defaults"]["allow_credentials"]}}.should be_true }
-          it { \\{{ADI::CONFIG["test"]["cors"]["defaults"]["allow_credentials"]}}.should eq ["*"] }
+          \{%
+            config = ADI::CONFIG["test"]
+
+            raise "#{config}" unless config["default_locale"] == "en"
+            raise "#{config}" unless config["cors"]["defaults"]["allow_credentials"] == true
+            raise "#{config}" unless config["cors"]["defaults"]["allow_origin"].size == 1
+            raise "#{config}" unless config["cors"]["defaults"]["allow_origin"][0] == "*"
+          %}
         end
       end
     CR
