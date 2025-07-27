@@ -1,6 +1,9 @@
 name: athena-ecosystem
 version: 0.0.0
 
+# Min Crystal version required to run the test suite/develop on Athena.
+crystal: ~> 1.17
+
 license: MIT
 
 repository: https://github.com/athena-framework/athena
