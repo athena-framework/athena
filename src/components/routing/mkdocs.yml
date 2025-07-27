@@ -8,9 +8,9 @@ nav:
   - Introduction: README.md
   - Back to Manual: project://.
   - API:
-    - Aliases: aliases.md
-    - Top Level: top_level.md
-    - '*'
+      - Aliases: aliases.md
+      - Top Level: top_level.md
+      - '*'
 
 plugins:
   - search
@@ -26,6 +26,6 @@ plugins:
         crystal:
           crystal_docs_flags:
             - ../../../docs/index.cr
-            - ../../../lib/athena-routing/src/athena-routing.cr
+            - ./lib/athena-routing/src/athena-routing.cr
           source_locations:
             lib/athena-routing: https://github.com/athena-framework/routing/blob/v{shard_version}/{file}#L{line}

@@ -15,3 +15,6 @@ __pycache__
 site/
 
 coverage/
+
+# Ignore `lib` symlink related to building docs
+/src/components/**/lib
