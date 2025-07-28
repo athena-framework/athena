@@ -95,7 +95,7 @@ require "uri/params/serializable"
 # }
 # ```
 struct Athena::Framework::Controller::ValueResolvers::RequestBody
-  include Athena::Framework::Controller::ValueResolvers::Interface::Typed(Athena::Serializer::Serializable, JSON::Serializable, URI::Params::Serializable, Athena::Framework::UploadedFile?, Enumerable(Athena::Framework::UploadedFile))
+  include Athena::Framework::Controller::ValueResolvers::Interface::Typed(Athena::Serializer::Serializable, JSON::Serializable, URI::Params::Serializable, Athena::Framework::UploadedFile?, Array(Athena::Framework::UploadedFile))
 
   # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on the request's body.
   # See the related resolver documentation for more information.

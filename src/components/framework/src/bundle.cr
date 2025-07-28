@@ -193,14 +193,18 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
       # If `false`, native file upload support will be disabled and related types will not be included in the resulting binary.
       property enabled : Bool = false
 
-      property temp_dir : String = begin
-        temp_dir = Path.new Dir.tempdir, "athena"
-        Dir.mkdir_p temp_dir
-        temp_dir.to_s
-      end
+      # The directory where temp files will be stored while requests are being processed.
+      # If `nil`, then a directory called `athena` will be used within the system's [tempdir](https://crystal-lang.org/api/Dir.html#tempdir:String-class-method) by default.
+      #
+      # WARNING: Must be a pre-existing directory. Be sure it exists ahead of time.
+      property temp_dir : String? = nil
 
+      # Controls how many files may be uploaded at once.
       property max_uploads : Int32 = 25
-      property max_file_size : Int64 = 1024 * 1024 * 10 # 10 MiB
+
+      # The maximum allowed file size, in bytes, that are allowed to be uploaded.
+      # Defaults to 10 MiB.
+      property max_file_size : Int64 = 1024 * 1024 * 10
     end
   end
 

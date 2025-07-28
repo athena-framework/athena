@@ -57,7 +57,7 @@ class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
   )
     super nil, status, headers
 
-    raise File::Error.new("File '#{file_path}' must be readable.", file: file_path) unless File::Info.readable? file_path
+    raise ::File::Error.new("File '#{file_path}' must be readable.", file: file_path) unless ::File::Info.readable? file_path
 
     @file_path = Path.new(file_path).expand
 
@@ -96,7 +96,7 @@ class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
 
   # Sets the `last-modified` header on `self` based on the modification time of the file.
   def auto_last_modified : Nil
-    self.last_modified = File.info(@file_path).modification_time
+    self.last_modified = ::File.info(@file_path).modification_time
   end
 
   # TODO: Support multiple ranges.
@@ -115,7 +115,7 @@ class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
       @headers["content-type"] = AMIME::Types.default.guess_mime_type(@file_path) || "application/octet-stream"
     end
 
-    file_size = File.info(@file_path).size
+    file_size = ::File.info(@file_path).size
 
     @headers["content-length"] = file_size.to_s
 
@@ -167,7 +167,7 @@ class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
     end
 
     @writer.write(output) do |writer_io|
-      File.open(@file_path, "rb") do |file|
+      ::File.open(@file_path, "rb") do |file|
         file.skip @offset
 
         if limit = @max_length
@@ -178,8 +178,8 @@ class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
       end
     end
 
-    if @delete_file_after_send && File.file?(@file_path)
-      File.delete @file_path
+    if @delete_file_after_send && ::File.file?(@file_path)
+      ::File.delete @file_path
     end
   end
 
@@ -191,7 +191,7 @@ class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
       if_none_match.any? { |et| match.includes? et }
     elsif if_modified_since = request.headers["if-modified-since"]?
       header_time = HTTP.parse_time if_modified_since
-      last_modified = self.last_modified || File.info(@file_path).modification_time
+      last_modified = self.last_modified || ::File.info(@file_path).modification_time
 
       # File mtime probably has a higher resolution than the header value.
       # An exact comparison might be slightly off, so we add 1s padding.

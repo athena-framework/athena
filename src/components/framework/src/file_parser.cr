@@ -3,11 +3,19 @@ class Athena::Framework::FileParser
   # Store the tmp uploaded paths to use to validate `ATH::UploadedFile`s.
   @uploaded_files : Set(String) = Set(String).new
 
+  private class_getter default_temp_dir : String do
+    temp_dir = Path.new Dir.tempdir, "athena"
+    Dir.mkdir_p temp_dir
+    temp_dir.to_s
+  end
+
   def initialize(
-    @temp_dir : String,
+    temp_dir : String?,
     @max_uploads : Int32,
     @max_file_size : Int64,
-  ); end
+  )
+    @temp_dir = temp_dir || self.class.default_temp_dir
+  end
 
   def parse(request : ATH::Request) : Nil
     uploaded_file_count = 0
@@ -36,7 +44,7 @@ class Athena::Framework::FileParser
         @uploaded_files << file_path
       end
 
-      request.files[part.name] << UploadedFile.new file_path, filename, part.headers["content-type"], status
+      request.files[part.name] << UploadedFile.new file_path, filename, part.headers["content-type"]?, status
       uploaded_file_count += 1
     end
   end

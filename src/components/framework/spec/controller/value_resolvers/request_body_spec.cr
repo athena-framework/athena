@@ -100,7 +100,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     request = new_request body: %({"id":10,"name":"Fred"})
 
     object = @target.resolve request, self.get_config(MockJSONSerializableEntity)
-    object = object.should_not be_nil
+    object = object.should be_a MockJSONSerializableEntity
 
     object.id.should eq 10
     object.name.should eq "Fred"
@@ -113,7 +113,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     request = new_request body: %({"id":10,"name":"Fred"})
 
     object = ATHR::RequestBody.new(serializer, @validator).resolve request, self.get_config(MockASRSerializableEntity)
-    object = object.should_not be_nil
+    object = object.should be_a MockASRSerializableEntity
 
     object.id.should eq 10
     object.name.should eq "Fred"
@@ -126,7 +126,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     request = new_request body: "id=10&name=Fred", format: "form"
 
     object = ATHR::RequestBody.new(serializer, @validator).resolve request, self.get_config(MockURISerializableEntity)
-    object = object.should_not be_nil
+    object = object.should be_a MockURISerializableEntity
 
     object.id.should eq 10
     object.name.should eq "Fred"
@@ -148,7 +148,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     request = new_request query: "id=10&name=Fred"
 
     object = ATHR::RequestBody.new(serializer, @validator).resolve request, self.get_config(MockURISerializableEntity, ATHA::MapQueryString, ATHA::MapQueryStringConfiguration.new)
-    object = object.should_not be_nil
+    object = object.should be_a MockURISerializableEntity
 
     object.id.should eq 10
     object.name.should eq "Fred"
@@ -173,10 +173,10 @@ struct RequestBodyResolverTest < ASPEC::TestCase
 
     resolver = ATHR::RequestBody.new serializer, @validator
     form_object = resolver.resolve form_request, self.get_config(MockJSONAndURISerializableEntity)
-    form_object = form_object.should_not be_nil
+    form_object = form_object.should be_a MockJSONAndURISerializableEntity
 
     json_object = resolver.resolve json_request, self.get_config(MockJSONAndURISerializableEntity)
-    json_object = json_object.should_not be_nil
+    json_object = json_object.should be_a MockJSONAndURISerializableEntity
 
     form_object.id.should eq 10
     form_object.name.should eq "Fred"
@@ -192,7 +192,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     request = new_request body: %({"id":10,"name":"Fred"})
 
     object = ATHR::RequestBody.new(serializer, @validator).resolve request, self.get_config(MockValidatableASRSerializableEntity)
-    object = object.should_not be_nil
+    object = object.should be_a MockValidatableASRSerializableEntity
 
     object.id.should eq 10
     object.name.should eq "Fred"
