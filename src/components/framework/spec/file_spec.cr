@@ -1,4 +1,3 @@
-@[ASPEC::TestCase::Focus]
 struct FileTest < ASPEC::TestCase
   def test_initialize_non_existent_file : Nil
     ex = expect_raises ::ATH::Exception::FileNotFound, "The file does not exist." do

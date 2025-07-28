@@ -14,17 +14,22 @@ struct Athena::Framework::UploadedFile < Athena::Framework::AbstractFile
   # Is expected to be set internally based on framework configuration value.
   def self.max_file_size=(@@max_file_size : Int64) : Nil; end
 
-  getter path : String
   getter status : Athena::Framework::UploadedFile::Status
+
+  @original_name : String
+  @original_path : String
 
   def initialize(
     path : String | Path,
-    @original_name : String,
-    mime_type : String?,
+    original_name : String,
+    mime_type : String? = nil,
     @status : Athena::Framework::UploadedFile::Status = :ok,
     @test : Bool = false,
   )
-    @path = path.to_s
+    super path, @status.ok?
+
+    @original_name = clean_name original_name
+    @original_path = original_name.gsub "\\", "/"
     @mime_type = mime_type || "application/octet-stream"
   end
 
@@ -36,7 +41,7 @@ struct Athena::Framework::UploadedFile < Athena::Framework::AbstractFile
 
   # Returns the original extension of the file as determined by the client.
   def client_original_extension : String
-    File.extname @original_name
+    ::File.extname(@original_name).lchop '.'
   end
 
   # Returns the original full file path as determined by the client.
@@ -45,7 +50,7 @@ struct Athena::Framework::UploadedFile < Athena::Framework::AbstractFile
   # If the file was uploaded with the `webkitdirectory` directive, this will contain the path of the file relative to the uploaded root directory.
   # Otherwise will be identical to `#client_original_name`.
   def client_original_path : String
-    self.client_original_name
+    @original_path
   end
 
   # Returns the file's MIME type as determined by the client.
@@ -76,8 +81,10 @@ struct Athena::Framework::UploadedFile < Athena::Framework::AbstractFile
     end
 
     case @status
-    when .size_limit_exceeded? then raise Athena::Framework::Exception::FileTooBig.new self.path
+    when .size_limit_exceeded? then raise Athena::Framework::Exception::FileSizeLimitExceeded.new self.error_message, file: @path
     end
+
+    raise Athena::Framework::Exception::File.new self.error_message, file: @path
   end
 
   def error_message : String

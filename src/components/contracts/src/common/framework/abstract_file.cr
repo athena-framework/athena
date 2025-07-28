@@ -48,6 +48,14 @@ abstract struct Athena::Framework::AbstractFile
     ::File.realpath @path
   end
 
+  def size : Int
+    ::File.size @path
+  end
+
+  def extname : String
+    ::File.extname(@path).lchop '.'
+  end
+
   private def target_file(directory : String | Path, name : String? = nil) : Athena::Framework::File
     if !::File.directory? directory
       Dir.mkdir_p directory
