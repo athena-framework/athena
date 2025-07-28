@@ -82,7 +82,7 @@ serve-docs: _mkdocs _symlink_lib
 
 # Clean MKDocs build artifacts
 [group('docs')]
-clean-docs: _unlink_lib
+clean-docs:
     rm -rf {{ OUTPUT_DIR }}
     find src/components -type d -name "site" -exec rm -rf {} +
 
@@ -106,9 +106,4 @@ _mkdocs: _pip
 _symlink_lib:
     @ for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | xargs -I{} basename {} | sort); do \
       ln --force --verbose --symbolic {{ (invocation_directory_native() / 'lib') }} "src/components/$component/lib"; \
-    done
-
-_unlink_lib:
-    @ for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | xargs -I{} basename {} | sort); do \
-      unlink "src/components/$component/lib" || true; \
     done
