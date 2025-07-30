@@ -45,7 +45,7 @@ abstract struct Athena::Framework::AbstractFile
   end
 
   # Moves this file to the provided *directory*, optionally with the provided *name*.
-  # If no *name* is provided, it's current `#basename` will be used.
+  # If no *name* is provided, its current [#basename][Athena::Framework::AbstractFile#basename] will be used.
   def move(directory : Path | String, name : String? = nil) : self
     target = self.target_file directory, name
 

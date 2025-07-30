@@ -1,25 +1,37 @@
 require "file_utils"
 require "./file"
 
+# Represents a file uploaded to the server.
+# Exposes related information from the client request.
+# See the [Getting Started](/getting_started/routing/#file-uploads) docs for more information.
 struct Athena::Framework::UploadedFile < Athena::Framework::AbstractFile
+  # Represents the status of an uploaded file.
+  # A successful upload would have a status of `OK`,
+  # otherwise the enum member denotes the reason why the upload failed.
+  #
+  # TODO: Maybe add more status members?
   enum Status
+    # Represents a successful upload.
     OK
+
+    # Represents a failed upload due to the file being larger than the configured [max allowed size](/Framework/Bundle/Schema/FileUploads/#Athena::Framework::Bundle::Schema::FileUploads#max_file_size).
     SIZE_LIMIT_EXCEEDED
   end
 
-  class_getter max_file_size : Int64 { 0_i64 }
+  protected class_getter max_file_size : Int64 { 0_i64 }
 
   # :nodoc:
   #
   # Is expected to be set internally based on framework configuration value.
   def self.max_file_size=(@@max_file_size : Int64) : Nil; end
 
+  # Returns the status of this uploaded file.
   getter status : Athena::Framework::UploadedFile::Status
 
   @original_name : String
   @original_path : String
 
-  def initialize(
+  protected def initialize(
     path : String | Path,
     original_name : String,
     mime_type : String? = nil,
@@ -56,7 +68,7 @@ struct Athena::Framework::UploadedFile < Athena::Framework::AbstractFile
   # Returns the file's MIME type as determined by the client.
   # It should not be considered as a safe value.
   #
-  # For a trusted MIME type, use `#mime_type` which guesses the MIME type based on the file's contents).
+  # For a trusted MIME type, use [#mime_type][Athena::Framework::AbstractFile#mime_type] (which guesses the MIME type based on the file's contents).
   def client_mime_type : String
     @mime_type
   end
@@ -69,12 +81,14 @@ struct Athena::Framework::UploadedFile < Athena::Framework::AbstractFile
     AMIME::Types.default.extensions(self.client_mime_type).first?
   end
 
+  # Returns `true` if this file was successfully uploaded via HTTP, otherwise returns `true`.
   def valid? : Bool
     is_ok = @status.ok?
 
     @test ? is_ok : is_ok && self.uploaded_file?
   end
 
+  # :inherit:
   def move(directory : Path | String, name : String? = nil) : Athena::Framework::File
     if self.valid?
       return super
@@ -87,6 +101,9 @@ struct Athena::Framework::UploadedFile < Athena::Framework::AbstractFile
     raise Athena::Framework::Exception::File.new self.error_message, file: @path
   end
 
+  # Returns an informational message as to why the upload failed.
+  #
+  # NOTE: Return value is only valid when the uploaded file's `#status` is _NOT_ `Status::OK`.
   def error_message : String
     original_name = self.client_original_name
 

@@ -98,8 +98,10 @@ def new_request(
   body : String | IO | Nil = nil,
   query : String? = nil,
   format : String = "json",
+  files : Hash(String, Array(ATH::UploadedFile)) = {} of String => Array(ATH::UploadedFile),
 ) : ATH::Request
   request = ATH::Request.new method, path, body: body
+  request.files.merge! files
   request.attributes.set "_controller", "TestController#test", String
   request.attributes.set "_route", "test_controller_test", String
   request.action = action

@@ -187,6 +187,10 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
              end
 
     if object.is_a?(AVD::Validatable) || !configuration.nil?
+      if object.is_a?(Array) && constraints && !constraints.is_a?(AVD::Constraints::All)
+        constraints = AVD::Constraints::All.new constraints
+      end
+
       errors = @validator.validate object, constraints: constraints, groups: validation_groups
       raise AVD::Exception::ValidationFailed.new errors unless errors.empty?
     end

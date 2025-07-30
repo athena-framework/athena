@@ -266,7 +266,7 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
 
       path = case value
              when Path                      then value
-             when ::File, ATH::UploadedFile then value.path
+             when ::File, ATH::AbstractFile then value.path
              else
                value.to_s
              end
@@ -321,16 +321,24 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
         return
       end
 
-      if (mime_types = constraint.mime_types) && (mime = AMIME::Types.default.guess_mime_type path)
-        mime_types.each do |mime_type|
-          return if mime == mime_type
+      if mime_types = constraint.mime_types
+        mime = if value.is_a? ATH::AbstractFile
+                 value.mime_type
+               else
+                 AMIME::Types.default.guess_mime_type path
+               end
 
-          t, matched, _ = mime_type.partition "/*"
+        if mime
+          mime_types.each do |mime_type|
+            return if mime == mime_type
 
-          unless matched.blank?
-            t2, _, _ = mime.partition "/"
+            t, matched, _ = mime_type.partition "/*"
 
-            return if t2 == t
+            unless matched.blank?
+              t2, _, _ = mime.partition "/"
+
+              return if t2 == t
+            end
           end
         end
 

@@ -166,6 +166,8 @@ ATH.run
 # GET /athena/users" # => [{"id":1,...},...]
 ```
 
+## File Uploads
+
 ## File Response
 
 An [ATH::BinaryFileResponse](/Framework/BinaryFileResponse) may be used to return static files/content.
