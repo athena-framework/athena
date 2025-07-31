@@ -1,3 +1,4 @@
+# :nodoc:
 struct Athena::Framework::Listeners::File
   protected def initialize(@file_parser : ATH::FileParser); end
 

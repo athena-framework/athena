@@ -187,6 +187,18 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
       property failed_validation_status : HTTP::Status = :unprocessable_entity
     end
 
+    # Configures settings related to file uploads.
+    #
+    # ```
+    # ATH.configure({
+    #   framework: {
+    #     file_uploads: {
+    #       enabled: true,
+    #     },
+    #   },
+    # })
+    # ```
+    # See the [Getting Started](/getting_started/routing/#file-uploads) docs for more information.
     module FileUploads
       include ADI::Extension::Schema
 
@@ -196,7 +208,7 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
       # The directory where temp files will be stored while requests are being processed.
       # If `nil`, then a directory called `athena` will be used within the system's [tempdir](https://crystal-lang.org/api/Dir.html#tempdir:String-class-method) by default.
       #
-      # WARNING: Must be a pre-existing directory. Be sure it exists ahead of time.
+      # WARNING: If providing a custom directory, it _MUST_ already exist.
       property temp_dir : String? = nil
 
       # Controls how many files may be uploaded at once.

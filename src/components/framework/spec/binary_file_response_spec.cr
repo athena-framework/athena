@@ -1,14 +1,6 @@
 require "./spec_helper"
 
 struct ATH::BinaryFileResponseTest < ASPEC::TestCase
-  def after_all : Nil
-    path = "#{__DIR__}/assets/to_delete"
-
-    if ::File.file?(path)
-      ::File.delete path
-    end
-  end
-
   def test_new_without_disposition : Nil
     response = ATH::BinaryFileResponse.new "#{__DIR__}/assets/foo.txt", 418, HTTP::Headers{"FOO" => "BAR"}, true, nil, true, true
     response.status.should eq HTTP::Status::IM_A_TEAPOT
@@ -106,19 +98,24 @@ struct ATH::BinaryFileResponseTest < ASPEC::TestCase
 
   def test_delete_file_after_send : Nil
     path = "#{__DIR__}/assets/to_delete"
-    ::File.touch path
 
-    ::File.file?(path).should be_true
+    begin
+      ::File.touch path
 
-    request = ATH::Request.new "GET", "/"
+      ::File.file?(path).should be_true
 
-    response = ATH::BinaryFileResponse.new path
-    response.delete_file_after_send = true
+      request = ATH::Request.new "GET", "/"
 
-    response.prepare request
-    response.write IO::Memory.new
+      response = ATH::BinaryFileResponse.new path
+      response.delete_file_after_send = true
 
-    ::File.file?(path).should be_false
+      response.prepare request
+      response.write IO::Memory.new
+
+      ::File.file?(path).should be_false
+    ensure
+      ::File.delete? path
+    end
   end
 
   def test_accept_range_unsafe_methods : Nil

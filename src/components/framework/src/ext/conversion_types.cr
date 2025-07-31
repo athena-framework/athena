@@ -8,7 +8,12 @@ def Object.from_parameter?(value)
 end
 
 # :nodoc:
-def Array.from_parameter(value : Array)
+def Array.from_parameter(value : Array(ATH::UploadedFile))
+  value
+end
+
+# :nodoc:
+def Array.from_parameter(value : Array(T)) forall T
   value.map { |item| T.from_parameter(item).as T }
 end
 
