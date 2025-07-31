@@ -99,6 +99,7 @@ def new_request(
   query : String? = nil,
   format : String = "json",
   files : Hash(String, Array(ATH::UploadedFile)) = {} of String => Array(ATH::UploadedFile),
+  headers : HTTP::Headers = HTTP::Headers.new,
 ) : ATH::Request
   request = ATH::Request.new method, path, body: body
   request.files.merge! files
@@ -108,16 +109,16 @@ def new_request(
   request.query = query
   request.headers = HTTP::Headers{
     "content-type" => ATH::Request::FORMATS[format].first,
-  }
+  }.merge! headers
   request
 end
 
-def new_request_event
-  new_request_event { }
+def new_request_event(headers : HTTP::Headers = HTTP::Headers.new)
+  new_request_event(headers) { }
 end
 
-def new_request_event(& : ATH::Request -> _)
-  request = new_request
+def new_request_event(headers : HTTP::Headers = HTTP::Headers.new, & : ATH::Request -> _)
+  request = new_request headers: headers
   yield request
   ATH::Events::Request.new request
 end

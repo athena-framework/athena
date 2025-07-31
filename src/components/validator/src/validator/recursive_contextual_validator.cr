@@ -88,7 +88,7 @@ class Athena::Validator::Validator::RecursiveContextualValidator
       @context.group = previous_group
 
       self
-    when ATH::UploadedFile
+    when Athena::Framework::UploadedFile
       # Won't result in violations, but is still supported explicitly.
 
       self

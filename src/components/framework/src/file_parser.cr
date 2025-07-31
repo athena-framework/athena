@@ -3,7 +3,7 @@ class Athena::Framework::FileParser
   # Store the tmp uploaded paths to use to validate `ATH::UploadedFile`s.
   @uploaded_files : Set(String) = Set(String).new
 
-  private class_getter default_temp_dir : String do
+  protected class_getter default_temp_dir : String do
     temp_dir = Path.new Dir.tempdir, "athena"
     Dir.mkdir_p temp_dir
     temp_dir.to_s

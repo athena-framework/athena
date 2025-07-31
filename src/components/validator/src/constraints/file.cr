@@ -1,5 +1,5 @@
 require "athena-mime"
-require "athena-contracts/common/framework/uploaded_file"
+require "athena-contracts/common/framework"
 
 # Validates that a value is a valid file.
 # If the underlying value is a [::File](https://crystal-lang.org/api/File.html), then its path is used as the value.
@@ -122,6 +122,20 @@ require "athena-contracts/common/framework/uploaded_file"
 # * `{{ type }}` - The MIME type of the invalid file.
 # * `{{ types }}` - The list of allowed MIME types.
 #
+# ### upload_file_size_message
+#
+# **Type:** `String` **Default:** `The file is too large. Allowed maximum size is {{ limit }} {{ suffix }}.`
+#
+# The message that will be shown if the uploaded file is larger than the configured [max allowed size](/Framework/Bundle/Schema/FileUploads/#Athena::Framework::Bundle::Schema::FileUploads#max_file_size).
+# See the [Getting Started](/getting_started/routing/#file-uploads) docs for more information.
+#
+# #### Placeholders
+#
+# The following placeholders can be used in this message:
+#
+# * `{{ limit }}` - The maximum file size allowed.
+# * `{{ suffix }}` - Suffix for the used file size unit.
+#
 # ### groups
 #
 # **Type:** `Array(String) | String | Nil` **Default:** `nil`
@@ -239,10 +253,10 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
     def validate(value : _, constraint : AVD::Constraints::File) : Nil
       return if value.nil? || value == ""
 
-      if value.is_a?(ATH::UploadedFile) && !value.valid?
+      if value.is_a?(Athena::Framework::UploadedFile) && !value.valid?
         case value.status
         when .size_limit_exceeded?
-          max_allowed_file_size = ATH::UploadedFile.max_file_size
+          max_allowed_file_size = Athena::Framework::UploadedFile.max_file_size
           if (constraint_max_size = constraint.max_size) && (constraint_max_size < max_allowed_file_size)
             limit_in_bytes = constraint_max_size
             binary_format = constraint.binary_format
@@ -265,8 +279,8 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
       end
 
       path = case value
-             when Path                      then value
-             when ::File, ATH::AbstractFile then value.path
+             when Path                                    then value
+             when ::File, Athena::Framework::AbstractFile then value.path
              else
                value.to_s
              end
@@ -292,7 +306,7 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
       end
 
       size_in_bytes = ::File.size path
-      base_name = value.is_a?(ATH::UploadedFile) ? value.client_original_name : ::File.basename path
+      base_name = value.is_a?(Athena::Framework::UploadedFile) ? value.client_original_name : ::File.basename path
 
       if size_in_bytes.zero?
         self
@@ -322,7 +336,7 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
       end
 
       if mime_types = constraint.mime_types
-        mime = if value.is_a? ATH::AbstractFile
+        mime = if value.is_a? Athena::Framework::AbstractFile
                  value.mime_type
                else
                  AMIME::Types.default.guess_mime_type path

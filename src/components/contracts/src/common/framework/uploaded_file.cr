@@ -121,11 +121,13 @@ struct Athena::Framework::UploadedFile < Athena::Framework::AbstractFile
   private def uploaded_file?
     return false if (path = @path).empty?
 
-    container = ADI.container
+    {% if @top_level.has_constant? "ADI" %}
+      container = ADI.container
 
-    if container.responds_to? :athena_framework_file_parser
-      return container.athena_framework_file_parser.uploaded_file? path
-    end
+      if container.responds_to? :athena_framework_file_parser
+        return container.athena_framework_file_parser.uploaded_file? path
+      end
+    {% end %}
 
     false
   end
