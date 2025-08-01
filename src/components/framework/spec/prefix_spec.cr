@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-struct RoutingTest < ATH::Spec::APITestCase
+struct ControllerPrefixTest < ATH::Spec::APITestCase
   def test_controller_with_prefix : Nil
     self.get "/prefix/index"
 

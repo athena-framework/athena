@@ -210,6 +210,12 @@ struct RequestBodyResolverTest < ASPEC::TestCase
   end
 
   @[DataProvider("uploaded_file_context")]
+  def test_uploaded_file_single_missing(request : ATH::Request) : Nil
+    object = @target.resolve request, self.get_config(ATH::UploadedFile, ATHA::MapUploadedFile, ATHA::MapUploadedFileConfiguration.new, property_name: "empty")
+    object.should be_nil
+  end
+
+  @[DataProvider("uploaded_file_context")]
   def test_uploaded_file_single_custom_name(request : ATH::Request) : Nil
     object = @target.resolve request, self.get_config(ATH::UploadedFile, ATHA::MapUploadedFile, ATHA::MapUploadedFileConfiguration.new(name: "bar"))
 
@@ -310,9 +316,10 @@ struct RequestBodyResolverTest < ASPEC::TestCase
       path: "/",
       method: "POST",
       files: {
-        "foo" => [small],
-        "bar" => [big],
-        "baz" => [small, big],
+        "foo"   => [small],
+        "bar"   => [big],
+        "baz"   => [small, big],
+        "empty" => [] of ATH::UploadedFile,
       }
     )
 

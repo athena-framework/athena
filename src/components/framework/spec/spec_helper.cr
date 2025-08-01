@@ -137,3 +137,11 @@ def new_response(
     resp.status = status
   end
 end
+
+ATH.configure({
+  framework: {
+    file_uploads: {
+      enabled: true,
+    },
+  },
+})
