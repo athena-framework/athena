@@ -1,6 +1,17 @@
 A set of abstractions extracted out of the Athena components.
 Can be used to build on semantics that the Athena components proved useful.
 
+## Installation
+
+First, install the component by adding the following to your `shard.yml`, then running `shards install`:
+
+```yaml
+dependencies:
+  athena-contracts:
+    github: athena-framework/contracts
+    version: ~> 0.1.0
+```
+
 ## Usage
 
 The [Athena::Contracts][] component provides types and interfaces to achieve loose coupling and interoperability.
