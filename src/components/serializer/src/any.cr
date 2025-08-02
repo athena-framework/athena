@@ -16,7 +16,7 @@ module Athena::Serializer::Any
 
   # ameba:disable Naming/PredicateName
   abstract def is_nil? : Bool
-  abstract def dig(index_or_key : String | Int, *keys)
+  abstract def dig(index_or_key : String | Int, *subkeys : Int | String)
 
   abstract def raw
 end
