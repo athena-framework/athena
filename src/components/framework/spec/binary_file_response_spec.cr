@@ -22,6 +22,22 @@ struct ATH::BinaryFileResponseTest < ASPEC::TestCase
     ATH::BinaryFileResponse.new("#{__DIR__}/assets/fööö.html").file.basename.should eq "fööö.html"
   end
 
+  def test_set_file_unreadable : Nil
+    path = Path[Dir.tempdir, "unreadable"].to_s
+
+    begin
+      ::File.write path, "", 0
+
+      ex = expect_raises ATH::Exception::File, "The file must be readable." do
+        ATH::BinaryFileResponse.new path
+      end
+
+      ex.file.should eq path
+    ensure
+      ::File.delete? path
+    end
+  end
+
   def test_set_content : Nil
     expect_raises(::Exception, "The content cannot be set on a BinaryFileResponse instance.") do
       ATH::BinaryFileResponse.new(__FILE__).content = "FOO"
@@ -97,7 +113,7 @@ struct ATH::BinaryFileResponseTest < ASPEC::TestCase
   end
 
   def test_delete_file_after_send : Nil
-    path = "#{Dir.tempdir}/to_delete"
+    path = Path[Dir.tempdir, "unreadable"]
 
     begin
       ::File.touch path
