@@ -34,6 +34,12 @@ abstract struct FileValidatorTestCase < AVD::Spec::ConstraintValidatorTestCase
     self.assert_no_violation
   end
 
+  def test_valid_uploaded_file : Nil
+    File.write @file.path, "1"
+    self.validator.validate Athena::Framework::UploadedFile.new(@file.path, "original_name", test: true), self.new_constraint
+    self.assert_no_violation
+  end
+
   @[DataProvider("max_size_exceeded")]
   def test_max_size_exceeded(bytes_written : Int, limit : Int | String, size_as_string : String, limit_as_string : String, suffix : String) : Nil
     self.write_bytes bytes_written
@@ -201,6 +207,47 @@ abstract struct FileValidatorTestCase < AVD::Spec::ConstraintValidatorTestCase
       .add_parameter("{{ name }}", "file_validator_test.png")
       .assert_violation
   end
+
+  def test_uploaded_file_error : Nil
+    Athena::Framework::UploadedFile.max_file_size = 100
+
+    uploaded_file = Athena::Framework::UploadedFile.new "#{__DIR__}/fixtures/file-big.txt", "file-big.txt", "text/plain", :size_limit_exceeded
+
+    self.validator.validate uploaded_file, self.new_constraint max_size: 50, upload_file_size_message: "my_message"
+
+    self
+      .build_violation("my_message", CONSTRAINT::UPLOAD_FILE_SIZE_ERROR)
+      .add_parameter("{{ limit }}", "50.0")
+      .add_parameter("{{ suffix }}", "bytes")
+      .assert_violation
+  ensure
+    Athena::Framework::UploadedFile.max_file_size = 0
+  end
+
+  def test_uploaded_file_error_mib : Nil
+    Athena::Framework::UploadedFile.max_file_size = 1024 * 1024 * 10
+
+    uploaded_file = Athena::Framework::UploadedFile.new "#{__DIR__}/fixtures/file-big.txt", "file-big.txt", "text/plain", :size_limit_exceeded
+
+    self.validator.validate uploaded_file, self.new_constraint upload_file_size_message: "my_message"
+
+    self
+      .build_violation("my_message", CONSTRAINT::UPLOAD_FILE_SIZE_ERROR)
+      .add_parameter("{{ limit }}", "10.0")
+      .add_parameter("{{ suffix }}", "MiB")
+      .assert_violation
+  ensure
+    Athena::Framework::UploadedFile.max_file_size = 0
+  end
+
+  # def test_uploaded_file_extension : Nil
+  # end
+
+  # def test_uploaded_file_name_max_length : Nil
+  # end
+
+  # def test_uploaded_file_charset : Nil
+  # end
 
   def test_empty_file : Nil
     @file.truncate

@@ -7,6 +7,8 @@ require "./alias"
 
 # A set of robust/battle-tested types and interfaces to achieve loose coupling and interoperability.
 module Athena::Contracts
+  VERSION = "0.1.0"
+
   # Contracts that relate to the [Athena::EventDispatcher](/EventDispatcher/) component.
   module EventDispatcher; end
 end

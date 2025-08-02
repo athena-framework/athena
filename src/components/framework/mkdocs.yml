@@ -25,6 +25,7 @@ plugins:
         crystal:
           crystal_docs_flags:
             - ../../../docs/index.cr
+            - ./lib/athena-contracts/src/common/framework.cr
             - ./lib/athena/src/athena.cr
             - ./lib/athena/src/spec.cr
           source_locations:

@@ -3,6 +3,7 @@ require "http/server"
 require "json"
 
 require "athena-contracts/event_dispatcher"
+require "athena-contracts/common/framework"
 
 require "athena-clock"
 require "athena-console"
@@ -18,6 +19,7 @@ require "./binary_file_response"
 require "./controller"
 require "./controller_resolver"
 require "./error_renderer_interface"
+require "./file_parser"
 require "./error_renderer"
 require "./header_utils"
 require "./ip_utils"
@@ -224,6 +226,10 @@ module Athena::Framework
 
       {% for header, name in ADI::CONFIG["framework"]["trusted_header_overrides"] %}
         ATH::Request.override_trusted_header({{header}}, {{name}})
+      {% end %}
+
+      {% if (file_uploads = ADI::CONFIG["framework"]["file_uploads"]) && file_uploads["enabled"] %}
+        ATH::UploadedFile.max_file_size = {{file_uploads["max_file_size"]}}
       {% end %}
 
       {% if flag?(:without_openssl) %}

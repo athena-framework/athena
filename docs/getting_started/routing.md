@@ -166,6 +166,38 @@ ATH.run
 # GET /athena/users" # => [{"id":1,...},...]
 ```
 
+## File Uploads
+
+Athena supports the [opt-in](/Framework/Bundle/Schema/FileUploads/) feature of populating [ATH::Request#files](/Framework/Request/#Athena::Framework::Request#files)
+based on the files included in a `multipart/form-data` file upload request.
+A [HTTP::FormData::Part](https://crystal-lang.org/api/HTTP/FormData/Part.html) without a *filename* is considered to be just a normal textual field and will be added to [ATH::Request#attributes](/Framework/Request/#Athena::Framework::Request#attributes).
+These values can be provided to the controller action in the same way route parameters can.
+
+```crystal
+require "athena"
+
+class ExampleController < ATH::Controller
+  @[ARTA::Post(path: "/avatar")]
+  def avatar(request : ATH::Request) : String
+    request.files["profile_picture"][0].client_original_name
+  end
+end
+
+ATH.configure({
+  framework: {
+    file_uploads: {
+      enabled: true,
+    },
+  },
+})
+
+ATH.run
+
+# POST /avatar" (multipart/form-data request with `profile_picture` key pointing to the `pic.png` file) # => pic.png
+```
+
+TIP: Check out [ATHA::MapUploadedFile](/Framework/Annotations/MapUploadedFile/) for a better way to handle this.
+
 ## File Response
 
 An [ATH::BinaryFileResponse](/Framework/BinaryFileResponse) may be used to return static files/content.

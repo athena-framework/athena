@@ -1,14 +1,6 @@
 require "./spec_helper"
 
 struct ATH::BinaryFileResponseTest < ASPEC::TestCase
-  def after_all : Nil
-    path = "#{__DIR__}/assets/to_delete"
-
-    if File.file?(path)
-      File.delete path
-    end
-  end
-
   def test_new_without_disposition : Nil
     response = ATH::BinaryFileResponse.new "#{__DIR__}/assets/foo.txt", 418, HTTP::Headers{"FOO" => "BAR"}, true, nil, true, true
     response.status.should eq HTTP::Status::IM_A_TEAPOT
@@ -68,7 +60,7 @@ struct ATH::BinaryFileResponseTest < ASPEC::TestCase
       response.write io
     end
 
-    File.read("#{__DIR__}/assets/test.gif").should eq output
+    ::File.read("#{__DIR__}/assets/test.gif").should eq output
     response.headers.has_key?("content-range").should be_false
   end
 
@@ -77,7 +69,7 @@ struct ATH::BinaryFileResponseTest < ASPEC::TestCase
 
     request = ATH::Request.new "POST", "/", HTTP::Headers{"range" => "bytes=10-20"}
 
-    expected_output = File.open "#{__DIR__}/assets/test.gif", &.read_string(35)
+    expected_output = ::File.open "#{__DIR__}/assets/test.gif", &.read_string(35)
 
     response.prepare request
 
@@ -94,7 +86,7 @@ struct ATH::BinaryFileResponseTest < ASPEC::TestCase
   def test_unprepared_response_sends_full_file : Nil
     response = ATH::BinaryFileResponse.new "#{__DIR__}/assets/test.gif"
 
-    expected_output = File.read "#{__DIR__}/assets/test.gif"
+    expected_output = ::File.read "#{__DIR__}/assets/test.gif"
 
     output = String.build do |io|
       response.write io
@@ -106,19 +98,24 @@ struct ATH::BinaryFileResponseTest < ASPEC::TestCase
 
   def test_delete_file_after_send : Nil
     path = "#{__DIR__}/assets/to_delete"
-    File.touch path
 
-    File.file?(path).should be_true
+    begin
+      ::File.touch path
 
-    request = ATH::Request.new "GET", "/"
+      ::File.file?(path).should be_true
 
-    response = ATH::BinaryFileResponse.new path
-    response.delete_file_after_send = true
+      request = ATH::Request.new "GET", "/"
 
-    response.prepare request
-    response.write IO::Memory.new
+      response = ATH::BinaryFileResponse.new path
+      response.delete_file_after_send = true
 
-    File.file?(path).should be_false
+      response.prepare request
+      response.write IO::Memory.new
+
+      ::File.file?(path).should be_false
+    ensure
+      ::File.delete? path
+    end
   end
 
   def test_accept_range_unsafe_methods : Nil
@@ -189,7 +186,7 @@ struct ATH::BinaryFileResponseTest < ASPEC::TestCase
     # Request for a range of test file
     request = ATH::Request.new "GET", "/", HTTP::Headers{"if-range" => etag, "range" => request_range}
 
-    expected_output = File.open("#{__DIR__}/assets/test.gif", &.read_at(offset, length, &.gets_to_end))
+    expected_output = ::File.open("#{__DIR__}/assets/test.gif", &.read_at(offset, length, &.gets_to_end))
 
     response.prepare request
     output = String.build do |io|
@@ -214,7 +211,7 @@ struct ATH::BinaryFileResponseTest < ASPEC::TestCase
     # Request for a range of test file
     request = ATH::Request.new "GET", "/", HTTP::Headers{"if-range" => last_modified, "range" => request_range}
 
-    expected_output = File.open("#{__DIR__}/assets/test.gif", &.read_at(offset, length, &.gets_to_end))
+    expected_output = ::File.open("#{__DIR__}/assets/test.gif", &.read_at(offset, length, &.gets_to_end))
 
     response.prepare request
     output = String.build do |io|
@@ -242,7 +239,7 @@ struct ATH::BinaryFileResponseTest < ASPEC::TestCase
     response = ATH::BinaryFileResponse.new "#{__DIR__}/assets/test.gif", auto_etag: true
     request = ATH::Request.new "GET", "/", HTTP::Headers{"range" => request_range}
 
-    expected_output = File.open "#{__DIR__}/assets/test.gif", &.read_string(35)
+    expected_output = ::File.open "#{__DIR__}/assets/test.gif", &.read_string(35)
 
     response.prepare request
 

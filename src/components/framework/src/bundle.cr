@@ -186,6 +186,38 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
       # Currently not used. Included for future work.
       property failed_validation_status : HTTP::Status = :unprocessable_entity
     end
+
+    # Configures settings related to file uploads.
+    #
+    # ```
+    # ATH.configure({
+    #   framework: {
+    #     file_uploads: {
+    #       enabled: true,
+    #     },
+    #   },
+    # })
+    # ```
+    # See the [Getting Started](/getting_started/routing/#file-uploads) docs for more information.
+    module FileUploads
+      include ADI::Extension::Schema
+
+      # If `false`, native file upload support will be disabled and related types will not be included in the resulting binary.
+      property enabled : Bool = false
+
+      # The directory where temp files will be stored while requests are being processed.
+      # If `nil`, then a directory called `athena` will be used within the system's [tempdir](https://crystal-lang.org/api/Dir.html#tempdir:String-class-method) by default.
+      #
+      # WARNING: If providing a custom directory, it _MUST_ already exist.
+      property temp_dir : String? = nil
+
+      # Controls how many files may be uploaded at once.
+      property max_uploads : Int32 = 25
+
+      # The maximum allowed file size, in bytes, that are allowed to be uploaded.
+      # Defaults to 10 MiB.
+      property max_file_size : Int64 = 1024 * 1024 * 10
+    end
   end
 
   # :nodoc:
@@ -367,6 +399,26 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
                 empty_content_status:     {value: cfg["empty_content_status"]},
               },
             }
+          %}
+
+          # File Uploads
+          {%
+            cfg = CONFIG["framework"]["file_uploads"]
+
+            if cfg["enabled"]
+              SERVICE_HASH["athena_framework_listeners_file"] = {
+                class: Athena::Framework::Listeners::File,
+              }
+
+              SERVICE_HASH["athena_framework_file_parser"] = {
+                class:      ATH::FileParser,
+                parameters: {
+                  temp_dir:      {value: cfg["temp_dir"]},
+                  max_uploads:   {value: cfg["max_uploads"]},
+                  max_file_size: {value: cfg["max_file_size"]},
+                },
+              }
+            end
           %}
         {% end %}
       end

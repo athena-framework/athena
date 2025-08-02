@@ -4,6 +4,7 @@ require "uri/params/serializable"
 # Attempts to resolve the value of any parameter with the `ATHA::MapRequestBody` annotation by
 # deserializing the request body into an object of the type of the related parameter.
 # The `ATHA::MapQueryString` annotation works similarly, but uses the request's query string instead of its body.
+# Lastly, the `ATHA::MapUploadedFile` annotation works by resolving one or more `ATH::UploadedFile` from `ATH::Request#files`.
 #
 # If the object is also [AVD::Validatable](/Validator/Validatable), any validations defined on it are executed before returning the object.
 # Requires the type of the related parameter to include one or more of:
@@ -95,7 +96,7 @@ require "uri/params/serializable"
 # }
 # ```
 struct Athena::Framework::Controller::ValueResolvers::RequestBody
-  include Athena::Framework::Controller::ValueResolvers::Interface::Typed(Athena::Serializer::Serializable, JSON::Serializable, URI::Params::Serializable)
+  include Athena::Framework::Controller::ValueResolvers::Interface::Typed(Athena::Serializer::Serializable, JSON::Serializable, URI::Params::Serializable, Athena::Framework::UploadedFile?, Array(Athena::Framework::UploadedFile))
 
   # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on the request's body.
   # See the related resolver documentation for more information.
@@ -159,6 +160,49 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   configuration ::Athena::Framework::Annotations::MapQueryString,
     validation_groups : Array(String) | AVD::Constraints::GroupSequence | Nil = nil
 
+  # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on [ATH::Request#files][],
+  # if the related bundle configuration [is enabled](/Framework/Bundle/Schema/FileUploads/).
+  #
+  # If the type of the parameter this annotation is applied to is `ATH::UploadedFile`, then it will attempt to resolve the first file based on the name of the parameter.
+  # This can be customized via the *name* field on the annotation.
+  # If the type is a `Array(ATH::UploadedFile)` then all files with that name will be resolved, not just the first.
+  #
+  # When resolving a single file that is not found, and the parameter has a default value or is nilable, then that default value, or `nil`, will be used.
+  # If the parameter does not have a default and is not nilable, then an error response is returned.
+  # When resolving an array of files, then an empty array would be provided.
+  #
+  # ```
+  # class UserController < ATH::Controller
+  #   @[ARTA::Post("/avatar")]
+  #   def avatar(
+  #     @[ATHA::MapUploadedFile(constraints: AVD::Constraints::Image.new)]
+  #     profile_picture : ATH::UploadedFile,
+  #   ) : Nil
+  #     # ...
+  #   end
+  # end
+  # ```
+  #
+  # # Configuration
+  #
+  # ## Optional Arguments
+  #
+  # ### name
+  #
+  # **Type:** `String?` **Default:** `nil`
+  #
+  # Use this value to resole the files instead of the name of the parameter the annotation is applied to.
+  #
+  # ### constraints
+  #
+  # **Type:** `AVD::Constraint | Array(AVD::Constraint) | Nil` **Default:** `nil`
+  #
+  # Validate the uploaded file(s) against these constraint(s).
+  # Mostly commonly will be a single [AVD::Constraints::File](/Validator/Constraints/File) or [AVD::Constraints::Image](/Validator/Constraints/Image) constraint.
+  configuration ::Athena::Framework::Annotations::MapUploadedFile,
+    constraints : AVD::Constraint | Array(AVD::Constraint) | Nil = nil,
+    name : String? = nil
+
   def initialize(
     @serializer : ASR::SerializerInterface,
     @validator : AVD::Validator::ValidatorInterface,
@@ -167,6 +211,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   # :inherit:
   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata)
     validation_groups = nil
+    constraints = nil
 
     object = if configuration = parameter.annotation_configurations[ATHA::MapQueryString]?
                validation_groups = configuration.validation_groups
@@ -174,12 +219,19 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
              elsif configuration = parameter.annotation_configurations[ATHA::MapRequestBody]?
                validation_groups = configuration.validation_groups
                self.map_request_body request, parameter, configuration
+             elsif configuration = parameter.annotation_configurations[ATHA::MapUploadedFile]?
+               constraints = configuration.constraints
+               self.map_uploaded_file request, parameter, configuration
              else
                return
              end
 
-    if object.is_a? AVD::Validatable
-      errors = @validator.validate object, groups: validation_groups
+    if object && (object.is_a?(AVD::Validatable) || !constraints.nil?)
+      if object.is_a?(Array) && constraints && !constraints.is_a?(AVD::Constraints::All)
+        constraints = AVD::Constraints::All.new constraints
+      end
+
+      errors = @validator.validate object, constraints: constraints, groups: validation_groups
       raise AVD::Exception::ValidationFailed.new errors unless errors.empty?
     end
 
@@ -256,5 +308,19 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   end
 
   private def deserialize_form(body : IO | String, klass : _)
+  end
+
+  private def map_uploaded_file(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata, configuration : ATHA::MapUploadedFileConfiguration) : ATH::UploadedFile | Enumerable(ATH::UploadedFile) | Nil
+    files = request.files[configuration.name || parameter.name]? || [] of ATH::UploadedFile
+
+    if files.empty? && (parameter.nilable? || parameter.has_default?)
+      return
+    end
+
+    if parameter.instance_of?(Array(ATH::UploadedFile))
+      return files
+    end
+
+    files.first?
   end
 end

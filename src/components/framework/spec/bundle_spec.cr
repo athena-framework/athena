@@ -147,4 +147,39 @@ describe ATH::Bundle, tags: "compiled" do
       CR
     end
   end
+
+  describe ATH::Listeners::File do
+    it "correctly wires up the services based on its configuration" do
+      assert_compiles <<-'CR'
+        ATH.configure({
+          framework: {
+            file_uploads: {
+              enabled: true,
+              temp_dir: "/tmp/dir",
+              max_uploads: 12,
+              max_file_size: 1_000_i64,
+            },
+          },
+        })
+
+        macro finished
+          macro finished
+            \{%
+               service = ADI::ServiceContainer::SERVICE_HASH["athena_framework_listeners_file"]
+               raise "" unless service
+
+               service = ADI::ServiceContainer::SERVICE_HASH["athena_framework_file_parser"]
+               raise "" unless service
+
+               parameters = service["parameters"]
+
+               raise "#{parameters["temp_dir"]}" unless parameters["temp_dir"]["value"] == "/tmp/dir"
+               raise "#{parameters["max_uploads"]}" unless parameters["max_uploads"]["value"] == 12
+               raise "#{parameters["max_file_size"]}" unless parameters["max_file_size"]["value"] == 1000_i64
+            %}
+          end
+        end
+      CR
+    end
+  end
 end

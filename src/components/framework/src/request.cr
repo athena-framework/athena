@@ -143,6 +143,12 @@ class Athena::Framework::Request
   # See `ATH::ParameterBag`.
   getter attributes : ATH::ParameterBag = ATH::ParameterBag.new
 
+  # If [enabled](/Framework/Bundle/Schema/FileUploads/), Athena will populate this hash with files from the request body of `multipart/form-data` requests.
+  #
+  # The keys of the hash map to the [name](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#name) attribute of the related file input control.
+  # The value of the hash is an array in order to handle multi-file uploads using the same name.
+  getter files : Hash(String, Array(ATH::UploadedFile)) = Hash(String, Array(ATH::UploadedFile)).new { |hash, key| hash[key] = [] of ATH::UploadedFile }
+
   @request_data : HTTP::Params?
 
   # Sets the `#request_format` to the explicitly passed format.

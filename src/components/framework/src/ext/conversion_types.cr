@@ -9,7 +9,11 @@ end
 
 # :nodoc:
 def Array.from_parameter(value : Array)
-  value.map { |item| T.from_parameter(item).as T }
+  {% if T <= ATH::UploadedFile %}
+    return value
+  {% else %}
+    value.map { |item| T.from_parameter(item).as T }
+  {% end %}
 end
 
 # :nodoc:

@@ -88,6 +88,10 @@ class Athena::Validator::Validator::RecursiveContextualValidator
       @context.group = previous_group
 
       self
+    when Athena::Framework::UploadedFile
+      # Won't result in violations, but is still supported explicitly.
+
+      self
     else
       raise AVD::Exception::InvalidArgument.new "Could not validate values of type '#{value.class}' automatically.  Please provide a constraint."
     end
