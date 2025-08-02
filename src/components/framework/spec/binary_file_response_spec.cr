@@ -19,7 +19,25 @@ struct ATH::BinaryFileResponseTest < ASPEC::TestCase
   end
 
   def test_new_with_non_ascii_filename : Nil
-    ATH::BinaryFileResponse.new("#{__DIR__}/assets/fööö.html").file_path.basename.should eq "fööö.html"
+    ATH::BinaryFileResponse.new("#{__DIR__}/assets/fööö.html").file.basename.should eq "fööö.html"
+  end
+
+  def test_set_file_unreadable : Nil
+    pending! "Windows does not have unreadable files" if {{ flag? :windows }}
+
+    path = Path[Dir.tempdir, "unreadable"].to_s
+
+    begin
+      ::File.write path, "", 0
+
+      ex = expect_raises ATH::Exception::File, "The file must be readable." do
+        ATH::BinaryFileResponse.new path
+      end
+
+      ex.file.should eq path
+    ensure
+      ::File.delete? path
+    end
   end
 
   def test_set_content : Nil
@@ -97,7 +115,7 @@ struct ATH::BinaryFileResponseTest < ASPEC::TestCase
   end
 
   def test_delete_file_after_send : Nil
-    path = "#{__DIR__}/assets/to_delete"
+    path = Path[Dir.tempdir, "unreadable"]
 
     begin
       ::File.touch path

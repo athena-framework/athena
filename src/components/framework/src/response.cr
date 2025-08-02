@@ -94,14 +94,16 @@ class Athena::Framework::Response
   end
 
   # Sets the response content.
-  def content=(content : String?)
+  def content=(content : String?) : self
     @content = content || ""
+
+    self
   end
 
   # Sends `self` to the client based on the provided *context*.
   #
   # How the content gets written can be customized via an `ATH::Response::Writer`.
-  def send(request : ATH::Request, response : HTTP::Server::Response) : Nil
+  def send(request : ATH::Request, response : HTTP::Server::Response) : self
     # Ensure the response is valid.
     self.prepare request
 
@@ -119,11 +121,15 @@ class Athena::Framework::Response
 
     # Close the response.
     response.close
+
+    self
   end
 
   # Sets the `HTTP::Status` of this response.
-  def status=(code : HTTP::Status | Int32) : Nil
+  def status=(code : HTTP::Status | Int32) : self
     @status = HTTP::Status.new code
+
+    self
   end
 
   # :nodoc:
@@ -131,7 +137,7 @@ class Athena::Framework::Response
   # Do any preparation to ensure the response is RFC compliant.
   #
   # ameba:disable Metrics/CyclomaticComplexity
-  def prepare(request : ATH::Request) : Nil
+  def prepare(request : ATH::Request) : self
     # Set the content length if not already manually set
     @headers["content-length"] = @content.bytesize unless @headers.has_key? "content-length"
 
@@ -168,14 +174,18 @@ class Athena::Framework::Response
       @headers["pragma"] = "no-cache"
       @headers["expires"] = "-1"
     end
+
+    self
   end
 
   # Marks `self` as "public".
   #
   # Adds the `public` `cache-control` directive and removes the `private` directive.
-  def set_public : Nil
+  def set_public : self
     @headers.add_cache_control_directive "public"
     @headers.remove_cache_control_directive "private"
+
+    self
   end
 
   # Returns the value of the `etag` header if set, otherwise `nil`.
@@ -185,9 +195,10 @@ class Athena::Framework::Response
 
   # Updates the `etag` header to the provided, optionally *weak*, *etag*.
   # Removes the header if *etag* is `nil`.
-  def set_etag(etag : String? = nil, weak : Bool = false) : Nil
+  def set_etag(etag : String? = nil, weak : Bool = false) : self
     if etag.nil?
-      return @headers.delete "etag"
+      @headers.delete "etag"
+      return self
     end
 
     unless etag.includes? '"'
@@ -195,6 +206,8 @@ class Athena::Framework::Response
     end
 
     @headers["etag"] = "#{weak ? "W/" : ""}#{etag}"
+
+    self
   end
 
   # Returns a `Time`representing the `last-modified` header if set, otherwise `nil`.
@@ -206,12 +219,15 @@ class Athena::Framework::Response
 
   # Updates the `last-modified` header to the provided *time*.
   # Removes the header if *time* is `nil`.
-  def last_modified=(time : Time? = nil) : Nil
+  def last_modified=(time : Time? = nil) : self
     if time.nil?
-      return @headers.delete "last-modified"
+      @headers.delete "last-modified"
+      return self
     end
 
     @headers["last-modified"] = HTTP.format_time time
+
+    self
   end
 
   # Returns `true` if this response is a redirect, optionally to the provided *location*.

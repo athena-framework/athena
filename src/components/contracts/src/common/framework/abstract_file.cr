@@ -11,6 +11,8 @@ abstract struct Athena::Framework::AbstractFile
   # Returns the path to this file, which may be relative.
   getter path : String
 
+  private getter info : ::File::Info { ::File.info @path }
+
   # Create a new instance for the file at the provided *path*.
   # If *check_path* is `true`, then an `ATH::Exception::FileNotFound` exception is raised if the file at the provided *path* does not exist.
   def initialize(path : String | Path, check_path : Bool = true)
@@ -89,6 +91,16 @@ abstract struct Athena::Framework::AbstractFile
   # Returns the size in bytes of this file.
   def size : Int
     ::File.size @path
+  end
+
+  # Returns `true` if this file is readable by user of this process, otherwise returns `false`.
+  def readable? : Bool
+    ::File::Info.readable? @path
+  end
+
+  # Returns the time this file was last modified.
+  def modification_time : Time
+    self.info.modification_time
   end
 
   # Returns the extension of this file, or an empty string if it does not have one.
