@@ -206,7 +206,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
 
     object = object.should be_a ATH::UploadedFile
     object.basename.should eq "file-small.txt"
-    object.size.should eq 36
+    object.size.should eq 35
   end
 
   @[DataProvider("uploaded_file_context")]
@@ -221,7 +221,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
 
     object = object.should be_a ATH::UploadedFile
     object.basename.should eq "file-big.txt"
-    object.size.should eq 71
+    object.size.should eq 70
   end
 
   @[DataProvider("uploaded_file_context")]
@@ -239,7 +239,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
 
     object = object.should be_a ATH::UploadedFile
     object.basename.should eq "file-big.txt"
-    object.size.should eq 71
+    object.size.should eq 70
   end
 
   @[DataProvider("uploaded_file_context")]
@@ -258,7 +258,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     end
 
     ex.violations.size.should eq 1
-    ex.violations[0].message.should eq "The file is too large (71.0 bytes). Allowed maximum size is 50.0 bytes."
+    ex.violations[0].message.should eq "The file is too large (70.0 bytes). Allowed maximum size is 50.0 bytes."
   end
 
   @[DataProvider("uploaded_file_context")]
@@ -283,10 +283,10 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     object.size.should eq 2
 
     object[0].basename.should eq "file-small.txt"
-    object[0].size.should eq 36
+    object[0].size.should eq 35
 
     object[1].basename.should eq "file-big.txt"
-    object[1].size.should eq 71
+    object[1].size.should eq 70
   end
 
   @[DataProvider("uploaded_file_context")]
@@ -305,7 +305,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     end
 
     ex.violations.size.should eq 1
-    ex.violations[0].message.should eq "The file is too large (71.0 bytes). Allowed maximum size is 50.0 bytes."
+    ex.violations[0].message.should eq "The file is too large (70.0 bytes). Allowed maximum size is 50.0 bytes."
   end
 
   def uploaded_file_context : Hash

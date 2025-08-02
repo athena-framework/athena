@@ -170,7 +170,8 @@ ATH.run
 
 Athena supports the [opt-in](/Framework/Bundle/Schema/FileUploads/) feature of populating [ATH::Request#files](/Framework/Request/#Athena::Framework::Request#files)
 based on the files included in a `multipart/form-data` file upload request.
-Non-file parts are added to [ATH::Request#attributes](/Framework/Request/#Athena::Framework::Request#attributes) and can be provided to the controller action in the same way route parameters may be.
+A [HTTP::FormData::Part](https://crystal-lang.org/api/HTTP/FormData/Part.html) without a *filename* is considered to be just a normal textual field and will be added to [ATH::Request#attributes](/Framework/Request/#Athena::Framework::Request#attributes).
+These values can be provided to the controller action in the same way route parameters can.
 
 ```crystal
 require "athena"

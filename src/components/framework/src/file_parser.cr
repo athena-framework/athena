@@ -21,8 +21,12 @@ class Athena::Framework::FileParser
     uploaded_file_count = 0
 
     HTTP::FormData.parse(request.request) do |part|
-      next unless filename = part.filename.presence
-      next if uploaded_file_count > @max_uploads
+      unless filename = part.filename.presence
+        request.attributes.set part.name, part.body.gets_to_end, String
+        next
+      end
+
+      next if uploaded_file_count >= @max_uploads
 
       status : ATH::UploadedFile::Status = :ok
 

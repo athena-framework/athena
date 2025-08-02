@@ -17,6 +17,7 @@ struct FileUploadControllerTest < ATH::Spec::APITestCase
     self.upload_file "/required_single_file_missing", "missing"
 
     self.assert_response_has_status :internal_server_error
+    URI.decode(self.response.headers["x-debug-exception-message"]).should contain "requires that you provide a value for the 'file' parameter."
   end
 
   def test_optional_single_file_missing : Nil
@@ -29,6 +30,7 @@ struct FileUploadControllerTest < ATH::Spec::APITestCase
     self.upload_file "/required_single_file_missing_with_constraint", "missing"
 
     self.assert_response_has_status :internal_server_error
+    URI.decode(self.response.headers["x-debug-exception-message"]).should contain "requires that you provide a value for the 'file' parameter."
   end
 
   def test_optional_single_file_missing_with_constraint : Nil
