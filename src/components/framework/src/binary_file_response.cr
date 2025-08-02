@@ -12,8 +12,8 @@ require "athena-mime"
 #
 # See `ATH::HeaderUtils.make_disposition` for an example of handling dynamic files.
 class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
-  # Returns a `Path` instance representing the file that will be sent to the client.
-  getter file_path : Path
+  # Returns a `ATH::AbstractFile` instance representing the file that will be sent to the client.
+  getter file : ATH::AbstractFile
 
   # Determines if the file should be deleted after being sent to the client.
   setter delete_file_after_send : Bool = false
@@ -38,7 +38,7 @@ class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
     end
   end
 
-  # Instantiates `self` wrapping the file at the provided *file_path*, optionally with the provided *status*, and *headers*.
+  # Instantiates `self` wrapping the provided *file*, optionally with the provided *status*, and *headers*.
   #
   # By default the response is `ATH::Response#set_public` and includes a `last-modified` header,
   # but these can be controlled via the *public* and *auto_last_modified* arguments respectively.
@@ -47,7 +47,7 @@ class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
   #
   # The *auto_etag* argument can be used to automatically set `ETag` header based on a `SHA256` hash of the file.
   def initialize(
-    file_path : String | Path,
+    file : String | Path | ATH::AbstractFile | ::File,
     status : HTTP::Status | Int32 = HTTP::Status::OK,
     headers : HTTP::Headers | ATH::Response::Headers = ATH::Response::Headers.new,
     public : Bool = true,
@@ -57,19 +57,49 @@ class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
   )
     super nil, status, headers
 
-    raise ::File::Error.new("File '#{file_path}' must be readable.", file: file_path) unless ::File::Info.readable? file_path
+    # This has to be here too to make compiler happy about it being defined.
+    @file = case file
+            in String, Path      then ATH::File.new file.to_s
+            in ::File            then ATH::File.new file.path
+            in ATH::AbstractFile then file
+            end
 
-    @file_path = Path.new(file_path).expand
-
+    self.set_file @file, content_disposition, auto_etag, auto_last_modified
     self.set_public if public
+  end
+
+  # Sets the *file* that will be streamed to the client.
+  # Includes the same optional parameters as `.new`.
+  def set_file(
+    file : String | Path | ATH::AbstractFile | ::File,
+    content_disposition : ATH::BinaryFileResponse::ContentDisposition? = nil,
+    auto_etag : Bool = false,
+    auto_last_modified : Bool = false,
+  ) : self
+    file = case file
+           in String, Path      then ATH::File.new file.to_s
+           in ::File            then ATH::File.new file.path
+           in ATH::AbstractFile then file
+           end
+
+    unless file.readable?
+      raise Athena::Framework::Exception::File.new "The file must be readable.", file: file.path
+    end
+
+    @file = file
+
     self.set_auto_etag if auto_etag
     self.auto_last_modified if auto_last_modified
     self.set_content_disposition content_disposition if content_disposition
+
+    self
   end
 
   # CAUTION: Cannot set the response content via this method on `self`.
-  def content=(data) : Nil
+  def content=(data) : self
     raise ATH::Exception::Logic.new "The content cannot be set on a BinaryFileResponse instance." unless data.nil?
+
+    self
   end
 
   # CAUTION: Cannot get the response content via this method on `self`.
@@ -81,22 +111,28 @@ class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
   # *filename* defaults to the basename of `#file_path`.
   #
   # See `ATH::HeaderUtils.make_disposition`.
-  def set_content_disposition(disposition : ATH::BinaryFileResponse::ContentDisposition, filename : String? = nil, fallback_filename : String? = nil)
+  def set_content_disposition(disposition : ATH::BinaryFileResponse::ContentDisposition, filename : String? = nil, fallback_filename : String? = nil) : self
     if filename.nil?
-      filename = @file_path.basename
+      filename = @file.basename
     end
 
     @headers["content-disposition"] = ATH::HeaderUtils.make_disposition disposition, filename, fallback_filename
+
+    self
   end
 
   # Sets the `etag` header on `self` based on a `SHA256` hash of the file.
-  def set_auto_etag : Nil
-    self.set_etag Digest::SHA256.base64digest &.file(@file_path)
+  def set_auto_etag : self
+    self.set_etag Digest::SHA256.base64digest &.file(@file.path)
+
+    self
   end
 
   # Sets the `last-modified` header on `self` based on the modification time of the file.
-  def auto_last_modified : Nil
-    self.last_modified = ::File.info(@file_path).modification_time
+  def auto_last_modified : self
+    self.last_modified = @file.modification_time
+
+    self
   end
 
   # TODO: Support multiple ranges.
@@ -112,10 +148,10 @@ class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
     end
 
     unless @headers.has_key? "content-type"
-      @headers["content-type"] = AMIME::Types.default.guess_mime_type(@file_path) || "application/octet-stream"
+      @headers["content-type"] = @file.mime_type || "application/octet-stream"
     end
 
-    file_size = ::File.info(@file_path).size
+    file_size = @file.size
 
     @headers["content-length"] = file_size.to_s
 
@@ -167,7 +203,7 @@ class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
     end
 
     @writer.write(output) do |writer_io|
-      ::File.open(@file_path, "rb") do |file|
+      ::File.open(@file.path, "rb") do |file|
         file.skip @offset
 
         if limit = @max_length
@@ -178,8 +214,8 @@ class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
       end
     end
 
-    if @delete_file_after_send && ::File.file?(@file_path)
-      ::File.delete @file_path
+    if @delete_file_after_send && ::File.file?(@file.path)
+      ::File.delete @file.path
     end
   end
 
@@ -191,7 +227,7 @@ class Athena::Framework::BinaryFileResponse < Athena::Framework::Response
       if_none_match.any? { |et| match.includes? et }
     elsif if_modified_since = request.headers["if-modified-since"]?
       header_time = HTTP.parse_time if_modified_since
-      last_modified = self.last_modified || ::File.info(@file_path).modification_time
+      last_modified = self.last_modified || @file.modification_time
 
       # File mtime probably has a higher resolution than the header value.
       # An exact comparison might be slightly off, so we add 1s padding.
