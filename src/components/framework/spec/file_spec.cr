@@ -18,6 +18,8 @@ struct FileTest < ASPEC::TestCase
   end
 
   def test_guess_extension_known : Nil
+    pending! "MIME guessing is not available" if {{ flag?("windows") && !flag?("gnu") }}
+
     file = ATH::File.new "#{__DIR__}/assets/test"
     file.guess_extension.should eq "gif"
   end
@@ -110,7 +112,7 @@ struct FileTest < ASPEC::TestCase
   end
 
   def test_realpath : Nil
-    ATH::File.new("#{__DIR__}/../spec/assets/foo.txt").realpath.should eq "#{__DIR__}/assets/foo.txt"
+    ATH::File.new("#{__DIR__}/../spec/assets/foo.txt").realpath.should eq Path[__DIR__, "assets", "foo.txt"].to_s
   end
 
   def test_basename : Nil

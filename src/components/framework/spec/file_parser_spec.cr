@@ -61,7 +61,7 @@ struct FileParserTest < ASPEC::TestCase
     file1.client_original_name.should eq "foo.txt"
     file1.client_original_path.should eq "foo.txt"
     file1.client_mime_type.should eq "text/plain"
-    file1.path.should match /\/file_upload\.\w+/
+    file1.path.should match /file_upload\.\w+/
     file_parser.uploaded_file?(file1.path).should be_true
 
     files = request.files["too_big"]
