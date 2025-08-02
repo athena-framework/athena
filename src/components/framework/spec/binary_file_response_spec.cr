@@ -23,6 +23,8 @@ struct ATH::BinaryFileResponseTest < ASPEC::TestCase
   end
 
   def test_set_file_unreadable : Nil
+    pending! "Windows does not have unreadable files" if {{ flag? :windows }}
+
     path = Path[Dir.tempdir, "unreadable"].to_s
 
     begin
