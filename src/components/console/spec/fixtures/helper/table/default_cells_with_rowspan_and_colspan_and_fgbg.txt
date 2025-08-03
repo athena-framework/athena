@@ -1,7 +1,7 @@
 +---------------+---------------+-------------------------------------------+
-| [31m978[0m           | De Monarchia  |[31;42m             Dante Alighieri               [0m|
-| [32m99921-58-10-7[0m | Divine Comedy |[31;42m spans multiple rows rows Dante Alighieri  [0m|
-|               |               |[31;42m         spans multiple rows rows          [0m|
+| [31m978[39m           | De Monarchia  |[31;42m             Dante Alighieri               [39;49m|
+| [32m99921-58-10-7[39m | Divine Comedy |[31;42m spans multiple rows rows Dante Alighieri  [39;49m|
+|               |               |[31;42m         spans multiple rows rows          [39;49m|
 +---------------+---------------+-------------------------------------------+
-|             [97;41mtest[0m              |[31;42m                                      tttt [0m|
+|             [97;41mtest[39;49m              |[31;42m                                      tttt [39;49m|
 +---------------+---------------+-------------------------------------------+

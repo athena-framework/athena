@@ -73,17 +73,83 @@ struct Athena::Console::Formatter::OutputStyle
       text = "\e]8;;#{href}\e\\#{text}\e]8;;\e\\"
     end
 
-    color = Colorize::Object(String)
-      .new(text)
-      .fore(@foreground)
-      .back(@background)
+    return text if self.default?
 
-    if options = @options
-      options.each do |mode|
-        color.mode mode
+    apply_color text
+  end
+
+  # TODO: Remove methods below when/if https://github.com/crystal-lang/crystal/pull/16052 is merged/released.
+  # Should then bump min crystal version.
+
+  private def apply_color(text : String) : String
+    String.build do |io|
+      printed = false
+
+      io << "\e["
+
+      unless @foreground == Colorize::ColorANSI::Default
+        @foreground.fore io
+        printed = true
       end
-    end
 
-    color.to_s
+      unless @background == Colorize::ColorANSI::Default
+        io << ';' if printed
+        @background.back io
+        printed = true
+      end
+
+      each_code(@options) do |flag|
+        io << ';' if printed
+        io << flag
+        printed = true
+      end
+
+      io << 'm'
+
+      io << text
+
+      printed = false
+
+      io << "\e["
+
+      unless @foreground == Colorize::ColorANSI::Default
+        io << ';' if printed
+        io << 39
+        printed = true
+      end
+
+      unless @background == Colorize::ColorANSI::Default
+        io << ';' if printed
+        io << 49
+        printed = true
+      end
+
+      each_code(@options, true) do |flag|
+        io << ';' if printed
+        io << flag
+        printed = true
+      end
+
+      io << 'm'
+    end
+  end
+
+  private def default? : Bool
+    @foreground == Colorize::ColorANSI::Default && @background == Colorize::ColorANSI::Default && @options.none?
+  end
+
+  # ameba:disable Metrics/CyclomaticComplexity
+  private def each_code(mode : Colorize::Mode, unset : Bool = false, &)
+    yield (unset ? "22" : "1") if mode.bold?
+    yield (unset ? "22" : "2") if mode.dim?
+    yield (unset ? "23" : "3") if mode.italic?
+    yield (unset ? "24" : "4") if mode.underline?
+    yield (unset ? "25" : "5") if mode.blink?
+    yield (unset ? "26" : "6") if mode.blink_fast?
+    yield (unset ? "27" : "7") if mode.reverse?
+    yield (unset ? "28" : "8") if mode.hidden?
+    yield (unset ? "29" : "9") if mode.strikethrough?
+    yield (unset ? "24" : "21") if mode.double_underline?
+    yield (unset ? "55" : "53") if mode.overline?
   end
 end

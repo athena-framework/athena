@@ -3,23 +3,23 @@ require "../spec_helper"
 describe ACON::Formatter::OutputStyle do
   it ".new" do
     ACON::Formatter::OutputStyle.new(:green, :black, Colorize::Mode[:bold, :underline])
-      .apply("foo").should eq "\e[32;40;1;4mfoo\e[0m"
+      .apply("foo").should eq "\e[32;40;1;4mfoo\e[39;49;22;24m"
 
     ACON::Formatter::OutputStyle.new(:red, options: Colorize::Mode::Blink)
-      .apply("foo").should eq "\e[31;5mfoo\e[0m"
+      .apply("foo").should eq "\e[31;5mfoo\e[39;25m"
 
     ACON::Formatter::OutputStyle.new(background: :white)
-      .apply("foo").should eq "\e[107mfoo\e[0m"
+      .apply("foo").should eq "\e[107mfoo\e[49m"
 
     ACON::Formatter::OutputStyle.new("red", "#000000", Colorize::Mode[:bold, :underline])
-      .apply("foo").should eq "\e[31;48;2;0;0;0;1;4mfoo\e[0m"
+      .apply("foo").should eq "\e[31;48;2;0;0;0;1;4mfoo\e[39;49;22;24m"
   end
 
   describe "foreground=" do
     it "with ANSI color" do
       style = ACON::Formatter::OutputStyle.new
       style.foreground = :black
-      style.apply("foo").should eq "\e[30mfoo\e[0m"
+      style.apply("foo").should eq "\e[30mfoo\e[39m"
     end
 
     it "with default value" do
@@ -31,7 +31,7 @@ describe ACON::Formatter::OutputStyle do
     it "with HEX RGB value" do
       style = ACON::Formatter::OutputStyle.new
       style.foreground = "#aedfff"
-      style.apply("foo").should eq "\e[38;2;174;223;255mfoo\e[0m"
+      style.apply("foo").should eq "\e[38;2;174;223;255mfoo\e[39m"
     end
 
     it "with invalid color" do
@@ -47,7 +47,7 @@ describe ACON::Formatter::OutputStyle do
     it "with ANSI color" do
       style = ACON::Formatter::OutputStyle.new
       style.background = :black
-      style.apply("foo").should eq "\e[40mfoo\e[0m"
+      style.apply("foo").should eq "\e[40mfoo\e[49m"
     end
 
     it "with default value" do
@@ -59,7 +59,7 @@ describe ACON::Formatter::OutputStyle do
     it "with HEX RGB value" do
       style = ACON::Formatter::OutputStyle.new
       style.background = "#aedfff"
-      style.apply("foo").should eq "\e[48;2;174;223;255mfoo\e[0m"
+      style.apply("foo").should eq "\e[48;2;174;223;255mfoo\e[49m"
     end
 
     it "with invalid color" do
@@ -76,19 +76,19 @@ describe ACON::Formatter::OutputStyle do
 
     style.add_option "reverse"
     style.add_option "hidden"
-    style.apply("foo").should eq "\e[7;8mfoo\e[0m"
+    style.apply("foo").should eq "\e[7;8mfoo\e[27;28m"
 
     style.add_option "bold"
-    style.apply("foo").should eq "\e[1;7;8mfoo\e[0m"
+    style.apply("foo").should eq "\e[1;7;8mfoo\e[22;27;28m"
 
     style.remove_option "reverse"
-    style.apply("foo").should eq "\e[1;8mfoo\e[0m"
+    style.apply("foo").should eq "\e[1;8mfoo\e[22;28m"
 
     style.add_option "bold"
-    style.apply("foo").should eq "\e[1;8mfoo\e[0m"
+    style.apply("foo").should eq "\e[1;8mfoo\e[22;28m"
 
     style.options = Colorize::Mode::Bold
-    style.apply("foo").should eq "\e[1mfoo\e[0m"
+    style.apply("foo").should eq "\e[1mfoo\e[22m"
   end
 
   it "href" do

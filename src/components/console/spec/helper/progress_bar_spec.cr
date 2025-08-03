@@ -339,7 +339,7 @@ struct ProgressBarTest < ASPEC::TestCase
     output = ACON::Output::Section.new acon_output.io, sections, verbosity: acon_output.verbosity, decorated: acon_output.decorated?, formatter: ACON::Formatter::Output.new
 
     bar = ACON::Helper::ProgressBar.new output, 50, 0
-    bar.format = " \033[44;37m%current%/%max%\033[0m [%bar%] %percent:3s%%"
+    bar.format = " \e[44;37m%current%/%max%\e[0m [%bar%] %percent:3s%%"
     bar.start
     bar.display
     bar.advance
@@ -347,9 +347,9 @@ struct ProgressBarTest < ASPEC::TestCase
 
     self.assert_output(
       output,
-      " \033[44;37m 0/50\033[0m [>---------------------------]   0%#{EOL}",
-      "\e[1A\e[0J \033[44;37m 1/50\033[0m [>---------------------------]   2%#{EOL}",
-      "\e[1A\e[0J \033[44;37m 2/50\033[0m [=>--------------------------]   4%#{EOL}",
+      " \e[44;37m 0/50\e[0m [>---------------------------]   0%#{EOL}",
+      "\e[1A\e[0J \e[44;37m 1/50\e[0m [>---------------------------]   2%#{EOL}",
+      "\e[1A\e[0J \e[44;37m 2/50\e[0m [=>--------------------------]   4%#{EOL}",
     )
   end
 
@@ -655,7 +655,7 @@ struct ProgressBarTest < ASPEC::TestCase
 
     1.upto 3 do |idx|
       # Up two lines
-      output.print "\033[2A"
+      output.print "\e[2A"
 
       if idx <= 2
         bar1.advance
@@ -667,7 +667,7 @@ struct ProgressBarTest < ASPEC::TestCase
       bar3.advance
     end
 
-    output.print "\033[2A"
+    output.print "\e[2A"
     output.print "\n"
     output.print "\n"
     bar3.finish
@@ -678,27 +678,27 @@ struct ProgressBarTest < ASPEC::TestCase
       " 0/3 [#---------------------------]   0%\n",
       "    0 [>---------------------------]",
 
-      "\033[2A",
+      "\e[2A",
       self.generate_output(" 1/2 [==============>-------------]  50%"),
       "\n",
       self.generate_output(" 1/3 [=========#------------------]  33%"),
       "\n",
       self.generate_output("    1 [->--------------------------]").rstrip,
 
-      "\033[2A",
+      "\e[2A",
       self.generate_output(" 2/2 [============================] 100%"),
       "\n",
       self.generate_output(" 2/3 [==================#---------]  66%"),
       "\n",
       self.generate_output("    2 [-->-------------------------]").rstrip,
 
-      "\033[2A",
+      "\e[2A",
       "\n",
       self.generate_output(" 3/3 [============================] 100%"),
       "\n",
       self.generate_output("    3 [--->------------------------]").rstrip,
 
-      "\033[2A",
+      "\e[2A",
       "\n",
       "\n",
       self.generate_output("    3 [============================]").rstrip,
@@ -1019,7 +1019,7 @@ struct ProgressBarTest < ASPEC::TestCase
       colors = idx.zero? ? "44;37" : "41;37"
       idx += 1
 
-      "\033[#{colors}m #{mem.humanize_bytes} \033[0m"
+      "\e[#{colors}m #{mem.humanize_bytes} \e[0m"
     end
 
     bar = ACON::Helper::ProgressBar.new output = self.output, 15, 0
@@ -1046,9 +1046,9 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       self.generate_output(
-        " \033[44;37m Looks good to me...                   \033[0m\n",
+        " \e[44;37m Looks good to me...                   \e[0m\n",
         "  4/15 #{done * 7}#{progress}#{empty * 19}  26%\n",
-        " \xf0\x9f\x8f\x81  < 1 sec                      \033[41;37m 98kiB \033[0m",
+        " \xf0\x9f\x8f\x81  < 1 sec                      \e[41;37m 98kiB \e[0m",
       )
     )
 
@@ -1060,9 +1060,9 @@ struct ProgressBarTest < ASPEC::TestCase
     self.assert_output(
       output,
       self.generate_output(
-        " \033[44;37m Thanks, bye                           \033[0m\n",
+        " \e[44;37m Thanks, bye                           \e[0m\n",
         " 15/15 #{done * 28} 100%\n",
-        " \xf0\x9f\x8f\x81  < 1 sec                     \033[41;37m 195kiB \033[0m",
+        " \xf0\x9f\x8f\x81  < 1 sec                     \e[41;37m 195kiB \e[0m",
       )
     )
 
@@ -1186,9 +1186,9 @@ struct ProgressBarTest < ASPEC::TestCase
 
     self.assert_output(
       output,
-      "[>---------------------------]   0%#{EOL}\x1b[33mStart\x1b[0m#{EOL}",
+      "[>---------------------------]   0%#{EOL}\x1b[33mStart\x1b[39m#{EOL}",
       "\x1b[2A\x1b[0J[>---------------------------]   2%#{EOL}",
-      "\x1b[1A\x1b[0J[=>--------------------------]   4%#{EOL}\x1b[33mDoing something...\x1b[0m#{EOL}",
+      "\x1b[1A\x1b[0J[=>--------------------------]   4%#{EOL}\x1b[33mDoing something...\x1b[39m#{EOL}",
     )
   end
 

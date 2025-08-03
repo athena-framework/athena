@@ -21,12 +21,12 @@ struct Athena::Console::Formatter::OutputStyleStack
 
     return @styles.pop if style.nil?
 
-    @styles.reverse_each.each_with_index do |stacked_style, idx|
-      if style.apply("") == stacked_style.apply("")
-        @styles = @styles[0...idx]
+    if match_index = @styles.rindex { |stacked_style| style.apply("") == stacked_style.apply("") }
+      matched_style = @styles[match_index]
 
-        return stacked_style
-      end
+      @styles = @styles[0...match_index]
+
+      return matched_style
     end
 
     raise ACON::Exception::InvalidArgument.new "Provided style is not present in the stack."
