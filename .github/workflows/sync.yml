@@ -25,6 +25,7 @@ jobs:
           echo "UPDATE_DOCS=$([ -n "$(gh api --jq '.[0].labels | map(.name) | index("kind:documentation")' /repos/athena-framework/athena/commits/${{ github.event.after }}/pulls)" ] && echo "1" || echo "0")" >> "$GITHUB_ENV"
           ./scripts/repo.sh sync
         env:
+          GH_TOKEN: ${{ github.token }}
           BEFORE_SHA: ${{ github.event.before }}
           AFTER_SHA: ${{ github.event.after }}
   docs:
