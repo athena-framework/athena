@@ -2,8 +2,6 @@ name: Release
 
 on:
   workflow_dispatch:
-  repository_dispatch:
-    types: [docs]
 
 jobs:
   docs:

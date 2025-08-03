@@ -14,7 +14,9 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.SYNC_TOKEN }}
       - name: Sync Repos
-        run: ./scripts/repo.sh sync
+        run: |
+          echo "UPDATE_DOCS=$([ -n "$(gh api --jq '.[0].labels | map(.name) | index("ci:update-docs")' /repos/athena-framework/athena/commits/${{ github.event.after }}/pulls)" ] && echo "1" || echo "0")" >> "$GITHUB_ENV"
+          ./scripts/repo.sh sync
         env:
           BEFORE_SHA: ${{ github.event.before }}
           AFTER_SHA: ${{ github.event.after }}
