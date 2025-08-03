@@ -1,9 +1,11 @@
+# Intended to be triggered after one or more component(s) have had new versions tagged.
+#
+# docs - Build and deploys the prod version of the docs based on the latest tag of each component
+
 name: Release
 
 on:
   workflow_dispatch:
-  repository_dispatch:
-    types: [docs]
 
 jobs:
   docs:
