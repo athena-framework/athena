@@ -14,15 +14,18 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
+      - uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.ATHENA_BOT_SSH_PRIV_KEY }}
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.SYNC_TOKEN }}
       - name: Sync Repos
         run: |
           echo "UPDATE_DOCS=$([ -n "$(gh api --jq '.[0].labels | map(.name) | index("kind:documentation")' /repos/athena-framework/athena/commits/${{ github.event.after }}/pulls)" ] && echo "1" || echo "0")" >> "$GITHUB_ENV"
           ./scripts/repo.sh sync
         env:
+          GH_TOKEN: ${{ github.token }}
           BEFORE_SHA: ${{ github.event.before }}
           AFTER_SHA: ${{ github.event.after }}
   docs:
@@ -30,7 +33,7 @@ jobs:
     steps:
       - uses: webfactory/ssh-agent@v0.9.1
         with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
+          ssh-private-key: ${{ secrets.MKDOCS_INSIDERS_SSH_PRIV_KEY }}
       - uses: actions/checkout@v4
       - uses: extractions/setup-just@v3
       - name: Install Crystal

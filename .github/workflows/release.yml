@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: webfactory/ssh-agent@v0.9.1
         with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
+          ssh-private-key: ${{ secrets.MKDOCS_INSIDERS_SSH_PRIV_KEY }}
       - uses: actions/checkout@v4
       - uses: extractions/setup-just@v3
       - name: Install Crystal
