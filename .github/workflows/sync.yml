@@ -1,3 +1,8 @@
+# Runs on pushes to master to:
+#
+# sync - Sync changes in the merged PR to the component specific repos. Also cherry picks changes into `docs` branch and triggers a re-build if PR has the `ci:update-docs` label
+# docs - Build and deploy a development version of the docs to allow viewing docs for all un-released changes in `master`
+
 name: Sync
 
 on:

@@ -5,6 +5,8 @@ require "./abstract_choice"
 #
 # ```
 # question = ACON::Question::Choice.new "What is your favorite color?", {"red", "blue", "green"}
+#
+# helper = self.helper ACON::Helper::Question
 # color = helper.ask input, output, question
 # ```
 #
@@ -26,6 +28,8 @@ require "./abstract_choice"
 #
 # ```
 # question = ACON::Question::Choice.new "What is your favorite color?", {"c1" => "red", "c2" => "blue", "c3" => "green"}, "c2"
+#
+# helper = self.helper ACON::Helper::Question
 # color = helper.ask input, output, question
 # ```
 #

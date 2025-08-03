@@ -8,6 +8,8 @@ require "./base"
 #
 # ```
 # question = ACON::Question(String?).new "What is your name?", nil
+#
+# helper = self.helper ACON::Helper::Question
 # name = helper.ask input, output, question
 # ```
 #
@@ -22,6 +24,8 @@ require "./base"
 # ```
 # question = ACON::Question(String?).new "What is your name?", nil
 # question.trimmable = false
+#
+# helper = self.helper ACON::Helper::Question
 # name_with_whitespace_and_newline = helper.ask input, output, question
 # ```
 #

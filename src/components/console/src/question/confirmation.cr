@@ -2,6 +2,7 @@
 #
 # ```
 # question = ACON::Question::Confirmation.new "Continue with this action?", false
+# helper = self.helper ACON::Helper::Question
 #
 # if !helper.ask input, output, question
 #   return ACON::Command::Status::SUCCESS
