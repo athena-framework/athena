@@ -40,6 +40,15 @@ describe ACON::Formatter::OutputStyleStack do
       stack.pop.should eq s1
     end
 
+    it "nested styles" do
+      stack = ACON::Formatter::OutputStyleStack.new
+      stack << (s1 = ACON::Formatter::OutputStyle.new :white, :red)
+      stack << (s2 = ACON::Formatter::OutputStyle.new :green, :default)
+
+      stack.pop(s2).should eq s2
+      stack.pop(s1).should eq s1
+    end
+
     it "invalid pop" do
       stack = ACON::Formatter::OutputStyleStack.new
       stack << ACON::Formatter::OutputStyle.new :white, :black

@@ -55,7 +55,7 @@ struct OutputTest < ASPEC::TestCase
     output.formatter.has_style?("FOO").should be_true
     output.decorated = true
     output.puts "<foo>foo</foo>"
-    output.output.should eq "\e[33;41;5mfoo\e[0m\n"
+    output.output.should eq "\e[33;41;5mfoo\e[39;49;25m\n"
   end
 
   def test_write_decorated_invalid_style : Nil

@@ -834,18 +834,18 @@ struct TableSpec < ASPEC::TestCase
 
     self.output_content(output).should eq self.normalize <<-TABLE
     +---------------+---------------+-----------------+-------+
-    |[32m ISBN          [0m|[32m Title         [0m|[32m Author          [0m|[32m Price [0m|
+    |[32m ISBN          [39m|[32m Title         [39m|[32m Author          [39m|[32m Price [39m|
     +---------------+---------------+-----------------+-------+
     | 99921-58-10-7 | Divine Comedy | Dante Alighieri | 9.95  |
     +---------------+---------------+-----------------+-------+
     [5A[0J+---------------+----------------------+-----------------+--------+
-    |[32m ISBN          [0m|[32m Title                [0m|[32m Author          [0m|[32m Price  [0m|
+    |[32m ISBN          [39m|[32m Title                [39m|[32m Author          [39m|[32m Price  [39m|
     +---------------+----------------------+-----------------+--------+
     | 99921-58-10-7 | Divine Comedy        | Dante Alighieri | 9.95   |
     | 9971-5-0210-0 | A Tale of Two Cities | Charles Dickens | 139.25 |
     +---------------+----------------------+-----------------+--------+
     [6A[0J+---------------+----------------------+-----------------+--------+
-    |[32m ISBN          [0m|[32m Title                [0m|[32m Author          [0m|[32m Price  [0m|
+    |[32m ISBN          [39m|[32m Title                [39m|[32m Author          [39m|[32m Price  [39m|
     +---------------+----------------------+-----------------+--------+
     | 99921-58-10-7 | Divine Comedy        | Dante Alighieri | 9.95   |
     | 9971-5-0210-0 | A Tale of Two Cities | Charles Dickens | 139.25 |
@@ -872,7 +872,7 @@ struct TableSpec < ASPEC::TestCase
 
     self.output_content(output).should eq self.normalize <<-TABLE
     +---------------+----------------------+-----------------+--------+
-    |[32m ISBN          [0m|[32m Title                [0m|[32m Author          [0m|[32m Price  [0m|
+    |[32m ISBN          [39m|[32m Title                [39m|[32m Author          [39m|[32m Price  [39m|
     +---------------+----------------------+-----------------+--------+
     | 99921-58-10-7 | Divine Comedy        | Dante Alighieri | 9.95   |
     | 9971-5-0210-0 | A Tale of Two Cities | Charles Dickens | 139.25 |
@@ -928,10 +928,10 @@ struct TableSpec < ASPEC::TestCase
 
     self.output_content(output).should eq self.normalize <<-TABLE
     +------+-------+--------+-------+
-    |[32m ISBN [0m|[32m Title [0m|[32m Author [0m|[32m Price [0m|
+    |[32m ISBN [39m|[32m Title [39m|[32m Author [39m|[32m Price [39m|
     +------+-------+--------+-------+
     [3A[0J+---------------+----------------------+-----------------+--------+
-    |[32m ISBN          [0m|[32m Title                [0m|[32m Author          [0m|[32m Price  [0m|
+    |[32m ISBN          [39m|[32m Title                [39m|[32m Author          [39m|[32m Price  [39m|
     +---------------+----------------------+-----------------+--------+
     | 9971-5-0210-0 | A Tale of Two Cities | Charles Dickens | 139.25 |
     +---------------+----------------------+-----------------+--------+
