@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=https://changie.dev/schema.json
+
+changesDir: .changes
+unreleasedDir: unreleased
+headerPath: header.tpl.md
+changelogPath: CHANGELOG.md
+versionExt: md
+versionFormat: '## [{{.VersionNoPrefix}}] - {{.Time.Format "2006-01-02"}}'
+kindFormat: '### {{.Kind}}'
+changeFormat: '- {{.Body}} ([#{{.Custom.PR}}]) ({{.Custom.FullName}})'
+footerFormat: |
+  {{- range (customs .Changes "PR" | uniq) -}}
+  [#{{.}}]: https://github.com/athena-framework/athena/pull/{{.}}
+  {{- end}}
+projectsVersionSeparator: '/'
+projects:
+  - label: Clock
+    key: clock
+    changelog: src/components/clock/CHANGELOG.md
+    replacements:
+      - path: src/components/clock/shard.yml
+        find: 'version: .*'
+        replace: 'version: {{.VersionNoPrefix}}'
+      - path: src/components/clock/src/athena-clock.cr
+        find: '  VERSION = ".*"'
+        replace: '  VERSION = "{{.VersionNoPrefix}}"'
+      - path: src/components/clock/docs/README.md
+        find: '    version: ~> .*'
+        replace: '    version: ~> {{.Major}}.{{.Minor}}.0'
+kinds:
+  - label: Changed
+    changeFormat: |
+      - {{if eq .Custom.Breaking "Yes"}}**Breaking:** {{end}}{{.Body}} ([#{{.Custom.PR}}]) ({{.Custom.Author}})
+    additionalChoices:
+      - type: enum
+        key: Breaking
+        label: Is it a breaking change?
+        enumOptions:
+          - Yes
+          - No
+  - label: Added
+  - label: Removed
+  - label: Fixed
+custom:
+  - key: PR
+    type: int
+    minInt: 0
+    optional: false
+  - key: Author
+    type: string
+    optional: false
+  - key: Username
+    label: Github Username
+    type: string
+    optional: false
+newlines:
+  beforeChangelogVersion: 1
+  afterKind: 1
+  beforeKind: 1
+  beforeFooterTemplate: 0
+envPrefix: CHANGIE_
