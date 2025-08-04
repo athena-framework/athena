@@ -1,5 +1,5 @@
 comment:
-  layout: "condensed_header, flags, components, condensed_files, condensed_footer"
+  layout: 'condensed_header, components, condensed_files, condensed_footer'
 
 coverage:
   status:
@@ -9,10 +9,6 @@ coverage:
     patch:
       default:
         target: 100% # Enforce all _new_ code is fully tested
-
-flag_management:
-  default_rules:
-    carryforward: true
 
 component_management:
   individual_components:

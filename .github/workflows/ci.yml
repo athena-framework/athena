@@ -97,7 +97,6 @@ jobs:
           fail_ci_if_error: true
           directory: coverage
           files: '**/cov.xml,**/macro_coverage.*.codecov.json' # There is no `unreachable.codecov.json` file when running _only_ compiled specs
-          flags: compiled
           verbose: true
       - uses: codecov/test-results-action@v1
         if: ${{ matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
@@ -106,7 +105,6 @@ jobs:
           fail_ci_if_error: true
           directory: coverage
           files: '**/junit.xml'
-          flags: compiled
           verbose: true
   test_unit:
     strategy:
@@ -166,7 +164,6 @@ jobs:
           fail_ci_if_error: true
           directory: coverage
           files: '**/cov.xml,**/unreachable.codecov.json'
-          flags: unit
           verbose: true
       - uses: codecov/test-results-action@v1
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
@@ -175,5 +172,4 @@ jobs:
           fail_ci_if_error: true
           directory: coverage
           files: '**/junit.xml'
-          flags: unit
           verbose: true
