@@ -69,7 +69,7 @@ class Athena::Console::Formatter::Output
 
     @current_line_length = 0
 
-    message.scan(/<(([a-z][^<>]*+) | \/([a-z][^<>]*+)?)>/ix) do |match|
+    message.scan(/<(([a-z](?:[^\\<>]*+ | \\.)*) | \/([a-z][^<>]*+)?)>/ix) do |match|
       pos = match.begin.not_nil!
       text = match[0]
 
@@ -137,7 +137,9 @@ class Athena::Console::Formatter::Output
 
   # ameba:disable Metrics/CyclomaticComplexity
   private def apply_current_style(text : String, current : String, width : Int32)
-    return "" if text.empty?
+    if text.empty?
+      return ""
+    end
 
     if width.zero?
       return self.decorated? ? @style_stack.current.apply(text) : text
