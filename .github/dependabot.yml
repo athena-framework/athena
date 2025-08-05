@@ -3,8 +3,11 @@ version: 2
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
+    # Updates tend to be released at the beginning of the month, but not exactly on the first.
+    # Add some delay to be able to catpure them
     schedule:
-      interval: "monthly"
+      interval: "cron"
+      cronjob: "0 0 7 * *"
     labels:
       - "kind:infrastructure"
       - "kind:enhancement"
