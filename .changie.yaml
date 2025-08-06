@@ -18,15 +18,107 @@ projects:
     key: clock
     changelog: src/components/clock/CHANGELOG.md
     replacements:
-      - path: src/components/clock/shard.yml
-        find: 'version: .*'
-        replace: 'version: {{.VersionNoPrefix}}'
-      - path: src/components/clock/src/athena-clock.cr
-        find: '  VERSION = ".*"'
-        replace: '  VERSION = "{{.VersionNoPrefix}}"'
-      - path: src/components/clock/docs/README.md
-        find: '    version: ~> .*'
-        replace: '    version: ~> {{.Major}}.{{.Minor}}.0'
+      - { path: src/components/clock/shard.yml, find: 'version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/components/clock/src/athena-clock.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/components/clock/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+  - label: Console
+    key: console
+    changelog: src/components/console/CHANGELOG.md
+    replacements:
+      - { path: src/components/console/shard.yml, find: 'version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/components/console/src/athena-console.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/components/console/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+  - label: Contracts
+    key: contracts
+    changelog: src/components/contracts/CHANGELOG.md
+    replacements:
+      - { path: src/components/contracts/shard.yml, find: 'version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/components/contracts/src/athena-contracts.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/components/contracts/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+  - label: Dependency Injection
+    key: dependency_injection
+    changelog: src/components/dependency_injection/CHANGELOG.md
+    replacements:
+      - { path: src/components/dependency_injection/shard.yml, find: 'version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/components/dependency_injection/src/athena-dependency_injection.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/components/dependency_injection/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+  - label: Dotenv
+    key: dotenv
+    changelog: src/components/dotenv/CHANGELOG.md
+    replacements:
+      - { path: src/components/dotenv/shard.yml, find: 'version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/components/dotenv/src/athena-dotenv.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/components/dotenv/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+  - label: Event Dispatcher
+    key: event_dispatcher
+    changelog: src/components/event_dispatcher/CHANGELOG.md
+    replacements:
+      - { path: src/components/event_dispatcher/shard.yml, find: 'version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/components/event_dispatcher/src/athena-event_dispatcher.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/components/event_dispatcher/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+  - label: Framework
+    key: framework
+    changelog: src/components/framework/CHANGELOG.md
+    replacements:
+      - { path: src/components/framework/shard.yml, find: 'version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/components/framework/src/athena.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/components/framework/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+  - label: Image Size
+    key: image_size
+    changelog: src/components/image_size/CHANGELOG.md
+    replacements:
+      - { path: src/components/image_size/shard.yml, find: 'version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/components/image_size/src/athena-image_size.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/components/image_size/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+  - label: Mercue
+    key: mercure
+    changelog: src/components/mercure/CHANGELOG.md
+    replacements:
+      - { path: src/components/mercure/shard.yml, find: 'version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/components/mercure/src/athena-mercure.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/components/mercure/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+  - label: MIME
+    key: mime
+    changelog: src/components/mime/CHANGELOG.md
+    replacements:
+      - { path: src/components/mime/shard.yml, find: 'version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/components/mime/src/athena-mime.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/components/mime/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+  - label: Negotiation
+    key: negotiation
+    changelog: src/components/negotiation/CHANGELOG.md
+    replacements:
+      - { path: src/components/negotiation/shard.yml, find: 'version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/components/negotiation/src/athena-negotiation.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/components/negotiation/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+  - label: Routing
+    key: routing
+    changelog: src/components/routing/CHANGELOG.md
+    replacements:
+      - { path: src/components/routing/shard.yml, find: 'version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/components/routing/src/athena-routing.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/components/routing/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+  - label: Serializer
+    key: serializer
+    changelog: src/components/serializer/CHANGELOG.md
+    replacements:
+      - { path: src/components/serializer/shard.yml, find: 'version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/components/serializer/src/athena-serializer.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/components/serializer/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+  - label: Spec
+    key: spec
+    changelog: src/components/spec/CHANGELOG.md
+    replacements:
+      - { path: src/components/spec/shard.yml, find: 'version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/components/spec/src/athena-spec.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/components/spec/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+  - label: Validator
+    key: validator
+    changelog: src/components/validator/CHANGELOG.md
+    replacements:
+      - { path: src/components/validator/shard.yml, find: 'version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/components/validator/src/athena-validator.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/components/validator/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
 kinds:
   - label: Changed
     changeFormat: |
