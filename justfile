@@ -86,6 +86,14 @@ clean-docs:
     rm -rf {{ OUTPUT_DIR }}
     find src/components -type d -name "site" -exec rm -rf {} +
 
+# Creates a new changelog entry
+[group('administrative')]
+change:
+    #!/usr/bin/env bash
+    changie new \
+      --custom Author="${CHANGIE_CUSTOM_AUTHOR}" \
+      --custom Username="${CHANGIE_CUSTOM_USERNAME}"
+
 # Upgrade python deps
 [group('administrative')]
 upgrade: _pip
