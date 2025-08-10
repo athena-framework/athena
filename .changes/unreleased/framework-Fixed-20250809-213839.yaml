@@ -1,0 +1,8 @@
+project: framework
+kind: Fixed
+body: Correctly apply `emit_nil` value from `ATHA::View`
+time: 2025-08-09T21:38:39.223990639-04:00
+custom:
+    Author: George Dierich
+    PR: "526"
+    Username: blacksmoke16

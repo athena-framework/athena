@@ -1,0 +1,8 @@
+project: spec
+kind: Added
+body: Add support for generating macro code coverage reports for `.assert_error` and `.assert_compiles` methods
+time: 2025-08-09T21:34:46.151641968-04:00
+custom:
+    Author: George Dierich
+    PR: "551"
+    Username: blacksmoke16

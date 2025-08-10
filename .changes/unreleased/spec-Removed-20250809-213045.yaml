@@ -1,0 +1,9 @@
+project: spec
+kind: Removed
+body: Remove `codegen` parameter from `ASPEC::Methods.assert_error` and `ASPEC::Methods.assert_success`
+time: 2025-08-09T21:30:45.130915281-04:00
+custom:
+    Author: George Dierich
+    Breaking: "Yes"
+    PR: "551"
+    Username: blacksmoke16
