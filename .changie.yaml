@@ -1,5 +1,3 @@
-# yaml-language-server: $schema=https://changie.dev/schema.json
-
 changesDir: .changes
 unreleasedDir: unreleased
 headerPath: header.tpl.md
