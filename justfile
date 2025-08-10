@@ -86,13 +86,23 @@ clean-docs:
     rm -rf {{ OUTPUT_DIR }}
     find src/components -type d -name "site" -exec rm -rf {} +
 
-# Creates a new changelog entry
+# Creates a new change file
 [group('administrative')]
 change:
     #!/usr/bin/env bash
     changie new \
       --custom Author="${CHANGIE_CUSTOM_AUTHOR}" \
       --custom Username="${CHANGIE_CUSTOM_USERNAME}"
+
+# Batches change files for the provied *component* into a new intermdiary *version* file, defaulting to a `patch` release
+[group('administrative')]
+batch component version='patch':
+    changie batch --project {{ component }} {{ version }}
+
+# Merges/releases the intermdiary changelog file for the provided *component*
+[group('administrative')]
+release component:
+    changie merge --project {{ component }}
 
 # Upgrade python deps
 [group('administrative')]
