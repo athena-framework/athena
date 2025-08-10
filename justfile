@@ -99,10 +99,10 @@ change:
 batch component version='patch':
     changie batch --project {{ component }} {{ version }}
 
-# Merges/releases the intermdiary changelog file for the provided *component*
+# Merges/releases all pending intermdiary changelog files
 [group('administrative')]
-release component:
-    changie merge --project {{ component }}
+merge:
+    changie merge
 
 # Upgrade python deps
 [group('administrative')]
