@@ -5,9 +5,9 @@ changelogPath: CHANGELOG.md
 versionExt: md
 versionFormat: '## [{{.VersionNoPrefix}}] - {{.Time.Format "2006-01-02"}}'
 kindFormat: '### {{.Kind}}'
-changeFormat: '- {{.Body}} ([#{{.Custom.PR}}]) ({{.Custom.FullName}})'
+changeFormat: '- {{.Body}} ([#{{.Custom.PR}}]) ({{.Custom.Author}})'
 footerFormat: |
-  {{- range (customs .Changes "PR" | uniq) -}}
+  {{- range (customs .Changes "PR" | uniq) }}
   [#{{.}}]: https://github.com/athena-framework/athena/pull/{{.}}
   {{- end}}
 projectsVersionSeparator: '/'
@@ -119,8 +119,7 @@ projects:
       - { path: src/components/validator/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
 kinds:
   - label: Changed
-    changeFormat: |
-      - {{if eq .Custom.Breaking "Yes"}}**Breaking:** {{end}}{{.Body}} ([#{{.Custom.PR}}]) ({{.Custom.Author}})
+    changeFormat: '- {{if eq .Custom.Breaking "Yes"}}**Breaking:** {{end}}{{.Body}} ([#{{.Custom.PR}}]) ({{.Custom.Author}})'
     additionalChoices:
       - type: enum
         key: Breaking
