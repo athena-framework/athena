@@ -1,6 +1,7 @@
 ## Context
 
 <!-- Take a minute to add some context for posterity as to what this PR is doing and why -->
+<!-- Can be skipped in favor of an issue reference (`Resolves #xxx`) if the related issue has all the context -->
 
 ## Changelog
 
