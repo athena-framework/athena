@@ -82,6 +82,9 @@ At this point the code on your branch should have a passing test suite, includin
 
 > **NOTE:** Once the PR is opened, please avoid force-pushing to that branch.
 
-Athena comes with a PR template that should be filled out; being sure to reference the issue number in the context section. E.g. `Resolves #xxx`. The changelog section should include all changes, both internal and external being sure to hightlight breaking changes by prefixing the line with `**Breaking:**`. Additionally, changes that affect end users should also have a `changie` change file. These can most easily be created by following along the prompts of `just change`. Project maintainers can add the file(s) themselves if needed to move things along; just being sure to give proper attribution in the change file.
+Athena comes with a PR template that should be filled out; being sure to reference the issue number in the context section. E.g. `Resolves #xxx`.
+The changelog section should include all changes, both internal and external being sure to highlight breaking changes by prefixing the line with `**Breaking:**`.
+Additionally, changes that affect end users should also have a `changie` change file. These can most easily be created by following along the prompts of `just change`.
+Project maintainers can add the file(s) themselves if needed to move things along; just being sure to give proper attribution in the change file.
 
 > **NOTE:** As of now you'll need to open the PR _before_ creating the change file in order to know what the PR number is.
