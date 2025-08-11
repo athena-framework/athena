@@ -94,7 +94,7 @@ change:
       --custom Author="${CHANGIE_CUSTOM_AUTHOR}" \
       --custom Username="${CHANGIE_CUSTOM_USERNAME}"
 
-# Batches change files for the provied *component* into a new intermdiary *version* file, defaulting to a `patch` release
+# Batches change files for the provided *component* into a new intermdiary *version* file, defaulting to a `patch` release
 [group('administrative')]
 batch component version='patch':
     changie batch --project {{ component }} {{ version }}
