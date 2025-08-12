@@ -1,0 +1,8 @@
+project: validator
+kind: Fixed
+body: Fix equality between `AVD::Constraint` instances
+time: 2025-08-08T18:47:58.935424839-04:00
+custom:
+    Author: George Dierich
+    PR: "540"
+    Username: blacksmoke16

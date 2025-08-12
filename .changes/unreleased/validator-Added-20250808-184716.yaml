@@ -1,0 +1,8 @@
+project: validator
+kind: Added
+body: Add `AVD::Spec::CompoundConstraintTestCase` to make testing `AVD::Constraints::Compound` easier
+time: 2025-08-08T18:47:16.504018571-04:00
+custom:
+    Author: George Dietrich
+    PR: "540"
+    Username: blacksmoke16

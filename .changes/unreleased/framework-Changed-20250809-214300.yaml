@@ -1,0 +1,9 @@
+project: framework
+kind: Changed
+body: Leverage `ATH::AbstractFile` within `ATH::BinaryFileResponse`
+time: 2025-08-09T21:43:00.830116982-04:00
+custom:
+    Author: George Dierich
+    Breaking: "Yes"
+    PR: "563"
+    Username: blacksmoke16
