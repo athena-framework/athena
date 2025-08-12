@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.2] - 2025-08-12
+
+### Fixed
+
+- Fix nightly type incompatibility with `ASR::Any` ([#562]) (George Dietrich)
+
+[0.4.2]: https://github.com/athena-framework/serializer/releases/tag/v0.4.2
+[#562]: https://github.com/athena-framework/athena/pull/562
+
 ## [0.4.1] - 2025-02-08
 
 ### Fixed
