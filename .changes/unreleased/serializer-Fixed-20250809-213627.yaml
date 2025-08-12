@@ -3,6 +3,6 @@ kind: Fixed
 body: Fix nightly type incompatibility with `ASR::Any`
 time: 2025-08-09T21:36:27.416169819-04:00
 custom:
-    Author: George Dierich
+    Author: George Dietrich
     PR: "562"
     Username: blacksmoke16
