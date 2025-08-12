@@ -147,5 +147,5 @@ newlines:
   beforeChangelogVersion: 1
   afterKind: 1
   beforeKind: 1
-  beforeFooterTemplate: 0
+  beforeFooterTemplate: 1
 envPrefix: CHANGIE_
