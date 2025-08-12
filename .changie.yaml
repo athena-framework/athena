@@ -7,10 +7,10 @@ versionFormat: '## [{{.VersionNoPrefix}}] - {{.Time.Format "2006-01-02"}}'
 kindFormat: '### {{.Kind}}'
 changeFormat: '- {{.Body}} ([#{{.Custom.PR}}]) ({{.Custom.Author}})'
 footerFormat: |
+  [{{.VersionNoPrefix}}]: https://github.com/athena-framework/{{ kebabcase (index .Changes 0).Project }}/releases/tag/{{.Version}}
   {{- range (customs .Changes "PR" | uniq) }}
   [#{{.}}]: https://github.com/athena-framework/athena/pull/{{.}}
   {{- end}}
-  [{{.VersionNoPrefix}}]: https://github.com/athena-framework/{{ kebabcase (index .Changes 0).Project }}/releases/tag/{{.Version}}
 projectsVersionSeparator: '/'
 projects:
   - label: Clock
