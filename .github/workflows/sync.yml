@@ -1,6 +1,8 @@
 # Runs on pushes to master to:
 #
-# sync - Sync changes in the merged PR to the component specific repos. Also cherry picks changes into `docs` branch and triggers a re-build if PR has the `kind:documentation` label
+# sync - Sync changes in the merged PR to the component specific repos.
+# update-docs - Cherry picks changes into `docs` branch of each changed component(s) for PRs with the `kind:documentation` label
+# rebuild-docs - Triggers a production re-build of the docs
 # docs - Build and deploy a development version of the docs to allow viewing docs for all un-released changes in `master`
 
 name: Sync
@@ -13,28 +15,94 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    outputs:
+      updated_components: ${{ steps.subtree-sync.outputs.updated_components }}
+      kind_docs: ${{ steps.subtree-sync.outputs.kind_docs }}
+      kind_release: ${{ steps.subtree-sync.outputs.kind_release }}
     steps:
       - uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.ATHENA_BOT_SSH_PRIV_KEY }}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
-          fetch-depth: 0
-      - name: Sync Repos
-        run: |
-          echo "UPDATE_DOCS=$([ -n "$(gh api --jq '.[0].labels | map(.name) | index("kind:documentation")' /repos/athena-framework/athena/commits/${{ github.event.after }}/pulls)" ] && echo "1" || echo "0")" >> "$GITHUB_ENV"
-          ./scripts/repo.sh sync
+          fetch-depth: 0 # Required so `git subtree` can find its split commit
+      - name: Sync Components
+        id: subtree-sync
         env:
           GH_TOKEN: ${{ github.token }}
           BEFORE_SHA: ${{ github.event.before }}
           AFTER_SHA: ${{ github.event.after }}
+        run: |
+          UPDATED_COMPONENTS=()
+
+          for componentName in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | xargs -I{} basename {} | sort); do
+            # The git repos uses hyphens instead of underscores.
+            REPO_NAME=$(echo "$componentName" | tr '_' '-')
+            REPO_URL="git@github.com:athena-framework/$REPO_NAME.git"
+            COMPONENT_DIR="src/components/$componentName"
+
+            if ! $(git diff --quiet --exit-code $BEFORE_SHA $AFTER_SHA -- "$COMPONENT_DIR"); then
+              echo "Syncing: $REPO_NAME"
+              git remote add $componentName $REPO_URL &> /dev/null || true
+              git fetch --quiet $componentName
+              git subtree push --prefix="$COMPONENT_DIR" "$componentName" "master"
+
+              UPDATED_COMPONENTS+=("\"$REPO_NAME\"")
+            fi
+          done
+
+          JSON_ARR=$(IFS=,; echo "[${UPDATED_COMPONENTS[*]}]")
+          echo "Changed components: $JSON_ARR"
+          echo "updated_components=$JSON_ARR" >> "$GITHUB_OUTPUT"
+
+          PR_LABELS=$(gh api --jq '.[0].labels | map(.name)' /repos/athena-framework/athena/commits/${{ github.event.after }}/pulls)
+
+          IS_KIND_DOCUMENTATION=$([ "null" != "$(jq 'index("kind:documentation")' <<< $PR_LABELS)" ] && echo "true" || echo "false")
+          IS_KIND_RELEASE=$([ "null" != "$(jq 'index("kind:release")' <<< $PR_LABELS)" ] && echo "true" || echo "false")
+
+          echo "kind_docs=$IS_KIND_DOCUMENTATION" >> "$GITHUB_OUTPUT"
+          echo "kind_release=$IS_KIND_RELEASE" >> "$GITHUB_OUTPUT"
+
+  update-docs:
+    runs-on: ubuntu-latest
+    needs:
+      - sync
+    if: needs.sync.outputs.updated_components != '[]' && needs.sync.outputs.kind_docs == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        repo: ${{ fromJson(needs.sync.outputs.updated_components) }}
+    steps:
+      - uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.ATHENA_BOT_SSH_PRIV_KEY }}
+      - uses: actions/checkout@v5
+        with:
+          repository: athena-framework/${{ matrix.repository }}
+          ref: docs
+      - name: Cherry pick commit
+        run: |
+          NEW_COMMIT=$(git ls-remote "git@github.com:athena-framework/${{ matrix.repository }}.git" HEAD | awk '{ print $1}')
+          git cherry-pick $NEW_COMMIT
+          git push
+
+  rebuild-docs:
+    runs-on: ubuntu-latest
+    needs:
+      - update-docs
+    steps:
+      - name: Re-build docs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run release.yml
+
   docs:
     runs-on: ubuntu-latest
     steps:
       - uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.MKDOCS_INSIDERS_SSH_PRIV_KEY }}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: extractions/setup-just@v3
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
