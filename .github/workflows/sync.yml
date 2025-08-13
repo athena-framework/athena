@@ -82,6 +82,9 @@ jobs:
       - name: Cherry pick commit
         run: |
           NEW_COMMIT=$(git ls-remote "git@github.com:athena-framework/${{ matrix.repository }}.git" HEAD | awk '{ print $1}')
+          git config user.name "Pallas Athenaie"
+          git config user.email "pallas@athenaframework.org"
+          git fetch origin $NEW_COMMIT
           git cherry-pick $NEW_COMMIT
           git push
 
