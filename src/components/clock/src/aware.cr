@@ -1,6 +1,6 @@
 class Athena::Clock; end
 
-# Can be used to make a type time aware without having to alter its constructor.
+# This module can be included to make a type time aware without having to alter its constructor.
 #
 # ```
 # class Example
