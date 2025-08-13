@@ -1,10 +1,3 @@
-# Runs on pushes to master to:
-#
-# sync - Sync changes in the merged PR to the component specific repos.
-# update-docs - Cherry picks changes into `docs` branch of each changed component(s) for PRs with the `kind:documentation` label
-# rebuild-docs - Triggers a production re-build of the docs
-# docs - Build and deploy a development version of the docs to allow viewing docs for all un-released changes in `master`
-
 name: Sync
 
 on:
@@ -12,7 +5,12 @@ on:
     branches:
       - master
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false # ensure back-to-back merges don't cancel an in-progress sync
+
 jobs:
+  # Sync changes in the merged PR to the component specific repos.
   sync:
     runs-on: ubuntu-latest
     outputs:
@@ -63,7 +61,8 @@ jobs:
           echo "kind_docs=$IS_KIND_DOCUMENTATION" >> "$GITHUB_OUTPUT"
           echo "kind_release=$IS_KIND_RELEASE" >> "$GITHUB_OUTPUT"
 
-  update-docs:
+  # Cherry picks changes into `docs` branch of each changed component(s) for PRs with the `kind:documentation` label
+  pick-docs:
     runs-on: ubuntu-latest
     needs:
       - sync
@@ -86,17 +85,31 @@ jobs:
           git cherry-pick $NEW_COMMIT
           git push
 
-  rebuild-docs:
+  # If there were component related doc updates, trigger a re-build after all components were synced.
+  build-component-docs:
     runs-on: ubuntu-latest
     needs:
-      - update-docs
+      - sync # This needs to also depend on `sync` so we cn use its outputs even if it's redundant because of the dependency on `pick-docs`.
+      - pick-docs
+    if: needs.sync.outputs.kind_docs == 'true' && needs.sync.outputs.updated_components != '[]'
     steps:
-      - name: Re-build docs
+      - run: gh workflow run release.yml
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run release.yml
 
-  docs:
+  # If there were no component related doc updates, simply trigger a re-build after `sync` job to handle updates to the root docs.
+  build-root-docs:
+    runs-on: ubuntu-latest
+    needs:
+      - sync
+    if: needs.sync.outputs.kind_docs == 'true' && needs.sync.outputs.updated_components == '[]'
+    steps:
+      - run: gh workflow run release.yml
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  # Build and deploy a development version of the docs to allow viewing docs for all un-released changes in `master`
+  build-dev-docs:
     runs-on: ubuntu-latest
     steps:
       - uses: webfactory/ssh-agent@v0.9.1
