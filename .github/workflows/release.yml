@@ -11,10 +11,9 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: webfactory/ssh-agent@v0.9.1
+      - uses: actions/checkout@v5
         with:
-          ssh-private-key: ${{ secrets.MKDOCS_INSIDERS_SSH_PRIV_KEY }}
-      - uses: actions/checkout@v4
+          ssh-key: ${{ secrets.MKDOCS_INSIDERS_SSH_PRIV_KEY }}
       - uses: extractions/setup-just@v3
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
