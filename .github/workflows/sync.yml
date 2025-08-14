@@ -31,6 +31,8 @@ jobs:
           BEFORE_SHA: ${{ github.event.before }}
           AFTER_SHA: ${{ github.event.after }}
         run: |
+          set -euo pipefail
+
           UPDATED_COMPONENTS=()
 
           for componentName in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | xargs -I{} basename {} | sort); do
@@ -81,6 +83,8 @@ jobs:
           ref: docs
       - name: Cherry pick commit
         run: |
+          set -euo pipefail
+
           NEW_COMMIT=$(git ls-remote "git@github.com:athena-framework/${{ matrix.repository }}.git" HEAD | awk '{ print $1}')
           git config user.name "Pallas Athenaie"
           git config user.email "pallas@athenaframework.org"
