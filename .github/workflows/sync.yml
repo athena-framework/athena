@@ -18,12 +18,10 @@ jobs:
       kind_docs: ${{ steps.subtree-sync.outputs.kind_docs }}
       kind_release: ${{ steps.subtree-sync.outputs.kind_release }}
     steps:
-      - uses: webfactory/ssh-agent@v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.ATHENA_BOT_SSH_PRIV_KEY }}
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0 # Required so `git subtree` can find its split commit
+          ssh-key: ${{ secrets.ATHENA_BOT_SSH_PRIV_KEY }}
       - name: Sync Components
         id: subtree-sync
         env:
@@ -74,23 +72,22 @@ jobs:
       matrix:
         component: ${{ fromJson(needs.sync.outputs.updated_components) }}
     steps:
-      - uses: webfactory/ssh-agent@v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.ATHENA_BOT_SSH_PRIV_KEY }}
       - uses: actions/checkout@v5
         with:
           repository: athena-framework/${{ matrix.component }}
           ref: docs
+          ssh-key: ${{ secrets.ATHENA_BOT_SSH_PRIV_KEY }}
       - name: Cherry pick commit
         run: |
           set -euo pipefail
 
+          git config user.name "${{ vars.BOT_USER_NAME }}"
+          git config user.email "${{ vars.BOT_USER_EMAIL }}"
+
           NEW_COMMIT=$(git ls-remote "git@github.com:athena-framework/${{ matrix.component }}.git" HEAD | awk '{ print $1}')
-          git config user.name "Pallas Athenaie"
-          git config user.email "pallas@athenaframework.org"
           git fetch origin $NEW_COMMIT
           git cherry-pick $NEW_COMMIT
-          git push
+          git push origin docs
 
   # If there were component related doc updates, trigger a re-build after all components were synced.
   build-component-docs:
@@ -119,10 +116,9 @@ jobs:
   build-dev-docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: webfactory/ssh-agent@v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.MKDOCS_INSIDERS_SSH_PRIV_KEY }}
       - uses: actions/checkout@v5
+        with:
+          ssh-key: ${{ secrets.MKDOCS_INSIDERS_SSH_PRIV_KEY }}
       - uses: extractions/setup-just@v3
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
