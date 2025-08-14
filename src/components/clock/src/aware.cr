@@ -11,7 +11,7 @@ class Athena::Clock; end
 #   end
 # end
 #
-# # By default uses an `Athena::Clock` instance
+# # Will use a `Athena::Clock` instance if a custom one is not set on the instance.
 # example = Example.new
 #
 # # Or use a custom implementation.
