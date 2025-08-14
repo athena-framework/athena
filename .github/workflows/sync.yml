@@ -97,6 +97,7 @@ jobs:
       - pick-docs
     if: needs.sync.outputs.kind_docs == 'true' && needs.sync.outputs.updated_components != '[]'
     steps:
+      - uses: actions/checkout@v5
       - run: gh workflow run release.yml
         env:
           GH_TOKEN: ${{ github.token }}
@@ -108,6 +109,7 @@ jobs:
       - sync
     if: needs.sync.outputs.kind_docs == 'true' && needs.sync.outputs.updated_components == '[]'
     steps:
+      - uses: actions/checkout@v5
       - run: gh workflow run release.yml
         env:
           GH_TOKEN: ${{ github.token }}
@@ -116,9 +118,10 @@ jobs:
   build-dev-docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: webfactory/ssh-agent@v0.9.1
         with:
-          ssh-key: ${{ secrets.MKDOCS_INSIDERS_SSH_PRIV_KEY }}
+          ssh-private-key: ${{ secrets.MKDOCS_INSIDERS_SSH_PRIV_KEY }}
+      - uses: actions/checkout@v5
       - uses: extractions/setup-just@v3
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
