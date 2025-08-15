@@ -19,9 +19,9 @@ jobs:
   check_spelling:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - name: Check Spelling
-        uses: crate-ci/typos@v1.35.1
+        uses: crate-ci/typos@a67079b4ae32e18c3f53d75368c52ce53b5fb56b # v1.35.4
   check_format:
     strategy:
       fail-fast: false
@@ -31,10 +31,10 @@ jobs:
           - nightly
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: extractions/setup-just@v3
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3.0.0
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1
+        uses: crystal-lang/install-crystal@cdf26dcd488490c9939e9d4d62cab169c9e4f20d # v1.8.2
         with:
           crystal: ${{ matrix.crystal }}
       - name: Check Format
@@ -44,8 +44,8 @@ jobs:
     container:
       image: crystallang/crystal:latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: extractions/setup-just@v3
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3.0.0
       - name: Install Dependencies
         run: shards install
         env:
@@ -61,8 +61,8 @@ jobs:
           - nightly
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: extractions/setup-just@v3
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3.0.0
       - name: Install kcov
         if: ${{ matrix.crystal == vars.COVERAGE_CHANNEL }}
         run: |
@@ -78,7 +78,7 @@ jobs:
           make -j$(nproc) &&
           sudo make install
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1
+        uses: crystal-lang/install-crystal@cdf26dcd488490c9939e9d4d62cab169c9e4f20d # v1.8.2
         with:
           crystal: ${{ matrix.crystal }}
       - name: Install System Dependencies
@@ -90,7 +90,7 @@ jobs:
       - name: Compiled Specs
         run: just test-compiled
         shell: bash
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         if: ${{ matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -98,7 +98,7 @@ jobs:
           directory: coverage
           files: '**/cov.xml,**/macro_coverage.*.codecov.json' # There is no `unreachable.codecov.json` file when running _only_ compiled specs
           verbose: true
-      - uses: codecov/test-results-action@v1
+      - uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
         if: ${{ matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -119,13 +119,13 @@ jobs:
           - nightly
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         if: github.event_name != 'pull_request'
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         if: github.event_name == 'pull_request'
         with:
           fetch-depth: 0
-      - uses: extractions/setup-just@v3
+      - uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3.0.0
       - name: Install kcov
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.crystal == vars.COVERAGE_CHANNEL }}
         run: |
@@ -141,7 +141,7 @@ jobs:
           make -j$(nproc) &&
           sudo make install
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1
+        uses: crystal-lang/install-crystal@cdf26dcd488490c9939e9d4d62cab169c9e4f20d # v1.8.2
         with:
           crystal: ${{ matrix.crystal }}
       - name: Install System Dependencies
@@ -157,7 +157,7 @@ jobs:
       - name: Specs
         run: just test-unit
         shell: bash
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -165,7 +165,7 @@ jobs:
           directory: coverage
           files: '**/cov.xml,**/unreachable.codecov.json'
           verbose: true
-      - uses: codecov/test-results-action@v1
+      - uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
