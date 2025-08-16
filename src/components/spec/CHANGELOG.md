@@ -1,18 +1,5 @@
 # Changelog
 
-## [0.4.0] - 2025-??-??
-
-### Added
-
-- Add ability to generate macro code coverage reports for `ASPEC::Methods.assert_compile_time_error` usages ([#551]) (George Dietrich)
-
-### Removed
-
-- **Breaking:** Remove `ASPEC::Methods.assert_error` and `ASPEC::Methods.assert_success` methods ([#551]) (George Dietrich)
-
-[0.4.0]: https://github.com/athena-framework/spec/releases/tag/v0.4.0
-[#551]: https://github.com/athena-framework/athena/pull/551
-
 ## [0.3.11] - 2025-05-19
 
 ### Fixed
