@@ -6,7 +6,7 @@ require "./test_case"
 
 # A set of common [Spec](https://crystal-lang.org/api/Spec.html) compliant testing utilities/types.
 module Athena::Spec
-  VERSION = "0.4.0"
+  VERSION = "0.3.11"
 
   # Runs all `ASPEC::TestCase`s.
   #
