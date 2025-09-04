@@ -8,14 +8,12 @@ on:
 jobs:
   tag-release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     strategy:
       fail-fast: false
       matrix:
         include: [{ component: serializer, tag: 'v0.0.0' }]
     env:
-      GH_TOKEN: ${{ github.token }}
+      GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
     steps:
       - uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
         with:
