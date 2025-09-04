@@ -1,8 +1,0 @@
-project: framework
-kind: Added
-body: Add support for Athena Contract component types
-time: 2025-08-09T21:40:12.061583694-04:00
-custom:
-    Author: George Dietrich
-    PR: "544"
-    Username: blacksmoke16

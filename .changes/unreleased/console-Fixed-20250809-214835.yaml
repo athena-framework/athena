@@ -1,8 +1,0 @@
-project: console
-kind: Fixed
-body: Fix `ACON::Helper::ProgressBar` messing up output in console section with EOL
-time: 2025-08-09T21:48:35.925419418-04:00
-custom:
-    Author: George Dietrich
-    PR: "537"
-    Username: blacksmoke16

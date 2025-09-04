@@ -1,8 +1,0 @@
-project: console
-kind: Added
-body: Add `markdown` `ACON::Helper::Table` style
-time: 2025-08-09T21:48:18.942747454-04:00
-custom:
-    Author: George Dietrich
-    PR: "536"
-    Username: blacksmoke16

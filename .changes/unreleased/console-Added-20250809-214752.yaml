@@ -1,8 +1,0 @@
-project: console
-kind: Added
-body: Add ability to customize the finished state of an `ACON::Helper::ProgressIndicator`
-time: 2025-08-09T21:47:52.992293702-04:00
-custom:
-    Author: George Dietrich
-    PR: "535"
-    Username: blacksmoke16
