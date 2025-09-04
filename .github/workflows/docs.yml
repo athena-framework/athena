@@ -44,7 +44,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          echo ${{ steps.current-release.tag }}
+          echo ${{ steps.current-release.outputs.tag }}
 
       #     git config gpg.format ssh
       #     git config user.signingkey "${{ vars.BOT_USER_SIGNING_KEY }}"
