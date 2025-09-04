@@ -53,7 +53,7 @@ jobs:
             --repo athena-framework/${{ matrix.component }} \
             --verify-tag \
             --draft \
-            --title ${{ matrix.tag }}
+            --title ${{ matrix.tag }} \
             --notes-file ".changes/${{ matrix.component }}/${{ matrix.tag }}.md"
 
       # - run: gh workflow run release.yml
