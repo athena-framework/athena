@@ -1,4 +1,4 @@
-project: event_dispatcher
+project: event-dispatcher
 kind: Removed
 body: Removed `AED::StoppableEvent` in favor of `ACTR::EventDispatcher::StoppableEvent`
 time: 2025-08-09T21:39:41.264472483-04:00
