@@ -5,13 +5,16 @@ on:
     branches:
       - master
 
+env:
+  CHANGIE_VERSION: 1.22.1
+
 jobs:
   tag-release:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        include: [{ component: serializer, tag: 'v0.0.0' }]
+        component: [serializer]
     env:
       GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
     steps:
@@ -26,41 +29,52 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           path: root
+      - name: Setup Changie
+        run: |
+          https://github.com/miniscruff/changie/releases/download/v${{ env.CHANGIE_VERSION }}/changie_${{ env.CHANGIE_VERSION }}_linux_amd64.deb --quiet -O changie.deb
+          dpkg -i changie.deb
+      - name: Get the latest version
+        id: current-release
+        run: |
+          TAG=$(changie latest --project "${{ matrix.component }}" | cut -d'/' -f2)
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
       - name: Tag release
         working-directory: component
         run: |
           set -euo pipefail
 
-          git config gpg.format ssh
-          git config user.signingkey "${{ vars.BOT_USER_SIGNING_KEY }}"
-          git config user.name "${{ vars.BOT_USER_NAME }}"
-          git config user.email "${{ vars.BOT_USER_EMAIL }}"
+          echo ${{ steps.current-release.tag }}
 
-          # Convert from GH repo name format into human readable format
-          COMPONENT_NAME=$(echo "${{ matrix.component }}" | tr '-' ' ' | sed -e 's/\b./\u\0/g')
-          MESSAGE="Athena $COMPONENT_NAME ${{ matrix.tag }}"
+      #     git config gpg.format ssh
+      #     git config user.signingkey "${{ vars.BOT_USER_SIGNING_KEY }}"
+      #     git config user.name "${{ vars.BOT_USER_NAME }}"
+      #     git config user.email "${{ vars.BOT_USER_EMAIL }}"
 
-          git tag -asm "'$MESSAGE'" ${{ matrix.tag }}
-          git push --quiet origin ${{ matrix.tag }}
+      #     # Convert from GH repo name format into human readable format
+      #     COMPONENT_NAME=$(echo "${{ matrix.component }}" | tr '-' ' ' | sed -e 's/\b./\u\0/g')
+      #     MESSAGE="Athena $COMPONENT_NAME ${{ matrix.tag }}"
 
-          # Be sure to reset `docs` branch back to current state of `master` as a release assumes the previously cherry-picked commits are now inherently included
-          git branch --quiet --force docs master
-          git push --quiet origin docs --force
-      - name: Draft Release
-        working-directory: root
-        run: |
-          # Cuts off first 2 lines since version number and date are redundant in this context.
-          # Then replace Author names with GH usernames for use in the GH release notes.
-          # See https://github.com/miniscruff/changie/discussions/610#discussioncomment-13917611 for reference.
-          tail -n+3 ".changes/${{ matrix.component }}/${{ matrix.tag }}.md" | \
-          perl -0777 -pe 's{\([^)]+\)\s*<!--\s*([^>]*\S)\s*-->}{ "(" . join(", ", map { s/^\s+|\s+$//g; s/^@?/@/; $_ } grep { length } split(/\s*,\s*/, $1)) . ")" }ge' | \
-          gh release create ${{ matrix.tag }} \
-            --repo athena-framework/${{ matrix.component }} \
-            --verify-tag \
-            --draft \
-            --title ${{ matrix.tag }} \
-            --notes-file -
+      #     git tag -asm "'$MESSAGE'" ${{ matrix.tag }}
+      #     git push --quiet origin ${{ matrix.tag }}
 
-      # - run: gh workflow run release.yml
-      - run: gh workflow view release.yml
-        working-directory: root
+      #     # Be sure to reset `docs` branch back to current state of `master` as a release assumes the previously cherry-picked commits are now inherently included
+      #     git branch --quiet --force docs master
+      #     git push --quiet origin docs --force
+      # - name: Draft Release
+      #   working-directory: root
+      #   run: |
+      #     # Cuts off first 2 lines since version number and date are redundant in this context.
+      #     # Then replace Author names with GH usernames for use in the GH release notes.
+      #     # See https://github.com/miniscruff/changie/discussions/610#discussioncomment-13917611 for reference.
+      #     tail -n+3 ".changes/${{ matrix.component }}/${{ matrix.tag }}.md" | \
+      #     perl -0777 -pe 's{\([^)]+\)\s*<!--\s*([^>]*\S)\s*-->}{ "(" . join(", ", map { s/^\s+|\s+$//g; s/^@?/@/; $_ } grep { length } split(/\s*,\s*/, $1)) . ")" }ge' | \
+      #     gh release create ${{ matrix.tag }} \
+      #       --repo athena-framework/${{ matrix.component }} \
+      #       --verify-tag \
+      #       --draft \
+      #       --title ${{ matrix.tag }} \
+      #       --notes-file -
+
+      # # - run: gh workflow run release.yml
+      # - run: gh workflow view release.yml
+      #   working-directory: root
