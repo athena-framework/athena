@@ -1,175 +1,175 @@
-# name: CI
+name: CI
 
-# on:
-#   merge_group:
-#   push:
-#     branches:
-#       - master # Allows codecov to receive current HEAD information for each commit merged into master
-#   pull_request:
-#     branches:
-#       - master
-#   schedule:
-#     - cron: '15 1 * * *' # Nightly at 01:15
+on:
+  merge_group:
+  push:
+    branches:
+      - master # Allows codecov to receive current HEAD information for each commit merged into master
+  pull_request:
+    branches:
+      - master
+  schedule:
+    - cron: '15 1 * * *' # Nightly at 01:15
 
-# concurrency:
-#   group: ${{ github.workflow }}-${{ github.ref }}
-#   cancel-in-progress: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
-# jobs:
-#   check_spelling:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-#       - name: Check Spelling
-#         uses: crate-ci/typos@a67079b4ae32e18c3f53d75368c52ce53b5fb56b # v1.35.4
-#   check_format:
-#     strategy:
-#       fail-fast: false
-#       matrix:
-#         crystal:
-#           - latest
-#           - nightly
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-#       - uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3.0.0
-#       - name: Install Crystal
-#         uses: crystal-lang/install-crystal@cdf26dcd488490c9939e9d4d62cab169c9e4f20d # v1.8.2
-#         with:
-#           crystal: ${{ matrix.crystal }}
-#       - name: Check Format
-#         run: just format
-#   coding_standards:
-#     runs-on: ubuntu-latest
-#     container:
-#       image: crystallang/crystal:latest
-#     steps:
-#       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-#       - uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3.0.0
-#       - name: Install Dependencies
-#         run: shards install
-#         env:
-#           SHARDS_OVERRIDE: shard.dev.yml
-#       - name: Ameba
-#         run: just ameba
-#   test_compiled:
-#     strategy:
-#       fail-fast: false
-#       matrix:
-#         crystal:
-#           - latest
-#           - nightly
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-#       - uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3.0.0
-#       - name: Install kcov
-#         if: ${{ matrix.crystal == vars.COVERAGE_CHANNEL }}
-#         run: |
-#           sudo apt-get update &&
-#           sudo apt-get install binutils-dev libssl-dev libcurl4-openssl-dev libelf-dev libstdc++-12-dev zlib1g-dev libdw-dev libiberty-dev
-#           curl -L -o ./kcov.tar.gz https://github.com/SimonKagstrom/kcov/archive/refs/tags/v43.tar.gz &&
-#           mkdir kcov-source &&
-#           tar xzf kcov.tar.gz -C kcov-source --strip-components=1 &&
-#           cd kcov-source &&
-#           mkdir build &&
-#           cd build &&
-#           cmake .. &&
-#           make -j$(nproc) &&
-#           sudo make install
-#       - name: Install Crystal
-#         uses: crystal-lang/install-crystal@cdf26dcd488490c9939e9d4d62cab169c9e4f20d # v1.8.2
-#         with:
-#           crystal: ${{ matrix.crystal }}
-#       - name: Install System Dependencies
-#         run: sudo apt-get update && sudo apt install -y libmagic-dev
-#       - name: Install Dependencies
-#         run: shards install --skip-postinstall --skip-executables
-#         env:
-#           SHARDS_OVERRIDE: shard.dev.yml
-#       - name: Compiled Specs
-#         run: just test-compiled
-#         shell: bash
-#       - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
-#         if: ${{ matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
-#         with:
-#           token: ${{ secrets.CODECOV_TOKEN }}
-#           fail_ci_if_error: true
-#           directory: coverage
-#           files: '**/cov.xml,**/macro_coverage.*.codecov.json' # There is no `unreachable.codecov.json` file when running _only_ compiled specs
-#           verbose: true
-#       - uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
-#         if: ${{ matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
-#         with:
-#           token: ${{ secrets.CODECOV_TOKEN }}
-#           fail_ci_if_error: true
-#           directory: coverage
-#           files: '**/junit.xml'
-#           verbose: true
-#   test_unit:
-#     strategy:
-#       fail-fast: false
-#       matrix:
-#         os:
-#           - ubuntu-latest
-#           - macos-latest
-#           - windows-latest
-#         crystal:
-#           - latest
-#           - nightly
-#     runs-on: ${{ matrix.os }}
-#     steps:
-#       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-#         if: github.event_name != 'pull_request'
-#       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-#         if: github.event_name == 'pull_request'
-#         with:
-#           fetch-depth: 0
-#       - uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3.0.0
-#       - name: Install kcov
-#         if: ${{ matrix.os == 'ubuntu-latest' && matrix.crystal == vars.COVERAGE_CHANNEL }}
-#         run: |
-#           sudo apt-get update &&
-#           sudo apt-get install binutils-dev libssl-dev libcurl4-openssl-dev libelf-dev libstdc++-12-dev zlib1g-dev libdw-dev libiberty-dev
-#           curl -L -o ./kcov.tar.gz https://github.com/SimonKagstrom/kcov/archive/refs/tags/v43.tar.gz &&
-#           mkdir kcov-source &&
-#           tar xzf kcov.tar.gz -C kcov-source --strip-components=1 &&
-#           cd kcov-source &&
-#           mkdir build &&
-#           cd build &&
-#           cmake .. &&
-#           make -j$(nproc) &&
-#           sudo make install
-#       - name: Install Crystal
-#         uses: crystal-lang/install-crystal@cdf26dcd488490c9939e9d4d62cab169c9e4f20d # v1.8.2
-#         with:
-#           crystal: ${{ matrix.crystal }}
-#       - name: Install System Dependencies
-#         if: matrix.os == 'ubuntu-latest'
-#         run: sudo apt-get update && sudo apt install -y libmagic-dev
-#       - name: Install System Dependencies
-#         if: matrix.os == 'macos-latest'
-#         run: brew install libmagic
-#       - name: Install Dependencies
-#         run: shards install --skip-postinstall --skip-executables
-#         env:
-#           SHARDS_OVERRIDE: shard.dev.yml
-#       - name: Specs
-#         run: just test-unit
-#         shell: bash
-#       - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
-#         if: ${{ matrix.os == 'ubuntu-latest' && matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
-#         with:
-#           token: ${{ secrets.CODECOV_TOKEN }}
-#           fail_ci_if_error: true
-#           directory: coverage
-#           files: '**/cov.xml,**/unreachable.codecov.json'
-#           verbose: true
-#       - uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
-#         if: ${{ matrix.os == 'ubuntu-latest' && matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
-#         with:
-#           token: ${{ secrets.CODECOV_TOKEN }}
-#           fail_ci_if_error: true
-#           directory: coverage
-#           files: '**/junit.xml'
-#           verbose: true
+jobs:
+  check_spelling:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Check Spelling
+        uses: crate-ci/typos@a67079b4ae32e18c3f53d75368c52ce53b5fb56b # v1.35.4
+  check_format:
+    strategy:
+      fail-fast: false
+      matrix:
+        crystal:
+          - latest
+          - nightly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3.0.0
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@cdf26dcd488490c9939e9d4d62cab169c9e4f20d # v1.8.2
+        with:
+          crystal: ${{ matrix.crystal }}
+      - name: Check Format
+        run: just format
+  coding_standards:
+    runs-on: ubuntu-latest
+    container:
+      image: crystallang/crystal:latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3.0.0
+      - name: Install Dependencies
+        run: shards install
+        env:
+          SHARDS_OVERRIDE: shard.dev.yml
+      - name: Ameba
+        run: just ameba
+  test_compiled:
+    strategy:
+      fail-fast: false
+      matrix:
+        crystal:
+          - latest
+          - nightly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3.0.0
+      - name: Install kcov
+        if: ${{ matrix.crystal == vars.COVERAGE_CHANNEL }}
+        run: |
+          sudo apt-get update &&
+          sudo apt-get install binutils-dev libssl-dev libcurl4-openssl-dev libelf-dev libstdc++-12-dev zlib1g-dev libdw-dev libiberty-dev
+          curl -L -o ./kcov.tar.gz https://github.com/SimonKagstrom/kcov/archive/refs/tags/v43.tar.gz &&
+          mkdir kcov-source &&
+          tar xzf kcov.tar.gz -C kcov-source --strip-components=1 &&
+          cd kcov-source &&
+          mkdir build &&
+          cd build &&
+          cmake .. &&
+          make -j$(nproc) &&
+          sudo make install
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@cdf26dcd488490c9939e9d4d62cab169c9e4f20d # v1.8.2
+        with:
+          crystal: ${{ matrix.crystal }}
+      - name: Install System Dependencies
+        run: sudo apt-get update && sudo apt install -y libmagic-dev
+      - name: Install Dependencies
+        run: shards install --skip-postinstall --skip-executables
+        env:
+          SHARDS_OVERRIDE: shard.dev.yml
+      - name: Compiled Specs
+        run: just test-compiled
+        shell: bash
+      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        if: ${{ matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          directory: coverage
+          files: '**/cov.xml,**/macro_coverage.*.codecov.json' # There is no `unreachable.codecov.json` file when running _only_ compiled specs
+          verbose: true
+      - uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
+        if: ${{ matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          directory: coverage
+          files: '**/junit.xml'
+          verbose: true
+  test_unit:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+        crystal:
+          - latest
+          - nightly
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        if: github.event_name != 'pull_request'
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        if: github.event_name == 'pull_request'
+        with:
+          fetch-depth: 0
+      - uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3.0.0
+      - name: Install kcov
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.crystal == vars.COVERAGE_CHANNEL }}
+        run: |
+          sudo apt-get update &&
+          sudo apt-get install binutils-dev libssl-dev libcurl4-openssl-dev libelf-dev libstdc++-12-dev zlib1g-dev libdw-dev libiberty-dev
+          curl -L -o ./kcov.tar.gz https://github.com/SimonKagstrom/kcov/archive/refs/tags/v43.tar.gz &&
+          mkdir kcov-source &&
+          tar xzf kcov.tar.gz -C kcov-source --strip-components=1 &&
+          cd kcov-source &&
+          mkdir build &&
+          cd build &&
+          cmake .. &&
+          make -j$(nproc) &&
+          sudo make install
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@cdf26dcd488490c9939e9d4d62cab169c9e4f20d # v1.8.2
+        with:
+          crystal: ${{ matrix.crystal }}
+      - name: Install System Dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get update && sudo apt install -y libmagic-dev
+      - name: Install System Dependencies
+        if: matrix.os == 'macos-latest'
+        run: brew install libmagic
+      - name: Install Dependencies
+        run: shards install --skip-postinstall --skip-executables
+        env:
+          SHARDS_OVERRIDE: shard.dev.yml
+      - name: Specs
+        run: just test-unit
+        shell: bash
+      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          directory: coverage
+          files: '**/cov.xml,**/unreachable.codecov.json'
+          verbose: true
+      - uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          directory: coverage
+          files: '**/junit.xml'
+          verbose: true
