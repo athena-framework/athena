@@ -31,7 +31,7 @@ jobs:
           path: root
       - name: Setup Changie
         run: |
-          https://github.com/miniscruff/changie/releases/download/v${{ env.CHANGIE_VERSION }}/changie_${{ env.CHANGIE_VERSION }}_linux_amd64.deb --quiet -O changie.deb
+          wget https://github.com/miniscruff/changie/releases/download/v${{ env.CHANGIE_VERSION }}/changie_${{ env.CHANGIE_VERSION }}_linux_amd64.deb --quiet -O changie.deb
           dpkg -i changie.deb
       - name: Get the latest version
         id: current-release
