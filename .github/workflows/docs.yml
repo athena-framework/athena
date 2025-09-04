@@ -49,8 +49,11 @@ jobs:
       - name: Draft Release
         working-directory: root
         run: |
-          # Cuts off first 2 lines since version number and date are redundant in this context
+          # Cuts off first 2 lines since version number and date are redundant in this context.
+          # Then replace Author names with GH usernames for use in the GH release notes.
+          # See https://github.com/miniscruff/changie/discussions/610#discussioncomment-13917611 for reference.
           tail -n+3 ".changes/${{ matrix.component }}/${{ matrix.tag }}.md" | \
+          perl -0777 -pe 's{\([^)]+\)\s*<!--\s*([^>]*\S)\s*-->}{ "(" . join(", ", map { s/^\s+|\s+$//g; s/^@?/@/; $_ } grep { length } split(/\s*,\s*/, $1)) . ")" }ge' | \
           gh release create ${{ matrix.tag }} \
             --repo athena-framework/${{ matrix.component }} \
             --verify-tag \
