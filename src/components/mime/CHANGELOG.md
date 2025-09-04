@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.1] - 2025-09-04
+
+### Added
+
+- Add fallback MIME types guesser based on stdlib `MIME` module ([#546]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.2.1]: https://github.com/athena-framework/mime/releases/tag/v0.2.1
+[#546]: https://github.com/athena-framework/athena/pull/546
+
 ## [0.2.0] - 2025-05-14
 
 ### Added

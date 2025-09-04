@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.4.0] - 2025-09-04
+
+### Added
+
+- Add support for generating macro code coverage reports for `.assert_error` and `.assert_compiles` methods ([#551]) (George Dietrich) <!-- blacksmoke16 -->
+
+### Removed
+
+- Remove `codegen` parameter from `ASPEC::Methods.assert_error` and `ASPEC::Methods.assert_success` ([#551]) (George Dietrich) <!-- blacksmoke16 -->
+- Remove `ASPEC::Methods.assert_error` in favor of `ASPEC::Methods.assert_compile_time_error` and `ASPEC::Methods.assert_runtime_error` ([#551]) (George Dietrich) <!-- blacksmoke16 -->
+- Remove `ASPEC::Methods.assert_success` in favor of `ASPEC::Methods.assert_compiles` and `ASPEC::Methods.assert_executes` ([#551]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.4.0]: https://github.com/athena-framework/spec/releases/tag/v0.4.0
+[#551]: https://github.com/athena-framework/athena/pull/551
+
 ## [0.3.11] - 2025-05-19
 
 ### Fixed

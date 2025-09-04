@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.4.2] - 2025-09-04
+
+### Added
+
+- Add ability to customize the finished state of an `ACON::Helper::ProgressIndicator` ([#535]) (George Dietrich) <!-- blacksmoke16 -->
+- Add `markdown` `ACON::Helper::Table` style ([#536]) (George Dietrich) <!-- blacksmoke16 -->
+- Add support for nested style tags ([#568]) (George Dietrich) <!-- blacksmoke16 -->
+
+### Fixed
+
+- Fix `ACON::Helper::ProgressBar` messing up output in console section with EOL ([#537]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.4.2]: https://github.com/athena-framework/console/releases/tag/v0.4.2
+[#535]: https://github.com/athena-framework/athena/pull/535
+[#536]: https://github.com/athena-framework/athena/pull/536
+[#568]: https://github.com/athena-framework/athena/pull/568
+[#537]: https://github.com/athena-framework/athena/pull/537
+
 ## [0.4.1] - 2025-02-08
 
 ### Fixed

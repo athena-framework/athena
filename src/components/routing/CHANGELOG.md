@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.11] - 2025-09-04
+
+### Fixed
+
+- Fix linker warning due to duplicate `pcre2-8` linkage ([#560]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.1.11]: https://github.com/athena-framework/routing/releases/tag/v0.1.11
+[#560]: https://github.com/athena-framework/athena/pull/560
+
 ## [0.1.10] - 2025-01-26
 
 ### Changed

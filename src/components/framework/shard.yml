@@ -1,6 +1,6 @@
 name: athena
 
-version: 0.20.1
+version: 0.21.0
 
 crystal: ~> 1.14
 
@@ -31,7 +31,7 @@ dependencies:
     version: ~> 0.4.0
   athena-event_dispatcher:
     github: athena-framework/event-dispatcher
-    version: ~> 0.3.0
+    version: ~> 0.4.0
   athena-mime:
     github: athena-framework/mime
     version: ~> 0.2.0

@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.4.0] - 2025-09-04
+
+### Changed
+
+- **Breaking:** Changed interface of `AED::EventDispatcherInterface#dispatch` to accept an `ACTR::EventDispatcher::Event` vs `AED::Event` ([#544]) (George Dietrich) <!-- blacksmoke16 -->
+
+### Removed
+
+- Removed `AED::StoppableEvent` in favor of `ACTR::EventDispatcher::StoppableEvent` ([#544]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.4.0]: https://github.com/athena-framework/event-dispatcher/releases/tag/v0.4.0
+[#544]: https://github.com/athena-framework/athena/pull/544
+
 ## [0.3.1] - 2025-01-26
 
 _Administrative release, no functional changes_
