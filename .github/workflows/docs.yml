@@ -1,0 +1,57 @@
+name: Temp Docs
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  tag-release:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: [{ component: serializer, tag: 'v0.0.0' }]
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          repository: athena-framework/${{ matrix.component }}
+          ssh-key: ${{ secrets.ATHENA_BOT_SSH_PRIV_KEY }}
+          path: component
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          path: root
+      - name: Tag release
+        working-directory: component
+        run: |
+          set -euo pipefail
+
+          git config gpg.format ssh
+          git config user.signingkey "${{ vars.BOT_USER_SIGNING_KEY }}"
+          git config user.name "${{ vars.BOT_USER_NAME }}"
+          git config user.email "${{ vars.BOT_USER_EMAIL }}"
+
+          # Convert from GH repo name format into human readable format
+          COMPONENT_NAME=$(echo "${{ matrix.component }}" | tr '-' ' ' | sed -e 's/\b./\u\0/g')
+          MESSAGE="Athena $COMPONENT_NAME ${{ matrix.tag }}"
+
+          git tag -asm "'$MESSAGE'" ${{ matrix.tag }}
+          git push --quiet origin ${{ matrix.tag }}
+
+          # Be sure to reset `docs` branch back to current state of `master` as a release assumes the previously cherry-picked commits are now inherently included
+          git branch --quiet --force docs master
+          git push --quiet origin docs --force
+      - name: Draft Release
+        working-directory: root
+        run: |
+          gh release create ${{ matrix.tag }} \
+            --repo athena-framework/${{ matrix.component }} \
+            --verify-tag \
+            --draft \
+            --title ${{ matrix.tag }}
+            --notes-file ".changes/${{ matrix.component }}/${{ matrix.tag }}.md"
+
+      # - run: gh workflow run release.yml
+      - run: gh workflow view release.yml

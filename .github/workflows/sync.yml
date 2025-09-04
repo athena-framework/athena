@@ -61,6 +61,45 @@ jobs:
           echo "kind_docs=$IS_KIND_DOCUMENTATION" >> "$GITHUB_OUTPUT"
           echo "kind_release=$IS_KIND_RELEASE" >> "$GITHUB_OUTPUT"
 
+  # tag-release:
+  #   runs-on: ubuntu-latest
+  #   needs:
+  #     - sync
+  #   if: needs.sync.outputs.updated_components != '[]' && needs.sync.outputs.kind_release == 'true'
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       component: ${{ fromJson(needs.sync.outputs.updated_components) }}
+  #   env:
+  #     GH_TOKEN: ${{ github.token }}
+  #   steps:
+  #     - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+  #       with:
+  #         repository: athena-framework/${{ matrix.component }}
+  #         ssh-key: ${{ secrets.ATHENA_BOT_SSH_PRIV_KEY }}
+  #     - name: Tag release
+  #       run: |
+  #         set -euo pipefail
+
+  #         git config gpg.format ssh
+  #         git config user.signingkey "${{ vars.BOT_USER_SIGNING_KEY }}"
+  #         git config user.name "${{ vars.BOT_USER_NAME }}"
+  #         git config user.email "${{ vars.BOT_USER_EMAIL }}"
+
+  #         # Convert from GH repo name format into human readable format
+  #         COMPONENT_NAME=$(echo "${{ matrix.component }}" | tr '-' ' ' | sed -e 's/\b./\u\0/g')
+  #         TAG=$(changie latest --project "${{ matrix.component }}" | cut -d'/' -f2)
+  #         MESSAGE="Athena $COMPONENT_NAME $TAG"
+
+  #         git tag -asm "'$MESSAGE'" $TAG
+  #         git push --quiet origin $TAG
+
+  #         # Be sure to reset `docs` branch back to current state of `master` as a release assumes the previously cherry-picked commits are now inherently included
+  #         git branch --quiet --force docs master
+  #         git push --quiet origin docs --force
+  #     # - run: gh workflow run release.yml
+  #     - run: gh workflow view release.yml
+
   # Cherry picks changes into `docs` branch of each changed component(s) for PRs with the `kind:documentation` label
   pick-docs:
     runs-on: ubuntu-latest

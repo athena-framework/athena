@@ -4,5 +4,6 @@ body: Remove `ASPEC::Methods.assert_success` in favor of `ASPEC::Methods.assert_
 time: 2025-08-09T21:31:45.95512596-04:00
 custom:
     Author: George Dietrich
+    Breaking: "Yes"
     PR: "551"
     Username: blacksmoke16
