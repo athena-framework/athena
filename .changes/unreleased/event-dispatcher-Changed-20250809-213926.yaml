@@ -1,4 +1,4 @@
-project: event_dispatcher
+project: event-dispatcher
 kind: Changed
 body: Changed interface of `AED::EventDispatcherInterface#dispatch` to accept an `ACTR::EventDispatcher::Event` vs `AED::Event`
 time: 2025-08-09T21:39:26.328000927-04:00

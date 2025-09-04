@@ -35,7 +35,7 @@ projects:
       - { path: src/components/contracts/src/athena-contracts.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
       - { path: src/components/contracts/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
   - label: Dependency Injection
-    key: dependency_injection
+    key: dependency-injection
     changelog: src/components/dependency_injection/CHANGELOG.md
     replacements:
       - { path: src/components/dependency_injection/shard.yml, find: '^version: .*', replace: 'version: {{.VersionNoPrefix}}' }
@@ -49,7 +49,7 @@ projects:
       - { path: src/components/dotenv/src/athena-dotenv.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
       - { path: src/components/dotenv/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
   - label: Event Dispatcher
-    key: event_dispatcher
+    key: event-dispatcher
     changelog: src/components/event_dispatcher/CHANGELOG.md
     replacements:
       - { path: src/components/event_dispatcher/shard.yml, find: '^version: .*', replace: 'version: {{.VersionNoPrefix}}' }
@@ -63,7 +63,7 @@ projects:
       - { path: src/components/framework/src/athena.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
       - { path: docs/getting_started/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
   - label: Image Size
-    key: image_size
+    key: image-size
     changelog: src/components/image_size/CHANGELOG.md
     replacements:
       - { path: src/components/image_size/shard.yml, find: '^version: .*', replace: 'version: {{.VersionNoPrefix}}' }
