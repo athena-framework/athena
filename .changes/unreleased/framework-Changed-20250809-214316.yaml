@@ -1,9 +1,0 @@
-project: framework
-kind: Changed
-body: Setter methods on `ATH::Response` and subclasses now return `self` to better support method chaining
-time: 2025-08-09T21:43:16.723607449-04:00
-custom:
-    Author: George Dietrich
-    Breaking: "No"
-    PR: "563"
-    Username: blacksmoke16

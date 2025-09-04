@@ -1,8 +1,0 @@
-project: validator
-kind: Added
-body: Add support for `ATH::UploadedFile` to `AVD::Constraints::File` and `AVD::Constraints::Image`
-time: 2025-08-09T21:29:39.48850957-04:00
-custom:
-    Author: George Dietrich
-    PR: "559"
-    Username: blacksmoke16

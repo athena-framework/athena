@@ -29,7 +29,7 @@ alias ACONA = ACON::Annotations
 
 # Allows the creation of CLI based commands
 module Athena::Console
-  VERSION = "0.4.1"
+  VERSION = "0.4.2"
 
   # Contains all the `Athena::Console` based annotations.
   module Annotations; end

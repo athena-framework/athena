@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.4.1] - 2025-09-04
+
+### Changed
+
+- Leverage `mime` component for more robust `AVD::Constraints::File` MIME type validation ([#545]) (George Dietrich) <!-- blacksmoke16 -->
+
+### Added
+
+- Add `AVD::Spec::CompoundConstraintTestCase` to make testing `AVD::Constraints::Compound` easier ([#540]) (George Dietrich) <!-- blacksmoke16 -->
+- Add support for `ATH::UploadedFile` to `AVD::Constraints::File` and `AVD::Constraints::Image` ([#559]) (George Dietrich) <!-- blacksmoke16 -->
+
+### Fixed
+
+- Fix equality between `AVD::Constraint` instances ([#540]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.4.1]: https://github.com/athena-framework/validator/releases/tag/v0.4.1
+[#545]: https://github.com/athena-framework/athena/pull/545
+[#540]: https://github.com/athena-framework/athena/pull/540
+[#559]: https://github.com/athena-framework/athena/pull/559
+
 ## [0.4.0] - 2025-01-26
 
 ### Changed

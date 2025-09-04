@@ -1,9 +1,0 @@
-project: dependency-injection
-kind: Changed
-body: Relax DI argument validation for string parameters
-time: 2025-08-09T21:47:17.3893784-04:00
-custom:
-    Author: George Dietrich
-    Breaking: "No"
-    PR: "548"
-    Username: blacksmoke16

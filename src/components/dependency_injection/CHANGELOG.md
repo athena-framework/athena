@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.4] - 2025-09-04
+
+### Changed
+
+- Relax DI argument validation for string parameters ([#548]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.4.4]: https://github.com/athena-framework/dependency-injection/releases/tag/v0.4.4
+[#548]: https://github.com/athena-framework/athena/pull/548
+
 ## [0.4.3] - 2025-02-08
 
 ### Changed

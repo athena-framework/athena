@@ -1,9 +1,0 @@
-project: validator
-kind: Changed
-body: Leverage `mime` component for more robust `AVD::Constraints::File` MIME type validation
-time: 2025-08-09T21:27:37.400564323-04:00
-custom:
-    Author: George Dietrich
-    Breaking: "No"
-    PR: "545"
-    Username: blacksmoke16

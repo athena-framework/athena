@@ -1,9 +1,0 @@
-project: framework
-kind: Changed
-body: Leverage `mime` component within `ATH::BinaryFileResponse`
-time: 2025-08-09T21:27:56.063317654-04:00
-custom:
-    Author: George Dietrich
-    Breaking: "No"
-    PR: "545"
-    Username: blacksmoke16

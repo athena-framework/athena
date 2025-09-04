@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.21.0] - 2025-09-04
+
+### Changed
+
+- **Breaking:** Leverage `ATH::AbstractFile` within `ATH::BinaryFileResponse` ([#563]) (George Dietrich) <!-- blacksmoke16 -->
+- Leverage `mime` component within `ATH::BinaryFileResponse` ([#545]) (George Dietrich) <!-- blacksmoke16 -->
+- Setter methods on `ATH::Response` and subclasses now return `self` to better support method chaining ([#563]) (George Dietrich) <!-- blacksmoke16 -->
+
+### Added
+
+- Add support for Athena Contract component types ([#544]) (George Dietrich) <!-- blacksmoke16 -->
+- Add native file upload support ([#559]) (George Dietrich) <!-- blacksmoke16 -->
+
+### Fixed
+
+- Correctly apply `emit_nil` value from `ATHA::View` ([#526]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.21.0]: https://github.com/athena-framework/framework/releases/tag/v0.21.0
+[#545]: https://github.com/athena-framework/athena/pull/545
+[#563]: https://github.com/athena-framework/athena/pull/563
+[#544]: https://github.com/athena-framework/athena/pull/544
+[#559]: https://github.com/athena-framework/athena/pull/559
+[#526]: https://github.com/athena-framework/athena/pull/526
+
 ## [0.20.1] - 2025-02-08
 
 ### Fixed

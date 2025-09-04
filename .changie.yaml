@@ -5,7 +5,7 @@ changelogPath: CHANGELOG.md
 versionExt: md
 versionFormat: '## [{{.VersionNoPrefix}}] - {{.Time.Format "2006-01-02"}}'
 kindFormat: '### {{.Kind}}'
-changeFormat: '- {{.Body}} ([#{{.Custom.PR}}]) ({{.Custom.Author}})'
+changeFormat: '- {{.Body}} ([#{{.Custom.PR}}]) ({{.Custom.Author}}) <!-- {{.Custom.Username}} -->'
 footerFormat: |
   [{{.VersionNoPrefix}}]: https://github.com/athena-framework/{{ kebabcase (index .Changes 0).Project }}/releases/tag/{{.Version}}
   {{- range (customs .Changes "PR" | uniq) }}
@@ -120,7 +120,7 @@ projects:
       - { path: src/components/validator/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
 kinds:
   - label: Changed
-    changeFormat: '- {{if eq .Custom.Breaking "Yes"}}**Breaking:** {{end}}{{.Body}} ([#{{.Custom.PR}}]) ({{.Custom.Author}})'
+    changeFormat: '- {{if eq .Custom.Breaking "Yes"}}**Breaking:** {{end}}{{.Body}} ([#{{.Custom.PR}}]) ({{.Custom.Author}}) <!-- {{.Custom.Username}} -->'
     additionalChoices:
       - type: enum
         key: Breaking

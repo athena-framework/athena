@@ -34,7 +34,7 @@ module Athena; end
 
 # Provides a robust object/value validation framework.
 module Athena::Validator
-  VERSION = "0.4.0"
+  VERSION = "0.4.1"
 
   # :nodoc:
   #

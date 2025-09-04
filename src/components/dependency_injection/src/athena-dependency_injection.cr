@@ -14,7 +14,7 @@ alias ADI = Athena::DependencyInjection
 
 # Robust dependency injection service container framework.
 module Athena::DependencyInjection
-  VERSION = "0.4.3"
+  VERSION = "0.4.4"
 
   private BINDINGS   = {} of Nil => Nil
   private EXTENSIONS = {} of Nil => Nil

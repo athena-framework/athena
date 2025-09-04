@@ -1,8 +1,0 @@
-project: routing
-kind: Fixed
-body: Fix linker warning due to duplicate `pcre2-8` linkage
-time: 2025-08-09T21:37:34.402441048-04:00
-custom:
-    Author: George Dietrich
-    PR: "560"
-    Username: blacksmoke16
