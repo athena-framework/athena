@@ -49,12 +49,15 @@ jobs:
       - name: Draft Release
         working-directory: root
         run: |
+          # Cuts off first 2 lines since version number and date are redundant in this context
+          tail -n+3 ".changes/${{ matrix.component }}/${{ matrix.tag }}.md" | \
           gh release create ${{ matrix.tag }} \
             --repo athena-framework/${{ matrix.component }} \
             --verify-tag \
             --draft \
             --title ${{ matrix.tag }} \
-            --notes-file ".changes/${{ matrix.component }}/${{ matrix.tag }}.md"
+            --notes-file -
 
       # - run: gh workflow run release.yml
       - run: gh workflow view release.yml
+        working-directory: root
