@@ -41,7 +41,7 @@ end
     def {{type}}.deserialize(visitor : ASR::Visitors::DeserializationVisitorInterface, data : ASR::Any)
       data{{method.id}}
     rescue ex : TypeCastError
-      raise ASR::Exception::DeserializationException.new "Could not parse {{type}} from '#{data.inspect}'."
+      raise ASR::Exception::DeserializationException.new "Could not parse {{type}} from '#{data}'."
     end
   {% end %}
 {% end %}
