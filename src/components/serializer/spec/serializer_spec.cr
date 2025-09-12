@@ -192,7 +192,7 @@ describe ASR::Serializer do
 
     describe "primitive" do
       it nil do
-        expect_raises ASR::Exception::DeserializationException, "Could not parse String from 'nil'." do
+        expect_raises ASR::Exception::DeserializationException, "Could not parse String from ''." do
           ASR.serializer.deserialize String, "null", :json
         end
       end
