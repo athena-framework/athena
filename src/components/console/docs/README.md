@@ -37,7 +37,7 @@ This method is where the [ACON::Input::Argument][]s and [ACON::Input::Option][]s
 protected def configure : Nil
   self
     .argument("username", :required, "The username of the user")
-    .alias("new-user")
+    .aliases("new-user")
 end
 ```
 
@@ -59,7 +59,7 @@ application.add CreateUserCommand.new
 application.register "foo" do |input, output, cmd|
   # Do stuff
 
-  ACON::Command::Status::Success
+  ACON::Command::Status::SUCCESS
 end
 
 # Run the application.
