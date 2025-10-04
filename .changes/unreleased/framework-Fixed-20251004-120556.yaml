@@ -1,8 +1,0 @@
-project: framework
-kind: Fixed
-body: Fix improper handling of optional file uploads
-time: 2025-10-04T12:05:56.353417863-04:00
-custom:
-    Author: George Dietrich
-    PR: "595"
-    Username: blacksmoke16

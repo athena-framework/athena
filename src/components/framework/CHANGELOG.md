@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.21.1] - 2025-10-04
+
+### Fixed
+
+- Fix improper handling of optional file uploads ([#595]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.21.1]: https://github.com/athena-framework/framework/releases/tag/v0.21.1
+[#595]: https://github.com/athena-framework/athena/pull/595
+
 ## [0.21.0] - 2025-09-04
 
 ### Changed
