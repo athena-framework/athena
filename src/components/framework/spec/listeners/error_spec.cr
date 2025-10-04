@@ -45,12 +45,12 @@ describe ATH::Listeners::Error do
     end
 
     it "logs validation errors as notice" do
-      event = ATH::Events::Exception.new new_request, ATH::Exception::UnprocessableEntity.new "Vaidation tests failed"
+      event = ATH::Events::Exception.new new_request, ATH::Exception::UnprocessableEntity.new "Validation tests failed"
 
       Log.capture do |logs|
         ATH::Listeners::Error.new(MockErrorRenderer.new).on_exception event
 
-        logs.check :notice, /Athena::Framework::Exception::UnprocessableEntity:Vaidation tests failed/
+        logs.check :notice, /Athena::Framework::Exception::UnprocessableEntity:Validation tests failed/
       end
     end
 
