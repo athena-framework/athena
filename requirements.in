@@ -1,7 +1,7 @@
 mkdocs ~= 1.6.1
 
-# 4.53.14 / 9.5.46
-mkdocs-material@git+ssh://git@github.com/squidfunk/mkdocs-material-insiders.git@115e3b4466c02a93775ab8febe747f10569f2231
+# 4.53.17 / 9.6.21
+mkdocs-material@git+ssh://git@github.com/athena-framework/mkdocs-material-insiders.git@3ccb025154441324c8b0a49a3cc38ae07ad6f801
 
 mkdocstrings-crystal ~= 0.3.5
 mkdocs-gen-files ~= 0.5.0
