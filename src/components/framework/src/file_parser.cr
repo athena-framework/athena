@@ -21,7 +21,9 @@ class Athena::Framework::FileParser
     uploaded_file_count = 0
 
     HTTP::FormData.parse(request.request) do |part|
-      unless filename = part.filename.presence
+      case filename = part.filename
+      when "" then next
+      when .nil?
         request.attributes.set part.name, part.body.gets_to_end, String
         next
       end

@@ -8,12 +8,25 @@ struct FileParserTest < ASPEC::TestCase
     request = new_request(
       body: String.build do |io|
         HTTP::FormData.build io, "boundary" do |form|
+          # Non HTML file input types have a `nil` filename.
           form.field("age", 12)
           form.file(
             "success",
             File.open("#{__DIR__}/assets/foo.txt"),
             HTTP::FormData::FileMetadata.new(
               "foo.txt"
+            ),
+            headers: HTTP::Headers{
+              "content-type" => "text/plain",
+            }
+          )
+
+          # Skipped because optional HTML file input types have a `""` filename if no file was selected.
+          form.file(
+            "optional",
+            IO::Memory.new,
+            HTTP::FormData::FileMetadata.new(
+              ""
             ),
             headers: HTTP::Headers{
               "content-type" => "text/plain",
@@ -75,6 +88,7 @@ struct FileParserTest < ASPEC::TestCase
     file_parser.uploaded_file?(file2.path).should be_false
 
     request.attributes.get("age", String).should eq "12"
+    request.attributes.has?("optional").should be_false
 
     file_parser.clear
 
