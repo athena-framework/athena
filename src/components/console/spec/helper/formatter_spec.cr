@@ -50,7 +50,7 @@ describe ACON::Helper::Formatter do
       message = "testing wrapping"
 
       formatter.truncate(message, 4).should eq "test..."
-      formatter.truncate(message, 15).should eq "testing wrappin..."
+      formatter.truncate(message, 14).should eq "testing wrappi..."
       formatter.truncate(message, 16).should eq "testing wrapping..."
       formatter.truncate("zażółć gęślą jaźń", 12).should eq "zażółć gęślą..."
     end
@@ -67,7 +67,7 @@ describe ACON::Helper::Formatter do
       formatter = ACON::Helper::Formatter.new
       message = "testing truncate"
 
-      formatter.truncate(message, -5).should eq "testing tru..."
+      formatter.truncate(message, -3).should eq "testing trunc..."
       formatter.truncate(message, -100).should eq "..."
     end
   end
