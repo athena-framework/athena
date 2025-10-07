@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3.0.0
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@cdf26dcd488490c9939e9d4d62cab169c9e4f20d # v1.8.2
+        uses: crystal-lang/install-crystal@5503f15cfd350dfc402f9c2f0fa31bdf83fd7384 # v1.8.3
         with:
           crystal: ${{ matrix.crystal }}
       - name: Check Format
@@ -78,7 +78,7 @@ jobs:
           make -j$(nproc) &&
           sudo make install
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@cdf26dcd488490c9939e9d4d62cab169c9e4f20d # v1.8.2
+        uses: crystal-lang/install-crystal@5503f15cfd350dfc402f9c2f0fa31bdf83fd7384 # v1.8.3
         with:
           crystal: ${{ matrix.crystal }}
       - name: Install System Dependencies
@@ -141,7 +141,7 @@ jobs:
           make -j$(nproc) &&
           sudo make install
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@cdf26dcd488490c9939e9d4d62cab169c9e4f20d # v1.8.2
+        uses: crystal-lang/install-crystal@5503f15cfd350dfc402f9c2f0fa31bdf83fd7384 # v1.8.3
         with:
           crystal: ${{ matrix.crystal }}
       - name: Install System Dependencies
