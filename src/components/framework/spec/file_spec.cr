@@ -112,7 +112,7 @@ struct FileTest < ASPEC::TestCase
   end
 
   def test_realpath : Nil
-    ATH::File.new("#{__DIR__}/../spec/assets/foo.txt").realpath.should eq Path[__DIR__, "assets", "foo.txt"].to_s
+    ATH::File.new("#{__DIR__}/../spec/assets/foo.txt").realpath.should eq ::File.realpath(Path[__DIR__, "assets", "foo.txt"].to_s)
   end
 
   def test_basename : Nil
