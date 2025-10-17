@@ -4,7 +4,13 @@ describe ASPEC::Methods do
   describe ".assert_compile_time_error", tags: "compiled" do
     it "allows customizing crystal binary via CRYSTAL env var" do
       # Do this in its own sub-process to avoid mucking with ENV.
-      assert_runtime_error "'/path/to/crystal': No such file or directory", <<-CR
+      message = {% if flag? "windows" %}
+                  "The system cannot find the file specified"
+                {% else %}
+                  "No such file or directory"
+                {% end %}
+
+      assert_runtime_error message, <<-CR
         require "./spec_helper"
 
         ENV["CRYSTAL"] = "/path/to/crystal"
