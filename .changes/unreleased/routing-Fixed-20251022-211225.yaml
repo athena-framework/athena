@@ -1,0 +1,8 @@
+project: routing
+kind: Fixed
+body: Fix Crystal `1.19` incompatiblity
+time: 2025-10-22T21:12:25.628432698-04:00
+custom:
+    Author: George Dietrich
+    PR: "600"
+    Username: blacksmoke16
