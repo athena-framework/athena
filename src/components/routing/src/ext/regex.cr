@@ -39,7 +39,12 @@ module Regex::PCRE2
   end
 
   private def match_data(str, byte_index, options)
-    match_data = self.match_data
+    # TODO: Remove and make 1.19 min supported version
+    match_data = {% if compare_versions(Crystal::VERSION, "1.19.0-dev") >= 0 %}
+                   Regex::PCRE2.current_match_data.value
+                 {% else %}
+                   self.match_data
+                 {% end %}
 
     # CUSTOMIZE - Leverage JIT Fast Path mode if available
     match_count = if @jit && @force_jit
@@ -67,12 +72,19 @@ module Regex::PCRE2
   private def match_impl(str, byte_index, options)
     match_data = match_data(str, byte_index, options) || return
 
-    ovector_count = LibPCRE2.get_ovector_count(match_data)
+    # TODO: Remove and make 1.19 min supported version
+    ovector_count = {% if compare_versions(Crystal::VERSION, "1.19.0-dev") >= 0 %}
+                      # We reuse the same `match_data` allocation, so we must reimplement the
+                      # behavior of pcre2_match_data_create_from_pattern (get_ovector_count always
+                      # returns 65535, aka the maximum).
+                      capture_count_impl &+ 1
+                    {% else %}
+                      LibPCRE2.get_ovector_count(match_data)
+                    {% end %}
     ovector = Slice.new(LibPCRE2.get_ovector_pointer(match_data), ovector_count &* 2)
 
     # We need to dup the ovector because `match_data` is re-used for subsequent
-    # matches (see `@match_data`).
-    # Dup brings the ovector data into the realm of the GC.
+    # matches. We only dup the match data (not everything).
     ovector = ovector.dup
 
     ::Regex::MatchData.new(
