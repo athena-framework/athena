@@ -83,11 +83,9 @@ jobs:
         with:
           path: root
       - name: Setup Changie
-        env:
-          CHANGIE_VERSION: 1.22.1
-        run: |
-          wget https://github.com/miniscruff/changie/releases/download/v${{ env.CHANGIE_VERSION }}/changie_${{ env.CHANGIE_VERSION }}_linux_amd64.deb --quiet -O changie.deb
-          sudo dpkg -i changie.deb
+        uses: miniscruff/changie-action@5036dffa79ffc007110dc7f75eca7ef72780e147 # v2.1.0
+        with:
+          version: 1.22.1
       - name: Get the latest version
         working-directory: root
         id: current-release
