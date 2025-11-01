@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.12] - 2025-11-01
+
+### Fixed
+
+- Fix Crystal `1.19` incompatibility ([#600]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.1.12]: https://github.com/athena-framework/routing/releases/tag/v0.1.12
+[#600]: https://github.com/athena-framework/athena/pull/600
+
 ## [0.1.11] - 2025-09-04
 
 ### Fixed
