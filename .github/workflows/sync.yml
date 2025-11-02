@@ -106,7 +106,7 @@ jobs:
           COMPONENT_NAME=$(echo "${{ matrix.component }}" | tr '-' ' ' | sed -e 's/\b./\u\0/g')
           MESSAGE="Athena $COMPONENT_NAME ${{ steps.current-release.outputs.tag }}"
 
-          git tag -asm "'$MESSAGE'" ${{ steps.current-release.outputs.tag }}
+          git tag -asm "$MESSAGE" ${{ steps.current-release.outputs.tag }}
           git push --quiet origin ${{ steps.current-release.outputs.tag }}
 
           # Be sure to reset `docs` branch back to current state of `master` as a release assumes the previously cherry-picked commits are now inherently included
