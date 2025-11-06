@@ -14,8 +14,8 @@ handler = mkdocs_gen_files.config['plugins']['mkdocstrings'].get_handler('crysta
 update_env = handler.update_env
 
 # override the `update_env` method of the handler
-def patched_update_env(config: dict[str, Any]) -> None:
-    update_env(config)
+def patched_update_env(markdown: md.Markdown, config: dict[str, Any]) -> None:
+    update_env(markdown, config)
 
     def from_json(data):
         return json.loads(data.removesuffix('of Nil'))
