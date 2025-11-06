@@ -113,7 +113,7 @@ clean: clean-docs
     rm -rf .venv
 
 _uv:
-    {{ UV }} sync
+    {{ UV }} sync --quiet
 
 _symlink_lib:
     @ for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | xargs -I{} basename {} | sort); do \
