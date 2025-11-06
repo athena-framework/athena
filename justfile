@@ -70,12 +70,12 @@ spellcheck:
 
 # Build the docs
 [group('docs')]
-build-docs: _uv _symlink_lib
+build-docs: _symlink_lib
     {{ UV }} run --frozen mkdocs build -d {{ OUTPUT_DIR }}
 
 # Serve live-preview of the docs
 [group('docs')]
-serve-docs: _uv _symlink_lib
+serve-docs: _symlink_lib
     {{ UV }} run --frozen mkdocs serve --open
 
 # Clean MKDocs build artifacts
@@ -104,16 +104,13 @@ merge:
 
 # Upgrade python deps
 [group('administrative')]
-upgrade: _uv
+upgrade:
     {{ UV }} lock --upgrade
 
 # Clean build artifacts (.venv), and docs
 [group('administrative')]
 clean: clean-docs
     rm -rf .venv
-
-_uv:
-    {{ UV }} sync --quiet --frozen
 
 _symlink_lib:
     @ for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | xargs -I{} basename {} | sort); do \
