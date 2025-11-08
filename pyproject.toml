@@ -2,7 +2,7 @@
 name = "athena-docs"
 version = "0.0.0"
 description = "Documentation build dependencies for the Athena ecosystem"
-requires-python = ">=3.10"
+requires-python = ">=3.13"
 license = {file = "LICENSE"}
 classifiers = [
     "Private :: Do Not Upload",
