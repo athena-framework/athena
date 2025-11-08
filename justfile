@@ -5,9 +5,7 @@ OUTPUT_DIR := './site'
 # Binaries
 # Scoped to the justfile so do not need to be exported
 
-MKDOCS := './.venv/bin/mkdocs'
-PIP := './.venv/bin/pip3'
-PIP_COMPILE := './.venv/bin/pip-compile'
+UV := 'uv'
 
 # Needs to be exported so that the `spec` component can pick up on the customized $CRYSTAL env var.
 
@@ -72,13 +70,13 @@ spellcheck:
 
 # Build the docs
 [group('docs')]
-build-docs: _mkdocs _symlink_lib
-    {{ MKDOCS }} build -d {{ OUTPUT_DIR }}
+build-docs: _symlink_lib
+    {{ UV }} run --frozen mkdocs build -d {{ OUTPUT_DIR }}
 
 # Serve live-preview of the docs
 [group('docs')]
-serve-docs: _mkdocs _symlink_lib
-    {{ MKDOCS }} serve --open
+serve-docs: _symlink_lib
+    {{ UV }} run --frozen mkdocs serve --open
 
 # Clean MKDocs build artifacts
 [group('docs')]
@@ -106,20 +104,13 @@ merge:
 
 # Upgrade python deps
 [group('administrative')]
-upgrade: _pip
-    {{ PIP_COMPILE }} -U requirements.in
+upgrade:
+    {{ UV }} lock --upgrade
 
 # Clean build artifacts (.venv), and docs
 [group('administrative')]
 clean: clean-docs
     rm -rf .venv
-
-_pip:
-    python3 -m venv .venv
-    {{ PIP }} install -q pip-tools
-
-_mkdocs: _pip
-    {{ PIP }} install -q -r requirements.txt
 
 _symlink_lib:
     @ for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | xargs -I{} basename {} | sort); do \

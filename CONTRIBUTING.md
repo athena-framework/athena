@@ -38,7 +38,7 @@ From here there are some additional optional tools that will come in handy:
 1. [watchexec](https://github.com/watchexec/watchexec) - Executes commands in response to file modifications, used as part of the `watch` and `watch-spec` recipes.
 1. [kcov](https://github.com/SimonKagstrom/kcov) - Code coverage tool, used to generate coverage reports/files as part of the `test` recipes.
 1. [changie](https://changie.dev/) - Changelog management tool, used as part of the `change` recipe.
-1. [python](https://www.python.org/) - The programming language, used for the `docs` related recipes.
+1. [uv](https://docs.astral.sh/uv/) - Python package manager, used for the `docs` related recipes.
 
 **TIP:** Running `just` will provide a summary of available recipes.
 

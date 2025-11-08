@@ -1,0 +1,21 @@
+[project]
+name = "athena-docs"
+version = "0.0.0"
+description = "Documentation build dependencies for the Athena ecosystem"
+requires-python = ">=3.13"
+license = {file = "LICENSE"}
+classifiers = [
+    "Private :: Do Not Upload",
+]
+dependencies = [
+    "mkdocs~=1.6.1",
+    "mkdocs-material @ git+ssh://git@github.com/athena-framework/mkdocs-material-insiders.git@3ccb025154441324c8b0a49a3cc38ae07ad6f801",
+    "mkdocstrings-crystal~=0.3.9",
+    "mkdocs-gen-files~=0.5.0",
+    "mkdocs-literate-nav~=0.6.2",
+    "mkdocs-autorefs~=1.4.3",
+    "mkdocs-section-index>=0.3.10",
+]
+
+[tool.uv]
+required-version = "0.9.7"
