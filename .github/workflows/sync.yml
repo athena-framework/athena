@@ -62,7 +62,6 @@ jobs:
           echo "kind_release=$IS_KIND_RELEASE" >> "$GITHUB_OUTPUT"
 
   release:
-    runs-on: ubuntu-latest
     needs:
       - sync
     if: needs.sync.outputs.updated_components != '[]' && needs.sync.outputs.kind_release == 'true'
@@ -70,63 +69,10 @@ jobs:
       fail-fast: false
       matrix:
         component: ${{ fromJson(needs.sync.outputs.updated_components) }}
-    steps:
-      - uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.ATHENA_BOT_SSH_PRIV_KEY }}
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          repository: athena-framework/${{ matrix.component }}
-          ssh-key: ${{ secrets.ATHENA_BOT_SSH_PRIV_KEY }}
-          path: component
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          path: root
-      - name: Setup Changie
-        uses: miniscruff/changie-action@5036dffa79ffc007110dc7f75eca7ef72780e147 # v2.1.0
-        with:
-          version: v1.22.1
-      - name: Get the latest version
-        working-directory: root
-        id: current-release
-        run: |
-          TAG=$(changie latest --project "${{ matrix.component }}" | cut -d'/' -f2)
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-      - name: Tag release
-        working-directory: component
-        run: |
-          set -euo pipefail
-
-          git config gpg.format ssh
-          git config user.signingkey "${{ vars.BOT_USER_SIGNING_KEY }}"
-          git config user.name "${{ vars.BOT_USER_NAME }}"
-          git config user.email "${{ vars.BOT_USER_EMAIL }}"
-
-          # Convert from GH repo name format into human readable format
-          COMPONENT_NAME=$(echo "${{ matrix.component }}" | tr '-' ' ' | sed -e 's/\b./\u\0/g')
-          MESSAGE="Athena $COMPONENT_NAME ${{ steps.current-release.outputs.tag }}"
-
-          git tag -asm "$MESSAGE" ${{ steps.current-release.outputs.tag }}
-          git push --quiet origin ${{ steps.current-release.outputs.tag }}
-
-          # Be sure to reset `docs` branch back to current state of `master` as a release assumes the previously cherry-picked commits are now inherently included
-          git branch --quiet --force docs master
-          git push --quiet origin docs --force
-      - name: Create Release
-        working-directory: root
-        env:
-          GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
-        run: |
-          # Cuts off first 2 lines since version number and date are redundant in this context.
-          # Then replace Author names with GH usernames for use in the GH release notes.
-          # See https://github.com/miniscruff/changie/discussions/610#discussioncomment-13917611 for reference.
-          tail -n+3 ".changes/${{ matrix.component }}/${{ steps.current-release.outputs.tag }}.md" | \
-          perl -0777 -pe 's{\([^)]+\)\s*<!--\s*([^>]*\S)\s*-->}{ "(" . join(", ", map { s/^\s+|\s+$//g; s/^@?/@/; $_ } grep { length } split(/\s*,\s*/, $1)) . ")" }ge' | \
-          gh release create ${{ steps.current-release.outputs.tag }} \
-            --repo athena-framework/${{ matrix.component }} \
-            --verify-tag \
-            --title ${{ steps.current-release.outputs.tag }} \
-            --notes-file -
+    uses: ./.github/workflows/tag_and_create_release.yml
+    secrets: inherit
+    with:
+      component: ${{ matrix.component }}
 
   # Trigger a re-build of the docs after all components were released.
   build-docs:
