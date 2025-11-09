@@ -146,7 +146,7 @@ jobs:
         with:
           crystal: ${{ matrix.crystal }}
       - name: Install System Dependencies
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'ubuntu-24.04-arm'
         run: sudo apt-get update && sudo apt install -y libmagic-dev
       - name: Install System Dependencies
         if: matrix.os == 'macos-latest'
