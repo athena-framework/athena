@@ -130,14 +130,12 @@ jobs:
 
   # Trigger a re-build of the docs after all components were released.
   build-docs:
-    runs-on: ubuntu-latest
     needs:
       - release
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - run: gh workflow run release.yml
-        env:
-          GH_TOKEN: ${{ github.token }}
+    uses: ./.github/workflows/build_and_publish_docs.yml
+    secrets: inherit
+    with:
+      branch: master
 
   # Cherry picks changes into `docs` branch of each changed component(s) for PRs with the `kind:documentation` label
   pick-docs:
@@ -169,50 +167,28 @@ jobs:
 
   # If there were component related doc updates, trigger a re-build after all components were synced.
   build-component-docs:
-    runs-on: ubuntu-latest
     needs:
       - sync # This needs to also depend on `sync` so we cn use its outputs even if it's redundant because of the dependency on `pick-docs`.
       - pick-docs
     if: needs.sync.outputs.kind_docs == 'true' && needs.sync.outputs.updated_components != '[]'
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - run: gh workflow run release.yml
-        env:
-          GH_TOKEN: ${{ github.token }}
+    uses: ./.github/workflows/build_and_publish_docs.yml
+    secrets: inherit
+    with:
+      branch: master
 
   # If there were no component related doc updates, simply trigger a re-build after `sync` job to handle updates to the root docs.
   build-root-docs:
-    runs-on: ubuntu-latest
     needs:
       - sync
     if: needs.sync.outputs.kind_docs == 'true' && needs.sync.outputs.updated_components == '[]'
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - run: gh workflow run release.yml
-        env:
-          GH_TOKEN: ${{ github.token }}
+    uses: ./.github/workflows/build_and_publish_docs.yml
+    secrets: inherit
+    with:
+      branch: master
 
   # Build and deploy a development version of the docs to allow viewing docs for all un-released changes in `master`
   build-dev-docs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.ATHENA_BOT_SSH_PRIV_KEY }}
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3.0.0
-      - name: Install Crystal
-        uses: crystal-lang/install-crystal@56684e85b94c6340f5035965d57dcfdedd1ab0de # v1.9.1
-      - name: Install Components
-        run: shards install --without-development
-        env:
-          SHARDS_OVERRIDE: shard.dev.yml
-      - uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
-      - name: Build Docs
-        run: just build-docs
-      - name: Publish to Cloudflare Pages
-        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy ./site --project-name=athenaframework --branch=dev
+    uses: ./.github/workflows/build_and_publish_docs.yml
+    secrets: inherit
+    with:
+      branch: dev

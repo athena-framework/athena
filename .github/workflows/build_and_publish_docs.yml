@@ -1,14 +1,19 @@
-# Intended to be triggered after one or more component(s) have had new versions tagged.
-#
-# docs - Build and deploys the prod version of the docs based on the latest tag of each component
-
-name: Release
-
 on:
   workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Which Cloudflare Pages branch to deploy the docs to'
+        type: string
+        required: true
+  workflow_call:
+    inputs:
+      branch:
+        description: 'Which Cloudflare Pages branch to deploy the docs to'
+        type: string
+        required: true
 
 jobs:
-  docs:
+  build-and-publish-docs:
     runs-on: ubuntu-latest
     steps:
       - uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
@@ -21,7 +26,7 @@ jobs:
       - name: Install Components
         run: shards install --without-development
         env:
-          SHARDS_OVERRIDE: shard.prod.yml
+          SHARDS_OVERRIDE: ${{ inputs.branch == 'dev' && 'shard.dev.yml' || 'shard.prod.yml' }}
       - uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
       - name: Build Docs
         run: just build-docs
@@ -30,4 +35,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy ./site --project-name=athenaframework --branch=master
+          command: pages deploy ./site --project-name=athenaframework --branch=${{ inputs.branch }}
