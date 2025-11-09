@@ -1,5 +1,5 @@
 
-\e\[33mIn foo3\.cr line \d+:\e\[39m
+\e\[33mIn \w+\.cr line \d+:\e\[39m
 \e\[97;41m                                              \e\[39;49m
 \e\[97;41m  Third exception <fg=blue;bg=red>comment</>  \e\[39;49m
 \e\[97;41m                                              \e\[39;49m
