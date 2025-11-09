@@ -1,5 +1,5 @@
 
-In foo3.cr line \d+:
+In \w+.cr line \d+:
                                               
   Third exception <fg=blue;bg=red>comment</>  
                                               

@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3.0.0
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@5503f15cfd350dfc402f9c2f0fa31bdf83fd7384 # v1.8.3
+        uses: crystal-lang/install-crystal@56684e85b94c6340f5035965d57dcfdedd1ab0de # v1.9.1
       - name: Install Components
         run: shards install --without-development
         env:
