@@ -27,6 +27,12 @@
 #
 # NOTE: This constraint does not support a `message` argument.
 #
+# ### unit
+#
+# **Type:** `AVD::Constraints::Length::Unit` **Default:** `AVD::Constraints::Length::Unit::CODEPOINTS`
+#
+# Which unit should be used to determine the length of the string.
+#
 # ### exact_message
 #
 # **Type:** `String` **Default:** `This value should have exactly {{ limit }} character.|This value should have exactly {{ limit }} characters.`
@@ -90,6 +96,18 @@
 # Any arbitrary domain-specific data that should be stored with this constraint.
 # The [payload][Athena::Validator::Constraint--payload] is not used by `Athena::Validator`, but its processing is completely up to you.
 class Athena::Validator::Constraints::Length < Athena::Validator::Constraint
+  # The unit used for the length check, defaulting to `CODEPOINTS`.
+  enum Unit
+    # Uses [String#size](https://crystal-lang.org/api/String.html#size%3AInt32-instance-method) to return the number of Unicode codepoints.
+    CODEPOINTS
+
+    # Uses [String#bytesize](https://crystal-lang.org/api/String.html#bytesize%3AInt32-instance-method) to return the number of bytes.
+    BYTES
+
+    # Uses [String#grapheme_size](https://crystal-lang.org/api/String.html#grapheme_size%3AInt32-instance-method) to return the number of Unicode graphemes clusters.
+    GRAPHEMES
+  end
+
   TOO_SHORT_ERROR        = "643f9d15-a5fd-41b7-b6d8-85f40855ba11"
   TOO_LONG_ERROR         = "e07eee2c-be7a-4ac3-be6b-2ea344250f99"
   NOT_EQUAL_LENGTH_ERROR = "03ef6899-6e39-4e7a-9ac9-5f4374736273"
@@ -105,16 +123,18 @@ class Athena::Validator::Constraints::Length < Athena::Validator::Constraint
   getter min_message : String
   getter max_message : String
   getter exact_message : String
+  getter unit : AVD::Constraints::Length::Unit
 
   def self.new(
     range : ::Range,
     min_message : String = "This value is too short. It should have {{ limit }} character or more.|This value is too short. It should have {{ limit }} characters or more.",
     max_message : String = "This value is too long. It should have {{ limit }} character or less.|This value is too long. It should have {{ limit }} characters or less.",
     exact_message : String = "This value should have exactly {{ limit }} character.|This value should have exactly {{ limit }} characters.",
+    unit : AVD::Constraints::Length::Unit = :codepoints,
     groups : Array(String) | String | Nil = nil,
     payload : Hash(String, String)? = nil,
   )
-    new range.begin, range.end, min_message, max_message, exact_message, groups, payload
+    new range.begin, range.end, min_message, max_message, exact_message, unit, groups, payload
   end
 
   private def initialize(
@@ -123,6 +143,7 @@ class Athena::Validator::Constraints::Length < Athena::Validator::Constraint
     @min_message : String = "This value is too short. It should have {{ limit }} character or more.|This value is too short. It should have {{ limit }} characters or more.",
     @max_message : String = "This value is too long. It should have {{ limit }} character or less.|This value is too long. It should have {{ limit }} characters or less.",
     @exact_message : String = "This value should have exactly {{ limit }} character.|This value should have exactly {{ limit }} characters.",
+    @unit : AVD::Constraints::Length::Unit = :codepoints,
     groups : Array(String) | String | Nil = nil,
     payload : Hash(String, String)? = nil,
   )
@@ -135,7 +156,11 @@ class Athena::Validator::Constraints::Length < Athena::Validator::Constraint
     def validate(value : _, constraint : AVD::Constraints::Length) : Nil
       return if value.nil?
 
-      length = value.to_s.size
+      length = case constraint.unit
+               in .codepoints? then value.to_s.size
+               in .bytes?      then value.to_s.bytesize
+               in .graphemes?  then value.to_s.grapheme_size
+               end
 
       min = constraint.min
       max = constraint.max

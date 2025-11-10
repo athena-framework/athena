@@ -1,0 +1,8 @@
+project: validator
+kind: Added
+body: Allow picking the unit used for `AVD::Constraints::Length` validations
+time: 2025-11-10T11:28:34.07987928-05:00
+custom:
+    Author: George Dietrich
+    PR: "612"
+    Username: blacksmoke16

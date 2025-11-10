@@ -62,6 +62,21 @@ struct LengthValidatorTest < AVD::Spec::ConstraintValidatorTestCase
     self.assert_no_violation
   end
 
+  def test_valid_graphemes_values : Nil
+    self.validator.validate "A\u{0300}", self.new_constraint range: (1..1), unit: CONSTRAINT::Unit::GRAPHEMES
+    self.assert_no_violation
+  end
+
+  def test_valid_codepoints_values : Nil
+    self.validator.validate "A\u{0300}", self.new_constraint range: (2..2), unit: CONSTRAINT::Unit::CODEPOINTS
+    self.assert_no_violation
+  end
+
+  def test_valid_bytes_values : Nil
+    self.validator.validate "A\u{0300}", self.new_constraint range: (3..3), unit: CONSTRAINT::Unit::BYTES
+    self.assert_no_violation
+  end
+
   @[DataProvider("three_or_less")]
   def test_invalid_values_min(value : Int32 | String, value_length : Int32) : Nil
     self.validator.validate value, self.new_constraint range: (4..), min_message: "my_message"
@@ -120,6 +135,36 @@ struct LengthValidatorTest < AVD::Spec::ConstraintValidatorTestCase
       .add_parameter("{{ max }}", 4)
       .add_parameter("{{ value_length }}", value_length)
       .plural(4)
+      .invalid_value(value)
+      .assert_violation
+  end
+
+  def test_invalid_values_exact_default_unit_with_grapheme_input : Nil
+    self.validator.validate value = "A\u{0300}", self.new_constraint range: (1..1), exact_message: "my_message"
+
+    self
+      .build_violation("my_message", CONSTRAINT::NOT_EQUAL_LENGTH_ERROR, value)
+      .add_parameter("{{ value }}", value)
+      .add_parameter("{{ limit }}", 1)
+      .add_parameter("{{ min }}", 1)
+      .add_parameter("{{ max }}", 1)
+      .add_parameter("{{ value_length }}", 2)
+      .plural(1)
+      .invalid_value(value)
+      .assert_violation
+  end
+
+  def test_invalid_values_exact_bytes_unit_with_grapheme_input : Nil
+    self.validator.validate value = "A\u{0300}", self.new_constraint range: (1..1), exact_message: "my_message", unit: CONSTRAINT::Unit::BYTES
+
+    self
+      .build_violation("my_message", CONSTRAINT::NOT_EQUAL_LENGTH_ERROR, value)
+      .add_parameter("{{ value }}", value)
+      .add_parameter("{{ limit }}", 1)
+      .add_parameter("{{ min }}", 1)
+      .add_parameter("{{ max }}", 1)
+      .add_parameter("{{ value_length }}", 3)
+      .plural(1)
       .invalid_value(value)
       .assert_violation
   end
