@@ -216,6 +216,22 @@ struct DotEnvTest < ASPEC::TestCase
     file2.delete
   end
 
+  def test_class_load_single_file : Nil
+    ENV.delete "FOO"
+
+    file = File.tempfile do |f|
+      f.puts "FOO=BAR"
+    end
+
+    Athena::Dotenv.load file.path
+
+    ENV["FOO"]?.should eq "BAR"
+
+    ENV.delete "FOO"
+
+    file.delete
+  end
+
   def test_class_load_defaults : Nil
     ENV.delete "BAZ"
 
