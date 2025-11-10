@@ -37,7 +37,7 @@ struct LengthValidatorTest < AVD::Spec::ConstraintValidatorTestCase
       {"12345", 5},
       {"üüüüü", 5},
       {"ééééé", 5},
-      {123456, 6},
+      {123_456, 6},
       {"123456", 6},
       {"üüüüüü", 6},
       {"éééééé", 6},

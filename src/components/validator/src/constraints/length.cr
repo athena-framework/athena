@@ -131,6 +131,7 @@ class Athena::Validator::Constraints::Length < Athena::Validator::Constraint
 
   class Validator < Athena::Validator::ConstraintValidator
     # :inherit:
+    # ameba:disable Metrics/CyclomaticComplexity
     def validate(value : _, constraint : AVD::Constraints::Length) : Nil
       return if value.nil?
 
