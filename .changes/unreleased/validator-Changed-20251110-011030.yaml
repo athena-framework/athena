@@ -1,0 +1,9 @@
+project: validator
+kind: Changed
+body: Make identifying constraint violation inequality easier within spec failures
+time: 2025-11-10T01:10:30.267021186-05:00
+custom:
+    Author: George Dietrich
+    Breaking: "No"
+    PR: "610"
+    Username: blacksmoke16
