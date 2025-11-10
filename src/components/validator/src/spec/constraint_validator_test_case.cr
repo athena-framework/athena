@@ -119,8 +119,21 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
 
       violations.size.should eq(1), failure_message: "Expected 1 violation, got #{violations.size}."
 
-      expected_violations.each_with_index do |violation, idx|
-        violations[idx].should eq(violation), file: file, line: line
+      expected_violations.each_with_index do |expected_violation, idx|
+        actual_violation = violations[idx]
+
+        # This is derived from `AVD::Violation::ConstraintViolation#==(other : AVD::Violation::ConstraintViolationInterface)`
+        # but is broken out here to make knowing _what_ wasn't equal easier to identity within spec failures.
+        self.assert_equals "message", actual_violation.message, expected_violation.message, file: file, line: line
+        self.assert_equals "message_template", actual_violation.message_template, expected_violation.message_template, file: file, line: line
+        self.assert_equals "parameters", actual_violation.parameters, expected_violation.parameters, file: file, line: line
+        self.assert_equals "root_container", actual_violation.root_container, expected_violation.root_container, file: file, line: line
+        self.assert_equals "property_path", actual_violation.property_path, expected_violation.property_path, file: file, line: line
+        self.assert_equals "invalid_value_container", actual_violation.invalid_value_container, expected_violation.invalid_value_container, file: file, line: line
+        self.assert_equals "plural", actual_violation.plural, expected_violation.plural, file: file, line: line
+        self.assert_equals "code", actual_violation.code, expected_violation.code, file: file, line: line
+        self.assert_equals "constraint", actual_violation.constraint, expected_violation.constraint, file: file, line: line
+        self.assert_equals "cause", actual_violation.cause, expected_violation.cause, file: file, line: line
       end
     end
 
@@ -137,6 +150,10 @@ abstract struct Athena::Validator::Spec::ConstraintValidatorTestCase < ASPEC::Te
         @constraint,
         @cause
       )
+    end
+
+    private def assert_equals(property : String, actual : _, expected : _, file : String, line : Int32) : Nil
+      actual.should eq(expected), failure_message: "Expected #{property} to be: #{expected}, got: #{actual}", file: file, line: line
     end
   end
 
