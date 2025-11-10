@@ -2,6 +2,15 @@
 
 Documents the changes that may be required when upgrading to a newer component version.
 
+## Upgrade to 0.5.0
+
+### Split `AVD::Constraints::Size` constraint
+
+`AVD:Constraints::Size` handled both `Indexable` and `String` values.
+It has been split into dedicated `Count` and `Length` constraints respectively.
+Usages of `Size` should be updated to use one of the new constraints depending on if the value being validated is a string or a collection.
+The new constraints have new error names/UUIDs and potentially different error placeholders.
+
 ## Upgrade to 0.4.0
 
 ### New `AVD::Constraints::URL#require_tld` option

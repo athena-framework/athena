@@ -4,7 +4,7 @@ private class DummyCompoundConstraint < AVD::Constraints::Compound
   def constraints : Type
     [
       AVD::Constraints::NotBlank.new,
-      AVD::Constraints::Size.new(..3),
+      AVD::Constraints::Length.new(..3),
     ]
   end
 end

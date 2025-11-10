@@ -4,7 +4,7 @@ private class DummyCompoundConstraint < AVD::Constraints::Compound
   def constraints : Type
     [
       AVD::Constraints::NotBlank.new,
-      AVD::Constraints::Size.new(...3),
+      AVD::Constraints::Length.new(...3),
       AVD::Constraints::Regex.new(/[a-z]+/),
       AVD::Constraints::Regex.new(/[0-9]+/),
     ]
@@ -34,7 +34,7 @@ struct CompoundConstraintTestCaseTest < AVD::Spec::CompoundConstraintTestCase(St
     self.validate_value "1234"
 
     self.assert_violations_raised_by_compound(
-      AVD::Constraints::Size.new(...3),
+      AVD::Constraints::Length.new(...3),
       AVD::Constraints::Regex.new(/[a-z]+/),
     )
     self.assert_violation_count 2
@@ -43,9 +43,9 @@ struct CompoundConstraintTestCaseTest < AVD::Spec::CompoundConstraintTestCase(St
   def test_no_assert_raised_but_expected : Nil
     self.validate_value "azert"
 
-    expect_raises ::Spec::AssertionFailed, "Expected violation(s) for constraint(s) 'Athena::Validator::Constraints::Size, Athena::Validator::Constraints::Regex' to be raised by compound." do
+    expect_raises ::Spec::AssertionFailed, "Expected violation(s) for constraint(s) 'Athena::Validator::Constraints::Length, Athena::Validator::Constraints::Regex' to be raised by compound." do
       self.assert_violations_raised_by_compound(
-        AVD::Constraints::Size.new(..5),
+        AVD::Constraints::Length.new(..5),
         AVD::Constraints::Regex.new(/^[A-Z]+$/),
       )
     end
@@ -64,9 +64,9 @@ struct CompoundConstraintTestCaseTest < AVD::Spec::CompoundConstraintTestCase(St
   def test_assert_raised_by_compound_but_got_none : Nil
     self.validate_value "123"
 
-    expect_raises ::Spec::AssertionFailed, "Expected at least one violation for constraint(s): 'Athena::Validator::Constraints::Size', got none." do
+    expect_raises ::Spec::AssertionFailed, "Expected at least one violation for constraint(s): 'Athena::Validator::Constraints::Length', got none." do
       self.assert_violations_raised_by_compound(
-        AVD::Constraints::Size.new(..5),
+        AVD::Constraints::Length.new(..5),
       )
     end
   end
