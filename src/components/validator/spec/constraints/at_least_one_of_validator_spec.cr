@@ -5,9 +5,9 @@ private alias CONSTRAINT = AVD::Constraints::AtLeastOneOf
 struct AtLeastOneOfValidatorTest < AVD::Spec::ConstraintValidatorTestCase
   def valid_combinations : Tuple
     {
-      {"athena", [AVD::Constraints::Size.new(range: (10..)), AVD::Constraints::EqualTo.new(value: "athena")]},
+      {"athena", [AVD::Constraints::Length.new(range: (10..)), AVD::Constraints::EqualTo.new(value: "athena")]},
       {150, [AVD::Constraints::Range.new(range: (10..20)), AVD::Constraints::GreaterThanOrEqual.new(value: 100)]},
-      {[1, 3, 5], [AVD::Constraints::Size.new(range: (5..)), AVD::Constraints::Unique.new]},
+      {[1, 3, 5], [AVD::Constraints::Count.new(range: (5..)), AVD::Constraints::Unique.new]},
     }
   end
 
@@ -23,9 +23,9 @@ struct AtLeastOneOfValidatorTest < AVD::Spec::ConstraintValidatorTestCase
 
   def invalid_combinations : Tuple
     {
-      {"athenaa", [AVD::Constraints::Size.new(range: (10..)), AVD::Constraints::EqualTo.new(value: "athena")]},
+      {"athenaa", [AVD::Constraints::Length.new(range: (10..)), AVD::Constraints::EqualTo.new(value: "athena")]},
       {50, [AVD::Constraints::Range.new(range: (10..20)), AVD::Constraints::GreaterThanOrEqual.new(value: 100)]},
-      {[1, 3, 3], [AVD::Constraints::Size.new(range: (5..)), AVD::Constraints::Unique.new]},
+      {[1, 3, 3], [AVD::Constraints::Count.new(range: (5..)), AVD::Constraints::Unique.new]},
     }
   end
 

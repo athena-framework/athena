@@ -26,7 +26,7 @@ struct RecursiveValidatorTest < AVD::Spec::ValidatorTestCase
   def test_validate_all_constraint_validate_all_groups_for_nested_constraints : Nil
     @metadata.add_property_constraint "data_hash", AVD::Constraints::All.new([
       AVD::Constraints::NotBlank.new(groups: "group1"),
-      AVD::Constraints::Size.new(2.., groups: "group2"),
+      AVD::Constraints::Length.new(2.., groups: "group2"),
     ])
 
     object = Entity.new
@@ -37,7 +37,7 @@ struct RecursiveValidatorTest < AVD::Spec::ValidatorTestCase
     violations.size.should eq 3
 
     violations[0].constraint.should be_a AVD::Constraints::NotBlank
-    violations[1].constraint.should be_a AVD::Constraints::Size
-    violations[2].constraint.should be_a AVD::Constraints::Size
+    violations[1].constraint.should be_a AVD::Constraints::Length
+    violations[2].constraint.should be_a AVD::Constraints::Length
   end
 end
