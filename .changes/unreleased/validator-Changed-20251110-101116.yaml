@@ -1,0 +1,9 @@
+project: validator
+kind: Changed
+body: Split `AVD::Constraints::Size` into `Count` and `Length` constraints
+time: 2025-11-10T10:11:16.284984647-05:00
+custom:
+    Author: George Dietrich
+    Breaking: "Yes"
+    PR: "611"
+    Username: blacksmoke16
