@@ -117,5 +117,36 @@ describe Athena::Spec do
         end
         CODE
     end
+
+    it "bubbles up exceptions that happen when instantiating another object within initialize" do
+      assert_runtime_error "Raise during initialize", <<-CODE
+          struct TestTestCase < ASPEC::TestCase
+            private class Foo
+              # Needs some ivar that is uninitialized
+              getter id : Int32 = 123
+
+              def initialize
+                # Makes `@target` become not fully initialized
+                raise "Raise during initialize"
+              end
+            end
+
+            @target : Foo
+
+            def initialize
+              @target = Foo.new
+            end
+
+            def tear_down : Nil
+              # Segfaults accessing uninitialized ivar
+              @target.id.should eq 123
+            end
+
+            def test_equals : Nil
+              # no-op
+            end
+          end
+        CODE
+    end
   end
 end

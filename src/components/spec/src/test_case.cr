@@ -329,6 +329,11 @@ abstract struct Athena::Spec::TestCase
       {{!!@type.annotation(Pending) ? "pending".id : "describe".id}} {{@type.name.stringify}}, focus: {{!!@type.annotation Focus}}{% if (tags = @type.annotation(Tags)) %}, tags: {{tags.args}}{% end %} do
         before_all do
           instance.before_all
+
+          # Run this here to validate the instance is valid before calling tear_down,
+          # which could possibly lead to segfaults if there was an exception raised during
+          # initialization of an object when assigning an ivar in initialize and some state of that object is interacted with.
+          instance.initialize
         end
 
         before_each do

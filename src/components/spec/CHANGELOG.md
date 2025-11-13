@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.1] - 2025-11-12
+
+### Fixed
+
+- Fix segfault when interacting with a test case ivar object's ivar that was left uninitialized due to an exception in its initializer, within the `tear_down` method ([#613]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.4.1]: https://github.com/athena-framework/spec/releases/tag/v0.4.1
+[#613]: https://github.com/athena-framework/athena/pull/613
+
 ## [0.4.0] - 2025-09-04
 
 ### Added
