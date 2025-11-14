@@ -1,20 +1,24 @@
 version: 2
 
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     # Updates tend to be released at the beginning of the month, but not exactly on the first.
     # Add some delay to be able to catpure them
     schedule:
-      interval: "cron"
-      cronjob: "0 0 7 * *"
+      interval: 'cron'
+      cronjob: '0 0 7 * *'
     labels:
-      - "kind:infrastructure"
-      - "kind:enhancement"
-  - package-ecosystem: "pip"
-    directory: "/"
+      - 'kind:infrastructure'
+      - 'kind:maintenance'
+  - package-ecosystem: 'uv'
+    directory: '/'
     schedule:
-      interval: "monthly"
+      interval: 'monthly'
     labels:
-      - "kind:infrastructure"
-      - "kind:enhancement"
+      - 'kind:documentation'
+      - 'kind:maintenance'
+    groups:
+      documentation:
+        patterns:
+          - '*'
