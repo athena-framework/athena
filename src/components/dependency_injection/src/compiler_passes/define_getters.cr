@@ -63,6 +63,7 @@ module Athena::DependencyInjection::ServiceContainer::DefineGetters
             {% end %}
           {% end %}
         {% end %}
+        {% debug %}
       {% end %}
     end
   end

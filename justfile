@@ -22,7 +22,7 @@ install:
 # Runs and watches for changes to the main entrypoint file of the provided `component`
 [group('dev')]
 watch component:
-    watchexec --restart --watch=src/ --emit-events-to=none --clear --no-project-ignore -- {{ CRYSTAL }} run src/components/{{ component }}/src/{{ if component == 'framework' { 'athena' } else { 'athena-' + component } }}.cr
+    watchexec --restart --watch=src/ --emit-events-to=none --clear --no-project-ignore -- {{ CRYSTAL }} run --error-trace src/components/{{ component }}/src/{{ if component == 'framework' { 'athena' } else { 'athena-' + component } }}.cr
 
 # Runs the test suite of the provided `component`, or `all` for all components, and watches for changes
 [group('dev')]

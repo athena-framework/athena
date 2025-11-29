@@ -180,3 +180,28 @@ module Athena::DependencyInjection
     {% end %}
   end
 end
+
+ENV["APP_DATE"] = "123"
+ENV["APP_PORT"] = "foo"
+
+ADI.configure({
+  parameters: {
+    "app.version": "123",
+    "app.name":    "Testing v%app.version%",
+    "app.date":    "%env(int:APP_DATE)%",
+    "app.url":     "https://localhost:%env(APP_PORT)%",
+  },
+})
+
+@[ADI::Register(_name: "%app.name%", _date: "%app.date%", _url: "%app.url%", public: true)]
+class Foo
+  def initialize(@name : String, @date : Int32, @url : String); end
+end
+
+@[ADI::Register(_date: "%app.date%", _url: "%app.url%", public: true)]
+class Bar
+  def initialize(@date : Int32, @url : String); end
+end
+
+pp ADI.container.foo
+pp ADI.container.bar

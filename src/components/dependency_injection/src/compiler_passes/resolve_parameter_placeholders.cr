@@ -62,21 +62,17 @@ module Athena::DependencyInjection::ServiceContainer::ResolveParameterPlaceholde
               end
             else
               if v.is_a?(StringLiteral) && v =~ /%%|%([^%\s]++)%/
-                key = ""
-                char_is_part_of_key = false
+                new_value = v.gsub(/%%|%([^%\s]++)%/) do |str, matches|
+                  param_name = matches[1]
 
-                new_value = ""
+                  if param_name.starts_with?("env(")
+                    env_name = param_name[4..-2]
 
-                chars = v.chars
+                    p({v: v, param_name: param_name, k: k})
 
-                chars.each_with_index do |c, idx|
-                  if c == '%' && chars[idx + 1] == '%'
-                    # Do nothing as we'll just add the next char
-                  elsif !char_is_part_of_key && c == '%' && (idx == 0 || chars[idx - 1] != '%')
-                    char_is_part_of_key = true
-                  elsif char_is_part_of_key && c == '%'
-                    resolved_value = CONFIG["parameters"][key]
-
+                    v.starts_with?('%') ? "self.get_env(#{env_name})".id : %("\#{self.get_env(#{env_name})}")
+                  else
+                    resolved_value = CONFIG["parameters"][param_name]
                     if resolved_value == nil
                       path = "#{stack[0]}"
 
@@ -84,21 +80,10 @@ module Athena::DependencyInjection::ServiceContainer::ResolveParameterPlaceholde
                         path += "[#{p}]"
                       end
 
-                      key.raise "#{stack[0] == "parameters" ? "Parameter".id : "Configuration value".id} '#{path.id}' referenced unknown parameter '#{key.id}'."
+                      h[k][sk].raise "#{stack[0] == "parameters" ? "Parameter".id : "Configuration value".id} '#{path.id}[#{sk}]' referenced unknown parameter '#{key.id}'."
                     end
 
-                    if new_value.empty?
-                      new_value = resolved_value
-                    else
-                      new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
-                    end
-
-                    key = ""
-                    char_is_part_of_key = false
-                  elsif char_is_part_of_key
-                    key += c
-                  else
-                    new_value += c
+                    resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
                   end
                 end
 

@@ -14,9 +14,9 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                 value = param["value"]
                 restriction = param["resolved_restriction"]
 
-                if restriction && restriction <= String && (!value.is_a?(StringLiteral) && !value.is_a?(Call))
-                  error = "Parameter '#{param["declaration"]}' of service '#{service_id.id}' (#{definition["class"]}) expects a String but got '#{value}'."
-                end
+                # if restriction && restriction <= String && (!value.is_a?(StringLiteral) && !value.is_a?(Call) && !(value.is_a?(MacroId) && value.starts_with?("self.get_env")))
+                #   error = "Parameter '#{param["declaration"]}' of service '#{service_id.id}' (#{definition["class"]}) expects a String but got '#{value}'."
+                # end
 
                 if (s = SERVICE_HASH[value.stringify]) && (klass = s["class"]).is_a?(TypeNode) && !(klass <= restriction)
                   error = "Parameter '#{param["declaration"]}' of service '#{service_id.id}' (#{definition["class"]}) expects '#{restriction}' but" \

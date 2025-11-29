@@ -101,4 +101,105 @@ class Athena::DependencyInjection::ServiceContainer
       include {{pass.id}}
     {% end %}
   end
+
+  struct Bag
+    private abstract struct Param
+      abstract def value
+    end
+
+    private record Parameter(T) < Param, value : T
+
+    @parameters : Hash(String, Param) = Hash(String, Param).new
+
+    def has?(name : String) : Bool
+      @parameters.has_key? name
+    end
+
+    # Returns the value of the parameter with the provided *name* if it exists, otherwise `nil`.
+    def get?(name : String)
+      @parameters[name]?.try &.value
+    end
+
+    # Returns the value of the parameter with the provided *name* casted to the provided *type* if it exists, otherwise `nil`.
+    def get?(name : String, type : T?.class) : T? forall T
+      self.get?(name).as? T?
+    end
+
+    # Returns the value of the parameter with the provided *name*.
+    #
+    # Raises a `KeyError` if no parameter with that name exists.
+    def get(name : String)
+      @parameters.fetch(name) { raise KeyError.new "No parameter exists with the name '#{name}'." }.value
+    end
+
+    # Returns the value of the parameter with the provided *name*, casted to the provided *type*.
+    #
+    # Raises a `KeyError` if no parameter with that name exists.
+    def get(name : String, type : T.class) : T forall T
+      self.get(name).as T
+    end
+
+    def set(name : String, value : T) forall T
+      self.set name, value, T
+    end
+
+    def set(name : String, value : T, type : T.class) forall T
+      @parameters[name] = Parameter(T).new value
+      value
+    end
+
+    def remove(name : String) : Nil
+      @parameters.delete name
+    end
+  end
+
+  @@env_resolving = Set(String).new
+  @@env_cache = Bag.new
+
+  module ENVVariableProcessorInterface
+    abstract def get_env(prefix : String, name : String, type : _.class)
+  end
+
+  struct ENVVariableProcessor
+    include ENVVariableProcessorInterface
+
+    def get_env(prefix : String, name : String, type : Int32.class) : Int32
+      raise "No ENV: #{name}" unless env = ENV[name]?
+      p({prefix, name})
+
+      env.to_i
+    end
+
+    def get_env(prefix : String, name : String, type : String.class) : String
+      raise "No ENV: #{name}" unless env = ENV[name]?
+      p({prefix, name})
+
+      env.to_s
+    end
+  end
+
+  def get_env(name : String, type : T.class) : T forall T
+    if @@env_resolving.includes?(env_name = "env(#{name})")
+      raise "Circular Reference"
+    end
+
+    if @@env_cache.has? name
+      return @@env_cache.get name, T
+    end
+
+    processor = ENVVariableProcessor.new
+
+    prefix, local_name = if name.includes? ':'
+                           name.split ':', 2
+                         else
+                           {"string", name}
+                         end
+
+    @@env_resolving.add env_name
+    begin
+      @@env_cache.set name, processor.get_env prefix, local_name, T
+    ensure
+      @@env_resolving.delete env_name
+    end
+  end
 end
