@@ -76,7 +76,7 @@ build-docs: _symlink_lib
 # Serve live-preview of the docs
 [group('docs')]
 serve-docs: _symlink_lib
-    {{ UV }} run --frozen mkdocs serve --open
+    {{ UV }} run --frozen mkdocs serve --livereload
 
 # Clean MKDocs build artifacts
 [group('docs')]

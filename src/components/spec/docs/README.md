@@ -13,6 +13,16 @@ dependencies:
     version: ~> 0.4.0
 ```
 
+Next, require the shard within your `spec/spec_helper.cr` file, being sure things are required in this order:
+
+```crystal
+require "spec"
+require "../src/main" # Or whatever the name of your entrypoint file is called
+require "athena-spec"
+```
+
+Finally, call [ASPEC.run_all][] at the bottom of `spec/spec_helper.cr` to ensure [ASPEC::TestCase][] based specs are ran as expected.
+
 ## Usage
 
 A core focus of this component is allowing for a more classic unit testing approach that makes it easy to share/reduce test code duplication.

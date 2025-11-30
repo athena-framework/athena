@@ -1,6 +1,22 @@
 One of the benefits of using the Athena Framework is testing is considered a first class citizen.
 Both the framework and the components themselves provides testing utilities to help ensure your code is working as expected.
 
+A small amount of setup is required to make use of the testing features provided by the framework.
+If you created your project via the [skeleton](https://github.com/athena-framework/skeleton) template repository, then everything is ready for use out of the box.
+Otherwise, ensure that your `spec/spec_helper.cr` file includes the following requires/method calls, in this order:
+
+```crystal
+require "spec"
+require "../src/main" # Or whatever the name of your entrypoint file is called
+require "athena/spec"
+
+# ...
+
+ASPEC.run_all
+```
+
+WARNING: It's important that your main entrypoint file is required _before_ `athena/spec`.
+
 ## TestCase
 
 At the core is the [Athena::Spec](/Spec) component, with [ASPEC::TestCase](/Spec/TestCase) being the primary type.

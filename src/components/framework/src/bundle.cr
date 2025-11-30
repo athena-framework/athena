@@ -64,7 +64,7 @@ struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
       #     format_listener: {
       #       enabled: true,
       #       rules:   [
-      #         {priorities: ["json", "xml"], host: "api.example.com", fallback_format: "json"},
+      #         {priorities: ["json", "xml"], host: /api\.example\.com/, fallback_format: "json"},
       #         {path: /^\/image/, priorities: ["jpeg", "gif"], fallback_format: false},
       #         {path: /^\/admin/, priorities: ["xml", "html"]},
       #         {priorities: ["text/html", "*/*"], fallback_format: "html"},
