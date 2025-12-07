@@ -1,14 +1,14 @@
 theme:
   name: material
   palette:
-    - media: "(prefers-color-scheme: light)"
+    - media: '(prefers-color-scheme: light)'
       scheme: default
       primary: black
       accent: red
       toggle:
         icon: material/weather-sunny
         name: Switch to dark theme
-    - media: "(prefers-color-scheme: dark)"
+    - media: '(prefers-color-scheme: dark)'
       scheme: slate
       primary: black
       accent: red
@@ -18,6 +18,7 @@ theme:
   features:
     - navigation.sections
     - navigation.instant
+    - content.code.copy
 
 use_directory_urls: true
 
@@ -49,7 +50,11 @@ markdown_extensions:
   - pymdownx.highlight
   - pymdownx.magiclink
   - pymdownx.saneheaders
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - deduplicate-toc
   - toc:
-      permalink: "#"
+      permalink: '#'

@@ -1,6 +1,5 @@
 require "./spec_helper"
 
-# @[ASPEC::TestCase::Focus]
 struct AuthorizationTest < ASPEC::TestCase
   def test_jwt_lifetime : Nil
     registry = AMC::Hub::Registry.new(AMC::Spec::MockHub.new(

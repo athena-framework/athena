@@ -1,3 +1,4 @@
+# A token factory implementation based on the [Crystal JWT](https://github.com/crystal-community/jwt) shard.
 struct Athena::Mercure::TokenFactory::JWT
   include Athena::Mercure::TokenFactory::Interface
 
@@ -43,6 +44,7 @@ struct Athena::Mercure::TokenFactory::JWT
     @jwt_lifetime = jwt_lifetime.is_a?(Int32) ? jwt_lifetime.seconds : jwt_lifetime
   end
 
+  # :inherit:
   def create(
     subscribe : Array(String)? = [] of String,
     publish : Array(String)? = [] of String,

@@ -1,9 +1,13 @@
 require "./interface"
 
+# Default implementation of [AMC::Hub::Interface][].
 class Athena::Mercure::Hub
   include Athena::Mercure::Hub::Interface
 
+  # :inherit:
   getter token_provider : AMC::TokenProvider::Interface
+
+  # :inherit:
   getter token_factory : AMC::TokenFactory::Interface?
 
   @uri : URI
@@ -13,22 +17,25 @@ class Athena::Mercure::Hub
   def initialize(
     url : String,
     @token_provider : AMC::TokenProvider::Interface,
-    @public_url : String? = nil,
     @token_factory : AMC::TokenFactory::Interface? = nil,
+    @public_url : String? = nil,
     http_client : HTTP::Client? = nil,
   )
     @uri = URI.parse url
     @http_client = http_client || HTTP::Client.new @uri
   end
 
+  # :inherit:
   def url : String
     @uri.to_s
   end
 
+  # :inherit:
   def public_url : String
     @public_url || @uri.to_s
   end
 
+  # :inherit:
   def publish(update : AMC::Update) : String
     @http_client.post(
       @uri.path,

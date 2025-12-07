@@ -1,6 +1,6 @@
 [default]
 extend-ignore-re = [
-  "(?Rm)^.*#\\s*spellchecker:disable-line$", # All disabling specific lines
+  "(?Rm)^.*#\\s*spellchecker:disable-line$", # Allow disabling specific lines
   "=[0-9A-F \n\r]{2}", # Disable checking Quoted-Printable encoded strings
 ]
 
