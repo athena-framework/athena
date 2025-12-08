@@ -24,7 +24,7 @@ jobs:
         run: shards install --without-development
         env:
           SHARDS_OVERRIDE: ${{ inputs.branch == 'dev' && 'shard.dev.yml' || 'shard.prod.yml' }}
-      - uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41 # v7.1.2
+      - uses: astral-sh/setup-uv@ed21f2f24f8dd64503750218de024bcf64c7250a # v7.1.5
       - name: Build Docs
         run: just build-docs
       - name: Publish to Cloudflare Pages
