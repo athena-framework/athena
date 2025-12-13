@@ -8,16 +8,20 @@ class Athena::Mercure::Discovery
   ); end
 
   # Adds the mercure relation `link` header to the provided *response*, optionally for the provided *hub_name*.
-  def add_link(request : HTTP::Request, response : HTTP::Server::Response, hub_name : String? = nil) : Nil
+  def add_link(request : ::HTTP::Request, response : ::HTTP::Server::Response, hub_name : String? = nil) : Nil
     return if self.preflight_request? request
 
     hub = @hub_registry.hub hub_name
 
     # TODO: Create WebLink component?
-    response.headers.add "link", %(<#{hub.public_url}>; rel="mercure")
+    response.headers.add "link", self.generate_link(hub.public_url)
   end
 
-  private def preflight_request?(request : HTTP::Request) : Bool
+  private def generate_link(url : String) : String
+    %(<#{url}>; rel="mercure")
+  end
+
+  private def preflight_request?(request : ::HTTP::Request) : Bool
     "options" == request.method.downcase && request.headers.has_key? "access-control-request-method"
   end
 end
