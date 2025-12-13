@@ -32,6 +32,9 @@ nav:
   - Guides:
       - guides/README.md
       - Proxies & Load Balancers: guides/proxies.md
+  - Bundle Reference:
+      - bundle_reference.md
+      - project://mercure-bundle
   - API Reference:
       - api_reference.md
       - project://clock

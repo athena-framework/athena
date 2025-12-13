@@ -1,0 +1,22 @@
+name: athena-mercure_bundle
+
+version: 0.1.0
+
+crystal: ~> 1.13
+
+license: MIT
+
+repository: https://github.com/athena-framework/mercure-bundle
+
+documentation: https://athenaframework.org/MercureBundle
+
+description: |
+  <TODO>
+
+authors:
+  - George Dietrich <dev@dietrich.pub>
+
+dependencies:
+  athena-mercure:
+    github: athena-framework/mercure
+    version: ~> 0.1.0
