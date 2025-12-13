@@ -4,4 +4,4 @@
 
 _Initial release._
 
-[0.1.0]: https://github.com/athena-framework/BUNDLE_NAME-bundle/releases/tag/v0.1.0
+[0.1.0]: https://github.com/athena-framework/mercure-bundle/releases/tag/v0.1.0
