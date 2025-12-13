@@ -22,6 +22,9 @@ These include:
 * [Validator](/Validator/) (`AVD`) - Object/value validation library
 
 These components may be used on their own to aid in existing projects or integrated into existing (or new) frameworks.
+Additionally, some bundles are also provided that provide opt-in integrations of select components:
+
+* [MercureBundle](/MercureBundle/) (`ABM`) - Integrations the Mercure component into the framework.
 
 TIP: Each component may also define additional shortcut aliases. Check the `Aliases` page of each component in the [API Reference](./api_reference.md) for more information.
 

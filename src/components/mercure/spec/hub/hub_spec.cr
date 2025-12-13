@@ -2,19 +2,19 @@ require "../spec_helper"
 
 private URL = "https://demo.mercure.rocks/.well-known/mercure"
 
-private class MockHTTPClient < HTTP::Client
+private class MockHTTPClient < ::HTTP::Client
   setter exception : ::Exception? = nil
 
-  def post(path, headers : HTTP::Headers? = nil, *, form : String | IO) : HTTP::Client::Response
+  def post(path, headers : ::HTTP::Headers? = nil, *, form : String | IO) : ::HTTP::Client::Response
     if ex = @exception
       raise ex
     end
 
     path.should eq "/.well-known/mercure"
-    headers.should eq HTTP::Headers{"authorization" => "Bearer FOO"}
+    headers.should eq ::HTTP::Headers{"authorization" => "Bearer FOO"}
     form.should eq "topic=https%3A%2F%2Fdemo.mercure.rocks%2Fdemo%2Fbooks%2F1.jsonld&data=Hi+from+Athena%21&private=on&id=id&retry=3"
 
-    HTTP::Client::Response.new :ok, "ID"
+    ::HTTP::Client::Response.new :ok, "ID"
   end
 end
 

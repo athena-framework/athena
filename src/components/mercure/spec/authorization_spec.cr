@@ -9,7 +9,7 @@ struct AuthorizationTest < ASPEC::TestCase
     ) { "ID" })
 
     authorization = AMC::Authorization.new registry
-    cookie = authorization.create_cookie HTTP::Request.new("GET", "https://example.com", headers: HTTP::Headers{"host" => "example.com"})
+    cookie = authorization.create_cookie ::HTTP::Request.new("GET", "https://example.com", headers: ::HTTP::Headers{"host" => "example.com"})
 
     payload, _ = JWT.decode(cookie.value, verify: false, validate: false)
     payload["exp"].as_i?.should be_a Int32
@@ -29,8 +29,8 @@ struct AuthorizationTest < ASPEC::TestCase
       token_factory: token_factory
     ) { "ID" })
 
-    request = HTTP::Request.new("GET", "https://example.com", headers: HTTP::Headers{"host" => "example.com"})
-    response = HTTP::Server::Response.new IO::Memory.new
+    request = ::HTTP::Request.new("GET", "https://example.com", headers: ::HTTP::Headers{"host" => "example.com"})
+    response = ::HTTP::Server::Response.new IO::Memory.new
 
     authorization = AMC::Authorization.new registry, Time::Span.zero, :lax
     authorization.set_cookie request, response, ["foo"], ["bar"], {"x-foo" => "baz"}
@@ -56,8 +56,8 @@ struct AuthorizationTest < ASPEC::TestCase
       token_factory: token_factory
     ) { "ID" })
 
-    request = HTTP::Request.new("GET", "https://example.com", headers: HTTP::Headers{"host" => "example.com"})
-    response = HTTP::Server::Response.new IO::Memory.new
+    request = ::HTTP::Request.new("GET", "https://example.com", headers: ::HTTP::Headers{"host" => "example.com"})
+    response = ::HTTP::Server::Response.new IO::Memory.new
 
     authorization = AMC::Authorization.new registry, cookie_samesite: :lax
     authorization.set_cookie request, response, ["foo"], ["bar"], {"x-foo" => "baz"}
@@ -78,8 +78,8 @@ struct AuthorizationTest < ASPEC::TestCase
       token_factory: token_factory
     ) { "ID" })
 
-    request = HTTP::Request.new("GET", "https://example.com", headers: HTTP::Headers{"host" => "example.com"})
-    response = HTTP::Server::Response.new IO::Memory.new
+    request = ::HTTP::Request.new("GET", "https://example.com", headers: ::HTTP::Headers{"host" => "example.com"})
+    response = ::HTTP::Server::Response.new IO::Memory.new
 
     authorization = AMC::Authorization.new registry
     authorization.clear_cookie request, response
@@ -98,7 +98,7 @@ struct AuthorizationTest < ASPEC::TestCase
     ) { "ID" })
 
     uri = URI.parse request_url
-    request = HTTP::Request.new("GET", uri.path, headers: HTTP::Headers{"host" => uri.hostname || ""})
+    request = ::HTTP::Request.new("GET", uri.path, headers: ::HTTP::Headers{"host" => uri.hostname || ""})
 
     authorization = AMC::Authorization.new registry
 
@@ -126,7 +126,7 @@ struct AuthorizationTest < ASPEC::TestCase
     ) { "ID" })
 
     uri = URI.parse request_url
-    request = HTTP::Request.new("GET", uri.path, headers: HTTP::Headers{"host" => uri.hostname || ""})
+    request = ::HTTP::Request.new("GET", uri.path, headers: ::HTTP::Headers{"host" => uri.hostname || ""})
 
     authorization = AMC::Authorization.new registry
 
@@ -149,8 +149,8 @@ struct AuthorizationTest < ASPEC::TestCase
       token_factory: AMC::TokenFactory::JWT.new("looooooooooooongenoughtestsecret", jwt_lifetime: 4000)
     ) { "ID" })
 
-    request = HTTP::Request.new("GET", "https://example.com", headers: HTTP::Headers{"host" => "example.com"})
-    response = HTTP::Server::Response.new IO::Memory.new
+    request = ::HTTP::Request.new("GET", "https://example.com", headers: ::HTTP::Headers{"host" => "example.com"})
+    response = ::HTTP::Server::Response.new IO::Memory.new
 
     authorization = AMC::Authorization.new registry
 
@@ -174,8 +174,8 @@ struct AuthorizationTest < ASPEC::TestCase
       token_factory: token_factory
     ) { "ID" })
 
-    request = HTTP::Request.new("GET", "https://example.com", headers: HTTP::Headers{"host" => "example.com"})
-    response = HTTP::Server::Response.new IO::Memory.new
+    request = ::HTTP::Request.new("GET", "https://example.com", headers: ::HTTP::Headers{"host" => "example.com"})
+    response = ::HTTP::Server::Response.new IO::Memory.new
 
     authorization = AMC::Authorization.new registry
     authorization.set_cookie request, response, nil, nil, {"x-foo" => "baz"}
