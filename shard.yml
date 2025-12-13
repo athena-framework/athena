@@ -39,6 +39,8 @@ dependencies:
     github: athena-framework/image-size
   athena-mercure:
     github: athena-framework/mercure
+  athena-mercure_bundle:
+    github: athena-framework/mercure-bundle
   athena-mime:
     github: athena-framework/mime
   athena-negotiation:

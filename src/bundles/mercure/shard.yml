@@ -1,0 +1,28 @@
+name: athena-mercure_bundle
+
+version: 0.1.0
+
+crystal: ~> 1.13
+
+license: MIT
+
+repository: https://github.com/athena-framework/mercure-bundle
+
+documentation: https://athenaframework.org/MercureBundle
+
+description: |
+  Integrates the Athena Mercure component into the framework
+
+authors:
+  - George Dietrich <dev@dietrich.pub>
+
+dependencies:
+  athena-dependency_injection:
+    github: athena-framework/dependency-injection
+    version: ~> 0.4.0
+  athena-http_kernel:
+    github: athena-framework/http-kernel
+    version: ~> 0.1.0
+  athena-mercure:
+    github: athena-framework/mercure
+    version: ~> 0.1.0

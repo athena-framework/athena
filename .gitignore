@@ -19,3 +19,4 @@ coverage/
 # Ignore `lib` symlink related to building docs
 # This includes bundle docs, due to mkdocs project plugin limitations
 /src/components/**/lib
+/src/bundles/**/lib

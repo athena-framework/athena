@@ -22,6 +22,8 @@ dependencies:
     path: ./src/components/image_size
   athena-mercure:
     path: ./src/components/mercure
+  athena-mercure_bundle:
+    path: ./src/bundles/mercure
   athena-mime:
     path: ./src/components/mime
   athena-negotiation:

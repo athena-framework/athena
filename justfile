@@ -22,7 +22,7 @@ install:
 # Run shard entrypoint with live reload
 [group('dev')]
 watch shard type='component':
-    watchexec --restart --watch=src/ --emit-events-to=none --clear --no-project-ignore -- {{ CRYSTAL }} run src/{{ type }}s/{{ shard }}/src/{{ if shard == 'framework' { 'athena' } else { 'athena-' + shard } }}.cr
+    watchexec --restart --watch=src/ --emit-events-to=none --clear --no-project-ignore -- {{ CRYSTAL }} run src/{{ type }}s/{{ shard }}/src/{{ if shard == 'framework' { 'athena' } else { 'athena-' + shard } }}{{ if type == 'bundle' { '_bundle' } else { '' } }}.cr
 
 # Run tests with live reload
 [group('dev')]
@@ -113,6 +113,6 @@ clean: clean-docs
     rm -rf .venv
 
 _symlink_lib:
-    @ for shardDir in $(find src/ -maxdepth 3 -type f -name shard.yml | xargs -I{} dirname {} | sort); do \
+    @ for shardDir in $(find -L src/ -maxdepth 3 -type f -name shard.yml | xargs -I{} dirname {} | sort); do \
       ln --force --verbose --symbolic {{ (invocation_directory_native() / 'lib') }} "$shardDir/lib"; \
     done

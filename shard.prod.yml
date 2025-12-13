@@ -34,6 +34,9 @@ dependencies:
   athena-mercure:
     github: athena-framework/mercure
     branch: docs
+  athena-mercure_bundle:
+    github: athena-framework/mercure-bundle
+    branch: docs
   athena-mime:
     github: athena-framework/mime
     branch: docs
