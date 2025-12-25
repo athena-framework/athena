@@ -1,3 +1,5 @@
+# Helper class for adding the Mercure authorization cookie to an HTTP response in order to enable private updates.
+# See [Authorization](/Mercure/#authorization) for more information.
 class Athena::Mercure::Authorization
   private COOKIE_NAME = "mercureAuthorization"
 
@@ -7,6 +9,10 @@ class Athena::Mercure::Authorization
     @cookie_samesite : HTTP::Cookie::SameSite = :strict,
   ); end
 
+  # Sets the `mercureAuthorization` cookie on the provided *response* given the provided *request*, optionally for the provided *hub*.
+  # The JWT cookie value by default does not have access to publish or subscribe to any topic.
+  # Be sure to set the *subscribe* and *publish* arrays to the topics you want it to be able to interact with, or `["*"]` to handle all topics.
+  # *additional_claims* may also be used to define additional claims to the JWT if needed.
   def set_cookie(
     request : HTTP::Request,
     response : HTTP::Server::Response,
@@ -18,6 +24,7 @@ class Athena::Mercure::Authorization
     self.update_cookies request, response, hub_name, self.create_cookie(request, subscribe, publish, additional_claims, hub_name)
   end
 
+  # Clears the Mercure cookie from the provided *response*, optionally for the provided *hub*.
   def clear_cookie(
     request : HTTP::Request,
     response : HTTP::Server::Response,
@@ -26,6 +33,11 @@ class Athena::Mercure::Authorization
     self.update_cookies request, response, hub_name, self.create_clear_cookie(request, hub_name)
   end
 
+  # Returns a Mercure auth cookie given the provided *request* and optionally for the provided *hub_name*.
+  #
+  # The JWT cookie value by default does not have access to publish or subscribe to any topic.
+  # Be sure to set the *subscribe* and *publish* arrays to the topics you want it to be able to interact with, or `["*"]` to handle all topics.
+  # *additional_claims* may also be used to define additional claims to the JWT if needed.
   def create_cookie(
     request : HTTP::Request,
     subscribe : Array(String)? = [] of String,
