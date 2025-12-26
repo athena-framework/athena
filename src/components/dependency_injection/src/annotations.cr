@@ -539,5 +539,6 @@ module Athena::DependencyInjection
   # Using the `ADI::Inject` annotation on a class method also acts a shortcut for defining a service [factory][Athena::DependencyInjection::Register--factories].
   annotation Inject; end
 
-  annotation RegisterExtension; end
+  # :nodoc:
+  annotation Bundle; end
 end

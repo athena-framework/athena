@@ -1,9 +1,9 @@
 require "./request"
 
-@[Athena::Framework::Annotations::Bundle("framework")]
+@[ADI::Bundle("framework")]
 # The Athena Framework Bundle is responsible for integrating the various Athena components into the Athena Framework.
 # This primarily involves wiring up various types as services, and other DI related tasks.
-struct Athena::Framework::Bundle < Athena::Framework::AbstractBundle
+struct Athena::Framework::Bundle < ADI::AbstractBundle
   # :nodoc:
   PASSES = [
     {Athena::Framework::CompilerPasses::MakeControllerServicesPublicPass, nil, nil},

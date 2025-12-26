@@ -11,7 +11,6 @@ require "athena-dependency_injection"
 require "athena-event_dispatcher"
 require "athena-negotiation"
 
-require "./abstract_bundle"
 require "./action"
 require "./annotations"
 require "./bundle"
@@ -66,6 +65,24 @@ module Athena::Framework
 
   # The name of the environment variable used to determine Athena's current environment.
   ENV_NAME = "ATHENA_ENV"
+
+  # Primary entrypoint for configuring Athena Framework applications.
+  #
+  # See the [Getting Started](/getting_started/configuration) docs for more information.
+  #
+  # NOTE: This is an alias of [ADI.configure](/DependencyInjection/top_level/#Athena::DependencyInjection:configure(config)).
+  macro configure(config)
+    ADI.configure({{config}})
+  end
+
+  # Registers the provided *bundle*.
+  #
+  # See the [Getting Started](/getting_started/configuration) docs for more information.
+  #
+  # NOTE: This is an alias of [ADI.register_bundle](/DependencyInjection/top_level/#Athena::DependencyInjection:register_bundle(bundle)).
+  macro register_bundle(bundle)
+    ADI.register_bundle({{bundle}})
+  end
 
   # Returns the current environment Athena is in based on `ENV_NAME`.  Defaults to `development` if not defined.
   def self.environment : String

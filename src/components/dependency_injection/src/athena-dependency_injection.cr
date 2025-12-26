@@ -1,3 +1,4 @@
+require "./abstract_bundle"
 require "./annotations"
 require "./annotation_configurations"
 require "./extension"

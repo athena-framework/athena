@@ -26,7 +26,4 @@ module Athena::Framework::Annotations
     serialization_groups : Array(String)? = nil,
     validation_groups : Array(String)? = nil,
     emit_nil : Bool? = nil
-
-  # :nodoc:
-  annotation Bundle; end
 end
