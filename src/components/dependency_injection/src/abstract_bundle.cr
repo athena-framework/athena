@@ -1,21 +1,21 @@
-module Athena::Framework
+module Athena::DependencyInjection
   # :nodoc:
   abstract struct AbstractBundle
     PASSES = [] of Nil
   end
 
-  # Registers the provided *bundle* with the framework.
+  # Registers the provided *bundle*.
   #
   # See the [Getting Started](/getting_started/configuration) docs for more information.
   macro register_bundle(bundle)
     {%
       resolved_bundle = bundle.resolve
 
-      unless resolved_bundle <= AbstractBundle
-        bundle.raise "The provided bundle '#{bundle}' be inherit from 'ATH::AbstractBundle'."
+      unless resolved_bundle <= Athena::DependencyInjection::AbstractBundle
+        bundle.raise "The provided bundle '#{bundle}' be inherit from 'ADI::AbstractBundle'."
       end
 
-      ann = resolved_bundle.annotation Athena::Framework::Annotations::Bundle
+      ann = resolved_bundle.annotation Athena::DependencyInjection::Bundle
 
       unless name = ann[0] || ann["name"]
         bundle.raise "Unable to determine extension name. It was not provided as the first positional argument nor via the 'name' field."
@@ -28,14 +28,5 @@ module Athena::Framework
     {% for pass in resolved_bundle.constant("PASSES") %}
       ADI.add_compiler_pass {{pass.splat}}
     {% end %}
-  end
-
-  # Primary entrypoint for configuring Athena Framework applications.
-  #
-  # See the [Getting Started](/getting_started/configuration) docs for more information.
-  #
-  # NOTE: This is an alias of [ADI.configure](/DependencyInjection/top_level/#Athena::DependencyInjection:configure(config)).
-  macro configure(config)
-    ADI.configure({{config}})
   end
 end

@@ -37,7 +37,7 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
         {%
           _nil = nil
 
-          # This is mostly copied from `RegisterExtensions` code,
+          # This is mostly copied from `MergeExtensionConfig` code,
           # ideally would be nice to be able to not share state like this but :shrug: this works for now.
           #
           # That would be easiest with some macros defs to share the macro logic of building out this map.
