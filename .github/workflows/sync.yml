@@ -22,6 +22,12 @@ jobs:
         with:
           fetch-depth: 0 # Required so `git subtree` can find its split commit
           ssh-key: ${{ secrets.ATHENA_BOT_SSH_PRIV_KEY }}
+      # Workaround for git 2.52.0 regression breaking subtree split with --squash
+      # See: https://lore.kernel.org/git/176677910605.6.2281395015810449820.1087545551@dietrich.pub/T/
+      - name: Downgrade git
+        run: |
+          sudo add-apt-repository -y ppa:git-core/ppa
+          sudo apt-get install -y git=1:2.51.*
       - name: Sync Components
         id: subtree-sync
         env:
