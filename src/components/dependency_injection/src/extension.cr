@@ -75,7 +75,7 @@ module Athena::DependencyInjection::Extension::Schema
                   declaration.value
                 end
 
-      OPTIONS << {name: declaration.var.id, type: declaration.type.resolve, default: default, root: declaration}
+      OPTIONS << {name: declaration.var.id, type: declaration.type.resolve, default: default, root: declaration, global: declaration.type.is_a?(Path) && declaration.type.global?}
       CONFIG_DOCS << %({"name":"#{declaration.var.id}","type":"`#{declaration.type.id}`","default":"`#{default.id}`"}).id
     %}
 
@@ -164,7 +164,7 @@ module Athena::DependencyInjection::Extension::Schema
       end
       members_string += "]"
 
-      OPTIONS << {name: name, type: (type = (nilable ? parse_type("NamedTuple?").resolve : NamedTuple)), default: nilable ? nil : default, root: name, members: member_map}
+      OPTIONS << {name: name, type: (type = (nilable ? parse_type("NamedTuple?").resolve : NamedTuple)), default: nilable ? nil : default, root: name, members: member_map, global: type.is_a?(Path) && type.global?}
       CONFIG_DOCS << %({"name":"#{name.id}","type":"`#{type.id}`","default":"`#{(nilable && default.is_a?(Nop) ? nil : default).id}`","members":#{members_string.id}}).id
     %}
 
@@ -254,7 +254,7 @@ module Athena::DependencyInjection::Extension::Schema
       end
       members_string += "]"
 
-      OPTIONS << {name: name, type: (type = (nilable ? parse_type("Array?").resolve : Array)), default: nilable ? nil : default, root: name, members: member_map}
+      OPTIONS << {name: name, type: (type = (nilable ? parse_type("Array?").resolve : Array)), default: nilable ? nil : default, root: name, members: member_map, global: type.is_a?(Path) && type.global?}
       CONFIG_DOCS << %({"name":"#{name.id}","type":"`#{type.id}`","default":"`#{(nilable && default.empty? ? nil : default).id}`","members":#{members_string.id}}).id
     %}
 
