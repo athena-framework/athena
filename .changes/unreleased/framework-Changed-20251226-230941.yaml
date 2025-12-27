@@ -1,0 +1,9 @@
+project: framework
+kind: Changed
+body: Store `ATH::Action` within `ATH::Request#attributes` instead of within an ivar
+time: 2025-12-26T23:09:41.964135945-05:00
+custom:
+    Author: George Dietrich
+    Breaking: "Yes"
+    PR: "636"
+    Username: blacksmoke16

@@ -105,7 +105,7 @@ def new_request(
   request.files.merge! files
   request.attributes.set "_controller", "TestController#test", String
   request.attributes.set "_route", "test_controller_test", String
-  request.action = action
+  request.attributes.set "_action", action
   request.query = query
   request.headers = HTTP::Headers{
     "content-type" => ATH::Request::FORMATS[format].first,

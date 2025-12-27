@@ -3,7 +3,7 @@
 #
 # ### Example
 #
-# For example, an artbirary value can be stored in the attributes, and later provided as an action argument.
+# For example, an arbitrary value can be stored in the attributes, and later provided as an action argument.
 #
 # ```
 # require "athena"
@@ -47,7 +47,7 @@ struct Athena::Framework::ParameterBag
 
   # Returns `true` if a parameter with the provided *name* exists and is of the provided *type*, otherwise `false`.
   def has?(name : String, type : T.class) : Bool forall T
-    self.has?(name) && @parameters[name].value.class == T
+    @parameters[name]?.try { |p| p.value.class == T } || false
   end
 
   # Returns the value of the parameter with the provided *name* if it exists, otherwise `nil`.

@@ -134,12 +134,6 @@ class Athena::Framework::Request
     FORMATS[format]? || Set(String).new
   end
 
-  # The `ATH::Action` object associated with this request.
-  #
-  # Will only be set if a route was able to be resolved
-  # as part of `ATH::Listeners::Routing`.
-  getter! action : ATH::ActionBase
-
   # See `ATH::ParameterBag`.
   getter attributes : ATH::ParameterBag = ATH::ParameterBag.new
 
@@ -174,9 +168,6 @@ class Athena::Framework::Request
   end
 
   def initialize(@request : HTTP::Request); end
-
-  # :nodoc:
-  def action=(@action : ATH::ActionBase); end
 
   # Returns the first `MIME` type for the provided *format* if defined, otherwise returns `nil`.
   #

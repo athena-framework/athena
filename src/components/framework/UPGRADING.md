@@ -2,6 +2,18 @@
 
 Documents the changes that may be required when upgrading to a newer component version.
 
+## Upgrade to 0.22.0
+
+### Change how the `ATH::Action` is accessed
+
+The `ATH::Request#action` getter used to access the matched `ATH::Action` instance has been removed.
+The action is now stored within the request's attributes as `"_action"` and must be accessed via:
+```crystal
+request.attributes.get("_action", ATH::ActionBase)
+````
+
+`#get?` may be used in place of `#action?` if it's not guaranteed the action exists.
+
 ## Upgrade to 0.20.0
 
 ### Change how query parameters are represented

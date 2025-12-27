@@ -62,18 +62,19 @@ struct Athena::Framework::RouteHandler
     end
 
     # TODO: Possibly add another event here to allow modification of the resolved "controller"?
-    request.action = @controller_resolver.resolve request
+    action = @controller_resolver.resolve request
+    request.attributes.set "_action", action
 
     # Emit the action event.
-    @event_dispatcher.dispatch ATH::Events::Action.new request, request.action
+    @event_dispatcher.dispatch ATH::Events::Action.new request, action
 
     # Resolve the arguments for this action from the request.
-    arguments = @argument_resolver.get_arguments request, request.action
+    arguments = @argument_resolver.get_arguments request, action
 
     # TODO: Possibly add another event here to allow modification of the resolved arguments?
 
     # Call the action and get the response.
-    response = request.action.execute arguments
+    response = action.execute arguments
 
     unless response.is_a? ATH::Response
       view_event = ATH::Events::View.new request, response

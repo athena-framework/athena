@@ -10,7 +10,7 @@ struct Athena::Framework::Listeners::View
   @[AEDA::AsEventListener(priority: 100)]
   def on_view(event : ATH::Events::View) : Nil
     request = event.request
-    action = request.action
+    action = request.attributes.get "_action", ATH::ActionBase
 
     view = event.action_result
 
@@ -18,7 +18,7 @@ struct Athena::Framework::Listeners::View
       view = action.create_view view
     end
 
-    if configuration = event.request.action.annotation_configurations[ATHA::View]?
+    if configuration = action.annotation_configurations[ATHA::View]?
       if (status = configuration.status) && (view.status.nil? || view.status.not_nil!.ok?)
         view.status = status
       end
