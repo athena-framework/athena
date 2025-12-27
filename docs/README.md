@@ -10,6 +10,7 @@ These include:
 * [Dotenv](/Dotenv/) - Registers environment variables from a `.env` file
 * [EventDispatcher](/EventDispatcher/) (`AED`) - A Mediator and Observer pattern event library
 * [Framework](/Framework/) (`ATH`) - Integrates the components into a single cohesive, flexible, and modular framework
+* [HTTP](/HTTP/) (`AHTTP`) - Shared common HTTP abstractions/utilities
 * [ImageSize](/ImageSize/) (`AIS`) - Measures the size of various image formats
 * [Mercure](/Mercure/) (`AMC`) - Allows easily pushing updates to web browsers and other HTTP clients using the Mercure protocol
 * [MIME](/MIME/) (`AMIME`) - Allows manipulating `MIME` messages

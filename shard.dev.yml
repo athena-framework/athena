@@ -14,6 +14,8 @@ dependencies:
     path: ./src/components/dotenv
   athena-event_dispatcher:
     path: ./src/components/event_dispatcher
+  athena-http:
+    path: ./src/components/http
   athena-image_size:
     path: ./src/components/image_size
   athena-mercure:

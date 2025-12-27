@@ -22,6 +22,9 @@ dependencies:
   athena-event_dispatcher:
     github: athena-framework/event-dispatcher
     branch: docs
+  athena-http:
+    github: athena-framework/http
+    branch: docs
   athena-image_size:
     github: athena-framework/image-size
     branch: docs

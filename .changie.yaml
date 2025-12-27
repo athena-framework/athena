@@ -62,6 +62,13 @@ projects:
       - { path: src/components/framework/shard.yml, find: '^version: .*', replace: 'version: {{.VersionNoPrefix}}' }
       - { path: src/components/framework/src/athena.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
       - { path: docs/getting_started/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+  - label: HTTP
+    key: http
+    changelog: src/components/http/CHANGELOG.md
+    replacements:
+      - { path: src/components/http/shard.yml, find: '^version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/components/http/src/athena-http.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/components/http/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
   - label: Image Size
     key: image-size
     changelog: src/components/image_size/CHANGELOG.md
@@ -69,13 +76,13 @@ projects:
       - { path: src/components/image_size/shard.yml, find: '^version: .*', replace: 'version: {{.VersionNoPrefix}}' }
       - { path: src/components/image_size/src/athena-image_size.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
       - { path: src/components/image_size/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
-  # - label: Mercue
-  #   key: mercure
-  #   changelog: src/components/mercure/CHANGELOG.md
-  #   replacements:
-  #     - { path: src/components/mercure/shard.yml, find: '^version: .*', replace: 'version: {{.VersionNoPrefix}}' }
-  #     - { path: src/components/mercure/src/athena-mercure.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
-  #     - { path: src/components/mercure/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+  - label: Mercue
+    key: mercure
+    changelog: src/components/mercure/CHANGELOG.md
+    replacements:
+      - { path: src/components/mercure/shard.yml, find: '^version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/components/mercure/src/athena-mercure.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/components/mercure/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
   - label: MIME
     key: mime
     changelog: src/components/mime/CHANGELOG.md
