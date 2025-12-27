@@ -1,5 +1,5 @@
 @[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 105}])]
-# Handles resolving an [Enum](https://crystal-lang.org/api/Enum.html) member from a string value that is stored in the request's `ATH::Request#attributes`.
+# Handles resolving an [Enum](https://crystal-lang.org/api/Enum.html) member from a string value that is stored in the request's `AHTTP::Request#attributes`.
 # This resolver supports both numeric and string based parsing, returning a proper error response if the provided value does not map to any valid member.
 #
 # ```
@@ -34,7 +34,7 @@ struct Athena::Framework::Controller::ValueResolvers::Enum
   include Athena::Framework::Controller::ValueResolvers::Interface
 
   # :inherit:
-  def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata)
+  def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata)
     return unless parameter.instance_of? ::Enum
     return unless enum_type = parameter.first_type_of ::Enum
     return unless value = request.attributes.get? parameter.name, String

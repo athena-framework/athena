@@ -64,7 +64,7 @@ require "log"
 # server.listen
 # ```
 class Athena::Routing::RoutingHandler
-  include HTTP::Handler
+  include ::HTTP::Handler
 
   private LOG = Log.for "athena.routing"
 
@@ -72,7 +72,7 @@ class Athena::Routing::RoutingHandler
   class RouteProvider < ::Athena::Routing::RouteProvider
   end
 
-  @handlers : Hash(String, Proc(HTTP::Server::Context, Hash(String, String?), Nil)) = {} of String => HTTP::Server::Context, Hash(String, String?) -> Nil
+  @handlers : Hash(String, Proc(::HTTP::Server::Context, Hash(String, String?), Nil)) = {} of String => ::HTTP::Server::Context, Hash(String, String?) -> Nil
 
   # :nodoc:
   forward_missing_to @collection
@@ -91,8 +91,8 @@ class Athena::Routing::RoutingHandler
   def call(context)
     request : ART::Request
 
-    {% if @top_level.has_constant?("Athena") && Athena.has_constant?("Framework") && Athena::Framework.has_constant?("Request") %}
-      request = ATH::Request.new context.request
+    {% if @top_level.has_constant?("Athena") && Athena.has_constant?("HTTP") && Athena::HTTP.has_constant?("Request") %}
+      request = AHTTP::Request.new context.request
     {% else %}
       request = context.request
     {% end %}
@@ -129,7 +129,7 @@ class Athena::Routing::RoutingHandler
 
   # Adds the provided *route* with the provided *name* to this collection, optionally with the provided *priority*.
   # The passed *block* will be called when a request matching this route is encountered.
-  def add(name : String, route : ART::Route, priority : Int32 = 0, &block : HTTP::Server::Context, Hash(String, String?) -> Nil) : Nil
+  def add(name : String, route : ART::Route, priority : Int32 = 0, &block : ::HTTP::Server::Context, Hash(String, String?) -> Nil) : Nil
     @handlers[name] = block
     @collection.add name, route, priority
   end

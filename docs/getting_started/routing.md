@@ -40,18 +40,18 @@ TIP: Check out the `debug:router` [command](./commands.md) to view all of the ro
 
 ### Raw Response
 
-An [ATH::Response](/Framework/Response) can be used to fully customize the response; such as returning a specific status code, or adding some one-off headers.
+An [AHTTP::Response](/HTTP/Response) can be used to fully customize the response; such as returning a specific status code, or adding some one-off headers.
 
 ```crystal
 require "athena"
 require "mime"
 
 class ExampleController < ATH::Controller
-  # A GET endpoint returning an `ATH::Response`.
+  # A GET endpoint returning an `AHTTP::Response`.
   # Can be used to return raw data, such as HTML or CSS etc, in a one-off manner.
   @[ARTA::Get("/index")]
-  def index : ATH::Response
-    ATH::Response.new(
+  def index : AHTTP::Response
+    AHTTP::Response.new(
       "<h1>Welcome to my website!</h1>",
       headers: HTTP::Headers{"content-type" => MIME.from_extension(".html")}
     )
@@ -63,8 +63,8 @@ ATH.run
 # GET /index # => "<h1>Welcome to my website!</h1>"
 ```
 
-A [View](./middleware.md#4-view-event) event is emitted if the returned value is _NOT_ an [ATH::Response](/Framework/Response).
-By default, non `ATH::Response`s are JSON serialized.
+A [View](./middleware.md#4-view-event) event is emitted if the returned value is _NOT_ an [AHTTP::Response](/HTTP/Response).
+By default, non `AHTTP::Response`s are JSON serialized.
 However, this event can be listened on to customize how the value is serialized.
 More on this in the [Content Negotiation](#content-negotiation) section.
 
@@ -120,7 +120,7 @@ In addition to making it easier to reuse, it also allows for enhanced validation
 
 ### Raw Request
 
-Restricting an action argument to [ATH::Request](/Framework/Request) will provide the raw request object.
+Restricting an action argument to [AHTTP::Request](/HTTP/Request) will provide the raw request object.
 This can be useful to access data directly off the request object, such as consuming the request's body.
 This approach is fine for simple or one-off endpoints.
 
@@ -131,7 +131,7 @@ require "athena"
 
 class ExampleController < ATH::Controller
   @[ARTA::Post("/data")]
-  def data(request : ATH::Request) : String
+  def data(request : AHTTP::Request) : String
     raise ATH::Exception::BadRequest.new "Request body is empty." unless body = request.body
 
     JSON.parse(body).as_h["name"].as_s
@@ -145,8 +145,8 @@ ATH.run
 
 ### Streaming Response
 
-By default `ATH::Response` content is written all at once to the response's `IO`.
-However in some cases the content may be too large to fit into memory. In this case an [ATH::StreamedResponse](/Framework/StreamedResponse) may be used to stream the content back to the client.
+By default `AHTTP::Response` content is written all at once to the response's `IO`.
+However in some cases the content may be too large to fit into memory. In this case an [AHTTP::StreamedResponse](/HTTP/StreamedResponse) may be used to stream the content back to the client.
 
 ```crystal
 require "athena"
@@ -154,8 +154,8 @@ require "mime"
 
 class ExampleController < ATH::Controller
   @[ARTA::Get(path: "/users")]
-  def users : ATH::Response
-    ATH::StreamedResponse.new headers: HTTP::Headers{"content-type" => "application/json; charset=UTF-8"} do |io|
+  def users : AHTTP::Response
+    AHTTP::StreamedResponse.new headers: HTTP::Headers{"content-type" => "application/json; charset=UTF-8"} do |io|
       User.all.to_json io
     end
   end
@@ -168,9 +168,9 @@ ATH.run
 
 ## File Uploads
 
-Athena supports the [opt-in](/Framework/Bundle/Schema/FileUploads/) feature of populating [ATH::Request#files](/Framework/Request/#Athena::Framework::Request#files)
+Athena supports the [opt-in](/Framework/Bundle/Schema/FileUploads/) feature of populating [AHTTP::Request#files](/HTTP/Request/#Athena::HTTP::Request#files)
 based on the files included in a `multipart/form-data` file upload request.
-A [HTTP::FormData::Part](https://crystal-lang.org/api/HTTP/FormData/Part.html) without a *filename* is considered to be just a normal textual field and will be added to [ATH::Request#attributes](/Framework/Request/#Athena::Framework::Request#attributes).
+A [HTTP::FormData::Part](https://crystal-lang.org/api/HTTP/FormData/Part.html) without a *filename* is considered to be just a normal textual field and will be added to [AHTTP::Request#attributes](/HTTP/Request/#Athena::HTTP::Request#attributes).
 These values can be provided to the controller action in the same way route parameters can.
 
 ```crystal
@@ -178,7 +178,7 @@ require "athena"
 
 class ExampleController < ATH::Controller
   @[ARTA::Post(path: "/avatar")]
-  def avatar(request : ATH::Request) : String
+  def avatar(request : AHTTP::Request) : String
     request.files["profile_picture"][0].client_original_name
   end
 end
@@ -200,10 +200,10 @@ TIP: Check out [ATHA::MapUploadedFile](/Framework/Annotations/MapUploadedFile/) 
 
 ## File Response
 
-An [ATH::BinaryFileResponse](/Framework/BinaryFileResponse) may be used to return static files/content.
+An [AHTTP::BinaryFileResponse](/HTTP/BinaryFileResponse) may be used to return static files/content.
 This response type handles caching, partial requests, and setting the relevant headers.
-The Athena Framework also supports downloading of dynamically generated content by using an [ATH::Response](/Framework/Response) with the [content-disposition](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition) header.
-[ATH::HeaderUtils.make_disposition](/Framework/HeaderUtils/#Athena::Framework::HeaderUtils.make_disposition(disposition,filename,fallback_filename)) can be used to easily build the header.
+The Athena Framework also supports downloading of dynamically generated content by using an [AHTTP::Response](/HTTP/Response) with the [content-disposition](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition) header.
+[AHTTP::HeaderUtils.make_disposition](/HTTP/HeaderUtils/#Athena::HTTP::HeaderUtils.make_disposition(disposition,filename,fallback_filename)) can be used to easily build the header.
 
 ```crystal
 require "athena"
@@ -211,10 +211,10 @@ require "mime"
 
 class ExampleController < ATH::Controller
   @[ARTA::Get(path: "/data/export")]
-  def data_export : ATH::Response
+  def data_export : AHTTP::Response
     content = # ...
 
-    ATH::Response.new(
+    AHTTP::Response.new(
       content,
       headers: HTTP::Headers{
         "content-disposition" => ATH::HeaderUtils.make_disposition(:attachment, "data.csv"),
@@ -230,7 +230,7 @@ ATH.run
 ### Static Files
 
 Static files can also be served from an Athena application.
-This can be achieved by combining an [ATH::BinaryFileResponse](/Framework/BinaryFileResponse) with the [request](./middleware.md#1-request-event) event;
+This can be achieved by combining an [AHTTP::BinaryFileResponse](/HTTP/BinaryFileResponse) with the [request](./middleware.md#1-request-event) event;
 checking if the request's path represents a file/directory within the application's public directory and returning the file if so.
 
 ```crystal
@@ -271,9 +271,9 @@ struct StaticFileListener
 
                        # Request is a directory but acting as a file,
                        # redirect to the actual directory URL.
-                       ATH::RedirectResponse.new redirect_path
+                       AHTTP::RedirectResponse.new redirect_path
                      elsif File.file? file_path
-                       ATH::BinaryFileResponse.new file_path
+                       AHTTP::BinaryFileResponse.new file_path
                      else
                        # Nothing to do.
                        return
@@ -305,7 +305,7 @@ class ExampleController < ATH::Controller
 
   # Define a route that redirects to the `add` route with fixed parameters.
   @[ARTA::Get("/")]
-  def redirect : ATH::RedirectResponse
+  def redirect : AHTTP::RedirectResponse
     # Generate a link to the other route.
     url = self.generate_url "add", value1: 8, value2: 2
 
@@ -390,7 +390,7 @@ Alternatively, the [Athena::Mercure](/Mercure) component may be used as a replac
 
 ## Content Negotiation
 
-As mentioned earlier, controller action responses are JSON serialized if the controller action does _NOT_ return an [ATH::Response](/Framework/Response).
+As mentioned earlier, controller action responses are JSON serialized if the controller action does _NOT_ return an [AHTTP::Response](/HTTP/Response).
 The [Negotiation](/Negotiation) component enhances the view layer of the Athena Framework by enabling [content negotiation](https://tools.ietf.org/html/rfc7231#section-5.3) support; making it possible to write format agnostic controllers by placing a layer of abstraction between the controller and generation of the final response content.
 Or in other words, allow having the same controller action be rendered based on the request's [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header and the format priority configuration.
 
@@ -431,7 +431,7 @@ Assuming an `accept` header with the value `text/html,application/xhtml+xml,appl
 
 ### View Handler
 
-The [ATH::View::ViewHandler](/Framework/View/ViewHandler) is responsible for generating an [ATH::Response](/Framework/Response) in the format determined by the [ATH::Listeners::Format](/Framework/Listeners/Format), otherwise falling back on the request's [format](/Framework/Request/#Athena::Framework::Request#format(mime_type)), defaulting to `json`.
+The [ATH::View::ViewHandler](/Framework/View/ViewHandler) is responsible for generating an [AHTTP::Response](/HTTP/Response) in the format determined by the [ATH::Listeners::Format](/Framework/Listeners/Format), otherwise falling back on the request's [format](/HTTP/Request/#Athena::HTTP::Request#format(mime_type)), defaulting to `json`.
 The view handler has a options that may also be [configured](./configuration.md) via the [ATH::Bundle::Schema::ViewHandler](/Framework/Bundle/Schema/ViewHandler) schema.
 
 ```crystal
@@ -450,7 +450,7 @@ ATH.configure({
 
 ## Views
 
-An [ATH::View](/Framework/View) is intended to act as an in between returning raw data and an [ATH::Response](/Framework/Response).
+An [ATH::View](/Framework/View) is intended to act as an in between returning raw data and an [AHTTP::Response](/HTTP/Response).
 In other words, it still invokes the [view](./middleware.md#4-view-event) event, but allows customizing the response's status and headers.
 Convenience methods are defined in the base controller type to make creating views easier. E.g. [ATH::Controller#view](/Framework/Controller/#Athena::Framework::Controller#view(data,status,headers)).
 
@@ -458,15 +458,15 @@ Convenience methods are defined in the base controller type to make creating vie
 
 By default the Athena Framework uses `json` as the default response format.
 However it is possible to extend the [ATH::View::ViewHandler](/Framework/View/ViewHandler) to support additional, and even custom, formats.
-This is achieved by creating an [ATH::View::FormatHandlerInterface](/Framework/View/FormatHandlerInterface) instance that defines the logic needed to turn an [ATH::View](/Framework/View) into an [ATH::Response](/Framework/Response).
+This is achieved by creating an [ATH::View::FormatHandlerInterface](/Framework/View/FormatHandlerInterface) instance that defines the logic needed to turn an [ATH::View](/Framework/View) into an [AHTTP::Response](/HTTP/Response).
 
 The implementation can be as simple/complex as needed for the given format.
 Official handlers could be provided in the future for common formats such as `html`, probably via an integration with some form of tempting engine utilizing [custom annotations](./configuration.md#custom-annotations) to specify the format.
 
 ### Adding/Customizing Formats
 
-[ATH::Request::FORMATS](/Framework/Request/#Athena::Framework::Request::FORMATS) represents the formats supported by default.
-However this list is not exhaustive and may need altered application to application; such as [registering](/Framework/Request/#Athena::Framework::Request.register_format(format,mime_types)) new formats.
+[AHTTP::Request::FORMATS](/HTTP/Request/#Athena::HTTP::Request::FORMATS) represents the formats supported by default.
+However this list is not exhaustive and may need altered application to application; such as [registering](/HTTP/Request/#Athena::HTTP::Request.register_format(format,mime_types)) new formats.
 
 #### Example
 
@@ -515,7 +515,7 @@ class CSVFormatHandler
   include ATH::View::FormatHandlerInterface
 
   # :inherit:
-  def call(view_handler : ATH::View::ViewHandlerInterface, view : ATH::ViewBase, request : ATH::Request, format : String) : ATH::Response
+  def call(view_handler : ATH::View::ViewHandlerInterface, view : ATH::ViewBase, request : AHTTP::Request, format : String) : AHTTP::Response
     view_data = view.data
 
     headers = if view_data.is_a? Enumerable
@@ -539,10 +539,10 @@ class CSVFormatHandler
       end
     end
 
-    # Return an ATH::Response with the rendered CSV content.
+    # Return an AHTTP::Response with the rendered CSV content.
     # Athena handles setting the proper content-type header based on the format.
     # But could be overridden here if so desired.
-    ATH::Response.new content
+    AHTTP::Response.new content
   end
 
   # :inherit:

@@ -22,12 +22,12 @@ class Athena::Framework::Exception::HTTPException < ::Exception
   #
   # ameba:disable Metrics/CyclomaticComplexity
   def self.from_status(
-    status : Int32 | HTTP::Status,
+    status : Int32 | ::HTTP::Status,
     message : String = "",
     cause : ::Exception? = nil,
-    headers : HTTP::Headers = HTTP::Headers.new,
+    headers : ::HTTP::Headers = ::HTTP::Headers.new,
   ) : self
-    status = status.is_a?(HTTP::Status) ? status : HTTP::Status.new(status)
+    status = status.is_a?(::HTTP::Status) ? status : ::HTTP::Status.new(status)
 
     case status
     when .bad_request?            then ATH::Exception::BadRequest.new(message, cause, headers)
@@ -47,26 +47,26 @@ class Athena::Framework::Exception::HTTPException < ::Exception
     end
   end
 
-  # The `HTTP::Status` associated with `self`.
-  getter status : HTTP::Status
+  # The `::HTTP::Status` associated with `self`.
+  getter status : ::HTTP::Status
 
   # Any HTTP response headers associated with `self`.
   #
   # Some HTTP errors use response headers to give additional information about `self`.
-  property headers : HTTP::Headers
+  property headers : ::HTTP::Headers
 
   # Instantiates `self` with the given *status* and *message*.
   #
   # Optionally includes *cause*, and *headers*.
-  def initialize(@status : HTTP::Status, message : String, cause : ::Exception? = nil, @headers : HTTP::Headers = HTTP::Headers.new)
+  def initialize(@status : ::HTTP::Status, message : String, cause : ::Exception? = nil, @headers : ::HTTP::Headers = ::HTTP::Headers.new)
     super message, cause
   end
 
   # Instantiates `self` with the given *status_code* and *message*.
   #
   # Optionally includes *cause*, and *headers*.
-  def self.new(status_code : Int32, message : String, cause : ::Exception? = nil, headers : HTTP::Headers = HTTP::Headers.new)
-    new HTTP::Status.new(status_code), message, cause, headers
+  def self.new(status_code : Int32, message : String, cause : ::Exception? = nil, headers : ::HTTP::Headers = ::HTTP::Headers.new)
+    new ::HTTP::Status.new(status_code), message, cause, headers
   end
 
   # Returns the HTTP status code of `#status`.

@@ -1,7 +1,7 @@
 require "uuid"
 
 @[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 105}])]
-# Handles resolving a [UUID](https://crystal-lang.org/api/UUID.html) from a string value that is stored in the request's `ATH::Request#attributes`.
+# Handles resolving a [UUID](https://crystal-lang.org/api/UUID.html) from a string value that is stored in the request's `AHTTP::Request#attributes`.
 #
 # ```
 # require "athena"
@@ -23,7 +23,7 @@ struct Athena::Framework::Controller::ValueResolvers::UUID
   include Athena::Framework::Controller::ValueResolvers::Interface
 
   # :inherit:
-  def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata) : ::UUID?
+  def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata) : ::UUID?
     return unless parameter.instance_of? ::UUID # TODO: Test making this not nil
     return unless value = request.attributes.get? parameter.name, String
 

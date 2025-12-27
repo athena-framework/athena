@@ -1,9 +1,9 @@
-# Processes an `ATH::View` into an `ATH::Response` of the proper format.
+# Processes an `ATH::View` into an `AHTTP::Response` of the proper format.
 #
 # See the [Getting Started](/getting_started/routing/#content-negotiation) docs for more information.
 module Athena::Framework::View::ViewHandlerInterface
   # The possible types for a view format handler.
-  alias HandlerType = ATH::View::FormatHandlerInterface | Proc(ATH::View::ViewHandlerInterface, ATH::ViewBase, ATH::Request, String, ATH::Response)
+  alias HandlerType = ATH::View::FormatHandlerInterface | Proc(ATH::View::ViewHandlerInterface, ATH::ViewBase, AHTTP::Request, String, AHTTP::Response)
 
   # Registers the provided *handler* to handle the provided *format*.
   abstract def register_handler(format : String, handler : ATH::View::ViewHandlerInterface::HandlerType) : Nil
@@ -14,16 +14,16 @@ module Athena::Framework::View::ViewHandlerInterface
   # otherwise falls back on the `ASR::SerializerInterface`.
   abstract def supports?(format : String) : Bool
 
-  # Handles the conversion of the provided *view* into an `ATH::Response`.
+  # Handles the conversion of the provided *view* into an `AHTTP::Response`.
   #
-  # If no *request* is provided, it is fetched from `ATH::RequestStore`.
-  abstract def handle(view : ATH::ViewBase, request : ATH::Request? = nil) : ATH::Response
+  # If no *request* is provided, it is fetched from `AHTTP::RequestStore`.
+  abstract def handle(view : ATH::ViewBase, request : AHTTP::Request? = nil) : AHTTP::Response
 
-  # Creates an `ATH::Response` based on the provided *view* that'll redirect to the provided *location*.
+  # Creates an `AHTTP::Response` based on the provided *view* that'll redirect to the provided *location*.
   #
   # *location* may either be a `URL` or the name of a route.
-  abstract def create_redirect_response(view : ATH::ViewBase, location : String, format : String) : ATH::Response
+  abstract def create_redirect_response(view : ATH::ViewBase, location : String, format : String) : AHTTP::Response
 
-  # Creates an `ATH::Response` based on the provided *view* and *request*.
-  abstract def create_response(view : ATH::ViewBase, request : ATH::Request, format : String) : ATH::Response
+  # Creates an `AHTTP::Response` based on the provided *view* and *request*.
+  abstract def create_response(view : ATH::ViewBase, request : AHTTP::Request, format : String) : AHTTP::Response
 end

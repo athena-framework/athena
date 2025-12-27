@@ -1,5 +1,5 @@
 require "athena-mime"
-require "athena-contracts/common/framework"
+require "athena-http"
 
 # Validates that a value is a valid file.
 # If the underlying value is a [::File](https://crystal-lang.org/api/File.html), then its path is used as the value.
@@ -253,10 +253,10 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
     def validate(value : _, constraint : AVD::Constraints::File) : Nil
       return if value.nil? || value == ""
 
-      if value.is_a?(Athena::Framework::UploadedFile) && !value.valid?
+      if value.is_a?(Athena::HTTP::UploadedFile) && !value.valid?
         case value.status
         when .size_limit_exceeded?
-          max_allowed_file_size = Athena::Framework::UploadedFile.max_file_size
+          max_allowed_file_size = Athena::HTTP::UploadedFile.max_file_size
           if (constraint_max_size = constraint.max_size) && (constraint_max_size < max_allowed_file_size)
             limit_in_bytes = constraint_max_size
             binary_format = constraint.binary_format
@@ -279,8 +279,8 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
       end
 
       path = case value
-             when Path                                    then value
-             when ::File, Athena::Framework::AbstractFile then value.path
+             when Path                               then value
+             when ::File, Athena::HTTP::AbstractFile then value.path
              else
                value.to_s
              end
@@ -306,7 +306,7 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
       end
 
       size_in_bytes = ::File.size path
-      base_name = value.is_a?(Athena::Framework::UploadedFile) ? value.client_original_name : ::File.basename path
+      base_name = value.is_a?(Athena::HTTP::UploadedFile) ? value.client_original_name : ::File.basename path
 
       if size_in_bytes.zero?
         self
@@ -336,7 +336,7 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
       end
 
       if mime_types = constraint.mime_types
-        mime = if value.is_a? Athena::Framework::AbstractFile
+        mime = if value.is_a? Athena::HTTP::AbstractFile
                  value.mime_type
                else
                  AMIME::Types.default.guess_mime_type path

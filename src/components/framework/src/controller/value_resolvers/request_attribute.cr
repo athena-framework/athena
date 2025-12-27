@@ -1,5 +1,5 @@
 @[ADI::Register(name: "parameter_resolver_request_attribute", tags: [{name: ATHR::Interface::TAG, priority: 100}])]
-# Handles resolving a value that is stored in the request's `ATH::Request#attributes`.
+# Handles resolving a value that is stored in the request's `AHTTP::Request#attributes`.
 # This includes any path/query parameters, custom values stored via an event listener, or extra `defaults` stored within the routing annotation.
 #
 # ```
@@ -12,7 +12,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestAttribute
   include Athena::Framework::Controller::ValueResolvers::Interface
 
   # :inherit:
-  def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata)
+  def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata)
     return unless request.attributes.has? parameter.name
 
     value = request.attributes.get parameter.name

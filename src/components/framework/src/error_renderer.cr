@@ -7,13 +7,18 @@ struct Athena::Framework::ErrorRenderer
   def initialize(@debug : Bool); end
 
   # :inherit:
-  def render(exception : ::Exception) : ATH::Response
+  def render(exception : ::Exception) : AHTTP::Response
+    headers = ::HTTP::Headers.new
+    content = exception.to_json
+
     if exception.is_a? ATH::Exception::HTTPException
       status = exception.status
       headers = exception.headers
+    elsif exception.is_a?(AHTTP::Exception::RequestExceptionInterface)
+      status = ::HTTP::Status::BAD_REQUEST
+      content = {code: 400, message: "Bad Request"}.to_json
     else
-      status = HTTP::Status::INTERNAL_SERVER_ERROR
-      headers = HTTP::Headers.new
+      status = ::HTTP::Status::INTERNAL_SERVER_ERROR
     end
 
     headers["content-type"] = "application/json; charset=utf-8"
@@ -35,6 +40,6 @@ struct Athena::Framework::ErrorRenderer
       end
     end
 
-    ATH::Response.new exception.to_json, status, headers
+    AHTTP::Response.new content, status, headers
   end
 end

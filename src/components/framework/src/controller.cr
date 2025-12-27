@@ -5,8 +5,8 @@
 #
 # Child controllers must inherit from `ATH::Controller` (or an abstract child of it). Each request gets its own instance of the controller to better allow for DI via `Athena::DependencyInjection`.
 #
-# A route action can either return an `ATH::Response`, or some other type. If an `ATH::Response` is returned, then it is used directly. Otherwise an `ATH::Events::View` is emitted to convert
-# the action result into an `ATH::Response`. By default, `ATH::Listeners::View` will JSON encode the value if it is not handled earlier by another listener.
+# A route action can either return an `AHTTP::Response`, or some other type. If an `AHTTP::Response` is returned, then it is used directly. Otherwise an `ATH::Events::View` is emitted to convert
+# the action result into an `AHTTP::Response`. By default, `ATH::Listeners::View` will JSON encode the value if it is not handled earlier by another listener.
 #
 # ### Example
 # The following controller shows examples of the various routing features of Athena. `ATH::Controller` also defines various macro DSLs, such as `ATH::Controller.get` to make defining routes
@@ -21,19 +21,19 @@
 # # etc. to all actions in the controller.
 # @[ARTA::Route(path: "/athena")]
 # class TestController < ATH::Controller
-#   # A GET endpoint returning an `ATH::Response`.
+#   # A GET endpoint returning an `AHTTP::Response`.
 #   # Can be used to return raw data, such as HTML or CSS etc, in a one-off manor.
 #   @[ARTA::Get(path: "/index")]
-#   def index : ATH::Response
-#     ATH::Response.new "<h1>Welcome to my website!</h1>", headers: HTTP::Headers{"content-type" => MIME.from_extension(".html")}
+#   def index : AHTTP::Response
+#     AHTTP::Response.new "<h1>Welcome to my website!</h1>", headers: ::HTTP::Headers{"content-type" => MIME.from_extension(".html")}
 #   end
 #
-#   # A GET endpoint returning an `ATH::StreamedResponse`.
+#   # A GET endpoint returning an `AHTTP::StreamedResponse`.
 #   # Can be used to stream the response content to the client;
 #   # useful if the content is too large to fit into memory.
 #   @[ARTA::Get(path: "/users")]
-#   def users : ATH::Response
-#     ATH::StreamedResponse.new headers: HTTP::Headers{"content-type" => "application/json; charset=utf-8"} do |io|
+#   def users : AHTTP::Response
+#     AHTTP::StreamedResponse.new headers: ::HTTP::Headers{"content-type" => "application/json; charset=utf-8"} do |io|
 #       User.all.to_json io
 #     end
 #   end
@@ -101,9 +101,9 @@
 #   # A POST endpoint with a route parameter and accessing the request body; returning a `Bool`.
 #   #
 #   # It is recommended to use `ATHR::RequestBody` to allow passing an actual object representing the data
-#   # to the route's action; however the raw request body can be accessed by typing an action argument as `ATH::Request`.
+#   # to the route's action; however the raw request body can be accessed by typing an action argument as `AHTTP::Request`.
 #   @[ARTA::Post("/test/{expected}")]
-#   def post_body(expected : String, request : ATH::Request) : Bool
+#   def post_body(expected : String, request : AHTTP::Request) : Bool
 #     expected == request.body.try &.gets_to_end
 #   end
 #
@@ -169,7 +169,7 @@ abstract class Athena::Framework::Controller
     self.generate_url route, params.to_h.transform_keys(&.to_s), reference_type
   end
 
-  # Returns an `ATH::RedirectResponse` to the provided *route* with the provided *params*.
+  # Returns an `AHTTP::RedirectResponse` to the provided *route* with the provided *params*.
   #
   # ```
   # require "athena"
@@ -185,7 +185,7 @@ abstract class Athena::Framework::Controller
   #
   #   # Define a route that redirects to the `add` route with fixed parameters.
   #   @[ARTA::Get("/")]
-  #   def redirect : ATH::RedirectResponse
+  #   def redirect : AHTTP::RedirectResponse
   #     self.redirect_to_route "add", {"value1" => 8, "value2" => 2}
   #   end
   # end
@@ -194,11 +194,11 @@ abstract class Athena::Framework::Controller
   #
   # # GET / # => 10
   # ```
-  def redirect_to_route(route : String, params : Hash(String, _) = Hash(String, String?).new, status : HTTP::Status = :found) : ATH::RedirectResponse
+  def redirect_to_route(route : String, params : Hash(String, _) = Hash(String, String?).new, status : ::HTTP::Status = :found) : AHTTP::RedirectResponse
     self.redirect self.generate_url(route, params), status
   end
 
-  # Returns an `ATH::RedirectResponse` to the provided *route* with the provided *params*.
+  # Returns an `AHTTP::RedirectResponse` to the provided *route* with the provided *params*.
   #
   # ```
   # require "athena"
@@ -214,7 +214,7 @@ abstract class Athena::Framework::Controller
   #
   #   # Define a route that redirects to the `add` route with fixed parameters.
   #   @[ARTA::Get("/")]
-  #   def redirect : ATH::RedirectResponse
+  #   def redirect : AHTTP::RedirectResponse
   #     self.redirect_to_route "add", value1: 8, value2: 2
   #   end
   # end
@@ -223,35 +223,35 @@ abstract class Athena::Framework::Controller
   #
   # # GET / # => 10
   # ```
-  def redirect_to_route(route : String, status : HTTP::Status = :found, **params) : ATH::RedirectResponse
+  def redirect_to_route(route : String, status : ::HTTP::Status = :found, **params) : AHTTP::RedirectResponse
     self.redirect_to_route route, params.to_h.transform_keys(&.to_s.as(String)), status
   end
 
-  # Returns an `ATH::RedirectResponse` to the provided *url*, optionally with the provided *status*.
+  # Returns an `AHTTP::RedirectResponse` to the provided *url*, optionally with the provided *status*.
   #
   # ```
   # class ExampleController < ATH::Controller
   #   @[ARTA::Get("redirect/google")]
-  #   def redirect_to_google : ATH::RedirectResponse
+  #   def redirect_to_google : AHTTP::RedirectResponse
   #     self.redirect "https://google.com"
   #   end
   # end
   # ```
-  def redirect(url : String | Path, status : HTTP::Status = HTTP::Status::FOUND) : ATH::RedirectResponse
-    ATH::RedirectResponse.new url, status
+  def redirect(url : String | Path, status : ::HTTP::Status = ::HTTP::Status::FOUND) : AHTTP::RedirectResponse
+    AHTTP::RedirectResponse.new url, status
   end
 
   # Returns an `ATH::View` that'll redirect to the provided *url*, optionally with the provided *status* and *headers*.
   #
   # Is essentially the same as `#redirect`, but invokes the [view](/getting_started/middleware#4-view-event) layer.
-  def redirect_view(url : String, status : HTTP::Status = HTTP::Status::FOUND, headers : HTTP::Headers = HTTP::Headers.new) : ATH::View
+  def redirect_view(url : String, status : ::HTTP::Status = ::HTTP::Status::FOUND, headers : ::HTTP::Headers = ::HTTP::Headers.new) : ATH::View
     ATH::View.create_redirect url, status, headers
   end
 
   # Returns an `ATH::View` that'll redirect to the provided *route*, optionally with the provided *params*, *status*, and *headers*.
   #
   # Is essentially the same as `#redirect_to_route`, but invokes the [view](/getting_started/middleware#4-view-event) layer.
-  def route_redirect_view(route : String, params : Hash(String, _) = Hash(String, String?).new, status : HTTP::Status = HTTP::Status::CREATED, headers : HTTP::Headers = HTTP::Headers.new) : ATH::View
+  def route_redirect_view(route : String, params : Hash(String, _) = Hash(String, String?).new, status : ::HTTP::Status = ::HTTP::Status::CREATED, headers : ::HTTP::Headers = ::HTTP::Headers.new) : ATH::View
     ATH::View.create_route_redirect route, params
   end
 
@@ -263,7 +263,7 @@ abstract class Athena::Framework::Controller
   #   self.view({greeting: "Hello #{name}"}, :im_a_teapot)
   # end
   # ```
-  def view(data = nil, status : HTTP::Status? = nil, headers : HTTP::Headers = HTTP::Headers.new) : ATH::View
+  def view(data = nil, status : ::HTTP::Status? = nil, headers : ::HTTP::Headers = ::HTTP::Headers.new) : ATH::View
     ATH::View.new data, status, headers
   end
 
@@ -302,7 +302,7 @@ abstract class Athena::Framework::Controller
 
   # Renders a template.
   #
-  # Uses `ECR` to render the *template*, creating an `ATH::Response` with its rendered content and adding a `text/html` `content-type` header.
+  # Uses `ECR` to render the *template*, creating an `AHTTP::Response` with its rendered content and adding a `text/html` `content-type` header.
   #
   # The response can be modified further before returning it if needed.
   #
@@ -315,7 +315,7 @@ abstract class Athena::Framework::Controller
   # # example_controller.cr
   # class ExampleController < ATH::Controller
   #   @[ARTA::Get("/{name}")]
-  #   def greet(name : String) : ATH::Response
+  #   def greet(name : String) : AHTTP::Response
   #     render "greeting.ecr"
   #   end
   # end
@@ -325,7 +325,7 @@ abstract class Athena::Framework::Controller
   # # GET /Fred # => Greetings, Fred!
   # ```
   macro render(template)
-    Athena::Framework::Response.new ECR.render({{template}}), headers: HTTP::Headers{"content-type" => "text/html"}
+    Athena::HTTP::Response.new ECR.render({{template}}), headers: ::HTTP::Headers{"content-type" => "text/html"}
   end
 
   # Renders a template within a layout.
@@ -339,7 +339,7 @@ abstract class Athena::Framework::Controller
   # # example_controller.cr
   # class ExampleController < ATH::Controller
   #   @[ARTA::Get("/{name}")]
-  #   def greet(name : String) : ATH::Response
+  #   def greet(name : String) : AHTTP::Response
   #     render "greeting.ecr", "layout.ecr"
   #   end
   # end

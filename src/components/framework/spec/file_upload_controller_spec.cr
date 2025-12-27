@@ -66,7 +66,7 @@ struct FileUploadControllerTest < ATH::Spec::APITestCase
   private def upload_file(route : String, name : String = "file") : Nil
     self.post(
       route,
-      headers: HTTP::Headers{
+      headers: ::HTTP::Headers{
         "content-type" => "multipart/form-data; boundary=\"boundary\"",
       },
       body: self.build_payload name
@@ -75,14 +75,14 @@ struct FileUploadControllerTest < ATH::Spec::APITestCase
 
   private def build_payload(name : String = "file") : String
     String.build do |io|
-      HTTP::FormData.build io, "boundary" do |form|
+      ::HTTP::FormData.build io, "boundary" do |form|
         form.file(
           name,
           File.open("#{__DIR__}/assets/foo.txt"),
-          HTTP::FormData::FileMetadata.new(
+          ::HTTP::FormData::FileMetadata.new(
             "foo.txt"
           ),
-          headers: HTTP::Headers{
+          headers: ::HTTP::Headers{
             "content-type" => "text/plain",
           }
         )

@@ -4,7 +4,7 @@ struct FormatListenerTest < ASPEC::TestCase
   def test_fallback_format : Nil
     event = new_request_event
 
-    request_store = ATH::RequestStore.new
+    request_store = AHTTP::RequestStore.new
     request_store.request = event.request
 
     negotiator = ATH::View::FormatNegotiator.new request_store
@@ -24,7 +24,7 @@ struct FormatListenerTest < ASPEC::TestCase
     event = new_request_event
     event.request.request_format = "xml"
 
-    request_store = ATH::RequestStore.new
+    request_store = AHTTP::RequestStore.new
     request_store.request = event.request
 
     negotiator = ATH::View::FormatNegotiator.new request_store
@@ -42,7 +42,7 @@ struct FormatListenerTest < ASPEC::TestCase
   def test_cannot_resolve_format : Nil
     event = new_request_event
 
-    request_store = ATH::RequestStore.new
+    request_store = AHTTP::RequestStore.new
     request_store.request = event.request
 
     negotiator = ATH::View::FormatNegotiator.new request_store
@@ -63,7 +63,7 @@ struct FormatListenerTest < ASPEC::TestCase
       event.request.request_format = format
     end
 
-    request_store = ATH::RequestStore.new
+    request_store = AHTTP::RequestStore.new
     request_store.request = event.request
 
     negotiator = ATH::View::FormatNegotiator.new request_store
@@ -84,7 +84,7 @@ struct FormatListenerTest < ASPEC::TestCase
     }
   end
 
-  private def request_matcher(path : Regex) : ATH::RequestMatcher::Interface
-    ATH::RequestMatcher.new ATH::RequestMatcher::Path.new path
+  private def request_matcher(path : Regex) : AHTTP::RequestMatcher::Interface
+    AHTTP::RequestMatcher.new AHTTP::RequestMatcher::Path.new path
   end
 end

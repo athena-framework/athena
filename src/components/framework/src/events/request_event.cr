@@ -5,7 +5,7 @@ require "./settable_response"
 #
 # This event can be listened on in order to:
 #
-# * Add information to the request, via its `ATH::Request#attributes`
+# * Add information to the request, via its `AHTTP::Request#attributes`
 # * Return a response immediately if there is enough information available; `ATH::Listeners::CORS` is an example of this
 #
 # NOTE: If your listener logic requires that the the corresponding `ATH::Action` has been resolved, use `ATH::Events::Action` instead.

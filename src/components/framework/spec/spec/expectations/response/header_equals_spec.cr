@@ -2,12 +2,12 @@ require "../../../spec_helper"
 
 struct HeaderEqualsExpectationTest < ASPEC::TestCase
   def test_match_valid : Nil
-    ATH::Spec::Expectations::Response::HeaderEquals.new("date", "now").match(new_response headers: HTTP::Headers{"date" => "now"}).should be_true
+    ATH::Spec::Expectations::Response::HeaderEquals.new("date", "now").match(new_response headers: ::HTTP::Headers{"date" => "now"}).should be_true
   end
 
   def test_match_invalid : Nil
     ATH::Spec::Expectations::Response::HeaderEquals.new("foobar", "bizbaz").match(new_response).should be_false
-    ATH::Spec::Expectations::Response::HeaderEquals.new("date", "now").match(new_response headers: HTTP::Headers{"date" => "yesterdar"}).should be_false
+    ATH::Spec::Expectations::Response::HeaderEquals.new("date", "now").match(new_response headers: ::HTTP::Headers{"date" => "yesterdar"}).should be_false
   end
 
   def test_failure_message : Nil

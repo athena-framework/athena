@@ -43,7 +43,7 @@ struct Athena::Framework::Action(Controller, ReturnType, ParameterTypeTuple, Par
   #
   # This is defined in here as opposed to `ATH::Controller::ArgumentResolver` so that the free vars are resolved correctly.
   # See https://forum.crystal-lang.org/t/incorrect-overload-selected-with-freevar-and-generic-inheritance/3625.
-  protected def resolve_arguments(value_resolvers : Array(ATHR::Interface), request : ATH::Request) : Array
+  protected def resolve_arguments(value_resolvers : Array(ATHR::Interface), request : AHTTP::Request) : Array
     {% begin %}
       {% if 0 == ParametersType.size %}
         Tuple.new.to_a

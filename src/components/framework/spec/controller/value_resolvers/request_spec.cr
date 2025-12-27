@@ -9,7 +9,7 @@ describe ATHR::Request do
     end
 
     it "with a valid value" do
-      parameter = ATH::Controller::ParameterMetadata(ATH::Request).new "foo"
+      parameter = ATH::Controller::ParameterMetadata(AHTTP::Request).new "foo"
       request = new_request
 
       ATHR::Request.new.resolve(request, parameter).should be request

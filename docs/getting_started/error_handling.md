@@ -8,7 +8,7 @@ Non `ATH::Exception::HTTPException` exceptions are represented as a `500 Interna
 
 When an exception is raised, the framework emits the [Exception](./middleware.md#8-exception-handling) event to allow an opportunity for it to be handled.
 By default these exceptions will return a `JSON` serialized version of the exception, via [ATH::ErrorRenderer](/Framework/ErrorRenderer), that includes the message and code; with the proper response status set.
-If the exception goes unhandled, i.e. no listener sets an [ATH::Response](/Framework/Response) on the event, then the request is finished and the exception is re-raised.
+If the exception goes unhandled, i.e. no listener sets an [AHTTP::Response](/HTTP/Response) on the event, then the request is finished and the exception is re-raised.
 
 ```crystal
 require "athena"

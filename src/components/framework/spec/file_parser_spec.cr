@@ -2,21 +2,21 @@ require "./spec_helper"
 
 struct FileParserTest < ASPEC::TestCase
   def test_parse_happy_path : Nil
-    file1 : ATH::UploadedFile? = nil
-    file2 : ATH::UploadedFile? = nil
+    file1 : AHTTP::UploadedFile? = nil
+    file2 : AHTTP::UploadedFile? = nil
 
     request = new_request(
       body: String.build do |io|
-        HTTP::FormData.build io, "boundary" do |form|
+        ::HTTP::FormData.build io, "boundary" do |form|
           # Non HTML file input types have a `nil` filename.
           form.field("age", 12)
           form.file(
             "success",
             File.open("#{__DIR__}/assets/foo.txt"),
-            HTTP::FormData::FileMetadata.new(
+            ::HTTP::FormData::FileMetadata.new(
               "foo.txt"
             ),
-            headers: HTTP::Headers{
+            headers: ::HTTP::Headers{
               "content-type" => "text/plain",
             }
           )
@@ -25,10 +25,10 @@ struct FileParserTest < ASPEC::TestCase
           form.file(
             "optional",
             IO::Memory.new,
-            HTTP::FormData::FileMetadata.new(
+            ::HTTP::FormData::FileMetadata.new(
               ""
             ),
-            headers: HTTP::Headers{
+            headers: ::HTTP::Headers{
               "content-type" => "text/plain",
             }
           )
@@ -36,10 +36,10 @@ struct FileParserTest < ASPEC::TestCase
           form.file(
             "too_big",
             File.open("#{__DIR__}/assets/file-big.txt"),
-            HTTP::FormData::FileMetadata.new(
+            ::HTTP::FormData::FileMetadata.new(
               "file-big.txt"
             ),
-            headers: HTTP::Headers{
+            headers: ::HTTP::Headers{
               "content-type" => "text/plain",
             }
           )
@@ -48,16 +48,16 @@ struct FileParserTest < ASPEC::TestCase
           form.file(
             "skipped",
             File.open("#{__DIR__}/assets/foo.txt"),
-            HTTP::FormData::FileMetadata.new(
+            ::HTTP::FormData::FileMetadata.new(
               "foo.txt"
             ),
-            headers: HTTP::Headers{
+            headers: ::HTTP::Headers{
               "content-type" => "text/plain",
             }
           )
         end
       end,
-      headers: HTTP::Headers{
+      headers: ::HTTP::Headers{
         "content-type" => "multipart/form-data; boundary=\"boundary\"",
       },
     )

@@ -1,0 +1,17 @@
+# Checks if all specified `AHTTP::Request#attributes` match the provided patterns.
+struct Athena::HTTP::RequestMatcher::Attributes
+  include Interface
+
+  def initialize(@regexes : Hash(String, Regex)); end
+
+  # :inherit:
+  def matches?(request : AHTTP::Request) : Bool
+    @regexes.each do |key, regex|
+      attribute = request.attributes.get key
+      return false unless attribute.is_a? String
+      return false unless attribute.matches? regex
+    end
+
+    true
+  end
+end

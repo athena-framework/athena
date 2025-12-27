@@ -1,5 +1,3 @@
-require "./request"
-
 @[ADI::Bundle("framework")]
 # The Athena Framework Bundle is responsible for integrating the various Athena components into the Athena Framework.
 # This primarily involves wiring up various types as services, and other DI related tasks.
@@ -27,7 +25,7 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
     # Controls which headers your `#trusted_proxies` use.
     #
     # See the [external documentation](/guides/proxies) for more information.
-    property trusted_headers : Athena::Framework::Request::ProxyHeader = Athena::Framework::Request::ProxyHeader[:forwarded_for, :forwarded_port, :forwarded_proto]
+    property trusted_headers : Athena::HTTP::Request::ProxyHeader = Athena::HTTP::Request::ProxyHeader[:forwarded_for, :forwarded_port, :forwarded_proto]
 
     # By default the application can handle requests from any host.
     # This property allows configuring regular expression patterns to control what hostnames the application is allowed to serve.
@@ -36,17 +34,17 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
     # If there is at least one pattern defined, requests whose hostname does _NOT_ match any of the patterns, will receive a 400 response.
     property trusted_hosts : Array(Regex) = [] of Regex
 
-    # Allows overriding the header name to use for a given `ATH::Request::ProxyHeader`.
+    # Allows overriding the header name to use for a given `AHTTP::Request::ProxyHeader`.
     #
     # See the [external documentation](/guides/proxies/#custom-headers) for more information.
-    property trusted_header_overrides : Hash(Athena::Framework::Request::ProxyHeader, String) = {} of NoReturn => NoReturn
+    property trusted_header_overrides : Hash(Athena::HTTP::Request::ProxyHeader, String) = {} of NoReturn => NoReturn
 
     # Configuration related to the `ATH::Listeners::Format` listener.
     #
     # If enabled, the rules are used to determine the best format for the current request based on its
     # [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header.
     #
-    # `ATH::Request::FORMATS` is used to map the request's `MIME` type to its format.
+    # `AHTTP::Request::FORMATS` is used to map the request's `MIME` type to its format.
     module FormatListener
       include ADI::Extension::Schema
 
@@ -179,12 +177,12 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
       property serialize_nil : Bool = false
 
       # The `HTTP::Status` used when there is no response content.
-      property empty_content_status : HTTP::Status = :no_content
+      property empty_content_status : ::HTTP::Status = :no_content
 
       # The `HTTP::Status` used when validations fail.
       #
       # Currently not used. Included for future work.
-      property failed_validation_status : HTTP::Status = :unprocessable_entity
+      property failed_validation_status : ::HTTP::Status = :unprocessable_entity
     end
 
     # Configures settings related to file uploads.
@@ -345,21 +343,21 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
                   matchers = [] of Nil
 
                   if v = rule["path"]
-                    matchers << "ATH::RequestMatcher::Path.new(#{v})".id
+                    matchers << "AHTTP::RequestMatcher::Path.new(#{v})".id
                   end
 
                   if v = rule["host"]
-                    matchers << "ATH::RequestMatcher::Hostname.new(#{v})".id
+                    matchers << "AHTTP::RequestMatcher::Hostname.new(#{v})".id
                   end
 
                   if v = rule["methods"]
-                    matchers << "ATH::RequestMatcher::Method.new(#{v})".id
+                    matchers << "AHTTP::RequestMatcher::Method.new(#{v})".id
                   end
 
                   SERVICE_HASH[matcher_service_id = "framework_view_handler_request_match_#{idx}"] = {
-                    class:      ATH::RequestMatcher,
+                    class:      AHTTP::RequestMatcher,
                     parameters: {
-                      matchers: {value: "#{matchers} of ATH::RequestMatcher::Interface".id},
+                      matchers: {value: "#{matchers} of AHTTP::RequestMatcher::Interface".id},
                     },
                   }
 

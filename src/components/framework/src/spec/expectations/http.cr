@@ -1,7 +1,7 @@
 require "./response/*"
 require "./request/*"
 
-# Provides expectation helper method for making assertions about the `ATH::Request` and/or `HTTP::Server::Response` of a controller action.
+# Provides expectation helper method for making assertions about the `AHTTP::Request` and/or `::HTTP::Server::Response` of a controller action.
 # For example asserting the response is successful, has a specific header/cookie (value), and/or if the request has an attribute with a specific value.
 #
 # ```
@@ -102,7 +102,7 @@ module Athena::Framework::Spec::Expectations::HTTP
     self.client.response
   end
 
-  private def request : ATH::Request
+  private def request : AHTTP::Request
     self.client.request
   end
 end

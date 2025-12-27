@@ -1,7 +1,7 @@
 require "./spec_helper"
 
 private class MockHandler
-  include HTTP::Handler
+  include ::HTTP::Handler
 
   def call(context)
   end
@@ -169,7 +169,7 @@ describe Athena::Framework do
         ATH::Server.new 1234, "google.com", false
       end
 
-      it "creates a server with a prepended HTTP::Handler" do
+      it "creates a server with a prepended ::HTTP::Handler" do
         ATH::Server.new prepend_handlers: [MockHandler.new]
       end
 

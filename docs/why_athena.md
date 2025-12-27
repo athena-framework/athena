@@ -183,8 +183,8 @@ class MyCustomErrorRenderer
   include Athena::Framework::ErrorRendererInterface
 
   # :inherit:
-  def render(exception : ::Exception) : ATH::Response
-    ATH::Response.new ...
+  def render(exception : ::Exception) : AHTTP::Response
+    AHTTP::Response.new ...
   end
 end
 ```

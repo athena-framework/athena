@@ -4,7 +4,7 @@ private struct TrueResolver
   include ATHR::Interface
 
   # :inherit:
-  def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata)
+  def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata)
     17
   end
 end

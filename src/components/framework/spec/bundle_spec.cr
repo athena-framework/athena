@@ -108,7 +108,7 @@ describe ATH::Bundle, tags: "compiled" do
                # Hostname rule
                m0, rule = map[0][1]
                matcher = ADI::ServiceContainer::SERVICE_HASH[m0.stringify]["parameters"]["matchers"]["value"]
-               raise "#{matcher}" unless matcher.includes? %(ATH::RequestMatcher::Hostname.new(/api\\.example\\.com/))
+               raise "#{matcher}" unless matcher.includes? %(AHTTP::RequestMatcher::Hostname.new(/api\\.example\\.com/))
 
                raise "#{rule}" unless rule.includes? "ATH::View::FormatNegotiator::Rule.new"
                raise "#{rule}" unless rule =~ /fallback_format: "json"/
@@ -119,7 +119,7 @@ describe ATH::Bundle, tags: "compiled" do
                # Path rule
                m1, rule = map[1][1]
                matcher = ADI::ServiceContainer::SERVICE_HASH[m1.stringify]["parameters"]["matchers"]["value"]
-               raise "#{matcher}" unless matcher.includes? %(ATH::RequestMatcher::Path.new(/^\\/image/))
+               raise "#{matcher}" unless matcher.includes? %(AHTTP::RequestMatcher::Path.new(/^\\/image/))
 
                raise "#{rule}" unless rule.includes? "ATH::View::FormatNegotiator::Rule.new"
                raise "#{rule}" unless rule =~ /fallback_format: false/
@@ -130,7 +130,7 @@ describe ATH::Bundle, tags: "compiled" do
                # Methods rule
                m2, rule = map[2][1]
                matcher = ADI::ServiceContainer::SERVICE_HASH[m2.stringify]["parameters"]["matchers"]["value"]
-               raise "#{matcher}" unless matcher.includes? %(ATH::RequestMatcher::Method.new(["HEAD"]))
+               raise "#{matcher}" unless matcher.includes? %(AHTTP::RequestMatcher::Method.new(["HEAD"]))
 
                raise "#{rule}" unless rule.includes? "ATH::View::FormatNegotiator::Rule.new"
                raise "#{rule}" unless rule =~ /fallback_format: "json"/

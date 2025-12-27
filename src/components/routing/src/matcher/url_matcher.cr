@@ -205,16 +205,16 @@ class Athena::Routing::Matcher::URLMatcher
   end
 
   private def build_request(path : String) : ART::Request
-    request = HTTP::Request.new(
+    request = ::HTTP::Request.new(
       @context.method,
       "#{@context.base_url}#{path}",
-      headers: HTTP::Headers{
+      headers: ::HTTP::Headers{
         "host" => %(#{@context.host}:#{"http" == @context.scheme ? @context.http_port : @context.https_port}),
       }
     )
 
-    {% if @top_level.has_constant?("Athena") && Athena.has_constant?("Framework") && Athena::Framework.has_constant?("Request") %}
-      request = Athena::Framework::Request.new request
+    {% if @top_level.has_constant?("Athena") && Athena.has_constant?("HTTP") && Athena::HTTP.has_constant?("Request") %}
+      request = Athena::HTTP::Request.new request
     {% end %}
 
     request

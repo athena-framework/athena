@@ -10,9 +10,9 @@ class Athena::Framework::Events::Response < AED::Event
   include Athena::Framework::Events::RequestAware
 
   # The response object.
-  property response : ATH::Response
+  property response : AHTTP::Response
 
-  def initialize(request : ATH::Request, @response : ATH::Response)
+  def initialize(request : AHTTP::Request, @response : AHTTP::Response)
     super request
   end
 end

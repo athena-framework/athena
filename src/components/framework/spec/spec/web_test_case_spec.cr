@@ -6,17 +6,17 @@ private struct MockWebTestCase < ATH::Spec::WebTestCase
 end
 
 private class MockClient < ATH::Spec::AbstractBrowser
-  setter request : ATH::Request?
-  setter response : HTTP::Server::Response?
+  setter request : AHTTP::Request?
+  setter response : ::HTTP::Server::Response?
 
-  def do_request(request : ATH::Request) : NoReturn
+  def do_request(request : AHTTP::Request) : NoReturn
     raise NotImplementedError.new "BUG: Invoked do_request method of MockClient"
   end
 end
 
 struct WebTestCaseTest < ASPEC::TestCase
   protected def before_all : Nil
-    ATH::Request.register_format "custom", {"application/vnd.myformat"}
+    AHTTP::Request.register_format "custom", {"application/vnd.myformat"}
   end
 
   def test_assert_response_is_successful : Nil
@@ -45,7 +45,7 @@ struct WebTestCaseTest < ASPEC::TestCase
   end
 
   def test_assert_response_is_redirected_with_location : Nil
-    self.response_tester(new_response status: :moved_permanently, headers: HTTP::Headers{"location" => "https://example.com"}).assert_response_redirects "https://example.com"
+    self.response_tester(new_response status: :moved_permanently, headers: ::HTTP::Headers{"location" => "https://example.com"}).assert_response_redirects "https://example.com"
 
     expect_raises Spec::AssertionFailed, "Failed asserting that the response has header 'location' with value 'https://example.com'." do
       self.response_tester(new_response status: :moved_permanently).assert_response_redirects "https://example.com"
@@ -61,16 +61,16 @@ struct WebTestCaseTest < ASPEC::TestCase
   end
 
   def test_assert_response_format_equals : Nil
-    self.response_tester(new_response headers: HTTP::Headers{"content-type" => "application/vnd.myformat"}).assert_response_format_equals "custom"
-    self.response_tester(new_response headers: HTTP::Headers{"content-type" => "application/json"}).assert_response_format_equals "json"
+    self.response_tester(new_response headers: ::HTTP::Headers{"content-type" => "application/vnd.myformat"}).assert_response_format_equals "custom"
+    self.response_tester(new_response headers: ::HTTP::Headers{"content-type" => "application/json"}).assert_response_format_equals "json"
 
     expect_raises Spec::AssertionFailed, "Failed asserting that the response format is 'json':\nHTTP/1.1 200 OK" do
-      self.response_tester(new_response headers: HTTP::Headers{"content-type" => "text/html"}).assert_response_format_equals "json"
+      self.response_tester(new_response headers: ::HTTP::Headers{"content-type" => "text/html"}).assert_response_format_equals "json"
     end
   end
 
   def test_assert_response_has_header : Nil
-    self.response_tester(new_response headers: HTTP::Headers{"foo" => "bar"}).assert_response_has_header "foo"
+    self.response_tester(new_response headers: ::HTTP::Headers{"foo" => "bar"}).assert_response_has_header "foo"
 
     expect_raises Spec::AssertionFailed, "Failed asserting that the response has header 'baz'." do
       self.response_tester(new_response).assert_response_has_header "baz"
@@ -81,33 +81,33 @@ struct WebTestCaseTest < ASPEC::TestCase
     self.response_tester(new_response).assert_response_not_has_header "baz"
 
     expect_raises Spec::AssertionFailed, "Failed asserting that the response does not have header 'foo'." do
-      self.response_tester(new_response headers: HTTP::Headers{"foo" => "bar"}).assert_response_not_has_header "foo"
+      self.response_tester(new_response headers: ::HTTP::Headers{"foo" => "bar"}).assert_response_not_has_header "foo"
     end
   end
 
   def test_assert_response_header_equals : Nil
-    self.response_tester(new_response headers: HTTP::Headers{"foo" => "bar"}).assert_response_header_equals "foo", "bar"
+    self.response_tester(new_response headers: ::HTTP::Headers{"foo" => "bar"}).assert_response_header_equals "foo", "bar"
 
     expect_raises Spec::AssertionFailed, "Failed asserting that the response has header 'foo' with value 'bar'" do
       self.response_tester(new_response).assert_response_header_equals "foo", "bar"
     end
 
     expect_raises Spec::AssertionFailed, "Failed asserting that the response has header 'baz' with value 'blah'." do
-      self.response_tester(new_response headers: HTTP::Headers{"baz" => "bar"}).assert_response_header_equals "baz", "blah"
+      self.response_tester(new_response headers: ::HTTP::Headers{"baz" => "bar"}).assert_response_header_equals "baz", "blah"
     end
   end
 
   def test_assert_response_not_header_equals : Nil
-    self.response_tester(new_response headers: HTTP::Headers{"foo" => "baz"}).assert_response_header_not_equals "foo", "bar"
+    self.response_tester(new_response headers: ::HTTP::Headers{"foo" => "baz"}).assert_response_header_not_equals "foo", "bar"
 
     expect_raises Spec::AssertionFailed, "ailed asserting that the response does not have header 'foo' with value 'bar'." do
-      self.response_tester(new_response headers: HTTP::Headers{"foo" => "bar"}).assert_response_header_not_equals "foo", "bar"
+      self.response_tester(new_response headers: ::HTTP::Headers{"foo" => "bar"}).assert_response_header_not_equals "foo", "bar"
     end
   end
 
   def test_assert_response_has_cookie : Nil
     response = new_response
-    response.cookies << HTTP::Cookie.new "foo", "bar"
+    response.cookies << ::HTTP::Cookie.new "foo", "bar"
 
     self.response_tester(response).assert_response_has_cookie "foo"
 
@@ -121,14 +121,14 @@ struct WebTestCaseTest < ASPEC::TestCase
 
     expect_raises Spec::AssertionFailed, "Failed asserting that the response does not have cookie 'foo'." do
       response = new_response
-      response.cookies << HTTP::Cookie.new "foo", "bar"
+      response.cookies << ::HTTP::Cookie.new "foo", "bar"
       self.response_tester(response).assert_response_not_has_cookie "foo"
     end
   end
 
   def test_assert_cookie_has_value : Nil
     response = new_response
-    response.cookies << HTTP::Cookie.new "foo", "bar"
+    response.cookies << ::HTTP::Cookie.new "foo", "bar"
 
     self.response_tester(response).assert_cookie_has_value "foo", "bar"
 
@@ -138,7 +138,7 @@ struct WebTestCaseTest < ASPEC::TestCase
 
     expect_raises Spec::AssertionFailed, "Failed asserting that the response has cookie 'foo' with value 'bar'." do
       response = new_response
-      response.cookies << HTTP::Cookie.new "foo", "baz"
+      response.cookies << ::HTTP::Cookie.new "foo", "baz"
 
       self.response_tester(response).assert_cookie_has_value "foo", "bar"
     end
@@ -163,7 +163,7 @@ struct WebTestCaseTest < ASPEC::TestCase
   def test_exception_on_server_error : Nil
     response = new_response(
       status: :internal_server_error,
-      headers: HTTP::Headers{
+      headers: ::HTTP::Headers{
         "x-debug-exception-code"    => "500",
         "x-debug-exception-file"    => "/path/to/file:123:4",
         "x-debug-exception-class"   => "MyException",
@@ -176,11 +176,11 @@ struct WebTestCaseTest < ASPEC::TestCase
     end
   end
 
-  private def response_tester(response : HTTP::Server::Response) : ATH::Spec::WebTestCase
+  private def response_tester(response : ::HTTP::Server::Response) : ATH::Spec::WebTestCase
     client = MockClient.new
     client.response = response
 
-    client.request = ATH::Request.new "GET", "/"
+    client.request = AHTTP::Request.new "GET", "/"
 
     self.tester client
   end
@@ -188,7 +188,7 @@ struct WebTestCaseTest < ASPEC::TestCase
   private def request_tester : ATH::Spec::WebTestCase
     client = MockClient.new
 
-    request = ATH::Request.new "GET", "/"
+    request = AHTTP::Request.new "GET", "/"
     request.attributes.set "foo", "bar", String
     request.attributes.set "_route", "index", String
     client.request = request

@@ -1,6 +1,6 @@
 # :nodoc:
 class Athena::Framework::FileParser
-  # Store the tmp uploaded paths to use to validate `ATH::UploadedFile`s.
+  # Store the tmp uploaded paths to use to validate `AHTTP::UploadedFile`s.
   @uploaded_files : Set(String) = Set(String).new
 
   protected class_getter default_temp_dir : String do
@@ -17,10 +17,10 @@ class Athena::Framework::FileParser
     @temp_dir = temp_dir || self.class.default_temp_dir
   end
 
-  def parse(request : ATH::Request) : Nil
+  def parse(request : AHTTP::Request) : Nil
     uploaded_file_count = 0
 
-    HTTP::FormData.parse(request.request) do |part|
+    ::HTTP::FormData.parse(request.request) do |part|
       case filename = part.filename
       when "" then next
       when .nil?
@@ -30,7 +30,7 @@ class Athena::Framework::FileParser
 
       next if uploaded_file_count >= @max_uploads
 
-      status : ATH::UploadedFile::Status = :ok
+      status : AHTTP::UploadedFile::Status = :ok
 
       size : Int64? = 0
 
@@ -50,7 +50,7 @@ class Athena::Framework::FileParser
         @uploaded_files << file_path
       end
 
-      request.files[part.name] << UploadedFile.new file_path, filename, part.headers["content-type"]?, status
+      request.files[part.name] << AHTTP::UploadedFile.new file_path, filename, part.headers["content-type"]?, status
       uploaded_file_count += 1
     end
   end

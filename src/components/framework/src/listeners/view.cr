@@ -1,5 +1,5 @@
 @[ADI::Register]
-# Listens on the `ATH::Events::View` event to convert a non `ATH::Response` into an `ATH::Response`.
+# Listens on the `ATH::Events::View` event to convert a non `AHTTP::Response` into an `AHTTP::Response`.
 # Allows creating format agnostic controllers by allowing them to return format agnostic data that
 # is later used to render the content in the expected format.
 #

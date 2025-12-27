@@ -50,10 +50,10 @@ struct Athena::Framework::Controller::ValueResolvers::QueryParameter
   # See the related resolver documentation for more information.
   configuration ::Athena::Framework::Annotations::MapQueryParameter,
     name : String? = nil,
-    validation_failed_status : HTTP::Status = :not_found
+    validation_failed_status : ::HTTP::Status = :not_found
 
   # :inherit:
-  def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata)
+  def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata)
     return unless ann = parameter.annotation_configurations[ATHA::MapQueryParameter]?
 
     name = ann.name || parameter.name

@@ -4,9 +4,41 @@ Documents the changes that may be required when upgrading to a newer component v
 
 ## Upgrade to 0.22.0
 
+### HTTP types extracted to dedicated component
+
+The following types have been extracted from the `framework` component into the dedicated `http` component.
+Any references will need their namespace updated from `Athena::Framework` (`ATH`) to `Athena::HTTP` (`AHTTP`):
+
+- `Request`
+- `Response`
+- `ResponseHeaders`
+- `RedirectResponse`
+- `StreamedResponse`
+- `BinaryFileResponse`
+- `ParameterBag`
+- `HeaderUtils`
+- `IPUtils`
+- `RequestStore`
+- `AbstractFile`
+- `UploadedFile`
+- `RequestMatcher`
+- `RequestMatcher::Attributes`
+- `RequestMatcher::Header`
+- `RequestMatcher::Hostname`
+- `RequestMatcher::Method`
+- `RequestMatcher::Path`
+- `RequestMatcher::QueryParameter`
+- `Exception::ConflictingHeaders`
+- `Exception::SuspiciousOperation`
+- `Exception::RequestExceptionInterface`
+- `Exception::File`
+- `Exception::FileNotFound`
+- `Exception::FileSizeLimitExceeded`
+- `Exception::Logic`
+
 ### Change how the `ATH::Action` is accessed
 
-The `ATH::Request#action` getter used to access the matched `ATH::Action` instance has been removed.
+The `AHTTP::Request#action` getter used to access the matched `ATH::Action` instance has been removed.
 The action is now stored within the request's attributes as `"_action"` and must be accessed via:
 ```crystal
 request.attributes.get("_action", ATH::ActionBase)
