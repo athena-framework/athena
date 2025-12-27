@@ -41,6 +41,7 @@ nav:
       - project://dotenv
       - project://event_dispatcher
       - project://framework
+      - project://http
       - project://image_size
       - project://mercure
       - project://mime

@@ -36,6 +36,10 @@ component_management:
       name: framework
       paths:
         - src/components/framework/**
+    - component_id: http_component
+      name: http
+      paths:
+        - src/components/http/**
     - component_id: image_size_component
       name: image_size
       paths:

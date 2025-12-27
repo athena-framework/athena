@@ -31,6 +31,8 @@ dependencies:
     github: athena-framework/dotenv
   athena-event_dispatcher:
     github: athena-framework/event-dispatcher
+  athena-http:
+    github: athena-framework/http
   athena-image_size:
     github: athena-framework/image-size
   athena-mercure:
