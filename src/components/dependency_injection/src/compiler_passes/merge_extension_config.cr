@@ -109,10 +109,10 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                                    config_value.raise "Unknown '#{type}' enum member '#{config_value}' for property '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}'." unless type.constants.any?(&.downcase.id.==(config_value.id))
 
                                    # Resolve symbol literals to enum members
-                                   config_value = "#{type}.new(#{config_value})".id
+                                   config_value = "#{prop["global"] ? "::".id : "".id}#{type}.new(#{config_value})".id
                                  elsif config_value.is_a?(NumberLiteral) && (type = prop["type"]) <= ::Enum
                                    # Resolve enum value to enum members
-                                   config_value = "#{type}.new(#{config_value})".id
+                                   config_value = "#{prop["global"] ? "::".id : "".id}#{type}.new(#{config_value})".id
                                  elsif config_value.is_a?(ArrayLiteral)
                                    # If there is an array literal and the prop has `members`,
                                    # assume it is an `array_of` schema property array and fill in unprovided fields.
@@ -178,7 +178,7 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                                      config_value.raise "Unknown '#{type}' enum member '#{default_value}' for default value of property '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}'." unless type.constants.any?(&.downcase.id.==(default_value.id))
 
                                      # Resolve symbol literals to enum members
-                                     default_value = "#{type}.new(#{default_value})".id
+                                     default_value = "#{prop["global"] ? "::".id : "".id}#{type}.new(#{default_value})".id
                                    elsif default_value.is_a?(ArrayLiteral)
                                      # If there is an array literal and the prop has `members`,
                                      # assume it is an `array_of` schema property array and fill in unprovided fields.

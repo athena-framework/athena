@@ -1,0 +1,8 @@
+project: dependency-injection
+kind: Fixed
+body: Fix global extension schema `Enum` types not retaining their `::` prefix
+time: 2025-12-27T14:41:34.277576779-05:00
+custom:
+    Author: George Dietrich
+    PR: "639"
+    Username: blacksmoke16

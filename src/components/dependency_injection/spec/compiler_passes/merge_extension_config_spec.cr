@@ -317,6 +317,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
         property color_type : Color
         property color_sym : Color
         property color_default : Color = :green
+        property color_global : ::Color = :red
         property value : Hash(String, String)
         property regex : Regex
       end
@@ -345,6 +346,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
             raise "#{config}" unless config["color_type"].stringify == "Color.new(0)"
             raise "#{config}" unless config["color_sym"].stringify == "Color.new(:blue)"
             raise "#{config}" unless config["color_default"].stringify == "Color.new(:green)"
+            raise "#{config}" unless config["color_global"].stringify == "::Color.new(:red)"
             raise "#{config}" unless config["value"] == {"id" => "10", "name" => "fred"}
             raise "#{config}" unless config["regex"] == /foo/
           %}
