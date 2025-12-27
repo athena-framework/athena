@@ -57,7 +57,7 @@ describe Athena::Framework::RouteHandler do
 
           response = handler.handle request = new_request action: action
 
-          request.action.should eq action
+          request.attributes.get("_action").should eq action
 
           response.status.should eq HTTP::Status::CREATED
           response.content.should eq %("TEST")

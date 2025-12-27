@@ -234,7 +234,7 @@ class MyAnnotationListener
   @[AEDA::AsEventListener]
   def on_view(event : ATH::Events::View) : Nil
     # Represents all custom annotations applied to the current ATH::Action.
-    ann_configs = event.request.action.annotation_configurations
+    ann_configs = event.request.attributes.get("_action", ATH::ActionBase).annotation_configurations
 
     # Check if this action has the annotation
     unless ann_configs.has? MyAnnotation

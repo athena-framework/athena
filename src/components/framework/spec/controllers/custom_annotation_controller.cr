@@ -9,7 +9,7 @@ ADI.configuration_annotation MyApp::NestedParameterAnn
 struct CustomAnnotationListener
   @[AEDA::AsEventListener]
   def on_response(event : ATH::Events::Response) : Nil
-    return unless action = event.request.action?
+    return unless action = event.request.attributes.get?("_action", ATH::ActionBase)
 
     ann_configs = action.annotation_configurations
 

@@ -199,7 +199,7 @@ class MyAnnotationListener
   @[AEDA::AsEventListener]
   def on_view(event : ATH::Events::View) : Nil
     # Represents all custom annotations applied to the current ATH::Action.
-    ann_configs = event.request.action.annotation_configurations
+    ann_configs = event.request.attributes.get("_action", ATH::ActionBase).annotation_configurations
 
     # Check if this action has the annotation
     unless ann_configs.has? MyAnnotation
@@ -255,7 +255,7 @@ struct PaginationListener
   @[AEDA::AsEventListener(priority: 255)]
   def on_view(event : ATH::Events::View) : Nil
     # Return if the endpoint is not paginated.
-    return unless (pagination = event.request.action.annotation_configurations[Paginated]?)
+    return unless (pagination = event.request.attributes.get("_action", ATH::ActionBase).annotation_configurations[Paginated]?)
 
     # Return if the action result is not able to be paginated.
     return unless (action_result = event.action_result).is_a? Indexable
