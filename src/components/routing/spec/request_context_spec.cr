@@ -108,7 +108,7 @@ struct RequestContextTest < ASPEC::TestCase
   end
 
   def test_from_request : Nil
-    request = ART::Request.new "GET", "/foo?bar=baz", headers: HTTP::Headers{"host" => "test.com:444"}
+    request = ART::Request.new "GET", "/foo?bar=baz", headers: ::HTTP::Headers{"host" => "test.com:444"}
 
     request_context = ART::RequestContext.new
     request_context.apply request
@@ -119,7 +119,7 @@ struct RequestContextTest < ASPEC::TestCase
     request_context.path.should eq "/foo"
     request_context.query_string.should eq "bar=baz"
 
-    # Don't really have a way to determine these via `HTTP::Request` at the moment :/
+    # Don't really have a way to determine these via `::HTTP::Request` at the moment :/
     request_context.scheme.should eq "http"
     request_context.http_port.should eq 80
     request_context.https_port.should eq 443

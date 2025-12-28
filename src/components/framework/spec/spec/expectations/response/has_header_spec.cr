@@ -2,7 +2,7 @@ require "../../../spec_helper"
 
 struct HasHeaderExpectationTest < ASPEC::TestCase
   def test_match_valid : Nil
-    ATH::Spec::Expectations::Response::HasHeader.new("date").match(new_response headers: HTTP::Headers{"date" => "now"}).should be_true
+    ATH::Spec::Expectations::Response::HasHeader.new("date").match(new_response headers: ::HTTP::Headers{"date" => "now"}).should be_true
   end
 
   def test_match_invalid : Nil

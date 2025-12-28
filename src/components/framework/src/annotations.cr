@@ -5,7 +5,7 @@ module Athena::Framework::Annotations
   #
   # ## Fields
   #
-  # * status : `HTTP::Status` - The `HTTP::Status` the endpoint should return. Defaults to `HTTP::Status::OK` (200).
+  # * status : `HTTP::Status` - The `::HTTP::Status` the endpoint should return. Defaults to `HTTP::Status::OK` (200).
   # * serialization_groups : `Array(String)?` - The serialization groups to use for this route as part of `ASR::ExclusionStrategies::Groups`.
   # * validation_groups : `Array(String)?` - Groups that should be used to validate any objects related to this route; see `AVD::Constraint@validation-groups`.
   # * emit_nil : `Bool` - If `nil` values should be serialized. Defaults to `false`.
@@ -22,7 +22,7 @@ module Athena::Framework::Annotations
   # end
   # ```
   ADI.configuration_annotation ::Athena::Framework::Annotations::View,
-    status : HTTP::Status? = nil,
+    status : ::HTTP::Status? = nil,
     serialization_groups : Array(String)? = nil,
     validation_groups : Array(String)? = nil,
     emit_nil : Bool? = nil

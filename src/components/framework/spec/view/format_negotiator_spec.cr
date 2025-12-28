@@ -1,23 +1,23 @@
 require "../spec_helper"
 
 private class MockRequestMatcher
-  include ATH::RequestMatcher::Interface
+  include AHTTP::RequestMatcher::Interface
 
   def initialize(@matches : Bool); end
 
-  def matches?(request : ATH::Request) : Bool
+  def matches?(request : AHTTP::Request) : Bool
     @matches
   end
 end
 
 struct FormatNegotiatorTest < ASPEC::TestCase
-  @request_store : ATH::RequestStore
-  @request : ATH::Request
+  @request_store : AHTTP::RequestStore
+  @request : AHTTP::Request
   @negotiator : ATH::View::FormatNegotiator
 
   def initialize
-    @request_store = ATH::RequestStore.new
-    @request = ATH::Request.new "GET", "/"
+    @request_store = AHTTP::RequestStore.new
+    @request = AHTTP::Request.new "GET", "/"
     @request_store.request = @request
 
     @negotiator = ATH::View::FormatNegotiator.new(

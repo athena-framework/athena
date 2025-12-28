@@ -9,15 +9,15 @@ class Athena::Framework::View::FormatNegotiator < ANG::Negotiator
     stop : Bool = false,
     prefer_extension : Bool = true
 
-  @map : Array({ATH::RequestMatcher::Interface, ATH::View::FormatNegotiator::Rule}) = [] of {ATH::RequestMatcher::Interface, ATH::View::FormatNegotiator::Rule}
+  @map : Array({AHTTP::RequestMatcher::Interface, ATH::View::FormatNegotiator::Rule}) = [] of {AHTTP::RequestMatcher::Interface, ATH::View::FormatNegotiator::Rule}
 
   def initialize(
-    @request_store : ATH::RequestStore,
+    @request_store : AHTTP::RequestStore,
     @mime_types : Hash(String, Array(String)) = Hash(String, Array(String)).new,
   )
   end
 
-  protected def add(request_matcher : ATH::RequestMatcher::Interface, rule : Rule) : Nil
+  protected def add(request_matcher : AHTTP::RequestMatcher::Interface, rule : Rule) : Nil
     @map << {request_matcher, rule}
   end
 
@@ -87,7 +87,7 @@ class Athena::Framework::View::FormatNegotiator < ANG::Negotiator
         next
       end
 
-      mime_types = mime_types.concat ATH::Request.mime_types priority
+      mime_types = mime_types.concat AHTTP::Request.mime_types priority
 
       if @mime_types.has_key? priority
         mime_types.concat @mime_types[priority]

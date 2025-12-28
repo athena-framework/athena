@@ -10,7 +10,7 @@ struct Athena::Framework::Spec::Expectations::Request::AttributeEquals(T)
     @description : String? = nil,
   ); end
 
-  def match(actual_value : ATH::Request) : Bool
+  def match(actual_value : AHTTP::Request) : Bool
     @value == actual_value.attributes.get?(@name, T)
   end
 
@@ -18,7 +18,7 @@ struct Athena::Framework::Spec::Expectations::Request::AttributeEquals(T)
     false
   end
 
-  def failure_message(actual_value : ATH::Request) : String
+  def failure_message(actual_value : AHTTP::Request) : String
     String.build do |io|
       if desc = @description
         io << desc << '\n' << '\n'
@@ -28,7 +28,7 @@ struct Athena::Framework::Spec::Expectations::Request::AttributeEquals(T)
     end
   end
 
-  def negative_failure_message(actual_value : ATH::Request) : String
+  def negative_failure_message(actual_value : AHTTP::Request) : String
     String.build do |io|
       if desc = @description
         io << desc << '\n' << '\n'

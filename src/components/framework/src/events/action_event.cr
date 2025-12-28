@@ -9,7 +9,7 @@ class Athena::Framework::Events::Action < AED::Event
   # The related `ATH::Action` that will be used to handle the current request.
   getter action : ATH::ActionBase
 
-  def initialize(request : ATH::Request, @action : ATH::ActionBase)
+  def initialize(request : AHTTP::Request, @action : ATH::ActionBase)
     super request
   end
 end

@@ -15,7 +15,7 @@ class Athena::Framework::Events::Exception < AED::Event
   # Can be replaced by an `ATH::Listeners::Error`.
   property exception : ::Exception
 
-  def initialize(request : ATH::Request, @exception : ::Exception)
+  def initialize(request : AHTTP::Request, @exception : ::Exception)
     super request
   end
 end

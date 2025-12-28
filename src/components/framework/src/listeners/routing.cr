@@ -5,7 +5,7 @@ struct Athena::Framework::Listeners::Routing
 
   def initialize(
     @matcher : ART::Matcher::URLMatcherInterface | ART::Matcher::RequestMatcherInterface,
-    @request_store : ATH::RequestStore,
+    @request_store : AHTTP::RequestStore,
     request_context : ART::RequestContext? = nil,
   )
     @request_context = request_context || @matcher.context

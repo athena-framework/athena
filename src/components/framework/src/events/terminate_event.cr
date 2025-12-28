@@ -9,9 +9,9 @@ class Athena::Framework::Events::Terminate < AED::Event
   include Athena::Framework::Events::RequestAware
 
   # The response object.
-  getter response : ATH::Response
+  getter response : AHTTP::Response
 
-  def initialize(request : ATH::Request, @response : ATH::Response)
+  def initialize(request : AHTTP::Request, @response : AHTTP::Response)
     super request
   end
 end

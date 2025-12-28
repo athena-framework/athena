@@ -1,10 +1,10 @@
-# Value resolvers handle resolving the argument(s) to pass to a controller action based on values stored within the `ATH::Request`, or some other source.
+# Value resolvers handle resolving the argument(s) to pass to a controller action based on values stored within the [AHTTP::Request](/HTTP/Request), or some other source.
 #
 # Custom resolvers can be defined by creating a service that implements this interface, and is tagged with `ATHR::Interface::TAG`.
 # The tag also accepts an optional *priority* field the determines the order in which the resolvers execute.
 # The list of built in resolvers and their priorities can be found on the `ATH::Controller::ValueResolvers` module.
 #
-# WARNING: Resolvers that mutate a value already within the `ATH::Request#attributes`, such as one from a route or query parameter _MUST_ have a priority `>100`
+# WARNING: Resolvers that mutate a value already within the [AHTTP::Request#attributes](/HTTP/Request/#Athena::HTTP::Request#attributes), such as one from a route or query parameter _MUST_ have a priority `>100`
 # to ensure the custom logic is applied before the raw value is resolved via the `ATHR::RequestAttribute` resolver.
 #
 # The first resolver to return a value wins and no other resolvers will be executed for that particular parameter.
@@ -20,7 +20,7 @@
 #   include ATHR::Interface
 #
 #   # :inherit:
-#   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata) : MyCustomType?
+#   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata) : MyCustomType?
 #     # Return early if a value is unresolvable from the current *request* and/or *parameter*.
 #     return if parameter.type != MyCustomType
 #
@@ -44,7 +44,7 @@
 # ```
 #
 # Since none of the built-in resolvers are applicable for this parameter type,
-# nor is there a *my_obj* value in `ATH::Request#attributes`, assuming no customer listeners manually add it, the `CustomResolver` would take over and provide the value for that parameter.
+# nor is there a *my_obj* value in [AHTTP::Request#attributes](/HTTP/Request/#Athena::HTTP::Request#attributes), assuming no customer listeners manually add it, the `CustomResolver` would take over and provide the value for that parameter.
 #
 # ## Configuration
 #
@@ -65,7 +65,7 @@
 #   configuration Multiply::This
 #
 #   # :inherit:
-#   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata) : Int32?
+#   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata) : Int32?
 #     # Return early if the controller action parameter doesn't have the annotation.
 #     return unless parameter.annotation_configurations.has? This
 #
@@ -110,7 +110,7 @@
 #   configuration Multiply::This, multiplier : Int32 = 10
 #
 #   # :inherit:
-#   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata) : Int32?
+#   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata) : Int32?
 #     # Return early if the controller action parameter doesn't have the annotation.
 #     return unless (config = parameter.annotation_configurations[This]?)
 #
@@ -158,14 +158,14 @@
 #   configuration MyResolver::Enable
 #
 #   # :inherit:
-#   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata(Int32)) : Int32?
+#   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata(Int32)) : Int32?
 #     return unless parameter.annotation_configurations.has? Enable
 #
 #     request.attributes.get(parameter.name, Int32) * 10
 #   end
 #
 #   # :inherit:
-#   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata(String)) : String?
+#   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata(String)) : String?
 #     return unless parameter.annotation_configurations.has? Enable
 #
 #     request.attributes.get(parameter.name, String).upcase
@@ -174,7 +174,7 @@
 #   # :inherit:
 #   #
 #   # Fallback overload for types other than `Int32` and `String.
-#   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata) : Nil
+#   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata) : Nil
 #   end
 # end
 #
@@ -242,7 +242,7 @@
 #   configuration MyResolver::Enable
 #
 #   # :inherit:
-#   def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata) : String?
+#   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata) : String?
 #     return unless parameter.annotation_configurations.has? Enable
 #
 #     "foo"
@@ -298,5 +298,5 @@ module Athena::Framework::Controller::ValueResolvers::Interface
   end
 
   # Returns a value resolved from the provided *request* and *parameter* if possible, otherwise returns `nil` if no parameter could be resolved.
-  abstract def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata)
+  abstract def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata)
 end

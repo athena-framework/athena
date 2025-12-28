@@ -16,7 +16,7 @@ abstract struct AbstractURLMatcherTestCase < ASPEC::TestCase
       add "foo", ART::Route.new "/foo"
     end
 
-    self.get_matcher(routes).match(HTTP::Request.new "GET", "/foo").should eq({"_route" => "foo"})
+    self.get_matcher(routes).match(::HTTP::Request.new "GET", "/foo").should eq({"_route" => "foo"})
   end
 
   def test_match_method_not_allowed : Nil
@@ -44,7 +44,7 @@ abstract struct AbstractURLMatcherTestCase < ASPEC::TestCase
       add "foo", ART::Route.new "/foo", methods: "post"
     end
 
-    self.get_matcher(routes).match?(HTTP::Request.new("GET", "/foo")).should be_nil
+    self.get_matcher(routes).match?(::HTTP::Request.new("GET", "/foo")).should be_nil
   end
 
   def test_match_method_not_allowed_root : Nil
@@ -93,7 +93,7 @@ abstract struct AbstractURLMatcherTestCase < ASPEC::TestCase
       add "foo", ART::Route.new "/foo/{bar}"
     end
 
-    self.get_matcher(routes).match?(HTTP::Request.new "GET", "/no-match").should be_nil
+    self.get_matcher(routes).match?(::HTTP::Request.new "GET", "/no-match").should be_nil
   end
 
   def test_match_returns_matched_pattern : Nil

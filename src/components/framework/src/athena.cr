@@ -3,36 +3,26 @@ require "http/server"
 require "json"
 
 require "athena-contracts/event_dispatcher"
-require "athena-contracts/common/framework"
 
 require "athena-clock"
 require "athena-console"
 require "athena-dependency_injection"
 require "athena-event_dispatcher"
+require "athena-http"
 require "athena-negotiation"
 
 require "./action"
 require "./annotations"
 require "./bundle"
-require "./binary_file_response"
 require "./controller"
 require "./controller_resolver"
 require "./error_renderer_interface"
 require "./file_parser"
 require "./error_renderer"
-require "./header_utils"
-require "./ip_utils"
 require "./logging"
-require "./parameter_bag"
-require "./redirect_response"
-require "./response"
-require "./response_headers"
-require "./request"
-require "./request_matcher"
-require "./request_store"
 require "./route_handler"
-require "./streamed_response"
 
+require "./ext/http"
 require "./ext/serializer"
 
 require "./commands/*"
@@ -41,12 +31,10 @@ require "./compiler_passes/*"
 require "./events/*"
 require "./exception/*"
 require "./listeners/*"
-require "./request_matcher/*"
 require "./view/*"
 
 require "./ext/clock"
 require "./ext/console"
-require "./ext/conversion_types"
 require "./ext/event_dispatcher"
 require "./ext/routing"
 require "./ext/validator"
@@ -92,9 +80,9 @@ module Athena::Framework
   # This type includes all of the built-in resolvers that Athena uses to try and resolve an argument for a particular controller action parameter.
   # They run in the following order:
   #
-  # 1. `ATHR::QueryParameter` (110) - Attempts to resolve a value from the `ATH::Request` query parameters.
+  # 1. `ATHR::QueryParameter` (110) - Attempts to resolve a value from the [AHTTP::Request](/HTTP/Request) query parameters.
   #
-  # 1. `ATHR::Enum` (105) - Attempts to resolve a value from `ATH::Request#attributes` into an enum member of the related type.
+  # 1. `ATHR::Enum` (105) - Attempts to resolve a value from [AHTTP::Request#attributes](/HTTP/Request/#Athena::HTTP::Request#attributes) into an enum member of the related type.
   # Works well in conjunction with `ART::Requirement::Enum`.
   #
   # 1. `ATHR::Time` (105) - Attempts to resolve a value from the request attributes into a `::Time` instance,
@@ -105,9 +93,9 @@ module Athena::Framework
   #
   # 1. `ATHR::RequestBody` (105) - If enabled, attempts to deserialize the request body/query string into the type of the related parameter, running any defined validations if applicable.
   #
-  # 1. `ATHR::RequestAttribute` (100) - Provides a value stored in `ATH::Request#attributes` if one with the same name as the action parameter exists.
+  # 1. `ATHR::RequestAttribute` (100) - Provides a value stored in [AHTTP::Request#attributes](/HTTP/Request/#Athena::HTTP::Request#attributes) if one with the same name as the action parameter exists.
   #
-  # 1. `ATHR::Request` (50) - Provides the current `ATH::Request` if the related parameter is typed as such.
+  # 1. `ATHR::Request` (50) - Provides the current [AHTTP::Request](/HTTP/Request) if the related parameter is typed as such.
   #
   # 1. `ATHR::DefaultValue` (-100) - Provides the default value of the parameter if it has one, or `nil` if it is nilable.
   #
@@ -125,7 +113,7 @@ module Athena::Framework
   # Exception handling in Athena is similar to exception handling in any Crystal program, with the addition of a new unique exception type, `ATH::Exception::HTTPException`.
   #
   # When an exception is raised, Athena emits the `ATH::Events::Exception` event to allow an opportunity for it to be handled. If the exception goes unhandled, i.e. no listener set
-  # an `ATH::Response` on the event, then the request is finished and the exception is reraised. Otherwise, that response is returned, setting the status and merging the headers on the exceptions
+  # an [AHTTP::Response](/HTTP/Response) on the event, then the request is finished and the exception is reraised. Otherwise, that response is returned, setting the status and merging the headers on the exceptions
   # if it is an `ATH::Exception::HTTPException`. See `ATH::Listeners::Error` and `ATH::ErrorRendererInterface` for more information on how exceptions are handled by default.
   #
   # To provide the best response to the client, non `ATH::Exception::HTTPException` should be rescued and converted into a corresponding `ATH::Exception::HTTPException`.
@@ -178,7 +166,7 @@ module Athena::Framework
     reuse_port : Bool = false,
     ssl_context : OpenSSL::SSL::Context::Server? = nil,
     *,
-    prepend_handlers : Array(HTTP::Handler) = [] of HTTP::Handler,
+    prepend_handlers : Array(::HTTP::Handler) = [] of ::HTTP::Handler,
   ) : Nil
     ATH::Server.new(port, host, reuse_port, ssl_context, prepend_handlers).start
   end
@@ -199,16 +187,16 @@ module Athena::Framework
       @host : String = "0.0.0.0",
       @reuse_port : Bool = false,
       @ssl_context : OpenSSL::SSL::Context::Server? = nil,
-      prepend_handlers handlers : Array(HTTP::Handler) = [] of HTTP::Handler,
+      prepend_handlers handlers : Array(::HTTP::Handler) = [] of ::HTTP::Handler,
     )
-      handler_proc = HTTP::Handler::HandlerProc.new do |context|
+      handler_proc = ::HTTP::Handler::HandlerProc.new do |context|
         # Reinitialize the container since keep-alive requests reuse the same fiber.
         Fiber.current.container = ADI::ServiceContainer.new
 
         handler = ADI.container.athena_route_handler
 
-        # Convert the raw `HTTP::Request` into an `ATH::Request` instance.
-        request = ATH::Request.new context.request
+        # Convert the raw `HTTP::Request` into an `AHTTP::Request` instance.
+        request = AHTTP::Request.new context.request
 
         # Handle the request.
         athena_response = handler.handle request
@@ -221,9 +209,9 @@ module Athena::Framework
       end
 
       @server = if handlers.empty?
-                  HTTP::Server.new &handler_proc
+                  ::HTTP::Server.new &handler_proc
                 else
-                  HTTP::Server.new handlers, &handler_proc
+                  ::HTTP::Server.new handlers, &handler_proc
                 end
     end
 
@@ -234,19 +222,19 @@ module Athena::Framework
     def start : Nil
       # TODO: Is there a better place to do this?
       {% if (trusted_hosts = ADI::CONFIG["framework"]["trusted_hosts"]) && !trusted_hosts.empty? %}
-        ATH::Request.set_trusted_hosts({{trusted_hosts}})
+        AHTTP::Request.set_trusted_hosts({{trusted_hosts}})
       {% end %}
 
       {% if (trusted_proxies = ADI::CONFIG["framework"]["trusted_proxies"]) && (trusted_headers = ADI::CONFIG["framework"]["trusted_headers"]) %}
-        ATH::Request.set_trusted_proxies({{trusted_proxies}}, {{trusted_headers}})
+        AHTTP::Request.set_trusted_proxies({{trusted_proxies}}, {{trusted_headers}})
       {% end %}
 
       {% for header, name in ADI::CONFIG["framework"]["trusted_header_overrides"] %}
-        ATH::Request.override_trusted_header({{header}}, {{name}})
+        AHTTP::Request.override_trusted_header({{header}}, {{name}})
       {% end %}
 
       {% if (file_uploads = ADI::CONFIG["framework"]["file_uploads"]) && file_uploads["enabled"] %}
-        ATH::UploadedFile.max_file_size = {{file_uploads["max_file_size"]}}
+        AHTTP::UploadedFile.max_file_size = {{file_uploads["max_file_size"]}}
       {% end %}
 
       {% if flag?(:without_openssl) %}

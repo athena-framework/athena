@@ -5,8 +5,8 @@ class Athena::Framework::Spec::HTTPBrowser < ATH::Spec::AbstractBrowser
     ADI.container.as(ADI::Spec::MockableServiceContainer)
   end
 
-  protected def do_request(request : ATH::Request) : HTTP::Server::Response
-    response = HTTP::Server::Response.new IO::Memory.new
+  protected def do_request(request : AHTTP::Request) : ::HTTP::Server::Response
+    response = ::HTTP::Server::Response.new IO::Memory.new
 
     handler = ADI.container.athena_route_handler
     athena_response = handler.handle request

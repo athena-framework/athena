@@ -17,8 +17,8 @@ authors:
   - George Dietrich <dev@dietrich.pub>
 
 dependencies:
-  athena-contracts:
-    github: athena-framework/contracts
+  athena-http:
+    github: athena-framework/http
     version: ~> 0.1.0
   athena-image_size:
     github: athena-framework/image-size

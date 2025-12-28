@@ -32,6 +32,9 @@ dependencies:
   athena-event_dispatcher:
     github: athena-framework/event-dispatcher
     version: ~> 0.4.0
+  athena-http:
+    github: athena-framework/http
+    version: ~> 0.1.0
   athena-mime:
     github: athena-framework/mime
     version: ~> 0.2.0

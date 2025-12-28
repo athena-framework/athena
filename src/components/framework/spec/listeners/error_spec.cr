@@ -3,8 +3,8 @@ require "../spec_helper"
 private struct MockErrorRenderer
   include ATH::ErrorRendererInterface
 
-  def render(exception : ::Exception) : ATH::Response
-    ATH::Response.new "ERR", 418, HTTP::Headers{"FOO" => "BAR"}
+  def render(exception : ::Exception) : AHTTP::Response
+    AHTTP::Response.new "ERR", 418, ::HTTP::Headers{"FOO" => "BAR"}
   end
 end
 
@@ -18,7 +18,7 @@ describe ATH::Listeners::Error do
     ATH::Listeners::Error.new(MockErrorRenderer.new).on_exception event
 
     response = event.response.should_not be_nil
-    response.status.should eq HTTP::Status::IM_A_TEAPOT
+    response.status.should eq ::HTTP::Status::IM_A_TEAPOT
     response.headers["FOO"].should eq "BAR"
     response.content.should eq "ERR"
   end

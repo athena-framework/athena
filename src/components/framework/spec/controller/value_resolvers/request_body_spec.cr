@@ -201,35 +201,35 @@ struct RequestBodyResolverTest < ASPEC::TestCase
   # File Uploads
 
   @[DataProvider("uploaded_file_context")]
-  def test_uploaded_file_single_defaults(request : ATH::Request) : Nil
-    object = @target.resolve request, self.get_config(ATH::UploadedFile, ATHA::MapUploadedFile, ATHA::MapUploadedFileConfiguration.new)
+  def test_uploaded_file_single_defaults(request : AHTTP::Request) : Nil
+    object = @target.resolve request, self.get_config(AHTTP::UploadedFile, ATHA::MapUploadedFile, ATHA::MapUploadedFileConfiguration.new)
 
-    object = object.should be_a ATH::UploadedFile
+    object = object.should be_a AHTTP::UploadedFile
     object.basename.should eq "file-small.txt"
     object.size.should eq 35
   end
 
   @[DataProvider("uploaded_file_context")]
-  def test_uploaded_file_single_missing(request : ATH::Request) : Nil
-    object = @target.resolve request, self.get_config(ATH::UploadedFile, ATHA::MapUploadedFile, ATHA::MapUploadedFileConfiguration.new, property_name: "empty")
+  def test_uploaded_file_single_missing(request : AHTTP::Request) : Nil
+    object = @target.resolve request, self.get_config(AHTTP::UploadedFile, ATHA::MapUploadedFile, ATHA::MapUploadedFileConfiguration.new, property_name: "empty")
     object.should be_nil
   end
 
   @[DataProvider("uploaded_file_context")]
-  def test_uploaded_file_single_custom_name(request : ATH::Request) : Nil
-    object = @target.resolve request, self.get_config(ATH::UploadedFile, ATHA::MapUploadedFile, ATHA::MapUploadedFileConfiguration.new(name: "bar"))
+  def test_uploaded_file_single_custom_name(request : AHTTP::Request) : Nil
+    object = @target.resolve request, self.get_config(AHTTP::UploadedFile, ATHA::MapUploadedFile, ATHA::MapUploadedFileConfiguration.new(name: "bar"))
 
-    object = object.should be_a ATH::UploadedFile
+    object = object.should be_a AHTTP::UploadedFile
     object.basename.should eq "file-big.txt"
     object.size.should eq 70
   end
 
   @[DataProvider("uploaded_file_context")]
-  def test_uploaded_file_single_constraints_no_violation(request : ATH::Request) : Nil
+  def test_uploaded_file_single_constraints_no_violation(request : AHTTP::Request) : Nil
     @target = ATHR::RequestBody.new @serializer, AVD.validator
 
     object = @target.resolve request, self.get_config(
-      ATH::UploadedFile,
+      AHTTP::UploadedFile,
       ATHA::MapUploadedFile,
       ATHA::MapUploadedFileConfiguration.new(
         name: "bar",
@@ -237,18 +237,18 @@ struct RequestBodyResolverTest < ASPEC::TestCase
       )
     )
 
-    object = object.should be_a ATH::UploadedFile
+    object = object.should be_a AHTTP::UploadedFile
     object.basename.should eq "file-big.txt"
     object.size.should eq 70
   end
 
   @[DataProvider("uploaded_file_context")]
-  def test_uploaded_file_single_constraints_with_violation(request : ATH::Request) : Nil
+  def test_uploaded_file_single_constraints_with_violation(request : AHTTP::Request) : Nil
     @target = ATHR::RequestBody.new @serializer, AVD.validator
 
     ex = expect_raises AVD::Exception::ValidationFailed do
       @target.resolve request, self.get_config(
-        ATH::UploadedFile,
+        AHTTP::UploadedFile,
         ATHA::MapUploadedFile,
         ATHA::MapUploadedFileConfiguration.new(
           name: "bar",
@@ -262,24 +262,24 @@ struct RequestBodyResolverTest < ASPEC::TestCase
   end
 
   @[DataProvider("uploaded_file_context")]
-  def test_uploaded_file_array_of_files_empty(request : ATH::Request) : Nil
-    object = @target.resolve request, self.get_config(Array(ATH::UploadedFile), ATHA::MapUploadedFile, ATHA::MapUploadedFileConfiguration.new, property_name: "qux")
+  def test_uploaded_file_array_of_files_empty(request : AHTTP::Request) : Nil
+    object = @target.resolve request, self.get_config(Array(AHTTP::UploadedFile), ATHA::MapUploadedFile, ATHA::MapUploadedFileConfiguration.new, property_name: "qux")
 
-    object = object.should be_a Array(ATH::UploadedFile)
+    object = object.should be_a Array(AHTTP::UploadedFile)
     object.should be_empty
   end
 
   @[DataProvider("uploaded_file_context")]
-  def test_uploaded_file_array_of_files_empty_nullable(request : ATH::Request) : Nil
-    object = @target.resolve request, self.get_config(Array(ATH::UploadedFile)?, ATHA::MapUploadedFile, ATHA::MapUploadedFileConfiguration.new, property_name: "qux")
+  def test_uploaded_file_array_of_files_empty_nullable(request : AHTTP::Request) : Nil
+    object = @target.resolve request, self.get_config(Array(AHTTP::UploadedFile)?, ATHA::MapUploadedFile, ATHA::MapUploadedFileConfiguration.new, property_name: "qux")
     object.should be_nil
   end
 
   @[DataProvider("uploaded_file_context")]
-  def test_uploaded_file_array_of_files(request : ATH::Request) : Nil
-    object = @target.resolve request, self.get_config(Array(ATH::UploadedFile), ATHA::MapUploadedFile, ATHA::MapUploadedFileConfiguration.new, property_name: "baz")
+  def test_uploaded_file_array_of_files(request : AHTTP::Request) : Nil
+    object = @target.resolve request, self.get_config(Array(AHTTP::UploadedFile), ATHA::MapUploadedFile, ATHA::MapUploadedFileConfiguration.new, property_name: "baz")
 
-    object = object.should be_a Array(ATH::UploadedFile)
+    object = object.should be_a Array(AHTTP::UploadedFile)
     object.size.should eq 2
 
     object[0].basename.should eq "file-small.txt"
@@ -290,12 +290,12 @@ struct RequestBodyResolverTest < ASPEC::TestCase
   end
 
   @[DataProvider("uploaded_file_context")]
-  def test_uploaded_file_array_of_files_with_constraint(request : ATH::Request) : Nil
+  def test_uploaded_file_array_of_files_with_constraint(request : AHTTP::Request) : Nil
     @target = ATHR::RequestBody.new @serializer, AVD.validator
 
     ex = expect_raises AVD::Exception::ValidationFailed do
       @target.resolve request, self.get_config(
-        Array(ATH::UploadedFile),
+        Array(AHTTP::UploadedFile),
         ATHA::MapUploadedFile,
         ATHA::MapUploadedFileConfiguration.new(
           name: "baz",
@@ -309,8 +309,8 @@ struct RequestBodyResolverTest < ASPEC::TestCase
   end
 
   def uploaded_file_context : Hash
-    small = ATH::UploadedFile.new("#{__DIR__}/../../assets/file-small.txt", "fie-small.txt", "text/plain", test: true)
-    big = ATH::UploadedFile.new("#{__DIR__}/../../assets/file-big.txt", "fie-big.txt", "text/plain", test: true)
+    small = AHTTP::UploadedFile.new("#{__DIR__}/../../assets/file-small.txt", "fie-small.txt", "text/plain", test: true)
+    big = AHTTP::UploadedFile.new("#{__DIR__}/../../assets/file-big.txt", "fie-big.txt", "text/plain", test: true)
 
     request = new_request(
       path: "/",
@@ -319,7 +319,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
         "foo"   => [small],
         "bar"   => [big],
         "baz"   => [small, big],
-        "empty" => [] of ATH::UploadedFile,
+        "empty" => [] of AHTTP::UploadedFile,
       }
     )
 

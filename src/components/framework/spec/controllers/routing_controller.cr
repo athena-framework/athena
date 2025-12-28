@@ -2,7 +2,7 @@ require "../spec_helper"
 
 @[ADI::Register]
 class RoutingController < ATH::Controller
-  def initialize(@request_store : ATH::RequestStore); end
+  def initialize(@request_store : AHTTP::RequestStore); end
 
   @[ARTA::Get("get/safe")]
   def safe_request_check : String
@@ -29,35 +29,35 @@ class RoutingController < ATH::Controller
 
   @[ARTA::Head("/get-head")]
   def get_head : ATH::View(String)
-    self.view "GET-HEAD", headers: HTTP::Headers{"FOO" => "BAR"}
+    self.view "GET-HEAD", headers: ::HTTP::Headers{"FOO" => "BAR"}
   end
 
-  get "/cookies", return_type: ATH::Response do
-    response = ATH::Response.new "FOO"
-    response.headers << HTTP::Cookie.new "key", "value"
+  get "/cookies", return_type: AHTTP::Response do
+    response = AHTTP::Response.new "FOO"
+    response.headers << ::HTTP::Cookie.new "key", "value"
     response
   end
 
   @[ARTA::Post("unprocessable")]
-  def unprocessable : ATH::Response
-    ATH::Response.new "", :unprocessable_entity
+  def unprocessable : AHTTP::Response
+    AHTTP::Response.new "", :unprocessable_entity
   end
 
   @[ARTA::Get("art/response")]
-  def response : ATH::Response
-    ATH::Response.new "FOO", 418, HTTP::Headers{"content-type" => "BAR"}
+  def response : AHTTP::Response
+    AHTTP::Response.new "FOO", 418, ::HTTP::Headers{"content-type" => "BAR"}
   end
 
   @[ARTA::Get("art/streamed-response")]
-  def streamed_response : ATH::Response
-    ATH::StreamedResponse.new 418, HTTP::Headers{"content-type" => "BAR"} do |io|
+  def streamed_response : AHTTP::Response
+    AHTTP::StreamedResponse.new 418, ::HTTP::Headers{"content-type" => "BAR"} do |io|
       "FOO".to_json io
     end
   end
 
   @[ARTA::Get("art/redirect")]
-  def redirect : ATH::RedirectResponse
-    ATH::RedirectResponse.new "https://crystal-lang.org"
+  def redirect : AHTTP::RedirectResponse
+    AHTTP::RedirectResponse.new "https://crystal-lang.org"
   end
 
   @[ARTA::Get("url")]
@@ -81,22 +81,22 @@ class RoutingController < ATH::Controller
   end
 
   @[ARTA::Get("redirect-url")]
-  def redirect_url : ATH::RedirectResponse
+  def redirect_url : AHTTP::RedirectResponse
     self.redirect_to_route "routing_controller_response"
   end
 
   @[ARTA::Get("redirect-url-status")]
-  def redirect_url_status : ATH::RedirectResponse
+  def redirect_url_status : AHTTP::RedirectResponse
     self.redirect_to_route "routing_controller_response", :permanent_redirect
   end
 
   @[ARTA::Get("redirect-url-hash")]
-  def redirect_url_hash : ATH::RedirectResponse
+  def redirect_url_hash : AHTTP::RedirectResponse
     self.redirect_to_route "routing_controller_response", {"id" => 10}
   end
 
   @[ARTA::Get("redirect-url-nt")]
-  def redirect_url_nt : ATH::RedirectResponse
+  def redirect_url_nt : AHTTP::RedirectResponse
     self.redirect_to_route "routing_controller_response", id: 10
   end
 
@@ -122,12 +122,12 @@ class RoutingController < ATH::Controller
   end
 
   @[ARTA::Post("/echo")]
-  def post_echo(request : ATH::Request) : String
+  def post_echo(request : AHTTP::Request) : String
     (request.body.should_not be_nil).gets_to_end
   end
 
   @[ARTA::Put("/echo")]
-  def put_echo(request : ATH::Request) : String
+  def put_echo(request : AHTTP::Request) : String
     (request.body.should_not be_nil).gets_to_end
   end
 

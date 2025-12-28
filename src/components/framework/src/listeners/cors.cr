@@ -134,8 +134,8 @@ struct Athena::Framework::Listeners::CORS
   end
 
   # Configures the given *response* for CORS preflight
-  private def set_preflight_response(request : ATH::Request) : ATH::Response
-    response = ATH::Response.new
+  private def set_preflight_response(request : AHTTP::Request) : AHTTP::Response
+    response = AHTTP::Response.new
     response.headers["vary"] = "origin"
 
     if @config.allow_credentials?
@@ -206,7 +206,7 @@ struct Athena::Framework::Listeners::CORS
     response
   end
 
-  private def check_origin(request : ATH::Request) : Bool
+  private def check_origin(request : AHTTP::Request) : Bool
     origin = request.headers["origin"]
 
     if @config.allow_origin.includes?(WILDCARD)

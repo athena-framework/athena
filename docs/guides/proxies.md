@@ -17,12 +17,12 @@ ATH.configure({
     trusted_proxies: ["192.0.0.1", "10.0.0.0/8"],
 
     # Trust only `x-forwarded-port` and `x-forwarded-proto` headers.
-    trusted_headers: ATH::Request::ProxyHeader[:forwarded_port, :forwarded_proto]
+    trusted_headers: AHTTP::Request::ProxyHeader[:forwarded_port, :forwarded_proto]
   },
 })
 ```
 
-DANGER: Enabling the [ATH::Request::ProxyHeader::FORWARDED_HOST](/Framework/Request/ProxyHeader/#Athena::Framework::Request::ProxyHeader::FORWARDED_HOST) option exposes the application to [HTTP Host header attacks](https://www.skeletonscribe.net/2013/05/practical-http-host-header-attacks.html).
+DANGER: Enabling the [AHTTP::Request::ProxyHeader::FORWARDED_HOST](/HTTP/Request/ProxyHeader/#Athena::HTTP::Request::ProxyHeader::FORWARDED_HOST) option exposes the application to [HTTP Host header attacks](https://www.skeletonscribe.net/2013/05/practical-http-host-header-attacks.html).
 Make sure the proxy really sends an `x-forwarded-host` header to avoid client supplied ones being passed through.
 
 WARNING: The "trusted proxies" feature does not work as expected when using the [nginx realip module](https://nginx.org/en/docs/http/ngx_http_realip_module.html).

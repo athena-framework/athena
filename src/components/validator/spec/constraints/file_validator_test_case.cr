@@ -36,7 +36,7 @@ abstract struct FileValidatorTestCase < AVD::Spec::ConstraintValidatorTestCase
 
   def test_valid_uploaded_file : Nil
     File.write @file.path, "1"
-    self.validator.validate Athena::Framework::UploadedFile.new(@file.path, "original_name", test: true), self.new_constraint
+    self.validator.validate AHTTP::UploadedFile.new(@file.path, "original_name", test: true), self.new_constraint
     self.assert_no_violation
   end
 
@@ -209,9 +209,9 @@ abstract struct FileValidatorTestCase < AVD::Spec::ConstraintValidatorTestCase
   end
 
   def test_uploaded_file_error : Nil
-    Athena::Framework::UploadedFile.max_file_size = 100
+    AHTTP::UploadedFile.max_file_size = 100
 
-    uploaded_file = Athena::Framework::UploadedFile.new "#{__DIR__}/fixtures/file-big.txt", "file-big.txt", "text/plain", :size_limit_exceeded
+    uploaded_file = AHTTP::UploadedFile.new "#{__DIR__}/fixtures/file-big.txt", "file-big.txt", "text/plain", :size_limit_exceeded
 
     self.validator.validate uploaded_file, self.new_constraint max_size: 50, upload_file_size_message: "my_message"
 
@@ -221,13 +221,13 @@ abstract struct FileValidatorTestCase < AVD::Spec::ConstraintValidatorTestCase
       .add_parameter("{{ suffix }}", "bytes")
       .assert_violation
   ensure
-    Athena::Framework::UploadedFile.max_file_size = 0
+    AHTTP::UploadedFile.max_file_size = 0
   end
 
   def test_uploaded_file_error_mib : Nil
-    Athena::Framework::UploadedFile.max_file_size = 1024 * 1024 * 10
+    AHTTP::UploadedFile.max_file_size = 1024 * 1024 * 10
 
-    uploaded_file = Athena::Framework::UploadedFile.new "#{__DIR__}/fixtures/file-big.txt", "file-big.txt", "text/plain", :size_limit_exceeded
+    uploaded_file = AHTTP::UploadedFile.new "#{__DIR__}/fixtures/file-big.txt", "file-big.txt", "text/plain", :size_limit_exceeded
 
     self.validator.validate uploaded_file, self.new_constraint upload_file_size_message: "my_message"
 
@@ -237,7 +237,7 @@ abstract struct FileValidatorTestCase < AVD::Spec::ConstraintValidatorTestCase
       .add_parameter("{{ suffix }}", "MiB")
       .assert_violation
   ensure
-    Athena::Framework::UploadedFile.max_file_size = 0
+    AHTTP::UploadedFile.max_file_size = 0
   end
 
   # def test_uploaded_file_extension : Nil

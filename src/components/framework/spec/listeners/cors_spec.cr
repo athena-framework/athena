@@ -4,13 +4,13 @@ private def new_response_event
   new_response_event() { }
 end
 
-private def new_response_event(& : ATH::Request -> _)
+private def new_response_event(& : AHTTP::Request -> _)
   request = new_request
   yield request
-  ATH::Events::Response.new request, ATH::Response.new
+  ATH::Events::Response.new request, AHTTP::Response.new
 end
 
-private def assert_headers(response : ATH::Response, origin : String = "https://example.com") : Nil
+private def assert_headers(response : AHTTP::Response, origin : String = "https://example.com") : Nil
   response.headers["access-control-allow-credentials"].should eq "true"
   response.headers["access-control-allow-headers"].should eq "X-FOO"
   response.headers["access-control-allow-methods"].should eq "POST, GET"
@@ -18,7 +18,7 @@ private def assert_headers(response : ATH::Response, origin : String = "https://
   response.headers["access-control-max-age"].should eq "123"
 end
 
-private def assert_headers_with_wildcard_config_without_request_headers(response : ATH::Response) : Nil
+private def assert_headers_with_wildcard_config_without_request_headers(response : AHTTP::Response) : Nil
   response.headers["access-control-allow-credentials"]?.should be_nil
   response.headers["access-control-allow-headers"]?.should be_nil
   response.headers["access-control-allow-methods"].should eq "GET, POST, HEAD"
@@ -95,7 +95,7 @@ describe ATH::Listeners::CORS do
         listener.on_request event
 
         response = event.response.should_not be_nil
-        response.status.should eq HTTP::Status::METHOD_NOT_ALLOWED
+        response.status.should eq ::HTTP::Status::METHOD_NOT_ALLOWED
         event.request.attributes.has?(ATH::Listeners::CORS::ALLOW_SET_ORIGIN).should be_false
 
         assert_headers response

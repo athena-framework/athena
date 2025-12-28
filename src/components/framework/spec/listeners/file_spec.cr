@@ -4,7 +4,7 @@ private class MockFileParser < ATH::FileParser
   getter? parse_called : Bool = false
   getter? clear_called : Bool = false
 
-  def parse(request : ATH::Request) : Nil
+  def parse(request : AHTTP::Request) : Nil
     @parse_called = true
   end
 
@@ -25,7 +25,7 @@ describe ATH::Listeners::File do
       ATH::Listeners::File
         .new(file_parser = MockFileParser.new(nil, 1, 0))
         .on_request new_request_event(
-          headers: HTTP::Headers{
+          headers: ::HTTP::Headers{
             "content-type" => "multipart/form-data",
           }
         )
@@ -38,7 +38,7 @@ describe ATH::Listeners::File do
     it "calls clear" do
       ATH::Listeners::File
         .new(file_parser = MockFileParser.new(nil, 1, 0))
-        .on_terminate ATH::Events::Terminate.new new_request, ATH::Response.new
+        .on_terminate ATH::Events::Terminate.new new_request, AHTTP::Response.new
 
       file_parser.clear_called?.should be_true
     end

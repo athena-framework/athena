@@ -1,7 +1,7 @@
-# An `ATH::View` represents an `ATH::Response`, but in a format agnostic way.
+# An `ATH::View` represents an [AHTTP::Response](/HTTP/Response), but in a format agnostic way.
 #
 # Returning a `ATH::View` is essentially the same as returning the data directly; but allows customizing
-# the response status and headers without needing to render the response body within the controller as an `ATH::Response`.
+# the response status and headers without needing to render the response body within the controller as an [AHTTP::Response](/HTTP/Response).
 #
 # ```
 # require "athena"
@@ -30,12 +30,12 @@ class Athena::Framework::View(T)
   property data : T
 
   # The `HTTP::Status` of the underlying `#response`.
-  property status : HTTP::Status?
+  property status : ::HTTP::Status?
 
   # The format the view should be rendered in.
   #
-  # The *format* must be registered with the `ATH::Request::FORMATS` hash;
-  # either as a built in format, or a custom one that has registered via `ATH::Request.register_format`.
+  # The *format* must be registered with the [AHTTP::Request::FORMATS](/HTTP/Request/#Athena::HTTP::Request::FORMATS) hash;
+  # either as a built in format, or a custom one that has registered via [AHTTP::Request.register_format](/HTTP/Request/#Athena::HTTP::Request.register_format(format,mime_types)).
   property format : String? = nil
 
   # The parameters that should be used when constructing the redirect `#route` URL.
@@ -53,9 +53,9 @@ class Athena::Framework::View(T)
   # See the [Getting Started](/getting_started/routing#url-generation) docs for more information.
   getter route : String? = nil
 
-  # The wrapped `ATH::Response` instance.
-  property response : ATH::Response do
-    response = ATH::Response.new
+  # The wrapped [AHTTP::Response](/HTTP/Response) instance.
+  property response : AHTTP::Response do
+    response = AHTTP::Response.new
 
     if status = @status
       response.status = status
@@ -69,8 +69,8 @@ class Athena::Framework::View(T)
   # Optionally allows setting the underlying *status* and/or *headers*.
   def self.create_redirect(
     url : String,
-    status : HTTP::Status = HTTP::Status::FOUND,
-    headers : HTTP::Headers = HTTP::Headers.new,
+    status : ::HTTP::Status = ::HTTP::Status::FOUND,
+    headers : ::HTTP::Headers = ::HTTP::Headers.new,
   ) : self
     view = ATH::View(Nil).new status: status, headers: headers
     view.location = url
@@ -84,8 +84,8 @@ class Athena::Framework::View(T)
   def self.create_route_redirect(
     route : String,
     params : Hash(String, _) = Hash(String, String?).new,
-    status : HTTP::Status = HTTP::Status::FOUND,
-    headers : HTTP::Headers = HTTP::Headers.new,
+    status : ::HTTP::Status = ::HTTP::Status::FOUND,
+    headers : ::HTTP::Headers = ::HTTP::Headers.new,
   ) : self
     view = ATH::View(Nil).new status: status, headers: headers
     view.route = route
@@ -94,12 +94,12 @@ class Athena::Framework::View(T)
     view
   end
 
-  def initialize(@data : T? = nil, @status : HTTP::Status? = nil, headers : HTTP::Headers = HTTP::Headers.new)
+  def initialize(@data : T? = nil, @status : ::HTTP::Status? = nil, headers : ::HTTP::Headers = ::HTTP::Headers.new)
     self.headers = headers unless headers.empty?
   end
 
   # Returns the headers of the underlying `#response`.
-  def headers : ATH::Response::Headers
+  def headers : AHTTP::Response::Headers
     self.response.headers
   end
 
@@ -129,7 +129,7 @@ class Athena::Framework::View(T)
   end
 
   # Sets the *headers* that should be returned as part of the underlying `#response`.
-  def headers=(headers : HTTP::Headers) : Nil
+  def headers=(headers : ::HTTP::Headers) : Nil
     self.response.headers.clear
     self.response.headers.merge! headers
   end

@@ -1,9 +1,9 @@
 require "./request_aware"
 require "./settable_response"
 
-# Emitted after the route's action has been executed, but only if it does _NOT_ return an `ATH::Response`.
+# Emitted after the route's action has been executed, but only if it does _NOT_ return an [AHTTP::Response](/HTTP/Response).
 #
-# This event can be listened on to handle converting a non `ATH::Response` into an `ATH::Response`.
+# This event can be listened on to handle converting a non `AHTTP::Response` into an `AHTTP::Response`.
 #
 # See the [Getting Started](/getting_started/middleware#4-view-event) docs for more information.
 class Athena::Framework::Events::View < AED::Event
@@ -18,7 +18,7 @@ class Athena::Framework::Events::View < AED::Event
 
   @result : ContainerBase
 
-  def initialize(request : ATH::Request, action_result : _)
+  def initialize(request : AHTTP::Request, action_result : _)
     super request
 
     @result = ResultContainer.new action_result

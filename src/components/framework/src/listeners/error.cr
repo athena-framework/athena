@@ -1,5 +1,5 @@
 @[ADI::Register]
-# Handles an exception by converting it into an `ATH::Response` via an `ATH::ErrorRendererInterface`.
+# Handles an exception by converting it into an [AHTTP::Response](/HTTP/Response) via an `ATH::ErrorRendererInterface`.
 #
 # This listener defines a `log_exception` protected method that determines how the exception gets logged.
 # Non `ATH::Exception::HTTPException`s and server errors are logged as errors.

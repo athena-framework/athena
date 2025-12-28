@@ -36,7 +36,7 @@ struct Athena::Framework::Controller::ValueResolvers::Time
   configuration ::Athena::Framework::Annotations::MapTime, format : String? = nil, location : ::Time::Location = ::Time::Location::UTC
 
   # :inherit:
-  def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata) : ::Time?
+  def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata) : ::Time?
     return unless parameter.instance_of? ::Time
 
     if value = request.attributes.get? parameter.name, ::Time?

@@ -492,11 +492,11 @@ module Athena::Framework::Routing::AnnotationRouteLoader
     # Manually wire up built-in controllers for now
     {% if base == nil %}
       @@actions["Athena::Framework::Controller::Redirect#redirect_url"] = ATH::Action.new(
-        action: Proc(Tuple(ATH::Request, String, Bool, String?, Int32?, Int32?, Bool), ATH::RedirectResponse).new do |arguments|
+        action: Proc(Tuple(AHTTP::Request, String, Bool, String?, Int32?, Int32?, Bool), AHTTP::RedirectResponse).new do |arguments|
           ADI.container.get(Athena::Framework::Controller::Redirect).redirect_url *arguments
         end,
         parameters: {
-          ATH::Controller::ParameterMetadata(ATH::Request).new("request"),
+          ATH::Controller::ParameterMetadata(AHTTP::Request).new("request"),
           ATH::Controller::ParameterMetadata(String).new("path"),
           ATH::Controller::ParameterMetadata(Bool).new("permanent", true, false),
           ATH::Controller::ParameterMetadata(String?).new("scheme", true, nil),
@@ -506,7 +506,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
         },
         annotation_configurations: ADI::AnnotationConfigurations.new,
         _controller: Athena::Framework::Controller::Redirect,
-        _return_type: ATH::RedirectResponse,
+        _return_type: AHTTP::RedirectResponse,
       )
     {% end %}
 

@@ -1,21 +1,21 @@
 # The entry-point into `Athena::Framework`.
 #
-# Emits events that handle a given request and returns the resulting `ATH::Response`.
+# Emits events that handle a given request and returns the resulting [AHTTP::Response](/HTTP/Response).
 @[ADI::Register(name: "athena_route_handler", public: true)]
 struct Athena::Framework::RouteHandler
   def initialize(
     @event_dispatcher : ACTR::EventDispatcher::Interface,
-    @request_store : ATH::RequestStore,
+    @request_store : AHTTP::RequestStore,
     @argument_resolver : ATH::Controller::ArgumentResolverInterface,
     @controller_resolver : ATH::ControllerResolverInterface,
   )
   end
 
-  def handle(request : HTTP::Request) : ATH::Response
-    self.handle ATH::Request.new request
+  def handle(request : ::HTTP::Request) : AHTTP::Response
+    self.handle AHTTP::Request.new request
   end
 
-  def handle(request : ATH::Request) : ATH::Response
+  def handle(request : AHTTP::Request) : AHTTP::Response
     handle_raw request
   rescue ex : ::Exception
     event = ATH::Events::Exception.new request, ex
@@ -44,11 +44,11 @@ struct Athena::Framework::RouteHandler
   # Terminates a request/response lifecycle.
   #
   # Should be called after sending the response to the client.
-  def terminate(request : ATH::Request, response : ATH::Response) : Nil
+  def terminate(request : AHTTP::Request, response : AHTTP::Response) : Nil
     @event_dispatcher.dispatch ATH::Events::Terminate.new request, response
   end
 
-  private def handle_raw(request : ATH::Request) : ATH::Response
+  private def handle_raw(request : AHTTP::Request) : AHTTP::Response
     # Set the current request in the RequestStore.
     @request_store.request = request
 
@@ -76,19 +76,19 @@ struct Athena::Framework::RouteHandler
     # Call the action and get the response.
     response = action.execute arguments
 
-    unless response.is_a? ATH::Response
+    unless response.is_a? AHTTP::Response
       view_event = ATH::Events::View.new request, response
       @event_dispatcher.dispatch view_event
 
       unless response = view_event.response
-        raise %('#{request.attributes.get "_controller"}' must return an `ATH::Response` but it returned '#{response}'.)
+        raise %('#{request.attributes.get "_controller"}' must return an `AHTTP::Response` but it returned '#{response}'.)
       end
     end
 
     finish_response response, request
   end
 
-  private def finish_response(response : ATH::Response, request : ATH::Request) : ATH::Response
+  private def finish_response(response : AHTTP::Response, request : AHTTP::Request) : AHTTP::Response
     # Emit the response event.
     event = ATH::Events::Response.new request, response
 

@@ -5,25 +5,25 @@ private class MockViewHandler
 
   getter! view : ATH::ViewBase
 
-  def register_handler(format : String, handler : ATH::View::FormatHandlerInterface | Proc(ATH::View::ViewHandlerInterface, ATH::ViewBase, ATH::Request, String, ATH::Response)) : Nil
+  def register_handler(format : String, handler : ATH::View::FormatHandlerInterface | Proc(ATH::View::ViewHandlerInterface, ATH::ViewBase, AHTTP::Request, String, AHTTP::Response)) : Nil
   end
 
   def supports?(format : String) : Bool
     true
   end
 
-  def handle(view : ATH::ViewBase, request : ATH::Request? = nil) : ATH::Response
+  def handle(view : ATH::ViewBase, request : AHTTP::Request? = nil) : AHTTP::Response
     @view = view
 
-    ATH::Response.new
+    AHTTP::Response.new
   end
 
-  def create_redirect_response(view : ATH::ViewBase, location : String, format : String) : ATH::Response
-    ATH::Response.new
+  def create_redirect_response(view : ATH::ViewBase, location : String, format : String) : AHTTP::Response
+    AHTTP::Response.new
   end
 
-  def create_response(view : ATH::ViewBase, request : ATH::Request, format : String) : ATH::Response
-    ATH::Response.new
+  def create_response(view : ATH::ViewBase, request : AHTTP::Request, format : String) : AHTTP::Response
+    AHTTP::Response.new
   end
 end
 
@@ -86,7 +86,7 @@ describe ATH::Listeners::View do
 
           ATH::Listeners::View.new(view_handler).on_view event
 
-          view_handler.view.status.should eq HTTP::Status::FOUND
+          view_handler.view.status.should eq ::HTTP::Status::FOUND
         end
 
         it "when the view already has a status" do
@@ -101,7 +101,7 @@ describe ATH::Listeners::View do
 
           ATH::Listeners::View.new(view_handler).on_view event
 
-          view_handler.view.status.should eq HTTP::Status::GONE
+          view_handler.view.status.should eq ::HTTP::Status::GONE
         end
 
         it "when the view already has a status, but it's OK" do
@@ -116,7 +116,7 @@ describe ATH::Listeners::View do
 
           ATH::Listeners::View.new(view_handler).on_view event
 
-          view_handler.view.status.should eq HTTP::Status::FOUND
+          view_handler.view.status.should eq ::HTTP::Status::FOUND
         end
       end
 

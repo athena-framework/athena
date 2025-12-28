@@ -28,16 +28,16 @@ alias ARTA = ART::Annotations
 module Athena::Routing
   VERSION = "0.1.12"
 
-  {% if @top_level.has_constant?("Athena") && Athena.has_constant?("Framework") && Athena::Framework.has_constant?("Request") %}
+  {% if @top_level.has_constant?("Athena") && Athena.has_constant?("HTTP") && Athena::HTTP.has_constant?("Request") %}
     # Represents the type of the *request* parameter within an `ART::Route::Condition`.
     #
-    # Will be an [ATH::Request](/Framework/Request) instance if used within the Athena Framework, otherwise [HTTP::Request](https://crystal-lang.org/api/HTTP/Request.html).
-    alias Request = Athena::Framework::Request
+    # Will be an [AHTTP::Request](/HTTP/Request) instance if used within the Athena Framework, otherwise [HTTP::Request](https://crystal-lang.org/api/HTTP/Request.html).
+    alias Request = Athena::HTTP::Request
   {% else %}
     # Represents the type of the *request* parameter within an `ART::Route::Condition`.
     #
-    # Will be an [ATH::Request](/Framework/Request) instance if used within the Athena Framework, otherwise [HTTP::Request](https://crystal-lang.org/api/HTTP/Request.html).
-    alias Request = HTTP::Request
+    # Will be an [AHTTP::Request](/HTTP/Request) instance if used within the Athena Framework, otherwise [HTTP::Request](https://crystal-lang.org/api/HTTP/Request.html).
+    alias Request = ::HTTP::Request
   {% end %}
 
   # Includes types related to generating URLs.

@@ -26,7 +26,7 @@ struct Athena::Framework::Controller::ValueResolvers::DefaultValue
   include Athena::Framework::Controller::ValueResolvers::Interface
 
   # :inherit:
-  def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata)
+  def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata)
     return if !parameter.has_default? && !parameter.nilable?
 
     parameter.default_value?

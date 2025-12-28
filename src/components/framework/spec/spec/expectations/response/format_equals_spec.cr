@@ -2,17 +2,17 @@ require "../../../spec_helper"
 
 struct FormatEqualsExpectationTest < ASPEC::TestCase
   def test_match_valid : Nil
-    ATH::Spec::Expectations::Response::FormatEquals.new(new_request, "json").match(new_response headers: HTTP::Headers{"content-type" => "application/json"}).should be_true
+    ATH::Spec::Expectations::Response::FormatEquals.new(new_request, "json").match(new_response headers: ::HTTP::Headers{"content-type" => "application/json"}).should be_true
   end
 
   def test_match_valid_no_format : Nil
-    ATH::Spec::Expectations::Response::FormatEquals.new(new_request).match(new_response headers: HTTP::Headers{"content-type" => ""}).should be_true
+    ATH::Spec::Expectations::Response::FormatEquals.new(new_request).match(new_response headers: ::HTTP::Headers{"content-type" => ""}).should be_true
   end
 
   def test_match_invalid : Nil
     ATH::Spec::Expectations::Response::FormatEquals.new(new_request).match(new_response).should be_false
     ATH::Spec::Expectations::Response::FormatEquals.new(new_request, "json").match(new_response).should be_false
-    ATH::Spec::Expectations::Response::FormatEquals.new(new_request, "json").match(new_response headers: HTTP::Headers{"content-type" => "text/html"}).should be_false
+    ATH::Spec::Expectations::Response::FormatEquals.new(new_request, "json").match(new_response headers: ::HTTP::Headers{"content-type" => "text/html"}).should be_false
   end
 
   def test_failure_message : Nil
