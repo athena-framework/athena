@@ -7,6 +7,13 @@ struct AHTTP::RequestTest < ASPEC::TestCase
     AHTTP::Request.trusted_header_overrides.clear
   end
 
+  def test_construct_with_self : Nil
+    request = AHTTP::Request.new "GET", "/"
+    request2 = AHTTP::Request.new request
+
+    request2.should be request
+  end
+
   # This spec tests the built-in `#hostname` method
   def test_hostname : Nil
     request = AHTTP::Request.new "GET", "/"
@@ -368,10 +375,12 @@ struct AHTTP::RequestTest < ASPEC::TestCase
 
     # Falls back on scheme on untrusted connection
     request.port.should eq 80
+    request.scheme.should eq "http"
 
     # Uses proxy value if trusted
     request.remote_address = Socket::IPAddress.v4 1, 1, 1, 1, port: 1
     request.port.should eq 8443
+    request.scheme.should eq "https"
   end
 
   def test_port_trusted_proxies_proto_set_https : Nil

@@ -151,7 +151,13 @@ describe AHTTP::ParameterBag do
     end
 
     it "with name and value" do
-      AHTTP::ParameterBag.new.set("value", "foo")
+    end
+
+    it "with a hash" do
+      bag = AHTTP::ParameterBag.new
+      bag.set({"key" => "value", "age" => 123})
+      bag.get("key").should eq "value"
+      bag.get("age").should eq 123
     end
   end
 
