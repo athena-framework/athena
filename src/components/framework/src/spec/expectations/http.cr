@@ -1,7 +1,7 @@
 require "./response/*"
 require "./request/*"
 
-# Provides expectation helper method for making assertions about the `AHTTP::Request` and/or `::HTTP::Server::Response` of a controller action.
+# Provides expectation helper method for making assertions about the [AHTTP::Request](/HTTP/Request) and/or `::HTTP::Server::Response` of a controller action.
 # For example asserting the response is successful, has a specific header/cookie (value), and/or if the request has an attribute with a specific value.
 #
 # ```

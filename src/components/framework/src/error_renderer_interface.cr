@@ -1,4 +1,4 @@
-# An `ATH::ErrorRendererInterface` converts an `::Exception` into an `AHTTP::Response`.
+# An `ATH::ErrorRendererInterface` converts an `::Exception` into an [AHTTP::Response](/HTTP/Response).
 #
 # By default, exceptions are JSON serialized via `ATH::ErrorRenderer`. However, it can be overridden
 # to allow rendering errors differently, such as via HTML.
@@ -50,6 +50,6 @@
 # # GET / # =>   <html><head><title>Uh oh</title></head><body><h1>Uh oh, something went wrong</h1></body></html>
 # ```
 module Athena::Framework::ErrorRendererInterface
-  # Renders the given *exception* into an `AHTTP::Response`.
+  # Renders the given *exception* into an [AHTTP::Response](/HTTP/Response).
   abstract def render(exception : ::Exception) : AHTTP::Response
 end

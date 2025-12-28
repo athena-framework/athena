@@ -4,7 +4,7 @@ require "uri/params/serializable"
 # Attempts to resolve the value of any parameter with the `ATHA::MapRequestBody` annotation by
 # deserializing the request body into an object of the type of the related parameter.
 # The `ATHA::MapQueryString` annotation works similarly, but uses the request's query string instead of its body.
-# Lastly, the `ATHA::MapUploadedFile` annotation works by resolving one or more `AHTTP::UploadedFile` from `AHTTP::Request#files`.
+# Lastly, the `ATHA::MapUploadedFile` annotation works by resolving one or more [AHTTP::UploadedFile](/HTTP/UploadedFile) from [AHTTP::Request#files](/HTTP/Request/#Athena::HTTP::Request#files).
 #
 # If the object is also [AVD::Validatable](/Validator/Validatable), any validations defined on it are executed before returning the object.
 # Requires the type of the related parameter to include one or more of:
@@ -122,7 +122,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   # **Type:** `Array(String)?` **Default:** `nil`
   #
   # Allows whitelisting the allowed [request format(s)](/HTTP/Request/#Athena::HTTP::Request::FORMATS).
-  # If the `AHTTP::Request#content_type_format` is not included in this list, a `ATH::Exception::UnsupportedMediaType` error will be raised.
+  # If the [AHTTP::Request#content_type_format](/HTTP/Request/#Athena::HTTP::Request#content_type_format) is not included in this list, a `ATH::Exception::UnsupportedMediaType` error will be raised.
   #
   # ### validation_groups
   #
@@ -163,7 +163,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on [AHTTP::Request#files](/HTTP/Request/#Athena::HTTP::Request#files),
   # if the related bundle configuration [is enabled](/Framework/Bundle/Schema/FileUploads/).
   #
-  # If the type of the parameter this annotation is applied to is `AHTTP::UploadedFile`, then it will attempt to resolve the first file based on the name of the parameter.
+  # If the type of the parameter this annotation is applied to is [AHTTP::UploadedFile](/HTTP/UploadedFile), then it will attempt to resolve the first file based on the name of the parameter.
   # This can be customized via the *name* field on the annotation.
   # If the type is a `Array(AHTTP::UploadedFile)` then all files with that name will be resolved, not just the first.
   #

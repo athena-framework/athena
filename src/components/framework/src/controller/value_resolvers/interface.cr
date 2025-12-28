@@ -1,10 +1,10 @@
-# Value resolvers handle resolving the argument(s) to pass to a controller action based on values stored within the `AHTTP::Request`, or some other source.
+# Value resolvers handle resolving the argument(s) to pass to a controller action based on values stored within the [AHTTP::Request](/HTTP/Request), or some other source.
 #
 # Custom resolvers can be defined by creating a service that implements this interface, and is tagged with `ATHR::Interface::TAG`.
 # The tag also accepts an optional *priority* field the determines the order in which the resolvers execute.
 # The list of built in resolvers and their priorities can be found on the `ATH::Controller::ValueResolvers` module.
 #
-# WARNING: Resolvers that mutate a value already within the `AHTTP::Request#attributes`, such as one from a route or query parameter _MUST_ have a priority `>100`
+# WARNING: Resolvers that mutate a value already within the [AHTTP::Request#attributes](/HTTP/Request/#Athena::HTTP::Request#attributes), such as one from a route or query parameter _MUST_ have a priority `>100`
 # to ensure the custom logic is applied before the raw value is resolved via the `ATHR::RequestAttribute` resolver.
 #
 # The first resolver to return a value wins and no other resolvers will be executed for that particular parameter.
@@ -44,7 +44,7 @@
 # ```
 #
 # Since none of the built-in resolvers are applicable for this parameter type,
-# nor is there a *my_obj* value in `AHTTP::Request#attributes`, assuming no customer listeners manually add it, the `CustomResolver` would take over and provide the value for that parameter.
+# nor is there a *my_obj* value in [AHTTP::Request#attributes](/HTTP/Request/#Athena::HTTP::Request#attributes), assuming no customer listeners manually add it, the `CustomResolver` would take over and provide the value for that parameter.
 #
 # ## Configuration
 #

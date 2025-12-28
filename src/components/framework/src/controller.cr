@@ -5,7 +5,7 @@
 #
 # Child controllers must inherit from `ATH::Controller` (or an abstract child of it). Each request gets its own instance of the controller to better allow for DI via `Athena::DependencyInjection`.
 #
-# A route action can either return an `AHTTP::Response`, or some other type. If an `AHTTP::Response` is returned, then it is used directly. Otherwise an `ATH::Events::View` is emitted to convert
+# A route action can either return an [AHTTP::Response](/HTTP/Response), or some other type. If an `AHTTP::Response` is returned, then it is used directly. Otherwise an `ATH::Events::View` is emitted to convert
 # the action result into an `AHTTP::Response`. By default, `ATH::Listeners::View` will JSON encode the value if it is not handled earlier by another listener.
 #
 # ### Example
@@ -101,7 +101,7 @@
 #   # A POST endpoint with a route parameter and accessing the request body; returning a `Bool`.
 #   #
 #   # It is recommended to use `ATHR::RequestBody` to allow passing an actual object representing the data
-#   # to the route's action; however the raw request body can be accessed by typing an action argument as `AHTTP::Request`.
+#   # to the route's action; however the raw request body can be accessed by typing an action argument as [AHTTP::Request](/HTTP/Request).
 #   @[ARTA::Post("/test/{expected}")]
 #   def post_body(expected : String, request : AHTTP::Request) : Bool
 #     expected == request.body.try &.gets_to_end
@@ -169,7 +169,7 @@ abstract class Athena::Framework::Controller
     self.generate_url route, params.to_h.transform_keys(&.to_s), reference_type
   end
 
-  # Returns an `AHTTP::RedirectResponse` to the provided *route* with the provided *params*.
+  # Returns an [AHTTP::RedirectResponse](/HTTP/RedirectResponse) to the provided *route* with the provided *params*.
   #
   # ```
   # require "athena"
@@ -198,7 +198,7 @@ abstract class Athena::Framework::Controller
     self.redirect self.generate_url(route, params), status
   end
 
-  # Returns an `AHTTP::RedirectResponse` to the provided *route* with the provided *params*.
+  # Returns an [AHTTP::RedirectResponse](/HTTP/RedirectResponse) to the provided *route* with the provided *params*.
   #
   # ```
   # require "athena"
@@ -227,7 +227,7 @@ abstract class Athena::Framework::Controller
     self.redirect_to_route route, params.to_h.transform_keys(&.to_s.as(String)), status
   end
 
-  # Returns an `AHTTP::RedirectResponse` to the provided *url*, optionally with the provided *status*.
+  # Returns an [AHTTP::RedirectResponse](/HTTP/RedirectResponse) to the provided *url*, optionally with the provided *status*.
   #
   # ```
   # class ExampleController < ATH::Controller
@@ -302,7 +302,7 @@ abstract class Athena::Framework::Controller
 
   # Renders a template.
   #
-  # Uses `ECR` to render the *template*, creating an `AHTTP::Response` with its rendered content and adding a `text/html` `content-type` header.
+  # Uses `ECR` to render the *template*, creating an [AHTTP::Response](/HTTP/Response) with its rendered content and adding a `text/html` `content-type` header.
   #
   # The response can be modified further before returning it if needed.
   #

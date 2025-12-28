@@ -80,9 +80,9 @@ module Athena::Framework
   # This type includes all of the built-in resolvers that Athena uses to try and resolve an argument for a particular controller action parameter.
   # They run in the following order:
   #
-  # 1. `ATHR::QueryParameter` (110) - Attempts to resolve a value from the `AHTTP::Request` query parameters.
+  # 1. `ATHR::QueryParameter` (110) - Attempts to resolve a value from the [AHTTP::Request](/HTTP/Request) query parameters.
   #
-  # 1. `ATHR::Enum` (105) - Attempts to resolve a value from `AHTTP::Request#attributes` into an enum member of the related type.
+  # 1. `ATHR::Enum` (105) - Attempts to resolve a value from [AHTTP::Request#attributes](/HTTP/Request/#Athena::HTTP::Request#attributes) into an enum member of the related type.
   # Works well in conjunction with `ART::Requirement::Enum`.
   #
   # 1. `ATHR::Time` (105) - Attempts to resolve a value from the request attributes into a `::Time` instance,
@@ -93,9 +93,9 @@ module Athena::Framework
   #
   # 1. `ATHR::RequestBody` (105) - If enabled, attempts to deserialize the request body/query string into the type of the related parameter, running any defined validations if applicable.
   #
-  # 1. `ATHR::RequestAttribute` (100) - Provides a value stored in `AHTTP::Request#attributes` if one with the same name as the action parameter exists.
+  # 1. `ATHR::RequestAttribute` (100) - Provides a value stored in [AHTTP::Request#attributes](/HTTP/Request/#Athena::HTTP::Request#attributes) if one with the same name as the action parameter exists.
   #
-  # 1. `ATHR::Request` (50) - Provides the current `AHTTP::Request` if the related parameter is typed as such.
+  # 1. `ATHR::Request` (50) - Provides the current [AHTTP::Request](/HTTP/Request) if the related parameter is typed as such.
   #
   # 1. `ATHR::DefaultValue` (-100) - Provides the default value of the parameter if it has one, or `nil` if it is nilable.
   #
@@ -113,7 +113,7 @@ module Athena::Framework
   # Exception handling in Athena is similar to exception handling in any Crystal program, with the addition of a new unique exception type, `ATH::Exception::HTTPException`.
   #
   # When an exception is raised, Athena emits the `ATH::Events::Exception` event to allow an opportunity for it to be handled. If the exception goes unhandled, i.e. no listener set
-  # an `AHTTP::Response` on the event, then the request is finished and the exception is reraised. Otherwise, that response is returned, setting the status and merging the headers on the exceptions
+  # an [AHTTP::Response](/HTTP/Response) on the event, then the request is finished and the exception is reraised. Otherwise, that response is returned, setting the status and merging the headers on the exceptions
   # if it is an `ATH::Exception::HTTPException`. See `ATH::Listeners::Error` and `ATH::ErrorRendererInterface` for more information on how exceptions are handled by default.
   #
   # To provide the best response to the client, non `ATH::Exception::HTTPException` should be rescued and converted into a corresponding `ATH::Exception::HTTPException`.

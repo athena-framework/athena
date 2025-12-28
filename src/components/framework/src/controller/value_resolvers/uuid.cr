@@ -1,7 +1,7 @@
 require "uuid"
 
 @[ADI::Register(tags: [{name: ATHR::Interface::TAG, priority: 105}])]
-# Handles resolving a [UUID](https://crystal-lang.org/api/UUID.html) from a string value that is stored in the request's `AHTTP::Request#attributes`.
+# Handles resolving a [UUID](https://crystal-lang.org/api/UUID.html) from a string value that is stored in the request's [AHTTP::Request#attributes](/HTTP/Request/#Athena::HTTP::Request#attributes).
 #
 # ```
 # require "athena"

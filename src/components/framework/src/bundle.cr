@@ -34,7 +34,7 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
     # If there is at least one pattern defined, requests whose hostname does _NOT_ match any of the patterns, will receive a 400 response.
     property trusted_hosts : Array(Regex) = [] of Regex
 
-    # Allows overriding the header name to use for a given `AHTTP::Request::ProxyHeader`.
+    # Allows overriding the header name to use for a given [AHTTP::Request::ProxyHeader](/HTTP/Request/ProxyHeader/).
     #
     # See the [external documentation](/guides/proxies/#custom-headers) for more information.
     property trusted_header_overrides : Hash(Athena::HTTP::Request::ProxyHeader, String) = {} of NoReturn => NoReturn
@@ -44,7 +44,7 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
     # If enabled, the rules are used to determine the best format for the current request based on its
     # [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header.
     #
-    # `AHTTP::Request::FORMATS` is used to map the request's `MIME` type to its format.
+    # [AHTTP::Request::FORMATS](/HTTP/Request/#Athena::HTTP::Request::FORMATS) is used to map the request's `MIME` type to its format.
     module FormatListener
       include ADI::Extension::Schema
 

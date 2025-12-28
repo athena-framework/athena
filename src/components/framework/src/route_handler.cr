@@ -1,6 +1,6 @@
 # The entry-point into `Athena::Framework`.
 #
-# Emits events that handle a given request and returns the resulting `AHTTP::Response`.
+# Emits events that handle a given request and returns the resulting [AHTTP::Response](/HTTP/Response).
 @[ADI::Register(name: "athena_route_handler", public: true)]
 struct Athena::Framework::RouteHandler
   def initialize(

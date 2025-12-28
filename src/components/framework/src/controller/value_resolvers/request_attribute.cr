@@ -1,5 +1,5 @@
 @[ADI::Register(name: "parameter_resolver_request_attribute", tags: [{name: ATHR::Interface::TAG, priority: 100}])]
-# Handles resolving a value that is stored in the request's `AHTTP::Request#attributes`.
+# Handles resolving a value that is stored in the request's [AHTTP::Request#attributes](/HTTP/Request/#Athena::HTTP::Request#attributes).
 # This includes any path/query parameters, custom values stored via an event listener, or extra `defaults` stored within the routing annotation.
 #
 # ```
