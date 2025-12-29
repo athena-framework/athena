@@ -1,0 +1,52 @@
+name: Temp Docs
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          fetch-depth: 0 # Required so `git subtree` can find its split commit
+          ssh-key: ${{ secrets.ATHENA_BOT_SSH_PRIV_KEY }}
+
+      # Workaround for git 2.52.0 regression breaking subtree split with --squash
+      # See: https://lore.kernel.org/git/176677910605.6.2281395015810449820.1087545551@dietrich.pub/T/
+      - name: Cache Git installation
+        id: cache-git
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        with:
+          path: ~/git-custom
+          key: git-2.51.1-subtree-${{ runner.os }}-${{ runner.arch }}
+      - name: Build Git with subtree support
+        if: steps.cache-git.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+
+          GIT_VERSION="2.51.1"
+          INSTALL_DIR="$HOME/git-custom"
+
+          # Install build dependencies
+          sudo apt-get update
+          sudo apt-get install -y libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
+
+          # Download and extract
+          wget -q "https://mirrors.edge.kernel.org/pub/software/scm/git/git-${GIT_VERSION}.tar.gz"
+          tar -xzf "git-${GIT_VERSION}.tar.gz"
+          cd "git-${GIT_VERSION}"
+
+          # Build and install git
+          make -j$(nproc) prefix="$INSTALL_DIR" all
+          make prefix="$INSTALL_DIR" install
+
+          # Build and install contrib/subtree
+          cd contrib/subtree
+          make prefix="$INSTALL_DIR" install
+      - name: Add custom Git to PATH
+        run: echo "$HOME/git-custom/bin" >> "$GITHUB_PATH"
+      - name: Git Version
+        run: git --version
