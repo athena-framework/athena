@@ -33,10 +33,94 @@
 module Athena::DependencyInjection::Extension::Schema
   macro included
     # :nodoc:
+    #
+    # Array of schema property definitions. Each entry is a NamedTupleLiteral with:
+    #   - name: property name
+    #   - type: Crystal type (e.g., String, Int32, Hash for map_of)
+    #   - default: default value (Nop if required)
+    #   - root: root property name for error messages
+    #   - members: (optional) for array_of/object_of/map_of, a NamedTupleLiteral where:
+    #       - keys are member names
+    #       - values are either TypeDeclaration (simple members) or NamedTupleLiteral (object_schema references, with keys: type, value, members)
+    #   - global: whether the type uses global namespace (::)
     OPTIONS = [] of Nil
+
+    # :nodoc:
+    #
+    # Registry of reusable object schemas defined via `object_schema`.
+    # Keys are schema names (e.g., "JwtConfig"), values are NamedTupleLiterals with:
+    #   - members: member map (same structure as OPTIONS members)
+    #   - doc: documentation string
+    OBJECT_SCHEMAS = {} of Nil => Nil
 
     # This must be public so its included in docs and mkdocs can access it.
     CONFIG_DOCS = [] of Nil
+  end
+
+  # Defines a reusable object schema that can be referenced by name in other schema definitions.
+  # This is useful for defining nested object structures or sharing schemas between properties.
+  #
+  # ```
+  # module Schema
+  #   include ADI::Extension::Schema
+  #
+  #   object_schema JwtConfig,
+  #     secret : String,
+  #     algorithm : String = "hmac.sha256"
+  #
+  #   map_of hubs,
+  #     url : String,
+  #     jwt : JwtConfig
+  # end
+  # ```
+  #
+  # NOTE: Object schemas must be defined before they are referenced.
+  macro object_schema(name, *members)
+    {%
+      __nil = nil
+
+      doc_string = ""
+      member_doc_map = {} of Nil => Nil
+      in_member_docblock = false
+      current_member = nil
+
+      @caller.first.doc.lines.each_with_index do |line, idx|
+        if "---" == line
+          in_member_docblock = true
+        elsif in_member_docblock && line.starts_with?(">>")
+          current_member, docs = line[2..].split(':')
+          member_doc_map[current_member.id.stringify] = "#{docs.id}\\n"
+        elsif current_member
+          member_doc_map[current_member.id.stringify] += "#{line.id}\\n"
+        elsif "---" == line && in_member_docblock
+          in_member_docblock = false
+          current_member = nil
+        else
+          doc_string += "#{idx == 0 ? "".id : "\# ".id}#{line.id}\n"
+        end
+      end
+
+      members_string = "["
+      member_map = {__nil: nil}
+
+      members.each_with_index do |m, idx|
+        m.raise "All members must be `TypeDeclaration`s." unless m.is_a? TypeDeclaration
+
+        # Check if this member type references another object_schema
+        member_type = m.type
+        if nested_schema = OBJECT_SCHEMAS[member_type.id.stringify]
+          member_map[m.var.id] = {type: m.type, value: m.value, members: nested_schema["members"]}
+        else
+          member_map[m.var.id] = m
+        end
+
+        members_string += %({"name":"#{m.var.id}","type":"`#{m.type.id}`","default":"`#{m.value.id}`","doc":"#{(member_doc_map[m.var.stringify] || "").strip.strip.gsub(/"/, "\\\"").id}"})
+        members_string += "," unless idx == members.size - 1
+      end
+      members_string += "]"
+
+      OBJECT_SCHEMAS[name.id.stringify] = {members: member_map, doc: doc_string, members_string: members_string}
+    %}
   end
 
   # Defines a schema property via the provided [declaration](https://crystal-lang.org/api/Crystal/Macros/TypeDeclaration.html).
@@ -158,7 +242,15 @@ module Athena::DependencyInjection::Extension::Schema
       member_map = {__nil: nil}
       members.each_with_index do |m, idx|
         m.raise "All members must be `TypeDeclaration`s." unless m.is_a? TypeDeclaration
-        member_map[m.var.id] = m
+
+        # Check if this member type references an object_schema
+        member_type = m.type
+        if nested_schema = OBJECT_SCHEMAS[member_type.id.stringify]
+          member_map[m.var.id] = {type: m.type, value: m.value, members: nested_schema["members"]}
+        else
+          member_map[m.var.id] = m
+        end
+
         members_string += %({"name":"#{m.var.id}","type":"`#{m.type.id}`","default":"`#{m.value.id}`","doc":"#{(member_doc_map[m.var.stringify] || "").strip.strip.gsub(/"/, "\\\"").id}"})
         members_string += "," unless idx == members.size - 1
       end
@@ -248,7 +340,15 @@ module Athena::DependencyInjection::Extension::Schema
 
       members.each_with_index do |m, idx|
         m.raise "All members must be `TypeDeclaration`s." unless m.is_a? TypeDeclaration
-        member_map[m.var.id] = m
+
+        # Check if this member type references an object_schema
+        member_type = m.type
+        if nested_schema = OBJECT_SCHEMAS[member_type.id.stringify]
+          member_map[m.var.id] = {type: m.type, value: m.value, members: nested_schema["members"]}
+        else
+          member_map[m.var.id] = m
+        end
+
         members_string += %({"name":"#{m.var.id}","type":"`#{m.type.id}`","default":"`#{m.value.id}`","doc":"#{(member_doc_map[m.var.stringify] || "").strip.strip.gsub(/"/, "\\\"").id}"})
         members_string += "," unless idx == members.size - 1
       end
@@ -256,6 +356,104 @@ module Athena::DependencyInjection::Extension::Schema
 
       OPTIONS << {name: name, type: (type = (nilable ? parse_type("Array?").resolve : Array)), default: nilable ? nil : default, root: name, members: member_map, global: type.is_a?(Path) && type.global?}
       CONFIG_DOCS << %({"name":"#{name.id}","type":"`#{type.id}`","default":"`#{(nilable && default.empty? ? nil : default).id}`","members":#{members_string.id}}).id
+    %}
+
+    # {{ doc_string.strip.id }}
+    abstract def {{name.id}}
+  end
+
+  # Defines a map where keys are arbitrary names and values follow a typed object schema.
+  # This is useful for configuration patterns where named entries share a common structure.
+  # ```
+  # module Schema
+  #   include ADI::Extension::Schema
+  #
+  #   map_of hubs,
+  #     url : String,
+  #     port : Int32 = 5432
+  # end
+  #
+  # ADI.register_extension "test", Schema
+  #
+  # ADI.configure({
+  #   test: {
+  #     hubs: {
+  #       primary:   {url: "localhost"},
+  #       secondary: {url: "remote", port: 5433},
+  #     },
+  #   },
+  # })
+  # ```
+  #
+  # If not provided, the property defaults to an empty map.
+  macro map_of(name, *members)
+    process_map_of({{name}}, {{members.splat}}, nilable: false)
+  end
+
+  # Same as `#map_of` but makes the default value of the property `nil`.
+  macro map_of?(name, *members)
+    process_map_of({{name}}, {{members.splat}}, nilable: true)
+  end
+
+  private macro process_map_of(name_or_assign, *members, nilable)
+    {%
+      __nil = nil
+
+      if name_or_assign.is_a?(Assign)
+        name = name_or_assign.target.id
+        default = name_or_assign.value
+      else
+        name = name_or_assign.name
+        default = {__nil: nil}
+      end
+
+      doc_string = ""
+      member_doc_map = {} of Nil => Nil
+      in_member_docblock = false
+      current_member = nil
+
+      @caller.first.doc.lines.each_with_index do |line, idx|
+        if "---" == line
+          in_member_docblock = true
+        elsif in_member_docblock && line.starts_with?(">>")
+          current_member, docs = line[2..].split(':')
+          member_doc_map[current_member.id.stringify] = "#{docs.id}\\n"
+        elsif current_member
+          member_doc_map[current_member.id.stringify] += "#{line.id}\\n"
+        elsif "---" == line && in_member_docblock
+          in_member_docblock = false
+          current_member = nil
+        else
+          doc_string += "#{idx == 0 ? "".id : "\# ".id}#{line.id}\n"
+        end
+      end
+
+      members_string = "["
+      member_map = {__nil: nil}
+
+      # Build the member_map which describes the schema for each map entry's value.
+      # Each member becomes either:
+      #   - A TypeDeclaration directly (e.g., `url : String`) for simple types
+      #   - A NamedTupleLiteral with {type:, value:, members:} for object_schema references
+      members.each_with_index do |m, idx|
+        m.raise "All members must be `TypeDeclaration`s." unless m.is_a? TypeDeclaration
+
+        # Check if this member type references an object_schema
+        member_type = m.type
+        if nested_schema = OBJECT_SCHEMAS[member_type.id.stringify]
+          member_map[m.var.id] = {type: m.type, value: m.value, members: nested_schema["members"]}
+        else
+          member_map[m.var.id] = m
+        end
+
+        members_string += %({"name":"#{m.var.id}","type":"`#{m.type.id}`","default":"`#{m.value.id}`","doc":"#{(member_doc_map[m.var.stringify] || "").strip.strip.gsub(/"/, "\\\"").id}"})
+        members_string += "," unless idx == members.size - 1
+      end
+      members_string += "]"
+
+      # map_of uses Hash as type marker (checked in compiler passes via `prop["type"] <= Hash`)
+      OPTIONS << {name: name, type: (type = (nilable ? parse_type("Hash?").resolve : Hash)), default: nilable ? nil : default, root: name, members: member_map, global: type.is_a?(Path) && type.global?}
+      CONFIG_DOCS << %({"name":"#{name.id}","type":"`#{type.id}`","default":"`#{(nilable && default.keys.reject { |k| k.stringify == "__nil" }.empty? ? nil : default).id}`","members":#{members_string.id}}).id
     %}
 
     # {{ doc_string.strip.id }}
