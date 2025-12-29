@@ -1,0 +1,8 @@
+project: dependency-injection
+kind: Added
+body: Add ability to define re-usable schema object types
+time: 2025-12-28T22:23:03.624175798-05:00
+custom:
+    Author: George Dietrich
+    PR: "641"
+    Username: blacksmoke16

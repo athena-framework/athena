@@ -412,4 +412,272 @@ describe ADI::Extension, tags: "compiled" do
       CR
     end
   end
+
+  describe "object_schema" do
+    it "stores schema in OBJECT_SCHEMAS" do
+      assert_compiles <<-'CR'
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema JwtConfig,
+            secret : String,
+            algorithm : String = "hmac.sha256"
+        end
+
+        ADI.register_extension "test", Schema
+
+        macro finished
+          macro finished
+            \{%
+               schemas = Schema::OBJECT_SCHEMAS
+
+               raise "#{schemas}" unless schemas.size == 1
+               raise "#{schemas}" unless schemas["JwtConfig"] != nil
+
+               jwt_schema = schemas["JwtConfig"]
+               raise "#{jwt_schema}" unless jwt_schema["members"].size == 3 # Account for __nil
+
+               raise "#{jwt_schema}" unless jwt_schema["members"]["secret"].type.stringify == "String"
+               raise "#{jwt_schema}" unless jwt_schema["members"]["secret"].value.nil?
+               raise "#{jwt_schema}" unless jwt_schema["members"]["algorithm"].type.stringify == "String"
+               raise "#{jwt_schema}" unless jwt_schema["members"]["algorithm"].value == "hmac.sha256"
+            %}
+          end
+        end
+      CR
+    end
+
+    it "supports nested object_schema references" do
+      assert_compiles <<-'CR'
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema InnerConfig,
+            value : String
+
+          object_schema OuterConfig,
+            name : String,
+            inner : InnerConfig
+        end
+
+        ADI.register_extension "test", Schema
+
+        macro finished
+          macro finished
+            \{%
+               schemas = Schema::OBJECT_SCHEMAS
+               outer_schema = schemas["OuterConfig"]
+
+               # The inner member should have nested members from InnerConfig
+               inner_member = outer_schema["members"]["inner"]
+               raise "#{inner_member}" unless inner_member["members"] != nil
+               raise "#{inner_member}" unless inner_member["members"]["value"].type.stringify == "String"
+            %}
+          end
+        end
+      CR
+    end
+  end
+
+  describe "map_of / map_of?" do
+    it "map_of" do
+      assert_compiles <<-'CR'
+        module Schema
+          include ADI::Extension::Schema
+          map_of hubs, url : String, port : Int32 = 5432
+        end
+
+        ADI.register_extension "test", Schema
+
+        macro finished
+          macro finished
+            \{%
+               options = Schema::OPTIONS
+
+               raise "#{options}" unless options.size == 1
+
+               raise "#{options}" unless options[0]["name"] == "hubs"
+               raise "#{options}" unless options[0]["type"].stringify == "Hash(K, V)"
+               raise "#{options}" unless options[0]["default"].stringify == "{__nil: nil}"
+
+               members = options[0]["members"]
+               raise "#{members}" unless members.size == 3 # Account for __nil
+
+               raise "#{members}" unless members["url"].type.stringify == "String"
+               raise "#{members}" unless members["url"].value.nil?
+               raise "#{members}" unless members["port"].type.stringify == "Int32"
+               raise "#{members}" unless members["port"].value == 5432
+
+               raise "#{Schema::CONFIG_DOCS}" unless Schema::CONFIG_DOCS.stringify == %([{"name":"hubs","type":"`Hash(K, V)`","default":"`{__nil: nil}`","members":[{"name":"url","type":"`String`","default":"``","doc":""},{"name":"port","type":"`Int32`","default":"`5432`","doc":""}]}] of Nil)
+            %}
+          end
+        end
+      CR
+    end
+
+    it "map_of?" do
+      assert_compiles <<-'CR'
+        module Schema
+          include ADI::Extension::Schema
+          map_of? hubs, url : String, port : Int32 = 5432
+        end
+
+        ADI.register_extension "test", Schema
+
+        macro finished
+          macro finished
+            \{%
+               options = Schema::OPTIONS
+
+               raise "#{options}" unless options.size == 1
+
+               raise "#{options}" unless options[0]["name"] == "hubs"
+               raise "#{options}" unless options[0]["type"].stringify == "(Hash(K, V) | Nil)"
+               raise "#{options}" unless options[0]["default"].nil?
+
+               members = options[0]["members"]
+               raise "#{members}" unless members.size == 3 # Account for __nil
+
+               raise "#{members}" unless members["url"].type.stringify == "String"
+               raise "#{members}" unless members["port"].type.stringify == "Int32"
+
+               raise "#{Schema::CONFIG_DOCS}" unless Schema::CONFIG_DOCS.stringify == %([{"name":"hubs","type":"`(Hash(K, V) | Nil)`","default":"`nil`","members":[{"name":"url","type":"`String`","default":"``","doc":""},{"name":"port","type":"`Int32`","default":"`5432`","doc":""}]}] of Nil)
+            %}
+          end
+        end
+      CR
+    end
+
+    it "map_of with object_schema reference" do
+      assert_compiles <<-'CR'
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema JwtConfig,
+            secret : String,
+            algorithm : String = "hmac.sha256"
+
+          map_of hubs,
+            url : String,
+            jwt : JwtConfig
+        end
+
+        ADI.register_extension "test", Schema
+
+        macro finished
+          macro finished
+            \{%
+               options = Schema::OPTIONS
+
+               raise "#{options}" unless options.size == 1
+
+               jwt_member = options[0]["members"]["jwt"]
+               raise "#{jwt_member}" unless jwt_member["members"] != nil
+               raise "#{jwt_member}" unless jwt_member["members"]["secret"].type.stringify == "String"
+               raise "#{jwt_member}" unless jwt_member["members"]["algorithm"].value == "hmac.sha256"
+            %}
+          end
+        end
+      CR
+    end
+
+    it "map_of with custom default using assignment syntax" do
+      assert_compiles <<-'CR'
+        module Schema
+          include ADI::Extension::Schema
+          map_of hubs = {default: {url: "localhost", port: 8080}}, url : String, port : Int32 = 5432
+        end
+
+        ADI.register_extension "test", Schema
+
+        macro finished
+          macro finished
+            \{%
+               options = Schema::OPTIONS
+
+               raise "#{options}" unless options.size == 1
+               raise "#{options}" unless options[0]["name"] == "hubs"
+               raise "#{options}" unless options[0]["type"].stringify == "Hash(K, V)"
+
+               # Custom default should be preserved
+               default = options[0]["default"]
+               raise "#{default}" unless default["default"]["url"] == "localhost"
+               raise "#{default}" unless default["default"]["port"] == 8080
+            %}
+          end
+        end
+      CR
+    end
+  end
+
+  describe "object_schema in array_of" do
+    it "array_of with object_schema reference" do
+      assert_compiles <<-'CR'
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema JwtConfig,
+            secret : String,
+            algorithm : String = "hmac.sha256"
+
+          array_of items,
+            name : String,
+            jwt : JwtConfig
+        end
+
+        ADI.register_extension "test", Schema
+
+        macro finished
+          macro finished
+            \{%
+               options = Schema::OPTIONS
+
+               raise "#{options}" unless options.size == 1
+
+               jwt_member = options[0]["members"]["jwt"]
+               raise "#{jwt_member}" unless jwt_member["members"] != nil
+               raise "#{jwt_member}" unless jwt_member["members"]["secret"].type.stringify == "String"
+               raise "#{jwt_member}" unless jwt_member["members"]["algorithm"].value == "hmac.sha256"
+            %}
+          end
+        end
+      CR
+    end
+  end
+
+  describe "object_schema in object_of" do
+    it "object_of with object_schema reference" do
+      assert_compiles <<-'CR'
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema JwtConfig,
+            secret : String,
+            algorithm : String = "hmac.sha256"
+
+          # Use object_of? since we're not providing config - just testing OPTIONS structure
+          object_of? connection,
+            url : String,
+            jwt : JwtConfig
+        end
+
+        ADI.register_extension "test", Schema
+
+        macro finished
+          macro finished
+            \{%
+               options = Schema::OPTIONS
+
+               raise "#{options}" unless options.size == 1
+
+               jwt_member = options[0]["members"]["jwt"]
+               raise "#{jwt_member}" unless jwt_member["members"] != nil
+               raise "#{jwt_member}" unless jwt_member["members"]["secret"].type.stringify == "String"
+               raise "#{jwt_member}" unless jwt_member["members"]["algorithm"].value == "hmac.sha256"
+            %}
+          end
+        end
+      CR
+    end
+  end
 end

@@ -29,6 +29,8 @@
       <div class="schema-members">
         {% if 'Array' in param['type'] %}
           <p>This property consists of an array of objects with the following properties:</p>
+        {% elif 'Hash' in param['type'] %}
+          <p>This property consists of a map of key/value pairs where each value has the following properties:</p>
         {% else %}
           <p>This property consists of an object with the following properties:</p>
         {% endif %}
