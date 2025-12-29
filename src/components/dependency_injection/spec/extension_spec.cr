@@ -608,7 +608,6 @@ describe ADI::Extension, tags: "compiled" do
         end
       CR
     end
-
   end
 
   describe "object_schema in array_of" do
