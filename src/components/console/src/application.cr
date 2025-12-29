@@ -79,6 +79,13 @@ class Athena::Console::Application
   # See [Single Command Applications][Athena::Console::Application#default_command(name,single_command)--single-command-applications] for more information.
   getter? single_command : Bool = false
 
+  # When set to `true`, the application will check if `PROGRAM_NAME`'s basename matches a registered command.
+  # If it does, that command will be used and any arguments will be passed to it.
+  #
+  # This enables symlink-based command invocation, where `./command-name` (symlinked to the main binary) will automatically execute the `command-name` command.
+  # Any arguments are passed to the matched command rather than being interpreted as a command name.
+  property? use_program_name_as_command : Bool = false
+
   # Returns/sets the `ACON::Helper::HelperSet` associated with `self`.
   #
   # The default helper set includes:
@@ -518,7 +525,18 @@ class Athena::Console::Application
   end
 
   protected def command_name(input : ACON::Input::Interface) : String?
-    @single_command ? @default_command : input.first_argument
+    return @default_command if @single_command
+
+    if @use_program_name_as_command
+      prog_name = self.program_name
+      return prog_name if self.has?(prog_name)
+    end
+
+    input.first_argument
+  end
+
+  protected def program_name : String
+    Path.new(PROGRAM_NAME).basename
   end
 
   # ameba:disable Metrics/CyclomaticComplexity
