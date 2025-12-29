@@ -69,11 +69,23 @@ module Athena::Spec::Methods
   #
   # NOTE: When files are required within the *code*, they are relative to the file calling this method.
   def assert_compiles(code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
-    buffer = IO::Memory.new
-    result = execute code, buffer, buffer, file, codegen: false
+    std_out = IO::Memory.new
+    std_err = IO::Memory.new
 
-    fail buffer.to_s, line: line unless result.success?
-    buffer.close
+    result = execute code, std_out, std_err, file, codegen: false, macro_code_coverage: true
+
+    fail std_err.to_s, line: line unless result.success?
+    std_err.close
+
+    # Ignore coverage report output if the output dir is not defined, or if there is no report.
+    # TODO: Maybe default this to something?
+    if !std_out.empty? && (macro_coverage_output_dir = ENV["ATHENA_SPEC_COVERAGE_OUTPUT_DIR"]?.presence)
+      File.open ::Path[macro_coverage_output_dir, "macro_coverage.#{Path[file].stem}:#{line}.codecov.json"], "w" do |coverage_report|
+        IO.copy std_out.rewind, coverage_report
+      end
+    end
+
+    std_out.close
   end
 
   # Similar to `.assert_runtime_error`, but asserts the provided Crystal *code* successfully executes.

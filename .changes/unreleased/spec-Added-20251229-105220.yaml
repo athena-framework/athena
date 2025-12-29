@@ -1,0 +1,8 @@
+project: spec
+kind: Added
+body: Generate macro code coverage report for `ASPEC::Methods.assert_compiles`
+time: 2025-12-29T10:52:20.27522588-05:00
+custom:
+    Author: George Dietrich
+    PR: "642"
+    Username: blacksmoke16
