@@ -68,7 +68,7 @@ describe ART::RoutingHandler do
           params.should eq({"_route" => "foo"})
         end
 
-        handler.call HTTP::Server::Context.new HTTP::Request.new("GET", "/foo"), HTTP::Server::Response.new(IO::Memory.new)
+        handler.call ::HTTP::Server::Context.new ::HTTP::Request.new("GET", "/foo"), ::HTTP::Server::Response.new(IO::Memory.new)
 
         value.should eq 10
       end
@@ -78,8 +78,8 @@ describe ART::RoutingHandler do
         handler.add("foo", ART::Route.new("/foo")) { }
 
         Log.capture do |logs|
-          handler.call HTTP::Server::Context.new HTTP::Request.new("GET", "/foo"), resp = HTTP::Server::Response.new(IO::Memory.new)
-          resp.status.should eq HTTP::Status::NOT_FOUND
+          handler.call ::HTTP::Server::Context.new ::HTTP::Request.new("GET", "/foo"), resp = ::HTTP::Server::Response.new(IO::Memory.new)
+          resp.status.should eq ::HTTP::Status::NOT_FOUND
 
           logs.empty
         end
@@ -90,8 +90,8 @@ describe ART::RoutingHandler do
         handler.add("foo", ART::Route.new("/foo")) { }
 
         Log.capture do |logs|
-          handler.call HTTP::Server::Context.new HTTP::Request.new("GET", "/foo"), resp = HTTP::Server::Response.new(IO::Memory.new)
-          resp.status.should eq HTTP::Status::METHOD_NOT_ALLOWED
+          handler.call ::HTTP::Server::Context.new ::HTTP::Request.new("GET", "/foo"), resp = ::HTTP::Server::Response.new(IO::Memory.new)
+          resp.status.should eq ::HTTP::Status::METHOD_NOT_ALLOWED
 
           logs.empty
         end
@@ -107,8 +107,8 @@ describe ART::RoutingHandler do
         end
 
         Log.capture do |logs|
-          handler.call HTTP::Server::Context.new HTTP::Request.new("GET", "/foo"), resp = HTTP::Server::Response.new(IO::Memory.new)
-          resp.status.should eq HTTP::Status::INTERNAL_SERVER_ERROR
+          handler.call ::HTTP::Server::Context.new ::HTTP::Request.new("GET", "/foo"), resp = ::HTTP::Server::Response.new(IO::Memory.new)
+          resp.status.should eq ::HTTP::Status::INTERNAL_SERVER_ERROR
 
           logs.check :error, "Unhandled exception"
         end
@@ -128,7 +128,7 @@ describe ART::RoutingHandler do
           params.should eq({"_route" => "foo"})
         end
 
-        handler.call HTTP::Server::Context.new HTTP::Request.new("GET", "/foo"), HTTP::Server::Response.new(IO::Memory.new)
+        handler.call ::HTTP::Server::Context.new ::HTTP::Request.new("GET", "/foo"), ::HTTP::Server::Response.new(IO::Memory.new)
 
         value.should eq 10
       end
@@ -138,7 +138,7 @@ describe ART::RoutingHandler do
         handler.add("foo", ART::Route.new("/foo")) { }
 
         expect_raises ART::Exception::ResourceNotFound do
-          handler.call HTTP::Server::Context.new HTTP::Request.new("GET", "/foo"), HTTP::Server::Response.new(IO::Memory.new)
+          handler.call ::HTTP::Server::Context.new ::HTTP::Request.new("GET", "/foo"), ::HTTP::Server::Response.new(IO::Memory.new)
         end
       end
 
@@ -147,7 +147,7 @@ describe ART::RoutingHandler do
         handler.add("foo", ART::Route.new("/foo")) { }
 
         ex = expect_raises ART::Exception::MethodNotAllowed do
-          handler.call HTTP::Server::Context.new HTTP::Request.new("GET", "/foo"), HTTP::Server::Response.new(IO::Memory.new)
+          handler.call ::HTTP::Server::Context.new ::HTTP::Request.new("GET", "/foo"), ::HTTP::Server::Response.new(IO::Memory.new)
         end
 
         ex.allowed_methods.should eq ["PUT", "SEARCH"]
@@ -163,7 +163,7 @@ describe ART::RoutingHandler do
         end
         Log.capture do |logs|
           expect_raises ::Exception, "Oh no!" do
-            handler.call HTTP::Server::Context.new HTTP::Request.new("GET", "/foo"), HTTP::Server::Response.new(IO::Memory.new)
+            handler.call ::HTTP::Server::Context.new ::HTTP::Request.new("GET", "/foo"), ::HTTP::Server::Response.new(IO::Memory.new)
           end
 
           logs.empty

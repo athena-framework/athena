@@ -49,7 +49,7 @@ struct TraceableURLMatcherTest < AbstractURLMatcherTestCase
     self.get_levels(traces).should eq [0, 1, 2]
 
     # Test Request overload (method is set via context)
-    traces = matcher.traces(HTTP::Request.new "GET", "/bar/dd")
+    traces = matcher.traces(::HTTP::Request.new "GET", "/bar/dd")
     self.get_levels(traces).should eq [0, 1, 2]
 
     traces = matcher.traces("/foo2")

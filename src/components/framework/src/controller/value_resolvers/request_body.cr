@@ -4,7 +4,7 @@ require "uri/params/serializable"
 # Attempts to resolve the value of any parameter with the `ATHA::MapRequestBody` annotation by
 # deserializing the request body into an object of the type of the related parameter.
 # The `ATHA::MapQueryString` annotation works similarly, but uses the request's query string instead of its body.
-# Lastly, the `ATHA::MapUploadedFile` annotation works by resolving one or more `ATH::UploadedFile` from `ATH::Request#files`.
+# Lastly, the `ATHA::MapUploadedFile` annotation works by resolving one or more [AHTTP::UploadedFile](/HTTP/UploadedFile) from [AHTTP::Request#files](/HTTP/Request/#Athena::HTTP::Request#files).
 #
 # If the object is also [AVD::Validatable](/Validator/Validatable), any validations defined on it are executed before returning the object.
 # Requires the type of the related parameter to include one or more of:
@@ -96,7 +96,7 @@ require "uri/params/serializable"
 # }
 # ```
 struct Athena::Framework::Controller::ValueResolvers::RequestBody
-  include Athena::Framework::Controller::ValueResolvers::Interface::Typed(Athena::Serializer::Serializable, JSON::Serializable, URI::Params::Serializable, Athena::Framework::UploadedFile?, Array(Athena::Framework::UploadedFile))
+  include Athena::Framework::Controller::ValueResolvers::Interface::Typed(Athena::Serializer::Serializable, JSON::Serializable, URI::Params::Serializable, Athena::HTTP::UploadedFile?, Array(Athena::HTTP::UploadedFile))
 
   # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on the request's body.
   # See the related resolver documentation for more information.
@@ -121,8 +121,8 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   #
   # **Type:** `Array(String)?` **Default:** `nil`
   #
-  # Allows whitelisting the allowed [request format(s)][ATH::Request::FORMATS].
-  # If the `ATH::Request#content_type_format` is not included in this list, a `ATH::Exception::UnsupportedMediaType` error will be raised.
+  # Allows whitelisting the allowed [request format(s)](/HTTP/Request/#Athena::HTTP::Request::FORMATS).
+  # If the [AHTTP::Request#content_type_format](/HTTP/Request/#Athena::HTTP::Request#content_type_format) is not included in this list, a `ATH::Exception::UnsupportedMediaType` error will be raised.
   #
   # ### validation_groups
   #
@@ -160,12 +160,12 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   configuration ::Athena::Framework::Annotations::MapQueryString,
     validation_groups : Array(String) | AVD::Constraints::GroupSequence | Nil = nil
 
-  # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on [ATH::Request#files][],
+  # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on [AHTTP::Request#files](/HTTP/Request/#Athena::HTTP::Request#files),
   # if the related bundle configuration [is enabled](/Framework/Bundle/Schema/FileUploads/).
   #
-  # If the type of the parameter this annotation is applied to is `ATH::UploadedFile`, then it will attempt to resolve the first file based on the name of the parameter.
+  # If the type of the parameter this annotation is applied to is [AHTTP::UploadedFile](/HTTP/UploadedFile), then it will attempt to resolve the first file based on the name of the parameter.
   # This can be customized via the *name* field on the annotation.
-  # If the type is a `Array(ATH::UploadedFile)` then all files with that name will be resolved, not just the first.
+  # If the type is a `Array(AHTTP::UploadedFile)` then all files with that name will be resolved, not just the first.
   #
   # When resolving a single file that is not found, and the parameter has a default value or is nilable, then that default value, or `nil`, will be used.
   # If the parameter does not have a default and is not nilable, then an error response is returned.
@@ -176,7 +176,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   #   @[ARTA::Post("/avatar")]
   #   def avatar(
   #     @[ATHA::MapUploadedFile(constraints: AVD::Constraints::Image.new)]
-  #     profile_picture : ATH::UploadedFile,
+  #     profile_picture : AHTTP::UploadedFile,
   #   ) : Nil
   #     # ...
   #   end
@@ -209,7 +209,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   ); end
 
   # :inherit:
-  def resolve(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata)
+  def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata)
     validation_groups = nil
     constraints = nil
 
@@ -238,7 +238,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
     object
   end
 
-  private def map_query_string(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata, configuration : ATHA::MapQueryStringConfiguration)
+  private def map_query_string(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata, configuration : ATHA::MapQueryStringConfiguration)
     return unless query = request.query
     return if query.nil? && (parameter.nilable? || parameter.has_default?)
 
@@ -250,7 +250,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   end
 
   # ameba:disable Metrics/CyclomaticComplexity:
-  private def map_request_body(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata, configuration : ATHA::MapRequestBodyConfiguration)
+  private def map_request_body(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata, configuration : ATHA::MapRequestBodyConfiguration)
     if !(body = request.body) || body.peek.try &.empty?
       raise ATH::Exception::BadRequest.new "Request does not have a body."
     end
@@ -310,14 +310,14 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   private def deserialize_form(body : IO | String, klass : _)
   end
 
-  private def map_uploaded_file(request : ATH::Request, parameter : ATH::Controller::ParameterMetadata, configuration : ATHA::MapUploadedFileConfiguration) : ATH::UploadedFile | Enumerable(ATH::UploadedFile) | Nil
-    files = request.files[configuration.name || parameter.name]? || [] of ATH::UploadedFile
+  private def map_uploaded_file(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata, configuration : ATHA::MapUploadedFileConfiguration) : AHTTP::UploadedFile | Enumerable(AHTTP::UploadedFile) | Nil
+    files = request.files[configuration.name || parameter.name]? || [] of AHTTP::UploadedFile
 
     if files.empty? && (parameter.nilable? || parameter.has_default?)
       return
     end
 
-    if parameter.instance_of?(Array(ATH::UploadedFile))
+    if parameter.instance_of?(Array(AHTTP::UploadedFile))
       return files
     end
 

@@ -5,6 +5,6 @@ private alias CONSTRAINT = AVD::Constraints::File
 
 struct FileValidatorATHFileTest < FileValidatorTestCase
   protected def get_file(file_path : String)
-    Athena::Framework::File.new file_path
+    Athena::HTTP::File.new file_path
   end
 end

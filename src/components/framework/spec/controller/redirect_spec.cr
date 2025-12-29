@@ -2,7 +2,7 @@ require "../spec_helper"
 
 struct RedirectControllerTest < ASPEC::TestCase
   def test_empty_route_permanent : Nil
-    request = ATH::Request.new "GET", "/"
+    request = AHTTP::Request.new "GET", "/"
     controller = ATH::Controller::Redirect.new
 
     ex = expect_raises ATH::Exception::HTTPException do
@@ -13,7 +13,7 @@ struct RedirectControllerTest < ASPEC::TestCase
   end
 
   def test_empty_route_non_permanent : Nil
-    request = ATH::Request.new "GET", "/"
+    request = AHTTP::Request.new "GET", "/"
     controller = ATH::Controller::Redirect.new
 
     ex = expect_raises ATH::Exception::HTTPException do
@@ -24,7 +24,7 @@ struct RedirectControllerTest < ASPEC::TestCase
   end
 
   def test_full_url : Nil
-    request = ATH::Request.new "GET", "/"
+    request = AHTTP::Request.new "GET", "/"
     controller = ATH::Controller::Redirect.new
 
     response = controller.redirect_url request, "http://foo.com/"
@@ -33,7 +33,7 @@ struct RedirectControllerTest < ASPEC::TestCase
   end
 
   def test_full_url_with_method_keep : Nil
-    request = ATH::Request.new "GET", "/"
+    request = AHTTP::Request.new "GET", "/"
     controller = ATH::Controller::Redirect.new
 
     response = controller.redirect_url request, "http://foo.com/", keep_request_method: true
@@ -42,7 +42,7 @@ struct RedirectControllerTest < ASPEC::TestCase
   end
 
   def test_protocol_relative : Nil
-    request = ATH::Request.new "GET", "/"
+    request = AHTTP::Request.new "GET", "/"
     controller = ATH::Controller::Redirect.new
 
     response = controller.redirect_url request, "//foo.bar/"
@@ -57,13 +57,13 @@ struct RedirectControllerTest < ASPEC::TestCase
     https_port = 1443
 
     expected_url = "https://#{host}:#{https_port}#{path}"
-    request = ATH::Request.new "GET", "/", headers: HTTP::Headers{"host" => "#{host}:#{http_port}"}
+    request = AHTTP::Request.new "GET", "/", headers: ::HTTP::Headers{"host" => "#{host}:#{http_port}"}
     controller = ATH::Controller::Redirect.new https_port: https_port
     response = controller.redirect_url request, path, scheme: "https"
     self.assert_redirect_url response, expected_url
 
     expected_url = "http://#{host}:#{http_port}#{path}"
-    request = ATH::Request.new "GET", "/", headers: HTTP::Headers{"host" => "#{host}:#{http_port}"}
+    request = AHTTP::Request.new "GET", "/", headers: ::HTTP::Headers{"host" => "#{host}:#{http_port}"}
     controller = ATH::Controller::Redirect.new http_port
     response = controller.redirect_url request, path, scheme: "http"
     self.assert_redirect_url response, expected_url
@@ -82,7 +82,7 @@ struct RedirectControllerTest < ASPEC::TestCase
     path = "/redirect-path"
     expected_url = "#{scheme}://#{host}#{expected_port}#{path}"
 
-    request = ATH::Request.new "GET", "/", headers: HTTP::Headers{"host" => "#{host}:#{request_port}"}
+    request = AHTTP::Request.new "GET", "/", headers: ::HTTP::Headers{"host" => "#{host}:#{request_port}"}
     request.scheme = request_scheme
     controller = ATH::Controller::Redirect.new
 
@@ -133,7 +133,7 @@ struct RedirectControllerTest < ASPEC::TestCase
     host = "www.example.com"
     port = 80
 
-    request = ATH::Request.new "GET", "/", headers: HTTP::Headers{"host" => "#{host}:#{port}"}
+    request = AHTTP::Request.new "GET", "/", headers: ::HTTP::Headers{"host" => "#{host}:#{port}"}
     request.query = query_string if query_string != ""
 
     controller = ATH::Controller::Redirect.new
@@ -149,7 +149,7 @@ struct RedirectControllerTest < ASPEC::TestCase
   # def test_redirect_with_query_with_route_params_overriding : Nil
   # end
 
-  private def assert_redirect_url(response : ATH::Response, expected : String) : Nil
+  private def assert_redirect_url(response : AHTTP::Response, expected : String) : Nil
     response.redirect?(expected).should be_true, failure_message: "Expected: '#{expected}'\n Got: '#{response.headers["location"]}'."
   end
 end

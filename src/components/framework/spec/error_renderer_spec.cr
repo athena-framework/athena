@@ -10,6 +10,10 @@ private class MockException < ::Exception
   end
 end
 
+private class MockRequestException < ::Exception
+  include AHTTP::Exception::RequestExceptionInterface
+end
+
 describe ATH::ErrorRenderer do
   it ATH::Exception::HTTPException do
     exception = ATH::Exception::TooManyRequests.new "cool your jets", 42
@@ -20,8 +24,24 @@ describe ATH::ErrorRenderer do
 
     response.headers["retry-after"].should eq "42"
     response.headers["content-type"].should eq "application/json; charset=utf-8"
-    response.status.should eq HTTP::Status::TOO_MANY_REQUESTS
+    response.status.should eq ::HTTP::Status::TOO_MANY_REQUESTS
     response.content.should eq %({"code":429,"message":"cool your jets"})
+  end
+
+  it AHTTP::Exception::RequestExceptionInterface do
+    exception = MockRequestException.new "ERR"
+
+    renderer = ATH::ErrorRenderer.new false
+
+    response = renderer.render exception
+
+    response.headers["content-type"].should eq "application/json; charset=utf-8"
+    response.headers["x-debug-exception-message"]?.should be_nil
+    response.headers["x-debug-exception-class"]?.should be_nil
+    response.headers["x-debug-exception-file"]?.should be_nil
+    response.headers["x-debug-exception-code"]?.should be_nil
+    response.status.should eq ::HTTP::Status::BAD_REQUEST
+    response.content.should eq %({"code":400,"message":"Bad Request"})
   end
 
   it ::Exception do
@@ -36,7 +56,7 @@ describe ATH::ErrorRenderer do
     response.headers["x-debug-exception-class"]?.should be_nil
     response.headers["x-debug-exception-file"]?.should be_nil
     response.headers["x-debug-exception-code"]?.should be_nil
-    response.status.should eq HTTP::Status::INTERNAL_SERVER_ERROR
+    response.status.should eq ::HTTP::Status::INTERNAL_SERVER_ERROR
     response.content.should eq %({"code":500,"message":"Internal Server Error"})
   end
 
@@ -54,7 +74,7 @@ describe ATH::ErrorRenderer do
       response.headers["x-debug-exception-class"].should eq "MockException"
       response.headers["x-debug-exception-file"].should match /#{URI.encode_path path.to_s}:\d+:\d+$/
       response.headers["x-debug-exception-code"].should eq "500"
-      response.status.should eq HTTP::Status::INTERNAL_SERVER_ERROR
+      response.status.should eq ::HTTP::Status::INTERNAL_SERVER_ERROR
       response.content.should eq %({"code":500,"message":"Internal Server Error"})
     end
 
@@ -71,7 +91,7 @@ describe ATH::ErrorRenderer do
       response.headers["x-debug-exception-class"].should eq "MockException"
       response.headers["x-debug-exception-file"].should match /#{URI.encode_path path.to_s}:\d+$/
       response.headers["x-debug-exception-code"].should eq "500"
-      response.status.should eq HTTP::Status::INTERNAL_SERVER_ERROR
+      response.status.should eq ::HTTP::Status::INTERNAL_SERVER_ERROR
       response.content.should eq %({"code":500,"message":"Internal Server Error"})
     end
   end

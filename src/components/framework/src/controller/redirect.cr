@@ -7,22 +7,22 @@ class Athena::Framework::Controller::Redirect
 
   # ameba:disable Metrics/CyclomaticComplexity:
   def redirect_url(
-    request : ATH::Request,
+    request : AHTTP::Request,
     path : String,
     permanent : Bool = false,
     scheme : String? = nil,
     http_port : Int32? = nil,
     https_port : Int32? = nil,
     keep_request_method : Bool = false,
-  ) : ATH::RedirectResponse
+  ) : AHTTP::RedirectResponse
     if path.empty?
-      raise ATH::Exception::HTTPException.new (permanent ? HTTP::Status::GONE : HTTP::Status::NOT_FOUND), ""
+      raise ATH::Exception::HTTPException.new (permanent ? ::HTTP::Status::GONE : ::HTTP::Status::NOT_FOUND), ""
     end
 
     status = if keep_request_method
-               permanent ? HTTP::Status::PERMANENT_REDIRECT : HTTP::Status::TEMPORARY_REDIRECT
+               permanent ? ::HTTP::Status::PERMANENT_REDIRECT : ::HTTP::Status::TEMPORARY_REDIRECT
              else
-               permanent ? HTTP::Status::MOVED_PERMANENTLY : HTTP::Status::FOUND
+               permanent ? ::HTTP::Status::MOVED_PERMANENTLY : ::HTTP::Status::FOUND
              end
 
     scheme ||= request.scheme
@@ -35,7 +35,7 @@ class Athena::Framework::Controller::Redirect
 
     # If the path has a scheme, assume it is a full URI
     if uri.scheme.presence
-      return ATH::RedirectResponse.new path, status
+      return AHTTP::RedirectResponse.new path, status
     end
 
     # If the request has query params of its own, be sure to retain both sets of params.
@@ -69,6 +69,6 @@ class Athena::Framework::Controller::Redirect
     uri.host = request.host
     uri.scheme = scheme
 
-    ATH::RedirectResponse.new uri.normalize!.to_s, status
+    AHTTP::RedirectResponse.new uri.normalize!.to_s, status
   end
 end

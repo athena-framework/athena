@@ -17,11 +17,11 @@ The flow of a request, and the related events that are dispatched, is depicted b
 
 ### 1. Request Event
 
-The very first event that is dispatched is the [ATH::Events::Request](/Framework/Events/Request) event and can have a variety of listeners. The primary purpose of this event is to create an [ATH::Response](/Framework/Response/) directly, or to add information to the requests' attributes; a simple key/value store tied to request instance accessible via [ATH::Request#attributes](/Framework/Request/#Athena::Framework::Request#attributes).
+The very first event that is dispatched is the [ATH::Events::Request](/Framework/Events/Request) event and can have a variety of listeners. The primary purpose of this event is to create an [AHTTP::Response](/HTTP/Response/) directly, or to add information to the requests' attributes; a simple key/value store tied to request instance accessible via [AHTTP::Request#attributes](/HTTP/Request/#Athena::HTTP::Request#attributes).
 
-In some cases the listener may have enough information to return an [ATH::Response](/Framework/Response/) immediately. An example of this would be the [ATH::Listeners::CORS](/Framework/Listeners/CORS/) listener. If enabled it is able to return a `CORS` preflight response even before routing is invoked.
+In some cases the listener may have enough information to return an [AHTTP::Response](/HTTP/Response/) immediately. An example of this would be the [ATH::Listeners::CORS](/Framework/Listeners/CORS/) listener. If enabled it is able to return a `CORS` preflight response even before routing is invoked.
 
-WARNING: If an [ATH::Response](/Framework/Response/) is returned at this stage, the flow of the request skips directly to the [response](#5-response-event) event. Future `Request` event listeners will not be invoked either.
+WARNING: If an [AHTTP::Response](/HTTP/Response/) is returned at this stage, the flow of the request skips directly to the [response](#5-response-event) event. Future `Request` event listeners will not be invoked either.
 
 Another use case for this event is populating additional data into the request's attributes; such as the locale or format of the request.
 
@@ -57,22 +57,22 @@ The job of a controller action is to apply business/application logic to build a
 
 #### Handle the Response
 
-The type of the value returned from the controller action determines what happens next. If the value is an [ATH::Response](/Framework/Response/), then it is used as is, skipping directly to the [response](#5-response-event) event. However, if the value is _NOT_ an `ATH::Response`, then the [view](#4-view-event) is dispatched (since the framework _needs_ an `ATH::Response` in order to have something to send back to the client).
+The type of the value returned from the controller action determines what happens next. If the value is an [AHTTP::Response](/HTTP/Response/), then it is used as is, skipping directly to the [response](#5-response-event) event. However, if the value is _NOT_ an `AHTTP::Response`, then the [view](#4-view-event) is dispatched (since the framework _needs_ an `AHTTP::Response` in order to have something to send back to the client).
 
 ### 4. View Event
 
-The [ATH::Events::View](/Framework/Events/View/) event is only dispatched when the controller action does _NOT_ return an [ATH::Response](/Framework/Response/). The purpose of this event is to turn the controller action's return value into an `ATH::Response`.
+The [ATH::Events::View](/Framework/Events/View/) event is only dispatched when the controller action does _NOT_ return an [AHTTP::Response](/HTTP/Response/). The purpose of this event is to turn the controller action's return value into an `AHTTP::Response`.
 
 An [ATH::View](/Framework/View/) may be used to customize the response, e.g. setting a custom response status and/or adding additional headers; while keeping the controller action response data intact.
 
 This event is intended to be used as a "View" layer; allowing scalar values/objects to be returned while listeners convert that value to the expected format (e.g. JSON, HTML, etc.). See the [negotiation](./routing.md#content-negotiation) component for more information on this feature.
 
 !!! example "View event in the Athena Framework"
-    By default the framework will JSON serialize any non [ATH::Response](/Framework/Response/) values.
+    By default the framework will JSON serialize any non [AHTTP::Response](/HTTP/Response/) values.
 
 ### 5. Response Event
 
-The end goal of the Athena Framework is to return an [ATH::Response](/Framework/Response/) back to the client; which might be created within the [request](#1-request-event) event, returned from the related controller action, or set within the [view](#4-view-event) event. Regardless of how the response was created, the [ATH::Events::Response](/Framework/Events/Response/) event is dispatched directly after.
+The end goal of the Athena Framework is to return an [AHTTP::Response](/HTTP/Response/) back to the client; which might be created within the [request](#1-request-event) event, returned from the related controller action, or set within the [view](#4-view-event) event. Regardless of how the response was created, the [ATH::Events::Response](/Framework/Events/Response/) event is dispatched directly after.
 
 The intended use case for this event is to allow for modifying the response object in some manner. Common examples include: add/edit headers, add cookies, change/compress the response body.
 
@@ -82,7 +82,7 @@ The raw [HTTP::Server::Response](https://crystal-lang.org/api/HTTP/Server/Respon
 
 > The response `#status` and `#headers` must be configured before writing the response body. Once response output is written, changing the `#status` and `#headers` properties has no effect.
 
-Each [ATH::Response](/Framework/Response/) has a [ATH::Response::Writer](/Framework/Response/Writer/) instance that determines _how_ the response should be written to the raw response's IO. By default it is written directly, but can be customized via the [response](#5-response-event) event, such as for compression.
+Each [AHTTP::Response](/HTTP/Response/) has a [AHTTP::Response::Writer](/HTTP/Response/Writer/) instance that determines _how_ the response should be written to the raw response's IO. By default it is written directly, but can be customized via the [response](#5-response-event) event, such as for compression.
 
 ### 7. Terminate Event
 
@@ -92,7 +92,7 @@ The intended use case for this event is to perform some "heavy" action after the
 
 ### 8. Exception Handling
 
-If an exception is raised at anytime while a request is being handled, the [ATH::Events::Exception](/Framework/Events/Exception/) is dispatched. The purpose of this event is to convert the exception into an [ATH::Response](/Framework/Response/). This is globally handled via an [ATH::ErrorRendererInterface](/Framework/ErrorRendererInterface/), with the default being to JSON serialize the exception.
+If an exception is raised at anytime while a request is being handled, the [ATH::Events::Exception](/Framework/Events/Exception/) is dispatched. The purpose of this event is to convert the exception into an [AHTTP::Response](/HTTP/Response/). This is globally handled via an [ATH::ErrorRendererInterface](/Framework/ErrorRendererInterface/), with the default being to JSON serialize the exception.
 
 It is also possible to handle specific error states differently by registering multiple exception listeners to handle each case. An example of this could be to invoke some special logic only if the exception is of a specific type.
 

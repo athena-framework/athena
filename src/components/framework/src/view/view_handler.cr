@@ -13,17 +13,17 @@ class Athena::Framework::View::ViewHandler
   @serialization_groups : Set(String)? = nil
   @serialization_version : SemanticVersion? = nil
 
-  @empty_content_status : HTTP::Status
-  @failed_validation_status : HTTP::Status
+  @empty_content_status : ::HTTP::Status
+  @failed_validation_status : ::HTTP::Status
   @emit_nil : Bool
 
   def initialize(
     @url_generator : ART::Generator::Interface,
     @serializer : ASR::SerializerInterface,
-    @request_store : ATH::RequestStore,
+    @request_store : AHTTP::RequestStore,
     format_handlers : Array(Athena::Framework::View::FormatHandlerInterface),
-    @failed_validation_status : HTTP::Status = HTTP::Status::UNPROCESSABLE_ENTITY,
-    @empty_content_status : HTTP::Status = HTTP::Status::NO_CONTENT,
+    @failed_validation_status : ::HTTP::Status = ::HTTP::Status::UNPROCESSABLE_ENTITY,
+    @empty_content_status : ::HTTP::Status = ::HTTP::Status::NO_CONTENT,
     @emit_nil : Bool = false,
   )
     format_handlers.each do |format_handler|
@@ -53,7 +53,7 @@ class Athena::Framework::View::ViewHandler
   # :nodoc:
   #
   # This method is mainly for testing.
-  def register_handler(format : String, &block : ATH::View::ViewHandlerInterface, ATH::ViewBase, ATH::Request, String -> ATH::Response) : Nil
+  def register_handler(format : String, &block : ATH::View::ViewHandlerInterface, ATH::ViewBase, AHTTP::Request, String -> AHTTP::Response) : Nil
     self.register_handler format, block
   end
 
@@ -69,7 +69,7 @@ class Athena::Framework::View::ViewHandler
   end
 
   # :inherit:
-  def handle(view : ATH::ViewBase, request : ATH::Request? = nil) : ATH::Response
+  def handle(view : ATH::ViewBase, request : AHTTP::Request? = nil) : AHTTP::Response
     request = @request_store.request if request.nil?
 
     format = view.format || request.request_format
@@ -86,7 +86,7 @@ class Athena::Framework::View::ViewHandler
   end
 
   # :inherit:
-  def create_response(view : ATH::ViewBase, request : ATH::Request, format : String) : ATH::Response
+  def create_response(view : ATH::ViewBase, request : AHTTP::Request, format : String) : AHTTP::Response
     route = view.route
 
     if location = (route ? @url_generator.generate(route, view.route_params, :absolute_url) : view.location)
@@ -109,7 +109,7 @@ class Athena::Framework::View::ViewHandler
   end
 
   # :inherit:
-  def create_redirect_response(view : ATH::ViewBase, location : String, format : String) : ATH::Response
+  def create_redirect_response(view : ATH::ViewBase, location : String, format : String) : AHTTP::Response
     content = nil
 
     if (vs = view.status) && (vs.created? || vs.accepted?) && !view.data.nil?
@@ -124,7 +124,7 @@ class Athena::Framework::View::ViewHandler
     response
   end
 
-  private def init_response(view : ATH::ViewBase, format : String) : ATH::Response
+  private def init_response(view : ATH::ViewBase, format : String) : AHTTP::Response
     content = nil
 
     # Skip serialization if the action's return type is explicitly `Nil`.
@@ -201,13 +201,13 @@ class Athena::Framework::View::ViewHandler
     context
   end
 
-  private def status(view : ATH::ViewBase, content : _) : HTTP::Status
+  private def status(view : ATH::ViewBase, content : _) : ::HTTP::Status
     # TODO: Handle validating Form data.
 
     if status = view.status
       return status
     end
 
-    content.nil? ? @empty_content_status : HTTP::Status::OK
+    content.nil? ? @empty_content_status : ::HTTP::Status::OK
   end
 end

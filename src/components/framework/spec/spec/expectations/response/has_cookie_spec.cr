@@ -3,28 +3,28 @@ require "../../../spec_helper"
 struct HasCookieExpectationTest < ASPEC::TestCase
   def test_match_valid : Nil
     response = new_response
-    response.cookies << HTTP::Cookie.new "foo", "bar"
+    response.cookies << ::HTTP::Cookie.new "foo", "bar"
 
     ATH::Spec::Expectations::Response::HasCookie.new("foo").match(response).should be_true
   end
 
   def test_match_valid_custom_path : Nil
     response = new_response
-    response.cookies << HTTP::Cookie.new "foo", "bar", path: "/path"
+    response.cookies << ::HTTP::Cookie.new "foo", "bar", path: "/path"
 
     ATH::Spec::Expectations::Response::HasCookie.new("foo", path: "/path").match(response).should be_true
   end
 
   def test_match_valid_custom_domain : Nil
     response = new_response
-    response.cookies << HTTP::Cookie.new "foo", "bar", domain: "example.com"
+    response.cookies << ::HTTP::Cookie.new "foo", "bar", domain: "example.com"
 
     ATH::Spec::Expectations::Response::HasCookie.new("foo", domain: "example.com").match(response).should be_true
   end
 
   def test_match_valid_custom_path_and_domain : Nil
     response = new_response
-    response.cookies << HTTP::Cookie.new "foo", "bar", path: "/path", domain: "example.com"
+    response.cookies << ::HTTP::Cookie.new "foo", "bar", path: "/path", domain: "example.com"
 
     ATH::Spec::Expectations::Response::HasCookie.new("foo", path: "/path", domain: "example.com").match(response).should be_true
   end
@@ -35,7 +35,7 @@ struct HasCookieExpectationTest < ASPEC::TestCase
 
   def test_match_invalid_diff_path
     response = new_response
-    response.cookies << HTTP::Cookie.new "foo", "bar", path: "/path"
+    response.cookies << ::HTTP::Cookie.new "foo", "bar", path: "/path"
 
     ATH::Spec::Expectations::Response::HasCookie.new("foo").match(response).should be_false
     ATH::Spec::Expectations::Response::HasCookie.new("foo", path: "/").match(response).should be_false
@@ -44,7 +44,7 @@ struct HasCookieExpectationTest < ASPEC::TestCase
 
   def test_match_invalid_diff_domain
     response = new_response
-    response.cookies << HTTP::Cookie.new "foo", "bar", domain: "example.com"
+    response.cookies << ::HTTP::Cookie.new "foo", "bar", domain: "example.com"
 
     ATH::Spec::Expectations::Response::HasCookie.new("foo").match(response).should be_false
     ATH::Spec::Expectations::Response::HasCookie.new("foo", domain: "foo.example.com").match(response).should be_false
@@ -54,7 +54,7 @@ struct HasCookieExpectationTest < ASPEC::TestCase
 
   def test_match_invalid_diff_domain_and_path
     response = new_response
-    response.cookies << HTTP::Cookie.new "foo", "bar", path: "/path", domain: "example.com"
+    response.cookies << ::HTTP::Cookie.new "foo", "bar", path: "/path", domain: "example.com"
 
     ATH::Spec::Expectations::Response::HasCookie.new("foo").match(response).should be_false
     ATH::Spec::Expectations::Response::HasCookie.new("foo", path: "/bar", domain: "example.com").match(response).should be_false

@@ -20,7 +20,7 @@ end
 ASPEC.run_all
 
 # TODO: Is there a better way to handle customizing the scheme of a request w/o monkey patching it?
-class ATH::Request
+class AHTTP::Request
   property scheme : String = "http"
 end
 
@@ -98,26 +98,26 @@ def new_request(
   body : String | IO | Nil = nil,
   query : String? = nil,
   format : String = "json",
-  files : Hash(String, Array(ATH::UploadedFile)) = {} of String => Array(ATH::UploadedFile),
-  headers : HTTP::Headers = HTTP::Headers.new,
-) : ATH::Request
-  request = ATH::Request.new method, path, body: body
+  files : Hash(String, Array(AHTTP::UploadedFile)) = {} of String => Array(AHTTP::UploadedFile),
+  headers : ::HTTP::Headers = ::HTTP::Headers.new,
+) : AHTTP::Request
+  request = AHTTP::Request.new method, path, body: body
   request.files.merge! files
   request.attributes.set "_controller", "TestController#test", String
   request.attributes.set "_route", "test_controller_test", String
   request.attributes.set "_action", action
   request.query = query
-  request.headers = HTTP::Headers{
-    "content-type" => ATH::Request::FORMATS[format].first,
+  request.headers = ::HTTP::Headers{
+    "content-type" => AHTTP::Request::FORMATS[format].first,
   }.merge! headers
   request
 end
 
-def new_request_event(headers : HTTP::Headers = HTTP::Headers.new)
+def new_request_event(headers : ::HTTP::Headers = ::HTTP::Headers.new)
   new_request_event(headers) { }
 end
 
-def new_request_event(headers : HTTP::Headers = HTTP::Headers.new, & : ATH::Request -> _)
+def new_request_event(headers : ::HTTP::Headers = ::HTTP::Headers.new, & : AHTTP::Request -> _)
   request = new_request headers: headers
   yield request
   ATH::Events::Request.new request
@@ -126,10 +126,10 @@ end
 def new_response(
   *,
   io : IO = IO::Memory.new,
-  status : HTTP::Status = :ok,
-  headers : HTTP::Headers = HTTP::Headers.new,
-) : HTTP::Server::Response
-  HTTP::Server::Response.new(io).tap do |resp|
+  status : ::HTTP::Status = :ok,
+  headers : ::HTTP::Headers = ::HTTP::Headers.new,
+) : ::HTTP::Server::Response
+  ::HTTP::Server::Response.new(io).tap do |resp|
     headers.each do |k, v|
       resp.headers[k] = v
     end

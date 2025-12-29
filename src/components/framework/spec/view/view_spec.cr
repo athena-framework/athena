@@ -3,7 +3,7 @@ require "../spec_helper"
 struct ViewTest < ASPEC::TestCase
   def test_location : Nil
     url = "users"
-    status = HTTP::Status::OK
+    status = ::HTTP::Status::OK
 
     view = ATH::View.create_redirect url, status
     view.location.should eq url
@@ -18,7 +18,7 @@ struct ViewTest < ASPEC::TestCase
 
   def test_route : Nil
     route = "users"
-    status = HTTP::Status::OK
+    status = ::HTTP::Status::OK
 
     view = ATH::View.create_route_redirect route, status: status
     view.location.should be_nil
@@ -53,7 +53,7 @@ struct ViewTest < ASPEC::TestCase
 
   def test_headers : Nil
     view = ATH::View(Nil).new
-    view.headers = HTTP::Headers{"foo" => "bar"}
+    view.headers = ::HTTP::Headers{"foo" => "bar"}
 
     headers = view.response.headers
     view.headers.has_key?("foo").should be_true
@@ -69,13 +69,13 @@ struct ViewTest < ASPEC::TestCase
   def test_status : Nil
     view = ATH::View(Nil).new
     view.status = :not_found
-    view.status.should eq HTTP::Status::NOT_FOUND
-    view.response.status.should eq HTTP::Status::NOT_FOUND
+    view.status.should eq ::HTTP::Status::NOT_FOUND
+    view.response.status.should eq ::HTTP::Status::NOT_FOUND
   end
 
   def test_default_status_from_response : Nil
     view = ATH::View(Nil).new
     view.status.should be_nil
-    view.response.status.should eq HTTP::Status::OK
+    view.response.status.should eq ::HTTP::Status::OK
   end
 end

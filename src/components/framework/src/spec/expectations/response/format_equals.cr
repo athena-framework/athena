@@ -1,10 +1,10 @@
 # :nodoc:
 struct Athena::Framework::Spec::Expectations::Response::FormatEquals < Athena::Framework::Spec::Expectations::Response::Base
-  @request : ATH::Request
+  @request : AHTTP::Request
   @format : String?
 
   def initialize(
-    @request : ATH::Request,
+    @request : AHTTP::Request,
     @format : String? = nil,
     description : String? = nil,
   )
