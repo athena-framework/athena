@@ -1,4 +1,17 @@
 # :nodoc:
+#
+# Compiler pass that validates user-provided configuration against extension schemas.
+#
+# Uses a queue-based approach (values_to_resolve) to handle nested validation:
+#   - Start with the top-level config value
+#   - For array_of/map_of/object_of, queue each element/member for validation
+#   - Process until queue is empty
+#
+# Key concepts:
+#   - prop_type: Can be TypeNode (for type checking) or NamedTupleLiteral (member map for nested objects)
+#   - schema_member_map_prop_cache: Prevents re-processing the same property's members (since queued items share the same `prop`, we only want to expand members once)
+#   - map_of properties identified by `prop["type"] <= Hash`
+#   - Member entries can be TypeDeclaration (simple) or NamedTupleLiteral (object_schema ref)
 module Athena::DependencyInjection::ServiceContainer::ValidateArguments
   macro included
     macro finished
@@ -129,55 +142,33 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                         else
                                           cfv.raise "BUG: Unexpected number literal value"
                                         end
-                                      elsif cfv.is_a?(TypeNode) || cfv.is_a?(HashLiteral)
+                                      elsif cfv.is_a?(TypeNode)
                                         cfv
                                       elsif cfv.is_a?(NamedTupleLiteral)
-                                        # Because each value to resolve has the same `prop`, we only want to process the prop's members once.
-                                        # Otherwise next iterations cfv will be correct, but the prop_type will be a named tuple literal.
-                                        if schema_member_map_prop_cache[prop["name"]] == nil && (member_map = prop["members"])
+                                        # NamedTupleLiteral handles: map_of values, object_of values, and inline NamedTuples.
+                                        #
+                                        # Check if this is a map_of property (type is Hash and has members)
+                                        if prop["type"] <= Hash && schema_member_map_prop_cache[prop["name"]] == nil && (member_map = prop["members"])
                                           schema_member_map_prop_cache[prop["name"]] = true
-                                          prop_type = member_map
-                                        end
-
-                                        cfv.each do |k, v|
-                                          nt_key_type = prop_type[k]
-
-                                          if nt_key_type == nil && k != "__nil"
-                                            path = "#{stack[0]}"
-
-                                            stack[1..].each do |p|
-                                              path += if p.is_a?(NumberLiteral)
-                                                        "[#{p}]"
-                                                      else
-                                                        ".#{p}"
-                                                      end
+                                          cfv.each do |hash_key, v|
+                                            if hash_key != "__nil"
+                                              values_to_resolve << {member_map, v, stack + [hash_key]}
                                             end
-
-                                            cfv.raise "Expected configuration value '#{ext_name.id}.#{path.id}' to be a '#{prop_type}', but encountered unexpected key '#{k}' with value '#{v}'."
-                                          elsif k == "__nil"
-                                            # no-op
-                                          else
-                                            type = nt_key_type.is_a?(TypeDeclaration) ? nt_key_type.type : nt_key_type
-
-                                            values_to_resolve << {type.resolve, v, stack + [k]}
                                           end
-                                        end
 
-                                        missing_keys = prop_type.keys.reject { |k| k.stringify == "__nil" } - cfv.keys
+                                          Hash
+                                        else
+                                          # Because each value to resolve has the same `prop`, we only want to process the prop's members once.
+                                          # Otherwise next iterations cfv will be correct, but the prop_type will be a named tuple literal.
+                                          if schema_member_map_prop_cache[prop["name"]] == nil && (member_map = prop["members"])
+                                            schema_member_map_prop_cache[prop["name"]] = true
+                                            prop_type = member_map
+                                          end
 
-                                        unless missing_keys.empty?
-                                          missing_keys.each do |mk|
-                                            mt = prop_type[mk]
+                                          cfv.each do |k, v|
+                                            nt_key_type = prop_type[k]
 
-                                            can_be_missing = if mt.is_a?(TypeNode)
-                                                               mt.nilable?
-                                                             elsif mt.is_a?(TypeDeclaration)
-                                                               mt.type.resolve.nilable? || !mt.value.is_a?(Nop)
-                                                             else
-                                                               false
-                                                             end
-
-                                            unless can_be_missing
+                                            if nt_key_type == nil && k != "__nil"
                                               path = "#{stack[0]}"
 
                                               stack[1..].each do |p|
@@ -188,20 +179,69 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                                                         end
                                               end
 
-                                              type = prop_type[mk]
-                                              type = type.is_a?(TypeDeclaration) ? type.type : type
+                                              # Filter out internal __nil key for cleaner error message
+                                              display_type = "{#{prop_type.keys.reject { |dk| dk.stringify == "__nil" }.map { |dk| "#{dk}: #{prop_type[dk]}" }.join(", ").id}}"
+                                              cfv.raise "Expected configuration value '#{ext_name.id}.#{path.id}' to be a '#{display_type.id}', but encountered unexpected key '#{k}' with value '#{v}'."
+                                            elsif k == "__nil"
+                                              # no-op
+                                            else
+                                              type = if nt_key_type.is_a?(TypeDeclaration)
+                                                       nt_key_type.type.resolve
+                                                     elsif nt_key_type.is_a?(NamedTupleLiteral)
+                                                       # Nested object_schema reference - pass the members map
+                                                       nt_key_type["members"]
+                                                     else
+                                                       nt_key_type.resolve
+                                                     end
 
-                                              cfv.raise "Configuration value '#{ext_name.id}.#{path.id}' is missing required value for '#{mk}' of type '#{type}'."
+                                              values_to_resolve << {type, v, stack + [k]}
                                             end
                                           end
-                                        end
 
-                                        nil
+                                          missing_keys = prop_type.keys.reject { |k| k.stringify == "__nil" } - cfv.keys
+
+                                          unless missing_keys.empty?
+                                            missing_keys.each do |mk|
+                                              mt = prop_type[mk]
+
+                                              can_be_missing = if mt.is_a?(TypeNode)
+                                                                 mt.nilable?
+                                                               elsif mt.is_a?(TypeDeclaration)
+                                                                 mt.type.resolve.nilable? || !mt.value.is_a?(Nop)
+                                                               elsif mt.is_a?(NamedTupleLiteral)
+                                                                 # For nested object_schema references
+                                                                 !mt["value"].is_a?(Nop)
+                                                               else
+                                                                 false
+                                                               end
+
+                                              unless can_be_missing
+                                                path = "#{stack[0]}"
+
+                                                stack[1..].each do |p|
+                                                  path += if p.is_a?(NumberLiteral)
+                                                            "[#{p}]"
+                                                          else
+                                                            ".#{p}"
+                                                          end
+                                                end
+
+                                                type = prop_type[mk]
+                                                type = type.is_a?(TypeDeclaration) ? type.type : type
+
+                                                cfv.raise "Configuration value '#{ext_name.id}.#{path.id}' is missing required value for '#{mk}' of type '#{type}'."
+                                              end
+                                            end
+                                          end
+
+                                          nil
+                                        end
                                       end
 
                       if resolved_type
                         # Handles outer most typing issues.
-                        if resolved_type.is_a?(TypeNode) && !(resolved_type <= prop_type)
+                        # Skip type check when prop_type is a NamedTupleLiteral (member map for nested validation)
+                        if resolved_type.is_a?(TypeNode) && prop_type.is_a?(TypeNode) && !(resolved_type <= prop_type)
                           path = "#{stack[0]}"
 
                           stack[1..].each do |p|

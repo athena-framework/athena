@@ -1,4 +1,17 @@
 # :nodoc:
+#
+# Compiler pass that merges user-provided configuration with extension schema defaults.
+#
+# This pass handles two main scenarios for each schema property:
+#   1. User provided a value: Transform it as needed (e.g., resolve enums, fill in default values for missing object members)
+#   2. User didn't provide a value: Use the schema's default value
+#
+# Key concepts:
+#   - CONFIG: User-provided configuration (from ADI.configure)
+#   - OPTIONS: Schema property definitions (from extension.cr macros)
+#   - member_map: For array_of/object_of/map_of, describes the structure of each element.
+#     Members can be TypeDeclaration (simple) or NamedTupleLiteral (object_schema ref).
+#   - map_of properties use `prop["type"] <= Hash` as their identifying marker
 module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
   private EXTENSION_SCHEMA_PROPERTIES_MAP = {} of Nil => Nil
 
@@ -124,28 +137,99 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                                        member_map.keys.reject { |k| k.stringify == "__nil" || provided_keys.includes? k }.each do |k|
                                          decl = member_map[k]
 
+                                         # Handle both TypeDeclaration and NamedTupleLiteral (for nested object_schema)
+                                         decl_value = decl.is_a?(TypeDeclaration) ? decl.value : decl["value"]
                                          # Skip setting required values so that it results in a missing error vs type mismatch error.
-                                         cfv[k] = decl.value unless decl.value.is_a?(Nop)
+                                         cfv[k] = decl_value unless decl_value.is_a?(Nop)
+                                       end
+
+                                       # Recursively fill in defaults for nested object_schema members
+                                       member_map.keys.reject { |k| k.stringify == "__nil" }.each do |k|
+                                         decl = member_map[k]
+                                         if decl.is_a?(NamedTupleLiteral) && (nested_members = decl["members"]) && (nested_cfv = cfv[k])
+                                           nested_provided_keys = nested_cfv.keys
+                                           nested_members.keys.reject { |nk| nk.stringify == "__nil" || nested_provided_keys.includes? nk }.each do |nk|
+                                             nested_decl = nested_members[nk]
+                                             nested_decl_value = nested_decl.is_a?(TypeDeclaration) ? nested_decl.value : nested_decl["value"]
+                                             nested_cfv[nk] = nested_decl_value unless nested_decl_value.is_a?(Nop)
+                                           end
+                                         end
                                        end
                                      end
                                    end
 
                                    config_value
                                  elsif config_value.is_a?(NamedTupleLiteral)
-                                   # Fill in `nil` values to missing nilable NT keys
-                                   if member_map = prop["members"]
+                                   # NamedTupleLiteral handles three cases:
+                                   #   1. map_of values: {key1: {members...}, key2: {members...}}
+                                   #   2. object_of values: {member1: val, member2: val}
+                                   #   3. Inline NamedTuple type properties
+                                   #
+                                   # Check if this is a map_of property (type is Hash and has members).
+                                   if prop["type"] <= Hash && (member_map = prop["members"])
+                                     config_value.each do |hash_key, cfv|
+                                       if hash_key != "__nil"
+                                         provided_keys = cfv.keys
+
+                                         member_map.keys.reject { |k| k.stringify == "__nil" || provided_keys.includes? k }.each do |k|
+                                           decl = member_map[k]
+
+                                           # Handle both TypeDeclaration and NamedTupleLiteral (for nested object_schema)
+                                           decl_value = decl.is_a?(TypeDeclaration) ? decl.value : decl["value"]
+                                           # Skip setting required values so that it results in a missing error vs type mismatch error.
+                                           cfv[k] = decl_value unless decl_value.is_a?(Nop)
+                                         end
+
+                                         # Recursively fill in defaults for nested object_schema members
+                                         member_map.keys.reject { |k| k.stringify == "__nil" }.each do |k|
+                                           decl = member_map[k]
+                                           if decl.is_a?(NamedTupleLiteral) && (nested_members = decl["members"]) && (nested_cfv = cfv[k])
+                                             nested_provided_keys = nested_cfv.keys
+                                             nested_members.keys.reject { |nk| nk.stringify == "__nil" || nested_provided_keys.includes? nk }.each do |nk|
+                                               nested_decl = nested_members[nk]
+                                               nested_decl_value = nested_decl.is_a?(TypeDeclaration) ? nested_decl.value : nested_decl["value"]
+                                               nested_cfv[nk] = nested_decl_value unless nested_decl_value.is_a?(Nop)
+                                             end
+                                           end
+                                         end
+                                       end
+                                     end
+
+                                     config_value
+                                     # Fill in `nil` values to missing nilable NT keys
+                                   elsif member_map = prop["members"]
                                      provided_keys = config_value.keys
 
                                      # We only want to add in missing default values, so reject any properties that were provided, even if they may be incorrect.
                                      member_map.keys.reject { |k| k.stringify == "__nil" || provided_keys.includes? k }.each do |k|
                                        decl = member_map[k]
 
-                                       # If the value has a default, use it.
-                                       # Otherwise skip setting required values so that it results in a missing error vs type mismatch error.
-                                       if !decl.value.is_a?(Nop)
-                                         config_value[k] = decl.value
-                                       elsif decl.type.resolve.nilable?
-                                         config_value[k] = nil
+                                       # Handle both TypeDeclaration and NamedTupleLiteral (for nested object_schema)
+                                       if decl.is_a?(TypeDeclaration)
+                                         # If the value has a default, use it.
+                                         # Otherwise skip setting required values so that it results in a missing error vs type mismatch error.
+                                         if !decl.value.is_a?(Nop)
+                                           config_value[k] = decl.value
+                                         elsif decl.type.resolve.nilable?
+                                           config_value[k] = nil
+                                         end
+                                       elsif decl.is_a?(NamedTupleLiteral)
+                                         # Nested object_schema reference
+                                         decl_value = decl["value"]
+                                         config_value[k] = decl_value unless decl_value.is_a?(Nop)
+                                       end
+                                     end
+
+                                     # Recursively fill in defaults for nested object_schema members
+                                     member_map.keys.reject { |k| k.stringify == "__nil" }.each do |k|
+                                       decl = member_map[k]
+                                       if decl.is_a?(NamedTupleLiteral) && (nested_members = decl["members"]) && (nested_cfv = config_value[k])
+                                         nested_provided_keys = nested_cfv.keys
+                                         nested_members.keys.reject { |nk| nk.stringify == "__nil" || nested_provided_keys.includes? nk }.each do |nk|
+                                           nested_decl = nested_members[nk]
+                                           nested_decl_value = nested_decl.is_a?(TypeDeclaration) ? nested_decl.value : nested_decl["value"]
+                                           nested_cfv[nk] = nested_decl_value unless nested_decl_value.is_a?(Nop)
+                                         end
                                        end
                                      end
                                    else
@@ -199,19 +283,27 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                                      default_value
                                    elsif default_value.is_a?(NamedTupleLiteral)
                                      # Fill in `nil` values to missing nilable NT keys
-                                     if member_map = prop["members"]
+                                     # Skip for map_of properties - the empty map default shouldn't have member defaults filled in
+                                     if !(prop["type"] <= Hash) && (member_map = prop["members"])
                                        provided_keys = default_value.keys
 
                                        # We only want to add in missing default values, so reject any properties that were provided, even if they may be incorrect.
                                        member_map.keys.reject { |k| k.stringify == "__nil" || provided_keys.includes? k }.each do |k|
                                          decl = member_map[k]
 
-                                         # If the value has a default, use it.
-                                         # Otherwise skip setting required values so that it results in a missing error vs type mismatch error.
-                                         if !decl.value.is_a?(Nop)
-                                           default_value[k] = decl.value
-                                         elsif decl.type.resolve.nilable?
-                                           default_value[k] = nil
+                                         # Handle both TypeDeclaration and NamedTupleLiteral (for nested object_schema)
+                                         if decl.is_a?(TypeDeclaration)
+                                           # If the value has a default, use it.
+                                           # Otherwise skip setting required values so that it results in a missing error vs type mismatch error.
+                                           if !decl.value.is_a?(Nop)
+                                             default_value[k] = decl.value
+                                           elsif decl.type.resolve.nilable?
+                                             default_value[k] = nil
+                                           end
+                                         elsif decl.is_a?(NamedTupleLiteral)
+                                           # Nested object_schema reference
+                                           decl_value = decl["value"]
+                                           default_value[k] = decl_value unless decl_value.is_a?(Nop)
                                          end
                                        end
                                      end

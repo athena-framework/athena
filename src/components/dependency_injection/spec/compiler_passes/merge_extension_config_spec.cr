@@ -627,6 +627,92 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
     CR
   end
 
+  it "array_of with nested object_schema fills in nested defaults" do
+    ASPEC::Methods.assert_compiles <<-'CR'
+      require "../spec_helper"
+
+      module Schema
+        include ADI::Extension::Schema
+
+        object_schema JwtConfig,
+          secret : String,
+          algorithm : String = "hmac.sha256"
+
+        array_of items,
+          name : String,
+          jwt : JwtConfig
+      end
+
+      ADI.register_extension "test", Schema
+
+      ADI.configure({
+        test: {
+          items: [
+            {name: "item1", jwt: {secret: "secret1"}},
+            {name: "item2", jwt: {secret: "secret2"}},
+          ],
+        },
+      })
+
+      macro finished
+        macro finished
+          \{%
+            config = ADI::CONFIG["test"]
+
+            raise "#{config}" unless config["items"][0]["name"] == "item1"
+            raise "#{config}" unless config["items"][0]["jwt"]["secret"] == "secret1"
+            raise "#{config}" unless config["items"][0]["jwt"]["algorithm"] == "hmac.sha256"
+
+            raise "#{config}" unless config["items"][1]["name"] == "item2"
+            raise "#{config}" unless config["items"][1]["jwt"]["secret"] == "secret2"
+            raise "#{config}" unless config["items"][1]["jwt"]["algorithm"] == "hmac.sha256"
+          %}
+        end
+      end
+    CR
+  end
+
+  it "object_of with nested object_schema fills in nested defaults" do
+    ASPEC::Methods.assert_compiles <<-'CR'
+      require "../spec_helper"
+
+      module Schema
+        include ADI::Extension::Schema
+
+        object_schema JwtConfig,
+          secret : String,
+          algorithm : String = "hmac.sha256"
+
+        object_of connection,
+          url : String,
+          jwt : JwtConfig
+      end
+
+      ADI.register_extension "test", Schema
+
+      ADI.configure({
+        test: {
+          connection: {
+            url: "localhost",
+            jwt: {secret: "my-secret"},
+          },
+        },
+      })
+
+      macro finished
+        macro finished
+          \{%
+            config = ADI::CONFIG["test"]
+
+            raise "#{config}" unless config["connection"]["url"] == "localhost"
+            raise "#{config}" unless config["connection"]["jwt"]["secret"] == "my-secret"
+            raise "#{config}" unless config["connection"]["jwt"]["algorithm"] == "hmac.sha256"
+          %}
+        end
+      end
+    CR
+  end
+
   it "fills in missing nilable keys with `nil`" do
     ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
@@ -683,5 +769,368 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
         end
       end
     CR
+  end
+
+  describe "map_of" do
+    it "merges missing map_of defaults for each value" do
+      ASPEC::Methods.assert_compiles <<-'CR'
+        require "../spec_helper"
+
+        module Schema
+          include ADI::Extension::Schema
+          map_of hubs, url : String, port : Int32 = 5432
+        end
+
+        ADI.register_extension "test", Schema
+
+        ADI.configure({
+          test: {
+            hubs: {
+              primary: {url: "localhost"},
+              secondary: {url: "remote", port: 5433},
+            },
+          },
+        })
+
+        macro finished
+          macro finished
+            \{%
+              config = ADI::CONFIG["test"]
+
+              raise "#{config}" unless config["hubs"]["primary"]["url"] == "localhost"
+              raise "#{config}" unless config["hubs"]["primary"]["port"] == 5432
+              raise "#{config}" unless config["hubs"]["secondary"]["url"] == "remote"
+              raise "#{config}" unless config["hubs"]["secondary"]["port"] == 5433
+            %}
+          end
+        end
+      CR
+    end
+
+    it "defaults to empty hash when not provided" do
+      ASPEC::Methods.assert_compiles <<-'CR'
+        require "../spec_helper"
+
+        module Schema
+          include ADI::Extension::Schema
+          map_of hubs, url : String
+        end
+
+        ADI.register_extension "test", Schema
+
+        ADI.configure({
+          test: {} of Nil => Nil,
+        })
+
+        macro finished
+          macro finished
+            \{%
+              config = ADI::CONFIG["test"]
+
+              # Check that hubs key exists and is empty (when converted to string, looks like "{}" or "{hubs => {}}")
+              found_hubs = false
+              config.each do |k, v|
+                if k.stringify == "hubs"
+                  found_hubs = true
+                  raise "Expected empty hash but got #{v}" unless v.keys.reject { |vk| vk.stringify == "__nil" }.empty?
+                end
+              end
+              raise "hubs key not found in config: #{config}" unless found_hubs
+            %}
+          end
+        end
+      CR
+    end
+
+    it "map_of? defaults to nil when not provided" do
+      ASPEC::Methods.assert_compiles <<-'CR'
+        require "../spec_helper"
+
+        module Schema
+          include ADI::Extension::Schema
+          map_of? hubs, url : String
+        end
+
+        ADI.register_extension "test", Schema
+
+        ADI.configure({
+          test: {} of Nil => Nil,
+        })
+
+        macro finished
+          macro finished
+            \{%
+              config = ADI::CONFIG["test"]
+
+              raise "#{config}" unless config["hubs"].nil?
+            %}
+          end
+        end
+      CR
+    end
+
+    it "map_of with nested object_schema fills in nested defaults" do
+      ASPEC::Methods.assert_compiles <<-'CR'
+        require "../spec_helper"
+
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema JwtConfig,
+            secret : String,
+            algorithm : String = "hmac.sha256"
+
+          map_of hubs,
+            url : String,
+            jwt : JwtConfig
+        end
+
+        ADI.register_extension "test", Schema
+
+        ADI.configure({
+          test: {
+            hubs: {
+              primary: {
+                url: "localhost",
+                jwt: {secret: "my-secret"},
+              },
+            },
+          },
+        })
+
+        macro finished
+          macro finished
+            \{%
+              config = ADI::CONFIG["test"]
+
+              raise "#{config}" unless config["hubs"]["primary"]["url"] == "localhost"
+              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["secret"] == "my-secret"
+              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["algorithm"] == "hmac.sha256"
+            %}
+          end
+        end
+      CR
+    end
+
+    it "errors if a required hash value property is missing" do
+      assert_compile_time_error "Configuration value 'test.hubs.primary' is missing required value for 'url' of type 'String'.", <<-'CR'
+        module Schema
+          include ADI::Extension::Schema
+          map_of hubs, url : String, port : Int32 = 5432
+        end
+
+        ADI.register_extension "test", Schema
+
+        ADI.configure({
+          test: {
+            hubs: {
+              primary: {port: 5432},
+            },
+          },
+        })
+      CR
+    end
+
+    it "errors if a hash value has an unexpected key" do
+      assert_compile_time_error "Expected configuration value 'test.hubs.primary' to be a '{url: url : String, port: port : Int32 = 5432}', but encountered unexpected key 'invalid' with value '\"foo\"'.", <<-'CR'
+        module Schema
+          include ADI::Extension::Schema
+          map_of hubs, url : String, port : Int32 = 5432
+        end
+
+        ADI.register_extension "test", Schema
+
+        ADI.configure({
+          test: {
+            hubs: {
+              primary: {url: "localhost", invalid: "foo"},
+            },
+          },
+        })
+      CR
+    end
+
+    it "errors if a nested map value has an unexpected type" do
+      assert_compile_time_error "Expected configuration value 'test.hubs.primary.jwt.secret' to be a 'String', but got 'Int32'.", <<-'CR'
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema JwtConfig,
+            secret : String
+
+          map_of hubs,
+            url : String,
+            jwt : JwtConfig
+        end
+
+        ADI.register_extension "test", Schema
+
+        ADI.configure({
+          test: {
+            hubs: {
+              primary: {
+                url: "localhost",
+                jwt: {secret: 123},
+              },
+            },
+          },
+        })
+      CR
+    end
+
+    it "errors if a hash value property has wrong type" do
+      assert_compile_time_error "Expected configuration value 'test.hubs.primary.port' to be a 'Int32', but got 'String'.", <<-'CR'
+        module Schema
+          include ADI::Extension::Schema
+          map_of hubs, url : String, port : Int32
+        end
+
+        ADI.register_extension "test", Schema
+
+        ADI.configure({
+          test: {
+            hubs: {
+              primary: {url: "localhost", port: "not-a-number"},
+            },
+          },
+        })
+      CR
+    end
+
+    it "fills in nested object_schema defaults for multiple map entries independently" do
+      ASPEC::Methods.assert_compiles <<-'CR'
+        require "../spec_helper"
+
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema JwtConfig,
+            secret : String,
+            algorithm : String = "hmac.sha256"
+
+          map_of hubs,
+            url : String,
+            jwt : JwtConfig
+        end
+
+        ADI.register_extension "test", Schema
+
+        ADI.configure({
+          test: {
+            hubs: {
+              primary: {
+                url: "localhost",
+                jwt: {secret: "secret1"},
+              },
+              secondary: {
+                url: "remote",
+                jwt: {secret: "secret2"},
+              },
+            },
+          },
+        })
+
+        macro finished
+          macro finished
+            \{%
+              config = ADI::CONFIG["test"]
+
+              # Verify both entries get their own independent defaults
+              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["algorithm"] == "hmac.sha256"
+              raise "#{config}" unless config["hubs"]["secondary"]["jwt"]["algorithm"] == "hmac.sha256"
+
+              # And their unique values are preserved
+              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["secret"] == "secret1"
+              raise "#{config}" unless config["hubs"]["secondary"]["jwt"]["secret"] == "secret2"
+            %}
+          end
+        end
+      CR
+    end
+
+    it "errors if nested object_schema field is missing required value" do
+      assert_compile_time_error "Configuration value 'test.hubs.primary.jwt' is missing required value for 'secret' of type 'String'.", <<-'CR'
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema JwtConfig,
+            secret : String,
+            algorithm : String = "hmac.sha256"
+
+          map_of hubs,
+            url : String,
+            jwt : JwtConfig
+        end
+
+        ADI.register_extension "test", Schema
+
+        ADI.configure({
+          test: {
+            hubs: {
+              primary: {
+                url: "localhost",
+                jwt: {algorithm: "rsa"},
+              },
+            },
+          },
+        })
+      CR
+    end
+
+    it "errors if nested object_schema has unexpected key" do
+      assert_compile_time_error "Expected configuration value 'test.hubs.primary.jwt' to be a '{secret: secret : String, algorithm: algorithm : String = \"hmac.sha256\"}', but encountered unexpected key 'invalid' with value '\"foo\"'.", <<-'CR'
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema JwtConfig,
+            secret : String,
+            algorithm : String = "hmac.sha256"
+
+          map_of hubs,
+            url : String,
+            jwt : JwtConfig
+        end
+
+        ADI.register_extension "test", Schema
+
+        ADI.configure({
+          test: {
+            hubs: {
+              primary: {
+                url: "localhost",
+                jwt: {secret: "my-secret", invalid: "foo"},
+              },
+            },
+          },
+        })
+      CR
+    end
+
+    it "uses custom default for map_of with assignment syntax" do
+      ASPEC::Methods.assert_compiles <<-'CR'
+        require "../spec_helper"
+
+        module Schema
+          include ADI::Extension::Schema
+          map_of hubs = {default: {url: "localhost", port: 8080}}, url : String, port : Int32 = 5432
+        end
+
+        ADI.register_extension "test", Schema
+
+        # Don't configure hubs at all - it should use the custom default
+
+        macro finished
+          macro finished
+            \{%
+              config = ADI::CONFIG["test"]
+
+              # Custom default entry should be present with its values
+              raise "#{config}" unless config["hubs"]["default"]["url"] == "localhost"
+              raise "#{config}" unless config["hubs"]["default"]["port"] == 8080
+            %}
+          end
+        end
+      CR
+    end
   end
 end
