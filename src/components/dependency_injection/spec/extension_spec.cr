@@ -580,5 +580,69 @@ describe ADI::Extension, tags: "compiled" do
         end
       CR
     end
+
+    it "map_of with custom default using assignment syntax" do
+      assert_compiles <<-'CR'
+        module Schema
+          include ADI::Extension::Schema
+          map_of hubs = {default: {url: "localhost", port: 8080}}, url : String, port : Int32 = 5432
+        end
+
+        ADI.register_extension "test", Schema
+
+        macro finished
+          macro finished
+            \{%
+               options = Schema::OPTIONS
+
+               raise "#{options}" unless options.size == 1
+               raise "#{options}" unless options[0]["name"] == "hubs"
+               raise "#{options}" unless options[0]["type"].stringify == "Hash(K, V)"
+
+               # Custom default should be preserved
+               default = options[0]["default"]
+               raise "#{default}" unless default["default"]["url"] == "localhost"
+               raise "#{default}" unless default["default"]["port"] == 8080
+            %}
+          end
+        end
+      CR
+    end
+
+  end
+
+  describe "object_schema in array_of" do
+    it "array_of with object_schema reference" do
+      assert_compiles <<-'CR'
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema JwtConfig,
+            secret : String,
+            algorithm : String = "hmac.sha256"
+
+          array_of items,
+            name : String,
+            jwt : JwtConfig
+        end
+
+        ADI.register_extension "test", Schema
+
+        macro finished
+          macro finished
+            \{%
+               options = Schema::OPTIONS
+
+               raise "#{options}" unless options.size == 1
+
+               jwt_member = options[0]["members"]["jwt"]
+               raise "#{jwt_member}" unless jwt_member["members"] != nil
+               raise "#{jwt_member}" unless jwt_member["members"]["secret"].type.stringify == "String"
+               raise "#{jwt_member}" unless jwt_member["members"]["algorithm"].value == "hmac.sha256"
+            %}
+          end
+        end
+      CR
+    end
   end
 end

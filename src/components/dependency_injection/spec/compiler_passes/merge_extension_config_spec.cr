@@ -910,5 +910,141 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
         })
       CR
     end
+
+    it "fills in nested object_schema defaults for multiple map entries independently" do
+      ASPEC::Methods.assert_compiles <<-'CR'
+        require "../spec_helper"
+
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema JwtConfig,
+            secret : String,
+            algorithm : String = "hmac.sha256"
+
+          map_of hubs,
+            url : String,
+            jwt : JwtConfig
+        end
+
+        ADI.register_extension "test", Schema
+
+        ADI.configure({
+          test: {
+            hubs: {
+              primary: {
+                url: "localhost",
+                jwt: {secret: "secret1"},
+              },
+              secondary: {
+                url: "remote",
+                jwt: {secret: "secret2"},
+              },
+            },
+          },
+        })
+
+        macro finished
+          macro finished
+            \{%
+              config = ADI::CONFIG["test"]
+
+              # Verify both entries get their own independent defaults
+              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["algorithm"] == "hmac.sha256"
+              raise "#{config}" unless config["hubs"]["secondary"]["jwt"]["algorithm"] == "hmac.sha256"
+
+              # And their unique values are preserved
+              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["secret"] == "secret1"
+              raise "#{config}" unless config["hubs"]["secondary"]["jwt"]["secret"] == "secret2"
+            %}
+          end
+        end
+      CR
+    end
+
+    it "errors if nested object_schema field is missing required value" do
+      assert_compile_time_error "Configuration value 'test.hubs.primary.jwt' is missing required value for 'secret' of type 'String'.", <<-'CR'
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema JwtConfig,
+            secret : String,
+            algorithm : String = "hmac.sha256"
+
+          map_of hubs,
+            url : String,
+            jwt : JwtConfig
+        end
+
+        ADI.register_extension "test", Schema
+
+        ADI.configure({
+          test: {
+            hubs: {
+              primary: {
+                url: "localhost",
+                jwt: {algorithm: "rsa"},
+              },
+            },
+          },
+        })
+      CR
+    end
+
+    it "errors if nested object_schema has unexpected key" do
+      assert_compile_time_error "Expected configuration value 'test.hubs.primary.jwt' to be a '{secret: secret : String, algorithm: algorithm : String = \"hmac.sha256\"}', but encountered unexpected key 'invalid' with value '\"foo\"'.", <<-'CR'
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema JwtConfig,
+            secret : String,
+            algorithm : String = "hmac.sha256"
+
+          map_of hubs,
+            url : String,
+            jwt : JwtConfig
+        end
+
+        ADI.register_extension "test", Schema
+
+        ADI.configure({
+          test: {
+            hubs: {
+              primary: {
+                url: "localhost",
+                jwt: {secret: "my-secret", invalid: "foo"},
+              },
+            },
+          },
+        })
+      CR
+    end
+
+    it "uses custom default for map_of with assignment syntax" do
+      ASPEC::Methods.assert_compiles <<-'CR'
+        require "../spec_helper"
+
+        module Schema
+          include ADI::Extension::Schema
+          map_of hubs = {default: {url: "localhost", port: 8080}}, url : String, port : Int32 = 5432
+        end
+
+        ADI.register_extension "test", Schema
+
+        # Don't configure hubs at all - it should use the custom default
+
+        macro finished
+          macro finished
+            \{%
+              config = ADI::CONFIG["test"]
+
+              # Custom default entry should be present with its values
+              raise "#{config}" unless config["hubs"]["default"]["url"] == "localhost"
+              raise "#{config}" unless config["hubs"]["default"]["port"] == 8080
+            %}
+          end
+        end
+      CR
+    end
   end
 end
