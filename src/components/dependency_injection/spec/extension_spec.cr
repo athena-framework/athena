@@ -644,4 +644,40 @@ describe ADI::Extension, tags: "compiled" do
       CR
     end
   end
+
+  describe "object_schema in object_of" do
+    it "object_of with object_schema reference" do
+      assert_compiles <<-'CR'
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema JwtConfig,
+            secret : String,
+            algorithm : String = "hmac.sha256"
+
+          # Use object_of? since we're not providing config - just testing OPTIONS structure
+          object_of? connection,
+            url : String,
+            jwt : JwtConfig
+        end
+
+        ADI.register_extension "test", Schema
+
+        macro finished
+          macro finished
+            \{%
+               options = Schema::OPTIONS
+
+               raise "#{options}" unless options.size == 1
+
+               jwt_member = options[0]["members"]["jwt"]
+               raise "#{jwt_member}" unless jwt_member["members"] != nil
+               raise "#{jwt_member}" unless jwt_member["members"]["secret"].type.stringify == "String"
+               raise "#{jwt_member}" unless jwt_member["members"]["algorithm"].value == "hmac.sha256"
+            %}
+          end
+        end
+      CR
+    end
+  end
 end

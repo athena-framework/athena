@@ -137,8 +137,23 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                                        member_map.keys.reject { |k| k.stringify == "__nil" || provided_keys.includes? k }.each do |k|
                                          decl = member_map[k]
 
+                                         # Handle both TypeDeclaration and NamedTupleLiteral (for nested object_schema)
+                                         decl_value = decl.is_a?(TypeDeclaration) ? decl.value : decl["value"]
                                          # Skip setting required values so that it results in a missing error vs type mismatch error.
-                                         cfv[k] = decl.value unless decl.value.is_a?(Nop)
+                                         cfv[k] = decl_value unless decl_value.is_a?(Nop)
+                                       end
+
+                                       # Recursively fill in defaults for nested object_schema members
+                                       member_map.keys.reject { |k| k.stringify == "__nil" }.each do |k|
+                                         decl = member_map[k]
+                                         if decl.is_a?(NamedTupleLiteral) && (nested_members = decl["members"]) && (nested_cfv = cfv[k])
+                                           nested_provided_keys = nested_cfv.keys
+                                           nested_members.keys.reject { |nk| nk.stringify == "__nil" || nested_provided_keys.includes? nk }.each do |nk|
+                                             nested_decl = nested_members[nk]
+                                             nested_decl_value = nested_decl.is_a?(TypeDeclaration) ? nested_decl.value : nested_decl["value"]
+                                             nested_cfv[nk] = nested_decl_value unless nested_decl_value.is_a?(Nop)
+                                           end
+                                         end
                                        end
                                      end
                                    end
@@ -202,6 +217,19 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                                          # Nested object_schema reference
                                          decl_value = decl["value"]
                                          config_value[k] = decl_value unless decl_value.is_a?(Nop)
+                                       end
+                                     end
+
+                                     # Recursively fill in defaults for nested object_schema members
+                                     member_map.keys.reject { |k| k.stringify == "__nil" }.each do |k|
+                                       decl = member_map[k]
+                                       if decl.is_a?(NamedTupleLiteral) && (nested_members = decl["members"]) && (nested_cfv = config_value[k])
+                                         nested_provided_keys = nested_cfv.keys
+                                         nested_members.keys.reject { |nk| nk.stringify == "__nil" || nested_provided_keys.includes? nk }.each do |nk|
+                                           nested_decl = nested_members[nk]
+                                           nested_decl_value = nested_decl.is_a?(TypeDeclaration) ? nested_decl.value : nested_decl["value"]
+                                           nested_cfv[nk] = nested_decl_value unless nested_decl_value.is_a?(Nop)
+                                         end
                                        end
                                      end
                                    else

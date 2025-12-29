@@ -627,6 +627,92 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
     CR
   end
 
+  it "array_of with nested object_schema fills in nested defaults" do
+    ASPEC::Methods.assert_compiles <<-'CR'
+      require "../spec_helper"
+
+      module Schema
+        include ADI::Extension::Schema
+
+        object_schema JwtConfig,
+          secret : String,
+          algorithm : String = "hmac.sha256"
+
+        array_of items,
+          name : String,
+          jwt : JwtConfig
+      end
+
+      ADI.register_extension "test", Schema
+
+      ADI.configure({
+        test: {
+          items: [
+            {name: "item1", jwt: {secret: "secret1"}},
+            {name: "item2", jwt: {secret: "secret2"}},
+          ],
+        },
+      })
+
+      macro finished
+        macro finished
+          \{%
+            config = ADI::CONFIG["test"]
+
+            raise "#{config}" unless config["items"][0]["name"] == "item1"
+            raise "#{config}" unless config["items"][0]["jwt"]["secret"] == "secret1"
+            raise "#{config}" unless config["items"][0]["jwt"]["algorithm"] == "hmac.sha256"
+
+            raise "#{config}" unless config["items"][1]["name"] == "item2"
+            raise "#{config}" unless config["items"][1]["jwt"]["secret"] == "secret2"
+            raise "#{config}" unless config["items"][1]["jwt"]["algorithm"] == "hmac.sha256"
+          %}
+        end
+      end
+    CR
+  end
+
+  it "object_of with nested object_schema fills in nested defaults" do
+    ASPEC::Methods.assert_compiles <<-'CR'
+      require "../spec_helper"
+
+      module Schema
+        include ADI::Extension::Schema
+
+        object_schema JwtConfig,
+          secret : String,
+          algorithm : String = "hmac.sha256"
+
+        object_of connection,
+          url : String,
+          jwt : JwtConfig
+      end
+
+      ADI.register_extension "test", Schema
+
+      ADI.configure({
+        test: {
+          connection: {
+            url: "localhost",
+            jwt: {secret: "my-secret"},
+          },
+        },
+      })
+
+      macro finished
+        macro finished
+          \{%
+            config = ADI::CONFIG["test"]
+
+            raise "#{config}" unless config["connection"]["url"] == "localhost"
+            raise "#{config}" unless config["connection"]["jwt"]["secret"] == "my-secret"
+            raise "#{config}" unless config["connection"]["jwt"]["algorithm"] == "hmac.sha256"
+          %}
+        end
+      end
+    CR
+  end
+
   it "fills in missing nilable keys with `nil`" do
     ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper"
