@@ -32,6 +32,13 @@ class Athena::DependencyInjection::ServiceContainer
 
   # :nodoc:
   #
+  # Tracks service reference counts for optimization passes.
+  # Populated by AnalyzeServiceReferences pass.
+  # Hash(String, NamedTuple(count: Int32, referenced_by: Array(String), public: Bool))
+  SERVICE_REFERENCES = {} of Nil => Nil
+
+  # :nodoc:
+  #
   # Holds the compiler pass configuration, including the type of each pass, and the default order the built-in ones execute in.
   PASS_CONFIG = {
     # Global pre-optimization modules
@@ -68,12 +75,14 @@ class Athena::DependencyInjection::ServiceContainer
 
     # Determine what could be removed?
     before_removing: {
-      0 => [] of Nil,
+      # Framework passes (RegisterCommands, RegisterEventListenersPass) run at priority 0; analysis must run after them
+      -50 => [AnalyzeServiceReferences],
     },
 
     # Cleanup the container, removing unused services and such
     removing: {
-      0 => [] of Nil,
+        0 => [RemoveUnusedServices],
+      -10 => [InlineServiceDefinitions],
     },
 
     # Codegen things that create types/methods within the container instance, such as the getters for each service

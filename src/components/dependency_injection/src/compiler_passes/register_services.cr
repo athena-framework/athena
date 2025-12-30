@@ -133,17 +133,18 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
 
               {%
                 SERVICE_HASH[service_id] = {
-                  class:             klass.resolve,
-                  factory:           factory,
-                  shared:            klass.class?,
-                  calls:             calls,
-                  configurator:      nil,
-                  tags:              definition_tags,
-                  public:            ann[:public] == true,
-                  decorated_service: nil,
-                  bindings:          {} of Nil => Nil,
-                  generics:          ann.args,
-                  parameters:        {} of Nil => Nil,
+                  class:               klass.resolve,
+                  factory:             factory,
+                  shared:              klass.class?,
+                  calls:               calls,
+                  configurator:        nil,
+                  tags:                definition_tags,
+                  public:              ann[:public] == true,
+                  decorated_service:   nil,
+                  bindings:            {} of Nil => Nil,
+                  generics:            ann.args,
+                  parameters:          {} of Nil => Nil,
+                  referenced_services: [] of Nil,
                 }
               %}
             {% end %}
