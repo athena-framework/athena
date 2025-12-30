@@ -81,11 +81,11 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAutoconfigureAnnota
                     args = call[1] || nil
 
                     if method.empty?
-                      method.raise "Method name cannot be empty."
+                      method.raise "Auto configuration '#{t.id}': 'calls' method name cannot be empty."
                     end
 
                     unless klass.resolve.has_method?(method)
-                      method.raise "Failed to auto register service for '#{service_id.id}' (#{klass}). Call references non-existent method '#{method.id}'."
+                      method.raise "Auto configuration '#{t.id}': 'calls' method does not exist on service '#{service_id.id}' (#{klass})."
                     end
 
                     calls << {method, args || [] of Nil}
@@ -96,7 +96,7 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAutoconfigureAnnota
 
                 if ann && (v = ann["tags"]) != nil
                   unless v.is_a? ArrayLiteral
-                    v.raise "Tags for auto configuration of '#{t.id}' must be an 'ArrayLiteral', got '#{v.class_name.id}'."
+                    v.raise "'tags' field of auto configuration '#{t.id}' must be an 'ArrayLiteral', got '#{v.class_name.id}'."
                   end
 
                   v.each do |t|
@@ -112,7 +112,7 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAutoconfigureAnnota
                                        {tag.resolve.id.stringify, {} of Nil => Nil}
                                      elsif tag.is_a?(NamedTupleLiteral) || tag.is_a?(HashLiteral)
                                        unless tag[:name]
-                                         tag.raise "Failed to auto register service '#{service_id.id}' (#{klass}). All tags must have a name."
+                                         tag.raise "Failed to register service '#{service_id.id}' (#{klass}). Tag must have a name."
                                        end
 
                                        # Resolve a constant to its value if used as a tag name
@@ -129,7 +129,7 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAutoconfigureAnnota
 
                                        {tag["name"], attributes}
                                      else
-                                       tag.raise "Tag '#{tag}' must be a 'StringLiteral' or 'NamedTupleLiteral', got '#{tag.class_name.id}'."
+                                       tag.raise "Tag must be a 'StringLiteral' or 'NamedTupleLiteral', got '#{tag.class_name.id}'."
                                      end
 
                   definition["tags"][name] = [] of Nil if definition["tags"][name] == nil

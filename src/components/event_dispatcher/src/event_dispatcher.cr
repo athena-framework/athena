@@ -72,20 +72,20 @@ class Athena::EventDispatcher::EventDispatcher
 
           # Validate the type restriction of the first parameter, if present
           if event_arg.restriction.is_a?(Nop)
-            event_arg.raise "Expected parameter #1 of '#{T.name}##{m.name}' to have a type restriction of an 'AED::Event' instance, but it is not restricted."
+            event_arg.raise "'#{T.name}##{m.name}': event parameter must have a type restriction of an 'AED::Event' instance."
           end
 
           if !(event_arg.restriction.resolve <= AED::Event)
-            event_arg.raise "Expected parameter #1 of '#{T.name}##{m.name}' to have a type restriction of an 'AED::Event' instance, not '#{event_arg.restriction}'."
+            event_arg.raise "'#{T.name}##{m.name}': event parameter must have a type restriction of an 'AED::Event' instance, not '#{event_arg.restriction}'."
           end
 
           if dispatcher_arg = m.args[1]
             if dispatcher_arg.restriction.is_a?(Nop)
-              event_arg.raise "Expected parameter #2 of '#{T.name}##{m.name}' to have a type restriction of 'AED::EventDispatcherInterface', but it is not restricted."
+              dispatcher_arg.raise "'#{T.name}##{m.name}': dispatcher parameter must have a type restriction of 'AED::EventDispatcherInterface'."
             end
 
             if !(dispatcher_arg.restriction.resolve <= AED::EventDispatcherInterface)
-              event_arg.raise "Expected parameter #2 of '#{T.name}##{m.name}' to have a type restriction of 'AED::EventDispatcherInterface', not '#{dispatcher_arg.restriction}'."
+              dispatcher_arg.raise "'#{T.name}##{m.name}': dispatcher parameter must have a type restriction of 'AED::EventDispatcherInterface', not '#{dispatcher_arg.restriction}'."
             end
           end
 

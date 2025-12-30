@@ -17,8 +17,8 @@ module Athena::DependencyInjection::ServiceContainer::ResolveTaggedIterators
 
                 unless {"Enumerable", "Iterator", "Indexable"}.includes? base_collection_type
                   param["declaration"].raise <<-TEXT
-                  Failed to register service '#{service_id.id}' (#{definition["class"]}). Collection parameter '#{param["declaration"]}' \
-                  type must be one of `Indexable`, `Iterator`, or `Enumerable`. Got '#{param_type.name(generic_args: false).id}'.
+                  Failed to register service '#{service_id.id}' (#{definition["class"]}). \
+                  Collection type must be one of 'Indexable', 'Iterator', or 'Enumerable'. Got '#{param_type.name(generic_args: false).id}'.
                   TEXT
                 end
 

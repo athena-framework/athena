@@ -158,14 +158,14 @@ describe ADI::ServiceContainer::RegisterServices do
 
     describe "tags" do
       it "errors if not all tags have a `name` field" do
-        assert_compile_time_error "Failed to auto register service 'foo'. All tags must have a name.", <<-CR
+        assert_compile_time_error "Failed to register service 'foo'. Tag must have a name.", <<-CR
           @[ADI::Register(tags: [{priority: 100}])]
           record Foo
         CR
       end
 
       it "errors if not all tags are of the proper type" do
-        assert_compile_time_error "Tag '100' must be a 'StringLiteral' or 'NamedTupleLiteral', got 'NumberLiteral'.", <<-CR
+        assert_compile_time_error "Tag must be a 'StringLiteral' or 'NamedTupleLiteral', got 'NumberLiteral'.", <<-CR
           @[ADI::Register(tags: [100])]
           record Foo
         CR
@@ -174,14 +174,14 @@ describe ADI::ServiceContainer::RegisterServices do
 
     describe "calls" do
       it "errors if the method of a call is empty" do
-        assert_compile_time_error "Method name cannot be empty.", <<-CR
+        assert_compile_time_error "'calls' field of service 'foo': method name cannot be empty.", <<-CR
         @[ADI::Register(calls: [{""}])]
         record Foo
       CR
       end
 
       it "errors if the method does not exist on the type" do
-        assert_compile_time_error "Failed to auto register service for 'foo' (Foo). Call references non-existent method 'foo'.", <<-CR
+        assert_compile_time_error "'calls' field of service 'foo' (Foo): method does not exist.", <<-CR
         @[ADI::Register(calls: [{"foo"}])]
         record Foo
       CR

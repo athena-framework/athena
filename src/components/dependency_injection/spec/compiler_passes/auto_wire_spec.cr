@@ -36,7 +36,7 @@ record SameInstanceClient, a : SameInstancePrimary, b : SameInstanceAliasInterfa
 describe ADI::ServiceContainer do
   describe "compiler errors", tags: "compiled" do
     it "does not resolve an un-aliased interface when there is only 1 implementation" do
-      assert_compile_time_error "Failed to resolve value for parameter 'a : SomeInterface' of service 'bar' (Bar).", <<-CR
+      assert_compile_time_error "Failed to resolve argument for service 'bar' (Bar).", <<-CR
         module SomeInterface; end
 
         @[ADI::Register]
