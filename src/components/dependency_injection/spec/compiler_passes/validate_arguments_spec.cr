@@ -25,6 +25,16 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
         @[ADI::Register(_value: true)]
         record Foo, value : String
       CR
+
+      assert_compile_time_error "Service 'foo' (Foo): parameter expects a 'String' but got 'Float64'.", <<-'CR'
+        @[ADI::Register(_value: 3.14)]
+        record Foo, value : String
+      CR
+
+      assert_compile_time_error "Service 'foo' (Foo): parameter expects a 'String' but got 'Symbol'.", <<-'CR'
+        @[ADI::Register(_value: :foo)]
+        record Foo, value : String
+      CR
     end
 
     it "still errors with explicit calls even if they are not of the proper type" do
