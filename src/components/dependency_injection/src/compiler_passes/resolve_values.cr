@@ -73,7 +73,7 @@ module Athena::DependencyInjection::ServiceContainer::ResolveValues
                 end
                 # Bound value, only apply if value was not already resolved
                 # Value is re-processed to resolve the underlying value, use the reference value to know not to do it again
-              elsif (bv = definition["bindings"][param["name"].id]) && !reference
+              elsif (bv = definition["bindings"][param["name"].id]) != nil && !reference
                 resolved_value = nil
 
                 parameters << {bv, param, {type: "scalar"}}

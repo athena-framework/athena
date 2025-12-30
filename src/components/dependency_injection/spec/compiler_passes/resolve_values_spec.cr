@@ -81,6 +81,9 @@ end
 
 ADI.bind alias_overridden_by_global_bind : ResolveValuePriorityInterface, "@service_priority_one"
 
+@[ADI::Register(_value: false, public: true)]
+record BoolExplicitArgumentService, value : Bool
+
 describe ADI::ServiceContainer::ResolveValues do
   describe "compiler errors", tags: "compiled" do
     it "errors if a service string reference doesn't map to a known service" do
@@ -97,5 +100,9 @@ describe ADI::ServiceContainer::ResolveValues do
 
   it "resolves service references with the expected priority" do
     ADI.container.service_value_priority_service
+  end
+
+  it "allows passing `false` as an argument" do
+    ADI.container.bool_explicit_argument_service.value.should be_false
   end
 end

@@ -1,0 +1,8 @@
+project: dependency-injection
+kind: Fixed
+body: Fix falsey binding values not resolving
+time: 2025-12-29T22:13:40.462024332-05:00
+custom:
+    Author: George Dietrich
+    PR: "647"
+    Username: blacksmoke16
