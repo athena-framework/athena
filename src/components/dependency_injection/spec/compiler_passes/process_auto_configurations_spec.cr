@@ -244,6 +244,18 @@ describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
         CR
       end
 
+      it "errors if not all tags are of the proper type" do
+        assert_compile_time_error "Tag must be a 'StringLiteral' or 'NamedTupleLiteral', got 'NumberLiteral'.", <<-CR
+          @[ADI::Autoconfigure(tags: [123])]
+          module Test; end
+
+          @[ADI::Register]
+          record Foo do
+            include Test
+          end
+        CR
+      end
+
       it "errors if not all tags have a name" do
         assert_compile_time_error "Failed to register service 'foo' (Foo). Tag must have a name.", <<-CR
           @[ADI::Autoconfigure(tags: [{ name: "A" }, { priority: 123 }])]
