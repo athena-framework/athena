@@ -55,7 +55,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
                 tags = ann["tags"] || [] of Nil
 
                 unless tags.is_a? ArrayLiteral
-                  ann["tags"].raise "Tags for '#{service_id.id}' must be an 'ArrayLiteral', got '#{tags.class_name.id}'."
+                  ann["tags"].raise "'tags' field of service '#{service_id.id}' must be an 'ArrayLiteral', got '#{tags.class_name.id}'."
                 end
 
                 # TODO: Centralize tag handling logic between AutoConfigure and RegisterServices
@@ -66,7 +66,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
                                        {tag.resolve.id.stringify, {} of Nil => Nil}
                                      elsif tag.is_a?(NamedTupleLiteral) || tag.is_a?(HashLiteral)
                                        unless tag[:name]
-                                         tag.raise "Failed to auto register service '#{service_id.id}'. All tags must have a name."
+                                         tag.raise "Failed to register service '#{service_id.id}'. Tag must have a name."
                                        end
 
                                        # Resolve a constant to its value if used as a tag name
@@ -83,7 +83,7 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
 
                                        {tag["name"], attributes}
                                      else
-                                       tag.raise "Tag '#{tag}' must be a 'StringLiteral' or 'NamedTupleLiteral', got '#{tag.class_name.id}'."
+                                       tag.raise "Tag must be a 'StringLiteral' or 'NamedTupleLiteral', got '#{tag.class_name.id}'."
                                      end
 
                   definition_tags[name] = [] of Nil if definition_tags[name] == nil
@@ -113,11 +113,11 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
                     args = call[1] || nil
 
                     if method.empty?
-                      method.raise "Method name cannot be empty."
+                      method.raise "'calls' field of service '#{service_id.id}': method name cannot be empty."
                     end
 
                     unless klass.resolve.has_method?(method)
-                      method.raise "Failed to auto register service for '#{service_id.id}' (#{klass}). Call references non-existent method '#{method.id}'."
+                      method.raise "'calls' field of service '#{service_id.id}' (#{klass}): method does not exist."
                     end
 
                     calls << {method, args || [] of Nil}

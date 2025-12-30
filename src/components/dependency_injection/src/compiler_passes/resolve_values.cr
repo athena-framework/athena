@@ -34,7 +34,7 @@ module Athena::DependencyInjection::ServiceContainer::ResolveValues
                 end
 
                 if SERVICE_HASH[service_name].nil?
-                  unresolved_value.raise "Failed to register service '#{service_id.id}'. Argument '#{param["declaration"]}' references undefined service '#{service_name.id}'."
+                  unresolved_value.raise "Service '#{service_id.id}' (#{definition["class"]}) references undefined service '#{service_name.id}'."
                 end
 
                 resolved_value = service_name.id

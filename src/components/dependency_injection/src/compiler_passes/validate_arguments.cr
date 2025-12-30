@@ -28,15 +28,33 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                 restriction = param["resolved_restriction"]
 
                 if restriction && restriction <= String && (!value.is_a?(StringLiteral) && !value.is_a?(Call))
-                  error = "Parameter '#{param["declaration"]}' of service '#{service_id.id}' (#{definition["class"]}) expects a String but got '#{value}'."
+                  type_name = if value.is_a?(NumberLiteral)
+                                kind = value.kind
+                                if kind.starts_with? 'i'
+                                  "Int#{kind[1..].id}"
+                                elsif kind.starts_with? 'u'
+                                  "UInt#{kind[1..].id}"
+                                elsif kind.starts_with? 'f'
+                                  "Float#{kind[1..].id}"
+                                else
+                                  value.class_name
+                                end
+                              elsif value.is_a?(BoolLiteral)
+                                "Bool"
+                              elsif value.is_a?(SymbolLiteral)
+                                "Symbol"
+                              else
+                                value.class_name
+                              end
+                  error = "Service '#{service_id.id}' (#{definition["class"]}): parameter expects a 'String' but got '#{type_name.id}'."
                 end
 
                 if (s = SERVICE_HASH[value.stringify]) && (klass = s["class"]).is_a?(TypeNode) && !(klass <= restriction)
-                  error = "Parameter '#{param["declaration"]}' of service '#{service_id.id}' (#{definition["class"]}) expects '#{restriction}' but" \
+                  error = "Service '#{service_id.id}' (#{definition["class"]}): parameter expects '#{restriction}' but" \
                           " the resolved service '#{value.id}' is of type '#{s["class"].id}'."
                 end
               elsif !param["resolved_restriction"].nilable?
-                error = "Failed to resolve value for parameter '#{param["declaration"]}' of service '#{service_id.id}' (#{definition["class"]})."
+                error = "Failed to resolve argument for service '#{service_id.id}' (#{definition["class"]})."
               end
 
               if error
@@ -181,7 +199,7 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
 
                                               # Filter out internal __nil key for cleaner error message
                                               display_type = "{#{prop_type.keys.reject { |dk| dk.stringify == "__nil" }.map { |dk| "#{dk}: #{prop_type[dk]}" }.join(", ").id}}"
-                                              cfv.raise "Expected configuration value '#{ext_name.id}.#{path.id}' to be a '#{display_type.id}', but encountered unexpected key '#{k}' with value '#{v}'."
+                                              cfv.raise "Expected configuration value '#{ext_name.id}.#{path.id}' to be a '#{display_type.id}', but encountered unexpected key '#{k}'."
                                             elsif k == "__nil"
                                               # no-op
                                             else
