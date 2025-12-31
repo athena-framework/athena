@@ -158,7 +158,7 @@ describe ADI::ServiceContainer::RegisterServices do
 
     describe "tags" do
       it "errors if not all tags have a `name` field" do
-        assert_compile_time_error "Failed to register service 'foo'. Tag must have a name.", <<-CR
+        assert_compile_time_error "Failed to register service 'foo' (Foo). Tag must have a name.", <<-CR
           @[ADI::Register(tags: [{priority: 100}])]
           record Foo
         CR
