@@ -119,11 +119,22 @@
 # Proc/block based callbacks operate similarly to [Class Methods][Athena::Validator::Constraints::Callback--class-methods] in that they receive the value as an argument.
 class Athena::Validator::Constraints::Callback < Athena::Validator::Constraint
   # :nodoc:
-  abstract struct ValueContainer; end
+  abstract struct ValueContainer
+    abstract def type_name : String
+
+    def inspect(io : IO) : Nil
+      io << "#<AVD::Constraints::Callback::Value(" << self.type_name << ")>"
+    end
+  end
 
   # Wrapper type to allow passing arbitrarily typed values as arguments in the `AVD::Constraints::Callback::CallbackProc`.
   record Value(T) < ValueContainer, value : T do
     forward_missing_to @value
+
+    # :inherit:
+    def type_name : String
+      {{ T.stringify }}
+    end
 
     # Returns the value as `T`.
     #

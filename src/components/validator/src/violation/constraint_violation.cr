@@ -69,6 +69,11 @@ struct Athena::Validator::Violation::ConstraintViolation
   end
 
   # :inherit:
+  def inspect(io : IO) : Nil
+    io << "#<AVD::Violation property_path=" << @property_path.inspect << " message=" << @message.inspect << ">"
+  end
+
+  # :inherit:
   def to_s(io : IO) : Nil
     klass = case self.root
             when Hash                         then "Hash"
