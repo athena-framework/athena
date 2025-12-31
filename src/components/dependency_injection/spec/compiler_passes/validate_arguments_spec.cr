@@ -11,8 +11,28 @@ end
 describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
   describe "compiler errors" do
     it "errors if a expects a string value parameter but it is not of that type" do
-      assert_compile_time_error "Parameter 'value : String' of service 'foo' (Foo) expects a String but got '123'.", <<-'CR'
+      assert_compile_time_error "Service 'foo' (Foo): parameter expects a 'String' but got 'Int32'.", <<-'CR'
         @[ADI::Register(_value: 123)]
+        record Foo, value : String
+      CR
+
+      assert_compile_time_error "Service 'foo' (Foo): parameter expects a 'String' but got 'UInt8'.", <<-'CR'
+        @[ADI::Register(_value: 123_u8)]
+        record Foo, value : String
+      CR
+
+      assert_compile_time_error "Service 'foo' (Foo): parameter expects a 'String' but got 'Bool'.", <<-'CR'
+        @[ADI::Register(_value: true)]
+        record Foo, value : String
+      CR
+
+      assert_compile_time_error "Service 'foo' (Foo): parameter expects a 'String' but got 'Float64'.", <<-'CR'
+        @[ADI::Register(_value: 3.14)]
+        record Foo, value : String
+      CR
+
+      assert_compile_time_error "Service 'foo' (Foo): parameter expects a 'String' but got 'Symbol'.", <<-'CR'
+        @[ADI::Register(_value: :foo)]
         record Foo, value : String
       CR
     end
@@ -27,7 +47,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
     end
 
     it "errors if a parameter resolves to a service of the incorrect type" do
-      assert_compile_time_error "Parameter 'value : Int32' of service 'foo' (Foo) expects 'Int32' but the resolved service 'bar' is of type 'Bar'.", <<-'CR'
+      assert_compile_time_error "Service 'foo' (Foo): parameter expects 'Int32' but the resolved service 'bar' is of type 'Bar'.", <<-'CR'
         @[ADI::Register]
         record Bar
 

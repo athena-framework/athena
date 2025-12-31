@@ -67,7 +67,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
       end
 
       it "errors if a configuration value not found in the schema is encountered" do
-        assert_compile_time_error "Encountered unexpected property 'test.name' with value '\"Fred\"'.", <<-'CR'
+        assert_compile_time_error "Unexpected property 'test.name'.", <<-'CR'
           module Schema
             include ADI::Extension::Schema
 
@@ -239,7 +239,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
       end
 
       it "errors if a configuration value not found in the schema is encountered" do
-        assert_compile_time_error "Encountered unexpected property 'test.sub_config.defaults.name' with value '\"Fred\"'.", <<-'CR'
+        assert_compile_time_error "Unexpected property 'test.sub_config.defaults.name'.", <<-'CR'
           module Schema
             include ADI::Extension::Schema
 
@@ -932,7 +932,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
     end
 
     it "errors if a hash value has an unexpected key" do
-      assert_compile_time_error "Expected configuration value 'test.hubs.primary' to be a '{url: url : String, port: port : Int32 = 5432}', but encountered unexpected key 'invalid' with value '\"foo\"'.", <<-'CR'
+      assert_compile_time_error "Expected configuration value 'test.hubs.primary' to be a '{url: url : String, port: port : Int32 = 5432}', but encountered unexpected key 'invalid'.", <<-'CR'
         module Schema
           include ADI::Extension::Schema
           map_of hubs, url : String, port : Int32 = 5432
@@ -1078,7 +1078,7 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
     end
 
     it "errors if nested object_schema has unexpected key" do
-      assert_compile_time_error "Expected configuration value 'test.hubs.primary.jwt' to be a '{secret: secret : String, algorithm: algorithm : String = \"hmac.sha256\"}', but encountered unexpected key 'invalid' with value '\"foo\"'.", <<-'CR'
+      assert_compile_time_error "Expected configuration value 'test.hubs.primary.jwt' to be a '{secret: secret : String, algorithm: algorithm : String = \"hmac.sha256\"}', but encountered unexpected key 'invalid'.", <<-'CR'
         module Schema
           include ADI::Extension::Schema
 

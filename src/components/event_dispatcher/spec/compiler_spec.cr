@@ -40,7 +40,7 @@ describe Athena::EventDispatcher do
     end
 
     it "first parameter unrestricted" do
-      ASPEC::Methods.assert_compile_time_error "Expected parameter #1 of 'MyListener#listener' to have a type restriction of an 'AED::Event' instance, but it is not restricted.", <<-CR
+      ASPEC::Methods.assert_compile_time_error "'MyListener#listener': event parameter must have a type restriction of an 'AED::Event' instance.", <<-CR
         require "./spec_helper.cr"
         class MyListener
           @[AEDA::AsEventListener]
@@ -52,7 +52,7 @@ describe Athena::EventDispatcher do
     end
 
     it "first parameter non AED::Event restriction" do
-      ASPEC::Methods.assert_compile_time_error "Expected parameter #1 of 'MyListener#listener' to have a type restriction of an 'AED::Event' instance, not 'String'.", <<-CR
+      ASPEC::Methods.assert_compile_time_error "'MyListener#listener': event parameter must have a type restriction of an 'AED::Event' instance, not 'String'.", <<-CR
         require "./spec_helper.cr"
         class MyListener
           @[AEDA::AsEventListener]
@@ -64,7 +64,7 @@ describe Athena::EventDispatcher do
     end
 
     it "second parameter unrestricted" do
-      ASPEC::Methods.assert_compile_time_error "Expected parameter #2 of 'MyListener#listener' to have a type restriction of 'AED::EventDispatcherInterface', but it is not restricted.", <<-CR
+      ASPEC::Methods.assert_compile_time_error "'MyListener#listener': dispatcher parameter must have a type restriction of 'AED::EventDispatcherInterface'.", <<-CR
         require "./spec_helper.cr"
         class MyListener
           @[AEDA::AsEventListener]
@@ -76,7 +76,7 @@ describe Athena::EventDispatcher do
     end
 
     it "second parameter non AED::EventDispatcherInterface restriction" do
-      ASPEC::Methods.assert_compile_time_error "Expected parameter #2 of 'MyListener#listener' to have a type restriction of 'AED::EventDispatcherInterface', not 'String'.", <<-CR
+      ASPEC::Methods.assert_compile_time_error "'MyListener#listener': dispatcher parameter must have a type restriction of 'AED::EventDispatcherInterface', not 'String'.", <<-CR
         require "./spec_helper.cr"
         class MyListener
           @[AEDA::AsEventListener]

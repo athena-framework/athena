@@ -27,7 +27,7 @@ module Athena::DependencyInjection::ServiceContainer::NormalizeDefinitions
             end
 
             unless definition_keys.includes? "tags"
-              definition["tags"] = {} of Nil => Nil
+              definition["tags"] = [] of Nil
             end
 
             unless definition_keys.includes? "bindings"
@@ -40,6 +40,10 @@ module Athena::DependencyInjection::ServiceContainer::NormalizeDefinitions
 
             unless definition_keys.includes? "generics"
               definition["generics"] = [] of Nil
+            end
+
+            unless definition_keys.includes? "referenced_services"
+              definition["referenced_services"] = [] of Nil
             end
           end
         %}

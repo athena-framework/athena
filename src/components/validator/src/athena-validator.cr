@@ -65,12 +65,22 @@ module Athena::Validator
   module Violation; end
 
   # :nodoc:
-  abstract struct Container; end
+  abstract struct Container
+    abstract def type_name : String
+
+    def inspect(io : IO) : Nil
+      io << "#<AVD::Container(" << self.type_name << ")>"
+    end
+  end
 
   # :nodoc:
   record ValueContainer(T) < Container, value : T do
     def value_type : T.class
       T
+    end
+
+    def type_name : String
+      {{ T.stringify }}
     end
 
     def ==(other : AVD::Container) : Bool

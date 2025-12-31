@@ -3,9 +3,18 @@
 struct Athena::HTTP::ParameterBag
   private abstract struct Param
     abstract def value
+    abstract def type_name : String
+
+    def inspect(io : IO) : Nil
+      io << "#<Param(" << self.type_name << ")>"
+    end
   end
 
-  private record Parameter(T) < Param, value : T
+  private record Parameter(T) < Param, value : T do
+    def type_name : String
+      {{ T.stringify }}
+    end
+  end
 
   @parameters : Hash(String, Param) = Hash(String, Param).new
 

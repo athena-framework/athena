@@ -59,6 +59,7 @@ describe ADI::ServiceContainer::NormalizeDefinitions, tags: "compiled" do
                 {%
                   SERVICE_HASH["some_service"] = {
                     class: SomeService,
+                    public: true,
                   }
                 %}
               {% end %}
@@ -76,12 +77,13 @@ describe ADI::ServiceContainer::NormalizeDefinitions, tags: "compiled" do
             some_service = ADI::ServiceContainer::SERVICE_HASH["some_service"]
 
             raise "#{some_service}" unless some_service["class"] == SomeService
-            raise "#{some_service}" unless some_service["public"] == false
+            raise "#{some_service}" unless some_service["public"] == true
             raise "#{some_service}" unless some_service["calls"].size == 0
             raise "#{some_service}" unless some_service["tags"].size == 0
             raise "#{some_service}" unless some_service["generics"].size == 0
             raise "#{some_service}" unless some_service["parameters"].size == 0
             raise "#{some_service}" unless some_service["shared"] == true
+            raise "#{some_service}" unless some_service["referenced_services"].size == 0
           %}
         end
       end

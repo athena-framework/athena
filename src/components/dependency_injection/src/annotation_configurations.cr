@@ -74,6 +74,11 @@ module Athena::DependencyInjection
   #
   # TODO: Centralize the hash resolution logic once [this issue](https://github.com/crystal-lang/crystal/issues/8835) is resolved.
   struct AnnotationConfigurations
+    # :inherit:
+    def inspect(io : IO) : Nil
+      io << "#<ADI::AnnotationConfigurations>"
+    end
+
     # Base type of annotation configuration objects registered via `Athena::DependencyInjection.configuration_annotation`.
     abstract struct ConfigurationBase; end
 

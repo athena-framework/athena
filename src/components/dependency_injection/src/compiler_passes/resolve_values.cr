@@ -34,7 +34,7 @@ module Athena::DependencyInjection::ServiceContainer::ResolveValues
                 end
 
                 if SERVICE_HASH[service_name].nil?
-                  unresolved_value.raise "Failed to register service '#{service_id.id}'. Argument '#{param["declaration"]}' references undefined service '#{service_name.id}'."
+                  unresolved_value.raise "Service '#{service_id.id}' (#{definition["class"]}) references undefined service '#{service_name.id}'."
                 end
 
                 resolved_value = service_name.id
@@ -47,6 +47,11 @@ module Athena::DependencyInjection::ServiceContainer::ResolveValues
                 tagged_services = (TAG_HASH[tag_name] || [] of Nil).sort_by { |(_tmp, attributes)| -(attributes["priority"] || 0) }
 
                 if param["resolved_restriction"].type_vars.first.resolve < ADI::Proxy
+                  # Track proxy references to ensure getters are generated
+                  definition["referenced_services"] = [] of Nil unless definition["referenced_services"]
+                  tagged_services.each do |(id, attributes)|
+                    definition["referenced_services"] << id
+                  end
                   tagged_services = tagged_services.map do |(id, attributes)|
                     {"ADI::Proxy.new(#{id}, ->#{id.id})".id}
                   end
@@ -73,7 +78,7 @@ module Athena::DependencyInjection::ServiceContainer::ResolveValues
                 end
                 # Bound value, only apply if value was not already resolved
                 # Value is re-processed to resolve the underlying value, use the reference value to know not to do it again
-              elsif (bv = definition["bindings"][param["name"].id]) && !reference
+              elsif (bv = definition["bindings"][param["name"].id]) != nil && !reference
                 resolved_value = nil
 
                 parameters << {bv, param, {type: "scalar"}}

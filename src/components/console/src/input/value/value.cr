@@ -29,5 +29,9 @@ abstract struct Athena::Console::Input::Value
     self.value.to_s io
   end
 
+  def inspect(io : IO) : ::Nil
+    io << "#<Input::Value::" << self.class.name.rpartition("::").last << ">"
+  end
+
   abstract def value
 end

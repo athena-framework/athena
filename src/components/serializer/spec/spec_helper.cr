@@ -1,5 +1,6 @@
 require "spec"
 require "../src/athena-serializer"
+require "athena-spec"
 
 require "./models/*"
 

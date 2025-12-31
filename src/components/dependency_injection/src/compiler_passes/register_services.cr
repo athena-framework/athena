@@ -50,51 +50,13 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
                 end
               %}
 
-              {%
-                definition_tags = {} of Nil => Nil
-                tags = ann["tags"] || [] of Nil
+              {% # Store raw tags - will be normalized by ProcessTags pass
 
-                unless tags.is_a? ArrayLiteral
-                  ann["tags"].raise "Tags for '#{service_id.id}' must be an 'ArrayLiteral', got '#{tags.class_name.id}'."
-                end
+ tags = ann["tags"] || [] of Nil
 
-                # TODO: Centralize tag handling logic between AutoConfigure and RegisterServices
-                tags.each do |tag|
-                  name, attributes = if tag.is_a?(StringLiteral)
-                                       {tag, {} of Nil => Nil}
-                                     elsif tag.is_a?(Path)
-                                       {tag.resolve.id.stringify, {} of Nil => Nil}
-                                     elsif tag.is_a?(NamedTupleLiteral) || tag.is_a?(HashLiteral)
-                                       unless tag[:name]
-                                         tag.raise "Failed to auto register service '#{service_id.id}'. All tags must have a name."
-                                       end
-
-                                       # Resolve a constant to its value if used as a tag name
-                                       if tag["name"].is_a? Path
-                                         tag["name"] = tag["name"].resolve
-                                       end
-
-                                       attributes = {} of Nil => Nil
-
-                                       # TODO: Replace this with `#delete`...
-                                       tag.each do |k, v|
-                                         attributes[k.id.stringify] = v unless k.id.stringify == "name"
-                                       end
-
-                                       {tag["name"], attributes}
-                                     else
-                                       tag.raise "Tag '#{tag}' must be a 'StringLiteral' or 'NamedTupleLiteral', got '#{tag.class_name.id}'."
-                                     end
-
-                  definition_tags[name] = [] of Nil if definition_tags[name] == nil
-                  definition_tags[name] << attributes
-                  definition_tags[name] = definition_tags[name].uniq
-
-                  TAG_HASH[name] = [] of Nil if TAG_HASH[name] == nil
-                  TAG_HASH[name] << {service_id, attributes}
-                  TAG_HASH[name] = TAG_HASH[name].uniq
-                end
-              %}
+ unless tags.is_a? ArrayLiteral
+   ann["tags"].raise "'tags' field of service '#{service_id.id}' must be an 'ArrayLiteral', got '#{tags.class_name.id}'."
+ end %}
 
               # Generic services are somewhat coupled to the annotation, so do a check here in addition to those in `ResolveGenerics`.
               {%
@@ -113,11 +75,11 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
                     args = call[1] || nil
 
                     if method.empty?
-                      method.raise "Method name cannot be empty."
+                      method.raise "'calls' field of service '#{service_id.id}': method name cannot be empty."
                     end
 
                     unless klass.resolve.has_method?(method)
-                      method.raise "Failed to auto register service for '#{service_id.id}' (#{klass}). Call references non-existent method '#{method.id}'."
+                      method.raise "'calls' field of service '#{service_id.id}' (#{klass}): method does not exist."
                     end
 
                     calls << {method, args || [] of Nil}
@@ -133,17 +95,18 @@ module Athena::DependencyInjection::ServiceContainer::RegisterServices
 
               {%
                 SERVICE_HASH[service_id] = {
-                  class:             klass.resolve,
-                  factory:           factory,
-                  shared:            klass.class?,
-                  calls:             calls,
-                  configurator:      nil,
-                  tags:              definition_tags,
-                  public:            ann[:public] == true,
-                  decorated_service: nil,
-                  bindings:          {} of Nil => Nil,
-                  generics:          ann.args,
-                  parameters:        {} of Nil => Nil,
+                  class:               klass.resolve,
+                  factory:             factory,
+                  shared:              klass.class?,
+                  calls:               calls,
+                  configurator:        nil,
+                  tags:                tags,
+                  public:              ann["public"] == true,
+                  decorated_service:   nil,
+                  bindings:            {} of Nil => Nil,
+                  generics:            ann.args,
+                  parameters:          {} of Nil => Nil,
+                  referenced_services: [] of Nil,
                 }
               %}
             {% end %}

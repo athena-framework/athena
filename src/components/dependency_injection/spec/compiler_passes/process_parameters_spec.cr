@@ -5,7 +5,7 @@ describe ADI::ServiceContainer::ProcessParameters, tags: "compiled" do
     ASPEC::Methods.assert_compiles <<-'CR'
       require "../spec_helper.cr"
 
-      @[ADI::Register(_id: 123)]
+      @[ADI::Register(_id: 123, public: true)]
       class SomeService
         def initialize(@id : Int32); end
       end
@@ -48,6 +48,7 @@ describe ADI::ServiceContainer::ProcessParameters, tags: "compiled" do
               {%
                 SERVICE_HASH["some_service"] = {
                   class: SomeService,
+                  public: true,
                   parameters: {
                     id: {value: 999}
                   }
@@ -84,6 +85,7 @@ describe ADI::ServiceContainer::ProcessParameters, tags: "compiled" do
               {%
                 SERVICE_HASH["some_service"] = {
                   class: SomeService,
+                  public: true,
                   parameters: {
                     id: {value: 999}
                   }

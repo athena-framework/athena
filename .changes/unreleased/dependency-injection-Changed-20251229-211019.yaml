@@ -1,0 +1,9 @@
+project: dependency-injection
+kind: Changed
+body: Improve compile time error messages
+time: 2025-12-29T21:10:19.415338487-05:00
+custom:
+    Author: George Dietrich
+    Breaking: "No"
+    PR: "646"
+    Username: blacksmoke16

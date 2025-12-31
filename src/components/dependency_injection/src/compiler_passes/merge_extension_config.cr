@@ -111,7 +111,7 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
               unless extra_keys.empty?
                 extra_key_value = extension_config_for_current_property[extra_keys.first]
 
-                extra_key_value.raise "Encountered unexpected property '#{([ext_name] + ext_path).join('.').id}.#{extra_keys.first.id}' with value '#{extra_key_value}'."
+                extra_key_value.raise "Unexpected property '#{([ext_name] + ext_path).join('.').id}.#{extra_keys.first.id}'."
               end
 
               # Then handle any light transformations needed to get the configuration value into the expected format/type
@@ -119,7 +119,7 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                 config_value = config_value.is_a?(Path) ? config_value.resolve : config_value
 
                 resolved_value = if config_value.is_a?(SymbolLiteral) && (type = prop["type"]) <= ::Enum
-                                   config_value.raise "Unknown '#{type}' enum member '#{config_value}' for property '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}'." unless type.constants.any?(&.downcase.id.==(config_value.id))
+                                   config_value.raise "Unknown '#{type}' enum member for property '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}'." unless type.constants.any?(&.downcase.id.==(config_value.id))
 
                                    # Resolve symbol literals to enum members
                                    config_value = "#{prop["global"] ? "::".id : "".id}#{type}.new(#{config_value})".id
@@ -259,7 +259,7 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
 
                                    # Resolve symbol literals to enum members
                                    if default_value.is_a?(SymbolLiteral) && (type = prop["type"]) <= ::Enum
-                                     config_value.raise "Unknown '#{type}' enum member '#{default_value}' for default value of property '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}'." unless type.constants.any?(&.downcase.id.==(default_value.id))
+                                     prop["default"].raise "Unknown '#{type}' enum member for default value of property '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}'." unless type.constants.any?(&.downcase.id.==(default_value.id))
 
                                      # Resolve symbol literals to enum members
                                      default_value = "#{prop["global"] ? "::".id : "".id}#{type}.new(#{default_value})".id

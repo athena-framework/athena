@@ -58,6 +58,11 @@ struct Athena::Validator::Violation::ConstraintViolationList
   end
 
   # :inherit:
+  def inspect(io : IO) : Nil
+    io << "#<AVD::ViolationList size=" << @violations.size << ">"
+  end
+
+  # :inherit:
   def to_s(io : IO) : Nil
     @violations.each do |violation|
       violation.to_s io
