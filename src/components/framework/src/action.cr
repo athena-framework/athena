@@ -1,12 +1,16 @@
 # Parent type of a controller action just used for typing.
 #
 # See `ATH::Action`.
-abstract struct Athena::Framework::ActionBase; end
+abstract class Athena::Framework::ActionBase
+  def inspect(io : IO) : Nil
+    io << "#<ATH::Action controller=" << self.controller << ">"
+  end
+end
 
 # Represents a controller action that will handle a request.
 #
 # Includes metadata about the endpoint, such as its controller, action parameters and return type, and the action that should be executed.
-struct Athena::Framework::Action(Controller, ReturnType, ParameterTypeTuple, ParametersType) < Athena::Framework::ActionBase
+class Athena::Framework::Action(Controller, ReturnType, ParameterTypeTuple, ParametersType) < Athena::Framework::ActionBase
   # Returns a tuple of `ATH::Controller::ParameterMetadata` representing the parameters this action expects.
   getter parameters : ParametersType
 

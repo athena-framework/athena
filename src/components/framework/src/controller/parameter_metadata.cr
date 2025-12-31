@@ -1,5 +1,10 @@
 # Represents a controller action parameter. Stores metadata associated with it, such as its name, type, and default value if any.
 struct Athena::Framework::Controller::ParameterMetadata(T)
+  # :inherit:
+  def inspect(io : IO) : Nil
+    io << "#<ATH::ParameterMetadata(" << {{ T.stringify }} << ") name=" << @name.inspect << ">"
+  end
+
   # Returns the name of the parameter.
   getter name : String
 
