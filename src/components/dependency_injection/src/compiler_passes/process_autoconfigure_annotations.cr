@@ -104,41 +104,9 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAutoconfigureAnnota
                   end
                 end
 
-                # TODO: Centralize tag handling logic between AutoConfigure and RegisterServices
+                # Append raw tags - will be normalized by ProcessTags pass
                 tags.each do |tag|
-                  name, attributes = if tag.is_a?(StringLiteral)
-                                       {tag, {} of Nil => Nil}
-                                     elsif tag.is_a?(Path)
-                                       {tag.resolve.id.stringify, {} of Nil => Nil}
-                                     elsif tag.is_a?(NamedTupleLiteral) || tag.is_a?(HashLiteral)
-                                       unless tag[:name]
-                                         tag.raise "Failed to register service '#{service_id.id}' (#{klass}). Tag must have a name."
-                                       end
-
-                                       # Resolve a constant to its value if used as a tag name
-                                       if tag["name"].is_a? Path
-                                         tag["name"] = tag["name"].resolve
-                                       end
-
-                                       attributes = {} of Nil => Nil
-
-                                       # TODO: Replace this with `#delete`...
-                                       tag.each do |k, v|
-                                         attributes[k.id.stringify] = v unless k.id.stringify == "name"
-                                       end
-
-                                       {tag["name"], attributes}
-                                     else
-                                       tag.raise "Tag must be a 'StringLiteral' or 'NamedTupleLiteral', got '#{tag.class_name.id}'."
-                                     end
-
-                  definition["tags"][name] = [] of Nil if definition["tags"][name] == nil
-                  definition["tags"][name] << attributes
-                  definition["tags"][name] = definition["tags"][name].uniq
-
-                  TAG_HASH[name] = [] of Nil if TAG_HASH[name] == nil
-                  TAG_HASH[name] << {service_id, attributes}
-                  TAG_HASH[name] = TAG_HASH[name].uniq
+                  definition["tags"] << tag
                 end
               end
             end
