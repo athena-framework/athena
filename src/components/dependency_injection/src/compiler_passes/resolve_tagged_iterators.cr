@@ -59,11 +59,12 @@ module Athena::DependencyInjection::ServiceContainer::ResolveTaggedIterators
         {%
           iterator_service_map.each do |name, metadata|
             SERVICE_HASH[name] = {
-              class:      name.camelcase,
-              bindings:   {} of Nil => Nil,
-              generics:   [metadata["type"], metadata["services"].size] of Nil,
-              calls:      [] of Nil,
-              parameters: {
+              class:               name.camelcase,
+              bindings:            {} of Nil => Nil,
+              generics:            [metadata["type"], metadata["services"].size] of Nil,
+              calls:               [] of Nil,
+              referenced_services: metadata["services"],
+              parameters:          {
                 container: {value: "self".id},
               },
             }

@@ -53,12 +53,13 @@ module Athena::Framework::Console::CompilerPasses::RegisterCommands
               end
 
               SERVICE_HASH[lazy_service_id = "_#{service_id.id}_lazy"] = {
-                class:      ACON::Commands::Lazy,
-                tags:       [] of Nil,
-                generics:   [] of Nil,
-                calls:      [] of Nil,
-                public:     false,
-                parameters: {
+                class:               ACON::Commands::Lazy,
+                tags:                [] of Nil,
+                generics:            [] of Nil,
+                calls:               [] of Nil,
+                public:              false,
+                referenced_services: [service_id],
+                parameters:          {
                   name:        {value: command_name},
                   aliases:     {value: "#{aliases} of String".id},
                   description: {value: ann["description"] || ""},
@@ -72,12 +73,13 @@ module Athena::Framework::Console::CompilerPasses::RegisterCommands
           end
 
           SERVICE_HASH[loader_id = "athena_console_command_loader_container"] = {
-            class:      "Athena::Framework::Console::ContainerCommandLoaderLocator",
-            tags:       [] of Nil,
-            generics:   [] of Nil,
-            calls:      [] of Nil,
-            public:     false,
-            parameters: {
+            class:               "Athena::Framework::Console::ContainerCommandLoaderLocator",
+            tags:                [] of Nil,
+            generics:            [] of Nil,
+            calls:               [] of Nil,
+            public:              false,
+            referenced_services: command_refs.values,
+            parameters:          {
               container: {value: "self".id},
             },
           }
@@ -96,6 +98,10 @@ module Athena::Framework::Console::CompilerPasses::RegisterCommands
 
           SERVICE_HASH["athena_console_application"]["parameters"]["command_loader"]["value"] = command_loader_service_id.id
           SERVICE_HASH["athena_console_application"]["parameters"]["eager_commands"]["value"] = "#{eager_service_ids} of ACON::Command".id
+          # Track eager commands as referenced services to ensure their getters are generated
+          eager_service_ids.each do |sid|
+            SERVICE_HASH["athena_console_application"]["referenced_services"] << sid
+          end
         %}
 
         # :nodoc:

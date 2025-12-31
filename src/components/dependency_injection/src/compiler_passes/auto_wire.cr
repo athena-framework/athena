@@ -39,11 +39,13 @@ module Athena::DependencyInjection::ServiceContainer::AutoWire
                                  end
 
               if resolved_service
-                param["value"] = if param["resolved_restriction"] < ADI::Proxy
-                                   "ADI::Proxy.new(#{resolved_service}, ->#{resolved_service.id})".id
-                                 else
-                                   resolved_service.id
-                                 end
+                if param["resolved_restriction"] < ADI::Proxy
+                  param["value"] = "ADI::Proxy.new(#{resolved_service}, ->#{resolved_service.id})".id
+                  # Track proxy references to ensure getters are generated
+                  definition["referenced_services"] << resolved_service
+                else
+                  param["value"] = resolved_service.id
+                end
               end
             end
           end

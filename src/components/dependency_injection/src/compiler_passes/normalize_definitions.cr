@@ -41,6 +41,10 @@ module Athena::DependencyInjection::ServiceContainer::NormalizeDefinitions
             unless definition_keys.includes? "generics"
               definition["generics"] = [] of Nil
             end
+
+            unless definition_keys.includes? "referenced_services"
+              definition["referenced_services"] = [] of Nil
+            end
           end
         %}
       {% end %}

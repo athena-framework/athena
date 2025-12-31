@@ -1,0 +1,9 @@
+project: dependency-injection
+kind: Changed
+body: Reduce the amount of ivars within `ADI::ServiceContainer`
+time: 2025-12-31T13:06:54.806828708-05:00
+custom:
+    Author: George Dietrich
+    Breaking: "No"
+    PR: "649"
+    Username: blacksmoke16
