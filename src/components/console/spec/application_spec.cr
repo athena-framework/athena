@@ -1,5 +1,15 @@
 require "./spec_helper"
 
+private class ProgramNameApplication < ACON::Application
+  def initialize(name : String, @test_program_name : String, version : String = "UNKNOWN")
+    super(name, version)
+  end
+
+  protected def program_name : String
+    @test_program_name
+  end
+end
+
 struct ApplicationTest < ASPEC::TestCase
   def tear_down : Nil
     ENV.delete "COLUMNS"
@@ -1073,5 +1083,81 @@ struct ApplicationTest < ASPEC::TestCase
     expect_raises ACON::Exception::CommandNotFound, "The 'foo' command cannot be found because it is registered under multiple names. Make sure you don't set a different name via constructor or 'name='." do
       app.get "foo"
     end
+  end
+
+  def test_use_program_name_as_command_runs_matching_command : Nil
+    app = ProgramNameApplication.new "foo", test_program_name: "mycommand"
+    app.auto_exit = false
+    app.use_program_name_as_command = true
+
+    app.register("mycommand") { |_, output| output.puts "mycommand executed"; ACON::Command::Status::SUCCESS }
+
+    tester = ACON::Spec::ApplicationTester.new app
+    tester.run
+
+    tester.display.should contain "mycommand executed"
+  end
+
+  def test_use_program_name_as_command_falls_back_when_no_match : Nil
+    app = ProgramNameApplication.new "foo", test_program_name: "nonexistent"
+    app.auto_exit = false
+    app.use_program_name_as_command = true
+
+    tester = ACON::Spec::ApplicationTester.new app
+    tester.run
+
+    # Should fall back to default command (list)
+    tester.display.should contain "Available commands:"
+  end
+
+  def test_use_program_name_as_command_takes_precedence_over_arguments : Nil
+    app = ProgramNameApplication.new "foo", test_program_name: "mycommand"
+    app.auto_exit = false
+    app.use_program_name_as_command = true
+
+    app.register("mycommand") do |input, output|
+      output.puts "mycommand executed"
+      output.puts "first arg: #{input.first_argument}"
+      ACON::Command::Status::SUCCESS
+    end.argument("arg", :optional)
+
+    tester = ACON::Spec::ApplicationTester.new app
+    tester.run input: {"arg" => "somevalue"}
+
+    # Program name takes precedence - "somevalue" becomes an argument, not a command
+    tester.display.should contain "mycommand executed"
+    tester.display.should contain "first arg: somevalue"
+  end
+
+  def test_use_program_name_as_command_disabled_ignores_program_name : Nil
+    app = ProgramNameApplication.new "foo", test_program_name: "mycommand"
+    app.auto_exit = false
+    app.use_program_name_as_command = false
+
+    app.register("mycommand") { |_, output| output.puts "mycommand executed"; ACON::Command::Status::SUCCESS }
+
+    tester = ACON::Spec::ApplicationTester.new app
+    tester.run
+
+    # Should show list since feature is disabled
+    tester.display.should contain "Available commands:"
+    tester.display.should_not contain "mycommand executed"
+  end
+
+  def test_use_program_name_as_command_single_command_takes_precedence : Nil
+    app = ProgramNameApplication.new "foo", test_program_name: "mycommand"
+    app.auto_exit = false
+    app.use_program_name_as_command = true
+
+    app.register("mycommand") { |_, output| output.puts "mycommand executed"; ACON::Command::Status::SUCCESS }
+    app.register("singlecmd") { |_, output| output.puts "singlecmd executed"; ACON::Command::Status::SUCCESS }
+    app.default_command "singlecmd", true
+
+    tester = ACON::Spec::ApplicationTester.new app
+    tester.run
+
+    # single_command mode should take precedence
+    tester.display.should contain "singlecmd executed"
+    tester.display.should_not contain "mycommand executed"
   end
 end
