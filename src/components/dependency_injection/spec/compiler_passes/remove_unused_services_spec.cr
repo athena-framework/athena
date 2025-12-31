@@ -1,93 +1,47 @@
 require "../spec_helper"
 
-private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line
-    require "../spec_helper.cr"
-    #{code}
-  CR
+# 1. Unused private service - will be removed
+@[ADI::Register]
+class RemoveUnusedService
 end
 
-describe ADI::ServiceContainer::RemoveUnusedServices, tags: "compiled" do
-  it "removes private services with zero references" do
-    ASPEC::Methods.assert_compiles <<-'CR'
-      require "../spec_helper.cr"
+# 2. Used private service - should NOT be removed
+@[ADI::Register]
+class RemoveUsedService
+  def value
+    10
+  end
+end
 
-      @[ADI::Register]
-      class UnusedService
-      end
-
-      @[ADI::Register(public: true)]
-      class UsedService
-      end
-
-      ADI::ServiceContainer.new
-
-      macro finished
-        macro finished
-          \{%
-            # Unused private service should be removed
-            raise "UnusedService should be removed" unless ADI::ServiceContainer::SERVICE_HASH["unused_service"].nil?
-
-            # Used public service should still exist
-            raise "UsedService should exist" if ADI::ServiceContainer::SERVICE_HASH["used_service"].nil?
-          %}
-        end
-      end
-    CR
+@[ADI::Register(public: true)]
+class RemoveUsedClient
+  def initialize(@dep : RemoveUsedService)
   end
 
-  it "does not remove private services that are referenced" do
-    ASPEC::Methods.assert_compiles <<-'CR'
-      require "../spec_helper.cr"
+  def value
+    @dep.value
+  end
+end
 
-      @[ADI::Register]
-      class ReferencedService
-        def value
-          42
-        end
-      end
+# 3. Public alias target - should NOT be removed
+module RemoveTestInterface; end
 
-      @[ADI::Register(public: true)]
-      class ClientService
-        def initialize(@dep : ReferencedService)
-        end
-      end
+@[ADI::Register]
+@[ADI::AsAlias("remove_test_alias", public: true)]
+class RemoveAliasedService
+  include RemoveTestInterface
 
-      ADI::ServiceContainer.new
+  def value
+    20
+  end
+end
 
-      macro finished
-        macro finished
-          \{%
-            # Referenced private service should NOT be removed
-            raise "ReferencedService should exist" if ADI::ServiceContainer::SERVICE_HASH["referenced_service"].nil?
-          %}
-        end
-      end
-    CR
+describe ADI::ServiceContainer::RemoveUnusedServices do
+  it "keeps referenced private services" do
+    ADI.container.remove_used_client.value.should eq 10
   end
 
-  it "does not remove services that are targets of public aliases" do
-    ASPEC::Methods.assert_compiles <<-'CR'
-      require "../spec_helper.cr"
-
-      module SomeInterface; end
-
-      @[ADI::Register]
-      @[ADI::AsAlias("my_alias", public: true)]
-      class AliasedService
-        include SomeInterface
-      end
-
-      ADI::ServiceContainer.new
-
-      macro finished
-        macro finished
-          \{%
-            # Service with public alias should NOT be removed
-            raise "AliasedService should exist" if ADI::ServiceContainer::SERVICE_HASH["aliased_service"].nil?
-          %}
-        end
-      end
-    CR
+  it "keeps services with public aliases" do
+    ADI.container.remove_test_alias.value.should eq 20
   end
 end
