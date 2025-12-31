@@ -93,34 +93,24 @@ module Athena::DependencyInjection::ServiceContainer::DefineGetters
                                                                                  end
                                                                                  str.id
                                                                                else
-                                                                                 str = "#{name.id}: #{value}"
-
-                                                                                 if (resolved_restriction = param["resolved_restriction"]) && resolved_restriction <= Array && value.of.is_a?(Nop)
-                                                                                   str += " of Union(#{resolved_restriction.type_vars.splat})"
-                                                                                 end
-
-                                                                                 str.id
+                                                                                 "#{name.id}: #{value}".id
                                                                                end
                                                                              end.splat
                                                                            }})
 
               {% for call in metadata[:calls] %}
                 {% method, args = call %}
-                {% if args %}
-                  {%
-                    transformed_args = args.map do |arg|
-                      arg_dep = SERVICE_HASH[arg.stringify]
-                      if arg_dep && arg_dep["inlined"] && arg_dep["inline_var"]
-                        arg_dep["inline_var"].id
-                      else
-                        arg
-                      end
+                {%
+                  transformed_args = args.map do |arg|
+                    arg_dep = SERVICE_HASH[arg.stringify]
+                    if arg_dep && arg_dep["inlined"] && arg_dep["inline_var"]
+                      arg_dep["inline_var"].id
+                    else
+                      arg
                     end
-                  %}
-                  instance.{{method.id}}({{transformed_args.splat}})
-                {% else %}
-                  instance.{{method.id}}
-                {% end %}
+                  end
+                %}
+                instance.{{method.id}}({{transformed_args.splat}})
               {% end %}
 
               instance

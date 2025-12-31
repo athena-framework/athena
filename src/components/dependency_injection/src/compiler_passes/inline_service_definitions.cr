@@ -178,11 +178,7 @@ module Athena::DependencyInjection::ServiceContainer::InlineServiceDefinitions
                       end
                       param_strs << str
                     else
-                      str = "#{name.id}: #{value}"
-                      if (resolved_restriction = param["resolved_restriction"]) && resolved_restriction <= Array && value.of.is_a?(Nop)
-                        str += " of Union(#{resolved_restriction.type_vars.splat})"
-                      end
-                      param_strs << str
+                      param_strs << "#{name.id}: #{value}"
                     end
                   end
                 end
@@ -194,19 +190,15 @@ module Athena::DependencyInjection::ServiceContainer::InlineServiceDefinitions
                 if calls = definition["calls"]
                   calls.each do |call|
                     method, args = call
-                    if args
-                      transformed_args = args.map do |arg|
-                        arg_dep = SERVICE_HASH[arg.stringify]
-                        if arg_dep && arg_dep["inlined"] && arg_dep["inline_var"]
-                          arg_dep["inline_var"].id
-                        else
-                          arg
-                        end
+                    transformed_args = args.map do |arg|
+                      arg_dep = SERVICE_HASH[arg.stringify]
+                      if arg_dep && arg_dep["inlined"] && arg_dep["inline_var"]
+                        arg_dep["inline_var"].id
+                      else
+                        arg
                       end
-                      setup_lines << "#{var_name.id}.#{method.id}(#{transformed_args.splat})"
-                    else
-                      setup_lines << "#{var_name.id}.#{method.id}"
                     end
+                    setup_lines << "#{var_name.id}.#{method.id}(#{transformed_args.splat})"
                   end
                 end
 
