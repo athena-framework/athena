@@ -2,13 +2,13 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Which Cloudflare Pages branch to deploy the docs to'
+        description: 'Which Cloudflare Pages branch (master | dev) to deploy the docs to'
         type: string
         required: true
   workflow_call:
     inputs:
       branch:
-        description: 'Which Cloudflare Pages branch to deploy the docs to'
+        description: 'Which Cloudflare Pages branch (master | dev) to deploy the docs to'
         type: string
         required: true
 
@@ -20,7 +20,7 @@ jobs:
       - uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3.0.0
       - name: Install Crystal
         uses: crystal-lang/install-crystal@56684e85b94c6340f5035965d57dcfdedd1ab0de # v1.9.1
-      - name: Install Components
+      - name: Install Crystal Shard Dependencies
         run: shards install --without-development
         env:
           SHARDS_OVERRIDE: ${{ inputs.branch == 'dev' && 'shard.dev.yml' || 'shard.prod.yml' }}

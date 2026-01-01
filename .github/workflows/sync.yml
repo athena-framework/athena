@@ -10,11 +10,11 @@ concurrency:
   cancel-in-progress: false # ensure back-to-back merges don't cancel an in-progress sync
 
 jobs:
-  # Sync changes in the merged PR to the component specific repos.
+  # Sync changes in the merged PR to the read-only mirror repos.
   sync:
     runs-on: ubuntu-latest
     outputs:
-      updated_components: ${{ steps.subtree-sync.outputs.updated_components }}
+      updated_shards: ${{ steps.subtree-sync.outputs.updated_shards }}
       kind_docs: ${{ steps.subtree-sync.outputs.kind_docs }}
       kind_release: ${{ steps.subtree-sync.outputs.kind_release }}
     steps:
@@ -57,7 +57,7 @@ jobs:
           make prefix="$INSTALL_DIR" install
       - name: Add custom Git to PATH
         run: echo "$HOME/git-custom/bin" >> "$GITHUB_PATH"
-      - name: Sync Components
+      - name: Sync Shards
         id: subtree-sync
         env:
           GH_TOKEN: ${{ github.token }}
@@ -66,27 +66,30 @@ jobs:
         run: |
           set -euo pipefail
 
-          UPDATED_COMPONENTS=()
+          UPDATED_SHARDS=()
 
-          for componentName in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | xargs -I{} basename {} | sort); do
+          for shardDir in $(find src/ -maxdepth 3 -type f -name shard.yml | xargs -I{} dirname {} | sort); do
             # The git repos uses hyphens instead of underscores.
-            REPO_NAME=$(echo "$componentName" | tr '_' '-')
+            REPO_NAME=$(basename "$shardDir" | tr '_' '-')
+            if [[ "$shardDir" == src/bundles/* ]]; then
+              REPO_NAME="${REPO_NAME}-bundle"
+            fi
+
             REPO_URL="git@github.com:athena-framework/$REPO_NAME.git"
-            COMPONENT_DIR="src/components/$componentName"
 
-            if ! $(git diff --quiet --exit-code $BEFORE_SHA $AFTER_SHA -- "$COMPONENT_DIR"); then
+            if ! $(git diff --quiet --exit-code $BEFORE_SHA $AFTER_SHA -- "$shardDir"); then
               echo "Syncing: $REPO_NAME"
-              git remote add $componentName $REPO_URL &> /dev/null || true
-              git fetch --quiet $componentName
-              git subtree push --prefix="$COMPONENT_DIR" "$componentName" "master"
+              git remote add "$REPO_NAME" "$REPO_URL" &> /dev/null || true
+              git fetch --quiet "$REPO_NAME"
+              git subtree push --prefix="$shardDir" "$REPO_NAME" "master"
 
-              UPDATED_COMPONENTS+=("\"$REPO_NAME\"")
+              UPDATED_SHARDS+=("\"$REPO_NAME\"")
             fi
           done
 
-          JSON_ARR=$(IFS=,; echo "[${UPDATED_COMPONENTS[*]}]")
-          echo "Changed components: $JSON_ARR"
-          echo "updated_components=$JSON_ARR" >> "$GITHUB_OUTPUT"
+          JSON_ARR=$(IFS=,; echo "[${UPDATED_SHARDS[*]}]")
+          echo "Changed shards: $JSON_ARR"
+          echo "updated_shards=$JSON_ARR" >> "$GITHUB_OUTPUT"
 
           PR_LABELS=$(gh api --jq '.[0].labels | map(.name)' /repos/athena-framework/athena/commits/${{ github.event.after }}/pulls)
 
@@ -99,17 +102,17 @@ jobs:
   release:
     needs:
       - sync
-    if: needs.sync.outputs.updated_components != '[]' && needs.sync.outputs.kind_release == 'true'
+    if: needs.sync.outputs.updated_shards != '[]' && needs.sync.outputs.kind_release == 'true'
     strategy:
       fail-fast: false
       matrix:
-        component: ${{ fromJson(needs.sync.outputs.updated_components) }}
+        shard: ${{ fromJson(needs.sync.outputs.updated_shards) }}
     uses: ./.github/workflows/tag_and_create_release.yml
     secrets: inherit
     with:
-      component: ${{ matrix.component }}
+      shard: ${{ matrix.shard }}
 
-  # Trigger a re-build of the docs after all components were released.
+  # Trigger a re-build of the docs after all shards were released.
   build-docs:
     needs:
       - release
@@ -118,20 +121,20 @@ jobs:
     with:
       branch: master
 
-  # Cherry picks changes into `docs` branch of each changed component(s) for PRs with the `kind:documentation` label
+  # Cherry picks changes into `docs` branch of each changed shard(s) for PRs with the `kind:documentation` label
   pick-docs:
     runs-on: ubuntu-latest
     needs:
       - sync
-    if: needs.sync.outputs.updated_components != '[]' && needs.sync.outputs.kind_docs == 'true'
+    if: needs.sync.outputs.updated_shards != '[]' && needs.sync.outputs.kind_docs == 'true'
     strategy:
       fail-fast: false
       matrix:
-        component: ${{ fromJson(needs.sync.outputs.updated_components) }}
+        shard: ${{ fromJson(needs.sync.outputs.updated_shards) }}
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          repository: athena-framework/${{ matrix.component }}
+          repository: athena-framework/${{ matrix.shard }}
           ref: docs
           ssh-key: ${{ secrets.ATHENA_BOT_SSH_PRIV_KEY }}
       - name: Cherry pick commit
@@ -141,27 +144,27 @@ jobs:
           git config user.name "${{ vars.BOT_USER_NAME }}"
           git config user.email "${{ vars.BOT_USER_EMAIL }}"
 
-          NEW_COMMIT=$(git ls-remote "git@github.com:athena-framework/${{ matrix.component }}.git" HEAD | awk '{ print $1}')
+          NEW_COMMIT=$(git ls-remote "git@github.com:athena-framework/${{ matrix.shard }}.git" HEAD | awk '{ print $1}')
           git fetch origin $NEW_COMMIT
           git cherry-pick $NEW_COMMIT
           git push origin docs
 
-  # If there were component related doc updates, trigger a re-build after all components were synced.
-  build-component-docs:
+  # If there were shard related doc updates, trigger a re-build after all shards were synced.
+  build-shard-docs:
     needs:
       - sync # This needs to also depend on `sync` so we cn use its outputs even if it's redundant because of the dependency on `pick-docs`.
       - pick-docs
-    if: needs.sync.outputs.kind_docs == 'true' && needs.sync.outputs.updated_components != '[]'
+    if: needs.sync.outputs.kind_docs == 'true' && needs.sync.outputs.updated_shards != '[]'
     uses: ./.github/workflows/build_and_publish_docs.yml
     secrets: inherit
     with:
       branch: master
 
-  # If there were no component related doc updates, simply trigger a re-build after `sync` job to handle updates to the root docs.
+  # If there were no shard related doc updates, simply trigger a re-build after `sync` job to handle updates to the root docs.
   build-root-docs:
     needs:
       - sync
-    if: needs.sync.outputs.kind_docs == 'true' && needs.sync.outputs.updated_components == '[]'
+    if: needs.sync.outputs.kind_docs == 'true' && needs.sync.outputs.updated_shards == '[]'
     uses: ./.github/workflows/build_and_publish_docs.yml
     secrets: inherit
     with:

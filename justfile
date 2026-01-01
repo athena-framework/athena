@@ -14,56 +14,56 @@ export CRYSTAL := 'crystal'
 _default:
     @just --list --unsorted
 
-# Installs dev dependencies
+# Installs Crystal shard dependencies
 [group('dev')]
 install:
     SHARDS_OVERRIDE=shard.dev.yml shards update
 
-# Runs and watches for changes to the main entrypoint file of the provided `component`
+# Run shard entrypoint with live reload
 [group('dev')]
-watch component:
-    watchexec --restart --watch=src/ --emit-events-to=none --clear --no-project-ignore -- {{ CRYSTAL }} run src/components/{{ component }}/src/{{ if component == 'framework' { 'athena' } else { 'athena-' + component } }}.cr
+watch shard type='component':
+    watchexec --restart --watch=src/ --emit-events-to=none --clear --no-project-ignore -- {{ CRYSTAL }} run src/{{ type }}s/{{ shard }}/src/{{ if shard == 'framework' { 'athena' } else { 'athena-' + shard } }}.cr
 
-# Runs the test suite of the provided `component`, or `all` for all components, and watches for changes
+# Run tests with live reload
 [group('dev')]
-watch-test component:
-    watchexec --restart --watch=src/ --emit-events-to=none --clear --no-project-ignore -- {{ CRYSTAL }} spec src/components/{{ component }}/
+watch-test shard type='component':
+    watchexec --restart --watch=src/ --emit-events-to=none --clear --no-project-ignore -- {{ CRYSTAL }} spec src/{{ type }}s/{{ shard }}/
 
-# Runs the test suite of the provided `component`, defaulting to `all` components
+# Run test suite; `type` is ignored when running test suite for all shards
 [group('dev')]
-test component='all':
-    ./scripts/test.sh {{ component }}
+test shard='all' type='component':
+    ./scripts/test.sh {{ shard }} all {{ type }}
 
-# Runs the unit test suite of the provided `component`, defaulting to `all` components
+# Run unit tests only; `type` is ignored when running test suite for all shards
 [group('dev')]
-test-unit component='all':
-    ./scripts/test.sh {{ component }} unit
+test-unit shard='all' type='component':
+    ./scripts/test.sh {{ shard }} unit {{ type }}
 
-# Runs the compiled test suite of the provided `component`, defaulting to `all` components
+# Run compiled tests only; `type` is ignored when running test suite for all shards
 [group('dev')]
-test-compiled component='all':
-    ./scripts/test.sh {{ component }} compiled
+test-compiled shard='all' type='component':
+    ./scripts/test.sh {{ shard }} compiled {{ type }}
 
-# Runs all check related tasks
+# Run all linters (format + ameba + spellcheck)
 [group('check')]
 lint: spellcheck format ameba
 
-# Runs the Crystal formatter
+# Check Crystal formatting
 [group('check')]
 format:
     {{ CRYSTAL }} tool format
 
-# Runs the Crystal formatter, fixing any issues
+# Fix Crystal formatting issues
 [group('check')]
 format-fix:
     {{ CRYSTAL }} tool format --fix
 
-# Runs `Ameba` static analysis
+# Run Ameba static analysis
 [group('check')]
 ameba:
     ./bin/ameba
 
-# Runs `typos` spellchecker
+# Run typos spellchecker
 [group('check')]
 spellcheck:
     typos
@@ -78,13 +78,13 @@ build-docs: _symlink_lib
 serve-docs: _symlink_lib
     {{ UV }} run --frozen mkdocs serve --livereload
 
-# Clean MKDocs build artifacts
+# Clean MkDocs build artifacts
 [group('docs')]
 clean-docs:
     rm -rf {{ OUTPUT_DIR }}
-    find src/components -type d -name "site" -exec rm -rf {} +
+    find src/ -type d -name "site" -exec rm -rf {} +
 
-# Creates a new change file
+# Create a new change file
 [group('administrative')]
 change:
     #!/usr/bin/env bash
@@ -92,27 +92,27 @@ change:
       --custom Author="${CHANGIE_CUSTOM_AUTHOR}" \
       --custom Username="${CHANGIE_CUSTOM_USERNAME}"
 
-# Batches change files for the provided *component* into a new intermdiary *version* file, defaulting to a `patch` release
+# Batch change files into a version changelog
 [group('administrative')]
-batch component version='patch':
-    changie batch --project {{ component }} {{ version }}
+batch project version='patch':
+    changie batch --project {{ project }} {{ version }}
 
-# Merges/releases all pending intermdiary changelog files
+# Merge pending changelogs into CHANGELOG.md
 [group('administrative')]
 merge:
     changie merge
 
-# Upgrade python deps
+# Upgrade Python dependencies
 [group('administrative')]
 upgrade:
     {{ UV }} lock --upgrade
 
-# Clean build artifacts (.venv), and docs
+# Clean build artifacts and docs
 [group('administrative')]
 clean: clean-docs
     rm -rf .venv
 
 _symlink_lib:
-    @ for component in $(find src/components/ -maxdepth 2 -type f -name shard.yml | xargs -I{} dirname {} | xargs -I{} basename {} | sort); do \
-      ln --force --verbose --symbolic {{ (invocation_directory_native() / 'lib') }} "src/components/$component/lib"; \
+    @ for shardDir in $(find src/ -maxdepth 3 -type f -name shard.yml | xargs -I{} dirname {} | sort); do \
+      ln --force --verbose --symbolic {{ (invocation_directory_native() / 'lib') }} "$shardDir/lib"; \
     done
