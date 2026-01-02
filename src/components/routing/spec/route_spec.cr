@@ -65,6 +65,20 @@ struct RouteTest < ASPEC::TestCase
 
     route.has_default?("foo").should be_true
     route.has_default?("missing").should be_false
+
+    route.defaults = ART::Parameters.new
+    route.defaults.should be_empty
+
+    # Test add_defaults with ART::Parameters
+    params = ART::Parameters.new({"key1" => "value1", "key2" => "value2"})
+    route.add_defaults(params)
+    route.defaults.should eq({"key1" => "value1", "key2" => "value2"})
+
+    # Test typed default getter
+    route.set_default "count", 42
+    route.default("count", Int32).should eq 42
+    route.default("missing", Int32).should be_nil
+    route.default("key1", String).should eq "value1"
   end
 
   def test_requirements : Nil
