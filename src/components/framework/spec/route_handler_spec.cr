@@ -14,13 +14,13 @@ private struct MockArgumentResolver
   end
 end
 
-private struct MockControllerResolver
-  include Athena::Framework::ControllerResolverInterface
+private struct MockActionResolver
+  include Athena::Framework::ActionResolverInterface
 
   def initialize(@action : ATH::ActionBase? = nil); end
 
-  def resolve(request : AHTTP::Request) : ATH::ActionBase
-    @action.not_nil!
+  def resolve(request : AHTTP::Request) : ATH::ActionBase?
+    @action
   end
 end
 
@@ -33,7 +33,7 @@ describe Athena::Framework::RouteHandler do
           action = create_action(AHTTP::Response) do
             AHTTP::Response.new "TEST"
           end
-          handler = ATH::RouteHandler.new dispatcher, AHTTP::RequestStore.new, MockArgumentResolver.new, MockControllerResolver.new action
+          handler = ATH::RouteHandler.new dispatcher, AHTTP::RequestStore.new, MockArgumentResolver.new, MockActionResolver.new action
 
           response = handler.handle new_request(action: action)
 
@@ -41,6 +41,15 @@ describe Athena::Framework::RouteHandler do
           response.content.should eq "TEST"
 
           dispatcher.emitted_events.should eq [ATH::Events::Request, ATH::Events::Action, ATH::Events::Response]
+        end
+
+        it "should raise if the action is unable to be resolved" do
+          dispatcher = AED::Spec::TracableEventDispatcher.new
+          handler = ATH::RouteHandler.new dispatcher, AHTTP::RequestStore.new, MockArgumentResolver.new, MockActionResolver.new
+
+          expect_raises ATH::Exception::NotFound, "Unable to find the controller for path '/test'." do
+            handler.handle new_request
+          end
         end
       end
 
@@ -53,7 +62,7 @@ describe Athena::Framework::RouteHandler do
 
           action = new_action
 
-          handler = ATH::RouteHandler.new dispatcher, AHTTP::RequestStore.new, MockArgumentResolver.new, MockControllerResolver.new action
+          handler = ATH::RouteHandler.new dispatcher, AHTTP::RequestStore.new, MockArgumentResolver.new, MockActionResolver.new action
 
           response = handler.handle request = new_request action: action
 
@@ -72,7 +81,7 @@ describe Athena::Framework::RouteHandler do
             nil
           end
 
-          handler = ATH::RouteHandler.new dispatcher, AHTTP::RequestStore.new, MockArgumentResolver.new, MockControllerResolver.new action
+          handler = ATH::RouteHandler.new dispatcher, AHTTP::RequestStore.new, MockArgumentResolver.new, MockActionResolver.new action
 
           expect_raises Exception, "'TestController#test' must return an `AHTTP::Response` but it returned ''." do
             handler.handle new_request
@@ -89,7 +98,7 @@ describe Athena::Framework::RouteHandler do
             event.response = AHTTP::Response.new "", ::HTTP::Status::IM_A_TEAPOT, ::HTTP::Headers{"FOO" => "BAR"}
           end
 
-          handler = ATH::RouteHandler.new dispatcher, AHTTP::RequestStore.new, MockArgumentResolver.new, MockControllerResolver.new
+          handler = ATH::RouteHandler.new dispatcher, AHTTP::RequestStore.new, MockArgumentResolver.new, MockActionResolver.new
 
           response = handler.handle new_request
 
@@ -110,7 +119,7 @@ describe Athena::Framework::RouteHandler do
             event.response = AHTTP::Response.new "HANDLED", ::HTTP::Status::BAD_REQUEST
           end
 
-          handler = ATH::RouteHandler.new dispatcher, AHTTP::RequestStore.new, MockArgumentResolver.new(ATH::Exception::BadRequest.new("TEST_EX")), MockControllerResolver.new new_action
+          handler = ATH::RouteHandler.new dispatcher, AHTTP::RequestStore.new, MockArgumentResolver.new(ATH::Exception::BadRequest.new("TEST_EX")), MockActionResolver.new new_action
 
           response = handler.handle new_request
 
@@ -125,7 +134,7 @@ describe Athena::Framework::RouteHandler do
         it "should emit the proper events and set correct response" do
           dispatcher = AED::Spec::TracableEventDispatcher.new
 
-          handler = ATH::RouteHandler.new dispatcher, AHTTP::RequestStore.new, MockArgumentResolver.new(ATH::Exception::BadRequest.new("TEST_EX")), MockControllerResolver.new new_action
+          handler = ATH::RouteHandler.new dispatcher, AHTTP::RequestStore.new, MockArgumentResolver.new(ATH::Exception::BadRequest.new("TEST_EX")), MockActionResolver.new new_action
 
           expect_raises ATH::Exception::BadRequest, "TEST_EX" do
             handler.handle new_request
@@ -150,7 +159,7 @@ describe Athena::Framework::RouteHandler do
             AHTTP::Response.new "TEST"
           end
 
-          handler = ATH::RouteHandler.new dispatcher, AHTTP::RequestStore.new, MockArgumentResolver.new, MockControllerResolver.new action
+          handler = ATH::RouteHandler.new dispatcher, AHTTP::RequestStore.new, MockArgumentResolver.new, MockActionResolver.new action
 
           response = handler.handle new_request action: action
 
@@ -166,7 +175,7 @@ describe Athena::Framework::RouteHandler do
   describe "#terminate" do
     it "emits the terminate event" do
       dispatcher = AED::Spec::TracableEventDispatcher.new
-      handler = ATH::RouteHandler.new dispatcher, AHTTP::RequestStore.new, MockArgumentResolver.new, MockControllerResolver.new
+      handler = ATH::RouteHandler.new dispatcher, AHTTP::RequestStore.new, MockArgumentResolver.new, MockActionResolver.new
 
       handler.terminate new_request, AHTTP::Response.new
 

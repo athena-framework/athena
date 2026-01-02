@@ -7,7 +7,7 @@ struct Athena::Framework::RouteHandler
     @event_dispatcher : ACTR::EventDispatcher::Interface,
     @request_store : AHTTP::RequestStore,
     @argument_resolver : ATH::Controller::ArgumentResolverInterface,
-    @controller_resolver : ATH::ControllerResolverInterface,
+    @action_resolver : ATH::ActionResolverInterface,
   )
   end
 
@@ -61,9 +61,9 @@ struct Athena::Framework::RouteHandler
       return finish_response response, request
     end
 
-    # TODO: Possibly add another event here to allow modification of the resolved "controller"?
-    action = @controller_resolver.resolve request
-    request.attributes.set "_action", action
+    unless action = @action_resolver.resolve request
+      raise ATH::Exception::NotFound.new "Unable to find the controller for path '#{request.path}'."
+    end
 
     # Emit the action event.
     @event_dispatcher.dispatch ATH::Events::Action.new request, action
