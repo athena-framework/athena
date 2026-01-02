@@ -41,7 +41,7 @@ context = ART::RequestContext.new
 
 # Match a request by path.
 matcher = ART::Matcher::URLMatcher.new context
-matcher.match "/blog/foo-bar" # => {"_route" => "blog_show", "slug" => "foo-bar"}
+matcher.match "/blog/foo-bar" # => ART::Parameters{"_route" => "blog_show", "slug" => "foo-bar"}
 ```
 
 It is also possible to go the other way, generate a URL based on its name and set of parameters:

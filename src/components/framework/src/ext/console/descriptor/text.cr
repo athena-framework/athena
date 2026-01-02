@@ -14,7 +14,7 @@ class Athena::Framework::Console::Descriptor::Text < Athena::Framework::Console:
       ["Methods", (methods = route.methods) ? methods.join('|') : "ANY"],
       ["Requirements", !(requirements = route.requirements).empty? ? self.format_router_config(requirements) : "NO CUSTOM"],
       ["Class", route.class.to_s],
-      ["Defaults", self.format_router_config(defaults)],
+      ["Defaults", self.format_router_config(defaults.to_h)],
     ]
 
     ACON::Helper::Table.new(self.output)
@@ -30,7 +30,7 @@ class Athena::Framework::Console::Descriptor::Text < Athena::Framework::Console:
     headers << "Controller" if show_controllers
 
     rows = routes.map do |name, route|
-      controller = route.default "_controller"
+      controller = route.default "_controller", String
 
       row = [
         name,

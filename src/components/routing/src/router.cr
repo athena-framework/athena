@@ -44,12 +44,12 @@ class Athena::Routing::Router
   end
 
   # :inherit:
-  def match(path : String) : Hash(String, String?)
+  def match(path : String) : ART::Parameters
     self.matcher.match path
   end
 
   # :inherit:
-  def match(request : ART::Request) : Hash(String, String?)
+  def match(request : ART::Request) : ART::Parameters
     matcher = self.matcher
 
     unless matcher.is_a? ART::Matcher::RequestMatcherInterface
@@ -60,12 +60,12 @@ class Athena::Routing::Router
   end
 
   # :inherit:
-  def match?(path : String) : Hash(String, String?)?
+  def match?(path : String) : ART::Parameters?
     self.matcher.match? path
   end
 
   # :inherit:
-  def match?(request : ART::Request) : Hash(String, String?)?
+  def match?(request : ART::Request) : ART::Parameters?
     matcher = self.matcher
 
     unless matcher.is_a? ART::Matcher::RequestMatcherInterface

@@ -15,21 +15,21 @@ class Athena::Routing::Matcher::URLMatcher
   ); end
 
   # :inherit:
-  def match(@request : ART::Request) : Hash(String, String?)
+  def match(@request : ART::Request) : ART::Parameters
     self.match @request.not_nil!.path
   ensure
     @request = nil
   end
 
   # :inherit:
-  def match?(@request : ART::Request) : Hash(String, String?)?
+  def match?(@request : ART::Request) : ART::Parameters?
     self.match? @request.not_nil!.path
   ensure
     @request = nil
   end
 
   # :inherit:
-  def match(path : String) : Hash(String, String?)
+  def match(path : String) : ART::Parameters
     allow = Array(String).new
     allow_schemes = Array(String).new
 
@@ -53,7 +53,7 @@ class Athena::Routing::Matcher::URLMatcher
       path = trimmed_path == path ? "#{path}/" : trimmed_path
 
       if match = self.do_match path, allow, allow_schemes
-        return match.merge! self.redirect(path, match["_route"].not_nil!("BUG: match does not have a '_route'."))
+        return match.merge! self.redirect(path, match["_route"])
       end
 
       unless allow_schemes.empty?
@@ -65,12 +65,12 @@ class Athena::Routing::Matcher::URLMatcher
   end
 
   # :inherit:
-  def match?(path : String) : Hash(String, String?)?
+  def match?(path : String) : ART::Parameters?
     self.do_match path, Array(String).new, Array(String).new
   end
 
   # ameba:disable Metrics/CyclomaticComplexity
-  private def do_match(path : String, allow : Array(String) = [] of String, allow_schemes : Array(String) = [] of String) : Hash(String, String?)?
+  private def do_match(path : String, allow : Array(String) = [] of String, allow_schemes : Array(String) = [] of String) : ART::Parameters?
     allow.clear
     allow_schemes.clear
 
@@ -226,7 +226,7 @@ class Athena::Routing::Matcher::URLMatcher
 
     begin
       if match = self.do_match path
-        return match.merge! self.redirect(path, match["_route"].not_nil!("BUG: match does not have a '_route'."), @context.scheme)
+        return match.merge! self.redirect(path, match["_route"], @context.scheme)
       end
     ensure
       @context.scheme = scheme

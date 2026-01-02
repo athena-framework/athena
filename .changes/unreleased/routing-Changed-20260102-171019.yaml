@@ -1,0 +1,9 @@
+project: routing
+kind: Changed
+body: Change `ART::Route#defaults` and matched route parameters return type to `ART::Parameters`
+time: 2026-01-02T17:10:19.973645922-05:00
+custom:
+    Author: George Dietrich
+    Breaking: "Yes"
+    PR: "652"
+    Username: blacksmoke16

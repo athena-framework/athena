@@ -8,8 +8,8 @@ Hash(String, Array(ART::RouteProvider::StaticRouteData)).new
 ####
 {
   "55" => [
-    { {"_route" => "r1"}, Set{"foo", "foo"}, nil, nil, false, true, nil },
-    { {"_route" => "r2"}, Set{"foo", "foo"}, nil, nil, false, true, nil },
+    {ART::Parameters.new({"_route" => "r1"}), Set{"foo", "foo"}, nil, nil, false, true, nil},
+    {ART::Parameters.new({"_route" => "r2"}), Set{"foo", "foo"}, nil, nil, false, true, nil},
   ],
 }
 ####

@@ -4,13 +4,13 @@ require "./abstract_url_matcher_test_case"
 private class MockRedirectableURLMatcher < ART::Matcher::URLMatcher
   include ART::Matcher::RedirectableURLMatcherInterface
 
-  class_setter return_value : Hash(String, String?) = Hash(String, String?).new
+  class_setter return_value : ART::Parameters = ART::Parameters.new
   class_setter was_called : Bool = true
   class_setter expected_path : String? = nil
   class_setter expected_route : String? = nil
   class_setter expected_scheme : String? = nil
 
-  def redirect(path : String, route : String, scheme : String? = nil) : Hash(String, String?)?
+  def redirect(path : String, route : String, scheme : String? = nil) : ART::Parameters?
     @@was_called.should be_true
 
     if ep = @@expected_path
@@ -25,9 +25,9 @@ private class MockRedirectableURLMatcher < ART::Matcher::URLMatcher
       scheme.should eq es
     end
 
-    @@return_value
+    @@return_value.dup
   ensure
-    @@return_value = Hash(String, String?).new
+    @@return_value = ART::Parameters.new
     @@was_called = true
     @@expected_path = nil
     @@expected_route = nil
@@ -41,7 +41,7 @@ struct RedirectableURLMatcherTest < AbstractURLMatcherTestCase
       add "test", ART::Route.new "/foo/"
     end
 
-    self.get_matcher(routes).match("/foo").should eq({"_route" => "test"})
+    self.get_matcher(routes).match("/foo").to_h.should eq({"_route" => "test"})
   end
 
   def test_match_extra_trailing_slash : Nil
@@ -49,7 +49,7 @@ struct RedirectableURLMatcherTest < AbstractURLMatcherTestCase
       add "test", ART::Route.new "/foo"
     end
 
-    self.get_matcher(routes).match("/foo/").should eq({"_route" => "test"})
+    self.get_matcher(routes).match("/foo/").to_h.should eq({"_route" => "test"})
   end
 
   def test_redirect_when_no_slash_for_non_safe_method : Nil
@@ -72,7 +72,7 @@ struct RedirectableURLMatcherTest < AbstractURLMatcherTestCase
     MockRedirectableURLMatcher.expected_route = "test"
     # MockRedirectableURLMatcher.expected_scheme = "ftp"
 
-    self.get_matcher(routes).match("/foo").should eq({"_route" => "test"})
+    self.get_matcher(routes).match("/foo").to_h.should eq({"_route" => "test"})
   end
 
   # TODO: Enable when schemes are supported
@@ -83,7 +83,7 @@ struct RedirectableURLMatcherTest < AbstractURLMatcherTestCase
 
     MockRedirectableURLMatcher.was_called = false
 
-    self.get_matcher(routes).match("/foo").should eq({"_route" => "test"})
+    self.get_matcher(routes).match("/foo").to_h.should eq({"_route" => "test"})
   end
 
   # TODO: Enable when schemes are supported
@@ -92,12 +92,14 @@ struct RedirectableURLMatcherTest < AbstractURLMatcherTestCase
       add "test", ART::Route.new "/foo/{bar}", schemes: "https"
     end
 
-    MockRedirectableURLMatcher.return_value = {"redirect" => "value"} of String => String?
+    rv = ART::Parameters.new
+    rv["redirect"] = "value"
+    MockRedirectableURLMatcher.return_value = rv
     MockRedirectableURLMatcher.expected_path = "/foo/baz"
     MockRedirectableURLMatcher.expected_route = "test"
     # MockRedirectableURLMatcher.expected_scheme = "https"
 
-    self.get_matcher(routes).match("/foo/baz").should eq({"_route" => "test", "bar" => "baz", "redirect" => "value"})
+    self.get_matcher(routes).match("/foo/baz").to_h.should eq({"_route" => "test", "bar" => "baz", "redirect" => "value"})
   end
 
   def test_scheme_redirect_for_root : Nil
@@ -105,12 +107,14 @@ struct RedirectableURLMatcherTest < AbstractURLMatcherTestCase
       add "test", ART::Route.new "/", schemes: "https"
     end
 
-    MockRedirectableURLMatcher.return_value = {"redirect" => "value"} of String => String?
+    rv = ART::Parameters.new
+    rv["redirect"] = "value"
+    MockRedirectableURLMatcher.return_value = rv
     MockRedirectableURLMatcher.expected_path = "/"
     MockRedirectableURLMatcher.expected_route = "test"
     # MockRedirectableURLMatcher.expected_scheme = "https"
 
-    self.get_matcher(routes).match("/").should eq({"_route" => "test", "redirect" => "value"})
+    self.get_matcher(routes).match("/").to_h.should eq({"_route" => "test", "redirect" => "value"})
   end
 
   def test_slash_redirect_with_params : Nil
@@ -118,11 +122,13 @@ struct RedirectableURLMatcherTest < AbstractURLMatcherTestCase
       add "test", ART::Route.new "/foo/{bar}/"
     end
 
-    MockRedirectableURLMatcher.return_value = {"redirect" => "value"} of String => String?
+    rv = ART::Parameters.new
+    rv["redirect"] = "value"
+    MockRedirectableURLMatcher.return_value = rv
     MockRedirectableURLMatcher.expected_path = "/foo/baz/"
     MockRedirectableURLMatcher.expected_route = "test"
 
-    self.get_matcher(routes).match("/foo/baz").should eq({"_route" => "test", "bar" => "baz", "redirect" => "value"})
+    self.get_matcher(routes).match("/foo/baz").to_h.should eq({"_route" => "test", "bar" => "baz", "redirect" => "value"})
   end
 
   def test_redirect_preserves_url_encoding : Nil
@@ -132,7 +138,7 @@ struct RedirectableURLMatcherTest < AbstractURLMatcherTestCase
 
     MockRedirectableURLMatcher.expected_path = "/foo%3Abar/"
 
-    self.get_matcher(routes).match("/foo%3Abar").should eq({"_route" => "test"})
+    self.get_matcher(routes).match("/foo%3Abar").to_h.should eq({"_route" => "test"})
   end
 
   def test_match_scheme_requirement : Nil
@@ -140,7 +146,7 @@ struct RedirectableURLMatcherTest < AbstractURLMatcherTestCase
       add "test", ART::Route.new "/foo", schemes: "https"
     end
 
-    self.get_matcher(routes).match("/foo").should eq({"_route" => "test"})
+    self.get_matcher(routes).match("/foo").to_h.should eq({"_route" => "test"})
   end
 
   def test_fallback_page1 : Nil
@@ -152,7 +158,7 @@ struct RedirectableURLMatcherTest < AbstractURLMatcherTestCase
     MockRedirectableURLMatcher.expected_path = "/foo/"
     MockRedirectableURLMatcher.expected_route = "foo"
 
-    self.get_matcher(routes).match("/foo").should eq({"_route" => "foo"})
+    self.get_matcher(routes).match("/foo").to_h.should eq({"_route" => "foo"})
   end
 
   def test_fallback_page2 : Nil
@@ -164,7 +170,7 @@ struct RedirectableURLMatcherTest < AbstractURLMatcherTestCase
     MockRedirectableURLMatcher.expected_path = "/foo"
     MockRedirectableURLMatcher.expected_route = "foo"
 
-    self.get_matcher(routes).match("/foo/").should eq({"_route" => "foo"})
+    self.get_matcher(routes).match("/foo/").to_h.should eq({"_route" => "foo"})
   end
 
   def test_missing_trailing_slash_and_scheme : Nil
@@ -176,7 +182,7 @@ struct RedirectableURLMatcherTest < AbstractURLMatcherTestCase
     MockRedirectableURLMatcher.expected_route = "foo"
     # MockRedirectableURLMatcher.expected_scheme = "https"
 
-    self.get_matcher(routes).match("/foo").should eq({"_route" => "foo"})
+    self.get_matcher(routes).match("/foo").to_h.should eq({"_route" => "foo"})
   end
 
   def test_slash_and_verb_precedence_with_redirection : Nil
@@ -188,11 +194,11 @@ struct RedirectableURLMatcherTest < AbstractURLMatcherTestCase
     matcher = self.get_matcher routes
     expected = {"_route" => "b", "customerId" => "123"}
 
-    matcher.match("/api/customers/123/contactpersons/").should eq expected
+    matcher.match("/api/customers/123/contactpersons/").to_h.should eq expected
 
     MockRedirectableURLMatcher.expected_path = "/api/customers/123/contactpersons/"
 
-    matcher.match("/api/customers/123/contactpersons").should eq expected
+    matcher.match("/api/customers/123/contactpersons").to_h.should eq expected
   end
 
   def test_non_greedy_trailing_requirement : Nil
@@ -202,7 +208,7 @@ struct RedirectableURLMatcherTest < AbstractURLMatcherTestCase
 
     MockRedirectableURLMatcher.expected_path = "/123"
 
-    self.get_matcher(routes).match("/123/").should eq({"_route" => "a", "a" => "123"})
+    self.get_matcher(routes).match("/123/").to_h.should eq({"_route" => "a", "a" => "123"})
   end
 
   def test_match_greedy_trailing_requirement_default1 : Nil
@@ -210,7 +216,7 @@ struct RedirectableURLMatcherTest < AbstractURLMatcherTestCase
       add "a", ART::Route.new "/fr-fr/{a}", {"a" => "aaa"}, {"a" => /.+/}
     end
 
-    self.get_matcher(routes).match("/fr-fr/").should eq({"_route" => "a", "a" => "aaa"})
+    self.get_matcher(routes).match("/fr-fr/").to_h.should eq({"_route" => "a", "a" => "aaa"})
   end
 
   private def get_matcher(routes : ART::RouteCollection, context : ART::RequestContext = ART::RequestContext.new) : ART::Matcher::URLMatcher

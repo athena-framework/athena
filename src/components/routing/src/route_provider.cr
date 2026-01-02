@@ -20,19 +20,19 @@ class Athena::Routing::RouteProvider
   # defaults, variables, methods, schemas, trailing slash?, trailing var?, conditions
   #
   # :nodoc:
-  alias DynamicRouteData = Tuple(Hash(String, String?), Set(String)?, Set(String)?, Set(String)?, Bool, Bool, Int32?)
+  alias DynamicRouteData = Tuple(ART::Parameters, Set(String)?, Set(String)?, Set(String)?, Bool, Bool, Int32?)
 
   # We store this as a tuple in order to get splatting/unpacking features.
   # defaults, host, methods, schemas, trailing slash?, trailing var?, conditions
   #
   # :nodoc:
-  alias StaticRouteData = Tuple(Hash(String, String?), String | Regex | Nil, Set(String)?, Set(String)?, Bool, Bool, Int32?)
+  alias StaticRouteData = Tuple(ART::Parameters, String | Regex | Nil, Set(String)?, Set(String)?, Bool, Bool, Int32?)
 
   # We store this as a tuple in order to get splatting/unpacking features.
   # variables, defaults, requirements, tokens, host tokens, schemes
   #
   # :nodoc:
-  alias RouteGenerationData = Tuple(Set(String), Hash(String, String?), Hash(String, Regex), Array(ART::CompiledRoute::Token), Array(ART::CompiledRoute::Token), Set(String)?)
+  alias RouteGenerationData = Tuple(Set(String), ART::Parameters, Hash(String, Regex), Array(ART::CompiledRoute::Token), Array(ART::CompiledRoute::Token), Set(String)?)
 
   private record PreCompiledStaticRoute, route : ART::Route, has_trailing_slash : Bool
   private record PreCompiledDynamicRegex, host_regex : Regex?, regex : Regex, static_prefix : String
@@ -352,7 +352,7 @@ class Athena::Routing::RouteProvider
     end
 
     {
-      Hash(String, String?){"_route" => name}.merge!(defaults),
+      ART::Parameters.new({"_route" => name}).merge!(defaults),
       vars,
       route.methods,
       route.schemes,
@@ -375,7 +375,7 @@ class Athena::Routing::RouteProvider
     end
 
     {
-      Hash(String, String?){"_route" => name}.merge!(defaults),
+      ART::Parameters.new({"_route" => name}).merge!(defaults),
       host,
       route.methods,
       route.schemes,

@@ -78,7 +78,7 @@ class Athena::Routing::Generator::URLGenerator
       if !variables.includes? "_locale"
         params.delete "_locale"
       elsif !params.has_key?("_locale")
-        params = params.merge({"_locale" => defaults["_locale"]})
+        params = params.merge({"_locale" => defaults["_locale"]?.try(&.to_s)})
       end
     end
 
@@ -100,7 +100,7 @@ class Athena::Routing::Generator::URLGenerator
   # ameba:disable Metrics/CyclomaticComplexity
   private def do_generate(
     variables : Set(String),
-    defaults : Hash(String, String?),
+    defaults : ART::Parameters,
     requirements : Hash(String, Regex),
     tokens : Array(ART::CompiledRoute::Token),
     params : Hash(String, String?),
@@ -110,7 +110,7 @@ class Athena::Routing::Generator::URLGenerator
     required_schemes : Set(String)?,
   ) : String
     merged_params = Hash(String, String?).new
-    merged_params.merge! defaults
+    merged_params.merge! defaults.to_h
     merged_params.merge! @context.parameters
     merged_params.merge! params
 
@@ -124,7 +124,7 @@ class Athena::Routing::Generator::URLGenerator
     tokens.each do |token|
       case token.type
       in .variable?
-        var_name = token.var_name
+        var_name = token.var_name.not_nil!
         important = token.important?
 
         if !optional || important || !defaults.has_key?(var_name) || (!merged_params[var_name]?.nil? && merged_params[var_name].to_s != defaults[var_name].to_s)
@@ -223,7 +223,7 @@ class Athena::Routing::Generator::URLGenerator
       url = "#{scheme_authority}#{@context.base_url}#{url}"
     end
 
-    extra_params = params.reject { |key, value| variables.includes?(key) || defaults[key]? == value }
+    extra_params = params.reject { |key, value| variables.includes?(key) || defaults.raw?(key).try(&.to_s) == value }
 
     fragment = defaults["_fragment"]? || ""
 

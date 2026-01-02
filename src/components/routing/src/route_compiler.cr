@@ -26,7 +26,7 @@ module Athena::Routing::RouteCompiler
       host_regex = pattern.regex
     end
 
-    if (locale = route.default "_locale") && !route.default("_canonical_route").nil? && route.requirement("_locale").try &.source == Regex.escape(locale)
+    if (locale = route.default("_locale", String)) && !route.default("_canonical_route").nil? && route.requirement("_locale").try &.source == Regex.escape(locale)
       requirements = route.requirements
       requirements.delete "_locale"
 

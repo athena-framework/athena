@@ -49,7 +49,7 @@ class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::
   end
 
   # :inherit:
-  def match(path : String) : Hash(String, String?)
+  def match(path : String) : ART::Parameters
     allow = Array(String).new
     allow_schemes = Array(String).new
 
@@ -69,7 +69,7 @@ class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::
   end
 
   # ameba:disable Metrics/CyclomaticComplexity
-  private def match_collection(path : String, allow : Array(String), allow_schemes : Array(String), routes : ART::RouteCollection) : Hash(String, String?)?
+  private def match_collection(path : String, allow : Array(String), allow_schemes : Array(String), routes : ART::RouteCollection) : ART::Parameters?
     method = @context.method
     method = "GET" if "HEAD" == method
 
@@ -99,7 +99,7 @@ class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::
 
       unless match = regex.match path
         # Does it match w/o any requirements?
-        r = ART::Route.new path: route.path, defaults: route.defaults
+        r = ART::Route.new path: route.path, defaults: route.defaults.to_h
         cr = r.compile
 
         unless cr.regex.matches? path
@@ -109,7 +109,7 @@ class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::
         end
 
         route.requirements.each do |k, pattern|
-          r = ART::Route.new path: route.path, defaults: route.defaults, requirements: {k => pattern}
+          r = ART::Route.new path: route.path, defaults: route.defaults.to_h, requirements: {k => pattern}
           cr = r.compile
 
           if cr.variables.includes?(k) && !path.matches?(cr.regex)
@@ -178,7 +178,7 @@ class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::
     end
   end
 
-  private def get_attributes(route : ART::Route, name : String, attributes : Hash(String | Int32, String?)) : Hash(String, String?)
+  private def get_attributes(route : ART::Route, name : String, attributes : Hash(String | Int32, String?)) : ART::Parameters
     defaults = route.defaults.dup
 
     if canonical_route = defaults["_canonical_route"]?
@@ -186,12 +186,12 @@ class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::
       defaults.delete "_canonical_route"
     end
 
-    attributes["_route"] = name
+    defaults["_route"] = name
 
     self.merge_defaults attributes, defaults
   end
 
-  private def merge_defaults(params : Hash(String | Int32, String?), defaults : Hash(String, String?)) : Hash(String, String?)
+  private def merge_defaults(params : Hash(String | Int32, String?), defaults : ART::Parameters) : ART::Parameters
     params.each do |k, v|
       if !k.is_a?(Int) && !v.nil?
         defaults[k] = v
@@ -201,7 +201,7 @@ class Athena::Routing::Matcher::TraceableURLMatcher < Athena::Routing::Matcher::
     defaults
   end
 
-  private def handle_route_requirements(path : String, name : String, route : ART::Route, attributes : Hash(String, String?)) : Bool
+  private def handle_route_requirements(path : String, name : String, route : ART::Route, attributes : ART::Parameters) : Bool
     if (condition = route.condition) && !condition.call(@context, @request || self.build_request(path))
       return false
     end

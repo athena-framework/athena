@@ -7,20 +7,20 @@ Hash(String, Array(ART::RouteProvider::StaticRouteData)).new
 }
 ####
 {
-  "32"  => [{ {"_route" => "a", "_locale" => "en"}, Set{"_locale"}, nil, nil, true, false, nil }],
-  "46"  => [{ {"_route" => "b", "_locale" => "en"}, Set{"_locale"}, nil, nil, false, false, nil }],
-  "58"  => [{ {"_route" => "c", "_locale" => "en"}, Set{"_locale", "id"}, nil, nil, false, true, nil }],
-  "75"  => [{ {"_route" => "d", "_locale" => "en"}, Set{"_locale", "id"}, nil, nil, false, false, nil }],
-  "94"  => [{ {"_route" => "e", "_locale" => "en"}, Set{"_locale", "id"}, nil, nil, false, false, nil }],
-  "110" => [{ {"_route" => "f", "_locale" => "en"}, Set{"_locale"}, nil, nil, true, false, nil }],
-  "130" => [{ {"_route" => "g", "_locale" => "en"}, Set{"_locale"}, nil, nil, false, false, nil }],
-  "154" => [{ {"_route" => "h", "_locale" => "en"}, Set{"_locale", "page"}, nil, nil, false, true, nil }],
-  "175" => [{ {"_route" => "i", "_locale" => "en"}, Set{"_locale", "page"}, nil, nil, false, true, nil }],
-  "202" => [{ {"_route" => "j", "_locale" => "en"}, Set{"_locale", "id"}, nil, nil, false, false, nil }],
-  "216" => [{ {"_route" => "k", "_locale" => "en"}, Set{"_locale"}, nil, nil, false, false, nil }],
-  "234" => [{ {"_route" => "l", "_locale" => "en"}, Set{"_locale"}, nil, nil, false, false, nil }],
-  "245" => [{ {"_route" => "m", "_locale" => "en"}, Set{"_locale"}, nil, nil, false, false, nil }],
-  "264" => [{ {"_route" => "n", "_locale" => "en"}, Set{"_locale"}, nil, nil, false, true, nil }],
+  "32"  => [{ART::Parameters.new({"_route" => "a", "_locale" => "en"}), Set{"_locale"}, nil, nil, true, false, nil}],
+  "46"  => [{ART::Parameters.new({"_route" => "b", "_locale" => "en"}), Set{"_locale"}, nil, nil, false, false, nil}],
+  "58"  => [{ART::Parameters.new({"_route" => "c", "_locale" => "en"}), Set{"_locale", "id"}, nil, nil, false, true, nil}],
+  "75"  => [{ART::Parameters.new({"_route" => "d", "_locale" => "en"}), Set{"_locale", "id"}, nil, nil, false, false, nil}],
+  "94"  => [{ART::Parameters.new({"_route" => "e", "_locale" => "en"}), Set{"_locale", "id"}, nil, nil, false, false, nil}],
+  "110" => [{ART::Parameters.new({"_route" => "f", "_locale" => "en"}), Set{"_locale"}, nil, nil, true, false, nil}],
+  "130" => [{ART::Parameters.new({"_route" => "g", "_locale" => "en"}), Set{"_locale"}, nil, nil, false, false, nil}],
+  "154" => [{ART::Parameters.new({"_route" => "h", "_locale" => "en"}), Set{"_locale", "page"}, nil, nil, false, true, nil}],
+  "175" => [{ART::Parameters.new({"_route" => "i", "_locale" => "en"}), Set{"_locale", "page"}, nil, nil, false, true, nil}],
+  "202" => [{ART::Parameters.new({"_route" => "j", "_locale" => "en"}), Set{"_locale", "id"}, nil, nil, false, false, nil}],
+  "216" => [{ART::Parameters.new({"_route" => "k", "_locale" => "en"}), Set{"_locale"}, nil, nil, false, false, nil}],
+  "234" => [{ART::Parameters.new({"_route" => "l", "_locale" => "en"}), Set{"_locale"}, nil, nil, false, false, nil}],
+  "245" => [{ART::Parameters.new({"_route" => "m", "_locale" => "en"}), Set{"_locale"}, nil, nil, false, false, nil}],
+  "264" => [{ART::Parameters.new({"_route" => "n", "_locale" => "en"}), Set{"_locale"}, nil, nil, false, true, nil}],
 }
 ####
 0
