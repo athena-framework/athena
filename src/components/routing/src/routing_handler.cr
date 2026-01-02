@@ -13,9 +13,9 @@ require "log"
 #   pp ctx.request.body.try &.gets_to_end
 # end
 #
-# # The match parameters from the route are passed to the callback as a `Hash(String, String?)`.
+# # The match parameters from the route are passed to the callback as an `ART::Parameters`.
 # handler.add "article", ART::Route.new("/article/{id<\\d+>}", methods: "get") do |ctx, params|
-#   pp params # => {"_route" => "article", "id" => "10"}
+#   pp params # => ART::Parameters{"_route" => "article", "id" => "10"}
 # end
 #
 # # Call the `#compile` method when providing the handler to the handler array.
@@ -72,7 +72,7 @@ class Athena::Routing::RoutingHandler
   class RouteProvider < ::Athena::Routing::RouteProvider
   end
 
-  @handlers : Hash(String, Proc(::HTTP::Server::Context, Hash(String, String?), Nil)) = {} of String => ::HTTP::Server::Context, Hash(String, String?) -> Nil
+  @handlers : Hash(String, Proc(::HTTP::Server::Context, ART::Parameters, Nil)) = {} of String => ::HTTP::Server::Context, ART::Parameters -> Nil
 
   # :nodoc:
   forward_missing_to @collection
@@ -129,7 +129,7 @@ class Athena::Routing::RoutingHandler
 
   # Adds the provided *route* with the provided *name* to this collection, optionally with the provided *priority*.
   # The passed *block* will be called when a request matching this route is encountered.
-  def add(name : String, route : ART::Route, priority : Int32 = 0, &block : ::HTTP::Server::Context, Hash(String, String?) -> Nil) : Nil
+  def add(name : String, route : ART::Route, priority : Int32 = 0, &block : ::HTTP::Server::Context, ART::Parameters -> Nil) : Nil
     @handlers[name] = block
     @collection.add name, route, priority
   end

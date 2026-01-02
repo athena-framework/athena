@@ -14,22 +14,22 @@
 #
 # # Match a request by path.
 # matcher = ART::Matcher::URLMatcher.new context
-# matcher.match "/blog/foo-bar" # => {"_route" => "blog_show", "slug" => "foo-bar"}
+# matcher.match "/blog/foo-bar" # => ART::Parameters{"_route" => "blog_show", "slug" => "foo-bar"}
 # ```
 module Athena::Routing::Matcher::URLMatcherInterface
   include Athena::Routing::RequestContextAwareInterface
 
   # Tries to match the provided *path* to its related route.
-  # Returns a hash of the route's defaults and parameters resolved from the *path*.
+  # Returns an `ART::Parameters` containing the route's defaults and parameters resolved from the *path*.
   #
   # Raises an `ART::Exception::ResourceNotFound` if no route could be matched.
   #
   # Raises an `ART::Exception::MethodNotAllowed` if a route exists but not for the current HTTP method.
-  abstract def match(path : String) : Hash(String, String?)
+  abstract def match(path : String) : ART::Parameters
 
   # Tries to match the provided *path* to its related route.
-  # Returns a hash of the route's defaults and parameters resolved from the *path*.
+  # Returns an `ART::Parameters` containing the route's defaults and parameters resolved from the *path*.
   #
   # Returns `nil` if no route could be matched or a route exists but not for the current HTTP method.
-  abstract def match?(path : String) : Hash(String, String?)?
+  abstract def match?(path : String) : ART::Parameters?
 end

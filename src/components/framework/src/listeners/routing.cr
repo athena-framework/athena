@@ -26,15 +26,15 @@ struct Athena::Framework::Listeners::Routing
 
       Log.info &.emit %(Matched route '#{matched_route = parameters["_route"]? || "n/a"}'),
         route: matched_route,
-        route_parameters: parameters,
+        route_parameters: parameters.to_h,
         request_uri: request.resource,
         method: request.method
 
-      request.attributes.set parameters
+      parameters.each { |k, v| request.attributes.set k, v }
 
       parameters.delete "_route"
 
-      request.attributes.set "_route_params", parameters, Hash(String, String?)
+      request.attributes.set "_route_params", parameters, ART::Parameters
     rescue ex : ART::Exception::ResourceNotFound
       message = "No route found for '#{request.method} #{request.resource}'"
 

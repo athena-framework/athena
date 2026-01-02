@@ -61,8 +61,8 @@
 # routes.add "blog_list", ART::Route.new "/blog/{page}", requirements: {"page" => /\d+/}
 # routes.add "blog_show", ART::Route.new "/blog/{slug}"
 #
-# matcher.match "/blog/foo" # => {"_route" => "blog_show", "slug" => "foo"}
-# matcher.match "/blog/10"  # => {"_route" => "blog_list", "page" => "10"}
+# matcher.match "/blog/foo" # => ART::Parameters{"_route" => "blog_show", "slug" => "foo"}
+# matcher.match "/blog/10"  # => ART::Parameters{"_route" => "blog_list", "page" => "10"}
 # ```
 #
 # TIP: Checkout `ART::Requirement` for a set of common, helpful requirement regexes.
@@ -77,7 +77,7 @@
 #
 # # ...
 #
-# matcher.match "/blog" # => {"_route" => "blog_list", "page" => "1"}
+# matcher.match "/blog" # => ART::Parameters{"_route" => "blog_list", "page" => "1"}
 # ```
 #
 # CAUTION: More than one parameter may have a default value, but everything after an optional parameter must also be optional.
@@ -180,9 +180,9 @@ class Athena::Routing::Route
   # See [Routing Parameters][Athena::Routing::Route--parameters] for more information.
   getter path : String
 
-  # Returns a hash representing the default values of a route's parameters if they were not provided in the request.
+  # Returns the default values of a route's parameters if they were not provided in the request.
   # See [Optional Parameters][Athena::Routing::Route--optional-parameters] for more information.
-  getter defaults : Hash(String, String?) = Hash(String, String?).new
+  getter defaults : ART::Parameters = ART::Parameters.new
 
   # Returns a hash representing the requirements the route's parameters must match in order for this route to match.
   # See [Parameter Validation][Athena::Routing::Route--parameter-validation] for more information.
@@ -210,7 +210,7 @@ class Athena::Routing::Route
 
   def initialize(
     @path : String,
-    defaults : Hash(String, _) = Hash(String, String?).new,
+    defaults : Hash(String, _) | ART::Parameters = Hash(String, String?).new,
     requirements : Hash(String, Regex | String) = Hash(String, Regex | String).new,
     host : String | Regex | Nil = nil,
     methods : String | Enumerable(String) | Nil = nil,
@@ -308,15 +308,27 @@ class Athena::Routing::Route
     !!@defaults.try &.has_key?(key)
   end
 
-  # Returns the default with the provided *key*, if any.
+  # Returns the default with the provided *key* as a `String`, if any.
   def default(key : String) : String?
     @defaults[key]?
   end
 
-  # Sets the hash representing the default values of a route's parameters if they were not provided in the request to the provided *defaults*.
+  # Returns the default with the provided *key* casted to the provided *type*, if any.
+  def default(key : String, type : T.class) : T? forall T
+    @defaults.get?(key, T)
+  end
+
+  # Sets the default values of a route's parameters if they were not provided in the request to the provided *defaults*.
   # See [Optional Parameters][Athena::Routing::Route--optional-parameters] for more information.
   def defaults=(defaults : Hash(String, _)) : self
-    @defaults.clear
+    @defaults = ART::Parameters.new
+
+    self.add_defaults defaults
+  end
+
+  # :ditto:
+  def defaults=(defaults : ART::Parameters) : self
+    @defaults = ART::Parameters.new
 
     self.add_defaults defaults
   end
@@ -328,7 +340,22 @@ class Athena::Routing::Route
     end
 
     defaults.each do |key, value|
-      @defaults[key] = value.nil? ? value : value.to_s
+      @defaults[key] = value
+    end
+
+    @compiled_route = nil
+
+    self
+  end
+
+  # :ditto:
+  def add_defaults(defaults : ART::Parameters) : self
+    if defaults.has_key?("_locale") && self.localized?
+      defaults.delete "_locale"
+    end
+
+    defaults.each do |key, value|
+      @defaults[key] = value
     end
 
     @compiled_route = nil
@@ -337,7 +364,7 @@ class Athena::Routing::Route
   end
 
   # Sets the default with the provided *key* to the provided *value*.
-  def set_default(key : String, value : String?) : self
+  def set_default(key : String, value) : self
     if "_locale" == key && self.localized?
       return self
     end

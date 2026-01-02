@@ -2,9 +2,9 @@ true
 ####
 {
   "/" => [
-    { {"_route" => "a"}, /^(?P<d>[^\.]++)\.e\.c\.b\.a$/i, nil, nil, false, false, nil },
-    { {"_route" => "c"}, /^(?P<e>[^\.]++)\.e\.c\.b\.a$/i, nil, nil, false, false, nil },
-    { {"_route" => "b"}, "d.c.b.a", nil, nil, false, false, nil },
+    {ART::Parameters.new({"_route" => "a"}), /^(?P<d>[^\.]++)\.e\.c\.b\.a$/i, nil, nil, false, false, nil},
+    {ART::Parameters.new({"_route" => "c"}), /^(?P<e>[^\.]++)\.e\.c\.b\.a$/i, nil, nil, false, false, nil},
+    {ART::Parameters.new({"_route" => "b"}), "d.c.b.a", nil, nil, false, false, nil},
   ],
 }
 ####

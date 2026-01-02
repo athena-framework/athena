@@ -4,6 +4,7 @@ require "http/request"
 
 require "./annotations"
 require "./compiled_route"
+require "./parameters"
 require "./request_context"
 require "./request_context_aware_interface"
 require "./route"

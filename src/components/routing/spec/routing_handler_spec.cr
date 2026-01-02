@@ -11,28 +11,28 @@ private class MockURLMatcher
   end
 
   # :inherit:
-  def match(path : String) : Hash(String, String?)
+  def match(path : String) : ART::Parameters
     if ex = @exception
       raise ex
     end
 
-    {
-      "_route" => @route,
-    } of String => String?
+    params = ART::Parameters.new
+    params["_route"] = @route
+    params
   end
 
-  def match?(path : String) : Hash(String, String?)?
+  def match?(path : String) : ART::Parameters?
   end
 
   # :inherit:
-  def match?(@request : ART::Request) : Hash(String, String?)?
+  def match?(@request : ART::Request) : ART::Parameters?
     self.match? @request.not_nil!.path
   ensure
     @request = nil
   end
 
   # :inherit:
-  def match(@request : ART::Request) : Hash(String, String?)
+  def match(@request : ART::Request) : ART::Parameters
     self.match @request.not_nil!.path
   ensure
     @request = nil
@@ -65,7 +65,7 @@ describe ART::RoutingHandler do
           ctx.request.method.should eq "GET"
           ctx.request.path.should eq "/foo"
           value += 10
-          params.should eq({"_route" => "foo"})
+          params.to_h.should eq({"_route" => "foo"})
         end
 
         handler.call ::HTTP::Server::Context.new ::HTTP::Request.new("GET", "/foo"), ::HTTP::Server::Response.new(IO::Memory.new)
@@ -125,7 +125,7 @@ describe ART::RoutingHandler do
           ctx.request.method.should eq "GET"
           ctx.request.path.should eq "/foo"
           value += 10
-          params.should eq({"_route" => "foo"})
+          params.to_h.should eq({"_route" => "foo"})
         end
 
         handler.call ::HTTP::Server::Context.new ::HTTP::Request.new("GET", "/foo"), ::HTTP::Server::Response.new(IO::Memory.new)
