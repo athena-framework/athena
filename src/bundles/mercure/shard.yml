@@ -11,12 +11,21 @@ repository: https://github.com/athena-framework/mercure-bundle
 documentation: https://athenaframework.org/MercureBundle
 
 description: |
-  <TODO>
+  Integrates the Athena Mercure component into the framework
 
 authors:
   - George Dietrich <dev@dietrich.pub>
 
 dependencies:
+  athena-dependency_injection:
+    github: athena-framework/dependency-injection
+    version: ~> 0.4.0
+  athena-event_dispatcher:
+    github: athena-framework/event-dispatcher
+    version: ~> 0.4.0
+  athena-http:
+    github: athena-framework/http
+    version: ~> 0.1.0
   athena-mercure:
     github: athena-framework/mercure
     version: ~> 0.1.0

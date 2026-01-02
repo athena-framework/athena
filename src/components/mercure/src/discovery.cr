@@ -14,7 +14,11 @@ class Athena::Mercure::Discovery
     hub = @hub_registry.hub hub_name
 
     # TODO: Create WebLink component?
-    response.headers.add "link", %(<#{hub.public_url}>; rel="mercure")
+    response.headers.add "link", self.generate_link(hub.public_url)
+  end
+
+  private def generate_link(url : String) : String
+    %(<#{url}>; rel="mercure")
   end
 
   private def preflight_request?(request : HTTP::Request) : Bool
