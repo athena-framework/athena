@@ -5,7 +5,7 @@
 #
 # Child controllers must inherit from `ATH::Controller` (or an abstract child of it). Each request gets its own instance of the controller to better allow for DI via `Athena::DependencyInjection`.
 #
-# A route action can either return an [AHTTP::Response](/HTTP/Response), or some other type. If an `AHTTP::Response` is returned, then it is used directly. Otherwise an `ATH::Events::View` is emitted to convert
+# A route action can either return an [AHTTP::Response](/HTTP/Response), or some other type. If an `AHTTP::Response` is returned, then it is used directly. Otherwise an `AHK::Events::View` is emitted to convert
 # the action result into an `AHTTP::Response`. By default, `ATH::Listeners::View` will JSON encode the value if it is not handled earlier by another listener.
 #
 # ### Example
@@ -71,7 +71,7 @@
 #   # Be sure to keep you routes consistent!
 #   #
 #   # A non-nilable type denotes it as required. If the parameter is not supplied,
-#   # and no default value is assigned, an `ATH::Exception::BadRequest` exception is raised.
+#   # and no default value is assigned, an `AHK::Exception::BadRequest` exception is raised.
 #   @[ARTA::Get("/event/{event_name}/")]
 #   def event_time(event_name : String, @[ATHA::MapQueryParameter] time : String) : String
 #     "#{event_name} occurred at #{time}"

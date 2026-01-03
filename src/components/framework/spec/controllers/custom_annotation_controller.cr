@@ -12,7 +12,7 @@ struct CustomAnnotationListener
   ); end
 
   @[AEDA::AsEventListener]
-  def on_response(event : ATH::Events::Response) : Nil
+  def on_response(event : AHK::Events::Response) : Nil
     action_annotations = @annotation_resolver.action_annotations event.request
 
     if action_annotations.has?(SpecAnnotation)

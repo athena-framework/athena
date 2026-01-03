@@ -7,30 +7,23 @@ require "athena-contracts/event_dispatcher"
 require "athena-clock"
 require "athena-console"
 require "athena-dependency_injection"
-require "athena-event_dispatcher"
-require "athena-http"
+require "athena-http_kernel"
 require "athena-negotiation"
 
-require "./action"
-require "./action_resolver"
 require "./annotation_resolver"
 require "./annotations"
 require "./bundle"
 require "./controller"
-require "./error_renderer_interface"
 require "./file_parser"
-require "./error_renderer"
 require "./logging"
-require "./route_handler"
 
 require "./ext/http"
+require "./ext/http_kernel"
 require "./ext/serializer"
 
 require "./commands/*"
 require "./controller/**"
 require "./compiler_passes/*"
-require "./events/*"
-require "./exception/*"
 require "./listeners/*"
 require "./view/*"
 
@@ -94,35 +87,18 @@ module Athena::Framework
   #
   # 1. `ATHR::RequestBody` (105) - If enabled, attempts to deserialize the request body/query string into the type of the related parameter, running any defined validations if applicable.
   #
-  # 1. `ATHR::RequestAttribute` (100) - Provides a value stored in [AHTTP::Request#attributes](/HTTP/Request/#Athena::HTTP::Request#attributes) if one with the same name as the action parameter exists.
+  # 1. `AHK::Controller::ValueResolvers::RequestAttribute` (100) - Provides a value stored in [AHTTP::Request#attributes](/HTTP/Request/#Athena::HTTP::Request#attributes) if one with the same name as the action parameter exists.
   #
-  # 1. `ATHR::Request` (50) - Provides the current [AHTTP::Request](/HTTP/Request) if the related parameter is typed as such.
+  # 1. `AHK::Controller::ValueResolvers::Request` (50) - Provides the current [AHTTP::Request](/HTTP/Request) if the related parameter is typed as such.
   #
-  # 1. `ATHR::DefaultValue` (-100) - Provides the default value of the parameter if it has one, or `nil` if it is nilable.
+  # 1. `AHK::Controller::ValueResolvers::DefaultValue` (-100) - Provides the default value of the parameter if it has one, or `nil` if it is nilable.
   #
   # See each resolver for more detailed information.
   # Custom resolvers may also be defined.
   # See `ATHR::Interface` for more information.
   module Controller::ValueResolvers; end
 
-  # The `AED::Event` that are emitted via `Athena::EventDispatcher` to handle a request during its life-cycle.
-  # Custom events can also be defined and dispatched within a controller, listener, or some other service.
-  #
-  # See each specific event and the [Getting Started](/getting_started/middleware) docs for more information.
-  module Events; end
-
-  # Exception handling in Athena is similar to exception handling in any Crystal program, with the addition of a new unique exception type, `ATH::Exception::HTTPException`.
-  #
-  # When an exception is raised, Athena emits the `ATH::Events::Exception` event to allow an opportunity for it to be handled. If the exception goes unhandled, i.e. no listener set
-  # an [AHTTP::Response](/HTTP/Response) on the event, then the request is finished and the exception is reraised. Otherwise, that response is returned, setting the status and merging the headers on the exceptions
-  # if it is an `ATH::Exception::HTTPException`. See `ATH::Listeners::Error` and `ATH::ErrorRendererInterface` for more information on how exceptions are handled by default.
-  #
-  # To provide the best response to the client, non `ATH::Exception::HTTPException` should be rescued and converted into a corresponding `ATH::Exception::HTTPException`.
-  # Custom HTTP errors can also be defined by inheriting from `ATH::Exception::HTTPException` or a child type. A use case for this could be allowing for additional data/context to be included
-  # within the exception that ultimately could be used in a `ATH::Events::Exception` listener.
-  module Exception; end
-
-  # The event listeners that act upon `ATH::Events` to handle a request.
+  # The event listeners that act upon `AHK::Events` to handle a request.
   # Custom listeners can also be defined, see `AEDA::AsEventListener`.
   #
   # See each listener and the [Getting Started](/getting_started/middleware) docs for more information.
@@ -194,7 +170,7 @@ module Athena::Framework
         # Reinitialize the container since keep-alive requests reuse the same fiber.
         Fiber.current.container = ADI::ServiceContainer.new
 
-        handler = ADI.container.athena_route_handler
+        handler = ADI.container.athena_http_kernel
 
         # Convert the raw `HTTP::Request` into an `AHTTP::Request` instance.
         request = AHTTP::Request.new context.request

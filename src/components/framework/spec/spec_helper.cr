@@ -96,26 +96,24 @@ class MockAnnotationResolver < ATH::AnnotationResolver
 end
 
 macro create_action(return_type = String, &)
-  ATH::Action.new(
+  AHK::Action.new(
     Proc(typeof(Tuple.new), {{return_type}}).new { {{yield}} },
     Tuple.new,
-    TestController,
     {{return_type}},
   )
 end
 
-def new_parameter : ATH::Controller::ParameterMetadata
-  ATH::Controller::ParameterMetadata(Int32).new "id"
+def new_parameter : AHK::Controller::ParameterMetadata
+  AHK::Controller::ParameterMetadata(Int32).new "id"
 end
 
 def new_action(
   *,
   arguments : Tuple = Tuple.new,
-) : ATH::ActionBase
-  ATH::Action.new(
+) : AHK::ActionBase
+  AHK::Action.new(
     Proc(typeof(Tuple.new), String).new { test_controller = TestController.new; test_controller.get_test },
     arguments,
-    TestController,
     String,
   )
 end
@@ -124,7 +122,7 @@ def new_request(
   *,
   path : String = "/test",
   method : String = "GET",
-  action : ATH::ActionBase = new_action,
+  action : AHK::ActionBase = new_action,
   body : String | IO | Nil = nil,
   query : String? = nil,
   format : String = "json",
@@ -150,7 +148,7 @@ end
 def new_request_event(headers : ::HTTP::Headers = ::HTTP::Headers.new, & : AHTTP::Request -> _)
   request = new_request headers: headers
   yield request
-  ATH::Events::Request.new request
+  AHK::Events::Request.new request
 end
 
 def new_response(

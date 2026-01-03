@@ -15,3 +15,11 @@ description: |
 
 authors:
   - George Dietrich <dev@dietrich.pub>
+
+dependencies:
+  athena-http:
+    github: athena-framework/http
+    version: ~> 0.2.0
+  athena-event_dispatcher:
+    github: athena-framework/event-dispatcher
+    version: ~> 0.3.0

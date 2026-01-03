@@ -1,13 +1,13 @@
 ## HTTP Exceptions
 
-Exception handling in the Athena Framework is similar to exception handling in any Crystal program, with the addition of a new unique exception type, [ATH::Exception::HTTPException](/Framework/Exceptions/HTTPException).
-Custom `HTTP` errors can also be defined by inheriting from `ATH::Exception::HTTPException` or a child type.
+Exception handling in the Athena Framework is similar to exception handling in any Crystal program, with the addition of a new unique exception type, [AHK::Exception::HTTPException](/HTTPKernel/Exception/HTTPException).
+Custom `HTTP` errors can also be defined by inheriting from `AHK::Exception::HTTPException` or a child type.
 A use case for this could be allowing additional data/context to be included within the exception.
 
-Non `ATH::Exception::HTTPException` exceptions are represented as a `500 Internal Server Error`.
+Non `AHK::Exception::HTTPException` exceptions are represented as a `500 Internal Server Error`.
 
 When an exception is raised, the framework emits the [Exception](./middleware.md#8-exception-handling) event to allow an opportunity for it to be handled.
-By default these exceptions will return a `JSON` serialized version of the exception, via [ATH::ErrorRenderer](/Framework/ErrorRenderer), that includes the message and code; with the proper response status set.
+By default these exceptions will return a `JSON` serialized version of the exception, via [AHK::ErrorRenderer](/HTTPKernel/ErrorRenderer), that includes the message and code; with the proper response status set.
 If the exception goes unhandled, i.e. no listener sets an [AHTTP::Response](/HTTP/Response) on the event, then the request is finished and the exception is re-raised.
 
 ```crystal
@@ -22,10 +22,10 @@ class ExampleController < ATH::Controller
   @[ARTA::Get("/divide_rescued/{num1}/{num2}")]
   def divide_rescued(num1 : Int32, num2 : Int32) : Int32
     num1 // num2
-    # Rescue a non `ATH::Exception::HTTPException`
+    # Rescue a non `AHK::Exception::HTTPException`
   rescue ex : DivisionByZeroError
-    # in order to raise an `ATH::Exception::HTTPException` to provide a better error message to the client.
-    raise ATH::Exception::BadRequest.new "Invalid num2:  Cannot divide by zero"
+    # in order to raise an `AHK::Exception::HTTPException` to provide a better error message to the client.
+    raise AHK::Exception::BadRequest.new "Invalid num2:  Cannot divide by zero"
   end
 end
 
@@ -81,9 +81,9 @@ Invalid num2:  Cannot divide by zero (Athena::Framework::Exception::BadRequest)
 
 #### Customization
 
-By default the Athena Framework utilizes the default [Log::Formatter](https://crystal-lang.org/api/Log/Formatter.html) and [Log::Backend](https://crystal-lang.org/api/Log/Backend.html)s Crystal defines. This of course can be customized via interacting with Crystal's [Log](https://crystal-lang.org/api/Log.html) module. It is also possible to control what exceptions, and with what severity, will be logged by redefining the `log_exception` method within [ATH::Listeners::Error](/Framework/Listeners/Error).
+By default the Athena Framework utilizes the default [Log::Formatter](https://crystal-lang.org/api/Log/Formatter.html) and [Log::Backend](https://crystal-lang.org/api/Log/Backend.html)s Crystal defines. This of course can be customized via interacting with Crystal's [Log](https://crystal-lang.org/api/Log.html) module. It is also possible to control what exceptions, and with what severity, will be logged by redefining the `log_exception` method within [AHK::Listeners::Error](/HTTPKernel/Listeners/Error).
 
-TIP: Since `ATH::Listeners::Error` logs already include the error message and first line of the trace, consider defining a custom [Log Formatter](https://crystal-lang.org/api/Log/Formatter.html) that excludes the `exception` to have shorter, single line error logs in console:
+TIP: Since `AHK::Listeners::Error` logs already include the error message and first line of the trace, consider defining a custom [Log Formatter](https://crystal-lang.org/api/Log/Formatter.html) that excludes the `exception` to have shorter, single line error logs in console:
 ```crystal
 Log.define_formatter SingleLineFormatter, "#{timestamp} #{severity} - #{source(after: ": ")}#{message}" \
                                           "#{data(before: " -- ")}#{context(before: " -- ")}"

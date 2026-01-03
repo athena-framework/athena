@@ -1,5 +1,17 @@
+class Athena::HTTPKernel::Action(ReturnType, ParameterTypeTuple, ParametersType) < Athena::HTTPKernel::ActionBase
+  # This has to live here so the view is properly typed and not a union of all possible views.
+  # Would be more ideal if we didn't have to monkey patch this in but :shrug:.
+  protected def create_view(data : ReturnType) : ATH::View
+    ATH::View(ReturnType).new data
+  end
+
+  protected def create_view(data : _) : NoReturn
+    raise "BUG:  Invoked wrong `create_view` overload."
+  end
+end
+
 @[ADI::Register]
-# Listens on the `ATH::Events::View` event to convert a non [AHTTP::Response](/HTTP/Response) into an [AHTTP::Response](/HTTP/Response).
+# Listens on the `AHK::Events::View` event to convert a non [AHTTP::Response](/HTTP/Response) into an [AHTTP::Response](/HTTP/Response).
 # Allows creating format agnostic controllers by allowing them to return format agnostic data that
 # is later used to render the content in the expected format.
 #
@@ -11,9 +23,9 @@ struct Athena::Framework::Listeners::View
   ); end
 
   @[AEDA::AsEventListener(priority: 100)]
-  def on_view(event : ATH::Events::View) : Nil
+  def on_view(event : AHK::Events::View) : Nil
     request = event.request
-    action = request.attributes.get "_action", ATH::ActionBase
+    action = request.attributes.get "_action", AHK::ActionBase
 
     view = event.action_result
 

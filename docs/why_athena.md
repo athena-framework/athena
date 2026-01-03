@@ -174,13 +174,13 @@ ATH.run
 
 It is worth noting again that while dependency injection is a big part of the framework, it is not necessarily required to fully understand it in order to use the framework, but like the other components, it is there if needed. Checkout [ADI::Register](/DependencyInjection/Register/), especially the [aliasing services](/DependencyInjection/Register/#Athena::DependencyInjection::Register--aliasing-services) section.
 
-Athena Framework is almost fully overridable/customizable in part since it embraces dependency injection. Want to globally customize how errors are rendered? Create a service implementing [ATH::ErrorRendererInterface](/Framework/ErrorRendererInterface/) and make it an alias of the interface:
+Athena Framework is almost fully overridable/customizable in part since it embraces dependency injection. Want to globally customize how errors are rendered? Create a service implementing [AHK::ErrorRendererInterface](/HTTPKernel/ErrorRendererInterface/) and make it an alias of the interface:
 
 ```crystal
 @[ADI::Register]
 @[ADI::AsAlias] # Defaults to first included module ending in `Interface`
 class MyCustomErrorRenderer
-  include Athena::Framework::ErrorRendererInterface
+  include AHK::ErrorRendererInterface
 
   # :inherit:
   def render(exception : ::Exception) : AHTTP::Response
@@ -199,7 +199,7 @@ Unlike other frameworks, Athena Framework leverages event based middleware inste
 @[ADI::Register]
 class CustomListener
   @[AEDA::AsEventListener]
-  def on_response(event : ATH::Events::Response) : Nil
+  def on_response(event : AHK::Events::Response) : Nil
     event.response.headers["FOO"] = "BAR"
   end
 end
@@ -236,8 +236,8 @@ class MyAnnotationListener
   ); end
 
   @[AEDA::AsEventListener]
-  def on_view(event : ATH::Events::View) : Nil
-    # Represents all custom annotations applied to the current ATH::Action + controller class.
+  def on_view(event : AHK::Events::View) : Nil
+    # Represents all custom annotations applied to the current AHK::Action + controller class.
     ann_configs = @annotation_resolver.action_annotations(event.request)
 
     # Check if this action has the annotation

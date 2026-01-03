@@ -59,7 +59,7 @@ struct Athena::Framework::Listeners::CORS
   protected def initialize(@config : ATH::Listeners::CORS::Config = ATH::Listeners::CORS::Config.new); end
 
   @[AEDA::AsEventListener(priority: 250)]
-  def on_request(event : ATH::Events::Request) : Nil
+  def on_request(event : AHK::Events::Request) : Nil
     request = event.request
 
     # Return early if there is no configuration.
@@ -96,7 +96,7 @@ struct Athena::Framework::Listeners::CORS
   end
 
   @[AEDA::AsEventListener]
-  def on_response(event : ATH::Events::Response) : Nil
+  def on_response(event : AHK::Events::Response) : Nil
     # Return early if the request shouldn't have CORS set.
     unless event.request.attributes.get? ALLOW_SET_ORIGIN
       Log.trace { "The origin is not allowed, skipping CORS response headers." }
@@ -199,7 +199,7 @@ struct Athena::Framework::Listeners::CORS
         next if SAFELISTED_HEADERS.includes? header
         next if @config.allow_headers.includes? header
 
-        raise ATH::Exception::Forbidden.new "Unauthorized header: '#{header}'."
+        raise AHK::Exception::Forbidden.new "Unauthorized header: '#{header}'."
       end
     end
 

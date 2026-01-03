@@ -17,7 +17,7 @@ The flow of a request, and the related events that are dispatched, is depicted b
 
 ### 1. Request Event
 
-The very first event that is dispatched is the [ATH::Events::Request](/Framework/Events/Request) event and can have a variety of listeners. The primary purpose of this event is to create an [AHTTP::Response](/HTTP/Response/) directly, or to add information to the requests' attributes; a simple key/value store tied to request instance accessible via [AHTTP::Request#attributes](/HTTP/Request/#Athena::HTTP::Request#attributes).
+The very first event that is dispatched is the [AHK::Events::Request](/HTTPKernel/Events/Request) event and can have a variety of listeners. The primary purpose of this event is to create an [AHTTP::Response](/HTTP/Response/) directly, or to add information to the requests' attributes; a simple key/value store tied to request instance accessible via [AHTTP::Request#attributes](/HTTP/Request/#Athena::HTTP::Request#attributes).
 
 In some cases the listener may have enough information to return an [AHTTP::Response](/HTTP/Response/) immediately. An example of this would be the [ATH::Listeners::CORS](/Framework/Listeners/CORS/) listener. If enabled it is able to return a `CORS` preflight response even before routing is invoked.
 
@@ -26,15 +26,15 @@ WARNING: If an [AHTTP::Response](/HTTP/Response/) is returned at this stage, the
 Another use case for this event is populating additional data into the request's attributes; such as the locale or format of the request.
 
 !!! example "Request event in the Athena Framework"
-    This is the event that [ATH::Listeners::Routing](/Framework/Listeners/Routing/) listens on to determine which [ATH::Controller](/Framework/Controller/)/[ATH::Action](/Framework/Action/) pair should handle the request.
+    This is the event that [AHK::Listeners::Routing](/HTTPKernel/Listeners/Routing/) listens on to determine which [ATH::Controller](/Framework/Controller/)/[AHK::Action](/HTTPKernel/Action/) pair should handle the request.
 
     See [ATH::Controller](/Framework/Controller/) for more details on routing.
 
 ### 2. Action Event
 
-The next event to be dispatched is the [ATH::Events::Action](/Framework/Events/Action/) event, assuming a response was not already returned within the [request](#1-request-event) event.
+The next event to be dispatched is the [AHK::Events::Action](/HTTPKernel/Events/Action/) event, assuming a response was not already returned within the [request](#1-request-event) event.
 This event is dispatched after the related controller/action pair is determined, but before it is executed.
-This event is intended to be used when a listener requires information from the related [ATH::Action](/Framework/Action/); such as reading [custom annotations](./configuration.md#custom-annotations).
+This event is intended to be used when a listener requires information from the related [AHK::Action](/HTTPKernel/Action/); such as reading [custom annotations](./configuration.md#custom-annotations).
 
 ### 3. Invoke the Controller Action
 
@@ -43,7 +43,7 @@ This next step is not an event, but a important concept within the Athena Framew
 #### Argument Resolution
 
 Before the controller action can be invoked, the arguments, if any, to pass to it need to be determined.
-This is achieved via an [ATH::Controller::ArgumentResolverInterface](/Framework/Controller/ArgumentResolverInterface/) that facilitates gathering all the arguments.
+This is achieved via an [AHK::Controller::ArgumentResolverInterface](/HTTPKernel/Controller/ArgumentResolverInterface/) that facilitates gathering all the arguments.
 One or more [ATHR::Interface](/Framework/Controller/ValueResolvers/Interface/) will then be used to resolve each specific argument's value.
 
 Checkout [ATH::Controller::ValueResolvers](/Framework/Controller/ValueResolvers/) for a summary of the built-in resolvers, and the order in which they are invoked.
@@ -61,7 +61,7 @@ The type of the value returned from the controller action determines what happen
 
 ### 4. View Event
 
-The [ATH::Events::View](/Framework/Events/View/) event is only dispatched when the controller action does _NOT_ return an [AHTTP::Response](/HTTP/Response/). The purpose of this event is to turn the controller action's return value into an `AHTTP::Response`.
+The [AHK::Events::View](/HTTPKernel/Events/View/) event is only dispatched when the controller action does _NOT_ return an [AHTTP::Response](/HTTP/Response/). The purpose of this event is to turn the controller action's return value into an `AHTTP::Response`.
 
 An [ATH::View](/Framework/View/) may be used to customize the response, e.g. setting a custom response status and/or adding additional headers; while keeping the controller action response data intact.
 
@@ -72,7 +72,7 @@ This event is intended to be used as a "View" layer; allowing scalar values/obje
 
 ### 5. Response Event
 
-The end goal of the Athena Framework is to return an [AHTTP::Response](/HTTP/Response/) back to the client; which might be created within the [request](#1-request-event) event, returned from the related controller action, or set within the [view](#4-view-event) event. Regardless of how the response was created, the [ATH::Events::Response](/Framework/Events/Response/) event is dispatched directly after.
+The end goal of the Athena Framework is to return an [AHTTP::Response](/HTTP/Response/) back to the client; which might be created within the [request](#1-request-event) event, returned from the related controller action, or set within the [view](#4-view-event) event. Regardless of how the response was created, the [AHK::Events::Response](/HTTPKernel/Events/Response/) event is dispatched directly after.
 
 The intended use case for this event is to allow for modifying the response object in some manner. Common examples include: add/edit headers, add cookies, change/compress the response body.
 
@@ -86,13 +86,13 @@ Each [AHTTP::Response](/HTTP/Response/) has a [AHTTP::Response::Writer](/HTTP/Re
 
 ### 7. Terminate Event
 
-The final event to be dispatched is the [ATH::Events::Terminate](/Framework/Events/Terminate/) event. This is event is dispatched _after_ the response has been sent to the user.
+The final event to be dispatched is the [AHK::Events::Terminate](/HTTPKernel/Events/Terminate/) event. This is event is dispatched _after_ the response has been sent to the user.
 
 The intended use case for this event is to perform some "heavy" action after the user has received the response; as to not affect the response time of the request. E.x. queuing up emails or logs to be sent/written after a successful request.
 
 ### 8. Exception Handling
 
-If an exception is raised at anytime while a request is being handled, the [ATH::Events::Exception](/Framework/Events/Exception/) is dispatched. The purpose of this event is to convert the exception into an [AHTTP::Response](/HTTP/Response/). This is globally handled via an [ATH::ErrorRendererInterface](/Framework/ErrorRendererInterface/), with the default being to JSON serialize the exception.
+If an exception is raised at anytime while a request is being handled, the [AHK::Events::Exception](/HTTPKernel/Events/Exception/) is dispatched. The purpose of this event is to convert the exception into an [AHTTP::Response](/HTTP/Response/). This is globally handled via an [AHK::ErrorRendererInterface](/HTTPKernel/ErrorRendererInterface/), with the default being to JSON serialize the exception.
 
 It is also possible to handle specific error states differently by registering multiple exception listeners to handle each case. An example of this could be to invoke some special logic only if the exception is of a specific type.
 
@@ -108,7 +108,7 @@ require "athena"
 @[ADI::Register]
 class CustomListener
   @[AEDA::AsEventListener]
-  def on_response(event : ATH::Events::Response) : Nil
+  def on_response(event : AHK::Events::Response) : Nil
     event.response.headers["FOO"] = "BAR"
   end
 end

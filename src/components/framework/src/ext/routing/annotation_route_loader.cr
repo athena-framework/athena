@@ -238,7 +238,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                   arg.raise "Route action parameter '#{klass.name}##{m.name}:#{arg.name}' must have a type restriction."
                 end
 
-                parameters << %(ATH::Controller::ParameterMetadata(#{arg.restriction}).new(
+                parameters << %(AHK::Controller::ParameterMetadata(#{arg.restriction}).new(
                   #{arg.name.stringify},
                   #{!arg.default_value.is_a? Nop},
                   #{arg.default_value.is_a?(Nop) ? nil : arg.default_value},
@@ -295,7 +295,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
               ::ATH::AnnotationResolver::ACTION_PARAMETER_ANNOTATIONS[{{action_name}}] = {{parameter_annotation_configuration_map}} of String => ADI::AnnotationConfigurations
             {% end %}
 
-            %action{action_name} = ATH::Action.new(
+            %action{action_name} = AHK::Action.new(
               action: Proc({{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}, {{m.return_type}}).new do |arguments|
                 # If the controller is not registered as a service, simply new one up, otherwise fetch it directly from the SC.
                 {% if klass.annotation(ADI::Register) %}
@@ -307,7 +307,6 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                 %instance.{{m.name.id}} *arguments
               end,
               parameters: {{parameters.empty? ? "Tuple.new".id : "{#{parameters.splat}}".id}},
-              _controller: {{klass.id}},
               _return_type: {{m.return_type}},
             )
 

@@ -35,7 +35,7 @@ describe ATH::Listeners::View do
   describe "#call" do
     it "non ATH::View" do
       request = new_request
-      event = ATH::Events::View.new request, "FOO"
+      event = AHK::Events::View.new request, "FOO"
       view_handler = MockViewHandler.new
 
       ATH::Listeners::View.new(view_handler, MockAnnotationResolver.new).on_view event
@@ -50,7 +50,7 @@ describe ATH::Listeners::View do
       request = new_request
       view = ATH::View.new("BAR")
       view.format = "xml"
-      event = ATH::Events::View.new request, view
+      event = AHK::Events::View.new request, view
       view_handler = MockViewHandler.new
 
       ATH::Listeners::View.new(view_handler, MockAnnotationResolver.new).on_view event
@@ -62,7 +62,7 @@ describe ATH::Listeners::View do
 
     it "mutating response" do
       request = new_request
-      event = ATH::Events::View.new request, "FOO"
+      event = AHK::Events::View.new request, "FOO"
       view_handler = MockViewHandler.new
 
       event.action_result = "BAR"
@@ -77,7 +77,7 @@ describe ATH::Listeners::View do
       describe "status" do
         it "with status" do
           request = new_request
-          event = ATH::Events::View.new request, "FOO"
+          event = AHK::Events::View.new request, "FOO"
           view_handler = MockViewHandler.new
 
           ATH::Listeners::View.new(
@@ -93,7 +93,7 @@ describe ATH::Listeners::View do
         it "when the view already has a status" do
           request = new_request
           view = ATH::View.new "FOO", status: :gone
-          event = ATH::Events::View.new request, view
+          event = AHK::Events::View.new request, view
           view_handler = MockViewHandler.new
 
           ATH::Listeners::View.new(
@@ -109,7 +109,7 @@ describe ATH::Listeners::View do
         it "when the view already has a status, but it's OK" do
           request = new_request
           view = ATH::View.new "FOO", status: :ok
-          event = ATH::Events::View.new request, view
+          event = AHK::Events::View.new request, view
           view_handler = MockViewHandler.new
 
           ATH::Listeners::View.new(
@@ -126,7 +126,7 @@ describe ATH::Listeners::View do
       describe "serialization_groups" do
         it "and the view doesn't have any groups already" do
           request = new_request
-          event = ATH::Events::View.new request, "FOO"
+          event = AHK::Events::View.new request, "FOO"
           view_handler = MockViewHandler.new
 
           ATH::Listeners::View.new(
@@ -145,7 +145,7 @@ describe ATH::Listeners::View do
           view = ATH::View.new "FOO"
           view.context.add_groups "three", "four"
 
-          event = ATH::Events::View.new request, view
+          event = AHK::Events::View.new request, view
           view_handler = MockViewHandler.new
 
           ATH::Listeners::View.new(
@@ -162,7 +162,7 @@ describe ATH::Listeners::View do
 
       it "emit_nil" do
         request = new_request
-        event = ATH::Events::View.new request, "FOO"
+        event = AHK::Events::View.new request, "FOO"
         view_handler = MockViewHandler.new
 
         ATH::Listeners::View.new(

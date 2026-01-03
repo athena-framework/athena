@@ -180,7 +180,7 @@ TIP: Parameters may also be [injected](/DependencyInjection/Register/#Athena::De
 ## Custom Annotations
 
 Athena integrates the [Athena::DependencyInjection](/DependencyInjection) component's ability to define custom annotation configurations.
-This feature allows developers to define custom annotations, and the data that should be read off of them, then apply/access the annotations on [ATH::Controller](/Framework/Controller) and/or [ATH::Action](/Framework/Action)s.
+This feature allows developers to define custom annotations, and the data that should be read off of them, then apply/access the annotations on [ATH::Controller](/Framework/Controller) and/or [AHK::Action](/HTTPKernel/Action)s.
 
 This is a powerful feature that allows for almost limitless flexibility/customization.
 Some ideas include: storing some value in the request attributes and raise an exception or invoke some external service; all based on the presence/absence of it, a value read off of it, or either/both of those in-conjunction with an external service.
@@ -201,8 +201,8 @@ class MyAnnotationListener
   ); end
 
   @[AEDA::AsEventListener]
-  def on_view(event : ATH::Events::View) : Nil
-    # Represents all custom annotations applied to the current ATH::Action + controller class.
+  def on_view(event : AHK::Events::View) : Nil
+    # Represents all custom annotations applied to the current AHK::Action + controller class.
     ann_configs = @annotation_resolver.action_annotations(event.request)
 
     # Check if this action has the annotation
@@ -261,7 +261,7 @@ struct PaginationListener
 
   # Use a high priority to ensure future listeners are working with the paginated data
   @[AEDA::AsEventListener(priority: 255)]
-  def on_view(event : ATH::Events::View) : Nil
+  def on_view(event : AHK::Events::View) : Nil
     # Return if the endpoint is not paginated.
     return unless (pagination = @annotation_resolver.action_annotations(event.request)[Paginated]?)
 
@@ -276,7 +276,7 @@ struct PaginationListener
     per_page = request.query_params[PER_PAGE_QUERY_PARAM]?.try &.to_i || pagination.per_page
 
     # Raise an exception if `per_page` is higher than the max.
-    raise ATH::Exception::BadRequest.new "Query param 'per_page' should be '#{pagination.max_per_page}' or less." if per_page > pagination.max_per_page
+    raise AHK::Exception::BadRequest.new "Query param 'per_page' should be '#{pagination.max_per_page}' or less." if per_page > pagination.max_per_page
 
     # Paginate the resulting data.
     # In the future a more robust pagination service could be injected

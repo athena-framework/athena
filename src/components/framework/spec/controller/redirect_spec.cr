@@ -5,7 +5,7 @@ struct RedirectControllerTest < ASPEC::TestCase
     request = AHTTP::Request.new "GET", "/"
     controller = ATH::Controller::Redirect.new
 
-    ex = expect_raises ATH::Exception::HTTPException do
+    ex = expect_raises AHK::Exception::HTTPException do
       controller.redirect_url request, "", true
     end
 
@@ -16,7 +16,7 @@ struct RedirectControllerTest < ASPEC::TestCase
     request = AHTTP::Request.new "GET", "/"
     controller = ATH::Controller::Redirect.new
 
-    ex = expect_raises ATH::Exception::HTTPException do
+    ex = expect_raises AHK::Exception::HTTPException do
       controller.redirect_url request, ""
     end
 

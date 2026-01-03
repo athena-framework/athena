@@ -5,7 +5,7 @@
 # If no *format* is specified, defaults to [RFC 3339](https://crystal-lang.org/api/Time.html#parse_rfc3339%28time:String%29-class-method).
 # Defaults to `UTC` if no *location* is specified with the annotation.
 #
-# Raises an `ATH::Exception::BadRequest` if the date(time) string could not be parsed.
+# Raises an `AHK::Exception::BadRequest` if the date(time) string could not be parsed.
 #
 # TIP: The format can be anything supported via [Time::Format](https://crystal-lang.org/api/Time/Format.html).
 #
@@ -40,7 +40,7 @@ struct Athena::Framework::Controller::ValueResolvers::Time
   ); end
 
   # :inherit:
-  def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata) : ::Time?
+  def resolve(request : AHTTP::Request, parameter : AHK::Controller::ParameterMetadata) : ::Time?
     return unless parameter.instance_of? ::Time
 
     if value = request.attributes.get? parameter.name, ::Time?
@@ -57,6 +57,6 @@ struct Athena::Framework::Controller::ValueResolvers::Time
 
     ::Time.parse value, format, configuration.location
   rescue ex : ::Time::Format::Error
-    raise ATH::Exception::BadRequest.new "Invalid date(time) for parameter '#{parameter.name}'."
+    raise AHK::Exception::BadRequest.new "Invalid date(time) for parameter '#{parameter.name}'."
   end
 end

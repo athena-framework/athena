@@ -61,12 +61,56 @@ Any references will need their namespace updated from `Athena::Framework` (`ATH`
 - `Exception::FileSizeLimitExceeded`
 - `Exception::Logic`
 
+### Request/Response handling types extracted to dedicated component
+
+The following types have been extracted from the `framework` component into the dedicated `http_kernel` component.
+Any references will need their namespace updated from `Athena::Framework` (`ATH`) to `Athena::HTTPKernel` (`AHK`):
+
+- `Action`
+- `ActionBase`
+- `Controller::ArgumentResolver`
+- `Controller::ArgumentResolverInterface`
+- `Controller::ParameterMetadata`
+- `Controller::ValueResolvers::DefaultValue`
+- `Controller::ValueResolvers::Request`
+- `Controller::ValueResolvers::RequestAttribute`
+- `ErrorRenderer`
+- `ErrorRendererInterface`
+- `Events::Action`
+- `Events::Exception`
+- `Events::Request`
+- `Events::RequestAware`
+- `Events::Response`
+- `Events::SettableResponse`
+- `Events::Terminate`
+- `Events::View`
+- `Exception::BadGateway`
+- `Exception::BadRequest`
+- `Exception::Conflict`
+- `Exception::Forbidden`
+- `Exception::Gone`
+- `Exception::HTTPException`
+- `Exception::LengthRequired`
+- `Exception::Logic`
+- `Exception::MethodNotAllowed`
+- `Exception::NotAcceptable`
+- `Exception::NotFound`
+- `Exception::NotImplemented`
+- `Exception::PreconditionFailed`
+- `Exception::ServiceUnavailable`
+- `Exception::TooManyRequests`
+- `Exception::Unauthorized`
+- `Exception::UnprocessableEntity`
+- `Exception::UnsupportedMediaType`
+- `Listeners::Error`
+- `Listeners::Routing`
+
 ### Change how the `ATH::Action` is accessed
 
 The `AHTTP::Request#action` getter used to access the matched `ATH::Action` instance has been removed.
 The action is now stored within the request's attributes as `"_action"` and must be accessed via:
 ```crystal
-request.attributes.get("_action", ATH::ActionBase)
+request.attributes.get("_action", AHK::ActionBase)
 ````
 
 `#get?` may be used in place of `#action?` if it's not guaranteed the action exists.

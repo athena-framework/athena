@@ -1,0 +1,9 @@
+project: framework
+kind: Changed
+body: Extract out Request/Response handling related `framework` types into the new `http_kernel` component
+time: 2026-01-03T22:37:30.329920659-05:00
+custom:
+    Author: George Dietrich
+    Breaking: "Yes"
+    PR: "657"
+    Username: blacksmoke16
