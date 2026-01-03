@@ -4,4 +4,4 @@
 
 _Initial release._
 
-[0.1.0]: https://github.com/athena-framework/COMPONENT_NAME/releases/tag/v0.1.0
+[0.1.0]: https://github.com/athena-framework/http-kernel/releases/tag/v0.1.0

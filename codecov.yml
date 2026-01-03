@@ -40,6 +40,10 @@ component_management:
       name: http
       paths:
         - src/components/http/**
+    - component_id: http_kernel_component
+      name: http_kernel
+      paths:
+        - src/components/http_kernel/**
     - component_id: image_size_component
       name: image_size
       paths:

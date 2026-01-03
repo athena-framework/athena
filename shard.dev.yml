@@ -16,6 +16,8 @@ dependencies:
     path: ./src/components/event_dispatcher
   athena-http:
     path: ./src/components/http
+  athena-http_kernel:
+    path: ./src/components/http_kernel
   athena-image_size:
     path: ./src/components/image_size
   athena-mercure:

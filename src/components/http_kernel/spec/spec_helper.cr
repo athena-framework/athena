@@ -2,6 +2,6 @@ require "spec"
 
 require "athena-spec"
 
-require "../src/athena-COMPONENT_NAME"
+require "../src/athena-http_kernel"
 
 ASPEC.run_all
