@@ -196,10 +196,14 @@ ADI.configuration_annotation MyAnnotation, name : String? = nil
 # Define and register our listener that will do something based on our annotation.
 @[ADI::Register]
 class MyAnnotationListener
+  def initialize(
+    @annotation_resolver : ATH::AnnotationResolver,
+  ); end
+
   @[AEDA::AsEventListener]
   def on_view(event : ATH::Events::View) : Nil
-    # Represents all custom annotations applied to the current ATH::Action.
-    ann_configs = event.request.attributes.get("_action", ATH::ActionBase).annotation_configurations
+    # Represents all custom annotations applied to the current ATH::Action + controller class.
+    ann_configs = @annotation_resolver.action_annotations(event.request)
 
     # Check if this action has the annotation
     unless ann_configs.has? MyAnnotation
@@ -251,11 +255,15 @@ struct PaginationListener
   private PAGE_QUERY_PARAM     = "page"
   private PER_PAGE_QUERY_PARAM = "per_page"
 
+  def initialize(
+    @annotation_resolver : ATH::AnnotationResolver,
+  ); end
+
   # Use a high priority to ensure future listeners are working with the paginated data
   @[AEDA::AsEventListener(priority: 255)]
   def on_view(event : ATH::Events::View) : Nil
     # Return if the endpoint is not paginated.
-    return unless (pagination = event.request.attributes.get("_action", ATH::ActionBase).annotation_configurations[Paginated]?)
+    return unless (pagination = @annotation_resolver.action_annotations(event.request)[Paginated]?)
 
     # Return if the action result is not able to be paginated.
     return unless (action_result = event.action_result).is_a? Indexable

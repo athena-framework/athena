@@ -18,7 +18,6 @@ class Athena::Framework::Routing::RedirectableURLMatcher < Athena::Routing::Matc
           ATH::Controller::ParameterMetadata(Int32?).new("https_port", true, nil),
           ATH::Controller::ParameterMetadata(Bool).new("keep_request_method", true, false),
         },
-        annotation_configurations: ADI::AnnotationConfigurations.new,
         _controller: Athena::Framework::Controller::Redirect,
         _return_type: AHTTP::RedirectResponse,
       ),

@@ -38,7 +38,7 @@ describe ATH::Listeners::View do
       event = ATH::Events::View.new request, "FOO"
       view_handler = MockViewHandler.new
 
-      ATH::Listeners::View.new(view_handler).on_view event
+      ATH::Listeners::View.new(view_handler, MockAnnotationResolver.new).on_view event
 
       view_handler.view.data.should eq "FOO"
       view_handler.view.format.should eq "json"
@@ -53,7 +53,7 @@ describe ATH::Listeners::View do
       event = ATH::Events::View.new request, view
       view_handler = MockViewHandler.new
 
-      ATH::Listeners::View.new(view_handler).on_view event
+      ATH::Listeners::View.new(view_handler, MockAnnotationResolver.new).on_view event
 
       view_handler.view.data.should eq "BAR"
       view_handler.view.format.should eq "xml"
@@ -66,7 +66,7 @@ describe ATH::Listeners::View do
       view_handler = MockViewHandler.new
 
       event.action_result = "BAR"
-      ATH::Listeners::View.new(view_handler).on_view event
+      ATH::Listeners::View.new(view_handler, MockAnnotationResolver.new).on_view event
 
       view_handler.view.data.should eq "BAR"
       view_handler.view.format.should eq "json"
@@ -76,45 +76,48 @@ describe ATH::Listeners::View do
     describe ATHA::View do
       describe "status" do
         it "with status" do
-          request = new_request(
-            action: new_action(
-              annotation_configurations: get_ann_configs(ATHA::ViewConfiguration.new(status: :found))
-            )
-          )
+          request = new_request
           event = ATH::Events::View.new request, "FOO"
           view_handler = MockViewHandler.new
 
-          ATH::Listeners::View.new(view_handler).on_view event
+          ATH::Listeners::View.new(
+            view_handler,
+            MockAnnotationResolver.new(
+              action_annotations: get_ann_configs(ATHA::ViewConfiguration.new(status: :found))
+            )
+          ).on_view event
 
           view_handler.view.status.should eq ::HTTP::Status::FOUND
         end
 
         it "when the view already has a status" do
-          request = new_request(
-            action: new_action(
-              annotation_configurations: get_ann_configs(ATHA::ViewConfiguration.new(status: :found))
-            )
-          )
+          request = new_request
           view = ATH::View.new "FOO", status: :gone
           event = ATH::Events::View.new request, view
           view_handler = MockViewHandler.new
 
-          ATH::Listeners::View.new(view_handler).on_view event
+          ATH::Listeners::View.new(
+            view_handler,
+            MockAnnotationResolver.new(
+              action_annotations: get_ann_configs(ATHA::ViewConfiguration.new(status: :found))
+            )
+          ).on_view event
 
           view_handler.view.status.should eq ::HTTP::Status::GONE
         end
 
         it "when the view already has a status, but it's OK" do
-          request = new_request(
-            action: new_action(
-              annotation_configurations: get_ann_configs(ATHA::ViewConfiguration.new(status: :found))
-            )
-          )
+          request = new_request
           view = ATH::View.new "FOO", status: :ok
           event = ATH::Events::View.new request, view
           view_handler = MockViewHandler.new
 
-          ATH::Listeners::View.new(view_handler).on_view event
+          ATH::Listeners::View.new(
+            view_handler,
+            MockAnnotationResolver.new(
+              action_annotations: get_ann_configs(ATHA::ViewConfiguration.new(status: :found))
+            )
+          ).on_view event
 
           view_handler.view.status.should eq ::HTTP::Status::FOUND
         end
@@ -122,34 +125,35 @@ describe ATH::Listeners::View do
 
       describe "serialization_groups" do
         it "and the view doesn't have any groups already" do
-          request = new_request(
-            action: new_action(
-              annotation_configurations: get_ann_configs(ATHA::ViewConfiguration.new(serialization_groups: ["one", "two"]))
-            )
-          )
+          request = new_request
           event = ATH::Events::View.new request, "FOO"
           view_handler = MockViewHandler.new
 
-          ATH::Listeners::View.new(view_handler).on_view event
+          ATH::Listeners::View.new(
+            view_handler,
+            MockAnnotationResolver.new(
+              action_annotations: get_ann_configs(ATHA::ViewConfiguration.new(serialization_groups: ["one", "two"]))
+            )
+          ).on_view event
 
           groups = view_handler.view.context.groups.should_not be_nil
           groups.should eq Set{"one", "two"}
         end
 
         it "and the view already has some groups" do
-          request = new_request(
-            action: new_action(
-              annotation_configurations: get_ann_configs(ATHA::ViewConfiguration.new(serialization_groups: ["one", "two"]))
-            )
-          )
-
+          request = new_request
           view = ATH::View.new "FOO"
           view.context.add_groups "three", "four"
 
           event = ATH::Events::View.new request, view
           view_handler = MockViewHandler.new
 
-          ATH::Listeners::View.new(view_handler).on_view event
+          ATH::Listeners::View.new(
+            view_handler,
+            MockAnnotationResolver.new(
+              action_annotations: get_ann_configs(ATHA::ViewConfiguration.new(serialization_groups: ["one", "two"]))
+            )
+          ).on_view event
 
           groups = view_handler.view.context.groups.should_not be_nil
           groups.should eq Set{"three", "four", "one", "two"}
@@ -157,15 +161,16 @@ describe ATH::Listeners::View do
       end
 
       it "emit_nil" do
-        request = new_request(
-          action: new_action(
-            annotation_configurations: get_ann_configs(ATHA::ViewConfiguration.new(emit_nil: true))
-          )
-        )
+        request = new_request
         event = ATH::Events::View.new request, "FOO"
         view_handler = MockViewHandler.new
 
-        ATH::Listeners::View.new(view_handler).on_view event
+        ATH::Listeners::View.new(
+          view_handler,
+          MockAnnotationResolver.new(
+            action_annotations: get_ann_configs(ATHA::ViewConfiguration.new(emit_nil: true))
+          )
+        ).on_view event
 
         view_handler.view.context.emit_nil?.should be_true
       end

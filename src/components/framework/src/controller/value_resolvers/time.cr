@@ -35,6 +35,10 @@ struct Athena::Framework::Controller::ValueResolvers::Time
   # See the related resolver documentation for more information.
   configuration ::Athena::Framework::Annotations::MapTime, format : String? = nil, location : ::Time::Location = ::Time::Location::UTC
 
+  def initialize(
+    @annotation_resolver : ATH::AnnotationResolver,
+  ); end
+
   # :inherit:
   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata) : ::Time?
     return unless parameter.instance_of? ::Time
@@ -45,7 +49,9 @@ struct Athena::Framework::Controller::ValueResolvers::Time
 
     return unless value = request.attributes.get? parameter.name, String?
 
-    if !(configuration = parameter.annotation_configurations[ATHA::MapTime]?) || !(format = configuration.format)
+    parameter_annotations = @annotation_resolver.action_parameter_annotations(request, parameter.name)
+
+    if !(configuration = parameter_annotations[ATHA::MapTime]?) || !(format = configuration.format)
       return ::Time.parse_rfc3339(value)
     end
 

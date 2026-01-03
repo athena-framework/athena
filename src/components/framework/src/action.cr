@@ -14,15 +14,9 @@ class Athena::Framework::Action(Controller, ReturnType, ParameterTypeTuple, Para
   # Returns a tuple of `ATH::Controller::ParameterMetadata` representing the parameters this action expects.
   getter parameters : ParametersType
 
-  # Returns annotation configurations registered via `Athena::Config.configuration_annotation` and applied to this action.
-  #
-  # These configurations could then be accessed within `ATHR::Interface`s and/or `ATH::Listeners`s.
-  getter annotation_configurations : ADI::AnnotationConfigurations
-
   def initialize(
     @action : Proc(ParameterTypeTuple, ReturnType),
     @parameters : ParametersType,
-    @annotation_configurations : ADI::AnnotationConfigurations,
     # Don't bother making these ivars since we just need them to set the generic types
     _controller : Controller.class,
     _return_type : ReturnType.class,

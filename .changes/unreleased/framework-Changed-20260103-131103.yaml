@@ -1,0 +1,9 @@
+project: framework
+kind: Changed
+body: Refactor how annotations are fetched off an action/parameter
+time: 2026-01-03T13:11:03.354596565-05:00
+custom:
+    Author: George Dietrich
+    Breaking: "Yes"
+    PR: "655"
+    Username: blacksmoke16

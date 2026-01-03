@@ -52,9 +52,15 @@ struct Athena::Framework::Controller::ValueResolvers::QueryParameter
     name : String? = nil,
     validation_failed_status : ::HTTP::Status = :not_found
 
+  def initialize(
+    @annotation_resolver : ATH::AnnotationResolver,
+  ); end
+
   # :inherit:
   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata)
-    return unless ann = parameter.annotation_configurations[ATHA::MapQueryParameter]?
+    parameter_annotations = @annotation_resolver.action_parameter_annotations(request, parameter.name)
+
+    return unless ann = parameter_annotations[ATHA::MapQueryParameter]?
 
     name = ann.name || parameter.name
     validation_failed_status = ann.validation_failed_status
