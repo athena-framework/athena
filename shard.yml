@@ -1,0 +1,17 @@
+name: athena-COMPONENT_NAME
+
+version: 0.1.0
+
+crystal: '>= 0.36.0'
+
+license: MIT
+
+repository: https://github.com/athena-framework/COMPONENT_NAME
+
+documentation: https://athenaframework.org/NAMESPACE_NAME
+
+description: |
+  DESCRIPTION.
+
+authors:
+  - CREATOR_NAME <CREATOR_EMAIL>
