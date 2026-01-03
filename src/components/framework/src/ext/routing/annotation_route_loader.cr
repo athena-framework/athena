@@ -195,6 +195,7 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             {%
               parameters = [] of Nil
               annotation_configurations = {} of Nil => Nil
+              parameter_annotation_configuration_map = {} of Nil => Nil
 
               # Logic for creating the `ATH::Action` instances:
 
@@ -241,10 +242,9 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                   #{arg.name.stringify},
                   #{!arg.default_value.is_a? Nop},
                   #{arg.default_value.is_a?(Nop) ? nil : arg.default_value},
-                  ADI::AnnotationConfigurations.new(
-                    #{parameter_annotation_configurations} of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase)
-                  ),
                 )).id
+
+                parameter_annotation_configuration_map[arg.name.stringify] = %(ADI::AnnotationConfigurations.new(#{parameter_annotation_configurations} of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase))).id
               end
 
               # Process custom annotation types
@@ -287,6 +287,14 @@ module Athena::Framework::Routing::AnnotationRouteLoader
               globals[:defaults]["_controller"] = action_name = "#{klass.name}##{m.name}"
             %}
 
+            {% unless annotation_configurations.empty? %}
+              ::ATH::AnnotationResolver::ACTION_ANNOTATIONS[{{action_name}}] = ADI::AnnotationConfigurations.new({{annotation_configurations}} of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase))
+            {% end %}
+
+            {% unless parameter_annotation_configuration_map.empty? %}
+              ::ATH::AnnotationResolver::ACTION_PARAMETER_ANNOTATIONS[{{action_name}}] = {{parameter_annotation_configuration_map}} of String => ADI::AnnotationConfigurations
+            {% end %}
+
             %action{action_name} = ATH::Action.new(
               action: Proc({{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}, {{m.return_type}}).new do |arguments|
                 # If the controller is not registered as a service, simply new one up, otherwise fetch it directly from the SC.
@@ -299,7 +307,6 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                 %instance.{{m.name.id}} *arguments
               end,
               parameters: {{parameters.empty? ? "Tuple.new".id : "{#{parameters.splat}}".id}},
-              annotation_configurations: ADI::AnnotationConfigurations.new({{annotation_configurations}} of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase)),
               _controller: {{klass.id}},
               _return_type: {{m.return_type}},
             )

@@ -206,20 +206,22 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   def initialize(
     @serializer : ASR::SerializerInterface,
     @validator : AVD::Validator::ValidatorInterface,
+    @annotation_resolver : ATH::AnnotationResolver,
   ); end
 
   # :inherit:
   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata)
     validation_groups = nil
     constraints = nil
+    parameter_annotations = @annotation_resolver.action_parameter_annotations request, parameter.name
 
-    object = if configuration = parameter.annotation_configurations[ATHA::MapQueryString]?
+    object = if configuration = parameter_annotations[ATHA::MapQueryString]?
                validation_groups = configuration.validation_groups
                self.map_query_string request, parameter, configuration
-             elsif configuration = parameter.annotation_configurations[ATHA::MapRequestBody]?
+             elsif configuration = parameter_annotations[ATHA::MapRequestBody]?
                validation_groups = configuration.validation_groups
                self.map_request_body request, parameter, configuration
-             elsif configuration = parameter.annotation_configurations[ATHA::MapUploadedFile]?
+             elsif configuration = parameter_annotations[ATHA::MapUploadedFile]?
                constraints = configuration.constraints
                self.map_uploaded_file request, parameter, configuration
              else

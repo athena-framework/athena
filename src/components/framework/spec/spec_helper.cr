@@ -62,11 +62,43 @@ class DeserializableMockSerializer(T) < MockSerializer
   end
 end
 
+class MockAnnotationResolver < ATH::AnnotationResolver
+  property action_annotations : ADI::AnnotationConfigurations
+  property action_parameter_annotations : ADI::AnnotationConfigurations
+
+  def initialize(
+    @action_annotations : ADI::AnnotationConfigurations = ADI::AnnotationConfigurations.new,
+    @action_parameter_annotations : ADI::AnnotationConfigurations = ADI::AnnotationConfigurations.new,
+    *,
+    @expected_controller : String? = nil,
+    @expected_parameter_name : String? = nil,
+  ); end
+
+  def action_annotations(request : AHTTP::Request) : ADI::AnnotationConfigurations
+    if expected_controller = @expected_controller
+      request.attributes.get?("_controller", String).should eq expected_controller
+    end
+
+    @action_annotations
+  end
+
+  def action_parameter_annotations(request : AHTTP::Request, parameter_name : String) : ADI::AnnotationConfigurations
+    if expected_controller = @expected_controller
+      request.attributes.get?("_controller", String).should eq expected_controller
+    end
+
+    if expected_parameter_name = @expected_parameter_name
+      parameter_name.should eq expected_parameter_name
+    end
+
+    @action_parameter_annotations
+  end
+end
+
 macro create_action(return_type = String, &)
   ATH::Action.new(
     Proc(typeof(Tuple.new), {{return_type}}).new { {{yield}} },
     Tuple.new,
-    ADI::AnnotationConfigurations.new,
     TestController,
     {{return_type}},
   )
@@ -79,12 +111,10 @@ end
 def new_action(
   *,
   arguments : Tuple = Tuple.new,
-  annotation_configurations = nil,
 ) : ATH::ActionBase
   ATH::Action.new(
     Proc(typeof(Tuple.new), String).new { test_controller = TestController.new; test_controller.get_test },
     arguments,
-    annotation_configurations || ADI::AnnotationConfigurations.new,
     TestController,
     String,
   )

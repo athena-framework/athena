@@ -5,7 +5,10 @@
 #
 # See the [Getting Started](/getting_started/routing#content-negotiation) docs for more information.
 struct Athena::Framework::Listeners::View
-  def initialize(@view_handler : ATH::View::ViewHandlerInterface); end
+  def initialize(
+    @view_handler : ATH::View::ViewHandlerInterface,
+    @annotation_resolver : ATH::AnnotationResolver,
+  ); end
 
   @[AEDA::AsEventListener(priority: 100)]
   def on_view(event : ATH::Events::View) : Nil
@@ -18,7 +21,7 @@ struct Athena::Framework::Listeners::View
       view = action.create_view view
     end
 
-    if configuration = action.annotation_configurations[ATHA::View]?
+    if configuration = @annotation_resolver.action_annotations(request)[ATHA::View]?
       if (status = configuration.status) && (view.status.nil? || view.status.not_nil!.ok?)
         view.status = status
       end

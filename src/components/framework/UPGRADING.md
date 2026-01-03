@@ -4,6 +4,31 @@ Documents the changes that may be required when upgrading to a newer component v
 
 ## Upgrade to 0.22.0
 
+### Dedicated service for accessing annotations defined on a controller action and/or parameter
+
+The `#annotation_configurations` getter on `ATH::Action` and `ATH::Controller::ParameterMetadata` has been removed.
+Inject and use the new [ATH::AnnotationResolver](https://athenaframework.org/Framework/AnnotationResolver) service to access the annotations:
+
+Before:
+
+```crystal
+# Action
+request.action.annotation_configurations
+
+# Parameter
+parameter.annotation_configurations
+```
+
+After:
+
+```crystal
+# Action
+@annotation_resolver.action_annotations(request)
+
+# Parameter
+@annotation_resolver.action_parameter_annotations(request, parameter.name)
+```
+
 ### HTTP types extracted to dedicated component
 
 The following types have been extracted from the `framework` component into the dedicated `http` component.

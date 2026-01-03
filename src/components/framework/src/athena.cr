@@ -13,6 +13,7 @@ require "athena-negotiation"
 
 require "./action"
 require "./action_resolver"
+require "./annotation_resolver"
 require "./annotations"
 require "./bundle"
 require "./controller"

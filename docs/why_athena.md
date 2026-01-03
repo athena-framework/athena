@@ -231,10 +231,14 @@ ADI.configuration_annotation MyAnnotation, name : String? = nil
 # Define and register our listener that will do something based on our annotation.
 @[ADI::Register]
 class MyAnnotationListener
+  def initialize(
+    @annotation_resolver : ATH::AnnotationResolver,
+  ); end
+
   @[AEDA::AsEventListener]
   def on_view(event : ATH::Events::View) : Nil
-    # Represents all custom annotations applied to the current ATH::Action.
-    ann_configs = event.request.attributes.get("_action", ATH::ActionBase).annotation_configurations
+    # Represents all custom annotations applied to the current ATH::Action + controller class.
+    ann_configs = @annotation_resolver.action_annotations(event.request)
 
     # Check if this action has the annotation
     unless ann_configs.has? MyAnnotation

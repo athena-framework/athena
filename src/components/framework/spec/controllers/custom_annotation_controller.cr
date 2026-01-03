@@ -7,17 +7,19 @@ ADI.configuration_annotation MyApp::NestedParameterAnn
 
 @[ADI::Register]
 struct CustomAnnotationListener
+  def initialize(
+    @annotation_resolver : ATH::AnnotationResolver,
+  ); end
+
   @[AEDA::AsEventListener]
   def on_response(event : ATH::Events::Response) : Nil
-    return unless action = event.request.attributes.get?("_action", ATH::ActionBase)
+    action_annotations = @annotation_resolver.action_annotations event.request
 
-    ann_configs = action.annotation_configurations
-
-    if ann_configs.has?(SpecAnnotation)
+    if action_annotations.has?(SpecAnnotation)
       event.response.headers["ANNOTATION"] = "true"
     end
 
-    if custom_ann = ann_configs[CustomAnn]?
+    if custom_ann = action_annotations[CustomAnn]?
       event.response.headers["ANNOTATION_VALUE"] = custom_ann.id.to_s
     end
   end

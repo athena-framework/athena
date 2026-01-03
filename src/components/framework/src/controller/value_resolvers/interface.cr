@@ -64,10 +64,14 @@
 #   # The value provided to the macro maps to the name of the annotation.
 #   configuration Multiply::This
 #
+#   def initialize(
+#     @annotation_resolver : ATH::AnnotationResolver,
+#   ); end
+#
 #   # :inherit:
 #   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata) : Int32?
 #     # Return early if the controller action parameter doesn't have the annotation.
-#     return unless parameter.annotation_configurations.has? This
+#     return unless @annotation_resolver.action_parameter_annotations(request, parameter.name).has? This
 #
 #     # Return early if the parameter type is not `Int32`.
 #     return if parameter.type != Int32
@@ -109,10 +113,14 @@
 #
 #   configuration Multiply::This, multiplier : Int32 = 10
 #
+#   def initialize(
+#     @annotation_resolver : ATH::AnnotationResolver,
+#   ); end
+#
 #   # :inherit:
 #   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata) : Int32?
 #     # Return early if the controller action parameter doesn't have the annotation.
-#     return unless (config = parameter.annotation_configurations[This]?)
+#     return unless @annotation_resolver.action_parameter_annotations(request, parameter.name).has? This
 #
 #     # Return early if the parameter type is not `Int32`.
 #     return if parameter.type != Int32
@@ -157,16 +165,20 @@
 #
 #   configuration MyResolver::Enable
 #
+#   def initialize(
+#     @annotation_resolver : ATH::AnnotationResolver,
+#   ); end
+#
 #   # :inherit:
 #   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata(Int32)) : Int32?
-#     return unless parameter.annotation_configurations.has? Enable
+#     return unless @annotation_resolver.action_parameter_annotations(request, parameter.name).has? Enable
 #
 #     request.attributes.get(parameter.name, Int32) * 10
 #   end
 #
 #   # :inherit:
 #   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata(String)) : String?
-#     return unless parameter.annotation_configurations.has? Enable
+#     return unless @annotation_resolver.action_parameter_annotations(request, parameter.name).has? Enable
 #
 #     request.attributes.get(parameter.name, String).upcase
 #   end
@@ -241,9 +253,13 @@
 #
 #   configuration MyResolver::Enable
 #
+#   def initialize(
+#     @annotation_resolver : ATH::AnnotationResolver,
+#   ); end
+#
 #   # :inherit:
 #   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata) : String?
-#     return unless parameter.annotation_configurations.has? Enable
+#     return unless @annotation_resolver.action_parameter_annotations(request, parameter.name).has? Enable
 #
 #     "foo"
 #   end

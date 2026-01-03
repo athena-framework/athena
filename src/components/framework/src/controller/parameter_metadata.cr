@@ -11,17 +11,11 @@ struct Athena::Framework::Controller::ParameterMetadata(T)
   # Returns `true` if this parameter has a default value set, otherwise `false`.
   getter? has_default : Bool
 
-  # Returns annotation configurations registered via `ADI.configuration_annotation` and applied to this parameter.
-  #
-  # These configurations could then be accessed within `ATHR::Interface`s and/or `ATH::Listeners`s.
-  getter annotation_configurations : ADI::AnnotationConfigurations
-
   # :nodoc:
   def initialize(
     @name : String,
     @has_default : Bool = false,
     @default_value : T? = nil,
-    @annotation_configurations : ADI::AnnotationConfigurations = ADI::AnnotationConfigurations.new,
   ); end
 
   # If `nil` is a valid value for the parameter.
