@@ -2,8 +2,6 @@
 #
 # Loads and caches a `ART::RouteCollection` from `ART::Controllers` as well as a mapping of route names to `ATH::Action`s.
 module Athena::Framework::Routing::AnnotationRouteLoader
-  protected class_getter actions = Hash(String, ATH::ActionBase).new
-
   class_getter route_collection : ART::RouteCollection do
     populate_collection
   end
@@ -289,24 +287,22 @@ module Athena::Framework::Routing::AnnotationRouteLoader
               globals[:defaults]["_controller"] = action_name = "#{klass.name}##{m.name}"
             %}
 
-            {% if base == nil %}
-              @@actions[{{action_name}}] = ATH::Action.new(
-                action: Proc({{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}, {{m.return_type}}).new do |arguments|
-                  # If the controller is not registered as a service, simply new one up, otherwise fetch it directly from the SC.
-                  {% if klass.annotation(ADI::Register) %}
-                    %instance = ADI.container.get({{klass.id}})
-                  {% else %}
-                    %instance = {{klass.id}}.new
-                  {% end %}
+            %action{action_name} = ATH::Action.new(
+              action: Proc({{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}, {{m.return_type}}).new do |arguments|
+                # If the controller is not registered as a service, simply new one up, otherwise fetch it directly from the SC.
+                {% if klass.annotation(ADI::Register) %}
+                  %instance = ADI.container.get({{klass.id}})
+                {% else %}
+                  %instance = {{klass.id}}.new
+                {% end %}
 
-                  %instance.{{m.name.id}} *arguments
-                end,
-                parameters: {{parameters.empty? ? "Tuple.new".id : "{#{parameters.splat}}".id}},
-                annotation_configurations: ADI::AnnotationConfigurations.new({{annotation_configurations}} of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase)),
-                _controller: {{klass.id}},
-                _return_type: {{m.return_type}},
-              )
-            {% end %}
+                %instance.{{m.name.id}} *arguments
+              end,
+              parameters: {{parameters.empty? ? "Tuple.new".id : "{#{parameters.splat}}".id}},
+              annotation_configurations: ADI::AnnotationConfigurations.new({{annotation_configurations}} of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase)),
+              _controller: {{klass.id}},
+              _return_type: {{m.return_type}},
+            )
 
             {%
               paths = {} of Nil => Nil
@@ -470,44 +466,24 @@ module Athena::Framework::Routing::AnnotationRouteLoader
                 end
               %}
 
-              %route{path} = ART::Route.new(
+              %route{r_name} = ART::Route.new(
                 path: {{path}},
-                defaults: {{r_defaults.empty? ? "Hash(String, String?).new".id : r_defaults}},
+                defaults: {{r_defaults.empty? ? "ART::Parameters.new".id : r_defaults}},
                 requirements: {{r_requirements}} of String => Regex | String,
                 host: {{host}},
                 schemes: {{schemes.empty? ? nil : schemes}},
                 methods: {{methods.empty? ? nil : methods}},
                 condition: {{condition}}
               )
+              %route{r_name}.set_default "_action", %action{action_name}
 
-              %collection{c_idx}.add({{r_name}}, %route{path}, {{priority}})
+              %collection{c_idx}.add({{r_name}}, %route{r_name}, {{priority}})
             {% end %}
           {% end %}
         {% end %}
 
         collection.add %collection{c_idx}
       {% end %}
-    {% end %}
-
-    # Manually wire up built-in controllers for now
-    {% if base == nil %}
-      @@actions["Athena::Framework::Controller::Redirect#redirect_url"] = ATH::Action.new(
-        action: Proc(Tuple(AHTTP::Request, String, Bool, String?, Int32?, Int32?, Bool), AHTTP::RedirectResponse).new do |arguments|
-          ADI.container.get(Athena::Framework::Controller::Redirect).redirect_url *arguments
-        end,
-        parameters: {
-          ATH::Controller::ParameterMetadata(AHTTP::Request).new("request"),
-          ATH::Controller::ParameterMetadata(String).new("path"),
-          ATH::Controller::ParameterMetadata(Bool).new("permanent", true, false),
-          ATH::Controller::ParameterMetadata(String?).new("scheme", true, nil),
-          ATH::Controller::ParameterMetadata(Int32?).new("http_port", true, nil),
-          ATH::Controller::ParameterMetadata(Int32?).new("https_port", true, nil),
-          ATH::Controller::ParameterMetadata(Bool).new("keep_request_method", true, false),
-        },
-        annotation_configurations: ADI::AnnotationConfigurations.new,
-        _controller: Athena::Framework::Controller::Redirect,
-        _return_type: AHTTP::RedirectResponse,
-      )
     {% end %}
 
     ART.compile collection
