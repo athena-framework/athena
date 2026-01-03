@@ -11,7 +11,7 @@ repository: https://github.com/athena-framework/http-kernel
 documentation: https://athenaframework.org/HTTPKernel
 
 description: |
-  Provides a structured process for converting a Request into a Respons.
+  Provides a structured process for converting a Request into a Response.
 
 authors:
   - George Dietrich <dev@dietrich.pub>
