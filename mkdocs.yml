@@ -42,6 +42,7 @@ nav:
       - project://event_dispatcher
       - project://framework
       - project://http
+      - project://http_kernel
       - project://image_size
       - project://mercure
       - project://mime

@@ -69,6 +69,13 @@ projects:
       - { path: src/components/http/shard.yml, find: '^version: .*', replace: 'version: {{.VersionNoPrefix}}' }
       - { path: src/components/http/src/athena-http.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
       - { path: src/components/http/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+  - label: HTTP Kernel
+    key: http-kernel
+    changelog: src/components/http_kernel/CHANGELOG.md
+    replacements:
+      - { path: src/components/http_kernel/shard.yml, find: '^version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/components/http_kernel/src/athena-http_kernel.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/components/http_kernel/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
   - label: Image Size
     key: image-size
     changelog: src/components/image_size/CHANGELOG.md
