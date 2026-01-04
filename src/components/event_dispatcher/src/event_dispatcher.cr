@@ -6,10 +6,10 @@ require "./callable"
 class Athena::EventDispatcher::EventDispatcher
   include Athena::EventDispatcher::EventDispatcherInterface
 
-  @listeners = Hash(AED::Event.class, Array(AED::Callable)).new
+  @listeners = Hash(ACTR::EventDispatcher::Event.class, Array(AED::Callable)).new
 
   # Keeps track of event types that have already been sorted.
-  @sorted = Set(AED::Event.class).new
+  @sorted = Set(ACTR::EventDispatcher::Event.class).new
 
   # :inherit:
   def dispatch(event : ACTR::EventDispatcher::Event) : ACTR::EventDispatcher::Event
@@ -24,7 +24,7 @@ class Athena::EventDispatcher::EventDispatcher
   end
 
   # :inherit:
-  def has_listeners?(event_class : AED::Event.class) : Bool
+  def has_listeners?(event_class : ACTR::EventDispatcher::Event.class) : Bool
     @listeners.has_key? event_class
   end
 
@@ -41,8 +41,8 @@ class Athena::EventDispatcher::EventDispatcher
   # :inherit:
   def listener(event_class : E.class, *, priority : Int32 = 0, name : String? = nil, &block : E, AED::EventDispatcherInterface -> Nil) : AED::Callable forall E
     {%
-      unless E <= AED::Event
-        @def.args[0].raise "expected argument #1 to '#{@def.name}' to be #{AED::Event.class}, not #{E}."
+      unless E <= ACTR::EventDispatcher::Event
+        @def.args[0].raise "expected argument #1 to '#{@def.name}' to be #{ACTR::EventDispatcher::Event.class}, not #{E}."
       end
     %}
 
@@ -72,11 +72,11 @@ class Athena::EventDispatcher::EventDispatcher
 
           # Validate the type restriction of the first parameter, if present
           if event_arg.restriction.is_a?(Nop)
-            event_arg.raise "'#{T.name}##{m.name}': event parameter must have a type restriction of an 'AED::Event' instance."
+            event_arg.raise "'#{T.name}##{m.name}': event parameter must have a type restriction of an 'Athena::Contracts::EventDispatcher::Event' instance."
           end
 
-          if !(event_arg.restriction.resolve <= AED::Event)
-            event_arg.raise "'#{T.name}##{m.name}': event parameter must have a type restriction of an 'AED::Event' instance, not '#{event_arg.restriction}'."
+          if !(event_arg.restriction.resolve <= ACTR::EventDispatcher::Event)
+            event_arg.raise "'#{T.name}##{m.name}': event parameter must have a type restriction of an 'Athena::Contracts::EventDispatcher::Event' instance, not '#{event_arg.restriction}'."
           end
 
           if dispatcher_arg = m.args[1]
@@ -134,7 +134,7 @@ class Athena::EventDispatcher::EventDispatcher
   end
 
   # :inherit:
-  def listeners : Hash(AED::Event.class, Array(AED::Callable))
+  def listeners : Hash(ACTR::EventDispatcher::Event.class, Array(AED::Callable))
     @listeners.each_key do |ec|
       self.sort_listeners ec unless @sorted.includes? ec
     end
@@ -143,7 +143,7 @@ class Athena::EventDispatcher::EventDispatcher
   end
 
   # :inherit:
-  def listeners(for event_class : AED::Event.class) : Array(AED::Callable)
+  def listeners(for event_class : ACTR::EventDispatcher::Event.class) : Array(AED::Callable)
     return [] of AED::Callable unless @listeners.has_key? event_class
 
     unless @sorted.includes? event_class
@@ -172,7 +172,7 @@ class Athena::EventDispatcher::EventDispatcher
     end
   end
 
-  private def call_listeners(event : AED::Event, listeners : Array(AED::Callable)) : Nil
+  private def call_listeners(event : ACTR::EventDispatcher::Event, listeners : Array(AED::Callable)) : Nil
     listeners.each do |listener|
       break if event.is_a?(ACTR::EventDispatcher::StoppableEvent) && !event.propagate?
 
@@ -180,7 +180,7 @@ class Athena::EventDispatcher::EventDispatcher
     end
   end
 
-  private def sort_listeners(event_class : AED::Event.class) : Nil
+  private def sort_listeners(event_class : ACTR::EventDispatcher::Event.class) : Nil
     # Use stable sort to ensure callables with priority of `0` are invoked in the order they were inserted
     @listeners[event_class].sort!
     @sorted << event_class

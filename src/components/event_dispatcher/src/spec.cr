@@ -26,11 +26,11 @@ module Athena::EventDispatcher::Spec
   # dispatcher.emitted_events # => [MyEvent, OtherEvent]
   # ```
   class TracableEventDispatcher < AED::EventDispatcher
-    # Returns an array of each `AED::Event.class` that was dispatched via this dispatcher.
-    getter emitted_events : Array(AED::Event.class) = [] of AED::Event.class
+    # Returns an array of each `Athena::Contracts::EventDispatcher::Event.class` that was dispatched via this dispatcher.
+    getter emitted_events : Array(ACTR::EventDispatcher::Event.class) = [] of ACTR::EventDispatcher::Event.class
 
     # :inherit:
-    def dispatch(event : AED::Event) : Nil
+    def dispatch(event : ACTR::EventDispatcher::Event) : Nil
       @emitted_events << event.class
 
       super

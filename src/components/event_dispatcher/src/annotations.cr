@@ -1,6 +1,6 @@
 # Can be applied to method(s) within a type to denote that method is an event listener.
 # The annotation expects to be assigned to an instance method with between 1 and 2 parameters with a return type of `Nil`.
-# The first parameter should be the concrete `AED::Event` instance the method is listening on.
+# The first parameter should be the concrete [ACTR::EventDispatcher::Event](/Contracts/EventDispatcher/Event) instance the method is listening on.
 # The optional second parameter should be typed as an `AED::EventDispatcherInterface`.
 #
 # The annotation accepts an optional `priority` field, defaulting to `0`, denoting the [listener's priority][Athena::EventDispatcher::EventDispatcherInterface--listener-priority]

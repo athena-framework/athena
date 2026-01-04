@@ -6,6 +6,8 @@ class PostFoo < AED::Event; end
 
 class PreBar < AED::Event; end
 
+class ContractEvent < ACTR::EventDispatcher::Event; end
+
 class Sum < AED::Event
   property value : Int32 = 0
 end
@@ -27,6 +29,11 @@ class TestListener
   def on_post1(event : PostFoo) : Nil
     @values << 3
   end
+
+  @[AEDA::AsEventListener]
+  def on_contract(event : ContractEvent) : Nil
+    @values << -1
+  end
 end
 
 struct EventDispatcherTest < ASPEC::TestCase
@@ -38,7 +45,7 @@ struct EventDispatcherTest < ASPEC::TestCase
 
   @[Tags("compiled")]
   def test_listener_not_passed_event_class : Nil
-    ASPEC::Methods.assert_compile_time_error "expected argument #1 to 'listener' to be Athena::EventDispatcher::Event.class, not String.", <<-CR
+    ASPEC::Methods.assert_compile_time_error "expected argument #1 to 'listener' to be Athena::Contracts::EventDispatcher::Event.class, not String.", <<-CR
       require "./spec_helper.cr"
 
       AED::EventDispatcher.new.listener String do
@@ -190,6 +197,16 @@ struct EventDispatcherTest < ASPEC::TestCase
     @dispatcher.dispatch PostFoo.new
 
     event.value.should eq 10
+  end
+
+  def test_dispatch_contract_event : Nil
+    event = ContractEvent.new
+
+    @dispatcher.listener ContractEvent do
+    end
+
+    returned_event = @dispatcher.dispatch event
+    returned_event.should be event
   end
 
   def test_dispatch_sub_dispatch : Nil

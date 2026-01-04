@@ -53,7 +53,7 @@ class Athena::Framework::Commands::DebugEventDispatcher < ACON::Command
     # TODO: Allow resolving a specific dispatcher service
     dispatcher = @dispatcher
 
-    event_class_map = dispatcher.listeners.each_key.each_with_object({} of String => AED::Event.class) do |event, map|
+    event_class_map = dispatcher.listeners.each_key.each_with_object({} of String => ACTR::EventDispatcher::Event.class) do |event, map|
       map[event.to_s] = event
     end
 
@@ -98,10 +98,10 @@ class Athena::Framework::Commands::DebugEventDispatcher < ACON::Command
     Status::SUCCESS
   end
 
-  private def search_for_event(dispatcher : AED::EventDispatcherInterface, event : String) : Array(AED::Event.class)
+  private def search_for_event(dispatcher : AED::EventDispatcherInterface, event : String) : Array(ACTR::EventDispatcher::Event.class)
     event_class_string = event.downcase
 
-    matching_events = [] of AED::Event.class
+    matching_events = [] of ACTR::EventDispatcher::Event.class
 
     dispatcher.listeners.each_key.each do |event_class|
       matching_events << event_class if event_class.to_s.downcase.includes? event_class_string

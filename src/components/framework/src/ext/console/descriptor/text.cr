@@ -91,7 +91,7 @@ class Athena::Framework::Console::Descriptor::Text < Athena::Framework::Console:
     else
       title = "#{title} Grouped by Event"
       listeners = if events = context.event_classes
-                    events.each_with_object({} of AED::Event.class => Array(AED::Callable)) do |ec, map|
+                    events.each_with_object({} of ACTR::EventDispatcher::Event.class => Array(AED::Callable)) do |ec, map|
                       map[ec] = event_dispatcher.listeners ec
                     end
                   else
@@ -109,7 +109,7 @@ class Athena::Framework::Console::Descriptor::Text < Athena::Framework::Console:
   private def render_event_listener_table(
     output : ACON::Style::Athena,
     event_dispatcher : AED::EventDispatcherInterface,
-    event_listeners : Hash(AED::Event.class, Array(AED::Callable)),
+    event_listeners : Hash(ACTR::EventDispatcher::Event.class, Array(AED::Callable)),
   ) : Nil
     sorted_listeners = event_listeners
       .to_a
