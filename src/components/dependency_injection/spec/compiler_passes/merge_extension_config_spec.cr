@@ -1133,4 +1133,47 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
       CR
     end
   end
+
+  it "handles multiple extensions where one has nested schemas" do
+    ASPEC::Methods.assert_compiles <<-'CR'
+      require "../spec_helper"
+
+      # First extension with nested schema modules
+      module FirstSchema
+        include ADI::Extension::Schema
+
+        property root_prop : String = "root"
+
+        module Nested
+          include ADI::Extension::Schema
+
+          property nested_prop : Int32 = 42
+        end
+      end
+
+      # Second extension without nested schemas
+      module SecondSchema
+        include ADI::Extension::Schema
+
+        property other_prop : Bool = true
+      end
+
+      ADI.register_extension "first", FirstSchema
+      ADI.register_extension "second", SecondSchema
+
+      macro finished
+        macro finished
+          \{%
+            first_config = ADI::CONFIG["first"]
+            second_config = ADI::CONFIG["second"]
+
+            raise "#{first_config}" unless first_config["root_prop"] == "root"
+            raise "#{first_config}" unless first_config["nested"]["nested_prop"] == 42
+            raise "#{second_config}" unless second_config["other_prop"] == true
+            raise "second should not have 'nested' key: #{second_config}" if second_config["nested"] != nil
+          %}
+        end
+      end
+    CR
+  end
 end

@@ -60,7 +60,7 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
             end
 
             ext.constant("OPTIONS").each do |o|
-              obj = ext_options
+              obj = extension_schema_map[ext_name]
 
               if ext_path.empty?
                 obj[o["name"]] = o
