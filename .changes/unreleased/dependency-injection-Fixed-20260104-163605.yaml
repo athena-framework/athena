@@ -1,0 +1,8 @@
+project: dependency-injection
+kind: Fixed
+body: Fix issue with using multiple extensions when one has a nested schema
+time: 2026-01-04T16:36:05.613302645-05:00
+custom:
+    Author: George Dietrich
+    PR: "658"
+    Username: blacksmoke16
