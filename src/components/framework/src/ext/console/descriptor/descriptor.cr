@@ -40,13 +40,13 @@ abstract class Athena::Framework::Console::Descriptor
   end
 
   class EventDispatcherContext < FrameworkContext
-    getter event_class : AED::Event.class | Nil
-    getter event_classes : Array(AED::Event.class)?
+    getter event_class : ACTR::EventDispatcher::Event.class | Nil
+    getter event_classes : Array(ACTR::EventDispatcher::Event.class)?
 
     def initialize(
       output : ACON::Output::Interface,
-      @event_class : AED::Event.class | Nil = nil,
-      @event_classes : Array(AED::Event.class)? = nil,
+      @event_class : ACTR::EventDispatcher::Event.class | Nil = nil,
+      @event_classes : Array(ACTR::EventDispatcher::Event.class)? = nil,
       format : String = "txt",
       raw_text : Bool = false,
       raw_output : Bool? = nil,
