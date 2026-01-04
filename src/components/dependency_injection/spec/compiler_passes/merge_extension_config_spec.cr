@@ -997,6 +997,34 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
       CR
     end
 
+    it "errors if map_of direct member has wrong type when object_schema also present" do
+      assert_compile_time_error "Expected configuration value 'test.hubs.primary.url' to be a 'String', but got 'Int32'.", <<-'CR'
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema JwtConfig,
+            secret : String
+
+          map_of hubs,
+            url : String,
+            jwt : JwtConfig
+        end
+
+        ADI.register_extension "test", Schema
+
+        ADI.configure({
+          test: {
+            hubs: {
+              primary: {
+                url: 123,
+                jwt: {secret: "valid"},
+              },
+            },
+          },
+        })
+      CR
+    end
+
     it "fills in nested object_schema defaults for multiple map entries independently" do
       ASPEC::Methods.assert_compiles <<-'CR'
         require "../spec_helper"
