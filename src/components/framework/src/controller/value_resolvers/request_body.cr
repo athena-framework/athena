@@ -122,7 +122,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   # **Type:** `Array(String)?` **Default:** `nil`
   #
   # Allows whitelisting the allowed [request format(s)](/HTTP/Request/#Athena::HTTP::Request::FORMATS).
-  # If the [AHTTP::Request#content_type_format](/HTTP/Request/#Athena::HTTP::Request#content_type_format) is not included in this list, a `ATH::Exception::UnsupportedMediaType` error will be raised.
+  # If the [AHTTP::Request#content_type_format](/HTTP/Request/#Athena::HTTP::Request#content_type_format) is not included in this list, a `AHK::Exception::UnsupportedMediaType` error will be raised.
   #
   # ### validation_groups
   #
@@ -210,7 +210,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   ); end
 
   # :inherit:
-  def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata)
+  def resolve(request : AHTTP::Request, parameter : AHK::Controller::ParameterMetadata)
     validation_groups = nil
     constraints = nil
     parameter_annotations = @annotation_resolver.action_parameter_annotations request, parameter.name
@@ -240,27 +240,27 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
     object
   end
 
-  private def map_query_string(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata, configuration : ATHA::MapQueryStringConfiguration)
+  private def map_query_string(request : AHTTP::Request, parameter : AHK::Controller::ParameterMetadata, configuration : ATHA::MapQueryStringConfiguration)
     return unless query = request.query
     return if query.nil? && (parameter.nilable? || parameter.has_default?)
 
     self.deserialize_form query, parameter.type
   rescue ex : URI::SerializableError
-    raise ATH::Exception::UnprocessableEntity.new ex.message.not_nil!, cause: ex
+    raise AHK::Exception::UnprocessableEntity.new ex.message.not_nil!, cause: ex
   rescue ex : URI::Error
-    raise ATH::Exception::BadRequest.new "Malformed www form data payload.", cause: ex
+    raise AHK::Exception::BadRequest.new "Malformed www form data payload.", cause: ex
   end
 
   # ameba:disable Metrics/CyclomaticComplexity:
-  private def map_request_body(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata, configuration : ATHA::MapRequestBodyConfiguration)
+  private def map_request_body(request : AHTTP::Request, parameter : AHK::Controller::ParameterMetadata, configuration : ATHA::MapRequestBodyConfiguration)
     if !(body = request.body) || body.peek.try &.empty?
-      raise ATH::Exception::BadRequest.new "Request does not have a body."
+      raise AHK::Exception::BadRequest.new "Request does not have a body."
     end
 
     format = request.content_type_format
 
     if (accept_formats = configuration.accept_formats) && !accept_formats.includes? format
-      raise ATH::Exception::UnsupportedMediaType.new "Unsupported format, expects one of: '#{accept_formats.join(", ")}', but got '#{format}'."
+      raise AHK::Exception::UnsupportedMediaType.new "Unsupported format, expects one of: '#{accept_formats.join(", ")}', but got '#{format}'."
     end
 
     # We have to use separate deserialization methods with the case such that a type that includes multiple modules is handled as expected.
@@ -270,24 +270,24 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
     when "json"
       self.deserialize_json body, parameter.type
     else
-      raise ATH::Exception::UnsupportedMediaType.new "Unsupported format."
+      raise AHK::Exception::UnsupportedMediaType.new "Unsupported format."
     end
   rescue ex : JSON::SerializableError
     # JSON::Serializable seems to sometimes re-raise parse exceptions as `JSON::SerializableError`,
     # so we handle those first based on the cause.
     case cause = ex.cause
     when JSON::ParseException
-      raise ATH::Exception::BadRequest.new "Malformed JSON payload.", cause: cause
+      raise AHK::Exception::BadRequest.new "Malformed JSON payload.", cause: cause
     else
-      raise ATH::Exception::UnprocessableEntity.new ex.message.not_nil!
+      raise AHK::Exception::UnprocessableEntity.new ex.message.not_nil!
     end
   rescue ex : JSON::ParseException | ASR::Exception::DeserializationException
     # Otherwise if it really is a `ParseException` we can be assured it's just malformed
-    raise ATH::Exception::BadRequest.new "Malformed JSON payload.", cause: ex
+    raise AHK::Exception::BadRequest.new "Malformed JSON payload.", cause: ex
   rescue ex : URI::SerializableError
-    raise ATH::Exception::UnprocessableEntity.new ex.message.not_nil!, cause: ex
+    raise AHK::Exception::UnprocessableEntity.new ex.message.not_nil!, cause: ex
   rescue ex : URI::Error
-    raise ATH::Exception::BadRequest.new "Malformed www form data payload.", cause: ex
+    raise AHK::Exception::BadRequest.new "Malformed www form data payload.", cause: ex
   end
 
   private def deserialize_json(body : IO, klass : ASR::Serializable.class)
@@ -312,7 +312,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   private def deserialize_form(body : IO | String, klass : _)
   end
 
-  private def map_uploaded_file(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata, configuration : ATHA::MapUploadedFileConfiguration) : AHTTP::UploadedFile | Enumerable(AHTTP::UploadedFile) | Nil
+  private def map_uploaded_file(request : AHTTP::Request, parameter : AHK::Controller::ParameterMetadata, configuration : ATHA::MapUploadedFileConfiguration) : AHTTP::UploadedFile | Enumerable(AHTTP::UploadedFile) | Nil
     files = request.files[configuration.name || parameter.name]? || [] of AHTTP::UploadedFile
 
     if files.empty? && (parameter.nilable? || parameter.has_default?)

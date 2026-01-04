@@ -208,7 +208,7 @@ struct RoutingTest < ATH::Spec::APITestCase
   end
 
   def test_using_route_handler_directly_with_http_request : Nil
-    response = self.client.container.athena_route_handler.handle ::HTTP::Request.new "GET", "/art/response"
+    response = self.client.container.athena_http_kernel.handle ::HTTP::Request.new "GET", "/art/response"
     response.status.should eq ::HTTP::Status::IM_A_TEAPOT
     response.content.should eq "FOO"
   end

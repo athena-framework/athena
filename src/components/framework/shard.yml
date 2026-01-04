@@ -35,6 +35,9 @@ dependencies:
   athena-http:
     github: athena-framework/http
     version: ~> 0.1.0
+  athena-http_kernel:
+    github: athena-framework/http-kernel
+    version: ~> 0.1.0
   athena-mime:
     github: athena-framework/mime
     version: ~> 0.2.0

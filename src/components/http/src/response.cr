@@ -30,7 +30,7 @@ class Athena::HTTP::Response
   # @[ADI::Register]
   # struct CompressionListener
   #   @[AEDA::AsEventListener(priority: -256)]
-  #   def on_response(event : ATH::Events::Response) : Nil
+  #   def on_response(event : AHK::Events::Response) : Nil
   #     # If the request supports gzip encoding
   #     if event.request.headers.includes_word?("accept-encoding", "gzip")
   #       # Change the `AHTTP::Response` object's writer to be our `GzipWriter`

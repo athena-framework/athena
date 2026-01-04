@@ -5,7 +5,7 @@ private def parameter(
   *,
   default : T? = nil,
 ) forall T
-  ATH::Controller::ParameterMetadata(T).new(
+  AHK::Controller::ParameterMetadata(T).new(
     "foo",
     default_value: default,
     has_default: !default.nil?,
@@ -31,7 +31,7 @@ end
 describe ATHR::QueryParameter do
   describe "#resolve" do
     it "does not have the annotation" do
-      parameter = ATH::Controller::ParameterMetadata(String).new "foo"
+      parameter = AHK::Controller::ParameterMetadata(String).new "foo"
       ATHR::QueryParameter.new(MockAnnotationResolver.new).resolve(new_request, parameter).should be_nil
     end
 
@@ -56,25 +56,25 @@ describe ATHR::QueryParameter do
     end
 
     it "missing non-nilable no default" do
-      expect_raises ATH::Exception::NotFound, "Missing query parameter: 'foo'." do
+      expect_raises AHK::Exception::NotFound, "Missing query parameter: 'foo'." do
         resolver.resolve new_request, parameter
       end
     end
 
     it "missing non-nilable no default custom status" do
-      expect_raises ATH::Exception::UnprocessableEntity, "Missing query parameter: 'foo'." do
+      expect_raises AHK::Exception::UnprocessableEntity, "Missing query parameter: 'foo'." do
         resolver(validation_failed_status: :unprocessable_entity).resolve new_request, parameter
       end
     end
 
     it "invalid" do
-      expect_raises ATH::Exception::NotFound, "Invalid query parameter: 'foo'." do
+      expect_raises AHK::Exception::NotFound, "Invalid query parameter: 'foo'." do
         resolver.resolve new_request(query: "foo=bar"), parameter(Int32)
       end
     end
 
     it "missing non-nilable no default custom status" do
-      expect_raises ATH::Exception::UnprocessableEntity, "Invalid query parameter: 'foo'." do
+      expect_raises AHK::Exception::UnprocessableEntity, "Invalid query parameter: 'foo'." do
         resolver(validation_failed_status: :unprocessable_entity).resolve new_request(query: "foo=bar"), parameter(Int32)
       end
     end

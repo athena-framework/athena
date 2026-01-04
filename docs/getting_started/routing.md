@@ -132,7 +132,7 @@ require "athena"
 class ExampleController < ATH::Controller
   @[ARTA::Post("/data")]
   def data(request : AHTTP::Request) : String
-    raise ATH::Exception::BadRequest.new "Request body is empty." unless body = request.body
+    raise AHK::Exception::BadRequest.new "Request body is empty." unless body = request.body
 
     JSON.parse(body).as_h["name"].as_s
   end
@@ -242,7 +242,7 @@ struct StaticFileListener
 
   # Run this listener with a very high priority so it is invoked before any application logic.
   @[AEDA::AsEventListener(priority: 256)]
-  def on_request(event : ATH::Events::Request) : Nil
+  def on_request(event : AHK::Events::Request) : Nil
     # Fallback if the request method isn't intended for files.
     # Alternatively, a 405 could be thrown if the server is dedicated to serving files.
     return unless event.request.method.in? "GET", "HEAD"
@@ -252,7 +252,7 @@ struct StaticFileListener
 
     # File path cannot contains '\0' (NUL).
     if request_path.includes? '\0'
-      raise ATH::Exception::BadRequest.new "File path cannot contain NUL bytes."
+      raise AHK::Exception::BadRequest.new "File path cannot contain NUL bytes."
     end
 
     request_path = Path.posix request_path

@@ -14,13 +14,13 @@ end
 describe ATHR::Time do
   describe "#resolve" do
     it "some other type parameter" do
-      resolver.resolve(new_request, ATH::Controller::ParameterMetadata(Int32).new "foo").should be_nil
-      resolver.resolve(new_request, ATH::Controller::ParameterMetadata(Int32?).new "foo").should be_nil
-      resolver.resolve(new_request, ATH::Controller::ParameterMetadata(Bool | Float64).new "foo").should be_nil
+      resolver.resolve(new_request, AHK::Controller::ParameterMetadata(Int32).new "foo").should be_nil
+      resolver.resolve(new_request, AHK::Controller::ParameterMetadata(Int32?).new "foo").should be_nil
+      resolver.resolve(new_request, AHK::Controller::ParameterMetadata(Bool | Float64).new "foo").should be_nil
     end
 
     it "type is nilable and the value is nil" do
-      parameter = ATH::Controller::ParameterMetadata(String?).new "foo"
+      parameter = AHK::Controller::ParameterMetadata(String?).new "foo"
       request = new_request
       request.attributes.set "foo", nil
 
@@ -28,14 +28,14 @@ describe ATHR::Time do
     end
 
     it "is not a Time parameter" do
-      parameter = ATH::Controller::ParameterMetadata(String).new "foo"
+      parameter = AHK::Controller::ParameterMetadata(String).new "foo"
       request = new_request
 
       resolver.resolve(request, parameter).should be_nil
     end
 
     it "type is nilable" do
-      parameter = ATH::Controller::ParameterMetadata(::Time?).new "foo"
+      parameter = AHK::Controller::ParameterMetadata(::Time?).new "foo"
       request = new_request
       request.attributes.set "foo", "2020-04-07T12:34:56Z"
 
@@ -43,7 +43,7 @@ describe ATHR::Time do
     end
 
     it "type a union of another type" do
-      parameter = ATH::Controller::ParameterMetadata(Int32 | ::Time).new "foo"
+      parameter = AHK::Controller::ParameterMetadata(Int32 | ::Time).new "foo"
       request = new_request
       request.attributes.set "foo", "2020-04-07T12:34:56Z"
 
@@ -51,14 +51,14 @@ describe ATHR::Time do
     end
 
     it "is missing from request attributes" do
-      parameter = ATH::Controller::ParameterMetadata(::Time).new "foo"
+      parameter = AHK::Controller::ParameterMetadata(::Time).new "foo"
       request = new_request
 
       resolver.resolve(request, parameter).should be_nil
     end
 
     it "is is a ::Time instance already" do
-      parameter = ATH::Controller::ParameterMetadata(::Time).new "foo"
+      parameter = AHK::Controller::ParameterMetadata(::Time).new "foo"
       request = new_request
       request.attributes.set "foo", now = Time.utc
 
@@ -66,7 +66,7 @@ describe ATHR::Time do
     end
 
     it "is not a string" do
-      parameter = ATH::Controller::ParameterMetadata(::Time).new "foo"
+      parameter = AHK::Controller::ParameterMetadata(::Time).new "foo"
       request = new_request
       request.attributes.set "foo", 100
 
@@ -74,7 +74,7 @@ describe ATHR::Time do
     end
 
     it "parses RFC 3339 by default" do
-      parameter = ATH::Controller::ParameterMetadata(::Time).new "foo"
+      parameter = AHK::Controller::ParameterMetadata(::Time).new "foo"
       request = new_request
       request.attributes.set "foo", "2020-04-07T12:34:56Z"
 
@@ -82,7 +82,7 @@ describe ATHR::Time do
     end
 
     it "allows specifying a format" do
-      parameter = ATH::Controller::ParameterMetadata(::Time).new("foo")
+      parameter = AHK::Controller::ParameterMetadata(::Time).new("foo")
 
       request = new_request
       request.attributes.set "foo", "2020--04//07  12:34:56"
@@ -98,7 +98,7 @@ describe ATHR::Time do
     end
 
     it "allows specifying a location to parse the format in" do
-      parameter = ATH::Controller::ParameterMetadata(::Time).new("foo")
+      parameter = AHK::Controller::ParameterMetadata(::Time).new("foo")
 
       request = new_request
       request.attributes.set "foo", "2020--04//07  12:34:56"
@@ -113,12 +113,12 @@ describe ATHR::Time do
         .resolve(request, parameter).should eq Time.local 2020, 4, 7, 12, 34, 56, location: Time::Location.fixed(9001)
     end
 
-    it "raises an ATH::Exception::BadRequest if a time could not be parsed from the string" do
-      parameter = ATH::Controller::ParameterMetadata(::Time).new "foo"
+    it "raises an AHK::Exception::BadRequest if a time could not be parsed from the string" do
+      parameter = AHK::Controller::ParameterMetadata(::Time).new "foo"
       request = new_request
       request.attributes.set "foo", "foo"
 
-      expect_raises ATH::Exception::BadRequest, "Invalid date(time) for parameter 'foo'." do
+      expect_raises AHK::Exception::BadRequest, "Invalid date(time) for parameter 'foo'." do
         resolver.resolve request, parameter
       end
     end

@@ -75,7 +75,7 @@ class Athena::Framework::View::ViewHandler
     format = view.format || request.request_format
 
     unless self.supports? format
-      raise ATH::Exception::NotAcceptable.new "The server is unable to return a response in the requested format: '#{format}'."
+      raise AHK::Exception::NotAcceptable.new "The server is unable to return a response in the requested format: '#{format}'."
     end
 
     if custom_handler = @custom_handlers[format]?
@@ -164,7 +164,7 @@ class Athena::Framework::View::ViewHandler
                   # If the serialized data is "null", but the data is not `nil`, assume this means the serializer component failed to serialize it,
                   # raise an error as it is likely the user forgot to include either `JSON::Serializable` or `ASR::Serializable`.
                   if "null" == serialized_data && !data.nil?
-                    raise ATH::Exception::Logic.new "Failed to serialize response body. Did you forget to include either `JSON::Serializable` or `ASR::Serializable`?"
+                    raise AHK::Exception::Logic.new "Failed to serialize response body. Did you forget to include either `JSON::Serializable` or `ASR::Serializable`?"
                   end
 
                   serialized_data

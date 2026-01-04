@@ -7,7 +7,7 @@ end
 private def new_response_event(& : AHTTP::Request -> _)
   request = new_request
   yield request
-  ATH::Events::Response.new request, AHTTP::Response.new
+  AHK::Events::Response.new request, AHTTP::Response.new
 end
 
 private def assert_headers(response : AHTTP::Response, origin : String = "https://example.com") : Nil
@@ -110,7 +110,7 @@ describe ATH::Listeners::CORS do
           request.headers.add "access-control-request-headers", "X-BAD"
         end
 
-        expect_raises ATH::Exception::Forbidden, "Unauthorized header: 'X-BAD'" do
+        expect_raises AHK::Exception::Forbidden, "Unauthorized header: 'X-BAD'" do
           listener.on_request event
         end
 

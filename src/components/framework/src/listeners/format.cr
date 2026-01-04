@@ -12,7 +12,7 @@ struct Athena::Framework::Listeners::Format
   ); end
 
   @[AEDA::AsEventListener(priority: 34)]
-  def on_request(event : ATH::Events::Request) : Nil
+  def on_request(event : AHK::Events::Request) : Nil
     request = event.request
     format = request.request_format nil
 
@@ -28,10 +28,10 @@ struct Athena::Framework::Listeners::Format
       end
     end
 
-    raise ATH::Exception::NotAcceptable.new "No matching accepted Response format could be determined." if format.nil?
+    raise AHK::Exception::NotAcceptable.new "No matching accepted Response format could be determined." if format.nil?
 
     request.request_format = format
-  rescue ex : ATH::Exception::StopFormatListener
+  rescue ex : AHK::Exception::StopFormatListener
     # ignore
   end
 end

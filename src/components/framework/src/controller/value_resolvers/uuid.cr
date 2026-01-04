@@ -23,10 +23,10 @@ struct Athena::Framework::Controller::ValueResolvers::UUID
   include Athena::Framework::Controller::ValueResolvers::Interface
 
   # :inherit:
-  def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata) : ::UUID?
+  def resolve(request : AHTTP::Request, parameter : AHK::Controller::ParameterMetadata) : ::UUID?
     return unless parameter.instance_of? ::UUID # TODO: Test making this not nil
     return unless value = request.attributes.get? parameter.name, String
 
-    ::UUID.parse?(value) || raise ATH::Exception::BadRequest.new "Parameter '#{parameter.name}' with value '#{value}' is not a valid 'UUID'."
+    ::UUID.parse?(value) || raise AHK::Exception::BadRequest.new "Parameter '#{parameter.name}' with value '#{value}' is not a valid 'UUID'."
   end
 end

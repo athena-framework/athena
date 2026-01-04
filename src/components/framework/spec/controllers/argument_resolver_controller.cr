@@ -8,19 +8,19 @@ class GenericAnnotationEnabledCustomResolver
     @annotation_resolver : ATH::AnnotationResolver,
   ); end
 
-  def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata(Float64)) : Float64?
+  def resolve(request : AHTTP::Request, parameter : AHK::Controller::ParameterMetadata(Float64)) : Float64?
     return unless @annotation_resolver.action_parameter_annotations(request, parameter.name).has? MyResolverAnnotation
 
     3.14
   end
 
-  def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata(String)) : String?
+  def resolve(request : AHTTP::Request, parameter : AHK::Controller::ParameterMetadata(String)) : String?
     return unless @annotation_resolver.action_parameter_annotations(request, parameter.name).has? MyResolverAnnotation
 
     "fooo"
   end
 
-  def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata) : Nil
+  def resolve(request : AHTTP::Request, parameter : AHK::Controller::ParameterMetadata) : Nil
   end
 end
 

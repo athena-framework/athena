@@ -38,7 +38,7 @@ describe ATH::Listeners::File do
     it "calls clear" do
       ATH::Listeners::File
         .new(file_parser = MockFileParser.new(nil, 1, 0))
-        .on_terminate ATH::Events::Terminate.new new_request, AHTTP::Response.new
+        .on_terminate AHK::Events::Terminate.new new_request, AHTTP::Response.new
 
       file_parser.clear_called?.should be_true
     end

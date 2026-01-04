@@ -8,7 +8,7 @@ class Athena::Framework::Spec::HTTPBrowser < ATH::Spec::AbstractBrowser
   protected def do_request(request : AHTTP::Request) : ::HTTP::Server::Response
     response = ::HTTP::Server::Response.new IO::Memory.new
 
-    handler = ADI.container.athena_route_handler
+    handler = ADI.container.athena_http_kernel
     athena_response = handler.handle request
 
     athena_response.send request, response

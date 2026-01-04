@@ -38,7 +38,7 @@ private def assert_route(
   route_defaults = route.defaults.dup
   route_defaults.delete "_controller" unless defaults.has_key?("_controller")
 
-  route_defaults.raw?("_action").should be_a ATH::ActionBase
+  route_defaults.raw?("_action").should be_a AHK::ActionBase
   route_defaults.delete "_action"
 
   route_defaults.should eq(defaults), line: line, file: file

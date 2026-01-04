@@ -20,7 +20,7 @@
 #   include ATHR::Interface
 #
 #   # :inherit:
-#   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata) : MyCustomType?
+#   def resolve(request : AHTTP::Request, parameter : AHK::Controller::ParameterMetadata) : MyCustomType?
 #     # Return early if a value is unresolvable from the current *request* and/or *parameter*.
 #     return if parameter.type != MyCustomType
 #
@@ -69,7 +69,7 @@
 #   ); end
 #
 #   # :inherit:
-#   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata) : Int32?
+#   def resolve(request : AHTTP::Request, parameter : AHK::Controller::ParameterMetadata) : Int32?
 #     # Return early if the controller action parameter doesn't have the annotation.
 #     return unless @annotation_resolver.action_parameter_annotations(request, parameter.name).has? This
 #
@@ -118,7 +118,7 @@
 #   ); end
 #
 #   # :inherit:
-#   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata) : Int32?
+#   def resolve(request : AHTTP::Request, parameter : AHK::Controller::ParameterMetadata) : Int32?
 #     # Return early if the controller action parameter doesn't have the annotation.
 #     return unless @annotation_resolver.action_parameter_annotations(request, parameter.name).has? This
 #
@@ -170,14 +170,14 @@
 #   ); end
 #
 #   # :inherit:
-#   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata(Int32)) : Int32?
+#   def resolve(request : AHTTP::Request, parameter : AHK::Controller::ParameterMetadata(Int32)) : Int32?
 #     return unless @annotation_resolver.action_parameter_annotations(request, parameter.name).has? Enable
 #
 #     request.attributes.get(parameter.name, Int32) * 10
 #   end
 #
 #   # :inherit:
-#   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata(String)) : String?
+#   def resolve(request : AHTTP::Request, parameter : AHK::Controller::ParameterMetadata(String)) : String?
 #     return unless @annotation_resolver.action_parameter_annotations(request, parameter.name).has? Enable
 #
 #     request.attributes.get(parameter.name, String).upcase
@@ -186,7 +186,7 @@
 #   # :inherit:
 #   #
 #   # Fallback overload for types other than `Int32` and `String.
-#   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata) : Nil
+#   def resolve(request : AHTTP::Request, parameter : AHK::Controller::ParameterMetadata) : Nil
 #   end
 # end
 #
@@ -258,7 +258,7 @@
 #   ); end
 #
 #   # :inherit:
-#   def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata) : String?
+#   def resolve(request : AHTTP::Request, parameter : AHK::Controller::ParameterMetadata) : String?
 #     return unless @annotation_resolver.action_parameter_annotations(request, parameter.name).has? Enable
 #
 #     "foo"
@@ -293,6 +293,8 @@
 # This feature pairs nicely with the [free var][Athena::Framework::Controller::ValueResolvers::Interface--free-vars] section as it essentially allows
 # scoping the possible types of `T` to the set of types defined as part of the module.
 module Athena::Framework::Controller::ValueResolvers::Interface
+  include Athena::HTTPKernel::Controller::ValueResolvers::Interface
+
   # :nodoc:
   ANNOTATION_RESOLVER_MAP = {} of Nil => Nil
 
@@ -312,7 +314,4 @@ module Athena::Framework::Controller::ValueResolvers::Interface
   module Typed(*SupportedTypes)
     include Athena::Framework::Controller::ValueResolvers::Interface
   end
-
-  # Returns a value resolved from the provided *request* and *parameter* if possible, otherwise returns `nil` if no parameter could be resolved.
-  abstract def resolve(request : AHTTP::Request, parameter : ATH::Controller::ParameterMetadata)
 end

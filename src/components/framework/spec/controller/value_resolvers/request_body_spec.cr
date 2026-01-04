@@ -42,43 +42,43 @@ struct RequestBodyResolverTest < ASPEC::TestCase
   end
 
   def test_raises_on_no_body : Nil
-    expect_raises ATH::Exception::BadRequest, "Request does not have a body." do
+    expect_raises AHK::Exception::BadRequest, "Request does not have a body." do
       @target.resolve new_request, self.get_config MockJSONSerializableEntity
     end
   end
 
   def test_raises_on_empty_body : Nil
-    expect_raises ATH::Exception::BadRequest, "Request does not have a body." do
+    expect_raises AHK::Exception::BadRequest, "Request does not have a body." do
       @target.resolve new_request(body: ""), self.get_config(MockJSONSerializableEntity)
     end
   end
 
   def test_raises_on_invalid_json : Nil
-    expect_raises ATH::Exception::BadRequest, "Malformed JSON payload." do
+    expect_raises AHK::Exception::BadRequest, "Malformed JSON payload." do
       @target.resolve new_request(body: %(<blah>)), self.get_config(MockJSONSerializableEntity)
     end
   end
 
   def test_raises_on_invalid_nested_json : Nil
-    expect_raises ATH::Exception::BadRequest, "Malformed JSON payload." do
+    expect_raises AHK::Exception::BadRequest, "Malformed JSON payload." do
       @target.resolve new_request(body: %({"id": "foo"})), self.get_config(MockJSONSerializableEntity)
     end
   end
 
   def test_raises_on_missing_json_data : Nil
-    expect_raises ATH::Exception::UnprocessableEntity, "Missing JSON attribute: name" do
+    expect_raises AHK::Exception::UnprocessableEntity, "Missing JSON attribute: name" do
       @target.resolve new_request(body: %({"id":10})), self.get_config(MockJSONSerializableEntity)
     end
   end
 
   def test_raises_on_missing_www_form_data : Nil
-    expect_raises ATH::Exception::UnprocessableEntity, "Missing required property: 'name'." do
+    expect_raises AHK::Exception::UnprocessableEntity, "Missing required property: 'name'." do
       @target.resolve new_request(body: "id=10", format: "form"), self.get_config(MockURISerializableEntity)
     end
   end
 
   def test_raises_on_missing_query_string_data : Nil
-    expect_raises ATH::Exception::UnprocessableEntity, "Missing required property: 'name'." do
+    expect_raises AHK::Exception::UnprocessableEntity, "Missing required property: 'name'." do
       @target.resolve new_request(query: "id=10"), self.get_config(MockURISerializableEntity, ATHA::MapQueryString, ATHA::MapQueryStringConfiguration.new)
     end
   end
@@ -135,7 +135,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
   end
 
   def test_it_supports_specifying_accepted_formats : Nil
-    expect_raises ATH::Exception::UnsupportedMediaType, %(Unsupported format, expects one of: 'json, xml', but got 'form'.) do
+    expect_raises AHK::Exception::UnsupportedMediaType, %(Unsupported format, expects one of: 'json, xml', but got 'form'.) do
       @target.resolve(
         new_request(body: "id=10&name=Fred", format: "form"),
         self.get_config(MockURISerializableEntity, configuration: ATHA::MapRequestBodyConfiguration.new(["json", "xml"]))
@@ -331,7 +331,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
   end
 
   private def get_config(type : T.class, ann = ATHA::MapRequestBody, configuration = ATHA::MapRequestBodyConfiguration.new, property_name : String = "foo") forall T
-    metadata = ATH::Controller::ParameterMetadata(T).new(
+    metadata = AHK::Controller::ParameterMetadata(T).new(
       property_name,
     )
 
