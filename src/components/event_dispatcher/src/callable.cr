@@ -36,8 +36,8 @@
 abstract struct Athena::EventDispatcher::Callable
   include Comparable(self)
 
-  # Returns what `AED::Event` class this callable represents.
-  getter event_class : AED::Event.class
+  # Returns what [ACTR::EventDispatcher::Event](/Contracts/EventDispatcher/Event) class this callable represents.
+  getter event_class : ACTR::EventDispatcher::Event.class
 
   # Returns the name of this callable.
   # Useful for debugging to identify a specific callable added from a block, or which method an `AED::Callable::EventListenerInstance` is associated with.
@@ -47,7 +47,7 @@ abstract struct Athena::EventDispatcher::Callable
   getter priority : Int32
 
   def initialize(
-    @event_class : AED::Event.class,
+    @event_class : ACTR::EventDispatcher::Event.class,
     name : String?,
     @priority : Int32,
   )
@@ -60,13 +60,13 @@ abstract struct Athena::EventDispatcher::Callable
   end
 
   # :nodoc:
-  def call(event : AED::Event, dispatcher : AED::EventDispatcherInterface) : NoReturn
+  def call(event : ACTR::EventDispatcher::Event, dispatcher : AED::EventDispatcherInterface) : NoReturn
     raise "BUG: Invoked wrong `call` overload"
   end
 
   protected abstract def copy_with(priority _priority = @priority)
 
-  # Represents a listener that only accepts the `AED::Event` instance.
+  # Represents a listener that only accepts the [ACTR::EventDispatcher::Event](/Contracts/EventDispatcher/Event) instance.
   struct Event(E) < Athena::EventDispatcher::Callable
     @callback : E -> Nil
 
@@ -95,7 +95,7 @@ abstract struct Athena::EventDispatcher::Callable
     end
   end
 
-  # Represents a listener that accepts both the `AED::Event` instance and the `AED::EventDispatcherInterface` instance.
+  # Represents a listener that accepts both the [ACTR::EventDispatcher::Event](/Contracts/EventDispatcher/Event) instance and the `AED::EventDispatcherInterface` instance.
   # Such as when using [AED::EventDispatcherInterface#listener(event_class,*,priority,&)][Athena::EventDispatcher::EventDispatcherInterface#listener(callable,*,priority)], or the `AED::Event.callable` method.
   struct EventDispatcher(E) < Athena::EventDispatcher::Callable
     @callback : E, AED::EventDispatcherInterface -> Nil

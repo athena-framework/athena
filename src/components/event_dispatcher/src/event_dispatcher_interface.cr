@@ -8,7 +8,7 @@
 # Listeners can be added in a few ways, with the simplest being registering a block directly on the dispatcher instance.
 #
 # ```
-# class MyEvent < AED::Event; end
+# class MyEvent < ACTR::EventDispatcher::Event; end
 #
 # dispatcher.listener MyEvent do |event, dispatcher|
 #   # Do something with the event, and/or dispatcher
@@ -19,7 +19,7 @@
 # Lastly, a type that has one or more `AEDA::AsEventListener` annotated methods may also be passed.
 #
 # Once all listeners are registered, you can begin to dispatch events.
-# Dispatching an event is simply calling the `#dispatch` method with an `AED::Event` subclass instance as an argument.
+# Dispatching an event is simply calling the `#dispatch` method with an [ACTR::EventDispatcher::Event](/Contracts/EventDispatcher/Event) subclass instance as an argument.
 #
 # ### Listener Priority
 #
@@ -29,7 +29,7 @@
 # If two listeners have the same priority, they are executed in the order in which they were registered with the dispatcher.
 #
 # ```
-# class MyEvent < AED::Event; end
+# class MyEvent < ACTR::EventDispatcher::Event; end
 #
 # dispatcher = AED::EventDispatcher.new
 # dispatcher.listener(MyEvent, priority: -10) { pp "callback1" }
@@ -55,7 +55,7 @@ module Athena::EventDispatcher::EventDispatcherInterface
   abstract def has_listeners? : Bool
 
   # Returns `true` if this dispatcher has any listeners on the provided *event_class*.
-  abstract def has_listeners?(event_class : AED::Event.class) : Bool
+  abstract def has_listeners?(event_class : ACTR::EventDispatcher::Event.class) : Bool
 
   # Registers the provided *callable* listener to this dispatcher.
   abstract def listener(callable : AED::Callable) : AED::Callable
@@ -74,11 +74,11 @@ module Athena::EventDispatcher::EventDispatcherInterface
     {% @type.raise "abstract `def Athena::EventDispatcher::EventDispatcherInterface#listener(listener : T) : Nil forall T` must be implemented by #{@type}" %}
   end
 
-  # Returns a hash of all registered listeners as a `Hash(AED::Event.class, Array(AED::Callable))`.
-  abstract def listeners : Hash(AED::Event.class, Array(AED::Callable))
+  # Returns a hash of all registered listeners as a `Hash(ACTR::EventDispatcher::Event.class, Array(AED::Callable))`.
+  abstract def listeners : Hash(ACTR::EventDispatcher::Event.class, Array(AED::Callable))
 
   # Returns an `Array(AED::Callable)` for all listeners on the provided *event_class*.
-  abstract def listeners(for event_class : AED::Event.class) : Array(AED::Callable)
+  abstract def listeners(for event_class : ACTR::EventDispatcher::Event.class) : Array(AED::Callable)
 
   # Deregisters the provided *callable* from this dispatcher.
   #

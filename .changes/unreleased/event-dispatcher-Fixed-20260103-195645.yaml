@@ -1,0 +1,8 @@
+project: event-dispatcher
+kind: Fixed
+body: Fix compatibility with `ACTR::EventDispatcher::Event` based event types
+time: 2026-01-03T19:56:45.575958629-05:00
+custom:
+    Author: George Dietrich
+    PR: "656"
+    Username: blacksmoke16
