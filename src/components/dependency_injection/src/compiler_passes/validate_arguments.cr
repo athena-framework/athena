@@ -16,55 +16,9 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
   macro included
     macro finished
       {% verbatim do %}
-        # Validate the arguments for each service
-        {%
-          SERVICE_HASH.each do |service_id, definition|
-            definition["parameters"].each do |_, param|
-              error = nil
-
-              # Type of the resolved argument matches the method param restriction
-              if param["value"] != nil
-                value = param["value"]
-                restriction = param["resolved_restriction"]
-
-                if restriction && restriction <= String && (!value.is_a?(StringLiteral) && !value.is_a?(Call))
-                  type_name = if value.is_a?(NumberLiteral)
-                                kind = value.kind
-                                if kind.starts_with? 'i'
-                                  "Int#{kind[1..].id}"
-                                elsif kind.starts_with? 'u'
-                                  "UInt#{kind[1..].id}"
-                                elsif kind.starts_with? 'f'
-                                  "Float#{kind[1..].id}"
-                                else
-                                  value.class_name
-                                end
-                              elsif value.is_a?(BoolLiteral)
-                                "Bool"
-                              elsif value.is_a?(SymbolLiteral)
-                                "Symbol"
-                              else
-                                value.class_name
-                              end
-                  error = "Service '#{service_id.id}' (#{definition["class"]}): parameter expects a 'String' but got '#{type_name.id}'."
-                end
-
-                if (s = SERVICE_HASH[value.stringify]) && (klass = s["class"]).is_a?(TypeNode) && !(klass <= restriction)
-                  error = "Service '#{service_id.id}' (#{definition["class"]}): parameter expects '#{restriction}' but" \
-                          " the resolved service '#{value.id}' is of type '#{s["class"].id}'."
-                end
-              elsif !param["resolved_restriction"].nilable?
-                error = "Failed to resolve argument for service '#{service_id.id}' (#{definition["class"]})."
-              end
-
-              if error
-                param["declaration"].raise error
-              end
-            end
-          end
-        %}
-
-        # Validate the user provided configuration against the defined schema
+        # Validate the user provided configuration against the defined schema first,
+        # before validating service arguments. This ensures config validation errors
+        # are reported before service parameter errors that may result from bad config.
         {%
           _nil = nil
 
@@ -290,6 +244,54 @@ module Athena::DependencyInjection::ServiceContainer::ValidateArguments
                     prop["root"].raise "Required configuration property '#{path.join('.').id}.#{prop["name"]} : #{prop["type"]}' must be provided."
                   end
                 end
+              end
+            end
+          end
+        %}
+
+        # Validate the arguments for each service
+        {%
+          SERVICE_HASH.each do |service_id, definition|
+            definition["parameters"].each do |_, param|
+              error = nil
+
+              # Type of the resolved argument matches the method param restriction
+              if param["value"] != nil
+                value = param["value"]
+                restriction = param["resolved_restriction"]
+
+                if restriction && restriction <= String && (!value.is_a?(StringLiteral) && !value.is_a?(Call))
+                  type_name = if value.is_a?(NumberLiteral)
+                                kind = value.kind
+                                if kind.starts_with? 'i'
+                                  "Int#{kind[1..].id}"
+                                elsif kind.starts_with? 'u'
+                                  "UInt#{kind[1..].id}"
+                                elsif kind.starts_with? 'f'
+                                  "Float#{kind[1..].id}"
+                                else
+                                  value.class_name
+                                end
+                              elsif value.is_a?(BoolLiteral)
+                                "Bool"
+                              elsif value.is_a?(SymbolLiteral)
+                                "Symbol"
+                              else
+                                value.class_name
+                              end
+                  error = "Service '#{service_id.id}' (#{definition["class"]}): parameter expects a 'String' but got '#{type_name.id}'."
+                end
+
+                if (s = SERVICE_HASH[value.stringify]) && (klass = s["class"]).is_a?(TypeNode) && !(klass <= restriction)
+                  error = "Service '#{service_id.id}' (#{definition["class"]}): parameter expects '#{restriction}' but" \
+                          " the resolved service '#{value.id}' is of type '#{s["class"].id}'."
+                end
+              elsif !param["resolved_restriction"].nilable?
+                error = "Failed to resolve argument for service '#{service_id.id}' (#{definition["class"]})."
+              end
+
+              if error
+                param["declaration"].raise error
               end
             end
           end

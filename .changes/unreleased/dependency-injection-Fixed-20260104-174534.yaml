@@ -1,0 +1,8 @@
+project: dependency-injection
+kind: Fixed
+body: Fix service argument validation errors overriding schema validation errors
+time: 2026-01-04T17:45:34.205105927-05:00
+custom:
+    Author: George Dietrich
+    PR: "659"
+    Username: blacksmoke16
