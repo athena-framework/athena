@@ -41,8 +41,10 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
         macro finished
           \{%
             raise "" unless ADI::ServiceContainer::ALIASES.keys == ["bar"]
-            raise "" unless ADI::ServiceContainer::ALIASES["bar"]["id"] == "foo"
-            raise "" unless ADI::ServiceContainer::ALIASES["bar"]["public"] == false
+            raise "" unless ADI::ServiceContainer::ALIASES["bar"].size == 1
+            raise "" unless ADI::ServiceContainer::ALIASES["bar"][0]["id"] == "foo"
+            raise "" unless ADI::ServiceContainer::ALIASES["bar"][0]["public"] == false
+            raise "" unless ADI::ServiceContainer::ALIASES["bar"][0]["name"].nil?
           %}
         end
       end
@@ -61,8 +63,10 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
         macro finished
           \{%
             raise "" unless ADI::ServiceContainer::ALIASES.keys == ["bar"]
-            raise "" unless ADI::ServiceContainer::ALIASES["bar"]["id"] == "foo"
-            raise "" unless ADI::ServiceContainer::ALIASES["bar"]["public"] == false
+            raise "" unless ADI::ServiceContainer::ALIASES["bar"].size == 1
+            raise "" unless ADI::ServiceContainer::ALIASES["bar"][0]["id"] == "foo"
+            raise "" unless ADI::ServiceContainer::ALIASES["bar"][0]["public"] == false
+            raise "" unless ADI::ServiceContainer::ALIASES["bar"][0]["name"].nil?
           %}
         end
       end
@@ -83,8 +87,10 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
         macro finished
           \{%
             raise "" unless ADI::ServiceContainer::ALIASES.keys == [SomeInterface]
-            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface]["id"] == "foo"
-            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface]["public"] == true
+            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 1
+            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["id"] == "foo"
+            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["public"] == true
+            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["name"].nil?
           %}
         end
       end
@@ -105,8 +111,10 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
         macro finished
           \{%
             raise "" unless ADI::ServiceContainer::ALIASES.keys == [SomeInterface]
-            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface]["id"] == "foo"
-            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface]["public"] == false
+            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 1
+            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["id"] == "foo"
+            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["public"] == false
+            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["name"].nil?
           %}
         end
       end
@@ -130,8 +138,127 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
         macro finished
           \{%
             raise "" unless ADI::ServiceContainer::ALIASES.keys == [SomeInterface, OtherInterface]
+            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 1
+            raise "" unless ADI::ServiceContainer::ALIASES[OtherInterface].size == 1
           %}
         end
+      end
+    CR
+  end
+
+  it "allows named alias with type" do
+    assert_compiles <<-'CR'
+      module SomeInterface; end
+
+      @[ADI::Register]
+      @[ADI::AsAlias(SomeInterface, name: "my_param")]
+      class Foo
+        include SomeInterface
+      end
+
+      macro finished
+        macro finished
+          \{%
+            raise "" unless ADI::ServiceContainer::ALIASES.keys == [SomeInterface]
+            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 1
+            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["id"] == "foo"
+            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["name"].id == "my_param"
+          %}
+        end
+      end
+    CR
+  end
+
+  it "allows multiple named aliases for same type" do
+    assert_compiles <<-'CR'
+      module SomeInterface; end
+
+      @[ADI::Register]
+      @[ADI::AsAlias(SomeInterface, name: "first")]
+      class First
+        include SomeInterface
+      end
+
+      @[ADI::Register]
+      @[ADI::AsAlias(SomeInterface, name: "second")]
+      class Second
+        include SomeInterface
+      end
+
+      macro finished
+        macro finished
+          \{%
+            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 2
+            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["name"].id == "first"
+            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface][1]["name"].id == "second"
+          %}
+        end
+      end
+    CR
+  end
+
+  it "allows both named and type-only aliases for same type" do
+    assert_compiles <<-'CR'
+      module SomeInterface; end
+
+      @[ADI::Register]
+      @[ADI::AsAlias(SomeInterface, name: "specific")]
+      class Specific
+        include SomeInterface
+      end
+
+      @[ADI::Register]
+      @[ADI::AsAlias(SomeInterface)]
+      class Default
+        include SomeInterface
+      end
+
+      macro finished
+        macro finished
+          \{%
+            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 2
+            named = ADI::ServiceContainer::ALIASES[SomeInterface].find { |a| !a["name"].nil? }
+            type_only = ADI::ServiceContainer::ALIASES[SomeInterface].find { |a| a["name"].nil? }
+            raise "" unless named["id"] == "specific"
+            raise "" unless type_only["id"] == "default"
+          %}
+        end
+      end
+    CR
+  end
+
+  it "errors on duplicate type+name combination" do
+    assert_compile_time_error "Duplicate alias for type 'SomeInterface' with name 'my_param'", <<-'CR'
+      module SomeInterface; end
+
+      @[ADI::Register]
+      @[ADI::AsAlias(SomeInterface, name: "my_param")]
+      class Foo
+        include SomeInterface
+      end
+
+      @[ADI::Register]
+      @[ADI::AsAlias(SomeInterface, name: "my_param")]
+      class Bar
+        include SomeInterface
+      end
+    CR
+  end
+
+  it "errors on duplicate type-only alias" do
+    assert_compile_time_error "Duplicate alias for type 'SomeInterface'. A type-only alias", <<-'CR'
+      module SomeInterface; end
+
+      @[ADI::Register]
+      @[ADI::AsAlias(SomeInterface)]
+      class Foo
+        include SomeInterface
+      end
+
+      @[ADI::Register]
+      @[ADI::AsAlias(SomeInterface)]
+      class Bar
+        include SomeInterface
       end
     CR
   end

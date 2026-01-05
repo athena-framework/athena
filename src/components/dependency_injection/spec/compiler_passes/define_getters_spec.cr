@@ -26,19 +26,16 @@ end
 module ArrayServiceInterface; end
 
 @[ADI::Register]
-@[ADI::AsAlias]
 struct ArrayOne
   include ArrayServiceInterface
 end
 
 @[ADI::Register]
-@[ADI::AsAlias]
 struct ArrayTwo
   include ArrayServiceInterface
 end
 
 @[ADI::Register]
-@[ADI::AsAlias]
 struct ArrayThree
   include ArrayServiceInterface
 end

@@ -1,0 +1,8 @@
+project: dependency-injection
+kind: Added
+body: Add ability for aliases to take constructor parameter names into account
+time: 2026-01-04T19:35:53.30307255-05:00
+custom:
+    Author: George Dietrich
+    PR: "660"
+    Username: blacksmoke16

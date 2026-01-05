@@ -78,9 +78,11 @@ module Athena::DependencyInjection::ServiceContainer::AnalyzeServiceReferences
           end
 
           # 4. Count public aliases as references to their target services
-          ALIASES.each do |alias_name, alias_metadata|
-            if alias_metadata["public"] == true
-              target_id = alias_metadata["id"].id.stringify
+          # Only type-only aliases (name is nil) can be public
+          ALIASES.each do |alias_name, alias_entries|
+            type_only_alias = alias_entries.find(&.["name"].nil?)
+            if type_only_alias && type_only_alias["public"] == true
+              target_id = type_only_alias["id"].id.stringify
               SERVICE_REFERENCES.keys.each do |key|
                 if key.id.stringify == target_id
                   old_info = SERVICE_REFERENCES[key]

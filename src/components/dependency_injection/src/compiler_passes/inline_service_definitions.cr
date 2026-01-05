@@ -11,10 +11,12 @@ module Athena::DependencyInjection::ServiceContainer::InlineServiceDefinitions
           __nil = nil
 
           # Build set of services that are targets of public aliases
+          # Only type-only aliases (name is nil) can be public
           alias_targets = {} of Nil => Nil
-          ALIASES.each do |alias_name, alias_metadata|
-            if alias_metadata["public"] == true
-              alias_targets[alias_metadata["id"].id.stringify] = true
+          ALIASES.each do |alias_name, alias_entries|
+            type_only_alias = alias_entries.find(&.["name"].nil?)
+            if type_only_alias && type_only_alias["public"] == true
+              alias_targets[type_only_alias["id"].id.stringify] = true
             end
           end
 

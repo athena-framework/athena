@@ -54,6 +54,41 @@ module Athena::DependencyInjection
   # Dependencies could then be wired up to depend upon the `"@my_service"` implementation.
   # This enabled the user/other logic to override the `my_service` alias to their own implementation (assuming it implements same API/interface(s)).
   # This should allow everything to propagate and use the custom type without having to touch the original `default_service`.
+  #
+  # ### Named Aliases
+  #
+  # When multiple implementations of an interface need to be injected into the same service,
+  # the `name` parameter specifies which constructor parameter should receive which implementation.
+  # The name matches the constructor parameter name.
+  #
+  # ```
+  # module LoggerInterface; end
+  #
+  # @[ADI::Register]
+  # @[ADI::AsAlias(LoggerInterface, name: "file_logger")]
+  # class FileLogger
+  #   include LoggerInterface
+  # end
+  #
+  # @[ADI::Register]
+  # @[ADI::AsAlias(LoggerInterface, name: "console_logger")]
+  # class ConsoleLogger
+  #   include LoggerInterface
+  # end
+  #
+  # @[ADI::Register(public: true)]
+  # class MyService
+  #   # file_logger -> FileLogger, console_logger -> ConsoleLogger
+  #   def initialize(@file_logger : LoggerInterface, @console_logger : LoggerInterface)
+  #   end
+  # end
+  # ```
+  #
+  # Named aliases take precedence over type-only aliases. A type-only alias can still be defined
+  # as a fallback for parameters whose names don't match any named alias.
+  #
+  # NOTE: Named aliases cannot be accessed directly via `container.get(Interface)`.
+  # Only type-only aliases support the `public` parameter for direct container access.
   annotation AsAlias; end
 
   # Applies the provided configuration to any registered service of the type the annotation is applied to.
