@@ -133,6 +133,23 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                                      config_value.each do |cfv|
                                        provided_keys = cfv.keys
 
+                                       # Convert user-provided enum values for object_schema members
+                                       # Skip nested object_schema references (NamedTupleLiteral with members key)
+                                       provided_keys.reject { |k| k.stringify == "__nil" }.each do |k|
+                                         if (decl = member_map[k]) && (user_value = cfv[k]) && !(decl.is_a?(NamedTupleLiteral) && decl["members"])
+                                           decl_type = decl.is_a?(TypeDeclaration) ? decl.type : decl["type"]
+                                           decl_global = decl_type.is_a?(Path) && decl_type.global?
+                                           resolved_decl_type = decl_type.resolve
+
+                                           if user_value.is_a?(SymbolLiteral) && resolved_decl_type <= ::Enum
+                                             user_value.raise "Unknown '#{resolved_decl_type}' enum member for '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}.#{k.id}'." unless resolved_decl_type.constants.any?(&.downcase.id.==(user_value.id))
+                                             cfv[k] = "#{decl_global ? "::".id : "".id}#{resolved_decl_type}.new(#{user_value})".id
+                                           elsif user_value.is_a?(NumberLiteral) && resolved_decl_type <= ::Enum
+                                             cfv[k] = "#{decl_global ? "::".id : "".id}#{resolved_decl_type}.new(#{user_value})".id
+                                           end
+                                         end
+                                       end
+
                                        # We only want to add in missing default values, so reject any properties that were provided, even if they may be incorrect.
                                        member_map.keys.reject { |k| k.stringify == "__nil" || provided_keys.includes? k }.each do |k|
                                          decl = member_map[k]
@@ -140,7 +157,26 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                                          # Handle both TypeDeclaration and NamedTupleLiteral (for nested object_schema)
                                          decl_value = decl.is_a?(TypeDeclaration) ? decl.value : decl["value"]
                                          # Skip setting required values so that it results in a missing error vs type mismatch error.
-                                         cfv[k] = decl_value unless decl_value.is_a?(Nop)
+                                         unless decl_value.is_a?(Nop)
+                                           # Skip enum conversion for nested object_schema references
+                                           if decl.is_a?(NamedTupleLiteral) && decl["members"]
+                                             cfv[k] = decl_value
+                                           else
+                                             # Convert symbol/number to enum if applicable
+                                             decl_type = decl.is_a?(TypeDeclaration) ? decl.type : decl["type"]
+                                             decl_global = decl_type.is_a?(Path) && decl_type.global?
+                                             resolved_decl_type = decl_type.resolve
+
+                                             if decl_value.is_a?(SymbolLiteral) && resolved_decl_type <= ::Enum
+                                               decl_value.raise "Unknown '#{resolved_decl_type}' enum member for default value of '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}.#{k.id}'." unless resolved_decl_type.constants.any?(&.downcase.id.==(decl_value.id))
+                                               cfv[k] = "#{decl_global ? "::".id : "".id}#{resolved_decl_type}.new(#{decl_value})".id
+                                             elsif decl_value.is_a?(NumberLiteral) && resolved_decl_type <= ::Enum
+                                               cfv[k] = "#{decl_global ? "::".id : "".id}#{resolved_decl_type}.new(#{decl_value})".id
+                                             else
+                                               cfv[k] = decl_value
+                                             end
+                                           end
+                                         end
                                        end
 
                                        # Recursively fill in defaults for nested object_schema members
@@ -148,10 +184,47 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                                          decl = member_map[k]
                                          if decl.is_a?(NamedTupleLiteral) && (nested_members = decl["members"]) && (nested_cfv = cfv[k])
                                            nested_provided_keys = nested_cfv.keys
+
+                                           # Convert user-provided enum values for nested object_schema members
+                                           # Skip nested object_schema references
+                                           nested_provided_keys.reject { |nk| nk.stringify == "__nil" }.each do |nk|
+                                             if (nested_decl = nested_members[nk]) && (nested_user_value = nested_cfv[nk]) && !(nested_decl.is_a?(NamedTupleLiteral) && nested_decl["members"])
+                                               nested_decl_type = nested_decl.is_a?(TypeDeclaration) ? nested_decl.type : nested_decl["type"]
+                                               nested_decl_global = nested_decl_type.is_a?(Path) && nested_decl_type.global?
+                                               nested_resolved_decl_type = nested_decl_type.resolve
+
+                                               if nested_user_value.is_a?(SymbolLiteral) && nested_resolved_decl_type <= ::Enum
+                                                 nested_user_value.raise "Unknown '#{nested_resolved_decl_type}' enum member for '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}.#{k.id}.#{nk.id}'." unless nested_resolved_decl_type.constants.any?(&.downcase.id.==(nested_user_value.id))
+                                                 nested_cfv[nk] = "#{nested_decl_global ? "::".id : "".id}#{nested_resolved_decl_type}.new(#{nested_user_value})".id
+                                               elsif nested_user_value.is_a?(NumberLiteral) && nested_resolved_decl_type <= ::Enum
+                                                 nested_cfv[nk] = "#{nested_decl_global ? "::".id : "".id}#{nested_resolved_decl_type}.new(#{nested_user_value})".id
+                                               end
+                                             end
+                                           end
+
                                            nested_members.keys.reject { |nk| nk.stringify == "__nil" || nested_provided_keys.includes? nk }.each do |nk|
                                              nested_decl = nested_members[nk]
                                              nested_decl_value = nested_decl.is_a?(TypeDeclaration) ? nested_decl.value : nested_decl["value"]
-                                             nested_cfv[nk] = nested_decl_value unless nested_decl_value.is_a?(Nop)
+                                             unless nested_decl_value.is_a?(Nop)
+                                               # Skip enum conversion for nested object_schema references
+                                               if nested_decl.is_a?(NamedTupleLiteral) && nested_decl["members"]
+                                                 nested_cfv[nk] = nested_decl_value
+                                               else
+                                                 # Convert symbol/number to enum if applicable
+                                                 nested_decl_type = nested_decl.is_a?(TypeDeclaration) ? nested_decl.type : nested_decl["type"]
+                                                 nested_decl_global = nested_decl_type.is_a?(Path) && nested_decl_type.global?
+                                                 nested_resolved_decl_type = nested_decl_type.resolve
+
+                                                 if nested_decl_value.is_a?(SymbolLiteral) && nested_resolved_decl_type <= ::Enum
+                                                   nested_decl_value.raise "Unknown '#{nested_resolved_decl_type}' enum member for default value of '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}.#{k.id}.#{nk.id}'." unless nested_resolved_decl_type.constants.any?(&.downcase.id.==(nested_decl_value.id))
+                                                   nested_cfv[nk] = "#{nested_decl_global ? "::".id : "".id}#{nested_resolved_decl_type}.new(#{nested_decl_value})".id
+                                                 elsif nested_decl_value.is_a?(NumberLiteral) && nested_resolved_decl_type <= ::Enum
+                                                   nested_cfv[nk] = "#{nested_decl_global ? "::".id : "".id}#{nested_resolved_decl_type}.new(#{nested_decl_value})".id
+                                                 else
+                                                   nested_cfv[nk] = nested_decl_value
+                                                 end
+                                               end
+                                             end
                                            end
                                          end
                                        end
@@ -171,13 +244,49 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                                        if hash_key != "__nil"
                                          provided_keys = cfv.keys
 
+                                         # Convert user-provided enum values for object_schema members
+                                         # Skip nested object_schema references (NamedTupleLiteral with members key)
+                                         provided_keys.reject { |k| k.stringify == "__nil" }.each do |k|
+                                           if (decl = member_map[k]) && (user_value = cfv[k]) && !(decl.is_a?(NamedTupleLiteral) && decl["members"])
+                                             decl_type = decl.is_a?(TypeDeclaration) ? decl.type : decl["type"]
+                                             decl_global = decl_type.is_a?(Path) && decl_type.global?
+                                             resolved_decl_type = decl_type.resolve
+
+                                             if user_value.is_a?(SymbolLiteral) && resolved_decl_type <= ::Enum
+                                               user_value.raise "Unknown '#{resolved_decl_type}' enum member for '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}.#{hash_key.id}.#{k.id}'." unless resolved_decl_type.constants.any?(&.downcase.id.==(user_value.id))
+                                               cfv[k] = "#{decl_global ? "::".id : "".id}#{resolved_decl_type}.new(#{user_value})".id
+                                             elsif user_value.is_a?(NumberLiteral) && resolved_decl_type <= ::Enum
+                                               cfv[k] = "#{decl_global ? "::".id : "".id}#{resolved_decl_type}.new(#{user_value})".id
+                                             end
+                                           end
+                                         end
+
                                          member_map.keys.reject { |k| k.stringify == "__nil" || provided_keys.includes? k }.each do |k|
                                            decl = member_map[k]
 
                                            # Handle both TypeDeclaration and NamedTupleLiteral (for nested object_schema)
                                            decl_value = decl.is_a?(TypeDeclaration) ? decl.value : decl["value"]
                                            # Skip setting required values so that it results in a missing error vs type mismatch error.
-                                           cfv[k] = decl_value unless decl_value.is_a?(Nop)
+                                           unless decl_value.is_a?(Nop)
+                                             # Skip enum conversion for nested object_schema references
+                                             if decl.is_a?(NamedTupleLiteral) && decl["members"]
+                                               cfv[k] = decl_value
+                                             else
+                                               # Convert symbol/number to enum if applicable
+                                               decl_type = decl.is_a?(TypeDeclaration) ? decl.type : decl["type"]
+                                               decl_global = decl_type.is_a?(Path) && decl_type.global?
+                                               resolved_decl_type = decl_type.resolve
+
+                                               if decl_value.is_a?(SymbolLiteral) && resolved_decl_type <= ::Enum
+                                                 decl_value.raise "Unknown '#{resolved_decl_type}' enum member for default value of '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}.#{hash_key.id}.#{k.id}'." unless resolved_decl_type.constants.any?(&.downcase.id.==(decl_value.id))
+                                                 cfv[k] = "#{decl_global ? "::".id : "".id}#{resolved_decl_type}.new(#{decl_value})".id
+                                               elsif decl_value.is_a?(NumberLiteral) && resolved_decl_type <= ::Enum
+                                                 cfv[k] = "#{decl_global ? "::".id : "".id}#{resolved_decl_type}.new(#{decl_value})".id
+                                               else
+                                                 cfv[k] = decl_value
+                                               end
+                                             end
+                                           end
                                          end
 
                                          # Recursively fill in defaults for nested object_schema members
@@ -185,10 +294,47 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                                            decl = member_map[k]
                                            if decl.is_a?(NamedTupleLiteral) && (nested_members = decl["members"]) && (nested_cfv = cfv[k])
                                              nested_provided_keys = nested_cfv.keys
+
+                                             # Convert user-provided enum values for nested object_schema members
+                                             # Skip nested object_schema references
+                                             nested_provided_keys.reject { |nk| nk.stringify == "__nil" }.each do |nk|
+                                               if (nested_decl = nested_members[nk]) && (nested_user_value = nested_cfv[nk]) && !(nested_decl.is_a?(NamedTupleLiteral) && nested_decl["members"])
+                                                 nested_decl_type = nested_decl.is_a?(TypeDeclaration) ? nested_decl.type : nested_decl["type"]
+                                                 nested_decl_global = nested_decl_type.is_a?(Path) && nested_decl_type.global?
+                                                 nested_resolved_decl_type = nested_decl_type.resolve
+
+                                                 if nested_user_value.is_a?(SymbolLiteral) && nested_resolved_decl_type <= ::Enum
+                                                   nested_user_value.raise "Unknown '#{nested_resolved_decl_type}' enum member for '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}.#{hash_key.id}.#{k.id}.#{nk.id}'." unless nested_resolved_decl_type.constants.any?(&.downcase.id.==(nested_user_value.id))
+                                                   nested_cfv[nk] = "#{nested_decl_global ? "::".id : "".id}#{nested_resolved_decl_type}.new(#{nested_user_value})".id
+                                                 elsif nested_user_value.is_a?(NumberLiteral) && nested_resolved_decl_type <= ::Enum
+                                                   nested_cfv[nk] = "#{nested_decl_global ? "::".id : "".id}#{nested_resolved_decl_type}.new(#{nested_user_value})".id
+                                                 end
+                                               end
+                                             end
+
                                              nested_members.keys.reject { |nk| nk.stringify == "__nil" || nested_provided_keys.includes? nk }.each do |nk|
                                                nested_decl = nested_members[nk]
                                                nested_decl_value = nested_decl.is_a?(TypeDeclaration) ? nested_decl.value : nested_decl["value"]
-                                               nested_cfv[nk] = nested_decl_value unless nested_decl_value.is_a?(Nop)
+                                               unless nested_decl_value.is_a?(Nop)
+                                                 # Skip enum conversion for nested object_schema references
+                                                 if nested_decl.is_a?(NamedTupleLiteral) && nested_decl["members"]
+                                                   nested_cfv[nk] = nested_decl_value
+                                                 else
+                                                   # Convert symbol/number to enum if applicable
+                                                   nested_decl_type = nested_decl.is_a?(TypeDeclaration) ? nested_decl.type : nested_decl["type"]
+                                                   nested_decl_global = nested_decl_type.is_a?(Path) && nested_decl_type.global?
+                                                   nested_resolved_decl_type = nested_decl_type.resolve
+
+                                                   if nested_decl_value.is_a?(SymbolLiteral) && nested_resolved_decl_type <= ::Enum
+                                                     nested_decl_value.raise "Unknown '#{nested_resolved_decl_type}' enum member for default value of '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}.#{hash_key.id}.#{k.id}.#{nk.id}'." unless nested_resolved_decl_type.constants.any?(&.downcase.id.==(nested_decl_value.id))
+                                                     nested_cfv[nk] = "#{nested_decl_global ? "::".id : "".id}#{nested_resolved_decl_type}.new(#{nested_decl_value})".id
+                                                   elsif nested_decl_value.is_a?(NumberLiteral) && nested_resolved_decl_type <= ::Enum
+                                                     nested_cfv[nk] = "#{nested_decl_global ? "::".id : "".id}#{nested_resolved_decl_type}.new(#{nested_decl_value})".id
+                                                   else
+                                                     nested_cfv[nk] = nested_decl_value
+                                                   end
+                                                 end
+                                               end
                                              end
                                            end
                                          end
@@ -200,6 +346,23 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                                    elsif member_map = prop["members"]
                                      provided_keys = config_value.keys
 
+                                     # Convert user-provided enum values for object_schema members
+                                     # Skip nested object_schema references (NamedTupleLiteral with members key)
+                                     provided_keys.reject { |k| k.stringify == "__nil" }.each do |k|
+                                       if (decl = member_map[k]) && (user_value = config_value[k]) && !(decl.is_a?(NamedTupleLiteral) && decl["members"])
+                                         decl_type = decl.is_a?(TypeDeclaration) ? decl.type : decl["type"]
+                                         decl_global = decl_type.is_a?(Path) && decl_type.global?
+                                         resolved_decl_type = decl_type.resolve
+
+                                         if user_value.is_a?(SymbolLiteral) && resolved_decl_type <= ::Enum
+                                           user_value.raise "Unknown '#{resolved_decl_type}' enum member for '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}.#{k.id}'." unless resolved_decl_type.constants.any?(&.downcase.id.==(user_value.id))
+                                           config_value[k] = "#{decl_global ? "::".id : "".id}#{resolved_decl_type}.new(#{user_value})".id
+                                         elsif user_value.is_a?(NumberLiteral) && resolved_decl_type <= ::Enum
+                                           config_value[k] = "#{decl_global ? "::".id : "".id}#{resolved_decl_type}.new(#{user_value})".id
+                                         end
+                                       end
+                                     end
+
                                      # We only want to add in missing default values, so reject any properties that were provided, even if they may be incorrect.
                                      member_map.keys.reject { |k| k.stringify == "__nil" || provided_keys.includes? k }.each do |k|
                                        decl = member_map[k]
@@ -209,14 +372,40 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                                          # If the value has a default, use it.
                                          # Otherwise skip setting required values so that it results in a missing error vs type mismatch error.
                                          if !decl.value.is_a?(Nop)
-                                           config_value[k] = decl.value
+                                           decl_value = decl.value
+                                           # Convert symbol/number to enum if applicable
+                                           decl_global = decl.type.is_a?(Path) && decl.type.global?
+                                           resolved_decl_type = decl.type.resolve
+
+                                           if decl_value.is_a?(SymbolLiteral) && resolved_decl_type <= ::Enum
+                                             decl_value.raise "Unknown '#{resolved_decl_type}' enum member for default value of '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}.#{k.id}'." unless resolved_decl_type.constants.any?(&.downcase.id.==(decl_value.id))
+                                             config_value[k] = "#{decl_global ? "::".id : "".id}#{resolved_decl_type}.new(#{decl_value})".id
+                                           elsif decl_value.is_a?(NumberLiteral) && resolved_decl_type <= ::Enum
+                                             config_value[k] = "#{decl_global ? "::".id : "".id}#{resolved_decl_type}.new(#{decl_value})".id
+                                           else
+                                             config_value[k] = decl_value
+                                           end
                                          elsif decl.type.resolve.nilable?
                                            config_value[k] = nil
                                          end
                                        elsif decl.is_a?(NamedTupleLiteral)
                                          # Nested object_schema reference
                                          decl_value = decl["value"]
-                                         config_value[k] = decl_value unless decl_value.is_a?(Nop)
+                                         unless decl_value.is_a?(Nop)
+                                           # Convert symbol/number to enum if applicable
+                                           decl_type = decl["type"]
+                                           decl_global = decl_type.is_a?(Path) && decl_type.global?
+                                           resolved_decl_type = decl_type.resolve
+
+                                           if decl_value.is_a?(SymbolLiteral) && resolved_decl_type <= ::Enum
+                                             decl_value.raise "Unknown '#{resolved_decl_type}' enum member for default value of '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}.#{k.id}'." unless resolved_decl_type.constants.any?(&.downcase.id.==(decl_value.id))
+                                             config_value[k] = "#{decl_global ? "::".id : "".id}#{resolved_decl_type}.new(#{decl_value})".id
+                                           elsif decl_value.is_a?(NumberLiteral) && resolved_decl_type <= ::Enum
+                                             config_value[k] = "#{decl_global ? "::".id : "".id}#{resolved_decl_type}.new(#{decl_value})".id
+                                           else
+                                             config_value[k] = decl_value
+                                           end
+                                         end
                                        end
                                      end
 
@@ -225,10 +414,47 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                                        decl = member_map[k]
                                        if decl.is_a?(NamedTupleLiteral) && (nested_members = decl["members"]) && (nested_cfv = config_value[k])
                                          nested_provided_keys = nested_cfv.keys
+
+                                         # Convert user-provided enum values for nested object_schema members
+                                         # Skip nested object_schema references
+                                         nested_provided_keys.reject { |nk| nk.stringify == "__nil" }.each do |nk|
+                                           if (nested_decl = nested_members[nk]) && (nested_user_value = nested_cfv[nk]) && !(nested_decl.is_a?(NamedTupleLiteral) && nested_decl["members"])
+                                             nested_decl_type = nested_decl.is_a?(TypeDeclaration) ? nested_decl.type : nested_decl["type"]
+                                             nested_decl_global = nested_decl_type.is_a?(Path) && nested_decl_type.global?
+                                             nested_resolved_decl_type = nested_decl_type.resolve
+
+                                             if nested_user_value.is_a?(SymbolLiteral) && nested_resolved_decl_type <= ::Enum
+                                               nested_user_value.raise "Unknown '#{nested_resolved_decl_type}' enum member for '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}.#{k.id}.#{nk.id}'." unless nested_resolved_decl_type.constants.any?(&.downcase.id.==(nested_user_value.id))
+                                               nested_cfv[nk] = "#{nested_decl_global ? "::".id : "".id}#{nested_resolved_decl_type}.new(#{nested_user_value})".id
+                                             elsif nested_user_value.is_a?(NumberLiteral) && nested_resolved_decl_type <= ::Enum
+                                               nested_cfv[nk] = "#{nested_decl_global ? "::".id : "".id}#{nested_resolved_decl_type}.new(#{nested_user_value})".id
+                                             end
+                                           end
+                                         end
+
                                          nested_members.keys.reject { |nk| nk.stringify == "__nil" || nested_provided_keys.includes? nk }.each do |nk|
                                            nested_decl = nested_members[nk]
                                            nested_decl_value = nested_decl.is_a?(TypeDeclaration) ? nested_decl.value : nested_decl["value"]
-                                           nested_cfv[nk] = nested_decl_value unless nested_decl_value.is_a?(Nop)
+                                           unless nested_decl_value.is_a?(Nop)
+                                             # Skip enum conversion for nested object_schema references
+                                             if nested_decl.is_a?(NamedTupleLiteral) && nested_decl["members"]
+                                               nested_cfv[nk] = nested_decl_value
+                                             else
+                                               # Convert symbol/number to enum if applicable
+                                               nested_decl_type = nested_decl.is_a?(TypeDeclaration) ? nested_decl.type : nested_decl["type"]
+                                               nested_decl_global = nested_decl_type.is_a?(Path) && nested_decl_type.global?
+                                               nested_resolved_decl_type = nested_decl_type.resolve
+
+                                               if nested_decl_value.is_a?(SymbolLiteral) && nested_resolved_decl_type <= ::Enum
+                                                 nested_decl_value.raise "Unknown '#{nested_resolved_decl_type}' enum member for default value of '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}.#{k.id}.#{nk.id}'." unless nested_resolved_decl_type.constants.any?(&.downcase.id.==(nested_decl_value.id))
+                                                 nested_cfv[nk] = "#{nested_decl_global ? "::".id : "".id}#{nested_resolved_decl_type}.new(#{nested_decl_value})".id
+                                               elsif nested_decl_value.is_a?(NumberLiteral) && nested_resolved_decl_type <= ::Enum
+                                                 nested_cfv[nk] = "#{nested_decl_global ? "::".id : "".id}#{nested_resolved_decl_type}.new(#{nested_decl_value})".id
+                                               else
+                                                 nested_cfv[nk] = nested_decl_value
+                                               end
+                                             end
+                                           end
                                          end
                                        end
                                      end
@@ -275,7 +501,21 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                                            decl = member_map[k]
 
                                            # Skip setting required values so that it results in a missing error vs type mismatch error.
-                                           cfv[k] = decl.value unless decl.value.is_a?(Nop)
+                                           unless decl.value.is_a?(Nop)
+                                             decl_value = decl.value
+                                             # Convert symbol/number to enum if applicable
+                                             decl_global = decl.type.is_a?(Path) && decl.type.global?
+                                             resolved_decl_type = decl.type.resolve
+
+                                             if decl_value.is_a?(SymbolLiteral) && resolved_decl_type <= ::Enum
+                                               decl_value.raise "Unknown '#{resolved_decl_type}' enum member for default value of '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}.#{k.id}'." unless resolved_decl_type.constants.any?(&.downcase.id.==(decl_value.id))
+                                               cfv[k] = "#{decl_global ? "::".id : "".id}#{resolved_decl_type}.new(#{decl_value})".id
+                                             elsif decl_value.is_a?(NumberLiteral) && resolved_decl_type <= ::Enum
+                                               cfv[k] = "#{decl_global ? "::".id : "".id}#{resolved_decl_type}.new(#{decl_value})".id
+                                             else
+                                               cfv[k] = decl_value
+                                             end
+                                           end
                                          end
                                        end
                                      end
@@ -296,14 +536,40 @@ module Athena::DependencyInjection::ServiceContainer::MergeExtensionConfig
                                            # If the value has a default, use it.
                                            # Otherwise skip setting required values so that it results in a missing error vs type mismatch error.
                                            if !decl.value.is_a?(Nop)
-                                             default_value[k] = decl.value
+                                             decl_value = decl.value
+                                             # Convert symbol/number to enum if applicable
+                                             decl_global = decl.type.is_a?(Path) && decl.type.global?
+                                             resolved_decl_type = decl.type.resolve
+
+                                             if decl_value.is_a?(SymbolLiteral) && resolved_decl_type <= ::Enum
+                                               decl_value.raise "Unknown '#{resolved_decl_type}' enum member for default value of '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}.#{k.id}'." unless resolved_decl_type.constants.any?(&.downcase.id.==(decl_value.id))
+                                               default_value[k] = "#{decl_global ? "::".id : "".id}#{resolved_decl_type}.new(#{decl_value})".id
+                                             elsif decl_value.is_a?(NumberLiteral) && resolved_decl_type <= ::Enum
+                                               default_value[k] = "#{decl_global ? "::".id : "".id}#{resolved_decl_type}.new(#{decl_value})".id
+                                             else
+                                               default_value[k] = decl_value
+                                             end
                                            elsif decl.type.resolve.nilable?
                                              default_value[k] = nil
                                            end
                                          elsif decl.is_a?(NamedTupleLiteral)
                                            # Nested object_schema reference
                                            decl_value = decl["value"]
-                                           default_value[k] = decl_value unless decl_value.is_a?(Nop)
+                                           unless decl_value.is_a?(Nop)
+                                             # Convert symbol/number to enum if applicable
+                                             decl_type = decl["type"]
+                                             decl_global = decl_type.is_a?(Path) && decl_type.global?
+                                             resolved_decl_type = decl_type.resolve
+
+                                             if decl_value.is_a?(SymbolLiteral) && resolved_decl_type <= ::Enum
+                                               decl_value.raise "Unknown '#{resolved_decl_type}' enum member for default value of '#{([ext_name] + ext_path).join('.').id}.#{prop["name"]}.#{k.id}'." unless resolved_decl_type.constants.any?(&.downcase.id.==(decl_value.id))
+                                               default_value[k] = "#{decl_global ? "::".id : "".id}#{resolved_decl_type}.new(#{decl_value})".id
+                                             elsif decl_value.is_a?(NumberLiteral) && resolved_decl_type <= ::Enum
+                                               default_value[k] = "#{decl_global ? "::".id : "".id}#{resolved_decl_type}.new(#{decl_value})".id
+                                             else
+                                               default_value[k] = decl_value
+                                             end
+                                           end
                                          end
                                        end
                                      end
