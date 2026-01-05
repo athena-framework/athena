@@ -14,9 +14,7 @@ struct Athena::MercureBundle < ADI::AbstractBundle
       secret : String? = nil,
       publish : Array(String) = [] of String,
       subscribe : Array(String) = [] of String,
-
-      # TODO: Allow this to be a `:hs256` symbol
-      algorithm : ::JWT::Algorithm = ::JWT::Algorithm::HS256,
+      algorithm : ::JWT::Algorithm = :hs256,
       passphrase : String = "",
       value : String? = nil
 
@@ -34,7 +32,6 @@ struct Athena::MercureBundle < ADI::AbstractBundle
     macro included
       macro finished
         {% verbatim do %}
-          # Built-in parameters
           {%
             cfg = CONFIG["mercure"]
             parameters = CONFIG["parameters"]
@@ -57,7 +54,7 @@ struct Athena::MercureBundle < ADI::AbstractBundle
                   },
                 }
               else
-                # TODO: Support providing the factory/provider service ID
+                # TODO: Maybe support providing the factory/provider service ID?
 
                 # TODO: Service is already lazy so no need for dedicated lazy service?
                 SERVICE_HASH[token_factory = "mercure_hub_#{name}_jwt_factory"] = {
@@ -81,11 +78,19 @@ struct Athena::MercureBundle < ADI::AbstractBundle
                   },
                 }
 
-                # TODO: Register alias for token factory interface using hub name
+                ALIASES[Athena::Mercure::TokenFactory::Interface] = [
+                  {id: token_factory, public: false, name: name},
+                  {id: token_factory, public: false, name: "#{name}_factory"},
+                  {id: token_factory, public: false, name: "#{name}_token_factory"},
+                ]
               end
 
               if token_provider
-                # TODO: Register alias for token provider interface using hub name
+                ALIASES[Athena::Mercure::TokenProvider::Interface] = [
+                  {id: token_provider, public: false, name: name},
+                  {id: token_provider, public: false, name: "#{name}_provider"},
+                  {id: token_provider, public: false, name: "#{name}_token_provider"},
+                ]
               end
 
               hub_id = "mercure_hub_#{name}"
@@ -109,10 +114,15 @@ struct Athena::MercureBundle < ADI::AbstractBundle
                 },
               }
 
-              # TODO: Register alias for hub interface using hub name
+              ALIASES[Athena::Mercure::Hub::Interface] = [
+                {id: hub_id, public: false, name: name},
+                {id: hub_id, public: false, name: "#{name}_hub"},
+              ]
             end
 
-            # TODO: Register alias for hub interface using default hub name
+            ALIASES[Athena::Mercure::Hub::Interface] = [
+              {id: default_hub_id, public: false},
+            ]
 
             SERVICE_HASH[hub_registry_id = "mercure_hub_registry"] = {
               class:      Athena::Mercure::Hub::Registry,
@@ -261,28 +271,3 @@ ADI.configure({
     },
   },
 })
-
-request = AHTTP::Request.new "GET", "/", headers: ::HTTP::Headers{
-  "host" => "localhost:3000",
-}
-
-# discovery = Athena::MercureBundle::Discovery.new registry
-discovery = ADI.container.mercure_discovery
-
-discovery.add_link request
-
-# authorization = Athena::MercureBundle::Authorization.new registry
-authorization = ADI.container.mercure_authorization
-authorization.set_cookie request, ["http://localhost:3000/books/1"]
-
-dispatcher = AED::EventDispatcher.new
-
-dispatcher.listener Athena::MercureBundle::Listeners::AddLinkHeader.new
-dispatcher.listener Athena::MercureBundle::Listeners::SetCookie.new
-
-response = AHTTP::Response.new
-pp response.headers
-
-dispatcher.dispatch AHK::Events::Response.new request, response
-
-pp response.headers
