@@ -18,7 +18,7 @@ class Athena::DependencyInjection::ServiceContainer
   #
   # Maps services to their aliases
   #
-  # Hash(String, NamedTuple(id: String, public: Bool))
+  # Hash(String | TypeNode, Array(NamedTuple(id: String, public: Bool, name: String?)))
   ALIASES = {} of Nil => Nil
 
   # Define a hash to store the service ids for each tag.

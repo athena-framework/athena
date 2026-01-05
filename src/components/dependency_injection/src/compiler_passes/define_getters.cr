@@ -124,17 +124,19 @@ module Athena::DependencyInjection::ServiceContainer::DefineGetters
           {% end %}
         {% end %}
 
-        {% for alias_name, metadata in ALIASES %}
-          {% if metadata["public"] %}
+        {% for alias_name, alias_entries in ALIASES %}
+          # Find type-only alias (name is nil) for public access
+          {% type_only_alias = alias_entries.find(&.["name"].nil?) %}
+          {% if type_only_alias && type_only_alias["public"] %}
             # String alias maps to a service => service alias so we just need a method with the alias' name.
             {% if alias_name.is_a?(StringLiteral) %}
-              def {{alias_name.id}} : {{SERVICE_HASH[metadata["id"]]["class"].id}}
-                {{metadata["id"].id}}
+              def {{alias_name.id}} : {{SERVICE_HASH[type_only_alias["id"]]["class"].id}}
+                {{type_only_alias["id"].id}}
               end
             # TypeNode alias maps to an interface => service alias, so we need an override of `#get` pinned to the interface type.
             {% else %}
               def get(service : {{alias_name.id}}.class) : {{alias_name.id}}
-                {{metadata["id"].id}}
+                {{type_only_alias["id"].id}}
               end
             {% end %}
           {% end %}

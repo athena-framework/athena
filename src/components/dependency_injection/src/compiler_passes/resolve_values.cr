@@ -29,8 +29,9 @@ module Athena::DependencyInjection::ServiceContainer::ResolveValues
                 service_name = unresolved_value[1..-1]
 
                 # Resolve the alias ID to its underlying ID
-                if a = ALIASES[service_name]
-                  service_name = a["id"]
+                # For explicit @service_name references, take the first alias entry
+                if aliases = ALIASES[service_name]
+                  service_name = aliases.first["id"]
                 end
 
                 if SERVICE_HASH[service_name].nil?

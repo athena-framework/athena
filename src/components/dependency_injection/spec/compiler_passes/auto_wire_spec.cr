@@ -33,6 +33,42 @@ end
 @[ADI::Register(public: true)]
 record SameInstanceClient, a : SameInstancePrimary, b : SameInstanceAliasInterface
 
+# Named alias tests
+module NamedAliasInterface; end
+
+@[ADI::Register]
+@[ADI::AsAlias(NamedAliasInterface, name: "file_logger")]
+class FileLoggerImpl
+  include NamedAliasInterface
+end
+
+@[ADI::Register]
+@[ADI::AsAlias(NamedAliasInterface, name: "console_logger")]
+class ConsoleLoggerImpl
+  include NamedAliasInterface
+end
+
+@[ADI::Register(public: true)]
+record NamedAliasService, file_logger : NamedAliasInterface, console_logger : NamedAliasInterface
+
+# Fallback alias tests
+module FallbackInterface; end
+
+@[ADI::Register]
+@[ADI::AsAlias(FallbackInterface, name: "specific")]
+class SpecificImpl
+  include FallbackInterface
+end
+
+@[ADI::Register]
+@[ADI::AsAlias(FallbackInterface)]
+class DefaultImpl
+  include FallbackInterface
+end
+
+@[ADI::Register(public: true)]
+record FallbackService, specific : FallbackInterface, other : FallbackInterface
+
 describe ADI::ServiceContainer do
   describe "compiler errors", tags: "compiled" do
     it "does not resolve an un-aliased interface when there is only 1 implementation" do
@@ -59,5 +95,17 @@ describe ADI::ServiceContainer do
   it "resolves aliases to the same underlying instance" do
     service = ADI.container.same_instance_client
     service.a.should be service.b
+  end
+
+  it "resolves named aliases by parameter name" do
+    service = ADI.container.named_alias_service
+    service.file_logger.should be_a FileLoggerImpl
+    service.console_logger.should be_a ConsoleLoggerImpl
+  end
+
+  it "falls back to type-only alias when no named match" do
+    service = ADI.container.fallback_service
+    service.specific.should be_a SpecificImpl
+    service.other.should be_a DefaultImpl
   end
 end

@@ -35,7 +35,18 @@ module Athena::DependencyInjection::ServiceContainer::AutoWire
 
                                    # Otherwise see if any aliases explicitly match the parameter's type restriction.
                                  elsif a = ALIASES.keys.find { |k| k == param_resolved_restriction }
-                                   ALIASES[a]["id"]
+                                   aliases_for_type = ALIASES[a]
+
+                                   # Try named alias first (more specific match by parameter name)
+                                   named_alias = aliases_for_type.find { |entry| entry["name"] && entry["name"].id == name.id }
+
+                                   if named_alias
+                                     named_alias["id"]
+                                   else
+                                     # Fall back to type-only alias
+                                     type_only_alias = aliases_for_type.find(&.["name"].nil?)
+                                     type_only_alias ? type_only_alias["id"] : nil
+                                   end
                                  end
 
               if resolved_service
