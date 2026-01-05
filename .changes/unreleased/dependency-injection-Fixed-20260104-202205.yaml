@@ -1,0 +1,8 @@
+project: dependency-injection
+kind: Fixed
+body: Fix enum typed `object_schema` types not allowing symbol/number values
+time: 2026-01-04T20:22:05.875595579-05:00
+custom:
+    Author: George Dietrich
+    PR: "661"
+    Username: blacksmoke16

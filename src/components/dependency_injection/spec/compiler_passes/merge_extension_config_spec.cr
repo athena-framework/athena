@@ -1160,6 +1160,221 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
         end
       CR
     end
+
+    it "object_schema enum member with symbol default value" do
+      ASPEC::Methods.assert_compiles <<-'CR'
+        require "../spec_helper"
+
+        enum Algorithm
+          Hs256
+          Hs384
+          Hs512
+        end
+
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema JwtConfig,
+            secret : String,
+            algorithm : Algorithm = :hs256
+
+          map_of hubs,
+            url : String,
+            jwt : JwtConfig
+        end
+
+        ADI.register_extension "test", Schema
+
+        ADI.configure({
+          test: {
+            hubs: {
+              primary: {
+                url: "localhost",
+                jwt: {secret: "my-secret"},
+              },
+            },
+          },
+        })
+
+        macro finished
+          macro finished
+            \{%
+              config = ADI::CONFIG["test"]
+
+              raise "#{config}" unless config["hubs"]["primary"]["url"] == "localhost"
+              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["secret"] == "my-secret"
+              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs256)"
+            %}
+          end
+        end
+      CR
+    end
+
+    it "object_schema enum member with user-provided symbol value" do
+      ASPEC::Methods.assert_compiles <<-'CR'
+        require "../spec_helper"
+
+        enum Algorithm
+          Hs256
+          Hs384
+          Hs512
+        end
+
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema JwtConfig,
+            secret : String,
+            algorithm : Algorithm = :hs256
+
+          map_of hubs,
+            url : String,
+            jwt : JwtConfig
+        end
+
+        ADI.register_extension "test", Schema
+
+        ADI.configure({
+          test: {
+            hubs: {
+              primary: {
+                url: "localhost",
+                jwt: {secret: "my-secret", algorithm: :hs512},
+              },
+            },
+          },
+        })
+
+        macro finished
+          macro finished
+            \{%
+              config = ADI::CONFIG["test"]
+
+              raise "#{config}" unless config["hubs"]["primary"]["url"] == "localhost"
+              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["secret"] == "my-secret"
+              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs512)"
+            %}
+          end
+        end
+      CR
+    end
+
+    it "object_schema enum member with global type" do
+      ASPEC::Methods.assert_compiles <<-'CR'
+        require "../spec_helper"
+
+        enum Algorithm
+          Hs256
+          Hs384
+          Hs512
+        end
+
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema JwtConfig,
+            secret : String,
+            algorithm : ::Algorithm = :hs256
+
+          map_of hubs,
+            url : String,
+            jwt : JwtConfig
+        end
+
+        ADI.register_extension "test", Schema
+
+        ADI.configure({
+          test: {
+            hubs: {
+              primary: {
+                url: "localhost",
+                jwt: {secret: "my-secret"},
+              },
+            },
+          },
+        })
+
+        macro finished
+          macro finished
+            \{%
+              config = ADI::CONFIG["test"]
+
+              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "::Algorithm.new(:hs256)"
+            %}
+          end
+        end
+      CR
+    end
+
+    it "errors for invalid enum symbol in object_schema" do
+      assert_compile_time_error "Unknown 'Algorithm' enum member for default value of 'test.hubs.primary.jwt.algorithm'.", <<-'CR'
+        enum Algorithm
+          Hs256
+          Hs384
+          Hs512
+        end
+
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema JwtConfig,
+            secret : String,
+            algorithm : Algorithm = :invalid_algo
+
+          map_of hubs,
+            url : String,
+            jwt : JwtConfig
+        end
+
+        ADI.register_extension "test", Schema
+
+        ADI.configure({
+          test: {
+            hubs: {
+              primary: {
+                url: "localhost",
+                jwt: {secret: "my-secret"},
+              },
+            },
+          },
+        })
+      CR
+    end
+
+    it "errors for invalid user-provided enum symbol in object_schema" do
+      assert_compile_time_error "Unknown 'Algorithm' enum member for 'test.hubs.primary.jwt.algorithm'.", <<-'CR'
+        enum Algorithm
+          Hs256
+          Hs384
+          Hs512
+        end
+
+        module Schema
+          include ADI::Extension::Schema
+
+          object_schema JwtConfig,
+            secret : String,
+            algorithm : Algorithm = :hs256
+
+          map_of hubs,
+            url : String,
+            jwt : JwtConfig
+        end
+
+        ADI.register_extension "test", Schema
+
+        ADI.configure({
+          test: {
+            hubs: {
+              primary: {
+                url: "localhost",
+                jwt: {secret: "my-secret", algorithm: :invalid_algo},
+              },
+            },
+          },
+        })
+      CR
+    end
   end
 
   it "handles multiple extensions where one has nested schemas" do
