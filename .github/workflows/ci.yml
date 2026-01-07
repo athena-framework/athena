@@ -98,7 +98,7 @@ jobs:
           directory: coverage
           files: '**/cov.xml,**/macro_coverage.*.codecov.json' # There is no `unreachable.codecov.json` file when running _only_ compiled specs
           verbose: true
-      - uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
+      - uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # v1.2.1
         if: ${{ matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -166,7 +166,7 @@ jobs:
           directory: coverage
           files: '**/cov.xml,**/unreachable.codecov.json'
           verbose: true
-      - uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
+      - uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # v1.2.1
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
