@@ -34,13 +34,13 @@ class Athena::Routing::Router
   end
 
   # :inherit:
-  def generate(route : String, params : Hash(String, String?) = Hash(String, String?).new, reference_type : ART::Generator::ReferenceType = :absolute_path) : String
-    self.generator.generate route, params, reference_type
+  def generate(route : String, reference_type : ART::Generator::ReferenceType = :absolute_path, **params) : String
+    self.generate route, params.to_h.transform_keys(&.to_s), reference_type
   end
 
   # :inherit:
-  def generate(route : String, reference_type : ART::Generator::ReferenceType = :absolute_path, **params) : String
-    self.generate route, params.to_h.transform_keys(&.to_s), reference_type
+  def generate(route : String, params : Hash = Hash(String, String?).new, reference_type : ART::Generator::ReferenceType = :absolute_path) : String
+    self.generator.generate route, params, reference_type
   end
 
   # :inherit:
