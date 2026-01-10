@@ -1,0 +1,9 @@
+project: routing
+kind: Changed
+body: Loosen the type restriction for the `params` parameter of `ART::Generator::Interface#generate`
+time: 2026-01-10T14:03:03.53033393-05:00
+custom:
+    Author: George Dietrich
+    Breaking: "Yes"
+    PR: "669"
+    Username: blacksmoke16

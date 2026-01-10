@@ -598,6 +598,62 @@ struct URLGeneratorTest < ASPEC::TestCase
     }
   end
 
+  def test_generate_explicit_query_parameter : Nil
+    self
+      .generator(self.routes(ART::Route.new("/user/{username}")))
+      .generate(
+        "test",
+        {
+          "username" => "John",
+          "a"        => "foo",
+          "b"        => "bar",
+          "c"        => "baz",
+          "_query"   => {
+            "a" => "123",
+            "d" => "789",
+          },
+        }
+      ).should eq "/base/user/John?a=123&b=bar&c=baz&d=789"
+  end
+
+  def test_generate_route_host_parameter_and_query_parameter_with_same_name : Nil
+    self
+      .generator(self.routes(ART::Route.new("/admin/stats", requirements: {"domain" => /.+/}, host: "{siteCode}.{domain}")))
+      .generate(
+        "test",
+        {
+          "siteCode" => "fr",
+          "domain"   => "example.com",
+          "_query"   => {
+            "siteCode" => "us",
+          },
+        },
+        :network_path
+      ).should eq "//fr.example.com/base/admin/stats?siteCode=us"
+  end
+
+  def test_generate_route_path_parameter_and_query_parameter_with_same_name : Nil
+    self
+      .generator(self.routes(ART::Route.new("/user/{id}")))
+      .generate(
+        "test",
+        {
+          "id"     => "123",
+          "_query" => {
+            "id" => "456",
+          },
+        }
+      ).should eq "/base/user/123?id=456"
+  end
+
+  def test_generate_query_parameter_cannot_substitute_route_parameter : Nil
+    expect_raises ART::Exception::MissingRequiredParameters, "Cannot generate URL for route 'test'. Missing required parameters: 'id'." do
+      self
+        .generator(self.routes ART::Route.new "/user/{id}")
+        .generate("test", {"_query" => {"id" => 456}})
+    end
+  end
+
   private def generator(routes : ART::RouteCollection, *, context : ART::RequestContext? = nil, default_locale : String? = nil) : ART::Generator::URLGenerator
     context = context || ART::RequestContext.new "/base"
 

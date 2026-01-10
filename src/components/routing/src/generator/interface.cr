@@ -5,7 +5,34 @@
 # routes.add "blog_show", ART::Route.new "/blog/{slug}"
 #
 # generator = ART::Generator::URLGenerator.new context
+# generator.generate "blog_show", slug: "bar-baz" # => "/blog/bar-baz"
+# ```
+#
+# ## Query Parameters
+#
+# If a parameter passed in via *params* does not map to a known route parameter (path, hostname, etc) it'll be added as a query parameter.
+# For example, using the route defined above:
+#
+# ```
 # generator.generate "blog_show", slug: "bar-baz", source: "Crystal" # => "/blog/bar-baz?source=Crystal"
+# ```
+#
+# The special `_query` parameter may be used to explicitly add query parameters.
+# This can be useful when a query parameter may conflict with a route parameter of the same name.
+# For example, given a route like `https://{siteCode}.{domain}/admin/stats`:
+#
+# ```
+# generator
+#   .generate(
+#     "admin_stats",
+#     {
+#       "siteCode" => "fr",
+#       "domain"   => "example.com",
+#       "_query"   => {
+#         "siteCode" => "us",
+#       },
+#     },
+#   ) # => "https://fr.example.com/admin/stats?siteCode=us"
 # ```
 #
 # ## Parameter Default Values
@@ -43,7 +70,7 @@ module Athena::Routing::Generator::Interface
   include Athena::Routing::RequestContextAwareInterface
 
   # Generates a URL for the provided *route*, optionally with the provided *params* and *reference_type*.
-  abstract def generate(route : String, params : Hash(String, String?) = Hash(String, String?).new, reference_type : ART::Generator::ReferenceType = :absolute_path) : String
+  abstract def generate(route : String, params : Hash = Hash(String, String?).new, reference_type : ART::Generator::ReferenceType = :absolute_path) : String
 
   # :ditto:
   abstract def generate(route : String, reference_type : ART::Generator::ReferenceType = :absolute_path, **params) : String

@@ -61,7 +61,7 @@ class Athena::Routing::Generator::URLGenerator
   end
 
   # :inherit:
-  def generate(route : String, params : Hash(String, String?) = Hash(String, String?).new, reference_type : ART::Generator::ReferenceType = :absolute_path) : String
+  def generate(route : String, params : Hash = Hash(String, String?).new, reference_type : ART::Generator::ReferenceType = :absolute_path) : String
     if locale = params["_locale"]? || @context.parameters["_locale"]? || @default_locale
       if (locale_route = @route_provider.route_generation_data["#{route}.#{locale}"]?) && (route == locale_route[1]["_canonical_route"]?)
         route = "#{route}.#{locale}"
@@ -85,14 +85,9 @@ class Athena::Routing::Generator::URLGenerator
     self.do_generate variables, defaults, requirements, tokens, params, route, reference_type, host_tokens, schemes
   end
 
-  # :ditto:
+  # :inherit:
   def generate(route : String, reference_type : ART::Generator::ReferenceType = :absolute_path, **params) : String
     self.generate route, params.to_h.transform_keys(&.to_s), reference_type
-  end
-
-  # :ditto:
-  def generate(route : String, params : Hash(String, _) = Hash(String, String?).new, reference_type : ART::Generator::ReferenceType = :absolute_path) : String
-    self.generate route, params.transform_values { |v| v.nil? ? v : v.to_s }, reference_type
   end
 
   # OPTIMIZE: We could probably make use of `URI` for a lot of this stuff.
@@ -103,12 +98,22 @@ class Athena::Routing::Generator::URLGenerator
     defaults : ART::Parameters,
     requirements : Hash(String, Regex),
     tokens : Array(ART::CompiledRoute::Token),
-    params : Hash(String, String?),
+    params : Hash,
     name : String,
     reference_type : ART::Generator::ReferenceType,
     host_tokens : Array(ART::CompiledRoute::Token),
     required_schemes : Set(String)?,
   ) : String
+    query_parameters = Hash(String, String).new
+
+    if (qp = params["_query"]?).is_a?(Hash)
+      query_parameters = qp.transform_values(&.to_s)
+      params.delete "_query"
+    end
+
+    # Normalize params types after handling `_query`
+    params = params.transform_values(&.to_s)
+
     merged_params = Hash(String, String?).new
     merged_params.merge! defaults.to_h
     merged_params.merge! @context.parameters
@@ -127,7 +132,7 @@ class Athena::Routing::Generator::URLGenerator
         var_name = token.var_name.not_nil!
         important = token.important?
 
-        if !optional || important || !defaults.has_key?(var_name) || (!merged_params[var_name]?.nil? && merged_params[var_name].to_s != defaults[var_name].to_s)
+        if !optional || important || !defaults.has_key?(var_name) || ((mv = merged_params[var_name]?.presence) && mv.to_s != defaults[var_name].to_s)
           if !@strict_requirements.nil? && (r = token.regex) && !(merged_params[token.var_name]? || "").to_s.matches?(/^#{r.source.gsub /\(\?(?:=|<=|!|<!)((?:[^()\\]+|\\.|\((?1)\))*)\)/, ""}$/i)
             if @strict_requirements
               raise ART::Exception::InvalidParameter.new message % {var_name, name, r, merged_params[var_name]}
@@ -224,6 +229,7 @@ class Athena::Routing::Generator::URLGenerator
     end
 
     extra_params = params.reject { |key, value| variables.includes?(key) || defaults.raw?(key).try(&.to_s) == value }
+    extra_params.merge! query_parameters
 
     fragment = defaults["_fragment"]? || ""
 
