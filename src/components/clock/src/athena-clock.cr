@@ -1,7 +1,6 @@
 require "./aware"
 require "./interface"
 require "./native"
-require "./monotonic"
 
 # Convenience alias to make referencing `Athena::Clock` types easier.
 alias ACLK = Athena::Clock
