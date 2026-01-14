@@ -257,14 +257,18 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
                 cfg["defaults"]["expose_headers"].raise "'expose_headers' cannot contain a wildcard ('*') when 'allow_credentials' is 'true'."
               end
 
+              # Normalize headers to lowercase for HTTP/2 support.
+              allow_headers = cfg["defaults"]["allow_headers"].map &.downcase
+              expose_headers = cfg["defaults"]["expose_headers"].map &.downcase
+
               # TODO: Support multiple paths
               config = <<-CRYSTAL
                 ATH::Listeners::CORS::Config.new(
                   allow_credentials: #{cfg["defaults"]["allow_credentials"]},
                   allow_origin: #{cfg["defaults"]["allow_origin"]},
-                  allow_headers: #{cfg["defaults"]["allow_headers"]},
+                  allow_headers: #{allow_headers},
                   allow_methods: #{cfg["defaults"]["allow_methods"]},
-                  expose_headers: #{cfg["defaults"]["expose_headers"]},
+                  expose_headers: #{expose_headers},
                   max_age: #{cfg["defaults"]["max_age"]}
                 )
               CRYSTAL
