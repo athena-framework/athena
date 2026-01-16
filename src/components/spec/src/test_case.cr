@@ -144,6 +144,34 @@
 # # Finished in 172 microseconds
 # # 7 examples, 0 failures, 0 errors, 1 pending
 # ```
+#
+# ### TestWith
+#
+# The `TestWith` annotation is similar to `DataProvider`, but can be a bit simpler to use if the data doesn't need shared between multiple test methods.
+#
+# ```
+# struct TestWithTest < ASPEC::TestCase
+#   @[TestWith(
+#     two: {2, 4},
+#     three: {3, 9},
+#     four: {4, 16},
+#     five: {5, 25},
+#   )]
+#   def test_squares(value : Int32, expected : Int32) : Nil
+#     (value ** 2).should eq expected
+#   end
+#
+#   @[TestWith(
+#     {2, 8},
+#     {3, 27},
+#     {4, 64},
+#     {5, 125},
+#   )]
+#   def test_cubes(value : Int32, expected : Int32) : Nil
+#     (value ** 3).should eq expected
+#   end
+# end
+# ```
 abstract struct Athena::Spec::TestCase
   include Athena::Spec::Methods
 
@@ -532,6 +560,8 @@ abstract struct Athena::Spec::TestCase
   def tear_down : Nil
   end
 
+  # :showdoc:
+  #
   # Helper macro DSL for defining a test method.
   #
   # ```
