@@ -187,9 +187,7 @@ class Athena::Console::Helper::ProgressIndicator
     format : ACON::Helper::ProgressIndicator::Format? = nil,
     indicator_change_interval : Time::Span = 100.milliseconds,
     indicator_values : Indexable(String)? = nil,
-
-    # Use a monotonic clock by default since its better for measuring time
-    @clock : ACLK::Interface = ACLK::Monotonic.new,
+    @clock : ACLK::Interface = ACLK::Native.new,
     @finished_indicator : String = "✔",
   )
     indicator_values ||= ["-", "\\", "|", "/"]

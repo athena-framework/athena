@@ -47,9 +47,9 @@ describe ATH::Bundle, tags: "compiled" do
                 defaults: {
                   allow_credentials: true,
                   allow_origin: ["allow_origin", /foo/],
-                  allow_headers: ["allow_headers"],
+                  allow_headers: ["allow_headers", "X-My-Header"],
                   allow_methods: ["allow_methods"],
-                  expose_headers: ["expose_headers"],
+                  expose_headers: ["expose_headers", "X-My-Header"],
                   max_age: 123
                 },
               },
@@ -64,9 +64,9 @@ describe ATH::Bundle, tags: "compiled" do
 
                  raise "#{arg}" unless arg =~ /allow_credentials: true/
                  raise "#{arg}" unless arg =~ /allow_origin: \["allow_origin", \/foo\/\]/
-                 raise "#{arg}" unless arg =~ /allow_headers: \["allow_headers"]/
+                 raise "#{arg}" unless arg =~ /allow_headers: \["allow_headers", "x-my-header"]/
                  raise "#{arg}" unless arg =~ /allow_methods: \["allow_methods"]/
-                 raise "#{arg}" unless arg =~ /expose_headers: \["expose_headers"]/
+                 raise "#{arg}" unless arg =~ /expose_headers: \["expose_headers", "x-my-header"]/
                  raise "#{arg}" unless arg =~ /max_age: 123/
               %}
             end

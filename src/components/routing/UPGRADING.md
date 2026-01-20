@@ -4,6 +4,11 @@ Documents the changes that may be required when upgrading to a newer component v
 
 ## Upgrade to 0.2.0
 
+### `params` parameter of `ART::Generator::Interface#generate` has a looser type restriction
+
+This parameter was previously typed as a `Hash(String, String?)`, but is now accepts any `Hash`.
+Custom URL generators will need their type restriction updated, and may need to normalize/validate the hash value itself.
+
 ### New route default/matched route parameter type
 
 Route defaults and matcher return values now use the new `ART::Parameters` type instead of `Hash(String, String?)`.

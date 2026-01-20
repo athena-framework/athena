@@ -1,0 +1,8 @@
+project: framework
+kind: Fixed
+body: Fix CORS error when using HTTP/2 but providing uppercase header names
+time: 2026-01-14T11:40:42.827579-05:00
+custom:
+    Author: George Dietrich
+    PR: "670"
+    Username: blackmsoke16

@@ -104,6 +104,7 @@
 # * `_format` - Could be used to set the underlying format of the request, as well as determining the [content-type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type) of the response.
 # * `_fragment` - Represents the fragment identifier when generating a URL. E.g. `/article/10#summary` with the fragment being `summary`.
 # * `_locale` - Could be used to set the underlying locale of the `ART::Request` based on which route is matched.
+# * `_query` - Used to explicitly add [query parameters](/Routing/Generator/Interface/#Athena::Routing::Generator::Interface--query-parameters) to the generated URL.
 #
 # ```
 # ART::Route.new(
