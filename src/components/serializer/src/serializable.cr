@@ -113,7 +113,7 @@ module Athena::Serializer::Serializable
             {%
               value = (accessor = ivar.annotation(ASRA::Accessor)) && nil != accessor[:getter] ? accessor[:getter].id : %(@#{ivar.id}).id
 
-              property_hash[external_name] = %(ASR::PropertyMetadata(#{ivar.type}, typeof(#{value}), #{@type}).new(
+              property_hash[external_name] = %(ASR::PropertyMetadata(#{ivar.type}, typeof(#{value})).new(
                 name: #{ivar.name.stringify},
                 external_name: #{external_name},
                 annotation_configurations: ADI::AnnotationConfigurations.new(#{annotation_configurations} of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase)),
@@ -147,7 +147,7 @@ module Athena::Serializer::Serializable
               {% method_annotation_configurations[ann_class] = "#{annotations} of ADI::AnnotationConfigurations::ConfigurationBase".id unless annotations.empty? %}
             {% end %}
 
-            {% property_hash[external_name] = %(ASR::PropertyMetadata(#{m.return_type}, #{m.return_type}, #{@type}).new(
+            {% property_hash[external_name] = %(ASR::PropertyMetadata(#{m.return_type}, #{m.return_type}).new(
                 name: #{m.name.stringify},
                 external_name: #{external_name},
                 annotation_configurations: ADI::AnnotationConfigurations.new(#{method_annotation_configurations} of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase)),
@@ -231,7 +231,7 @@ module Athena::Serializer::Serializable
                                   ivar_name
                                 end
 
-                %(ASR::PropertyMetadata(#{ivar.type}, #{ivar.type}?, #{@type}).new(
+                %(ASR::PropertyMetadata(#{ivar.type}, #{ivar.type}?).new(
                   name: #{ivar.name.stringify},
                   external_name: #{external_name},
                   annotation_configurations: ADI::AnnotationConfigurations.new(#{annotation_configurations} of ADI::AnnotationConfigurations::Classes => Array(ADI::AnnotationConfigurations::ConfigurationBase)),

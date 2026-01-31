@@ -18,7 +18,6 @@ describe ASR::Navigators::SerializationNavigator do
           p.skip_when_empty?.should be_false
           p.groups.should eq Set{"default"}
           p.type.should eq String?
-          p.class.should eq PreSerialize
 
           p = properties[1]
 
@@ -28,7 +27,6 @@ describe ASR::Navigators::SerializationNavigator do
           p.skip_when_empty?.should be_false
           p.groups.should eq Set{"default"}
           p.type.should eq Int32?
-          p.class.should eq PreSerialize
         end
 
         ASR::Navigators::SerializationNavigator.new(visitor, ASR::SerializationContext.new).accept obj
@@ -54,7 +52,6 @@ describe ASR::Navigators::SerializationNavigator do
           p.skip_when_empty?.should be_false
           p.groups.should eq Set{"default"}
           p.type.should eq String?
-          p.class.should eq PostSerialize
 
           p = properties[1]
 
@@ -64,7 +61,6 @@ describe ASR::Navigators::SerializationNavigator do
           p.skip_when_empty?.should be_false
           p.groups.should eq Set{"default"}
           p.type.should eq Int32?
-          p.class.should eq PostSerialize
         end
 
         ASR::Navigators::SerializationNavigator.new(visitor, ASR::SerializationContext.new).accept obj
@@ -99,7 +95,6 @@ describe ASR::Navigators::SerializationNavigator do
           p.skip_when_empty?.should be_true
           p.groups.should eq Set{"default"}
           p.type.should eq String
-          p.class.should eq SkipWhenEmpty
         end
 
         ASR::Navigators::SerializationNavigator.new(visitor, ASR::SerializationContext.new).accept obj
@@ -121,7 +116,6 @@ describe ASR::Navigators::SerializationNavigator do
             p.skip_when_empty?.should be_false
             p.groups.should eq Set{"default"}
             p.type.should eq Int32
-            p.class.should eq EmitNil
           end
 
           ASR::Navigators::SerializationNavigator.new(visitor, ASR::SerializationContext.new).accept obj
@@ -144,7 +138,6 @@ describe ASR::Navigators::SerializationNavigator do
             p.skip_when_empty?.should be_false
             p.groups.should eq Set{"default"}
             p.type.should eq String?
-            p.class.should eq EmitNil
 
             p = properties[1]
 
@@ -154,7 +147,6 @@ describe ASR::Navigators::SerializationNavigator do
             p.skip_when_empty?.should be_false
             p.groups.should eq Set{"default"}
             p.type.should eq Int32
-            p.class.should eq EmitNil
           end
 
           ASR::Navigators::SerializationNavigator.new(visitor, ctx).accept obj
@@ -178,7 +170,6 @@ describe ASR::Navigators::SerializationNavigator do
             p.skip_when_empty?.should be_false
             p.groups.should eq Set{"list", "details"}
             p.type.should eq Int64
-            p.class.should eq Group
 
             p = properties[1]
 
@@ -188,7 +179,6 @@ describe ASR::Navigators::SerializationNavigator do
             p.skip_when_empty?.should be_false
             p.groups.should eq Set{"list"}
             p.type.should eq Array(String)
-            p.class.should eq Group
 
             p = properties[2]
 
@@ -198,7 +188,6 @@ describe ASR::Navigators::SerializationNavigator do
             p.skip_when_empty?.should be_false
             p.groups.should eq Set{"details"}
             p.type.should eq Array(String)
-            p.class.should eq Group
 
             p = properties[3]
 
@@ -208,7 +197,6 @@ describe ASR::Navigators::SerializationNavigator do
             p.skip_when_empty?.should be_false
             p.groups.should eq Set{"default"}
             p.type.should eq Time
-            p.class.should eq Group
           end
 
           ASR::Navigators::SerializationNavigator.new(visitor, ASR::SerializationContext.new).accept obj
@@ -235,7 +223,6 @@ describe ASR::Navigators::SerializationNavigator do
             p.skip_when_empty?.should be_false
             p.groups.should eq Set{"list", "details"}
             p.type.should eq Int64
-            p.class.should eq Group
 
             p = properties[1]
 
@@ -245,7 +232,6 @@ describe ASR::Navigators::SerializationNavigator do
             p.skip_when_empty?.should be_false
             p.groups.should eq Set{"list"}
             p.type.should eq Array(String)
-            p.class.should eq Group
           end
 
           ASR::Navigators::SerializationNavigator.new(visitor, ctx).accept obj
@@ -272,7 +258,6 @@ describe ASR::Navigators::SerializationNavigator do
             p.skip_when_empty?.should be_false
             p.groups.should eq Set{"list", "details"}
             p.type.should eq Int64
-            p.class.should eq Group
 
             p = properties[1]
 
@@ -282,7 +267,6 @@ describe ASR::Navigators::SerializationNavigator do
             p.skip_when_empty?.should be_false
             p.groups.should eq Set{"list"}
             p.type.should eq Array(String)
-            p.class.should eq Group
 
             p = properties[2]
 
@@ -292,7 +276,6 @@ describe ASR::Navigators::SerializationNavigator do
             p.skip_when_empty?.should be_false
             p.groups.should eq Set{"default"}
             p.type.should eq Time
-            p.class.should eq Group
           end
 
           ASR::Navigators::SerializationNavigator.new(visitor, ctx).accept obj

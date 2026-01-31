@@ -6,7 +6,7 @@ module Athena::Serializer::PropertyMetadataBase; end
 # Stores metadata related to a specific property.
 #
 # This includes its name (internal and external), value, versions/groups, and any aliases.
-struct Athena::Serializer::PropertyMetadata(IvarType, ValueType, ClassType)
+struct Athena::Serializer::PropertyMetadata(IvarType, ValueType)
   include Athena::Serializer::PropertyMetadataBase
 
   # The name of the property.
@@ -20,9 +20,6 @@ struct Athena::Serializer::PropertyMetadata(IvarType, ValueType, ClassType)
 
   # The type of the property.
   getter type : IvarType.class = IvarType
-
-  # The class that the property is part of.
-  getter class : ClassType.class = ClassType
 
   # Represents the first version this property is available.
   #
@@ -65,7 +62,6 @@ struct Athena::Serializer::PropertyMetadata(IvarType, ValueType, ClassType)
     @since_version : SemanticVersion? = nil,
     @until_version : SemanticVersion? = nil,
     @type : IvarType.class = IvarType,
-    @class : ClassType.class = ClassType,
   )
     @groups = groups.to_set
   end

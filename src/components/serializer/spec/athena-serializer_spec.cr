@@ -14,7 +14,6 @@ describe ASR::Serializable do
         p.value.should eq "FOO"
         p.skip_when_empty?.should be_false
         p.type.should eq String
-        p.class.should eq GetterAccessor
       end
 
       it "handles when getter value has a diff type than ivar" do
@@ -29,7 +28,6 @@ describe ASR::Serializable do
         p.value.should be_a String
         p.skip_when_empty?.should be_false
         p.type.should eq Int32
-        p.class.should eq GetterAccessorDiffType
       end
     end
 
@@ -77,7 +75,6 @@ describe ASR::Serializable do
         p.value.should eq "one"
         p.skip_when_empty?.should be_false
         p.type.should eq String
-        p.class.should eq Skip
       end
     end
 
@@ -95,7 +92,6 @@ describe ASR::Serializable do
             p.value.should eq "Jim"
             p.skip_when_empty?.should be_false
             p.type.should eq String
-            p.class.should eq Expose
           end
         end
       end
@@ -113,7 +109,6 @@ describe ASR::Serializable do
             p.value.should eq "Jim"
             p.skip_when_empty?.should be_false
             p.type.should eq String
-            p.class.should eq Exclude
           end
         end
       end
@@ -132,7 +127,6 @@ describe ASR::Serializable do
           p.value.should eq "123 Fake Street"
           p.skip_when_empty?.should be_false
           p.type.should eq String
-          p.class.should eq SerializedName
 
           p = properties[1]
 
@@ -141,7 +135,6 @@ describe ASR::Serializable do
           p.value.should eq "str"
           p.skip_when_empty?.should be_false
           p.type.should eq String
-          p.class.should eq SerializedName
 
           p = properties[2]
 
@@ -150,7 +143,6 @@ describe ASR::Serializable do
           p.value.should eq 90210
           p.skip_when_empty?.should be_false
           p.type.should eq Int32
-          p.class.should eq SerializedName
         end
       end
 
@@ -165,7 +157,6 @@ describe ASR::Serializable do
           p.external_name.should eq "des"
           p.skip_when_empty?.should be_false
           p.type.should eq Int32?
-          p.class.should eq DeserializedName
 
           p = properties[1]
 
@@ -173,7 +164,6 @@ describe ASR::Serializable do
           p.external_name.should eq "default_name"
           p.skip_when_empty?.should be_false
           p.type.should eq Bool?
-          p.class.should eq DeserializedName
         end
       end
 
@@ -193,7 +183,6 @@ describe ASR::Serializable do
             p.external_name.should eq "myAddress"
             p.skip_when_empty?.should be_false
             p.type.should eq String
-            p.class.should eq SerializedNameKey
 
             p = properties[1]
 
@@ -201,7 +190,6 @@ describe ASR::Serializable do
             p.external_name.should eq "some_key"
             p.skip_when_empty?.should be_false
             p.type.should eq String
-            p.class.should eq SerializedNameKey
 
             p = properties[2]
 
@@ -209,7 +197,6 @@ describe ASR::Serializable do
             p.external_name.should eq "myZipCode"
             p.skip_when_empty?.should be_false
             p.type.should eq Int32
-            p.class.should eq SerializedNameKey
           end
         end
       end
@@ -431,7 +418,6 @@ describe ASR::Serializable do
         p.value.should eq "value"
         p.skip_when_empty?.should be_true
         p.type.should eq String
-        p.class.should eq SkipWhenEmpty
       end
     end
 
@@ -450,7 +436,6 @@ describe ASR::Serializable do
         p.value.should eq "foo"
         p.skip_when_empty?.should be_false
         p.type.should eq String
-        p.class.should eq VirtualProperty
 
         p = properties[1]
 
@@ -462,7 +447,6 @@ describe ASR::Serializable do
         p.value.should eq "VAL"
         p.skip_when_empty?.should be_false
         p.type.should eq String
-        p.class.should eq VirtualProperty
 
         p = properties[2]
 
@@ -474,7 +458,6 @@ describe ASR::Serializable do
         p.value.should eq "group_version"
         p.skip_when_empty?.should be_false
         p.type.should eq String
-        p.class.should eq VirtualProperty
       end
     end
 
@@ -490,7 +473,6 @@ describe ASR::Serializable do
         p.value.should eq "Fred"
         p.skip_when_empty?.should be_false
         p.type.should eq String
-        p.class.should eq IgnoreOnSerialize
       end
     end
   end

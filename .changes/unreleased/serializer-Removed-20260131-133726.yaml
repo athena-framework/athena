@@ -1,0 +1,8 @@
+project: serializer
+kind: Removed
+body: Remove `ASR::PropertyMetadata#class` method and generic variable
+time: 2026-01-31T13:37:26.684001569-05:00
+custom:
+    Author: George Dietrich
+    PR: "672"
+    Username: blacksmoke16
