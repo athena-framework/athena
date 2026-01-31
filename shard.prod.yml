@@ -26,7 +26,7 @@ dependencies:
     github: athena-framework/http
     branch: docs
   athena-http_kernel:
-    github: athena-framework/http_kernel
+    github: athena-framework/http-kernel
     branch: docs
   athena-image_size:
     github: athena-framework/image-size
