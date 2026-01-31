@@ -12,7 +12,7 @@ enum TestEnum
 end
 
 def get_test_property_metadata : Array(ASR::PropertyMetadataBase)
-  [ASR::PropertyMetadata(String, String, TestObject).new(
+  [ASR::PropertyMetadata(String, String).new(
     name: "name",
     external_name: "external_name",
     annotation_configurations: ADI::AnnotationConfigurations.new,
@@ -141,7 +141,7 @@ def create_metadata(
   until_version : String? = nil,
   annotation_configurations : ADI::AnnotationConfigurations = ADI::AnnotationConfigurations.new,
 ) : ASR::PropertyMetadata forall I
-  context = ASR::PropertyMetadata(I, I, EmptyObject).new name, external_name, annotation_configurations, value, skip_when_empty, groups
+  context = ASR::PropertyMetadata(I, I).new name, external_name, annotation_configurations, value, skip_when_empty, groups
 
   context.since_version = SemanticVersion.parse since_version if since_version
   context.until_version = SemanticVersion.parse until_version if until_version
