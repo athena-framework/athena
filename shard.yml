@@ -34,7 +34,7 @@ dependencies:
   athena-http:
     github: athena-framework/http
   athena-http_kernel:
-    github: athena-framework/http_kernel
+    github: athena-framework/http-kernel
   athena-image_size:
     github: athena-framework/image-size
   athena-mercure:
