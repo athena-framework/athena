@@ -18,7 +18,7 @@ jobs:
       kind_docs: ${{ steps.subtree-sync.outputs.kind_docs }}
       kind_release: ${{ steps.subtree-sync.outputs.kind_release }}
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0 # Required so `git subtree` can find its split commit
           ssh-key: ${{ secrets.ATHENA_BOT_SSH_PRIV_KEY }}
@@ -132,7 +132,7 @@ jobs:
       matrix:
         shard: ${{ fromJson(needs.sync.outputs.updated_shards) }}
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: athena-framework/${{ matrix.shard }}
           ref: docs
