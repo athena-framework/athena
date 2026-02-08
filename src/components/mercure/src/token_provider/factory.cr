@@ -1,6 +1,6 @@
 require "./interface"
 
-# A token provider implementation that provides the JWT via an [AMC::TokenFactory::Interface][] instance.
+# A token provider implementation that provides the JWT via an `AMC::TokenFactory::Interface` instance.
 struct Athena::Mercure::TokenProvider::Factory
   include Athena::Mercure::TokenProvider::Interface
 

@@ -1,6 +1,6 @@
 require "./interface"
 
-# Default implementation of [AMC::Hub::Interface][].
+# Default implementation of `AMC::Hub::Interface`.
 class Athena::Mercure::Hub
   include Athena::Mercure::Hub::Interface
 

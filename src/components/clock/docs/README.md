@@ -1,11 +1,11 @@
 The `Athena::Clock` component allows decoupling an application from the system clock.
 This allows for more easily testing time sensitive code.
 
-The component provides a [ACLK::Interface][] with the following implementations for different use cases:
+The component provides a [ACLK::Interface](/Clock/Interface/) with the following implementations for different use cases:
 
-* [ACLK::Native][] - Provides access to the system clock for most usages
-* [ACLK::Monotonic][] - Provides access to a high resolution, monotonic clock for when needing to measure time precisely
-* [ACLK::Spec::MockClock][] - Provides the ability to freeze and change the current time for use in tests
+* [ACLK::Native](/Clock/Native/) - Provides access to the system clock for most usages
+* [ACLK::Monotonic](/Clock/Monotonic/) - Provides access to a high resolution, monotonic clock for when needing to measure time precisely
+* [ACLK::Spec::MockClock](/Clock/Spec/MockClock/) - Provides the ability to freeze and change the current time for use in tests
 
 ## Installation
 

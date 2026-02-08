@@ -14,10 +14,10 @@ dependencies:
 
 ## Usage
 
-The `Athena::Serializer` component focuses around [ASR::Serializer][] implementations, with the default being [ASR::Serializer] as the main entrypoint into (de)serializing objects.
+The `Athena::Serializer` component focuses around [ASR::Serializer](/Serializer/Serializer/) implementations, with the default being [ASR::Serializer] as the main entrypoint into (de)serializing objects.
 Usage wise, the component functions much like the `*::Serializable` modules in the stdlib, such as [JSON::Serializable](https://crystal-lang.org/api/JSON/Serializable.html).
-The [ASR::Serializable][] module can be included into a type to make it (de)serializable.
-From here various [annotations][ASR::Annotations] may be used to control how the object is (de)serialized.
+The [ASR::Serializable](/Serializer/Serializable/) module can be included into a type to make it (de)serializable.
+From here various [annotations](/Serializer/Annotations/) may be used to control how the object is (de)serialized.
 
 ```crystal
 # ExclusionPolicy specifies that all properties should not be (de)serialized
@@ -93,6 +93,6 @@ ASR.serializer.serialize obj, :json, ASR::SerializationContext.new.groups = ["de
 
 ## Learn More
 
-* Customize how objects are [constructed][ASR::ObjectConstructorInterface]
-* Make use of inheritance with [ASR::Model][]s
-* Conditionally determine which (if any) properties should be [excluded][ASR::ExclusionStrategies::ExclusionStrategyInterface]
+* Customize how objects are [constructed](/Serializer/ObjectConstructorInterface/)
+* Make use of inheritance with [ASR::Model](/Serializer/Model/)s
+* Conditionally determine which (if any) properties should be [excluded](/Serializer/ExclusionStrategies/ExclusionStrategyInterface/)

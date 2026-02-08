@@ -76,7 +76,7 @@ class Athena::Console::Application
   setter command_loader : ACON::Loader::Interface? = nil
 
   # Returns `true` if `self` only supports a single command.
-  # See [Single Command Applications][Athena::Console::Application#default_command(name,single_command)--single-command-applications] for more information.
+  # See [Single Command Applications](/Console/Application/#Athena::Console::Application--single-command-applications) for more information.
   getter? single_command : Bool = false
 
   # When set to `true`, the application will check if `PROGRAM_NAME`'s basename matches a registered command.

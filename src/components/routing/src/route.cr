@@ -194,7 +194,7 @@ class Athena::Routing::Route
   getter host : String?
 
   # Returns the set of valid HTTP methods that this route supports.
-  # See [ART::Route][] for more information.
+  # See `ART::Route` for more information.
   getter methods : Set(String)?
 
   # Returns the optional `ART::Route::Condition` callback used to determine if this route should match.
@@ -204,7 +204,7 @@ class Athena::Routing::Route
   # TODO: Don't think we actually know what this is:
 
   # Returns the set of valid URI schemes that this route supports.
-  # See [ART::Route][] for more information.
+  # See `ART::Route` for more information.
   getter schemes : Set(String)? = nil
 
   @compiled_route : ART::CompiledRoute? = nil
@@ -265,7 +265,7 @@ class Athena::Routing::Route
   end
 
   # Sets the set of valid URI *scheme(s)* that this route supports.
-  # See [ART::Route][] for more information.
+  # See `ART::Route` for more information.
   def schemes=(schemes : String | Enumerable(String)) : self
     schemes = schemes.is_a?(String) ? {schemes} : schemes
 
@@ -284,7 +284,7 @@ class Athena::Routing::Route
   end
 
   # Sets the set of valid HTTP *method(s)* that this route supports.
-  # See [ART::Route][] for more information.
+  # See `ART::Route` for more information.
   def methods=(methods : String | Enumerable(String)) : self
     methods = methods.is_a?(String) ? {methods} : methods
 

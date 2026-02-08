@@ -6,15 +6,15 @@ struct Base64ContentEncoderTest < ASPEC::TestCase
   end
 
   def test_encodes_string : Nil
-    AMIME::Encoder::Base64Content.new.encode("123").should eq "MTIz\n"
-    AMIME::Encoder::Base64Content.new.encode("123456").should eq "MTIzNDU2\n"
-    AMIME::Encoder::Base64Content.new.encode("123456789").should eq "MTIzNDU2Nzg5\n"
+    AMIME::Encoder::Base64Content.new.encode("123").should eq "MTIz\n"               # spellchecker:disable-line
+    AMIME::Encoder::Base64Content.new.encode("123456").should eq "MTIzNDU2\n"        # spellchecker:disable-line
+    AMIME::Encoder::Base64Content.new.encode("123456789").should eq "MTIzNDU2Nzg5\n" # spellchecker:disable-line
   end
 
   def test_encodes_io : Nil
-    AMIME::Encoder::Base64Content.new.encode(IO::Memory.new "123").should eq "MTIz\n"
-    AMIME::Encoder::Base64Content.new.encode(IO::Memory.new "123456").should eq "MTIzNDU2\n"
-    AMIME::Encoder::Base64Content.new.encode(IO::Memory.new "123456789").should eq "MTIzNDU2Nzg5\n"
+    AMIME::Encoder::Base64Content.new.encode(IO::Memory.new "123").should eq "MTIz\n"               # spellchecker:disable-line
+    AMIME::Encoder::Base64Content.new.encode(IO::Memory.new "123456").should eq "MTIzNDU2\n"        # spellchecker:disable-line
+    AMIME::Encoder::Base64Content.new.encode(IO::Memory.new "123456789").should eq "MTIzNDU2Nzg5\n" # spellchecker:disable-line
   end
 
   def test_pad_length : Nil

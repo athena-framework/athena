@@ -1,4 +1,4 @@
-The `Athena::ImageSize` component allows measuring the size of various [image formats][Athena::ImageSize::Image::Format].
+The `Athena::ImageSize` component allows measuring the size of various [image formats](/ImageSize/Image/Format/).
 
 ## Installation
 
@@ -13,7 +13,7 @@ dependencies:
 
 ## Usage
 
-an [AIS::Image][] instance can be instantiated given a path to an image file, or via an [IO](https://crystal-lang.org/api/IO.html).
+an [AIS::Image](/ImageSize/Image/) instance can be instantiated given a path to an image file, or via an [IO](https://crystal-lang.org/api/IO.html).
 From there, information about the image can be accessed off of the instance.
 
 ```crystal

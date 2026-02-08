@@ -22,10 +22,10 @@ alias AMC = Athena::Mercure
 module Athena::Mercure
   VERSION = "0.1.0"
 
-  # See [AMC::TokenFactory::Interface][]
+  # See `AMC::TokenFactory::Interface`
   module TokenFactory; end
 
-  # See [AMC::TokenProvider::Interface][]
+  # See `AMC::TokenProvider::Interface`
   module TokenProvider; end
 
   # Both acts as a namespace for exceptions related to the `Athena::Mercure` component, as well as a way to check for exceptions from the component.

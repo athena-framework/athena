@@ -21,9 +21,9 @@ dependencies:
 ```
 ## Usage
 
-Usage of this component centers around [AED::EventDispatcherInterface][], an extension of the base [ACTR::EventDispatcher::Interface](/Contracts/EventDispatcher/Interface/) with extra functionality,
-with the default implementation being [AED::EventDispatcher][].
-The event dispatcher  keeps track of the listeners on various [AED::Event][]s.
+Usage of this component centers around [AED::EventDispatcherInterface](/EventDispatcher/EventDispatcherInterface/), an extension of the base [ACTR::EventDispatcher::Interface](/Contracts/EventDispatcher/Interface/) with extra functionality,
+with the default implementation being [AED::EventDispatcher](/EventDispatcher/EventDispatcher/).
+The event dispatcher  keeps track of the listeners on various [AED::Event](/EventDispatcher/Event/)s.
 An event is nothing more than a plain old Crystal object that provides access to data related to the event.
 
 ```crystal
@@ -77,6 +77,6 @@ Consider pairing this component with the [Athena::DependencyInjection](/Dependen
 
 ## Learn More
 
-* [Listener Priority][Athena::EventDispatcher::EventDispatcherInterface--listener-priority]
+* [Listener Priority](/EventDispatcher/EventDispatcherInterface/#Athena::EventDispatcher::EventDispatcherInterface--listener-priority)
 * [Stoppable](/Contracts/EventDispatcher/StoppableEvent/) events
-* [Testing Abstractions][AED::Spec::TracableEventDispatcher]
+* [Testing Abstractions](/EventDispatcher/Spec/TracableEventDispatcher/)

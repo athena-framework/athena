@@ -14,19 +14,19 @@ dependencies:
 
 ## Usage
 
-The core of this component is [AHK::HTTPKernel][], which orchestrates the request handling process by dispatching a series of events.
+The core of this component is [AHK::HTTPKernel](/HTTPKernel/HTTPKernel/), which orchestrates the request handling process by dispatching a series of events.
 
 ### Request Lifecycle
 
 When a request is handled, the following events are dispatched in order:
 
-1. **[AHK::Events::Request][]** - Dispatched before anything else. Listeners can return a response early or modify the request.
-2. **[AHK::Events::Action][]** - Dispatched after the action is determined but before it executes. Useful for accessing action metadata.
-3. **[AHK::Events::View][]** - Dispatched if the action returns something other than a response. Listeners convert the return value into a response.
-4. **[AHK::Events::Response][]** - Dispatched after a response is created. Listeners can modify the response before it's sent.
-5. **[AHK::Events::Terminate][]** - Dispatched after the response is sent. Useful for "heavy" post-response processing.
+1. **[AHK::Events::Request](/HTTPKernel/Events/Request/)** - Dispatched before anything else. Listeners can return a response early or modify the request.
+2. **[AHK::Events::Action](/HTTPKernel/Events/Action/)** - Dispatched after the action is determined but before it executes. Useful for accessing action metadata.
+3. **[AHK::Events::View](/HTTPKernel/Events/View/)** - Dispatched if the action returns something other than a response. Listeners convert the return value into a response.
+4. **[AHK::Events::Response](/HTTPKernel/Events/Response/)** - Dispatched after a response is created. Listeners can modify the response before it's sent.
+5. **[AHK::Events::Terminate](/HTTPKernel/Events/Terminate/)** - Dispatched after the response is sent. Useful for "heavy" post-response processing.
 
-If an exception is raised at any point, [AHK::Events::Exception][] is dispatched to allow converting the exception into a response.
+If an exception is raised at any point, [AHK::Events::Exception](/HTTPKernel/Events/Exception/) is dispatched to allow converting the exception into a response.
 
 ### Basic Example
 
@@ -88,7 +88,7 @@ kernel.terminate(request, response)
 
 ### HTTP Exceptions
 
-The component provides a hierarchy of HTTP exceptions under [AHK::Exception][].
+The component provides a hierarchy of HTTP exceptions under [AHK::Exception](/HTTPKernel/Exception/).
 These exceptions automatically set the appropriate HTTP status code and can include custom headers.
 
 ```crystal
@@ -109,8 +109,8 @@ Non-HTTP exceptions are treated as `500 Internal Server Error` by default.
 
 ### Error Handling
 
-The [AHK::Listeners::Error][] listener handles exceptions by converting them into responses via an [AHK::ErrorRendererInterface][].
-The default [AHK::ErrorRenderer][] produces JSON responses:
+The [AHK::Listeners::Error](/HTTPKernel/Listeners/Error/) listener handles exceptions by converting them into responses via an [AHK::ErrorRendererInterface](/HTTPKernel/ErrorRendererInterface/).
+The default [AHK::ErrorRenderer](/HTTPKernel/ErrorRenderer/) produces JSON responses:
 
 ```json
 {
@@ -142,11 +142,11 @@ end
 Value resolvers determine how arguments are passed to controller actions.
 The component includes several built-in resolvers:
 
-- [AHK::Controller::ValueResolvers::Request][] - Injects the current request if the parameter type is `AHTTP::Request`
-- [AHK::Controller::ValueResolvers::RequestAttribute][] - Resolves values from request attributes (e.g., route parameters)
-- [AHK::Controller::ValueResolvers::DefaultValue][] - Uses the parameter's default value or `nil` if nilable
+- [AHK::Controller::ValueResolvers::Request](/HTTPKernel/Controller/ValueResolvers/Request/) - Injects the current request if the parameter type is `AHTTP::Request`
+- [AHK::Controller::ValueResolvers::RequestAttribute](/HTTPKernel/Controller/ValueResolvers/RequestAttribute/) - Resolves values from request attributes (e.g., route parameters)
+- [AHK::Controller::ValueResolvers::DefaultValue](/HTTPKernel/Controller/ValueResolvers/DefaultValue/) - Uses the parameter's default value or `nil` if nilable
 
-Custom resolvers can be created by implementing [AHK::Controller::ValueResolvers::Interface][]:
+Custom resolvers can be created by implementing [AHK::Controller::ValueResolvers::Interface](/HTTPKernel/Controller/ValueResolvers/Interface/):
 
 ```crystal
 struct CurrentTimeResolver
@@ -175,6 +175,6 @@ See the [Getting Started](/getting_started) guide for full framework documentati
 
 - [Middleware Architecture](/getting_started/middleware) - Detailed explanation of the event-driven request lifecycle
 - [Error Handling](/getting_started/error_handling) - Working with HTTP exceptions
-- [AHK::HTTPKernel][] - API documentation for the kernel
-- [AHK::Events][] - All available lifecycle events
-- [AHK::Exception][] - Available HTTP exception types
+- [AHK::HTTPKernel](/HTTPKernel/HTTPKernel/) - API documentation for the kernel
+- [AHK::Events](/HTTPKernel/Events/) - All available lifecycle events
+- [AHK::Exception](/HTTPKernel/Exception/) - Available HTTP exception types
