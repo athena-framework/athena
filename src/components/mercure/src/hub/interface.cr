@@ -8,10 +8,10 @@ module Athena::Mercure::Hub::Interface
   # Returns the public URL of this hub used to subscribe.
   abstract def public_url : String
 
-  # Returns the [AMC::TokenProvider::Interface][] associated with this hub.
+  # Returns the `AMC::TokenProvider::Interface` associated with this hub.
   abstract def token_provider : AMC::TokenProvider::Interface?
 
-  # Returns the [AMC::TokenFactory::Interface][] associated with this hub.
+  # Returns the `AMC::TokenFactory::Interface` associated with this hub.
   abstract def token_factory : AMC::TokenFactory::Interface?
 
   # Publishes the provided *update* to this hub.

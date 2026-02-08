@@ -21,12 +21,12 @@ require "../src/main" # Or whatever the name of your entrypoint file is called
 require "athena-spec"
 ```
 
-Finally, call [ASPEC.run_all][] at the bottom of `spec/spec_helper.cr` to ensure [ASPEC::TestCase][] based specs are ran as expected.
+Finally, call [ASPEC.run_all](/Spec/top_level/#Athena::Spec.run_all) at the bottom of `spec/spec_helper.cr` to ensure [ASPEC::TestCase](/Spec/TestCase/) based specs are ran as expected.
 
 ## Usage
 
 A core focus of this component is allowing for a more classic unit testing approach that makes it easy to share/reduce test code duplication.
-[ASPEC::TestCase][] being the core type of this.
+[ASPEC::TestCase](/Spec/TestCase/) being the core type of this.
 
 The primary benefit of this approach is that logic is more easily shared/reused as compared to the normal block based approach.
 I.e. a component can provide a base test case type that can be inherited from, a few methods implemented, and tada.
@@ -40,4 +40,4 @@ struct ExampleSpec < ASPEC::TestCase
 end
 ```
 
-TIP: The [ASPEC::TestCase::DataProvider][] and [ASPEC::TestCase::TestWith][] annotations can make testing similar code with different inputs super easy!
+TIP: The [ASPEC::TestCase::DataProvider](/Spec/TestCase/DataProvider/) and [ASPEC::TestCase::TestWith](/Spec/TestCase/TestWith/) annotations can make testing similar code with different inputs super easy!

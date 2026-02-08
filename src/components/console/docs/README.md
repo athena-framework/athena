@@ -15,7 +15,7 @@ dependencies:
 
 ## Usage
 
-In its most basic form, a [ACON::Command][] consists of an `#execute` method that provides access to [input][ACON::Input::Interface] and [output][ACON::Output::Interface] of the command and returns a [ACON::Command::Status][] member.
+In its most basic form, a [ACON::Command](/Console/Command/) consists of an `#execute` method that provides access to [input](/Console/Input/Interface/) and [output](/Console/Output/Interface/) of the command and returns a [ACON::Command::Status](/Console/Command/Status/) member.
 
 ```crystal
 @[ACONA::AsCommand("app:create-user", description: "Manually create a user with the provided username")]
@@ -31,7 +31,7 @@ end
 
 However, in most cases the command will need to be configured to better fit its use case.
 Commands may also implement a [#configure](/Console/Command/#Athena::Console::Command--configuring-the-command) method to accomplish this.
-This method is where the [ACON::Input::Argument][]s and [ACON::Input::Option][]s may be defined, but also additional help output, aliases, etc.
+This method is where the [ACON::Input::Argument](/Console/Input/Argument/)s and [ACON::Input::Option](/Console/Input/Option/)s may be defined, but also additional help output, aliases, etc.
 
 ```crystal
 protected def configure : Nil
@@ -43,8 +43,8 @@ end
 
 ### Application
 
-The core of the console component is the [ACON::Application][] type which is where all the registered [ACON::Command][]s are stored
-as well as what controls what built-in command(s), global input options (flags), and [ACON::Helper][]s are available.
+The core of the console component is the [ACON::Application](/Console/Application/) type which is where all the registered [ACON::Command](/Console/Command/)s are stored
+as well as what controls what built-in command(s), global input options (flags), and [ACON::Helper](/Console/Helper/)s are available.
 In most cases it provides a good starting point, but may be extended/customized if needed.
 
 ```crystal
@@ -107,10 +107,10 @@ This is to ensure the performance of the script is sufficient, and to avoid any 
 
 ## Learn More
 
-* Asking [ACON::Question][]s
-* Reusable output [styles][Athena::Console::Formatter::OutputStyleInterface]
-* High level reusable formatting [styles][Athena::Console::Style::Interface]
-* [Testing abstractions][Athena::Console::Spec]
-* [Tab Completion][Athena::Console::Input::Interface--argumentoption-value-completion]
-* Rendering [ACON::Helper::Table][]s, [ACON::Helper::ProgressBar][]s, or [ACON::Helper::ProgressIndicator][]s
-* The various [Verbosity Levels][ACON::Output::Verbosity]
+* Asking [ACON::Question](/Console/Question/)s
+* Reusable output [styles](/Console/Formatter/OutputStyleInterface/)
+* High level reusable formatting [styles](/Console/Style/Interface/)
+* [Testing abstractions](/Console/Spec/)
+* [Tab Completion](/Console/Input/Interface/#Athena::Console::Input::Interface--argumentoption-value-completion)
+* Rendering [ACON::Helper::Table](/Console/Helper/Table/)s, [ACON::Helper::ProgressBar](/Console/Helper/ProgressBar/)s, or [ACON::Helper::ProgressIndicator](/Console/Helper/ProgressIndicator/)s
+* The various [Verbosity Levels](/Console/Output/Verbosity/)

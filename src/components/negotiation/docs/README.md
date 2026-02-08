@@ -1,4 +1,4 @@
-The `Athena::Negotiation` component allows an application to support [content negotiation](https://tools.ietf.org/html/rfc7231#section-5.3).
+The [Athena::Negotiation](/Negotiation/) component allows an application to support [content negotiation](https://tools.ietf.org/html/rfc7231#section-5.3).
 The component has no dependencies and is framework agnostic; supporting various negotiators.
 
 ## Installation
@@ -14,9 +14,9 @@ dependencies:
 
 ## Usage
 
-The main type of [Athena::Negotiation][] is [ANG::AbstractNegotiator][] which is used to implement negotiators for each `Accept*` header.
+The main type of [Athena::Negotiation](/Negotiation/) is [ANG::AbstractNegotiator](/Negotiation/AbstractNegotiator/) which is used to implement negotiators for each `Accept*` header.
 `Athena::Negotiation` exposes class level getters for each negotiator; that return a lazily initialized singleton instance.
-Each negotiator exposes two methods: [ANG::AbstractNegotiator#best][] and [ANG::AbstractNegotiator#ordered_elements][].
+Each negotiator exposes two methods: [ANG::AbstractNegotiator#best](</Negotiation/AbstractNegotiator/#Athena::Negotiation::AbstractNegotiator#best(header,priorities,strict)>) and [ANG::AbstractNegotiator#ordered_elements](</Negotiation/AbstractNegotiator/#Athena::Negotiation::AbstractNegotiator#ordered_elements(header)>).
 
 ### Media Type
 
@@ -32,7 +32,7 @@ accept.media_range # => "text/html"
 accept.parameters  # => {"charset" => "utf-8"}
 ```
 
-The [ANG::Negotiator][] type returns an [ANG::Accept][], or `nil` if negotiating the best media type has failed.
+The [ANG::Negotiator](/Negotiation/Negotiator/) type returns an [ANG::Accept](/Negotiation/Accept/), or `nil` if negotiating the best media type has failed.
 
 ### Character Set
 
@@ -48,7 +48,7 @@ accept.charset # => "utf-8"
 accept.quality # => 0.9
 ```
 
-The [ANG::CharsetNegotiator][] type returns an [ANG::AcceptCharset][], or `nil` if negotiating the best character set has failed.
+The [ANG::CharsetNegotiator](/Negotiation/CharsetNegotiator/) type returns an [ANG::AcceptCharset](/Negotiation/AcceptCharset/), or `nil` if negotiating the best character set has failed.
 
 ### Encoding
 
@@ -63,7 +63,7 @@ accept = negotiator.best(accept_header, priorities).not_nil!
 accept.coding # => "gzip"
 ```
 
-The [ANG::EncodingNegotiator][] type returns an [ANG::AcceptEncoding][], or `nil` if negotiating the best encoding has failed.
+The [ANG::EncodingNegotiator](/Negotiation/EncodingNegotiator/) type returns an [ANG::AcceptEncoding](/Negotiation/AcceptEncoding/), or `nil` if negotiating the best encoding has failed.
 
 ### Language
 
@@ -80,4 +80,4 @@ accept.region   # => "cn"
 accept.script   # => "hans"
 ```
 
-The [ANG::LanguageNegotiator][] type returns an [ANG::AcceptLanguage][], or `nil` if negotiating the best language has failed.
+The [ANG::LanguageNegotiator](/Negotiation/LanguageNegotiator/) type returns an [ANG::AcceptLanguage](/Negotiation/AcceptLanguage/), or `nil` if negotiating the best language has failed.

@@ -23,9 +23,9 @@ The routing component supports various ways to control which routes are matched,
 * Request format/locale
 * Dynamic callbacks
 
-Using the routing component involves adding [ART::Route][] instances to an [ART::RouteCollection][].
-The collection is then compiled via [ART.compile][].
-From here, an [ART::Matcher::URLMatcherInterface][] or [ART::Matcher::RequestMatcherInterface][] could then be used to determine which route matches a given path or [ART::Request][].
+Using the routing component involves adding [ART::Route](/Routing/Route/) instances to an [ART::RouteCollection](/Routing/RouteCollection/).
+The collection is then compiled via [ART.compile](</Routing/top_level/#Athena::Routing.compile(routes,*,route_provider)>).
+From here, an [ART::Matcher::URLMatcherInterface](/Routing/Matcher/URLMatcherInterface/) or [ART::Matcher::RequestMatcherInterface](/Routing/Matcher/RequestMatcherInterface/) could then be used to determine which route matches a given path or [ART::Request](/Routing/Request/).
 
 ```crystal
 # Create a new route collection and add a route with a single parameter to it.
@@ -56,7 +56,7 @@ generator.generate "blog_show", slug: "bar-baz", source: "Crystal" # => "/blog/b
 
 The Crystal stdlib provides [HTTP::Server](https://crystal-lang.org/api/HTTP/Server.html) as a very robust basis to a web application.
 However it lacks a fairly critical feature: routing.
-The Routing component provides [ART::RoutingHandler][] which can be used to add basic routing functionality.
+The Routing component provides [ART::RoutingHandler](/Routing/RoutingHandler/) which can be used to add basic routing functionality.
 This can be a good choice for super simple web applications that do not need any additional frameworky features.
 
 ```crystal
@@ -84,6 +84,6 @@ server.listen
 
 ## Learn More
 
-* [Parameter Validation][Athena::Routing::Route--parameter-validation]
-* Route [Requirement][ART::Requirement] helpers
-* [Catch-all/Glob][Athena::Routing::Route--slash-characters-in-route-parameters] routes
+* [Parameter Validation](/Routing/Route/#Athena::Routing::Route--parameter-validation)
+* Route [Requirement](/Routing/Requirement/) helpers
+* [Catch-all/Glob](/Routing/Route/#Athena::Routing::Route--slash-characters-in-route-parameters) routes

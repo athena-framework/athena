@@ -1,10 +1,10 @@
 The `Athena::Validator` component provides a robust object/value validation framework.
 
-* [AVD::Constraint][]s describe some assertion; such as a string should be [AVD::Constraints::NotBlank][]
-or that a value is [AVD::Constraints::GreaterThanOrEqual][] another value
-* Constraints, along with a value, are then passed to an [AVD::ConstraintValidatorInterface][] that actually performs the validation, using the data defined in the constraint
-* If the validator determines that the value is invalid in some way, it creates and adds an [AVD::Violation::ConstraintViolationInterface][] to this runs' [AVD::ExecutionContextInterface][]
-* The [AVD::Validator::ValidatorInterface][] then returns an [AVD::Violation::ConstraintViolationListInterface][] that contains all the violations
+* [AVD::Constraint](/Validator/Constraint/)s describe some assertion; such as a string should be [AVD::Constraints::NotBlank](/Validator/Constraints/NotBlank/)
+or that a value is [AVD::Constraints::GreaterThanOrEqual](/Validator/Constraints/GreaterThanOrEqual/) another value
+* Constraints, along with a value, are then passed to an [AVD::ConstraintValidatorInterface](/Validator/ConstraintValidatorInterface/) that actually performs the validation, using the data defined in the constraint
+* If the validator determines that the value is invalid in some way, it creates and adds an [AVD::Violation::ConstraintViolationInterface](/Validator/Violation/ConstraintViolationInterface/) to this runs' [AVD::ExecutionContextInterface](/Validator/ExecutionContextInterface/)
+* The [AVD::Validator::ValidatorInterface](/Validator/Validator/ValidatorInterface/) then returns an [AVD::Violation::ConstraintViolationListInterface](/Validator/Violation/ConstraintViolationListInterface/) that contains all the violations
   * The object/value can be considered valid if that list is empty
 
 ## Installation
@@ -20,13 +20,13 @@ dependencies:
 
 ## Usage
 
-`Athena::Validator` comes with a set of common [AVD::Constraints][] built-in that any project could find useful.
-When used on its own, the [Athena::Validator.validator][] method can be used to obtain an [AVD::Validator::ValidatorInterface][] instance to validate a given value/object.
+`Athena::Validator` comes with a set of common [AVD::Constraints](/Validator/Constraints/) built-in that any project could find useful.
+When used on its own, the [Athena::Validator.validator](/Validator/top_level/#Athena::Validator.validator) method can be used to obtain an [AVD::Validator::ValidatorInterface](/Validator/Validator/ValidatorInterface/) instance to validate a given value/object.
 
 ### Basics
 
-A validator accepts a value, and one or more [AVD::Constraint][] to validate the value against.
-The validator then returns an [AVD::Violation::ConstraintViolationListInterface][] that includes all the violations, if any.
+A validator accepts a value, and one or more [AVD::Constraint](/Validator/Constraint/) to validate the value against.
+The validator then returns an [AVD::Violation::ConstraintViolationListInterface](/Validator/Violation/ConstraintViolationListInterface/) that includes all the violations, if any.
 
 ```crystal
 # Obtain a validator instance.
@@ -73,7 +73,7 @@ puts violations # =>
 #   This value should not be blank. (code: 0d0c3254-3642-4cb0-9882-46ee5918e6e3)
 ```
 
-However in the case of the value _NOT_ being valid, the list includes all of the [AVD::Violation::ConstraintViolationInterface][]s produced during this run.
+However in the case of the value _NOT_ being valid, the list includes all of the [AVD::Violation::ConstraintViolationInterface](/Validator/Violation/ConstraintViolationInterface/)s produced during this run.
 Each violation includes some metadata; such as the related constraint that failed, a machine readable code, a human readable message, any parameters
 that should be used to render that message, etc.  The extra context allows for a lot of flexibility; both in terms of how the error could be rendered or handled.
 
@@ -102,8 +102,8 @@ Customizing the message can be a good way for those consuming the errors to dete
 
 Validating arbitrary values against a set of arbitrary constraints can be useful in smaller applications and/or for one off use cases.
 However to keep in line with our Object Oriented Programming (OOP) principles, we can also validate objects.  The object could be either a struct or a class.
-The only requirements are that the object includes a specific module, [AVD::Validatable][], and specifies which properties should be validated and against what constraints.
-The easiest/most common way to do this is via annotations and the [Assert][] alias.
+The only requirements are that the object includes a specific module, [AVD::Validatable](/Validator/Validatable/), and specifies which properties should be validated and against what constraints.
+The easiest/most common way to do this is via annotations and the [Assert](/Validator/aliases/#Assert) alias.
 
 ```crystal
 # Define a class that can be validated.
@@ -138,11 +138,11 @@ This is because the validator is able to extract them from the annotations on th
 An array of constraints can still be supplied, and will take precedence over the constraints defined within the type.
 
 NOTE: By default if a property's value is another object, the sub object will not be validated.
-use the [AVD::Constraints::Valid][] constraint if you wish to also validate the sub object.
+use the [AVD::Constraints::Valid](/Validator/Constraints/Valid/) constraint if you wish to also validate the sub object.
 This also applies to arrays of objects.
 
 Another important thing to point out is that no custom DSL is required to define these constraints.
-[Athena::Validator][] is intended to be a generic validation solution that could be used outside of the [Athena](https://github.com/athena-framework) ecosystem.
+[Athena::Validator](/Validator/top_level/) is intended to be a generic validation solution that could be used outside of the [Athena](https://github.com/athena-framework) ecosystem.
 However, in order to be able to use the annotation based approach, you need to be able to apply the annotations to the underlying properties.
 If this is not possible due to how a specific type is implemented, or if you just don't like the annotation syntax, the type can also be configured via code.
 
@@ -173,7 +173,7 @@ validator.validate User.new ""             # =>
 ```
 
 The metadata for each type is lazily loaded when an instance of that type is validated, and is only built once.
-See [AVD::Metadata::ClassMetadata][] for some additional ways to register property constraints.
+See [AVD::Metadata::ClassMetadata](/Validator/Metadata/ClassMetadata/) for some additional ways to register property constraints.
 
 #### Getters
 
@@ -209,11 +209,11 @@ validator.validate(user).empty? # => true
 
 ### Custom Constraints
 
-If the built in [AVD::Constraints][] are not sufficient to handle validating a given value/object; custom ones can be defined.
+If the built in [AVD::Constraints](/Validator/Constraints/) are not sufficient to handle validating a given value/object; custom ones can be defined.
 Let's make a new constraint that asserts a string contains only alphanumeric characters.
 
-This is accomplished by first defining a new class within the [AVD::Constraints][] namespace that inherits from [AVD::Constraint][].
-Then define a `Validator` struct within our constraint that inherits from [AVD::ConstraintValidator][] that actually implements the validation logic.
+This is accomplished by first defining a new class within the [AVD::Constraints](/Validator/Constraints/) namespace that inherits from [AVD::Constraint](/Validator/Constraint/).
+Then define a `Validator` struct within our constraint that inherits from [AVD::ConstraintValidator](/Validator/ConstraintValidator/) that actually implements the validation logic.
 
 ```crystal
 class AVD::Constraints::AlphaNumeric < AVD::Constraint
@@ -263,12 +263,12 @@ puts AVD.validator.validate "$", AVD::Constraints::AlphaNumeric.new # =>
 #   This value should contain only alphanumeric characters. (code: 1a83a8bd-ff79-4d5c-96e7-86d0b25b8a09)
 ```
 
-NOTE: The constraint _MUST_ be defined within the [AVD::Constraints][] namespace for implementation reasons.  This may change in the future.
+NOTE: The constraint _MUST_ be defined within the [AVD::Constraints](/Validator/Constraints/) namespace for implementation reasons.  This may change in the future.
 
 We are now able to use this constraint as we would one of the built in ones;
 either by manually instantiating it, or applying an `@[Assert::AlphaNumeric]` annotation to a property.
 
-See [AVD::ConstraintValidatorInterface][] for more information on custom validators.
+See [AVD::ConstraintValidatorInterface](/Validator/ConstraintValidatorInterface/) for more information on custom validators.
 
 ### Validation Groups
 
@@ -311,7 +311,7 @@ See `AVD::Constraint@validation-groups` for some expanded information.
 ### Sequential Validation
 
 By default, all constraints are validated in a single "batch".  I.e. all constraints within the provided group(s) are validated, without regard
-to if the previous/next constraint is/was (in)valid.  However, an [AVD::Constraints::GroupSequence][] can be used to validate batches of constraints in steps.
+to if the previous/next constraint is/was (in)valid.  However, an [AVD::Constraints::GroupSequence](/Validator/Constraints/GroupSequence/) can be used to validate batches of constraints in steps.
 I.e. validate the first "batch" of constraints, and only advance to the next batch if all constraints in that step are valid.
 
 ```crystal
@@ -340,8 +340,8 @@ AVD.validator.validate user # =>
 
 #### Group Sequence Providers
 
-The [AVD::Constraints::GroupSequence][] can be a useful tool for creating efficient validations, but it is quite limiting since the sequence is static on the type.
-If more flexibility is required the [AVD::Constraints::GroupSequence::Provider][] module can be included into a type.
+The [AVD::Constraints::GroupSequence](/Validator/Constraints/GroupSequence/) can be a useful tool for creating efficient validations, but it is quite limiting since the sequence is static on the type.
+If more flexibility is required the [AVD::Constraints::GroupSequence::Provider](/Validator/Constraints/GroupSequence/Provider/) module can be included into a type.
 The module allows the object to return the sequence it should use dynamically at runtime.
 
 ```crystal
@@ -358,4 +358,4 @@ end
 ```
 
 Alternatively, if you only want to apply constraints sequentially on a single property,
-the [AVD::Constraints::Sequentially][] constraint can be used to do this in a simpler way.
+the [AVD::Constraints::Sequentially](/Validator/Constraints/Sequentially/) constraint can be used to do this in a simpler way.

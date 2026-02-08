@@ -1,4 +1,4 @@
-# The [AMC::Hub::Registry][] can be used to store multiple [AMC::Hub][] instances, accessing them by unique names.
+# The `AMC::Hub::Registry` can be used to store multiple `AMC::Hub` instances, accessing them by unique names.
 #
 # ```
 # foo_hub = hub = AMC::Hub.new ENV["FOO_HUB_MERCURE_URL"], foo_token_provider, foo_token_factory

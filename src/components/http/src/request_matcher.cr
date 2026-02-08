@@ -1,4 +1,4 @@
-# Verifies that all [checks][AHTTP::RequestMatcher::Interface] match against an `AHTTP::Request` instance.
+# Verifies that all [checks](/HTTP/RequestMatcher/Interface/) match against an `AHTTP::Request` instance.
 #
 # ```
 # matcher = AHTTP::RequestMatcher.new(

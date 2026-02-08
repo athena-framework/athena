@@ -16,14 +16,14 @@ dependencies:
 
 A special class called the `ADI::ServiceContainer` (SC) stores useful objects, aka services, that can be shared throughout the project.
 The SC is lazily initialized on fibers; this allows the SC to be accessed anywhere within the project.
-The [ADI.container][] method will return the SC for the current fiber.
+The [ADI.container](/DependencyInjection/top_level/#Athena::DependencyInjection.container) method will return the SC for the current fiber.
 
-If you are a user of a project/framework making use of this component, checkout [ADI::Register][] as most of all the information you need is documented there.
+If you are a user of a project/framework making use of this component, checkout [ADI::Register](/DependencyInjection/Register/) as most of all the information you need is documented there.
 
 Otherwise, if you are the creator/maintainer of a project wishing to integrate this component,
 the best way to integrate/use this component depends on the execution flow of your application, and how it uses [Fibers](https://crystal-lang.org/api/Fiber.html).
 Since each fiber has its own container instance, if your application only uses Crystal's main fiber and is short lived, then you most likely only need to set up your services
-and expose one of them as [public][Athena::DependencyInjection::Register--optional-arguments] to serve as the entry point.
+and expose one of them as [public](/DependencyInjection/Register/#Athena::DependencyInjection::Register--optional-arguments) to serve as the entry point.
 
 If your application is meant to be long lived, such as using a [HTTP::Server](https://crystal-lang.org/api/HTTP/Server.html), then you will want to ensure that each
 fiber is truly independent from one another, with them not being reused or sharing state external to the container.

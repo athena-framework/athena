@@ -33,7 +33,7 @@ class Athena::Console::Completion::Input < Athena::Console::Input::ARGV
     input
   end
 
-  # Returns which [type][ACON::Completion::Input::Type] of completion is required.
+  # Returns which [type](/Console/Completion/Input/Type/) of completion is required.
   getter completion_type : ACON::Completion::Input::Type = :none
 
   # Returns the name of the argument/option when completing a value.

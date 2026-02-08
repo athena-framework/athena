@@ -32,8 +32,8 @@ Athena::Dotenv.load ".env", ".env.local"
 ```
 
 
-For more complex setups, the [Athena::Dotenv][] instance can be manually instantiated.
-E.g. to use the other helper methods such as [#load_environment][Athena::Dotenv#load_environment(path,env_key,default_environment,test_environments,override_existing_vars)], [#overload][Athena::Dotenv#overload(*)], or [#populate][Athena::Dotenv#populate(values,override_existing_vars)]
+For more complex setups, the [Athena::Dotenv](/Dotenv/top_level/) instance can be manually instantiated.
+E.g. to use the other helper methods such as [#load_environment](</Dotenv/top_level/#Athena::Dotenv#load_environment(path,env_key,default_environment,test_environments,override_existing_vars)>), [#overload](</Dotenv/top_level/#Athena::Dotenv#overload(*)>), or [#populate](</Dotenv/top_level/#Athena::Dotenv#populate(values,override_existing_vars)>)
 
 ```crystal
 require "athena-dotenv"
@@ -48,4 +48,4 @@ dotenv.overload ".env.overrides"
 dotenv.load_environment ".env"
 ```
 
-[Athena::Dotenv::Exception::Path][] error will be raised if the provided file was not found, or is not readable.
+[Athena::Dotenv::Exception::Path](/Dotenv/Exception/Path/) error will be raised if the provided file was not found, or is not readable.

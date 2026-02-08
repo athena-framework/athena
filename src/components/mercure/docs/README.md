@@ -85,12 +85,12 @@ Now that the Mercure hub is running, we can use it to publish updates, and subsc
 
 ### Publishing
 
-In order to publish an update, a [AMC::Hub][] instance is required.
-This type expects to be provided a URL to the Mercure Hub that updates should be sent to, and an [AMC::TokenProvider::Interface][] instance.
+In order to publish an update, a [AMC::Hub](/Mercure/Hub/) instance is required.
+This type expects to be provided a URL to the Mercure Hub that updates should be sent to, and an [AMC::TokenProvider::Interface](/Mercure/TokenProvider/Interface/) instance.
 The token provider is responsible for returning a JWT token used to authenticate the request sent to the Mercure Hub.
 Most commonly this'll be generated using a static secret key via the [Crystal JWT](https://github.com/crystal-community/jwt) shard.
 
-An [AMC::Update][] instance should then be instantiated that represents the update to publish, and provided to the `#publish` method of the hub instance.
+An [AMC::Update](/Mercure/Update/) instance should then be instantiated that represents the update to publish, and provided to the `#publish` method of the hub instance.
 A complete example of this flow is as follows:
 
 ```crystal
@@ -109,7 +109,7 @@ update = AMC::Update.new(
 hub.publish update # => urn:uuid:e1ee88e2-532a-4d6f-ba70-f0f8bd584022
 ```
 
-Multiple hubs can be used and accessed by name via a [AMC::Hub::Registry][].
+Multiple hubs can be used and accessed by name via a [AMC::Hub::Registry](/Mercure/Hub/Registry/).
 
 ### Subscribing
 
@@ -140,7 +140,7 @@ Be sure to call `eventSource.close()` when no longer needed to avoid a resource 
 ### Authorization
 
 Mercure allows dispatching updates to only authorized clients.
-To do so, mark an [AMC::Update][] as `private` via the third constructor argument, the `private` named argument:
+To do so, mark an [AMC::Update](/Mercure/Update/) as `private` via the third constructor argument, the `private` named argument:
 
 ```crystal
 AMC::Update.new(
@@ -155,7 +155,7 @@ The preferred way of providing the JWT in a browser context is via a cookie.
 
 WARNING: To use the cookies, the Athena app and the Mercure Hub must be served from the same domain (can be different sub-domains).
 
-The Mercure component provides [AMC::Authorization][] that can handle generating/setting the cookie given a request/response.
+The Mercure component provides [AMC::Authorization](/Mercure/Authorization/) that can handle generating/setting the cookie given a request/response.
 Cookies set by this helper class are automatically passed by the browser to the Mercure hub if the `withCredentials` attribute of `EventSource` is set to `true`:
 
 ```js
@@ -184,7 +184,7 @@ sequenceDiagram
   H-->>C: Updates for topic
 ```
 
-The header may be added using the [AMC::Discovery][] type.
+The header may be added using the [AMC::Discovery](/Mercure/Discovery/) type.
 The client would then be able to extract the hub URL from the `Link` header to be able to subscribe to updates related to that resource:
 
 ```js
@@ -207,7 +207,7 @@ fetch('/books/1') // Has Link: <https://hub.example.com/.well-known/mercure>; re
 ### Testing
 
 The Mercure component comes with some helper types for testing code that publishes updates, without actually sending the update.
-See [AMC::Spec][] for more information.
+See [AMC::Spec](/Mercure/Spec/) for more information.
 
 ```crystal
 require "athena-mercure/spec"

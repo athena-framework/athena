@@ -1,5 +1,5 @@
 The `Athena::MIME` component allows manipulating the MIME messages used to send emails and provides utilities related to MIME types.
-Additionally it also exposes MIME guessing and MIME Type <=> file extension translations via the [AMIME::Types][] type.
+Additionally it also exposes MIME guessing and MIME Type <=> file extension translations via the [AMIME::Types](/MIME/Types/) type.
 
 [MIME](https://en.wikipedia.org/wiki/MIME) (Multipurpose Internet Mail Extensions) is an Internet standard that extends the original basic format of emails to support features like:
 
@@ -9,8 +9,8 @@ Additionally it also exposes MIME guessing and MIME Type <=> file extension tran
 
 The entire MIME standard is complex and huge, but this component abstracts all that complexity to provide two ways of creating MIME messages:
 
-* A high-level API based on the [AMIME::Email][] class to quickly create email messages with all the common features
-* A low-level API based on the [AMIME::Message][] class to have absolute control over every single part of the email message
+* A high-level API based on the [AMIME::Email](/MIME/Email/) class to quickly create email messages with all the common features
+* A low-level API based on the [AMIME::Message](/MIME/Message/) class to have absolute control over every single part of the email message
 
 ## Installation
 
@@ -25,7 +25,7 @@ dependencies:
 
 ## Usage
 
-The [AMIME::Email][] class provides fluent setters to allow constructing an email with the desired information:
+The [AMIME::Email](/MIME/Email/) class provides fluent setters to allow constructing an email with the desired information:
 
 ```crystal
 email = AMIME::Email
