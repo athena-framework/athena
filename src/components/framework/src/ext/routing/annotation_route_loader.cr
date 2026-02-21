@@ -299,9 +299,9 @@ module Athena::Framework::Routing::AnnotationRouteLoader
               action: Proc({{arg_types.empty? ? "typeof(Tuple.new)".id : "Tuple(#{arg_types.splat})".id}}, {{m.return_type}}).new do |arguments|
                 # If the controller is not registered as a service, simply new one up, otherwise fetch it directly from the SC.
                 {% if klass.annotation(ADI::Register) %}
-                  %instance = ADI.container.get({{klass.id}})
+                  %instance = ADI.container.get(::{{klass.id}})
                 {% else %}
-                  %instance = {{klass.id}}.new
+                  %instance = ::{{klass.id}}.new
                 {% end %}
 
                 %instance.{{m.name.id}} *arguments

@@ -1,5 +1,12 @@
 require "../spec_helper"
 
+private def assert_compiles(code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compiles <<-CR, line: line
+    require "../spec_helper.cr"
+    #{code}
+  CR
+end
+
 # 1. Basic inlining: single-use private service
 @[ADI::Register]
 class BasicInlinedDep
@@ -429,6 +436,22 @@ class NonInlinedCallArgClient
 end
 
 describe ADI::ServiceContainer::InlineServiceDefinitions do
+  it "compiles when a ServiceContainer type conflicts with internal ADI types", tags: "compiled" do
+    assert_compiles <<-CR
+      @[ADI::Register]
+      class ServiceContainer::Foo
+      end
+
+      @[ADI::Register(public: true)]
+      class BasicInlineClient
+        def initialize(@dep : ::ServiceContainer::Foo)
+        end
+      end
+
+      ADI.container.basic_inline_client
+    CR
+  end
+
   it "inlines single-use private services" do
     ADI.container.basic_inline_client.value.should eq 42
   end
