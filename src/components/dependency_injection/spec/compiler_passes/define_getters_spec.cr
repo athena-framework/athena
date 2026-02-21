@@ -7,6 +7,13 @@ private def assert_compile_time_error(message : String, code : String, *, line :
   CR
 end
 
+private def assert_compiles(code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compiles <<-CR, line: line
+    require "../spec_helper.cr"
+    #{code}
+  CR
+end
+
 module PublicStringAliasInterface; end
 
 @[ADI::Register]
@@ -77,6 +84,14 @@ describe ADI::ServiceContainer::DefineGetters, tags: "compiled" do
         CR
       end
     end
+  end
+
+  it "compiles when a ServiceContainer type conflicts with internal ADI types" do
+    assert_compiles <<-CR
+      @[ADI::Register(public: true)]
+      class ServiceContainer::Foo
+      end
+    CR
   end
 
   describe "aliases" do

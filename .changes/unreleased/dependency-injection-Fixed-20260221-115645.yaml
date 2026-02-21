@@ -1,0 +1,8 @@
+project: dependency-injection
+kind: Fixed
+body: Fix compile time error when inadvertently using a type name that conflicts with an internal component type
+time: 2026-02-21T11:56:45.951824188-05:00
+custom:
+    Author: George Dietrich
+    PR: "678"
+    Username: blacksmoke16

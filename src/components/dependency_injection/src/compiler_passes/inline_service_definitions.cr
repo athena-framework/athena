@@ -109,6 +109,7 @@ module Athena::DependencyInjection::ServiceContainer::InlineServiceDefinitions
                   constructor_service, constructor_method = factory
                 end
 
+                fq_prefix = definition["class"].is_a?(StringLiteral) ? "".id : "::".id
                 var_name = definition["inline_var"]
                 setup_lines = [] of Nil
 
@@ -186,7 +187,7 @@ module Athena::DependencyInjection::ServiceContainer::InlineServiceDefinitions
                 end
 
                 # Add this service's instantiation
-                setup_lines << "#{var_name.id} = #{constructor_service}.#{constructor_method.id}(#{param_strs.join(", ").id})"
+                setup_lines << "#{var_name.id} = #{fq_prefix}#{constructor_service}.#{constructor_method.id}(#{param_strs.join(", ").id})"
 
                 # Add any calls on this service, transforming inlined service args
                 if calls = definition["calls"]

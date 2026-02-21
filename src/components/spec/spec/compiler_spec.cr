@@ -16,6 +16,14 @@ private def assert_runtime_error(message : String, code : String, *, line : Int3
   CR
 end
 
+private def assert_compiles(code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compiles <<-CR, line: line
+    require "./spec_helper.cr"
+    #{code}
+    ASPEC.run_all
+  CR
+end
+
 describe Athena::Spec do
   describe "compiler errors", tags: "compiled" do
     describe ASPEC::TestCase::TestWith do
@@ -147,6 +155,16 @@ describe Athena::Spec do
             end
           end
         CODE
+    end
+
+    it "compiles when a TestCase type conflicts with internal ASPEC types" do
+      assert_compiles <<-CR
+        struct TestCase::Foo < ASPEC::TestCase
+          def test_add
+            (2 + 2).should eq 4
+          end
+        end
+      CR
     end
   end
 end

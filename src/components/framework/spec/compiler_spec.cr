@@ -62,6 +62,29 @@ describe Athena::Framework do
       CR
     end
 
+    describe "when the controller type conflicts with internal ATH types" do
+      it "complies when the controller is a service" do
+        assert_compiles <<-CR
+          @[ADI::Register]
+          class Controller::ExampleController < ATH::Controller
+            @[ARTA::Get("/name")]
+            def name : Nil
+            end
+          end
+        CR
+      end
+
+      it "compiles when the controller is not a service" do
+        assert_compiles <<-CR
+          class Controller::ExampleController < ATH::Controller
+            @[ARTA::Get("/name")]
+            def name : Nil
+            end
+          end
+        CR
+      end
+    end
+
     describe "when a controller action is mistakenly overridden" do
       it "within the same controller" do
         assert_compile_time_error "A controller action named '#action' already exists within 'CompileController'.", <<-CR

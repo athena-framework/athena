@@ -11,6 +11,7 @@ module Athena::DependencyInjection::ServiceContainer::DefineGetters
 
             {% service = metadata[:generics].empty? ? metadata[:class].id : generics_type.id %}
             {% ivar_type = metadata[:generics].empty? ? metadata[:class].id : generics_type.id %}
+            {% fq_prefix = metadata[:class].is_a?(StringLiteral) ? "".id : "::".id %}
 
             {% constructor_service = service %}
             {% constructor_method = "new" %}
@@ -62,41 +63,41 @@ module Athena::DependencyInjection::ServiceContainer::DefineGetters
               end
             %}
 
-            {% if !metadata[:public] %}protected {% end %}getter {{service_id.id}} : {{ivar_type}} do
+            {% if !metadata[:public] %}protected {% end %}getter {{service_id.id}} : {{fq_prefix}}{{ivar_type}} do
               {% for setup in inline_setups %}
                 {{setup.id}}
               {% end %}
 
-              instance = {{constructor_service}}.{{constructor_method.id}}({{
-                                                                             metadata["parameters"].map do |name, param|
-                                                                               value = param["value"]
-                                                                               value_str = value.id.stringify
+              instance = {{fq_prefix}}{{constructor_service}}.{{constructor_method.id}}({{
+                                                                                          metadata["parameters"].map do |name, param|
+                                                                                            value = param["value"]
+                                                                                            value_str = value.id.stringify
 
-                                                                               # Check if this parameter references an inlined service
-                                                                               dep = SERVICE_HASH[value_str]
-                                                                               if dep && dep["inlined"] && dep["inline_var"]
-                                                                                 "#{name.id}: #{dep["inline_var"].id}".id
-                                                                               elsif value.is_a?(ArrayLiteral)
-                                                                                 # Handle array with potential inlined services
-                                                                                 elements = value.map do |v|
-                                                                                   v_str = v.id.stringify
-                                                                                   v_dep = SERVICE_HASH[v_str]
-                                                                                   if v_dep && v_dep["inlined"] && v_dep["inline_var"]
-                                                                                     v_dep["inline_var"].id
-                                                                                   else
-                                                                                     v
-                                                                                   end
-                                                                                 end
-                                                                                 str = "#{name.id}: [#{elements.splat}]"
-                                                                                 if (resolved_restriction = param["resolved_restriction"]) && resolved_restriction <= Array && (value.of.is_a?(Nop) || elements.empty?)
-                                                                                   str += " of Union(#{resolved_restriction.type_vars.splat})"
-                                                                                 end
-                                                                                 str.id
-                                                                               else
-                                                                                 "#{name.id}: #{value}".id
-                                                                               end
-                                                                             end.splat
-                                                                           }})
+                                                                                            # Check if this parameter references an inlined service
+                                                                                            dep = SERVICE_HASH[value_str]
+                                                                                            if dep && dep["inlined"] && dep["inline_var"]
+                                                                                              "#{name.id}: #{dep["inline_var"].id}".id
+                                                                                            elsif value.is_a?(ArrayLiteral)
+                                                                                              # Handle array with potential inlined services
+                                                                                              elements = value.map do |v|
+                                                                                                v_str = v.id.stringify
+                                                                                                v_dep = SERVICE_HASH[v_str]
+                                                                                                if v_dep && v_dep["inlined"] && v_dep["inline_var"]
+                                                                                                  v_dep["inline_var"].id
+                                                                                                else
+                                                                                                  v
+                                                                                                end
+                                                                                              end
+                                                                                              str = "#{name.id}: [#{elements.splat}]"
+                                                                                              if (resolved_restriction = param["resolved_restriction"]) && resolved_restriction <= Array && (value.of.is_a?(Nop) || elements.empty?)
+                                                                                                str += " of Union(#{resolved_restriction.type_vars.splat})"
+                                                                                              end
+                                                                                              str.id
+                                                                                            else
+                                                                                              "#{name.id}: #{value}".id
+                                                                                            end
+                                                                                          end.splat
+                                                                                        }})
 
               {% for call in metadata[:calls] %}
                 {% method, args = call %}
@@ -117,7 +118,7 @@ module Athena::DependencyInjection::ServiceContainer::DefineGetters
             end
 
             {% if metadata[:public] %}
-              def get(service : {{service}}.class) : {{service.id}}
+              def get(service : {{fq_prefix}}{{service}}.class) : {{fq_prefix}}{{service.id}}
                 {{service_id.id}}
               end
             {% end %}
@@ -130,7 +131,9 @@ module Athena::DependencyInjection::ServiceContainer::DefineGetters
           {% if type_only_alias && type_only_alias["public"] %}
             # String alias maps to a service => service alias so we just need a method with the alias' name.
             {% if alias_name.is_a?(StringLiteral) %}
-              def {{alias_name.id}} : {{SERVICE_HASH[type_only_alias["id"]]["class"].id}}
+              {% aliased_class = SERVICE_HASH[type_only_alias["id"]]["class"] %}
+              {% alias_fq_prefix = aliased_class.is_a?(StringLiteral) ? "".id : "::".id %}
+              def {{alias_name.id}} : {{alias_fq_prefix}}{{aliased_class.id}}
                 {{type_only_alias["id"].id}}
               end
             # TypeNode alias maps to an interface => service alias, so we need an override of `#get` pinned to the interface type.
