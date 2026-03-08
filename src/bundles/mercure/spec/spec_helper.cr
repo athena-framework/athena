@@ -2,6 +2,6 @@ require "spec"
 
 require "athena-spec"
 
-require "../src/athena-BUNDLE_NAME_bundle"
+require "../src/athena-mercure_bundle"
 
 ASPEC.run_all
