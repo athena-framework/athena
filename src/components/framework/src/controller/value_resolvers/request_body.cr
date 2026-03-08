@@ -4,7 +4,7 @@ require "uri/params/serializable"
 # Attempts to resolve the value of any parameter with the `ATHA::MapRequestBody` annotation by
 # deserializing the request body into an object of the type of the related parameter.
 # The `ATHA::MapQueryString` annotation works similarly, but uses the request's query string instead of its body.
-# Lastly, the `ATHA::MapUploadedFile` annotation works by resolving one or more `AHTTP::UploadedFile from [AHTTP::Request#files](/HTTP/Request/#Athena::HTTP::Request#files).
+# Lastly, the `ATHA::MapUploadedFile` annotation works by resolving one or more `AHTTP::UploadedFile` from [AHTTP::Request#files](/HTTP/Request/#Athena::HTTP::Request#files).
 #
 # If the object is also `AVD::Validatable`, any validations defined on it are executed before returning the object.
 # Requires the type of the related parameter to include one or more of:
