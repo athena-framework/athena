@@ -1,4 +1,4 @@
-# Handles an exception by converting it into an [AHTTP::Response](/HTTP/Response) via an `AHK::ErrorRendererInterface`.
+# Handles an exception by converting it into an `AHTTP::Response` via an `AHK::ErrorRendererInterface`.
 #
 # This listener defines a `log_exception` protected method that determines how the exception gets logged.
 # Non `AHK::Exception::HTTPException`s and server errors are logged as errors.

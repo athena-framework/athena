@@ -1,4 +1,4 @@
-# Extension of [ACTR::EventDispatcher::Event](/Contracts/EventDispatcher/Event/) to add additional functionality.
+# Extension of `ACTR::EventDispatcher::Event` to add additional functionality.
 #
 # ## Generics
 #

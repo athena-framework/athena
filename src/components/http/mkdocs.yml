@@ -26,6 +26,7 @@ plugins:
         crystal:
           crystal_docs_flags:
             - ../../../docs/index.cr
+            - ./lib/athena-mime/src/athena-mime.cr
             - ./lib/athena-http/src/athena-http.cr
           source_locations:
             lib/athena-http: https://github.com/athena-framework/http/blob/v{shard_version}/{file}#L{line}

@@ -1,4 +1,4 @@
-# Value resolvers handle resolving the argument(s) to pass to a controller action based on values stored within the [AHTTP::Request](/HTTP/Request), or some other source.
+# Value resolvers handle resolving the argument(s) to pass to a controller action based on values stored within the `AHTTP::Request`, or some other source.
 #
 # Custom resolvers can be defined by creating a service that implements this interface, and is tagged with `ATHR::Interface::TAG`.
 # The tag also accepts an optional *priority* field the determines the order in which the resolvers execute.

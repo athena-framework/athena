@@ -36,7 +36,7 @@ abstract struct Athena::HTTP::AbstractFile
     AMIME::Types.default.extensions(mime_type).first?
   end
 
-  # Returns the MIME type of this file, using [AMIME::Types](/MIME/Types) under the hood.
+  # Returns the MIME type of this file, using `AMIME::Types` under the hood.
   #
   # ```
   # file = AHTTP::File.new "/path/to/foo.txt"

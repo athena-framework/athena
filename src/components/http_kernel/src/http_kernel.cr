@@ -1,6 +1,6 @@
 # The entry-point into `Athena::HTTPKernel`.
 #
-# Emits events that handle a given request and returns the resulting [AHTTP::Response](/HTTP/Response).
+# Emits events that handle a given request and returns the resulting `AHTTP::Response`.
 struct Athena::HTTPKernel::HTTPKernel
   def initialize(
     @event_dispatcher : AED::EventDispatcherInterface,
