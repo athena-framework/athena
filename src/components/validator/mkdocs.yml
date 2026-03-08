@@ -26,6 +26,9 @@ plugins:
         crystal:
           crystal_docs_flags:
             - ../../../docs/index.cr
+            - ./lib/athena-http/src/athena-http.cr
+            - ./lib/athena-image_size/src/athena-image_size.cr
+            - ./lib/athena-mime/src/athena-mime.cr
             - ./lib/athena-validator/src/athena-validator.cr
             - ./lib/athena-validator/src/spec.cr
           source_locations:

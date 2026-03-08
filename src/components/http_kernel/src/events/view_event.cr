@@ -1,4 +1,4 @@
-# Emitted after the route's action has been executed, but only if it does _NOT_ return an [AHTTP::Response](/HTTP/Response).
+# Emitted after the route's action has been executed, but only if it does _NOT_ return an `AHTTP::Response`.
 #
 # This event can be listened on to handle converting a non `AHTTP::Response` into an `AHTTP::Response`.
 #

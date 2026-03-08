@@ -1,7 +1,7 @@
-# An `ATH::View` represents an [AHTTP::Response](/HTTP/Response), but in a format agnostic way.
+# An `ATH::View` represents an `AHTTP::Response`, but in a format agnostic way.
 #
 # Returning a `ATH::View` is essentially the same as returning the data directly; but allows customizing
-# the response status and headers without needing to render the response body within the controller as an [AHTTP::Response](/HTTP/Response).
+# the response status and headers without needing to render the response body within the controller as an `AHTTP::Response`.
 #
 # ```
 # require "athena"
@@ -53,7 +53,7 @@ class Athena::Framework::View(T)
   # See the [Getting Started](/getting_started/routing#url-generation) docs for more information.
   getter route : String? = nil
 
-  # The wrapped [AHTTP::Response](/HTTP/Response) instance.
+  # The wrapped `AHTTP::Response` instance.
   property response : AHTTP::Response do
     response = AHTTP::Response.new
 

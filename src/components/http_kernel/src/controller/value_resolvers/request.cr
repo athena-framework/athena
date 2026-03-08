@@ -1,4 +1,4 @@
-# Handles resolving a value for action parameters typed as [AHTTP::Request](/HTTP/Request).
+# Handles resolving a value for action parameters typed as `AHTTP::Request`.
 #
 # ```
 # @[ARTA::Get("/")]

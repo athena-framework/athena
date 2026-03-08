@@ -1,4 +1,4 @@
-# Represents custom logic that should be applied for a specific format in order to render an `ATH::View` into an [AHTTP::Response](/HTTP/Response)
+# Represents custom logic that should be applied for a specific format in order to render an `ATH::View` into an `AHTTP::Response`
 # that is not handled by default by Athena. E.g. `HTML`.
 #
 # ```
@@ -30,7 +30,7 @@
 module Athena::Framework::View::FormatHandlerInterface
   TAG = "athena.format_handler"
 
-  # Responsible for returning an [AHTTP::Response](/HTTP/Response) for the provided *view* and *request* in the provided *format*.
+  # Responsible for returning an `AHTTP::Response` for the provided *view* and *request* in the provided *format*.
   #
   # The `ATH::View::ViewHandlerInterface` is also provided to ease response creation.
   abstract def call(view_handler : ATH::View::ViewHandlerInterface, view : ATH::View, request : AHTTP::Request, format : String) : AHTTP::Response

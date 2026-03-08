@@ -25,6 +25,18 @@ plugins:
         crystal:
           crystal_docs_flags:
             - ../../../docs/index.cr
+            - ./lib/athena-clock/src/athena-clock.cr
+            - ./lib/athena-console/src/athena-console.cr
+            - ./lib/athena-contracts/src/athena-contracts.cr
+            - ./lib/athena-dependency_injection/src/athena-dependency_injection.cr
+            - ./lib/athena-event_dispatcher/src/athena-event_dispatcher.cr
+            - ./lib/athena-http/src/athena-http.cr
+            - ./lib/athena-http_kernel/src/athena-http_kernel.cr
+            - ./lib/athena-mime/src/athena-mime.cr
+            - ./lib/athena-negotiation/src/athena-negotiation.cr
+            - ./lib/athena-routing/src/athena-routing.cr
+            - ./lib/athena-serializer/src/athena-serializer.cr
+            - ./lib/athena-validator/src/athena-validator.cr
             - ./lib/athena/src/athena.cr
             - ./lib/athena/src/spec.cr
           source_locations:

@@ -42,14 +42,14 @@ module Athena::HTTPKernel
   # See `AHK::Controller::ValueResolvers::Interface` for more information.
   module Controller::ValueResolvers; end
 
-  # The [ACTR::EventDispatcher::Event](/Contracts/EventDispatcher/Event/) that are emitted via `Athena::EventDispatcher` to handle a request during its life-cycle.
+  # The `ACTR::EventDispatcher::Event` that are emitted via `Athena::EventDispatcher` to handle a request during its life-cycle.
   # Custom events can also be defined and dispatched within a controller, listener, or some other service.
   module Events; end
 
   # Exception handling in Athena is similar to exception handling in any Crystal program, with the addition of a new unique exception type, `AHK::Exception::HTTPException`.
   #
   # When an exception is raised, Athena emits the `AHK::Events::Exception` event to allow an opportunity for it to be handled.
-  # If the exception goes unhandled, i.e. no listener set an [AHTTP::Response](/HTTP/Response) on the event, then the request is finished and the exception is re-raised.
+  # If the exception goes unhandled, i.e. no listener set an `AHTTP::Response` on the event, then the request is finished and the exception is re-raised.
   # Otherwise, that response is returned, setting the status and merging the headers on the exceptions if it is an `AHK::Exception::HTTPException`.
   # See `AHK::Listeners::Error` and `AHK::ErrorRendererInterface` for more information on how exceptions are handled by default.
   #

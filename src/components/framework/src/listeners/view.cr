@@ -11,7 +11,7 @@ class Athena::HTTPKernel::Action(ReturnType, ParameterTypeTuple, ParametersType)
 end
 
 @[ADI::Register]
-# Listens on the `AHK::Events::View` event to convert a non [AHTTP::Response](/HTTP/Response) into an [AHTTP::Response](/HTTP/Response).
+# Listens on the `AHK::Events::View` event to convert a non `AHTTP::Response` into an `AHTTP::Response`.
 # Allows creating format agnostic controllers by allowing them to return format agnostic data that
 # is later used to render the content in the expected format.
 #

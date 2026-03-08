@@ -34,7 +34,7 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
     # If there is at least one pattern defined, requests whose hostname does _NOT_ match any of the patterns, will receive a 400 response.
     property trusted_hosts : Array(Regex) = [] of Regex
 
-    # Allows overriding the header name to use for a given [AHTTP::Request::ProxyHeader](/HTTP/Request/ProxyHeader/).
+    # Allows overriding the header name to use for a given `AHTTP::Request::ProxyHeader`.
     #
     # See the [external documentation](/guides/proxies/#custom-headers) for more information.
     property trusted_header_overrides : Hash(Athena::HTTP::Request::ProxyHeader, String) = {} of NoReturn => NoReturn

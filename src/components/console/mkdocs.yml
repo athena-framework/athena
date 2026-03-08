@@ -26,6 +26,7 @@ plugins:
         crystal:
           crystal_docs_flags:
             - ../../../docs/index.cr
+            - ./lib/athena-clock/src/athena-clock.cr
             - ./lib/athena-console/src/athena-console.cr
             - ./lib/athena-console/src/spec.cr
           source_locations:

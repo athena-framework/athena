@@ -1,5 +1,5 @@
 # An event dispatcher is the primary type of `Athena::EventDispatcher`.
-# Extends [ACTR::EventDispatcher::Interface](/Contracts/EventDispatcher/Interface/) to add additional functionality.
+# Extends `ACTR::EventDispatcher::Interface` to add additional functionality.
 # It maintains a registry of listeners, with events also being dispatched via this type.
 # When dispatched, the dispatcher notifies all listeners registered with that event.
 #
@@ -19,7 +19,7 @@
 # Lastly, a type that has one or more `AEDA::AsEventListener` annotated methods may also be passed.
 #
 # Once all listeners are registered, you can begin to dispatch events.
-# Dispatching an event is simply calling the `#dispatch` method with an [ACTR::EventDispatcher::Event](/Contracts/EventDispatcher/Event) subclass instance as an argument.
+# Dispatching an event is simply calling the `#dispatch` method with an `ACTR::EventDispatcher::Event` subclass instance as an argument.
 #
 # ### Listener Priority
 #
