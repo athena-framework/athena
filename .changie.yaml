@@ -13,6 +13,16 @@ footerFormat: |
   {{- end}}
 projectsVersionSeparator: '/'
 projects:
+  # Bundles
+  - label: Mercure Bundle
+    key: mercure-bundle
+    changelog: src/bundles/mercure/CHANGELOG.md
+    replacements:
+      - { path: src/bundles/mercure/shard.yml, find: '^version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/bundles/mercure/src/athena-mercure_bundle.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/bundles/mercure/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+
+  # Components
   - label: Clock
     key: clock
     changelog: src/components/clock/CHANGELOG.md
