@@ -472,6 +472,9 @@ describe ADI::Extension, tags: "compiled" do
                inner_member = outer_schema["members"]["inner"]
                raise "#{inner_member}" unless inner_member["members"] != nil
                raise "#{inner_member}" unless inner_member["members"]["value"].type.stringify == "String"
+
+               # OuterConfig's members_string should include InnerConfig's nested members
+               raise "#{outer_schema["members_string"]}" unless outer_schema["members_string"] == %([{"name":"name","type":"`String`","default":"``","doc":""},{"name":"inner","type":"`InnerConfig`","default":"``","doc":"","members":[{"name":"value","type":"`String`","default":"``","doc":""}]}])
             %}
           end
         end
@@ -575,6 +578,8 @@ describe ADI::Extension, tags: "compiled" do
                raise "#{jwt_member}" unless jwt_member["members"] != nil
                raise "#{jwt_member}" unless jwt_member["members"]["secret"].type.stringify == "String"
                raise "#{jwt_member}" unless jwt_member["members"]["algorithm"].value == "hmac.sha256"
+
+               raise "#{Schema::CONFIG_DOCS}" unless Schema::CONFIG_DOCS.stringify == %([{"name":"hubs","type":"`Hash(K, V)`","default":"`{__nil: nil}`","members":[{"name":"url","type":"`String`","default":"``","doc":""},{"name":"jwt","type":"`JwtConfig`","default":"``","doc":"","members":[{"name":"secret","type":"`String`","default":"``","doc":""},{"name":"algorithm","type":"`String`","default":"`hmac.sha256`","doc":""}]}]}] of Nil)
             %}
           end
         end
@@ -638,6 +643,8 @@ describe ADI::Extension, tags: "compiled" do
                raise "#{jwt_member}" unless jwt_member["members"] != nil
                raise "#{jwt_member}" unless jwt_member["members"]["secret"].type.stringify == "String"
                raise "#{jwt_member}" unless jwt_member["members"]["algorithm"].value == "hmac.sha256"
+
+               raise "#{Schema::CONFIG_DOCS}" unless Schema::CONFIG_DOCS.stringify == %([{"name":"items","type":"`Array(T)`","default":"`[]`","members":[{"name":"name","type":"`String`","default":"``","doc":""},{"name":"jwt","type":"`JwtConfig`","default":"``","doc":"","members":[{"name":"secret","type":"`String`","default":"``","doc":""},{"name":"algorithm","type":"`String`","default":"`hmac.sha256`","doc":""}]}]}] of Nil)
             %}
           end
         end
@@ -674,6 +681,8 @@ describe ADI::Extension, tags: "compiled" do
                raise "#{jwt_member}" unless jwt_member["members"] != nil
                raise "#{jwt_member}" unless jwt_member["members"]["secret"].type.stringify == "String"
                raise "#{jwt_member}" unless jwt_member["members"]["algorithm"].value == "hmac.sha256"
+
+               raise "#{Schema::CONFIG_DOCS}" unless Schema::CONFIG_DOCS.stringify == %([{"name":"connection","type":"`(NamedTuple(T) | Nil)`","default":"`nil`","members":[{"name":"url","type":"`String`","default":"``","doc":""},{"name":"jwt","type":"`JwtConfig`","default":"``","doc":"","members":[{"name":"secret","type":"`String`","default":"``","doc":""},{"name":"algorithm","type":"`String`","default":"`hmac.sha256`","doc":""}]}]}] of Nil)
             %}
           end
         end

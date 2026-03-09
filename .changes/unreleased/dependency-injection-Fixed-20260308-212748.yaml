@@ -1,0 +1,8 @@
+project: dependency-injection
+kind: Fixed
+body: Fix being unable to link to non top-level types within a nested properties' `>>` doc markup
+time: 2026-03-08T21:27:48.76735307-04:00
+custom:
+    Author: George Dietrich
+    PR: "684"
+    Username: blacksmoke16
