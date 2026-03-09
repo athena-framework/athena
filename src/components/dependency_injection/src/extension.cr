@@ -88,7 +88,11 @@ module Athena::DependencyInjection::Extension::Schema
         if "---" == line
           in_member_docblock = true
         elsif in_member_docblock && line.starts_with?(">>")
-          current_member, docs = line[2..].split(':')
+          member_text = line[2..]
+          colon_idx = nil
+          member_text.chars.each_with_index { |c, i| colon_idx = i if c == ':' && colon_idx == nil }
+          current_member = member_text[0...colon_idx]
+          docs = member_text[(colon_idx + 1)..]
           member_doc_map[current_member.id.stringify] = "#{docs.id}\\n"
         elsif current_member
           member_doc_map[current_member.id.stringify] += "#{line.id}\\n"
@@ -114,7 +118,13 @@ module Athena::DependencyInjection::Extension::Schema
           member_map[m.var.id] = m
         end
 
-        members_string += %({"name":"#{m.var.id}","type":"`#{m.type.id}`","default":"`#{m.value.id}`","doc":"#{(member_doc_map[m.var.stringify] || "").strip.strip.gsub(/"/, "\\\"").id}"})
+        if nested = OBJECT_SCHEMAS[member_type.id.stringify]
+          nested_doc = (nested["doc"] || "").strip.gsub(/\n\# ?/, "\\n").gsub(/\n/, "\\n")
+          member_doc = (member_doc_map[m.var.stringify] || nested_doc).strip.gsub(/"/, "\\\"")
+          members_string += %({"name":"#{m.var.id}","type":"`#{m.type.id}`","default":"`#{m.value.id}`","doc":"#{member_doc.id}","members":#{nested["members_string"].id}})
+        else
+          members_string += %({"name":"#{m.var.id}","type":"`#{m.type.id}`","default":"`#{m.value.id}`","doc":"#{(member_doc_map[m.var.stringify] || "").strip.strip.gsub(/"/, "\\\"").id}"})
+        end
         members_string += "," unless idx == members.size - 1
       end
       members_string += "]"
@@ -251,7 +261,13 @@ module Athena::DependencyInjection::Extension::Schema
           member_map[m.var.id] = m
         end
 
-        members_string += %({"name":"#{m.var.id}","type":"`#{m.type.id}`","default":"`#{m.value.id}`","doc":"#{(member_doc_map[m.var.stringify] || "").strip.strip.gsub(/"/, "\\\"").id}"})
+        if nested = OBJECT_SCHEMAS[member_type.id.stringify]
+          nested_doc = (nested["doc"] || "").strip.gsub(/\n\# ?/, "\\n").gsub(/\n/, "\\n")
+          member_doc = (member_doc_map[m.var.stringify] || nested_doc).strip.gsub(/"/, "\\\"")
+          members_string += %({"name":"#{m.var.id}","type":"`#{m.type.id}`","default":"`#{m.value.id}`","doc":"#{member_doc.id}","members":#{nested["members_string"].id}})
+        else
+          members_string += %({"name":"#{m.var.id}","type":"`#{m.type.id}`","default":"`#{m.value.id}`","doc":"#{(member_doc_map[m.var.stringify] || "").strip.strip.gsub(/"/, "\\\"").id}"})
+        end
         members_string += "," unless idx == members.size - 1
       end
       members_string += "]"
@@ -349,7 +365,13 @@ module Athena::DependencyInjection::Extension::Schema
           member_map[m.var.id] = m
         end
 
-        members_string += %({"name":"#{m.var.id}","type":"`#{m.type.id}`","default":"`#{m.value.id}`","doc":"#{(member_doc_map[m.var.stringify] || "").strip.strip.gsub(/"/, "\\\"").id}"})
+        if nested = OBJECT_SCHEMAS[member_type.id.stringify]
+          nested_doc = (nested["doc"] || "").strip.gsub(/\n\# ?/, "\\n").gsub(/\n/, "\\n")
+          member_doc = (member_doc_map[m.var.stringify] || nested_doc).strip.gsub(/"/, "\\\"")
+          members_string += %({"name":"#{m.var.id}","type":"`#{m.type.id}`","default":"`#{m.value.id}`","doc":"#{member_doc.id}","members":#{nested["members_string"].id}})
+        else
+          members_string += %({"name":"#{m.var.id}","type":"`#{m.type.id}`","default":"`#{m.value.id}`","doc":"#{(member_doc_map[m.var.stringify] || "").strip.strip.gsub(/"/, "\\\"").id}"})
+        end
         members_string += "," unless idx == members.size - 1
       end
       members_string += "]"
@@ -416,7 +438,11 @@ module Athena::DependencyInjection::Extension::Schema
         if "---" == line
           in_member_docblock = true
         elsif in_member_docblock && line.starts_with?(">>")
-          current_member, docs = line[2..].split(':')
+          member_text = line[2..]
+          colon_idx = nil
+          member_text.chars.each_with_index { |c, i| colon_idx = i if c == ':' && colon_idx == nil }
+          current_member = member_text[0...colon_idx]
+          docs = member_text[(colon_idx + 1)..]
           member_doc_map[current_member.id.stringify] = "#{docs.id}\\n"
         elsif current_member
           member_doc_map[current_member.id.stringify] += "#{line.id}\\n"
@@ -446,7 +472,13 @@ module Athena::DependencyInjection::Extension::Schema
           member_map[m.var.id] = m
         end
 
-        members_string += %({"name":"#{m.var.id}","type":"`#{m.type.id}`","default":"`#{m.value.id}`","doc":"#{(member_doc_map[m.var.stringify] || "").strip.strip.gsub(/"/, "\\\"").id}"})
+        if nested = OBJECT_SCHEMAS[member_type.id.stringify]
+          nested_doc = (nested["doc"] || "").strip.gsub(/\n\# ?/, "\\n").gsub(/\n/, "\\n")
+          member_doc = (member_doc_map[m.var.stringify] || nested_doc).strip.gsub(/"/, "\\\"")
+          members_string += %({"name":"#{m.var.id}","type":"`#{m.type.id}`","default":"`#{m.value.id}`","doc":"#{member_doc.id}","members":#{nested["members_string"].id}})
+        else
+          members_string += %({"name":"#{m.var.id}","type":"`#{m.type.id}`","default":"`#{m.value.id}`","doc":"#{(member_doc_map[m.var.stringify] || "").strip.strip.gsub(/"/, "\\\"").id}"})
+        end
         members_string += "," unless idx == members.size - 1
       end
       members_string += "]"

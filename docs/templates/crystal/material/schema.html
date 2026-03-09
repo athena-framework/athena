@@ -1,3 +1,37 @@
+{% macro render_members(members, obj, heading_level, parent_id, parent_short_name) %}
+  {% for member in members %}
+    {% filter heading(heading_level, id="%s.%s" % (parent_id, member['name']), class="doc schema-heading", toc_label="%s.%s" % (parent_short_name, member['name'])) -%}
+      {{ member['name'] | code_highlight(title='', language="crystal", inline=True) }}
+    {%- endfilter %}
+
+    <div class="schema-type">
+      <strong>type: </strong>{{ member['type'] |convert_markdown_ctx(obj, heading_level+1, obj.abs_id) }}
+    </div>
+
+      <div class="schema-default">
+        {% if member['default'] != '``' %}
+          <strong>default: </strong>{{ member['default'] |convert_markdown_ctx(obj, heading_level+1, obj.abs_id) }}
+        {% else %}
+          <strong>Required</strong>
+        {% endif %}
+      </div>
+
+    <div class="doc doc-contents {% if root %}first{% endif %}">
+      {{ member['doc'] | convert_markdown_ctx(obj, heading_level+1, obj.abs_id) }}
+    </div>
+
+    {% if 'members' in member %}
+      <div class="schema-members">
+        <p>This property consists of an object with the following properties:</p>
+        <blockquote style="color: inherit;">
+          {{ render_members(member['members'], obj, heading_level+1, "%s.%s" % (parent_id, member['name']), "%s.%s" % (parent_short_name, member['name'])) }}
+        </blockquote>
+      </div>
+    {% endif %}
+    {% if not loop.last %}<hr>{% endif %}
+  {% endfor %}
+{% endmacro %}
+
 {% for param in (obj.constants['CONFIG_DOCS'].value|from_json) %}
   {% if loop.first %}
     <h2>Configuration Properties</h2>
@@ -36,28 +70,7 @@
         {% endif %}
 
         <blockquote style="color: inherit;">
-          {% for member in param['members'] %}
-            {% filter heading(heading_level+3, id="%s.%s" % (obj.abs_id, member['name']), class="doc schema-heading", toc_label="%s.%s" % (obj.short_name, member['name'])) -%}
-              {{ member['name'] | code_highlight(title='', language="crystal", inline=True) }}
-            {%- endfilter %}
-
-            <div class="schema-type">
-              <strong>type: </strong>{{ member['type'] |convert_markdown_ctx(obj, heading_level+4, obj.abs_id) }}
-            </div>
-
-              <div class="schema-default">
-                {% if member['default'] != '``' %}
-                  <strong>default: </strong>{{ member['default'] |convert_markdown_ctx(obj, heading_level+4, obj.abs_id) }}
-                {% else %}
-                  <strong>Required</strong>
-                {% endif %}
-              </div>
-
-            <div class="doc doc-contents {% if root %}first{% endif %}">
-              {{ member['doc'] | convert_markdown_ctx(obj, heading_level+4, obj.abs_id) }}
-            </div>
-            {% if not loop.last %}<hr>{% endif %}
-          {% endfor %}
+          {{ render_members(param['members'], obj, heading_level+3, obj.abs_id, obj.short_name) }}
         </blockquote>
       </div>
     {% endif %}

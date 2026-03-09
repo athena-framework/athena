@@ -1,0 +1,8 @@
+project: dependency-injection
+kind: Added
+body: Add support for nested `>>` doc markup when using `object_schema`
+time: 2026-03-08T21:30:13.631443529-04:00
+custom:
+    Author: George Dietrich
+    PR: "684"
+    Username: blacksmoke16
