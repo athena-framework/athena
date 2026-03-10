@@ -1,4 +1,4 @@
-The `ABM` integrates the `Athena::Mercure` component into the Athena framework; abstracting away the setup down to just a couple configuration values.
+The `Athena::MercureBundle` integrates the `Athena::Mercure` component into the Athena framework; abstracting away the setup down to just a couple configuration values.
 
 ## Installation
 

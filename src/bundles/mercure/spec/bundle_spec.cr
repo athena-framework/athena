@@ -59,36 +59,70 @@ describe ABM, tags: "compiled" do
 
             # Hub service
             hub = sh["mercure_hub_default"]
-            raise "missing hub" unless hub
-            raise "wrong class: #{hub["class"]}" unless hub["class"].resolve == Athena::Mercure::Hub
+            unless hub
+              raise "missing hub"
+            end
+
+            unless hub["class"].resolve == Athena::Mercure::Hub
+              raise "wrong class: #{hub["class"]}"
+            end
 
             params = hub["parameters"]
-            raise "wrong url" unless params["url"]["value"] == "https://hub.example.com/.well-known/mercure"
+            unless params["url"]["value"] == "https://hub.example.com/.well-known/mercure"
+              raise "wrong url"
+            end
 
             # Token factory should be set
-            raise "token_factory should not be nil" if params["token_factory"]["value"] == nil
+            if params["token_factory"]["value"] == nil
+              raise "token_factory should not be nil"
+            end
 
             # JWT factory service
             factory = sh["mercure_hub_default_jwt_factory"]
-            raise "missing factory" unless factory
-            raise "wrong factory class: #{factory["class"]}" unless factory["class"].resolve == Athena::Mercure::TokenFactory::JWT
+            unless factory
+              raise "missing factory"
+            end
+
+            unless factory["class"].resolve == Athena::Mercure::TokenFactory::JWT
+              raise "wrong factory class: #{factory["class"]}"
+            end
 
             # Token provider service (factory-based)
             provider = sh["mercure_hub_default_jwt_provider"]
-            raise "missing provider" unless provider
-            raise "wrong provider class: #{provider["class"]}" unless provider["class"].resolve == Athena::Mercure::TokenProvider::Factory
+            unless provider
+              raise "missing provider"
+            end
+
+            unless provider["class"].resolve == Athena::Mercure::TokenProvider::Factory
+              raise "wrong provider class: #{provider["class"]}"
+            end
 
             # Hub registry
-            raise "missing registry" unless sh["mercure_hub_registry"]
-            raise "wrong registry class" unless sh["mercure_hub_registry"]["class"].resolve == Athena::Mercure::Hub::Registry
+            unless sh["mercure_hub_registry"]
+              raise "missing registry"
+            end
+
+            unless sh["mercure_hub_registry"]["class"].resolve == Athena::Mercure::Hub::Registry
+              raise "wrong registry class"
+            end
 
             # Authorization
-            raise "missing auth" unless sh["mercure_authorization"]
-            raise "wrong auth class" unless sh["mercure_authorization"]["class"].resolve == Athena::MercureBundle::Authorization
+            unless sh["mercure_authorization"]
+              raise "missing auth"
+            end
+
+            unless sh["mercure_authorization"]["class"].resolve == Athena::MercureBundle::Authorization
+              raise "wrong auth class"
+            end
 
             # Discovery
-            raise "missing discovery" unless sh["mercure_discovery"]
-            raise "wrong discovery class" unless sh["mercure_discovery"]["class"].resolve == Athena::MercureBundle::Discovery
+            unless sh["mercure_discovery"]
+              raise "missing discovery"
+            end
+
+            unless sh["mercure_discovery"]["class"].resolve == Athena::MercureBundle::Discovery
+              raise "wrong discovery class"
+            end
           %}
         end
       end
@@ -117,17 +151,26 @@ describe ABM, tags: "compiled" do
 
             # Hub service
             hub = sh["mercure_hub_default"]
-            raise "missing hub" unless hub
+            unless hub
+              raise "missing hub"
+            end
 
             params = hub["parameters"]
 
             # Token factory should be nil for static token
-            raise "token_factory should be nil: #{params["token_factory"]["value"]}" unless params["token_factory"]["value"] == nil.id
+            unless params["token_factory"]["value"] == nil.id
+              raise "token_factory should be nil: #{params["token_factory"]["value"]}"
+            end
 
             # Static token provider
             provider = sh["mercure_hub_default_jwt_provider"]
-            raise "missing provider" unless provider
-            raise "wrong provider class: #{provider["class"]}" unless provider["class"].resolve == Athena::Mercure::TokenProvider::Static
+            unless provider
+              raise "missing provider"
+            end
+
+            unless provider["class"].resolve == Athena::Mercure::TokenProvider::Static
+              raise "wrong provider class: #{provider["class"]}"
+            end
           %}
         end
       end
@@ -154,7 +197,9 @@ describe ABM, tags: "compiled" do
           \{%
             registry = ADI::ServiceContainer::SERVICE_HASH["mercure_hub_registry"]
             default_hub = registry["parameters"]["default_hub"]["value"]
-            raise "wrong default hub: #{default_hub}" unless default_hub.stringify =~ /mercure_hub_my_hub/
+            unless default_hub.stringify =~ /mercure_hub_my_hub/
+              raise "wrong default hub: #{default_hub}"
+            end
           %}
         end
       end
@@ -188,7 +233,9 @@ describe ABM, tags: "compiled" do
           \{%
             registry = ADI::ServiceContainer::SERVICE_HASH["mercure_hub_registry"]
             default_hub = registry["parameters"]["default_hub"]["value"]
-            raise "wrong default hub: #{default_hub}" unless default_hub.stringify =~ /mercure_hub_second/
+            unless default_hub.stringify =~ /mercure_hub_second/
+              raise "wrong default hub: #{default_hub}"
+            end
           %}
         end
       end
@@ -222,17 +269,32 @@ describe ABM, tags: "compiled" do
             aliases = ADI::ServiceContainer::ALIASES[Athena::Mercure::Hub::Interface]
 
             # Named aliases for both hubs should be present, plus the unnamed default
-            first_alias = aliases.find { |a| a["name"] && a["name"].id == "first" }
-            raise "missing named alias for 'first' hub" unless first_alias
-            raise "wrong id for 'first': #{first_alias["id"]}" unless first_alias["id"].stringify =~ /mercure_hub_first/
+            first_alias = aliases.find { |a| a["name"].id == "first" }
+            unless first_alias
+              raise "missing named alias for 'first' hub"
+            end
 
-            second_alias = aliases.find { |a| a["name"] && a["name"].id == "second" }
-            raise "missing named alias for 'second' hub" unless second_alias
-            raise "wrong id for 'second': #{second_alias["id"]}" unless second_alias["id"].stringify =~ /mercure_hub_second/
+            unless first_alias["id"].stringify =~ /mercure_hub_first/
+              raise "wrong id for 'first': #{first_alias["id"]}"
+            end
+
+            second_alias = aliases.find { |a| a["name"].id == "second" }
+            unless second_alias
+              raise "missing named alias for 'second' hub"
+            end
+
+            unless second_alias["id"].stringify =~ /mercure_hub_second/
+              raise "wrong id for 'second': #{second_alias["id"]}"
+            end
 
             default_alias = aliases.find { |a| a["name"] == nil }
-            raise "missing unnamed default alias" unless default_alias
-            raise "default should be first hub: #{default_alias["id"]}" unless default_alias["id"].stringify =~ /mercure_hub_first/
+            unless default_alias
+              raise "missing unnamed default alias"
+            end
+
+            unless default_alias["id"].stringify =~ /mercure_hub_first/
+              raise "default should be first hub: #{default_alias["id"]}"
+            end
           %}
         end
       end
@@ -260,7 +322,9 @@ describe ABM, tags: "compiled" do
           \{%
             auth = ADI::ServiceContainer::SERVICE_HASH["mercure_authorization"]
             lifetime = auth["parameters"]["cookie_lifetime"]["value"]
-            raise "wrong lifetime: #{lifetime}" unless lifetime.stringify == "2.hours"
+            unless lifetime.stringify == "2.hours"
+              raise "wrong lifetime: #{lifetime}"
+            end
           %}
         end
       end
