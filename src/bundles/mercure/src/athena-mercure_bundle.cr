@@ -105,8 +105,6 @@ struct Athena::MercureBundle < ADI::AbstractBundle
             hubs = {} of Nil => Nil
 
             hub_aliases = [] of Nil
-            token_factory_aliases = [] of Nil
-            token_provider_aliases = [] of Nil
 
             cfg["hubs"].to_a.reject { |(name, _)| name.stringify == "__nil" }.each do |(name, hub)|
               token_provider = nil
@@ -146,15 +144,19 @@ struct Athena::MercureBundle < ADI::AbstractBundle
                   },
                 }
 
-                token_factory_aliases << {id: token_factory, public: false, name: name}
-                token_factory_aliases << {id: token_factory, public: false, name: "#{name}_factory"}
-                token_factory_aliases << {id: token_factory, public: false, name: "#{name}_token_factory"}
+                ALIASES[Athena::Mercure::TokenFactory::Interface] = [
+                  {id: token_factory, public: false, name: name},
+                  {id: token_factory, public: false, name: "#{name}_factory"},
+                  {id: token_factory, public: false, name: "#{name}_token_factory"},
+                ]
               end
 
               if token_provider
-                token_provider_aliases << {id: token_provider, public: false, name: name}
-                token_provider_aliases << {id: token_provider, public: false, name: "#{name}_provider"}
-                token_provider_aliases << {id: token_provider, public: false, name: "#{name}_token_provider"}
+                ALIASES[Athena::Mercure::TokenProvider::Interface] = [
+                  {id: token_provider, public: false, name: name},
+                  {id: token_provider, public: false, name: "#{name}_provider"},
+                  {id: token_provider, public: false, name: "#{name}_token_provider"},
+                ]
               end
 
               hub_id = "mercure_hub_#{name}"
@@ -172,7 +174,7 @@ struct Athena::MercureBundle < ADI::AbstractBundle
                 parameters: {
                   url:            {value: hub["url"]},
                   token_provider: {value: token_provider.id},
-                  token_factory:  {value: token_factory ? token_factory.id : nil},
+                  token_factory:  {value: token_factory.id},
                   public_url:     {value: hub["public_url"]},
                   # http_client
                 },
@@ -186,8 +188,6 @@ struct Athena::MercureBundle < ADI::AbstractBundle
             hub_aliases << {id: default_hub_id, public: false}
 
             ALIASES[Athena::Mercure::Hub::Interface] = hub_aliases
-            ALIASES[Athena::Mercure::TokenFactory::Interface] = token_factory_aliases unless token_factory_aliases.empty?
-            ALIASES[Athena::Mercure::TokenProvider::Interface] = token_provider_aliases unless token_provider_aliases.empty?
 
             SERVICE_HASH[hub_registry_id = "mercure_hub_registry"] = {
               class:      Athena::Mercure::Hub::Registry,
