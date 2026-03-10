@@ -12,11 +12,7 @@ def new_hub_registry(
   url : String = "https://example.com/.well-known/mercure",
   token_factory : AMC::TokenFactory::Interface? = AMC::TokenFactory::JWT.new("looooooooooooongenoughtestsecret", jwt_lifetime: 4000),
 ) : AMC::Hub::Registry
-  AMC::Hub::Registry.new(AMC::Spec::MockHub.new(
-    url,
-    AMC::TokenProvider::Static.new("JWT"),
-    token_factory: token_factory,
-  ) { "ID" })
+  AMC::Hub::Registry.new(AMC::Spec::MockHub.new(url, AMC::TokenProvider::Static.new("JWT"), token_factory: token_factory) { "ID" })
 end
 
 def new_request(

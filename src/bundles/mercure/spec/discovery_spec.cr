@@ -12,10 +12,7 @@ struct DiscoveryTest < ASPEC::TestCase
   end
 
   def test_add_link_with_named_hub : Nil
-    hub = AMC::Spec::MockHub.new(
-      "https://hub1.example.com/.well-known/mercure",
-      AMC::TokenProvider::Static.new("JWT"),
-    ) { "ID" }
+    hub = AMC::Spec::MockHub.new("https://hub1.example.com/.well-known/mercure", AMC::TokenProvider::Static.new("JWT")) { "ID" }
 
     registry = AMC::Hub::Registry.new(hub, {"hub1" => hub.as(AMC::Hub::Interface)})
     discovery = ABM::Discovery.new registry
@@ -28,15 +25,8 @@ struct DiscoveryTest < ASPEC::TestCase
   end
 
   def test_add_link_accumulates_multiple_links : Nil
-    hub1 = AMC::Spec::MockHub.new(
-      "https://hub1.example.com/.well-known/mercure",
-      AMC::TokenProvider::Static.new("JWT"),
-    ) { "ID" }
-
-    hub2 = AMC::Spec::MockHub.new(
-      "https://hub2.example.com/.well-known/mercure",
-      AMC::TokenProvider::Static.new("JWT"),
-    ) { "ID" }
+    hub1 = AMC::Spec::MockHub.new("https://hub1.example.com/.well-known/mercure", AMC::TokenProvider::Static.new("JWT")) { "ID" }
+    hub2 = AMC::Spec::MockHub.new("https://hub2.example.com/.well-known/mercure", AMC::TokenProvider::Static.new("JWT")) { "ID" }
 
     registry = AMC::Hub::Registry.new(hub1, {
       "hub1" => hub1.as(AMC::Hub::Interface),
