@@ -1,6 +1,7 @@
 # Convenience alias to make referencing `Athena::Spec` types easier.
 alias ASPEC = Athena::Spec
 
+require "json"
 require "./methods"
 require "./test_case"
 
