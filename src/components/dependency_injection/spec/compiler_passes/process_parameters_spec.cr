@@ -16,17 +16,42 @@ describe ADI::ServiceContainer::ProcessParameters, tags: "compiled" do
         macro finished
           \{%
             parameters = ADI::ServiceContainer::SERVICE_HASH["some_service"]["parameters"]
-            raise "#{parameters}" unless parameters.size == 1
+            unless parameters.size == 1
+              raise "#{parameters}"
+            end
 
             id = parameters["id"]
-            raise "#{id}" unless id["declaration"].stringify == "id : Int32"
-            raise "#{id}" unless id["name"] == "id"
-            raise "#{id}" unless id["internal_name"] == "id"
-            raise "#{id}" unless id["idx"] == 0
-            raise "#{id}" unless id["restriction"].stringify == "Int32"
-            raise "#{id}" unless id["resolved_restriction"].stringify == "Int32"
-            raise "#{id}" unless id["default_value"].nil?
-            raise "#{id}" unless id["value"] == 123
+            unless id["declaration"].stringify == "id : Int32"
+              raise "#{id}"
+            end
+
+            unless id["name"] == "id"
+              raise "#{id}"
+            end
+
+            unless id["internal_name"] == "id"
+              raise "#{id}"
+            end
+
+            unless id["idx"] == 0
+              raise "#{id}"
+            end
+
+            unless id["restriction"].stringify == "Int32"
+              raise "#{id}"
+            end
+
+            unless id["resolved_restriction"].stringify == "Int32"
+              raise "#{id}"
+            end
+
+            unless id["default_value"].nil?
+              raise "#{id}"
+            end
+
+            unless id["value"] == 123
+              raise "#{id}"
+            end
             %}
         end
       end
@@ -64,7 +89,11 @@ describe ADI::ServiceContainer::ProcessParameters, tags: "compiled" do
 
       macro finished
         macro finished
-          \{% raise "" unless ADI::ServiceContainer::SERVICE_HASH["some_service"]["parameters"]["id"]["value"] == 999 %}
+          \{%
+            unless ADI::ServiceContainer::SERVICE_HASH["some_service"]["parameters"]["id"]["value"] == 999
+              raise ""
+            end
+          %}
         end
       end
     CR
@@ -101,7 +130,11 @@ describe ADI::ServiceContainer::ProcessParameters, tags: "compiled" do
 
       macro finished
         macro finished
-          \{% raise "" unless ADI::ServiceContainer::SERVICE_HASH["some_service"]["parameters"]["id"]["value"] == 999 %}
+          \{%
+            unless ADI::ServiceContainer::SERVICE_HASH["some_service"]["parameters"]["id"]["value"] == 999
+              raise ""
+            end
+          %}
         end
       end
     CR

@@ -49,33 +49,31 @@ describe ASPEC::Methods do
 
       ENV["ATHENA_SPEC_COVERAGE_OUTPUT_DIR"] = temp_dir
 
-      begin
-        # We expect the line `{% x = 1 %}` to be called. Using __LINE__ and adding 3 keeps this robust if other tests are added/removed/re-arranged.
-        expected_line = __LINE__ + 3
-        ASPEC::Methods.assert_compiles <<-'CR'
+      # We expect the line `{% x = 1 %}` to be called. Using __LINE__ and adding 3 keeps this robust if other tests are added/removed/re-arranged.
+      expected_line = __LINE__ + 3
+      ASPEC::Methods.assert_compiles <<-'CR'
           macro finished
             {% x = 1 %}
           end
         CR
 
-        coverage_file = Dir.glob(File.join(temp_dir, "macro_coverage.*.codecov.json")).first
+      coverage_file = Dir.glob(File.join(temp_dir, "macro_coverage.*.codecov.json")).first
 
-        File.open coverage_file do |file|
-          coverage = JSON.parse file
+      File.open coverage_file do |file|
+        coverage = JSON.parse file
 
-          # Should be 1 coverage file.
-          coverages = coverage.as_h["coverage"].as_h
-          coverages.size.should eq 1
+        # Should be 1 coverage file.
+        coverages = coverage.as_h["coverage"].as_h
+        coverages.size.should eq 1
 
-          coverages.each_value do |file_coverage|
-            # The expected line number should be called once
-            file_coverage.as_h.should eq({expected_line.to_s => 1})
-          end
+        coverages.each_value do |file_coverage|
+          # The expected line number should be called once
+          file_coverage.as_h.should eq({expected_line.to_s => 1})
         end
-      ensure
-        ENV.delete("ATHENA_SPEC_COVERAGE_OUTPUT_DIR")
-        FileUtils.rm_rf(temp_dir)
       end
+    ensure
+      ENV.delete("ATHENA_SPEC_COVERAGE_OUTPUT_DIR")
+      FileUtils.rm_rf(temp_dir)
     end
   end
 

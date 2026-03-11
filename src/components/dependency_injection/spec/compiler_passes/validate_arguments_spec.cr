@@ -209,7 +209,11 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
 
       macro finished
         macro finished
-          \{% raise "" unless ADI::CONFIG["test"]["connection"]["port"].nil? %}
+          \{%
+            unless ADI::CONFIG["test"]["connection"]["port"].nil?
+              raise ""
+            end
+          %}
         end
       end
     CR

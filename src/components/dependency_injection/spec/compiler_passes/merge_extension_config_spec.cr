@@ -339,16 +339,45 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           \{%
             config = ADI::CONFIG["blah"]
 
-            raise "#{config}" unless config["id"] == 123
-            raise "#{config}" unless config["name"] == "fred"
-            raise "#{config}" unless config["float"] == 10.0
-            raise "#{config}" unless config["nilable"].nil?
-            raise "#{config}" unless config["color_type"].stringify == "Color.new(0)"
-            raise "#{config}" unless config["color_sym"].stringify == "Color.new(:blue)"
-            raise "#{config}" unless config["color_default"].stringify == "Color.new(:green)"
-            raise "#{config}" unless config["color_global"].stringify == "::Color.new(:red)"
-            raise "#{config}" unless config["value"] == {"id" => "10", "name" => "fred"}
-            raise "#{config}" unless config["regex"] == /foo/
+            unless config["id"] == 123
+              raise "#{config}"
+            end
+
+            unless config["name"] == "fred"
+              raise "#{config}"
+            end
+
+            unless config["float"] == 10.0
+              raise "#{config}"
+            end
+
+            unless config["nilable"].nil?
+              raise "#{config}"
+            end
+
+            unless config["color_type"].stringify == "Color.new(0)"
+              raise "#{config}"
+            end
+
+            unless config["color_sym"].stringify == "Color.new(:blue)"
+              raise "#{config}"
+            end
+
+            unless config["color_default"].stringify == "Color.new(:green)"
+              raise "#{config}"
+            end
+
+            unless config["color_global"].stringify == "::Color.new(:red)"
+              raise "#{config}"
+            end
+
+            unless config["value"] == {"id" => "10", "name" => "fred"}
+              raise "#{config}"
+            end
+
+            unless config["regex"] == /foo/
+              raise "#{config}"
+            end
           %}
         end
       end
@@ -372,7 +401,9 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           \{%
             config = ADI::CONFIG["blah"]
 
-            raise "#{config}" unless config["id"] == 123
+            unless config["id"] == 123
+              raise "#{config}"
+            end
           %}
         end
       end
@@ -402,7 +433,9 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           \{%
             config = ADI::CONFIG["test"]
 
-            raise "#{config}" unless config["foo"] == [1, 2]
+            unless config["foo"] == [1, 2]
+              raise "#{config}"
+            end
           %}
         end
       end
@@ -426,7 +459,9 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           \{%
             config = ADI::CONFIG["test"]
 
-            raise "#{config}" unless config["foo"].stringify == "Array(Int32 | String).new"
+            unless config["foo"].stringify == "Array(Int32 | String).new"
+              raise "#{config}"
+            end
           %}
         end
       end
@@ -456,7 +491,9 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           \{%
             config = ADI::CONFIG["test"]
 
-            raise "#{config}" unless config["foo"] == [1, 2]
+            unless config["foo"] == [1, 2]
+              raise "#{config}"
+            end
           %}
         end
       end
@@ -490,8 +527,13 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           \{%
             config = ADI::CONFIG["test"]
 
-            raise "#{config}" unless config["one"]["enabled"] == false
-            raise "#{config}" unless config["two"]["enabled"] == false
+            unless config["one"]["enabled"] == false
+              raise "#{config}"
+            end
+
+            unless config["two"]["enabled"] == false
+              raise "#{config}"
+            end
           %}
         end
       end
@@ -540,11 +582,21 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           \{%
             config = ADI::CONFIG["test"]
 
-            raise "#{config}" unless config["one"]["enabled"] == false
-            raise "#{config}" unless config["one"]["id"] == 10
+            unless config["one"]["enabled"] == false
+              raise "#{config}"
+            end
 
-            raise "#{config}" unless config["two"]["enabled"] == false
-            raise "#{config}" unless config["two"]["three"]["enabled"] == false
+            unless config["one"]["id"] == 10
+              raise "#{config}"
+            end
+
+            unless config["two"]["enabled"] == false
+              raise "#{config}"
+            end
+
+            unless config["two"]["three"]["enabled"] == false
+              raise "#{config}"
+            end
           %}
         end
       end
@@ -575,8 +627,13 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           \{%
             config = ADI::CONFIG["test"]
 
-            raise "#{config}" unless config["rules"][0]["id"] == 10
-            raise "#{config}" unless config["rules"][0]["stop"] == false
+            unless config["rules"][0]["id"] == 10
+              raise "#{config}"
+            end
+
+            unless config["rules"][0]["stop"] == false
+              raise "#{config}"
+            end
           %}
         end
       end
@@ -620,7 +677,9 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           \{%
             parameters = ADI::CONFIG["parameters"]
 
-            raise "#{parameters}" unless parameters["stop"] == false
+            unless parameters["stop"] == false
+              raise "#{parameters}"
+            end
           %}
         end
       end
@@ -659,13 +718,29 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           \{%
             config = ADI::CONFIG["test"]
 
-            raise "#{config}" unless config["items"][0]["name"] == "item1"
-            raise "#{config}" unless config["items"][0]["jwt"]["secret"] == "secret1"
-            raise "#{config}" unless config["items"][0]["jwt"]["algorithm"] == "hmac.sha256"
+            unless config["items"][0]["name"] == "item1"
+              raise "#{config}"
+            end
 
-            raise "#{config}" unless config["items"][1]["name"] == "item2"
-            raise "#{config}" unless config["items"][1]["jwt"]["secret"] == "secret2"
-            raise "#{config}" unless config["items"][1]["jwt"]["algorithm"] == "hmac.sha256"
+            unless config["items"][0]["jwt"]["secret"] == "secret1"
+              raise "#{config}"
+            end
+
+            unless config["items"][0]["jwt"]["algorithm"] == "hmac.sha256"
+              raise "#{config}"
+            end
+
+            unless config["items"][1]["name"] == "item2"
+              raise "#{config}"
+            end
+
+            unless config["items"][1]["jwt"]["secret"] == "secret2"
+              raise "#{config}"
+            end
+
+            unless config["items"][1]["jwt"]["algorithm"] == "hmac.sha256"
+              raise "#{config}"
+            end
           %}
         end
       end
@@ -704,9 +779,17 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           \{%
             config = ADI::CONFIG["test"]
 
-            raise "#{config}" unless config["connection"]["url"] == "localhost"
-            raise "#{config}" unless config["connection"]["jwt"]["secret"] == "my-secret"
-            raise "#{config}" unless config["connection"]["jwt"]["algorithm"] == "hmac.sha256"
+            unless config["connection"]["url"] == "localhost"
+              raise "#{config}"
+            end
+
+            unless config["connection"]["jwt"]["secret"] == "my-secret"
+              raise "#{config}"
+            end
+
+            unless config["connection"]["jwt"]["algorithm"] == "hmac.sha256"
+              raise "#{config}"
+            end
           %}
         end
       end
@@ -736,9 +819,17 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           \{%
             config = ADI::CONFIG["blah"]
 
-            raise "#{config}" unless config["config"].keys.stringify == %([__nil, id, name])
-            raise "#{config}" unless config["config"]["id"] == 10
-            raise "#{config}" unless config["config"]["name"].nil?
+            unless config["config"].keys.stringify == %([__nil, id, name])
+              raise "#{config}"
+            end
+
+            unless config["config"]["id"] == 10
+              raise "#{config}"
+            end
+
+            unless config["config"]["name"].nil?
+              raise "#{config}"
+            end
           %}
         end
       end
@@ -762,9 +853,17 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           \{%
             config = ADI::CONFIG["blah"]
 
-            raise "#{config}" unless config["config"].keys.stringify == %([id, name])
-            raise "#{config}" unless config["config"]["id"] == 123
-            raise "#{config}" unless config["config"]["name"].nil?
+            unless config["config"].keys.stringify == %([id, name])
+              raise "#{config}"
+            end
+
+            unless config["config"]["id"] == 123
+              raise "#{config}"
+            end
+
+            unless config["config"]["name"].nil?
+              raise "#{config}"
+            end
           %}
         end
       end
@@ -797,10 +896,21 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
             \{%
               config = ADI::CONFIG["test"]
 
-              raise "#{config}" unless config["hubs"]["primary"]["url"] == "localhost"
-              raise "#{config}" unless config["hubs"]["primary"]["port"] == 5432
-              raise "#{config}" unless config["hubs"]["secondary"]["url"] == "remote"
-              raise "#{config}" unless config["hubs"]["secondary"]["port"] == 5433
+              unless config["hubs"]["primary"]["url"] == "localhost"
+                raise "#{config}"
+              end
+
+              unless config["hubs"]["primary"]["port"] == 5432
+                raise "#{config}"
+              end
+
+              unless config["hubs"]["secondary"]["url"] == "remote"
+                raise "#{config}"
+              end
+
+              unless config["hubs"]["secondary"]["port"] == 5433
+                raise "#{config}"
+              end
             %}
           end
         end
@@ -832,10 +942,15 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
               config.each do |k, v|
                 if k.stringify == "hubs"
                   found_hubs = true
-                  raise "Expected empty hash but got #{v}" unless v.keys.reject { |vk| vk.stringify == "__nil" }.empty?
+                  unless v.keys.reject { |vk| vk.stringify == "__nil" }.empty?
+                    raise "Expected empty hash but got #{v}"
+                  end
                 end
               end
-              raise "hubs key not found in config: #{config}" unless found_hubs
+
+              unless found_hubs
+                raise "hubs key not found in config: #{config}"
+              end
             %}
           end
         end
@@ -862,7 +977,9 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
             \{%
               config = ADI::CONFIG["test"]
 
-              raise "#{config}" unless config["hubs"].nil?
+              unless config["hubs"].nil?
+                raise "#{config}"
+              end
             %}
           end
         end
@@ -903,9 +1020,17 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
             \{%
               config = ADI::CONFIG["test"]
 
-              raise "#{config}" unless config["hubs"]["primary"]["url"] == "localhost"
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["secret"] == "my-secret"
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["algorithm"] == "hmac.sha256"
+              unless config["hubs"]["primary"]["url"] == "localhost"
+                raise "#{config}"
+              end
+
+              unless config["hubs"]["primary"]["jwt"]["secret"] == "my-secret"
+                raise "#{config}"
+              end
+
+              unless config["hubs"]["primary"]["jwt"]["algorithm"] == "hmac.sha256"
+                raise "#{config}"
+              end
             %}
           end
         end
@@ -1064,12 +1189,22 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
               config = ADI::CONFIG["test"]
 
               # Verify both entries get their own independent defaults
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["algorithm"] == "hmac.sha256"
-              raise "#{config}" unless config["hubs"]["secondary"]["jwt"]["algorithm"] == "hmac.sha256"
+              unless config["hubs"]["primary"]["jwt"]["algorithm"] == "hmac.sha256"
+                raise "#{config}"
+              end
+
+              unless config["hubs"]["secondary"]["jwt"]["algorithm"] == "hmac.sha256"
+                raise "#{config}"
+              end
 
               # And their unique values are preserved
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["secret"] == "secret1"
-              raise "#{config}" unless config["hubs"]["secondary"]["jwt"]["secret"] == "secret2"
+              unless config["hubs"]["primary"]["jwt"]["secret"] == "secret1"
+                raise "#{config}"
+              end
+
+              unless config["hubs"]["secondary"]["jwt"]["secret"] == "secret2"
+                raise "#{config}"
+              end
             %}
           end
         end
@@ -1153,8 +1288,13 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
               config = ADI::CONFIG["test"]
 
               # Custom default entry should be present with its values
-              raise "#{config}" unless config["hubs"]["default"]["url"] == "localhost"
-              raise "#{config}" unless config["hubs"]["default"]["port"] == 8080
+              unless config["hubs"]["default"]["url"] == "localhost"
+                raise "#{config}"
+              end
+
+              unless config["hubs"]["default"]["port"] == 8080
+                raise "#{config}"
+              end
             %}
           end
         end
@@ -1201,9 +1341,17 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
             \{%
               config = ADI::CONFIG["test"]
 
-              raise "#{config}" unless config["hubs"]["primary"]["url"] == "localhost"
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["secret"] == "my-secret"
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs256)"
+              unless config["hubs"]["primary"]["url"] == "localhost"
+                raise "#{config}"
+              end
+
+              unless config["hubs"]["primary"]["jwt"]["secret"] == "my-secret"
+                raise "#{config}"
+              end
+
+              unless config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs256)"
+                raise "#{config}"
+              end
             %}
           end
         end
@@ -1250,9 +1398,17 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
             \{%
               config = ADI::CONFIG["test"]
 
-              raise "#{config}" unless config["hubs"]["primary"]["url"] == "localhost"
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["secret"] == "my-secret"
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs512)"
+              unless config["hubs"]["primary"]["url"] == "localhost"
+                raise "#{config}"
+              end
+
+              unless config["hubs"]["primary"]["jwt"]["secret"] == "my-secret"
+                raise "#{config}"
+              end
+
+              unless config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs512)"
+                raise "#{config}"
+              end
             %}
           end
         end
@@ -1299,7 +1455,9 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
             \{%
               config = ADI::CONFIG["test"]
 
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "::Algorithm.new(:hs256)"
+              unless config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "::Algorithm.new(:hs256)"
+                raise "#{config}"
+              end
             %}
           end
         end
@@ -1413,9 +1571,17 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
             \{%
               config = ADI::CONFIG["test"]
 
-              raise "#{config}" unless config["items"][0]["name"] == "item1"
-              raise "#{config}" unless config["items"][0]["jwt"]["secret"] == "my-secret"
-              raise "#{config}" unless config["items"][0]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs256)"
+              unless config["items"][0]["name"] == "item1"
+                raise "#{config}"
+              end
+
+              unless config["items"][0]["jwt"]["secret"] == "my-secret"
+                raise "#{config}"
+              end
+
+              unless config["items"][0]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs256)"
+                raise "#{config}"
+              end
             %}
           end
         end
@@ -1459,7 +1625,9 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
             \{%
               config = ADI::CONFIG["test"]
 
-              raise "#{config}" unless config["items"][0]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs512)"
+              unless config["items"][0]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs512)"
+                raise "#{config}"
+              end
             %}
           end
         end
@@ -1568,9 +1736,17 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
             \{%
               config = ADI::CONFIG["test"]
 
-              raise "#{config}" unless config["connection"]["url"] == "localhost"
-              raise "#{config}" unless config["connection"]["jwt"]["secret"] == "my-secret"
-              raise "#{config}" unless config["connection"]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs256)"
+              unless config["connection"]["url"] == "localhost"
+                raise "#{config}"
+              end
+
+              unless config["connection"]["jwt"]["secret"] == "my-secret"
+                raise "#{config}"
+              end
+
+              unless config["connection"]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs256)"
+                raise "#{config}"
+              end
             %}
           end
         end
@@ -1615,7 +1791,9 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
             \{%
               config = ADI::CONFIG["test"]
 
-              raise "#{config}" unless config["connection"]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs512)"
+              unless config["connection"]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs512)"
+                raise "#{config}"
+              end
             %}
           end
         end
@@ -1728,7 +1906,9 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
             \{%
               config = ADI::CONFIG["test"]
 
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "Algorithm.new(0)"
+              unless config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "Algorithm.new(0)"
+                raise "#{config}"
+              end
             %}
           end
         end
@@ -1775,7 +1955,9 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
             \{%
               config = ADI::CONFIG["test"]
 
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "Algorithm.new(2)"
+              unless config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "Algorithm.new(2)"
+                raise "#{config}"
+              end
             %}
           end
         end
@@ -1819,7 +2001,9 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
             \{%
               config = ADI::CONFIG["test"]
 
-              raise "#{config}" unless config["items"][0]["jwt"]["algorithm"].stringify == "Algorithm.new(0)"
+              unless config["items"][0]["jwt"]["algorithm"].stringify == "Algorithm.new(0)"
+                raise "#{config}"
+              end
             %}
           end
         end
@@ -1863,7 +2047,9 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
             \{%
               config = ADI::CONFIG["test"]
 
-              raise "#{config}" unless config["items"][0]["jwt"]["algorithm"].stringify == "Algorithm.new(2)"
+              unless config["items"][0]["jwt"]["algorithm"].stringify == "Algorithm.new(2)"
+                raise "#{config}"
+              end
             %}
           end
         end
@@ -1908,7 +2094,9 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
             \{%
               config = ADI::CONFIG["test"]
 
-              raise "#{config}" unless config["connection"]["jwt"]["algorithm"].stringify == "Algorithm.new(0)"
+              unless config["connection"]["jwt"]["algorithm"].stringify == "Algorithm.new(0)"
+                raise "#{config}"
+              end
             %}
           end
         end
@@ -1953,7 +2141,9 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
             \{%
               config = ADI::CONFIG["test"]
 
-              raise "#{config}" unless config["connection"]["jwt"]["algorithm"].stringify == "Algorithm.new(2)"
+              unless config["connection"]["jwt"]["algorithm"].stringify == "Algorithm.new(2)"
+                raise "#{config}"
+              end
             %}
           end
         end
@@ -1994,9 +2184,17 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
             first_config = ADI::CONFIG["first"]
             second_config = ADI::CONFIG["second"]
 
-            raise "#{first_config}" unless first_config["root_prop"] == "root"
-            raise "#{first_config}" unless first_config["nested"]["nested_prop"] == 42
-            raise "#{second_config}" unless second_config["other_prop"] == true
+            unless first_config["root_prop"] == "root"
+              raise "#{first_config}"
+            end
+
+            unless first_config["nested"]["nested_prop"] == 42
+              raise "#{first_config}"
+            end
+
+            unless second_config["other_prop"] == true
+              raise "#{second_config}"
+            end
             raise "second should not have 'nested' key: #{second_config}" if second_config["nested"] != nil
           %}
         end

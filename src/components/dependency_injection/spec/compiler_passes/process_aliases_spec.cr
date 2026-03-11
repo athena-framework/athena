@@ -40,11 +40,25 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
       macro finished
         macro finished
           \{%
-            raise "" unless ADI::ServiceContainer::ALIASES.keys == ["bar"]
-            raise "" unless ADI::ServiceContainer::ALIASES["bar"].size == 1
-            raise "" unless ADI::ServiceContainer::ALIASES["bar"][0]["id"] == "foo"
-            raise "" unless ADI::ServiceContainer::ALIASES["bar"][0]["public"] == false
-            raise "" unless ADI::ServiceContainer::ALIASES["bar"][0]["name"].nil?
+            unless ADI::ServiceContainer::ALIASES.keys == ["bar"]
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES["bar"].size == 1
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES["bar"][0]["id"] == "foo"
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES["bar"][0]["public"] == false
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES["bar"][0]["name"].nil?
+              raise ""
+            end
           %}
         end
       end
@@ -62,11 +76,25 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
       macro finished
         macro finished
           \{%
-            raise "" unless ADI::ServiceContainer::ALIASES.keys == ["bar"]
-            raise "" unless ADI::ServiceContainer::ALIASES["bar"].size == 1
-            raise "" unless ADI::ServiceContainer::ALIASES["bar"][0]["id"] == "foo"
-            raise "" unless ADI::ServiceContainer::ALIASES["bar"][0]["public"] == false
-            raise "" unless ADI::ServiceContainer::ALIASES["bar"][0]["name"].nil?
+            unless ADI::ServiceContainer::ALIASES.keys == ["bar"]
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES["bar"].size == 1
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES["bar"][0]["id"] == "foo"
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES["bar"][0]["public"] == false
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES["bar"][0]["name"].nil?
+              raise ""
+            end
           %}
         end
       end
@@ -86,11 +114,25 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
       macro finished
         macro finished
           \{%
-            raise "" unless ADI::ServiceContainer::ALIASES.keys == [SomeInterface]
-            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 1
-            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["id"] == "foo"
-            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["public"] == true
-            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["name"].nil?
+            unless ADI::ServiceContainer::ALIASES.keys == [SomeInterface]
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 1
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["id"] == "foo"
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["public"] == true
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["name"].nil?
+              raise ""
+            end
           %}
         end
       end
@@ -110,11 +152,25 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
       macro finished
         macro finished
           \{%
-            raise "" unless ADI::ServiceContainer::ALIASES.keys == [SomeInterface]
-            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 1
-            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["id"] == "foo"
-            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["public"] == false
-            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["name"].nil?
+            unless ADI::ServiceContainer::ALIASES.keys == [SomeInterface]
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 1
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["id"] == "foo"
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["public"] == false
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["name"].nil?
+              raise ""
+            end
           %}
         end
       end
@@ -137,9 +193,17 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
       macro finished
         macro finished
           \{%
-            raise "" unless ADI::ServiceContainer::ALIASES.keys == [SomeInterface, OtherInterface]
-            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 1
-            raise "" unless ADI::ServiceContainer::ALIASES[OtherInterface].size == 1
+            unless ADI::ServiceContainer::ALIASES.keys == [SomeInterface, OtherInterface]
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 1
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES[OtherInterface].size == 1
+              raise ""
+            end
           %}
         end
       end
@@ -159,10 +223,21 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
       macro finished
         macro finished
           \{%
-            raise "" unless ADI::ServiceContainer::ALIASES.keys == [SomeInterface]
-            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 1
-            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["id"] == "foo"
-            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["name"].id == "my_param"
+            unless ADI::ServiceContainer::ALIASES.keys == [SomeInterface]
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 1
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["id"] == "foo"
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["name"].id == "my_param"
+              raise ""
+            end
           %}
         end
       end
@@ -188,9 +263,17 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
       macro finished
         macro finished
           \{%
-            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 2
-            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["name"].id == "first"
-            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface][1]["name"].id == "second"
+            unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 2
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["name"].id == "first"
+              raise ""
+            end
+
+            unless ADI::ServiceContainer::ALIASES[SomeInterface][1]["name"].id == "second"
+              raise ""
+            end
           %}
         end
       end
@@ -216,11 +299,19 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
       macro finished
         macro finished
           \{%
-            raise "" unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 2
+            unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 2
+              raise ""
+            end
+
             named = ADI::ServiceContainer::ALIASES[SomeInterface].find { |a| !a["name"].nil? }
             type_only = ADI::ServiceContainer::ALIASES[SomeInterface].find { |a| a["name"].nil? }
-            raise "" unless named["id"] == "specific"
-            raise "" unless type_only["id"] == "default"
+            unless named["id"] == "specific"
+              raise ""
+            end
+
+            unless type_only["id"] == "default"
+              raise ""
+            end
           %}
         end
       end

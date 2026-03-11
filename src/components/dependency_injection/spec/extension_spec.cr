@@ -36,17 +36,37 @@ describe ADI::Extension, tags: "compiled" do
           \{%
              options = Schema::OPTIONS
 
-             raise "#{options}" unless options.size == 2
+             unless options.size == 2
+               raise "#{options}"
+             end
 
-             raise "#{options}" unless options[0]["name"] == "id"
-             raise "#{options}" unless options[0]["type"] == Int32
-             raise "#{options}" unless options[0]["default"].nil?
+             unless options[0]["name"] == "id"
+               raise "#{options}"
+             end
 
-             raise "#{options}" unless options[1]["name"] == "name"
-             raise "#{options}" unless options[1]["type"] == String
-             raise "#{options}" unless options[1]["default"] == "Fred"
+             unless options[0]["type"] == Int32
+               raise "#{options}"
+             end
 
-             raise "#{Schema::CONFIG_DOCS}" unless Schema::CONFIG_DOCS.stringify == %([{"name":"id","type":"`Int32`","default":"``"}, {"name":"name","type":"`String`","default":"`Fred`"}] of Nil)
+             unless options[0]["default"].nil?
+               raise "#{options}"
+             end
+
+             unless options[1]["name"] == "name"
+               raise "#{options}"
+             end
+
+             unless options[1]["type"] == String
+               raise "#{options}"
+             end
+
+             unless options[1]["default"] == "Fred"
+               raise "#{options}"
+             end
+
+             unless Schema::CONFIG_DOCS.stringify == %([{"name":"id","type":"`Int32`","default":"``"}, {"name":"name","type":"`String`","default":"`Fred`"}] of Nil)
+               raise "#{Schema::CONFIG_DOCS}"
+             end
           %}
         end
       end
@@ -67,13 +87,25 @@ describe ADI::Extension, tags: "compiled" do
           \{%
              options = Schema::OPTIONS
 
-             raise "#{options}" unless options.size == 1
+             unless options.size == 1
+               raise "#{options}"
+             end
 
-             raise "#{options}" unless options[0]["name"] == "values"
-             raise "#{options}" unless options[0]["type"] == Array(Int32 | String)
-             raise "#{options}" unless options[0]["default"].stringify == "Array(Int32 | String).new"
+             unless options[0]["name"] == "values"
+               raise "#{options}"
+             end
 
-             raise "#{Schema::CONFIG_DOCS}" unless Schema::CONFIG_DOCS.stringify == %([{"name":"values","type":"`Array(Int32 | String)`","default":"`Array(Int32 | String).new`"}] of Nil)
+             unless options[0]["type"] == Array(Int32 | String)
+               raise "#{options}"
+             end
+
+             unless options[0]["default"].stringify == "Array(Int32 | String).new"
+               raise "#{options}"
+             end
+
+             unless Schema::CONFIG_DOCS.stringify == %([{"name":"values","type":"`Array(Int32 | String)`","default":"`Array(Int32 | String).new`"}] of Nil)
+               raise "#{Schema::CONFIG_DOCS}"
+             end
           %}
         end
       end
@@ -107,9 +139,17 @@ describe ADI::Extension, tags: "compiled" do
             \{%
                config = ADI::CONFIG["test"]
 
-               raise "#{config}" unless config["connection"]["username"] == "addminn"
-               raise "#{config}" unless config["connection"]["password"] == "abc123"
-               raise "#{config}" unless config["connection"]["port"] == 1234
+               unless config["connection"]["username"] == "addminn"
+                 raise "#{config}"
+               end
+
+               unless config["connection"]["password"] == "abc123"
+                 raise "#{config}"
+               end
+
+               unless config["connection"]["port"] == 1234
+                 raise "#{config}"
+               end
             %}
           end
         end
@@ -181,21 +221,46 @@ describe ADI::Extension, tags: "compiled" do
             \{%
              options = Schema::OPTIONS
 
-             raise "#{options}" unless options.size == 1
+             unless options.size == 1
+               raise "#{options}"
+             end
 
-             raise "#{options}" unless options[0]["name"] == "rule"
-             raise "#{options}" unless options[0]["type"].stringify == "NamedTuple(T)"
-             raise "#{options}" unless options[0]["default"].nil?
+             unless options[0]["name"] == "rule"
+               raise "#{options}"
+             end
+
+             unless options[0]["type"].stringify == "NamedTuple(T)"
+               raise "#{options}"
+             end
+
+             unless options[0]["default"].nil?
+               raise "#{options}"
+             end
 
              members = options[0]["members"]
-             raise "#{members}" unless members.size == 3 # Account for __nil
+             unless members.size == 3 # Account for __nil
+               raise "#{members}"
+             end
 
-             raise "#{members}" unless members["id"].type.stringify == "Int32"
-             raise "#{members}" unless members["id"].value.nil?
-             raise "#{members}" unless members["stop"].type.stringify == "Bool"
-             raise "#{members}" unless members["stop"].value == false
+             unless members["id"].type.stringify == "Int32"
+               raise "#{members}"
+             end
 
-             raise "#{Schema::CONFIG_DOCS}" unless Schema::CONFIG_DOCS.stringify == %([{"name":"rule","type":"`NamedTuple(T)`","default":"``","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil)
+             unless members["id"].value.nil?
+               raise "#{members}"
+             end
+
+             unless members["stop"].type.stringify == "Bool"
+               raise "#{members}"
+             end
+
+             unless members["stop"].value == false
+               raise "#{members}"
+             end
+
+             unless Schema::CONFIG_DOCS.stringify == %([{"name":"rule","type":"`NamedTuple(T)`","default":"``","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil)
+               raise "#{Schema::CONFIG_DOCS}"
+             end
             %}
           end
         end
@@ -216,21 +281,46 @@ describe ADI::Extension, tags: "compiled" do
             \{%
              options = Schema::OPTIONS
 
-             raise "#{options}" unless options.size == 1
+             unless options.size == 1
+               raise "#{options}"
+             end
 
-             raise "#{options}" unless options[0]["name"] == "rule"
-             raise "#{options}" unless options[0]["type"].stringify == "NamedTuple(T)"
-             raise "#{options}" unless options[0]["default"] == {id: 999, stop: false}
+             unless options[0]["name"] == "rule"
+               raise "#{options}"
+             end
+
+             unless options[0]["type"].stringify == "NamedTuple(T)"
+               raise "#{options}"
+             end
+
+             unless options[0]["default"] == {id: 999, stop: false}
+               raise "#{options}"
+             end
 
              members = options[0]["members"]
-             raise "#{members}" unless members.size == 3 # Account for __nil
+             unless members.size == 3 # Account for __nil
+               raise "#{members}"
+             end
 
-             raise "#{members}" unless members["id"].type.stringify == "Int32"
-             raise "#{members}" unless members["id"].value.nil?
-             raise "#{members}" unless members["stop"].type.stringify == "Bool"
-             raise "#{members}" unless members["stop"].value == false
+             unless members["id"].type.stringify == "Int32"
+               raise "#{members}"
+             end
 
-             raise "#{Schema::CONFIG_DOCS}" unless Schema::CONFIG_DOCS.stringify == %([{"name":"rule","type":"`NamedTuple(T)`","default":"`{id: 999}`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil)
+             unless members["id"].value.nil?
+               raise "#{members}"
+             end
+
+             unless members["stop"].type.stringify == "Bool"
+               raise "#{members}"
+             end
+
+             unless members["stop"].value == false
+               raise "#{members}"
+             end
+
+             unless Schema::CONFIG_DOCS.stringify == %([{"name":"rule","type":"`NamedTuple(T)`","default":"`{id: 999}`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil)
+               raise "#{Schema::CONFIG_DOCS}"
+             end
             %}
           end
         end
@@ -251,21 +341,46 @@ describe ADI::Extension, tags: "compiled" do
             \{%
              options = Schema::OPTIONS
 
-             raise "#{options}" unless options.size == 1
+             unless options.size == 1
+               raise "#{options}"
+             end
 
-             raise "#{options}" unless options[0]["name"] == "rule"
-             raise "#{options}" unless options[0]["type"].stringify == "(NamedTuple(T) | Nil)"
-             raise "#{options}" unless options[0]["default"].nil?
+             unless options[0]["name"] == "rule"
+               raise "#{options}"
+             end
+
+             unless options[0]["type"].stringify == "(NamedTuple(T) | Nil)"
+               raise "#{options}"
+             end
+
+             unless options[0]["default"].nil?
+               raise "#{options}"
+             end
 
              members = options[0]["members"]
-             raise "#{members}" unless members.size == 3 # Account for __nil
+             unless members.size == 3 # Account for __nil
+               raise "#{members}"
+             end
 
-             raise "#{members}" unless members["id"].type.stringify == "Int32"
-             raise "#{members}" unless members["id"].value.nil?
-             raise "#{members}" unless members["stop"].type.stringify == "Bool"
-             raise "#{members}" unless members["stop"].value == false
+             unless members["id"].type.stringify == "Int32"
+               raise "#{members}"
+             end
 
-             raise "#{Schema::CONFIG_DOCS}" unless Schema::CONFIG_DOCS.stringify == %([{"name":"rule","type":"`(NamedTuple(T) | Nil)`","default":"`nil`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil)
+             unless members["id"].value.nil?
+               raise "#{members}"
+             end
+
+             unless members["stop"].type.stringify == "Bool"
+               raise "#{members}"
+             end
+
+             unless members["stop"].value == false
+               raise "#{members}"
+             end
+
+             unless Schema::CONFIG_DOCS.stringify == %([{"name":"rule","type":"`(NamedTuple(T) | Nil)`","default":"`nil`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil)
+               raise "#{Schema::CONFIG_DOCS}"
+             end
             %}
           end
         end
@@ -286,21 +401,46 @@ describe ADI::Extension, tags: "compiled" do
             \{%
              options = Schema::OPTIONS
 
-             raise "#{options}" unless options.size == 1
+             unless options.size == 1
+               raise "#{options}"
+             end
 
-             raise "#{options}" unless options[0]["name"] == "rule"
-             raise "#{options}" unless options[0]["type"].stringify == "(NamedTuple(T) | Nil)"
-             raise "#{options}" unless options[0]["default"].nil?
+             unless options[0]["name"] == "rule"
+               raise "#{options}"
+             end
+
+             unless options[0]["type"].stringify == "(NamedTuple(T) | Nil)"
+               raise "#{options}"
+             end
+
+             unless options[0]["default"].nil?
+               raise "#{options}"
+             end
 
              members = options[0]["members"]
-             raise "#{members}" unless members.size == 3 # Account for __nil
+             unless members.size == 3 # Account for __nil
+               raise "#{members}"
+             end
 
-             raise "#{members}" unless members["id"].type.stringify == "Int32"
-             raise "#{members}" unless members["id"].value.nil?
-             raise "#{members}" unless members["stop"].type.stringify == "Bool"
-             raise "#{members}" unless members["stop"].value == false
+             unless members["id"].type.stringify == "Int32"
+               raise "#{members}"
+             end
 
-             raise "#{Schema::CONFIG_DOCS}" unless Schema::CONFIG_DOCS.stringify == %([{"name":"rule","type":"`(NamedTuple(T) | Nil)`","default":"`{id: 999}`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil)
+             unless members["id"].value.nil?
+               raise "#{members}"
+             end
+
+             unless members["stop"].type.stringify == "Bool"
+               raise "#{members}"
+             end
+
+             unless members["stop"].value == false
+               raise "#{members}"
+             end
+
+             unless Schema::CONFIG_DOCS.stringify == %([{"name":"rule","type":"`(NamedTuple(T) | Nil)`","default":"`{id: 999}`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil)
+               raise "#{Schema::CONFIG_DOCS}"
+             end
             %}
           end
         end
@@ -323,19 +463,42 @@ describe ADI::Extension, tags: "compiled" do
             \{%
              options = Schema::OPTIONS
 
-             raise "#{options}" unless options.size == 1
+             unless options.size == 1
+               raise "#{options}"
+             end
 
-             raise "#{options}" unless options[0]["name"] == "rules"
-             raise "#{options}" unless options[0]["type"].stringify == "Array(T)"
-             raise "#{options}" unless options[0]["default"].stringify == "[]"
+             unless options[0]["name"] == "rules"
+               raise "#{options}"
+             end
+
+             unless options[0]["type"].stringify == "Array(T)"
+               raise "#{options}"
+             end
+
+             unless options[0]["default"].stringify == "[]"
+               raise "#{options}"
+             end
 
              members = options[0]["members"]
-             raise "#{members}" unless members.size == 3 # Account for __nil
+             unless members.size == 3 # Account for __nil
+               raise "#{members}"
+             end
 
-             raise "#{members}" unless members["id"].type.stringify == "Int32"
-             raise "#{members}" unless members["id"].value.nil?
-             raise "#{members}" unless members["stop"].type.stringify == "Bool"
-             raise "#{members}" unless members["stop"].value == false
+             unless members["id"].type.stringify == "Int32"
+               raise "#{members}"
+             end
+
+             unless members["id"].value.nil?
+               raise "#{members}"
+             end
+
+             unless members["stop"].type.stringify == "Bool"
+               raise "#{members}"
+             end
+
+             unless members["stop"].value == false
+               raise "#{members}"
+             end
             %}
           end
         end
@@ -356,21 +519,46 @@ describe ADI::Extension, tags: "compiled" do
             \{%
              options = Schema::OPTIONS
 
-             raise "#{options}" unless options.size == 1
+             unless options.size == 1
+               raise "#{options}"
+             end
 
-             raise "#{options}" unless options[0]["name"] == "rules"
-             raise "#{options}" unless options[0]["type"].stringify == "Array(T)"
-             raise "#{options}" unless options[0]["default"] == [{id: 10, stop: false}]
+             unless options[0]["name"] == "rules"
+               raise "#{options}"
+             end
+
+             unless options[0]["type"].stringify == "Array(T)"
+               raise "#{options}"
+             end
+
+             unless options[0]["default"] == [{id: 10, stop: false}]
+               raise "#{options}"
+             end
 
              members = options[0]["members"]
-             raise "#{members}" unless members.size == 3 # Account for __nil
+             unless members.size == 3 # Account for __nil
+               raise "#{members}"
+             end
 
-             raise "#{members}" unless members["id"].type.stringify == "Int32"
-             raise "#{members}" unless members["id"].value.nil?
-             raise "#{members}" unless members["stop"].type.stringify == "Bool"
-             raise "#{members}" unless members["stop"].value == false
+             unless members["id"].type.stringify == "Int32"
+               raise "#{members}"
+             end
 
-             raise "#{Schema::CONFIG_DOCS}" unless Schema::CONFIG_DOCS.stringify == %([{"name":"rules","type":"`Array(T)`","default":"`[{id: 10}]`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil)
+             unless members["id"].value.nil?
+               raise "#{members}"
+             end
+
+             unless members["stop"].type.stringify == "Bool"
+               raise "#{members}"
+             end
+
+             unless members["stop"].value == false
+               raise "#{members}"
+             end
+
+             unless Schema::CONFIG_DOCS.stringify == %([{"name":"rules","type":"`Array(T)`","default":"`[{id: 10}]`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil)
+               raise "#{Schema::CONFIG_DOCS}"
+             end
             %}
           end
         end
@@ -391,21 +579,46 @@ describe ADI::Extension, tags: "compiled" do
             \{%
              options = Schema::OPTIONS
 
-             raise "#{options}" unless options.size == 1
+             unless options.size == 1
+               raise "#{options}"
+             end
 
-             raise "#{options}" unless options[0]["name"] == "rules"
-             raise "#{options}" unless options[0]["type"].stringify == "(Array(T) | Nil)"
-             raise "#{options}" unless options[0]["default"].nil?
+             unless options[0]["name"] == "rules"
+               raise "#{options}"
+             end
+
+             unless options[0]["type"].stringify == "(Array(T) | Nil)"
+               raise "#{options}"
+             end
+
+             unless options[0]["default"].nil?
+               raise "#{options}"
+             end
 
              members = options[0]["members"]
-             raise "#{members}" unless members.size == 3 # Account for __nil
+             unless members.size == 3 # Account for __nil
+               raise "#{members}"
+             end
 
-             raise "#{members}" unless members["id"].type.stringify == "Int32"
-             raise "#{members}" unless members["id"].value.nil?
-             raise "#{members}" unless members["stop"].type.stringify == "Bool"
-             raise "#{members}" unless members["stop"].value == false
+             unless members["id"].type.stringify == "Int32"
+               raise "#{members}"
+             end
 
-             raise "#{Schema::CONFIG_DOCS}" unless Schema::CONFIG_DOCS.stringify == %([{"name":"rules","type":"`(Array(T) | Nil)`","default":"`nil`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil)
+             unless members["id"].value.nil?
+               raise "#{members}"
+             end
+
+             unless members["stop"].type.stringify == "Bool"
+               raise "#{members}"
+             end
+
+             unless members["stop"].value == false
+               raise "#{members}"
+             end
+
+             unless Schema::CONFIG_DOCS.stringify == %([{"name":"rules","type":"`(Array(T) | Nil)`","default":"`nil`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil)
+               raise "#{Schema::CONFIG_DOCS}"
+             end
             %}
           end
         end
@@ -431,16 +644,34 @@ describe ADI::Extension, tags: "compiled" do
             \{%
                schemas = Schema::OBJECT_SCHEMAS
 
-               raise "#{schemas}" unless schemas.size == 1
-               raise "#{schemas}" unless schemas["JwtConfig"] != nil
+               unless schemas.size == 1
+                 raise "#{schemas}"
+               end
+
+               unless schemas["JwtConfig"] != nil
+                 raise "#{schemas}"
+               end
 
                jwt_schema = schemas["JwtConfig"]
-               raise "#{jwt_schema}" unless jwt_schema["members"].size == 3 # Account for __nil
+               unless jwt_schema["members"].size == 3 # Account for __nil
+                 raise "#{jwt_schema}"
+               end
 
-               raise "#{jwt_schema}" unless jwt_schema["members"]["secret"].type.stringify == "String"
-               raise "#{jwt_schema}" unless jwt_schema["members"]["secret"].value.nil?
-               raise "#{jwt_schema}" unless jwt_schema["members"]["algorithm"].type.stringify == "String"
-               raise "#{jwt_schema}" unless jwt_schema["members"]["algorithm"].value == "hmac.sha256"
+               unless jwt_schema["members"]["secret"].type.stringify == "String"
+                 raise "#{jwt_schema}"
+               end
+
+               unless jwt_schema["members"]["secret"].value.nil?
+                 raise "#{jwt_schema}"
+               end
+
+               unless jwt_schema["members"]["algorithm"].type.stringify == "String"
+                 raise "#{jwt_schema}"
+               end
+
+               unless jwt_schema["members"]["algorithm"].value == "hmac.sha256"
+                 raise "#{jwt_schema}"
+               end
             %}
           end
         end
@@ -470,11 +701,18 @@ describe ADI::Extension, tags: "compiled" do
 
                # The inner member should have nested members from InnerConfig
                inner_member = outer_schema["members"]["inner"]
-               raise "#{inner_member}" unless inner_member["members"] != nil
-               raise "#{inner_member}" unless inner_member["members"]["value"].type.stringify == "String"
+               unless inner_member["members"] != nil
+                 raise "#{inner_member}"
+               end
+
+               unless inner_member["members"]["value"].type.stringify == "String"
+                 raise "#{inner_member}"
+               end
 
                # OuterConfig's members_string should include InnerConfig's nested members
-               raise "#{outer_schema["members_string"]}" unless outer_schema["members_string"] == %([{"name":"name","type":"`String`","default":"``","doc":""},{"name":"inner","type":"`InnerConfig`","default":"``","doc":"","members":[{"name":"value","type":"`String`","default":"``","doc":""}]}])
+               unless outer_schema["members_string"] == %([{"name":"name","type":"`String`","default":"``","doc":""},{"name":"inner","type":"`InnerConfig`","default":"``","doc":"","members":[{"name":"value","type":"`String`","default":"``","doc":""}]}])
+                 raise "#{outer_schema["members_string"]}"
+               end
             %}
           end
         end
@@ -497,21 +735,46 @@ describe ADI::Extension, tags: "compiled" do
             \{%
                options = Schema::OPTIONS
 
-               raise "#{options}" unless options.size == 1
+               unless options.size == 1
+                 raise "#{options}"
+               end
 
-               raise "#{options}" unless options[0]["name"] == "hubs"
-               raise "#{options}" unless options[0]["type"].stringify == "Hash(K, V)"
-               raise "#{options}" unless options[0]["default"].stringify == "{__nil: nil}"
+               unless options[0]["name"] == "hubs"
+                 raise "#{options}"
+               end
+
+               unless options[0]["type"].stringify == "Hash(K, V)"
+                 raise "#{options}"
+               end
+
+               unless options[0]["default"].stringify == "{__nil: nil}"
+                 raise "#{options}"
+               end
 
                members = options[0]["members"]
-               raise "#{members}" unless members.size == 3 # Account for __nil
+               unless members.size == 3 # Account for __nil
+                 raise "#{members}"
+               end
 
-               raise "#{members}" unless members["url"].type.stringify == "String"
-               raise "#{members}" unless members["url"].value.nil?
-               raise "#{members}" unless members["port"].type.stringify == "Int32"
-               raise "#{members}" unless members["port"].value == 5432
+               unless members["url"].type.stringify == "String"
+                 raise "#{members}"
+               end
 
-               raise "#{Schema::CONFIG_DOCS}" unless Schema::CONFIG_DOCS.stringify == %([{"name":"hubs","type":"`Hash(K, V)`","default":"`{__nil: nil}`","members":[{"name":"url","type":"`String`","default":"``","doc":""},{"name":"port","type":"`Int32`","default":"`5432`","doc":""}]}] of Nil)
+               unless members["url"].value.nil?
+                 raise "#{members}"
+               end
+
+               unless members["port"].type.stringify == "Int32"
+                 raise "#{members}"
+               end
+
+               unless members["port"].value == 5432
+                 raise "#{members}"
+               end
+
+               unless Schema::CONFIG_DOCS.stringify == %([{"name":"hubs","type":"`Hash(K, V)`","default":"`{__nil: nil}`","members":[{"name":"url","type":"`String`","default":"``","doc":""},{"name":"port","type":"`Int32`","default":"`5432`","doc":""}]}] of Nil)
+                 raise "#{Schema::CONFIG_DOCS}"
+               end
             %}
           end
         end
@@ -532,19 +795,38 @@ describe ADI::Extension, tags: "compiled" do
             \{%
                options = Schema::OPTIONS
 
-               raise "#{options}" unless options.size == 1
+               unless options.size == 1
+                 raise "#{options}"
+               end
 
-               raise "#{options}" unless options[0]["name"] == "hubs"
-               raise "#{options}" unless options[0]["type"].stringify == "(Hash(K, V) | Nil)"
-               raise "#{options}" unless options[0]["default"].nil?
+               unless options[0]["name"] == "hubs"
+                 raise "#{options}"
+               end
+
+               unless options[0]["type"].stringify == "(Hash(K, V) | Nil)"
+                 raise "#{options}"
+               end
+
+               unless options[0]["default"].nil?
+                 raise "#{options}"
+               end
 
                members = options[0]["members"]
-               raise "#{members}" unless members.size == 3 # Account for __nil
+               unless members.size == 3 # Account for __nil
+                 raise "#{members}"
+               end
 
-               raise "#{members}" unless members["url"].type.stringify == "String"
-               raise "#{members}" unless members["port"].type.stringify == "Int32"
+               unless members["url"].type.stringify == "String"
+                 raise "#{members}"
+               end
 
-               raise "#{Schema::CONFIG_DOCS}" unless Schema::CONFIG_DOCS.stringify == %([{"name":"hubs","type":"`(Hash(K, V) | Nil)`","default":"`nil`","members":[{"name":"url","type":"`String`","default":"``","doc":""},{"name":"port","type":"`Int32`","default":"`5432`","doc":""}]}] of Nil)
+               unless members["port"].type.stringify == "Int32"
+                 raise "#{members}"
+               end
+
+               unless Schema::CONFIG_DOCS.stringify == %([{"name":"hubs","type":"`(Hash(K, V) | Nil)`","default":"`nil`","members":[{"name":"url","type":"`String`","default":"``","doc":""},{"name":"port","type":"`Int32`","default":"`5432`","doc":""}]}] of Nil)
+                 raise "#{Schema::CONFIG_DOCS}"
+               end
             %}
           end
         end
@@ -572,14 +854,26 @@ describe ADI::Extension, tags: "compiled" do
             \{%
                options = Schema::OPTIONS
 
-               raise "#{options}" unless options.size == 1
+               unless options.size == 1
+                 raise "#{options}"
+               end
 
                jwt_member = options[0]["members"]["jwt"]
-               raise "#{jwt_member}" unless jwt_member["members"] != nil
-               raise "#{jwt_member}" unless jwt_member["members"]["secret"].type.stringify == "String"
-               raise "#{jwt_member}" unless jwt_member["members"]["algorithm"].value == "hmac.sha256"
+               unless jwt_member["members"] != nil
+                 raise "#{jwt_member}"
+               end
 
-               raise "#{Schema::CONFIG_DOCS}" unless Schema::CONFIG_DOCS.stringify == %([{"name":"hubs","type":"`Hash(K, V)`","default":"`{__nil: nil}`","members":[{"name":"url","type":"`String`","default":"``","doc":""},{"name":"jwt","type":"`JwtConfig`","default":"``","doc":"","members":[{"name":"secret","type":"`String`","default":"``","doc":""},{"name":"algorithm","type":"`String`","default":"`hmac.sha256`","doc":""}]}]}] of Nil)
+               unless jwt_member["members"]["secret"].type.stringify == "String"
+                 raise "#{jwt_member}"
+               end
+
+               unless jwt_member["members"]["algorithm"].value == "hmac.sha256"
+                 raise "#{jwt_member}"
+               end
+
+               unless Schema::CONFIG_DOCS.stringify == %([{"name":"hubs","type":"`Hash(K, V)`","default":"`{__nil: nil}`","members":[{"name":"url","type":"`String`","default":"``","doc":""},{"name":"jwt","type":"`JwtConfig`","default":"``","doc":"","members":[{"name":"secret","type":"`String`","default":"``","doc":""},{"name":"algorithm","type":"`String`","default":"`hmac.sha256`","doc":""}]}]}] of Nil)
+                 raise "#{Schema::CONFIG_DOCS}"
+               end
             %}
           end
         end
@@ -600,14 +894,27 @@ describe ADI::Extension, tags: "compiled" do
             \{%
                options = Schema::OPTIONS
 
-               raise "#{options}" unless options.size == 1
-               raise "#{options}" unless options[0]["name"] == "hubs"
-               raise "#{options}" unless options[0]["type"].stringify == "Hash(K, V)"
+               unless options.size == 1
+                 raise "#{options}"
+               end
+
+               unless options[0]["name"] == "hubs"
+                 raise "#{options}"
+               end
+
+               unless options[0]["type"].stringify == "Hash(K, V)"
+                 raise "#{options}"
+               end
 
                # Custom default should be preserved
                default = options[0]["default"]
-               raise "#{default}" unless default["default"]["url"] == "localhost"
-               raise "#{default}" unless default["default"]["port"] == 8080
+               unless default["default"]["url"] == "localhost"
+                 raise "#{default}"
+               end
+
+               unless default["default"]["port"] == 8080
+                 raise "#{default}"
+               end
             %}
           end
         end
@@ -637,14 +944,26 @@ describe ADI::Extension, tags: "compiled" do
             \{%
                options = Schema::OPTIONS
 
-               raise "#{options}" unless options.size == 1
+               unless options.size == 1
+                 raise "#{options}"
+               end
 
                jwt_member = options[0]["members"]["jwt"]
-               raise "#{jwt_member}" unless jwt_member["members"] != nil
-               raise "#{jwt_member}" unless jwt_member["members"]["secret"].type.stringify == "String"
-               raise "#{jwt_member}" unless jwt_member["members"]["algorithm"].value == "hmac.sha256"
+               unless jwt_member["members"] != nil
+                 raise "#{jwt_member}"
+               end
 
-               raise "#{Schema::CONFIG_DOCS}" unless Schema::CONFIG_DOCS.stringify == %([{"name":"items","type":"`Array(T)`","default":"`[]`","members":[{"name":"name","type":"`String`","default":"``","doc":""},{"name":"jwt","type":"`JwtConfig`","default":"``","doc":"","members":[{"name":"secret","type":"`String`","default":"``","doc":""},{"name":"algorithm","type":"`String`","default":"`hmac.sha256`","doc":""}]}]}] of Nil)
+               unless jwt_member["members"]["secret"].type.stringify == "String"
+                 raise "#{jwt_member}"
+               end
+
+               unless jwt_member["members"]["algorithm"].value == "hmac.sha256"
+                 raise "#{jwt_member}"
+               end
+
+               unless Schema::CONFIG_DOCS.stringify == %([{"name":"items","type":"`Array(T)`","default":"`[]`","members":[{"name":"name","type":"`String`","default":"``","doc":""},{"name":"jwt","type":"`JwtConfig`","default":"``","doc":"","members":[{"name":"secret","type":"`String`","default":"``","doc":""},{"name":"algorithm","type":"`String`","default":"`hmac.sha256`","doc":""}]}]}] of Nil)
+                 raise "#{Schema::CONFIG_DOCS}"
+               end
             %}
           end
         end
@@ -675,14 +994,26 @@ describe ADI::Extension, tags: "compiled" do
             \{%
                options = Schema::OPTIONS
 
-               raise "#{options}" unless options.size == 1
+               unless options.size == 1
+                 raise "#{options}"
+               end
 
                jwt_member = options[0]["members"]["jwt"]
-               raise "#{jwt_member}" unless jwt_member["members"] != nil
-               raise "#{jwt_member}" unless jwt_member["members"]["secret"].type.stringify == "String"
-               raise "#{jwt_member}" unless jwt_member["members"]["algorithm"].value == "hmac.sha256"
+               unless jwt_member["members"] != nil
+                 raise "#{jwt_member}"
+               end
 
-               raise "#{Schema::CONFIG_DOCS}" unless Schema::CONFIG_DOCS.stringify == %([{"name":"connection","type":"`(NamedTuple(T) | Nil)`","default":"`nil`","members":[{"name":"url","type":"`String`","default":"``","doc":""},{"name":"jwt","type":"`JwtConfig`","default":"``","doc":"","members":[{"name":"secret","type":"`String`","default":"``","doc":""},{"name":"algorithm","type":"`String`","default":"`hmac.sha256`","doc":""}]}]}] of Nil)
+               unless jwt_member["members"]["secret"].type.stringify == "String"
+                 raise "#{jwt_member}"
+               end
+
+               unless jwt_member["members"]["algorithm"].value == "hmac.sha256"
+                 raise "#{jwt_member}"
+               end
+
+               unless Schema::CONFIG_DOCS.stringify == %([{"name":"connection","type":"`(NamedTuple(T) | Nil)`","default":"`nil`","members":[{"name":"url","type":"`String`","default":"``","doc":""},{"name":"jwt","type":"`JwtConfig`","default":"``","doc":"","members":[{"name":"secret","type":"`String`","default":"``","doc":""},{"name":"algorithm","type":"`String`","default":"`hmac.sha256`","doc":""}]}]}] of Nil)
+                 raise "#{Schema::CONFIG_DOCS}"
+               end
             %}
           end
         end

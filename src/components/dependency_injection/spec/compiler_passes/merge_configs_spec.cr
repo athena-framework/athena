@@ -56,10 +56,21 @@ describe ADI::ServiceContainer::MergeConfigs do
           \{%
             config = ADI::CONFIG["test"]
 
-            raise "#{config}" unless config["default_locale"] == "en"
-            raise "#{config}" unless config["cors"]["defaults"]["allow_credentials"] == true
-            raise "#{config}" unless config["cors"]["defaults"]["allow_origin"].size == 1
-            raise "#{config}" unless config["cors"]["defaults"]["allow_origin"][0] == "*"
+            unless config["default_locale"] == "en"
+              raise "#{config}"
+            end
+
+            unless config["cors"]["defaults"]["allow_credentials"] == true
+              raise "#{config}"
+            end
+
+            unless config["cors"]["defaults"]["allow_origin"].size == 1
+              raise "#{config}"
+            end
+
+            unless config["cors"]["defaults"]["allow_origin"][0] == "*"
+              raise "#{config}"
+            end
           %}
         end
       end

@@ -62,12 +62,29 @@ describe ATH::Bundle, tags: "compiled" do
                  service = ADI::ServiceContainer::SERVICE_HASH["athena_framework_listeners_cors"]
                  arg = service["parameters"]["config"]["value"]
 
-                 raise "#{arg}" unless arg =~ /allow_credentials: true/
-                 raise "#{arg}" unless arg =~ /allow_origin: \["allow_origin", \/foo\/\]/
-                 raise "#{arg}" unless arg =~ /allow_headers: \["allow_headers", "x-my-header"]/
-                 raise "#{arg}" unless arg =~ /allow_methods: \["allow_methods"]/
-                 raise "#{arg}" unless arg =~ /expose_headers: \["expose_headers", "x-my-header"]/
-                 raise "#{arg}" unless arg =~ /max_age: 123/
+                 unless arg =~ /allow_credentials: true/
+                   raise "#{arg}"
+                 end
+
+                 unless arg =~ /allow_origin: \["allow_origin", \/foo\/\]/
+                   raise "#{arg}"
+                 end
+
+                 unless arg =~ /allow_headers: \["allow_headers", "x-my-header"]/
+                   raise "#{arg}"
+                 end
+
+                 unless arg =~ /allow_methods: \["allow_methods"]/
+                   raise "#{arg}"
+                 end
+
+                 unless arg =~ /expose_headers: \["expose_headers", "x-my-header"]/
+                   raise "#{arg}"
+                 end
+
+                 unless arg =~ /max_age: 123/
+                   raise "#{arg}"
+                 end
               %}
             end
           end
@@ -96,51 +113,105 @@ describe ATH::Bundle, tags: "compiled" do
           macro finished
             \{%
                service = ADI::ServiceContainer::SERVICE_HASH["athena_framework_listeners_format"]
-               raise "" unless service["parameters"]["format_negotiator"]["value"].stringify == "athena_framework_view_format_negotiator"
+               unless service["parameters"]["format_negotiator"]["value"].stringify == "athena_framework_view_format_negotiator"
+                 raise ""
+               end
             %}
 
             \{%
                service = ADI::ServiceContainer::SERVICE_HASH["athena_framework_view_format_negotiator"]
                map = service["calls"]
 
-               raise "#{map}" unless map.size == 4
+               unless map.size == 4
+                 raise "#{map}"
+               end
 
                # Hostname rule
                m0, rule = map[0][1]
                matcher = ADI::ServiceContainer::SERVICE_HASH[m0.stringify]["parameters"]["matchers"]["value"]
-               raise "#{matcher}" unless matcher.includes? %(AHTTP::RequestMatcher::Hostname.new(/api\\.example\\.com/))
+               unless matcher.includes? %(AHTTP::RequestMatcher::Hostname.new(/api\\.example\\.com/))
+                 raise "#{matcher}"
+               end
 
-               raise "#{rule}" unless rule.includes? "ATH::View::FormatNegotiator::Rule.new"
-               raise "#{rule}" unless rule =~ /fallback_format: "json"/
-               raise "#{rule}" unless rule =~ /prefer_extension: true/
-               raise "#{rule}" unless rule =~ /priorities: \["json", "xml"\]/
-               raise "#{rule}" unless rule =~ /stop: false/
+               unless rule.includes? "ATH::View::FormatNegotiator::Rule.new"
+                 raise "#{rule}"
+               end
+
+               unless rule =~ /fallback_format: "json"/
+                 raise "#{rule}"
+               end
+
+               unless rule =~ /prefer_extension: true/
+                 raise "#{rule}"
+               end
+
+               unless rule =~ /priorities: \["json", "xml"\]/
+                 raise "#{rule}"
+               end
+
+               unless rule =~ /stop: false/
+                 raise "#{rule}"
+               end
 
                # Path rule
                m1, rule = map[1][1]
                matcher = ADI::ServiceContainer::SERVICE_HASH[m1.stringify]["parameters"]["matchers"]["value"]
-               raise "#{matcher}" unless matcher.includes? %(AHTTP::RequestMatcher::Path.new(/^\\/image/))
+               unless matcher.includes? %(AHTTP::RequestMatcher::Path.new(/^\\/image/))
+                 raise "#{matcher}"
+               end
 
-               raise "#{rule}" unless rule.includes? "ATH::View::FormatNegotiator::Rule.new"
-               raise "#{rule}" unless rule =~ /fallback_format: false/
-               raise "#{rule}" unless rule =~ /prefer_extension: true/
-               raise "#{rule}" unless rule =~ /priorities: \["jpeg", "gif"\]/
-               raise "#{rule}" unless rule =~ /stop: true/
+               unless rule.includes? "ATH::View::FormatNegotiator::Rule.new"
+                 raise "#{rule}"
+               end
+
+               unless rule =~ /fallback_format: false/
+                 raise "#{rule}"
+               end
+
+               unless rule =~ /prefer_extension: true/
+                 raise "#{rule}"
+               end
+
+               unless rule =~ /priorities: \["jpeg", "gif"\]/
+                 raise "#{rule}"
+               end
+
+               unless rule =~ /stop: true/
+                 raise "#{rule}"
+               end
 
                # Methods rule
                m2, rule = map[2][1]
                matcher = ADI::ServiceContainer::SERVICE_HASH[m2.stringify]["parameters"]["matchers"]["value"]
-               raise "#{matcher}" unless matcher.includes? %(AHTTP::RequestMatcher::Method.new(["HEAD"]))
+               unless matcher.includes? %(AHTTP::RequestMatcher::Method.new(["HEAD"]))
+                 raise "#{matcher}"
+               end
 
-               raise "#{rule}" unless rule.includes? "ATH::View::FormatNegotiator::Rule.new"
-               raise "#{rule}" unless rule =~ /fallback_format: "json"/
-               raise "#{rule}" unless rule =~ /prefer_extension: false/
-               raise "#{rule}" unless rule =~ /priorities: \["xml", "html"\]/
-               raise "#{rule}" unless rule =~ /stop: false/
+               unless rule.includes? "ATH::View::FormatNegotiator::Rule.new"
+                 raise "#{rule}"
+               end
+
+               unless rule =~ /fallback_format: "json"/
+                 raise "#{rule}"
+               end
+
+               unless rule =~ /prefer_extension: false/
+                 raise "#{rule}"
+               end
+
+               unless rule =~ /priorities: \["xml", "html"\]/
+                 raise "#{rule}"
+               end
+
+               unless rule =~ /stop: false/
+                 raise "#{rule}"
+               end
 
                # Tests matcher reuse logic
                m3, rule = map[3][1]
-               raise "#{m3} == #{m1}" unless m3 == m1
+               unless m3 == m1
+                 raise "#{m3} == #{m1}"
+               end
             %}
           end
         end
@@ -166,16 +237,28 @@ describe ATH::Bundle, tags: "compiled" do
           macro finished
             \{%
                service = ADI::ServiceContainer::SERVICE_HASH["athena_framework_listeners_file"]
-               raise "" unless service
+               unless service
+                 raise ""
+               end
 
                service = ADI::ServiceContainer::SERVICE_HASH["athena_framework_file_parser"]
-               raise "" unless service
+               unless service
+                 raise ""
+               end
 
                parameters = service["parameters"]
 
-               raise "#{parameters["temp_dir"]}" unless parameters["temp_dir"]["value"] == "/tmp/dir"
-               raise "#{parameters["max_uploads"]}" unless parameters["max_uploads"]["value"] == 12
-               raise "#{parameters["max_file_size"]}" unless parameters["max_file_size"]["value"] == 1000_i64
+               unless parameters["temp_dir"]["value"] == "/tmp/dir"
+                 raise "#{parameters["temp_dir"]}"
+               end
+
+               unless parameters["max_uploads"]["value"] == 12
+                 raise "#{parameters["max_uploads"]}"
+               end
+
+               unless parameters["max_file_size"]["value"] == 1000_i64
+                 raise "#{parameters["max_file_size"]}"
+               end
             %}
           end
         end
