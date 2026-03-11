@@ -73,7 +73,7 @@ describe ASPEC::Methods do
       end
     ensure
       ENV.delete("ATHENA_SPEC_COVERAGE_OUTPUT_DIR")
-      FileUtils.rm_rf(temp_dir)
+      FileUtils.rm_rf(temp_dir) if temp_dir
     end
   end
 
