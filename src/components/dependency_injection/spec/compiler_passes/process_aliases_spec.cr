@@ -1,7 +1,7 @@
 require "../spec_helper"
 
 private def assert_compiles(code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_compiles <<-CR, line: line
+  ASPEC::Methods.assert_compiles <<-CR, line: line - 1 # Account for spec_helper require
     require "../spec_helper.cr"
     #{code}
     ADI::ServiceContainer.new
@@ -9,7 +9,7 @@ private def assert_compiles(code : String, *, line : Int32 = __LINE__) : Nil
 end
 
 private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line
+  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line - 1 # Account for spec_helper require
     require "../spec_helper.cr"
     #{code}
     ADI::ServiceContainer.new

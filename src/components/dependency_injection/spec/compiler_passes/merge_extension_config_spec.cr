@@ -2195,7 +2195,10 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
             unless second_config["other_prop"] == true
               raise "#{second_config}"
             end
-            raise "second should not have 'nested' key: #{second_config}" if second_config["nested"] != nil
+
+            if second_config["nested"] != nil
+              raise "second should not have 'nested' key: #{second_config}"
+            end
           %}
         end
       end
