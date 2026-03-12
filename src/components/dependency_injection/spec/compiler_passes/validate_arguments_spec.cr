@@ -209,11 +209,7 @@ describe ADI::ServiceContainer::ValidateArguments, tags: "compiled" do
 
       macro finished
         macro finished
-          \{%
-            unless ADI::CONFIG["test"]["connection"]["port"].nil?
-              raise ""
-            end
-          %}
+          ASPEC.compile_time_assert(\{{ ADI::CONFIG["test"]["connection"]["port"].nil? }}, "Expected port to be nil")
         end
       end
     CR
