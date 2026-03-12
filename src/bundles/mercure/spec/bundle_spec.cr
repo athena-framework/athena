@@ -1,24 +1,7 @@
 require "./spec_helper"
 
-private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line
-    require "./spec_helper.cr"
-
-    @[ADI::Register(public: true)]
-    class MercureConsumer
-      def initialize(
-        @hub : AMC::Hub::Interface,
-        @authorization : ABM::Authorization,
-        @discovery : ABM::Discovery,
-      ); end
-    end
-
-    #{code}
-  CR
-end
-
 private def assert_compiles(code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_compiles <<-CR, line: line
+  ASPEC::Methods.assert_compiles <<-CR, line: line - 11 # Account for extra code before *code* is interpolated
     require "./spec_helper.cr"
 
     @[ADI::Register(public: true)]
@@ -59,71 +42,26 @@ describe ABM, tags: "compiled" do
 
             # Hub service
             hub = sh["mercure_hub_default"]
-            unless hub
-              raise "missing hub"
-            end
-
-            unless hub["class"].resolve == Athena::Mercure::Hub
-              raise "wrong class: #{hub["class"]}"
-            end
-
             params = hub["parameters"]
-            unless params["url"]["value"] == "https://hub.example.com/.well-known/mercure"
-              raise "wrong url"
-            end
-
-            # Token factory should be set
-            if params["token_factory"]["value"] == nil
-              raise "token_factory should not be nil"
-            end
 
             # JWT factory service
             factory = sh["mercure_hub_default_jwt_factory"]
-            unless factory
-              raise "missing factory"
-            end
-
-            unless factory["class"].resolve == Athena::Mercure::TokenFactory::JWT
-              raise "wrong factory class: #{factory["class"]}"
-            end
 
             # Token provider service (factory-based)
             provider = sh["mercure_hub_default_jwt_provider"]
-            unless provider
-              raise "missing provider"
-            end
-
-            unless provider["class"].resolve == Athena::Mercure::TokenProvider::Factory
-              raise "wrong provider class: #{provider["class"]}"
-            end
-
-            # Hub registry
-            unless sh["mercure_hub_registry"]
-              raise "missing registry"
-            end
-
-            unless sh["mercure_hub_registry"]["class"].resolve == Athena::Mercure::Hub::Registry
-              raise "wrong registry class"
-            end
-
-            # Authorization
-            unless sh["mercure_authorization"]
-              raise "missing auth"
-            end
-
-            unless sh["mercure_authorization"]["class"].resolve == Athena::MercureBundle::Authorization
-              raise "wrong auth class"
-            end
-
-            # Discovery
-            unless sh["mercure_discovery"]
-              raise "missing discovery"
-            end
-
-            unless sh["mercure_discovery"]["class"].resolve == Athena::MercureBundle::Discovery
-              raise "wrong discovery class"
-            end
           %}
+          ASPEC.compile_time_assert(\{{ hub["class"].resolve == Athena::Mercure::Hub }}, "Expected hub class to be Athena::Mercure::Hub")
+          ASPEC.compile_time_assert(\{{ params["url"]["value"] == "https://hub.example.com/.well-known/mercure" }}, "Expected hub url to match configuration")
+          # Token factory should be set
+          ASPEC.compile_time_assert(\{{ params["token_factory"]["value"] != nil }}, "Expected token_factory to be set")
+          ASPEC.compile_time_assert(\{{ factory["class"].resolve == Athena::Mercure::TokenFactory::JWT }}, "Expected factory class to be Athena::Mercure::TokenFactory::JWT")
+          ASPEC.compile_time_assert(\{{ provider["class"].resolve == Athena::Mercure::TokenProvider::Factory }}, "Expected provider class to be Athena::Mercure::TokenProvider::Factory")
+          # Hub registry
+          ASPEC.compile_time_assert(\{{ sh["mercure_hub_registry"]["class"].resolve == Athena::Mercure::Hub::Registry }}, "Expected registry class to be Athena::Mercure::Hub::Registry")
+          # Authorization
+          ASPEC.compile_time_assert(\{{ sh["mercure_authorization"]["class"].resolve == Athena::MercureBundle::Authorization }}, "Expected auth class to be Athena::MercureBundle::Authorization")
+          # Discovery
+          ASPEC.compile_time_assert(\{{ sh["mercure_discovery"]["class"].resolve == Athena::MercureBundle::Discovery }}, "Expected discovery class to be Athena::MercureBundle::Discovery")
         end
       end
     CR
@@ -149,29 +87,15 @@ describe ABM, tags: "compiled" do
           \{%
             sh = ADI::ServiceContainer::SERVICE_HASH
 
-            # Hub service
             hub = sh["mercure_hub_default"]
-            unless hub
-              raise "missing hub"
-            end
-
             params = hub["parameters"]
-
-            # Token factory should be nil for static token
-            unless params["token_factory"]["value"] == nil.id
-              raise "token_factory should be nil: #{params["token_factory"]["value"]}"
-            end
 
             # Static token provider
             provider = sh["mercure_hub_default_jwt_provider"]
-            unless provider
-              raise "missing provider"
-            end
-
-            unless provider["class"].resolve == Athena::Mercure::TokenProvider::Static
-              raise "wrong provider class: #{provider["class"]}"
-            end
           %}
+          # Token factory should be nil for static token
+          ASPEC.compile_time_assert(\{{ params["token_factory"]["value"] == nil.id }}, "Expected token_factory to be nil")
+          ASPEC.compile_time_assert(\{{ provider["class"].resolve == Athena::Mercure::TokenProvider::Static }}, "Expected provider class to be Athena::Mercure::TokenProvider::Static")
         end
       end
     CR
@@ -195,12 +119,9 @@ describe ABM, tags: "compiled" do
       macro finished
         macro finished
           \{%
-            registry = ADI::ServiceContainer::SERVICE_HASH["mercure_hub_registry"]
-            default_hub = registry["parameters"]["default_hub"]["value"]
-            unless default_hub.stringify =~ /mercure_hub_my_hub/
-              raise "wrong default hub: #{default_hub}"
-            end
+            default_hub = ADI::ServiceContainer::SERVICE_HASH["mercure_hub_registry"]["parameters"]["default_hub"]["value"]
           %}
+          ASPEC.compile_time_assert(\{{ default_hub.stringify =~ /mercure_hub_my_hub/ }}, "Expected default hub to be my_hub")
         end
       end
     CR
@@ -233,10 +154,8 @@ describe ABM, tags: "compiled" do
           \{%
             registry = ADI::ServiceContainer::SERVICE_HASH["mercure_hub_registry"]
             default_hub = registry["parameters"]["default_hub"]["value"]
-            unless default_hub.stringify =~ /mercure_hub_second/
-              raise "wrong default hub: #{default_hub}"
-            end
           %}
+          ASPEC.compile_time_assert(\{{ default_hub.stringify =~ /mercure_hub_second/ }}, "Expected default hub to be second")
         end
       end
     CR
@@ -270,32 +189,12 @@ describe ABM, tags: "compiled" do
 
             # Named aliases for both hubs should be present, plus the unnamed default
             first_alias = aliases.find { |a| a["name"].id == "first" }
-            unless first_alias
-              raise "missing named alias for 'first' hub"
-            end
-
-            unless first_alias["id"].stringify =~ /mercure_hub_first/
-              raise "wrong id for 'first': #{first_alias["id"]}"
-            end
-
             second_alias = aliases.find { |a| a["name"].id == "second" }
-            unless second_alias
-              raise "missing named alias for 'second' hub"
-            end
-
-            unless second_alias["id"].stringify =~ /mercure_hub_second/
-              raise "wrong id for 'second': #{second_alias["id"]}"
-            end
-
             default_alias = aliases.find { |a| a["name"] == nil }
-            unless default_alias
-              raise "missing unnamed default alias"
-            end
-
-            unless default_alias["id"].stringify =~ /mercure_hub_first/
-              raise "default should be first hub: #{default_alias["id"]}"
-            end
           %}
+          ASPEC.compile_time_assert(\{{ first_alias["id"].stringify =~ /mercure_hub_first/ }}, "Expected first alias id to match mercure_hub_first")
+          ASPEC.compile_time_assert(\{{ second_alias["id"].stringify =~ /mercure_hub_second/ }}, "Expected second alias id to match mercure_hub_second")
+          ASPEC.compile_time_assert(\{{ default_alias["id"].stringify =~ /mercure_hub_first/ }}, "Expected default alias to be first hub")
         end
       end
     CR
@@ -322,10 +221,8 @@ describe ABM, tags: "compiled" do
           \{%
             auth = ADI::ServiceContainer::SERVICE_HASH["mercure_authorization"]
             lifetime = auth["parameters"]["cookie_lifetime"]["value"]
-            unless lifetime.stringify == "2.hours"
-              raise "wrong lifetime: #{lifetime}"
-            end
           %}
+          ASPEC.compile_time_assert(\{{ lifetime.stringify == "2.hours" }}, "Expected cookie_lifetime to be 2.hours")
         end
       end
     CR
