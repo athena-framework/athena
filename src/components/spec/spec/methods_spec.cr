@@ -1,4 +1,5 @@
 require "./spec_helper"
+require "file_utils"
 
 describe ASPEC::Methods do
   describe ".assert_compile_time_error", tags: "compiled" do
@@ -40,6 +41,39 @@ describe ASPEC::Methods do
       assert_compiles <<-CR
           raise "Oh no"
         CR
+    end
+
+    it "adjusts macro coverage line numbers for the stdin file" do
+      temp_dir = File.tempname
+      Dir.mkdir_p(temp_dir)
+
+      ENV["ATHENA_SPEC_COVERAGE_OUTPUT_DIR"] = temp_dir
+
+      # We expect the line `{% x = 1 %}` to be called. Using __LINE__ and adding 3 keeps this robust if other tests are added/removed/re-arranged.
+      expected_line = __LINE__ + 3
+      ASPEC::Methods.assert_compiles <<-'CR'
+          macro finished
+            {% x = 1 %}
+          end
+        CR
+
+      coverage_file = Dir.glob(File.join(temp_dir, "macro_coverage.*.codecov.json")).first
+
+      File.open coverage_file do |file|
+        coverage = JSON.parse file
+
+        # Should be 1 coverage file.
+        coverages = coverage.as_h["coverage"].as_h
+        coverages.size.should eq 1
+
+        coverages.each_value do |file_coverage|
+          # The expected line number should be called once
+          file_coverage.as_h.should eq({expected_line.to_s => 1})
+        end
+      end
+    ensure
+      ENV.delete("ATHENA_SPEC_COVERAGE_OUTPUT_DIR")
+      FileUtils.rm_rf(temp_dir) if temp_dir
     end
   end
 

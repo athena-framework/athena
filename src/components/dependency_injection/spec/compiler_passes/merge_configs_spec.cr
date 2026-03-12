@@ -55,12 +55,11 @@ describe ADI::ServiceContainer::MergeConfigs do
         macro finished
           \{%
             config = ADI::CONFIG["test"]
-
-            raise "#{config}" unless config["default_locale"] == "en"
-            raise "#{config}" unless config["cors"]["defaults"]["allow_credentials"] == true
-            raise "#{config}" unless config["cors"]["defaults"]["allow_origin"].size == 1
-            raise "#{config}" unless config["cors"]["defaults"]["allow_origin"][0] == "*"
           %}
+          ASPEC.compile_time_assert(\{{ config["default_locale"] == "en" }}, "Expected default_locale to be en")
+          ASPEC.compile_time_assert(\{{ config["cors"]["defaults"]["allow_credentials"] == true }}, "Expected allow_credentials to be true")
+          ASPEC.compile_time_assert(\{{ config["cors"]["defaults"]["allow_origin"].size == 1 }}, "Expected allow_origin size to be 1")
+          ASPEC.compile_time_assert(\{{ config["cors"]["defaults"]["allow_origin"][0] == "*" }}, "Expected allow_origin[0] to be *")
         end
       end
     CR

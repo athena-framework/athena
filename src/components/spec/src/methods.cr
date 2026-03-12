@@ -33,7 +33,7 @@ module Athena::Spec::Methods
     # TODO: Maybe default this to something?
     if !std_out.empty? && (macro_coverage_output_dir = ENV["ATHENA_SPEC_COVERAGE_OUTPUT_DIR"]?.presence)
       File.open ::Path[macro_coverage_output_dir, "macro_coverage.#{Path[file].stem}:#{line}.codecov.json"], "w" do |coverage_report|
-        IO.copy std_out.rewind, coverage_report
+        coverage_report.print adjust_coverage_line_numbers(std_out, file, line)
       end
     end
 
@@ -81,7 +81,7 @@ module Athena::Spec::Methods
     # TODO: Maybe default this to something?
     if !std_out.empty? && (macro_coverage_output_dir = ENV["ATHENA_SPEC_COVERAGE_OUTPUT_DIR"]?.presence)
       File.open ::Path[macro_coverage_output_dir, "macro_coverage.#{Path[file].stem}:#{line}.codecov.json"], "w" do |coverage_report|
-        IO.copy std_out.rewind, coverage_report
+        coverage_report.print adjust_coverage_line_numbers(std_out, file, line)
       end
     end
 
@@ -103,6 +103,19 @@ module Athena::Spec::Methods
 
     fail buffer.to_s, line: line unless result.success?
     buffer.close
+  end
+
+  # Adjusts line numbers in the coverage JSON for the stdin file entry.
+  # When code is piped via stdin with --stdin-filename, Crystal reports line numbers relative to the stdin content rather than the actual file.
+  private def adjust_coverage_line_numbers(coverage_output : IO, stdin_filename : String, line_offset : Int32) : String
+    coverage = JSON.parse(coverage_output.rewind.gets_to_end)
+
+    coverage.as_h["coverage"].as_h.each do |filename, file_coverage|
+      next unless stdin_filename.ends_with? filename
+      file_coverage.as_h.transform_keys! { |key| (key.to_i + line_offset).to_s }
+    end
+
+    coverage.to_pretty_json
   end
 
   private def execute(code : String, std_out : IO, std_err : IO, file : String, codegen : Bool, macro_code_coverage : Bool = false) : Process::Status

@@ -16,18 +16,17 @@ describe ADI::ServiceContainer::ProcessParameters, tags: "compiled" do
         macro finished
           \{%
             parameters = ADI::ServiceContainer::SERVICE_HASH["some_service"]["parameters"]
-            raise "#{parameters}" unless parameters.size == 1
-
             id = parameters["id"]
-            raise "#{id}" unless id["declaration"].stringify == "id : Int32"
-            raise "#{id}" unless id["name"] == "id"
-            raise "#{id}" unless id["internal_name"] == "id"
-            raise "#{id}" unless id["idx"] == 0
-            raise "#{id}" unless id["restriction"].stringify == "Int32"
-            raise "#{id}" unless id["resolved_restriction"].stringify == "Int32"
-            raise "#{id}" unless id["default_value"].nil?
-            raise "#{id}" unless id["value"] == 123
-            %}
+          %}
+          ASPEC.compile_time_assert(\{{ parameters.size == 1 }}, "Expected parameters size to be 1")
+          ASPEC.compile_time_assert(\{{ id["declaration"].stringify == "id : Int32" }}, "Expected declaration to be id : Int32")
+          ASPEC.compile_time_assert(\{{ id["name"] == "id" }}, "Expected name to be id")
+          ASPEC.compile_time_assert(\{{ id["internal_name"] == "id" }}, "Expected internal_name to be id")
+          ASPEC.compile_time_assert(\{{ id["idx"] == 0 }}, "Expected idx to be 0")
+          ASPEC.compile_time_assert(\{{ id["restriction"].stringify == "Int32" }}, "Expected restriction to be Int32")
+          ASPEC.compile_time_assert(\{{ id["resolved_restriction"].stringify == "Int32" }}, "Expected resolved_restriction to be Int32")
+          ASPEC.compile_time_assert(\{{ id["default_value"].nil? }}, "Expected default_value to be nil")
+          ASPEC.compile_time_assert(\{{ id["value"] == 123 }}, "Expected value to be 123")
         end
       end
     CR
@@ -64,7 +63,7 @@ describe ADI::ServiceContainer::ProcessParameters, tags: "compiled" do
 
       macro finished
         macro finished
-          \{% raise "" unless ADI::ServiceContainer::SERVICE_HASH["some_service"]["parameters"]["id"]["value"] == 999 %}
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::SERVICE_HASH["some_service"]["parameters"]["id"]["value"] == 999 }}, "Expected value to be 999")
         end
       end
     CR
@@ -101,7 +100,7 @@ describe ADI::ServiceContainer::ProcessParameters, tags: "compiled" do
 
       macro finished
         macro finished
-          \{% raise "" unless ADI::ServiceContainer::SERVICE_HASH["some_service"]["parameters"]["id"]["value"] == 999 %}
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::SERVICE_HASH["some_service"]["parameters"]["id"]["value"] == 999 }}, "Expected value to be 999")
         end
       end
     CR

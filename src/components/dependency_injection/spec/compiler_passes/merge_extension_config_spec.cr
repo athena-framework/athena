@@ -338,18 +338,17 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
         macro finished
           \{%
             config = ADI::CONFIG["blah"]
-
-            raise "#{config}" unless config["id"] == 123
-            raise "#{config}" unless config["name"] == "fred"
-            raise "#{config}" unless config["float"] == 10.0
-            raise "#{config}" unless config["nilable"].nil?
-            raise "#{config}" unless config["color_type"].stringify == "Color.new(0)"
-            raise "#{config}" unless config["color_sym"].stringify == "Color.new(:blue)"
-            raise "#{config}" unless config["color_default"].stringify == "Color.new(:green)"
-            raise "#{config}" unless config["color_global"].stringify == "::Color.new(:red)"
-            raise "#{config}" unless config["value"] == {"id" => "10", "name" => "fred"}
-            raise "#{config}" unless config["regex"] == /foo/
           %}
+          ASPEC.compile_time_assert(\{{ config["id"] == 123 }}, "Expected id to be 123")
+          ASPEC.compile_time_assert(\{{ config["name"] == "fred" }}, "Expected name to be fred")
+          ASPEC.compile_time_assert(\{{ config["float"] == 10.0 }}, "Expected float to be 10.0")
+          ASPEC.compile_time_assert(\{{ config["nilable"].nil? }}, "Expected nilable to be nil")
+          ASPEC.compile_time_assert(\{{ config["color_type"].stringify == "Color.new(0)" }}, "Expected color_type to be Color.new(0)")
+          ASPEC.compile_time_assert(\{{ config["color_sym"].stringify == "Color.new(:blue)" }}, "Expected color_sym to be Color.new(:blue)")
+          ASPEC.compile_time_assert(\{{ config["color_default"].stringify == "Color.new(:green)" }}, "Expected color_default to be Color.new(:green)")
+          ASPEC.compile_time_assert(\{{ config["color_global"].stringify == "::Color.new(:red)" }}, "Expected color_global to be ::Color.new(:red)")
+          ASPEC.compile_time_assert(\{{ config["value"] == {"id" => "10", "name" => "fred"} }}, "Expected value to be the expected hash")
+          ASPEC.compile_time_assert(\{{ config["regex"] == /foo/ }}, "Expected regex to be /foo/")
         end
       end
     CR
@@ -371,9 +370,8 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
         macro finished
           \{%
             config = ADI::CONFIG["blah"]
-
-            raise "#{config}" unless config["id"] == 123
           %}
+          ASPEC.compile_time_assert(\{{ config["id"] == 123 }}, "Expected id to be 123")
         end
       end
     CR
@@ -401,9 +399,8 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
         macro finished
           \{%
             config = ADI::CONFIG["test"]
-
-            raise "#{config}" unless config["foo"] == [1, 2]
           %}
+          ASPEC.compile_time_assert(\{{ config["foo"] == [1, 2] }}, "Expected foo to be [1, 2]")
         end
       end
     CR
@@ -425,9 +422,8 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
         macro finished
           \{%
             config = ADI::CONFIG["test"]
-
-            raise "#{config}" unless config["foo"].stringify == "Array(Int32 | String).new"
           %}
+          ASPEC.compile_time_assert(\{{ config["foo"].stringify == "Array(Int32 | String).new" }}, "Expected foo to stringify as empty array")
         end
       end
     CR
@@ -455,9 +451,8 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
         macro finished
           \{%
             config = ADI::CONFIG["test"]
-
-            raise "#{config}" unless config["foo"] == [1, 2]
           %}
+          ASPEC.compile_time_assert(\{{ config["foo"] == [1, 2] }}, "Expected foo to be [1, 2]")
         end
       end
     CR
@@ -489,10 +484,9 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
         macro finished
           \{%
             config = ADI::CONFIG["test"]
-
-            raise "#{config}" unless config["one"]["enabled"] == false
-            raise "#{config}" unless config["two"]["enabled"] == false
           %}
+          ASPEC.compile_time_assert(\{{ config["one"]["enabled"] == false }}, "Expected one.enabled to be false")
+          ASPEC.compile_time_assert(\{{ config["two"]["enabled"] == false }}, "Expected two.enabled to be false")
         end
       end
     CR
@@ -539,13 +533,11 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
         macro finished
           \{%
             config = ADI::CONFIG["test"]
-
-            raise "#{config}" unless config["one"]["enabled"] == false
-            raise "#{config}" unless config["one"]["id"] == 10
-
-            raise "#{config}" unless config["two"]["enabled"] == false
-            raise "#{config}" unless config["two"]["three"]["enabled"] == false
           %}
+          ASPEC.compile_time_assert(\{{ config["one"]["enabled"] == false }}, "Expected one.enabled to be false")
+          ASPEC.compile_time_assert(\{{ config["one"]["id"] == 10 }}, "Expected one.id to be 10")
+          ASPEC.compile_time_assert(\{{ config["two"]["enabled"] == false }}, "Expected two.enabled to be false")
+          ASPEC.compile_time_assert(\{{ config["two"]["three"]["enabled"] == false }}, "Expected two.three.enabled to be false")
         end
       end
     CR
@@ -574,10 +566,9 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
         macro finished
           \{%
             config = ADI::CONFIG["test"]
-
-            raise "#{config}" unless config["rules"][0]["id"] == 10
-            raise "#{config}" unless config["rules"][0]["stop"] == false
           %}
+          ASPEC.compile_time_assert(\{{ config["rules"][0]["id"] == 10 }}, "Expected rules[0].id to be 10")
+          ASPEC.compile_time_assert(\{{ config["rules"][0]["stop"] == false }}, "Expected rules[0].stop to be false")
         end
       end
     CR
@@ -619,9 +610,8 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
         macro finished
           \{%
             parameters = ADI::CONFIG["parameters"]
-
-            raise "#{parameters}" unless parameters["stop"] == false
           %}
+          ASPEC.compile_time_assert(\{{ parameters["stop"] == false }}, "Expected parameters stop to be false")
         end
       end
     CR
@@ -658,15 +648,13 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
         macro finished
           \{%
             config = ADI::CONFIG["test"]
-
-            raise "#{config}" unless config["items"][0]["name"] == "item1"
-            raise "#{config}" unless config["items"][0]["jwt"]["secret"] == "secret1"
-            raise "#{config}" unless config["items"][0]["jwt"]["algorithm"] == "hmac.sha256"
-
-            raise "#{config}" unless config["items"][1]["name"] == "item2"
-            raise "#{config}" unless config["items"][1]["jwt"]["secret"] == "secret2"
-            raise "#{config}" unless config["items"][1]["jwt"]["algorithm"] == "hmac.sha256"
           %}
+          ASPEC.compile_time_assert(\{{ config["items"][0]["name"] == "item1" }}, "Expected items[0].name to be item1")
+          ASPEC.compile_time_assert(\{{ config["items"][0]["jwt"]["secret"] == "secret1" }}, "Expected items[0].jwt.secret to be secret1")
+          ASPEC.compile_time_assert(\{{ config["items"][0]["jwt"]["algorithm"] == "hmac.sha256" }}, "Expected items[0].jwt.algorithm to be hmac.sha256")
+          ASPEC.compile_time_assert(\{{ config["items"][1]["name"] == "item2" }}, "Expected items[1].name to be item2")
+          ASPEC.compile_time_assert(\{{ config["items"][1]["jwt"]["secret"] == "secret2" }}, "Expected items[1].jwt.secret to be secret2")
+          ASPEC.compile_time_assert(\{{ config["items"][1]["jwt"]["algorithm"] == "hmac.sha256" }}, "Expected items[1].jwt.algorithm to be hmac.sha256")
         end
       end
     CR
@@ -703,11 +691,10 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
         macro finished
           \{%
             config = ADI::CONFIG["test"]
-
-            raise "#{config}" unless config["connection"]["url"] == "localhost"
-            raise "#{config}" unless config["connection"]["jwt"]["secret"] == "my-secret"
-            raise "#{config}" unless config["connection"]["jwt"]["algorithm"] == "hmac.sha256"
           %}
+          ASPEC.compile_time_assert(\{{ config["connection"]["url"] == "localhost" }}, "Expected connection.url to be localhost")
+          ASPEC.compile_time_assert(\{{ config["connection"]["jwt"]["secret"] == "my-secret" }}, "Expected connection.jwt.secret to be my-secret")
+          ASPEC.compile_time_assert(\{{ config["connection"]["jwt"]["algorithm"] == "hmac.sha256" }}, "Expected connection.jwt.algorithm to be hmac.sha256")
         end
       end
     CR
@@ -735,11 +722,10 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
         macro finished
           \{%
             config = ADI::CONFIG["blah"]
-
-            raise "#{config}" unless config["config"].keys.stringify == %([__nil, id, name])
-            raise "#{config}" unless config["config"]["id"] == 10
-            raise "#{config}" unless config["config"]["name"].nil?
           %}
+          ASPEC.compile_time_assert(\{{ config["config"].keys.stringify == %([__nil, id, name]) }}, "Expected config keys to be [__nil, id, name]")
+          ASPEC.compile_time_assert(\{{ config["config"]["id"] == 10 }}, "Expected config.id to be 10")
+          ASPEC.compile_time_assert(\{{ config["config"]["name"].nil? }}, "Expected config.name to be nil")
         end
       end
     CR
@@ -761,11 +747,10 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
         macro finished
           \{%
             config = ADI::CONFIG["blah"]
-
-            raise "#{config}" unless config["config"].keys.stringify == %([id, name])
-            raise "#{config}" unless config["config"]["id"] == 123
-            raise "#{config}" unless config["config"]["name"].nil?
           %}
+          ASPEC.compile_time_assert(\{{ config["config"].keys.stringify == %([id, name]) }}, "Expected config keys to be [id, name]")
+          ASPEC.compile_time_assert(\{{ config["config"]["id"] == 123 }}, "Expected config.id to be 123")
+          ASPEC.compile_time_assert(\{{ config["config"]["name"].nil? }}, "Expected config.name to be nil")
         end
       end
     CR
@@ -796,12 +781,11 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           macro finished
             \{%
               config = ADI::CONFIG["test"]
-
-              raise "#{config}" unless config["hubs"]["primary"]["url"] == "localhost"
-              raise "#{config}" unless config["hubs"]["primary"]["port"] == 5432
-              raise "#{config}" unless config["hubs"]["secondary"]["url"] == "remote"
-              raise "#{config}" unless config["hubs"]["secondary"]["port"] == 5433
             %}
+            ASPEC.compile_time_assert(\{{ config["hubs"]["primary"]["url"] == "localhost" }}, "Expected hubs.primary.url to be localhost")
+            ASPEC.compile_time_assert(\{{ config["hubs"]["primary"]["port"] == 5432 }}, "Expected hubs.primary.port to be 5432")
+            ASPEC.compile_time_assert(\{{ config["hubs"]["secondary"]["url"] == "remote" }}, "Expected hubs.secondary.url to be remote")
+            ASPEC.compile_time_assert(\{{ config["hubs"]["secondary"]["port"] == 5433 }}, "Expected hubs.secondary.port to be 5433")
           end
         end
       CR
@@ -829,14 +813,16 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
 
               # Check that hubs key exists and is empty (when converted to string, looks like "{}" or "{hubs => {}}")
               found_hubs = false
+              hubs_empty = false
               config.each do |k, v|
                 if k.stringify == "hubs"
                   found_hubs = true
-                  raise "Expected empty hash but got #{v}" unless v.keys.reject { |vk| vk.stringify == "__nil" }.empty?
+                  hubs_empty = v.keys.reject { |vk| vk.stringify == "__nil" }.empty?
                 end
               end
-              raise "hubs key not found in config: #{config}" unless found_hubs
             %}
+            ASPEC.compile_time_assert(\{{ found_hubs }}, "Expected hubs key to exist in config")
+            ASPEC.compile_time_assert(\{{ hubs_empty }}, "Expected empty hash for hubs")
           end
         end
       CR
@@ -861,9 +847,8 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           macro finished
             \{%
               config = ADI::CONFIG["test"]
-
-              raise "#{config}" unless config["hubs"].nil?
             %}
+            ASPEC.compile_time_assert(\{{ config["hubs"].nil? }}, "Expected hubs to be nil")
           end
         end
       CR
@@ -902,11 +887,10 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           macro finished
             \{%
               config = ADI::CONFIG["test"]
-
-              raise "#{config}" unless config["hubs"]["primary"]["url"] == "localhost"
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["secret"] == "my-secret"
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["algorithm"] == "hmac.sha256"
             %}
+            ASPEC.compile_time_assert(\{{ config["hubs"]["primary"]["url"] == "localhost" }}, "Expected hubs.primary.url to be localhost")
+            ASPEC.compile_time_assert(\{{ config["hubs"]["primary"]["jwt"]["secret"] == "my-secret" }}, "Expected hubs.primary.jwt.secret to be my-secret")
+            ASPEC.compile_time_assert(\{{ config["hubs"]["primary"]["jwt"]["algorithm"] == "hmac.sha256" }}, "Expected hubs.primary.jwt.algorithm to be hmac.sha256")
           end
         end
       CR
@@ -1062,15 +1046,13 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           macro finished
             \{%
               config = ADI::CONFIG["test"]
-
-              # Verify both entries get their own independent defaults
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["algorithm"] == "hmac.sha256"
-              raise "#{config}" unless config["hubs"]["secondary"]["jwt"]["algorithm"] == "hmac.sha256"
-
-              # And their unique values are preserved
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["secret"] == "secret1"
-              raise "#{config}" unless config["hubs"]["secondary"]["jwt"]["secret"] == "secret2"
             %}
+            # Verify both entries get their own independent defaults
+            ASPEC.compile_time_assert(\{{ config["hubs"]["primary"]["jwt"]["algorithm"] == "hmac.sha256" }}, "Expected hubs.primary.jwt.algorithm to be hmac.sha256")
+            ASPEC.compile_time_assert(\{{ config["hubs"]["secondary"]["jwt"]["algorithm"] == "hmac.sha256" }}, "Expected hubs.secondary.jwt.algorithm to be hmac.sha256")
+            # And their unique values are preserved
+            ASPEC.compile_time_assert(\{{ config["hubs"]["primary"]["jwt"]["secret"] == "secret1" }}, "Expected hubs.primary.jwt.secret to be secret1")
+            ASPEC.compile_time_assert(\{{ config["hubs"]["secondary"]["jwt"]["secret"] == "secret2" }}, "Expected hubs.secondary.jwt.secret to be secret2")
           end
         end
       CR
@@ -1151,11 +1133,10 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           macro finished
             \{%
               config = ADI::CONFIG["test"]
-
-              # Custom default entry should be present with its values
-              raise "#{config}" unless config["hubs"]["default"]["url"] == "localhost"
-              raise "#{config}" unless config["hubs"]["default"]["port"] == 8080
             %}
+            # Custom default entry should be present with its values
+            ASPEC.compile_time_assert(\{{ config["hubs"]["default"]["url"] == "localhost" }}, "Expected hubs.default.url to be localhost")
+            ASPEC.compile_time_assert(\{{ config["hubs"]["default"]["port"] == 8080 }}, "Expected hubs.default.port to be 8080")
           end
         end
       CR
@@ -1200,11 +1181,10 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           macro finished
             \{%
               config = ADI::CONFIG["test"]
-
-              raise "#{config}" unless config["hubs"]["primary"]["url"] == "localhost"
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["secret"] == "my-secret"
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs256)"
             %}
+            ASPEC.compile_time_assert(\{{ config["hubs"]["primary"]["url"] == "localhost" }}, "Expected hubs.primary.url to be localhost")
+            ASPEC.compile_time_assert(\{{ config["hubs"]["primary"]["jwt"]["secret"] == "my-secret" }}, "Expected hubs.primary.jwt.secret to be my-secret")
+            ASPEC.compile_time_assert(\{{ config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs256)" }}, "Expected hubs.primary.jwt.algorithm to be Algorithm.new(:hs256)")
           end
         end
       CR
@@ -1249,11 +1229,10 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           macro finished
             \{%
               config = ADI::CONFIG["test"]
-
-              raise "#{config}" unless config["hubs"]["primary"]["url"] == "localhost"
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["secret"] == "my-secret"
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs512)"
             %}
+            ASPEC.compile_time_assert(\{{ config["hubs"]["primary"]["url"] == "localhost" }}, "Expected hubs.primary.url to be localhost")
+            ASPEC.compile_time_assert(\{{ config["hubs"]["primary"]["jwt"]["secret"] == "my-secret" }}, "Expected hubs.primary.jwt.secret to be my-secret")
+            ASPEC.compile_time_assert(\{{ config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs512)" }}, "Expected hubs.primary.jwt.algorithm to be Algorithm.new(:hs512)")
           end
         end
       CR
@@ -1298,9 +1277,8 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           macro finished
             \{%
               config = ADI::CONFIG["test"]
-
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "::Algorithm.new(:hs256)"
             %}
+            ASPEC.compile_time_assert(\{{ config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "::Algorithm.new(:hs256)" }}, "Expected hubs.primary.jwt.algorithm to be ::Algorithm.new(:hs256)")
           end
         end
       CR
@@ -1412,11 +1390,10 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           macro finished
             \{%
               config = ADI::CONFIG["test"]
-
-              raise "#{config}" unless config["items"][0]["name"] == "item1"
-              raise "#{config}" unless config["items"][0]["jwt"]["secret"] == "my-secret"
-              raise "#{config}" unless config["items"][0]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs256)"
             %}
+            ASPEC.compile_time_assert(\{{ config["items"][0]["name"] == "item1" }}, "Expected items[0].name to be item1")
+            ASPEC.compile_time_assert(\{{ config["items"][0]["jwt"]["secret"] == "my-secret" }}, "Expected items[0].jwt.secret to be my-secret")
+            ASPEC.compile_time_assert(\{{ config["items"][0]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs256)" }}, "Expected items[0].jwt.algorithm to be Algorithm.new(:hs256)")
           end
         end
       CR
@@ -1458,9 +1435,8 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           macro finished
             \{%
               config = ADI::CONFIG["test"]
-
-              raise "#{config}" unless config["items"][0]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs512)"
             %}
+            ASPEC.compile_time_assert(\{{ config["items"][0]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs512)" }}, "Expected items[0].jwt.algorithm to be Algorithm.new(:hs512)")
           end
         end
       CR
@@ -1567,11 +1543,10 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           macro finished
             \{%
               config = ADI::CONFIG["test"]
-
-              raise "#{config}" unless config["connection"]["url"] == "localhost"
-              raise "#{config}" unless config["connection"]["jwt"]["secret"] == "my-secret"
-              raise "#{config}" unless config["connection"]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs256)"
             %}
+            ASPEC.compile_time_assert(\{{ config["connection"]["url"] == "localhost" }}, "Expected connection.url to be localhost")
+            ASPEC.compile_time_assert(\{{ config["connection"]["jwt"]["secret"] == "my-secret" }}, "Expected connection.jwt.secret to be my-secret")
+            ASPEC.compile_time_assert(\{{ config["connection"]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs256)" }}, "Expected connection.jwt.algorithm to be Algorithm.new(:hs256)")
           end
         end
       CR
@@ -1614,9 +1589,8 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           macro finished
             \{%
               config = ADI::CONFIG["test"]
-
-              raise "#{config}" unless config["connection"]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs512)"
             %}
+            ASPEC.compile_time_assert(\{{ config["connection"]["jwt"]["algorithm"].stringify == "Algorithm.new(:hs512)" }}, "Expected connection.jwt.algorithm to be Algorithm.new(:hs512)")
           end
         end
       CR
@@ -1727,9 +1701,8 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           macro finished
             \{%
               config = ADI::CONFIG["test"]
-
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "Algorithm.new(0)"
             %}
+            ASPEC.compile_time_assert(\{{ config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "Algorithm.new(0)" }}, "Expected hubs.primary.jwt.algorithm to be Algorithm.new(0)")
           end
         end
       CR
@@ -1774,9 +1747,8 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           macro finished
             \{%
               config = ADI::CONFIG["test"]
-
-              raise "#{config}" unless config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "Algorithm.new(2)"
             %}
+            ASPEC.compile_time_assert(\{{ config["hubs"]["primary"]["jwt"]["algorithm"].stringify == "Algorithm.new(2)" }}, "Expected hubs.primary.jwt.algorithm to be Algorithm.new(2)")
           end
         end
       CR
@@ -1818,9 +1790,8 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           macro finished
             \{%
               config = ADI::CONFIG["test"]
-
-              raise "#{config}" unless config["items"][0]["jwt"]["algorithm"].stringify == "Algorithm.new(0)"
             %}
+            ASPEC.compile_time_assert(\{{ config["items"][0]["jwt"]["algorithm"].stringify == "Algorithm.new(0)" }}, "Expected items[0].jwt.algorithm to be Algorithm.new(0)")
           end
         end
       CR
@@ -1862,9 +1833,8 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           macro finished
             \{%
               config = ADI::CONFIG["test"]
-
-              raise "#{config}" unless config["items"][0]["jwt"]["algorithm"].stringify == "Algorithm.new(2)"
             %}
+            ASPEC.compile_time_assert(\{{ config["items"][0]["jwt"]["algorithm"].stringify == "Algorithm.new(2)" }}, "Expected items[0].jwt.algorithm to be Algorithm.new(2)")
           end
         end
       CR
@@ -1907,9 +1877,8 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           macro finished
             \{%
               config = ADI::CONFIG["test"]
-
-              raise "#{config}" unless config["connection"]["jwt"]["algorithm"].stringify == "Algorithm.new(0)"
             %}
+            ASPEC.compile_time_assert(\{{ config["connection"]["jwt"]["algorithm"].stringify == "Algorithm.new(0)" }}, "Expected connection.jwt.algorithm to be Algorithm.new(0)")
           end
         end
       CR
@@ -1952,9 +1921,8 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           macro finished
             \{%
               config = ADI::CONFIG["test"]
-
-              raise "#{config}" unless config["connection"]["jwt"]["algorithm"].stringify == "Algorithm.new(2)"
             %}
+            ASPEC.compile_time_assert(\{{ config["connection"]["jwt"]["algorithm"].stringify == "Algorithm.new(2)" }}, "Expected connection.jwt.algorithm to be Algorithm.new(2)")
           end
         end
       CR
@@ -1993,12 +1961,11 @@ describe ADI::ServiceContainer::MergeExtensionConfig, tags: "compiled" do
           \{%
             first_config = ADI::CONFIG["first"]
             second_config = ADI::CONFIG["second"]
-
-            raise "#{first_config}" unless first_config["root_prop"] == "root"
-            raise "#{first_config}" unless first_config["nested"]["nested_prop"] == 42
-            raise "#{second_config}" unless second_config["other_prop"] == true
-            raise "second should not have 'nested' key: #{second_config}" if second_config["nested"] != nil
           %}
+          ASPEC.compile_time_assert(\{{ first_config["root_prop"] == "root" }}, "Expected first.root_prop to be root")
+          ASPEC.compile_time_assert(\{{ first_config["nested"]["nested_prop"] == 42 }}, "Expected first.nested.nested_prop to be 42")
+          ASPEC.compile_time_assert(\{{ second_config["other_prop"] == true }}, "Expected second.other_prop to be true")
+          ASPEC.compile_time_assert(\{{ second_config["nested"] == nil }}, "Expected second to not have nested key")
         end
       end
     CR
