@@ -152,8 +152,7 @@ describe ABM, tags: "compiled" do
       macro finished
         macro finished
           \{%
-            registry = ADI::ServiceContainer::SERVICE_HASH["mercure_hub_registry"]
-            default_hub = registry["parameters"]["default_hub"]["value"]
+            default_hub = ADI::ServiceContainer::SERVICE_HASH["mercure_hub_registry"]["parameters"]["default_hub"]["value"]
           %}
           ASPEC.compile_time_assert(\{{ default_hub.stringify =~ /mercure_hub_second/ }}, "Expected default hub to be second")
         end
@@ -219,8 +218,7 @@ describe ABM, tags: "compiled" do
       macro finished
         macro finished
           \{%
-            auth = ADI::ServiceContainer::SERVICE_HASH["mercure_authorization"]
-            lifetime = auth["parameters"]["cookie_lifetime"]["value"]
+            lifetime = ADI::ServiceContainer::SERVICE_HASH["mercure_authorization"]["parameters"]["cookie_lifetime"]["value"]
           %}
           ASPEC.compile_time_assert(\{{ lifetime.stringify == "2.hours" }}, "Expected cookie_lifetime to be 2.hours")
         end
