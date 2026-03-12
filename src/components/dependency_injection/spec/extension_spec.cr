@@ -35,39 +35,15 @@ describe ADI::Extension, tags: "compiled" do
         macro finished
           \{%
              options = Schema::OPTIONS
-
-             unless options.size == 2
-               raise "#{options}"
-             end
-
-             unless options[0]["name"] == "id"
-               raise "#{options}"
-             end
-
-             unless options[0]["type"] == Int32
-               raise "#{options}"
-             end
-
-             unless options[0]["default"].nil?
-               raise "#{options}"
-             end
-
-             unless options[1]["name"] == "name"
-               raise "#{options}"
-             end
-
-             unless options[1]["type"] == String
-               raise "#{options}"
-             end
-
-             unless options[1]["default"] == "Fred"
-               raise "#{options}"
-             end
-
-             unless Schema::CONFIG_DOCS.stringify == %([{"name":"id","type":"`Int32`","default":"``"}, {"name":"name","type":"`String`","default":"`Fred`"}] of Nil)
-               raise "#{Schema::CONFIG_DOCS}"
-             end
           %}
+          ASPEC.compile_time_assert(\{{ options.size == 2 }}, "Expected options size to be 2")
+          ASPEC.compile_time_assert(\{{ options[0]["name"] == "id" }}, "Expected first option name to be id")
+          ASPEC.compile_time_assert(\{{ options[0]["type"] == Int32 }}, "Expected first option type to be Int32")
+          ASPEC.compile_time_assert(\{{ options[0]["default"].nil? }}, "Expected first option default to be nil")
+          ASPEC.compile_time_assert(\{{ options[1]["name"] == "name" }}, "Expected second option name to be name")
+          ASPEC.compile_time_assert(\{{ options[1]["type"] == String }}, "Expected second option type to be String")
+          ASPEC.compile_time_assert(\{{ options[1]["default"] == "Fred" }}, "Expected second option default to be Fred")
+          ASPEC.compile_time_assert(\{{ Schema::CONFIG_DOCS.stringify == %([{"name":"id","type":"`Int32`","default":"``"}, {"name":"name","type":"`String`","default":"`Fred`"}] of Nil) }}, "Expected CONFIG_DOCS to match")
         end
       end
     CR
@@ -86,27 +62,12 @@ describe ADI::Extension, tags: "compiled" do
         macro finished
           \{%
              options = Schema::OPTIONS
-
-             unless options.size == 1
-               raise "#{options}"
-             end
-
-             unless options[0]["name"] == "values"
-               raise "#{options}"
-             end
-
-             unless options[0]["type"] == Array(Int32 | String)
-               raise "#{options}"
-             end
-
-             unless options[0]["default"].stringify == "Array(Int32 | String).new"
-               raise "#{options}"
-             end
-
-             unless Schema::CONFIG_DOCS.stringify == %([{"name":"values","type":"`Array(Int32 | String)`","default":"`Array(Int32 | String).new`"}] of Nil)
-               raise "#{Schema::CONFIG_DOCS}"
-             end
           %}
+          ASPEC.compile_time_assert(\{{ options.size == 1 }}, "Expected options size to be 1")
+          ASPEC.compile_time_assert(\{{ options[0]["name"] == "values" }}, "Expected option name to be values")
+          ASPEC.compile_time_assert(\{{ options[0]["type"] == Array(Int32 | String) }}, "Expected option type to be Array(Int32 | String)")
+          ASPEC.compile_time_assert(\{{ options[0]["default"].stringify == "Array(Int32 | String).new" }}, "Expected option default to be Array(Int32 | String).new")
+          ASPEC.compile_time_assert(\{{ Schema::CONFIG_DOCS.stringify == %([{"name":"values","type":"`Array(Int32 | String)`","default":"`Array(Int32 | String).new`"}] of Nil) }}, "Expected CONFIG_DOCS to match")
         end
       end
     CR
@@ -138,19 +99,10 @@ describe ADI::Extension, tags: "compiled" do
           macro finished
             \{%
                config = ADI::CONFIG["test"]
-
-               unless config["connection"]["username"] == "addminn"
-                 raise "#{config}"
-               end
-
-               unless config["connection"]["password"] == "abc123"
-                 raise "#{config}"
-               end
-
-               unless config["connection"]["port"] == 1234
-                 raise "#{config}"
-               end
             %}
+            ASPEC.compile_time_assert(\{{ config["connection"]["username"] == "addminn" }}, "Expected connection username to be addminn")
+            ASPEC.compile_time_assert(\{{ config["connection"]["password"] == "abc123" }}, "Expected connection password to be abc123")
+            ASPEC.compile_time_assert(\{{ config["connection"]["port"] == 1234 }}, "Expected connection port to be 1234")
           end
         end
       CR
@@ -220,48 +172,18 @@ describe ADI::Extension, tags: "compiled" do
           macro finished
             \{%
              options = Schema::OPTIONS
-
-             unless options.size == 1
-               raise "#{options}"
-             end
-
-             unless options[0]["name"] == "rule"
-               raise "#{options}"
-             end
-
-             unless options[0]["type"].stringify == "NamedTuple(T)"
-               raise "#{options}"
-             end
-
-             unless options[0]["default"].nil?
-               raise "#{options}"
-             end
-
              members = options[0]["members"]
-             unless members.size == 3 # Account for __nil
-               raise "#{members}"
-             end
-
-             unless members["id"].type.stringify == "Int32"
-               raise "#{members}"
-             end
-
-             unless members["id"].value.nil?
-               raise "#{members}"
-             end
-
-             unless members["stop"].type.stringify == "Bool"
-               raise "#{members}"
-             end
-
-             unless members["stop"].value == false
-               raise "#{members}"
-             end
-
-             unless Schema::CONFIG_DOCS.stringify == %([{"name":"rule","type":"`NamedTuple(T)`","default":"``","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil)
-               raise "#{Schema::CONFIG_DOCS}"
-             end
             %}
+            ASPEC.compile_time_assert(\{{ options.size == 1 }}, "Expected options size to be 1")
+            ASPEC.compile_time_assert(\{{ options[0]["name"] == "rule" }}, "Expected option name to be rule")
+            ASPEC.compile_time_assert(\{{ options[0]["type"].stringify == "NamedTuple(T)" }}, "Expected option type to be NamedTuple(T)")
+            ASPEC.compile_time_assert(\{{ options[0]["default"].nil? }}, "Expected option default to be nil")
+            ASPEC.compile_time_assert(\{{ members.size == 3 }}, "Expected members size to be 3") # Account for __nil
+            ASPEC.compile_time_assert(\{{ members["id"].type.stringify == "Int32" }}, "Expected id type to be Int32")
+            ASPEC.compile_time_assert(\{{ members["id"].value.nil? }}, "Expected id value to be nil")
+            ASPEC.compile_time_assert(\{{ members["stop"].type.stringify == "Bool" }}, "Expected stop type to be Bool")
+            ASPEC.compile_time_assert(\{{ members["stop"].value == false }}, "Expected stop value to be false")
+            ASPEC.compile_time_assert(\{{ Schema::CONFIG_DOCS.stringify == %([{"name":"rule","type":"`NamedTuple(T)`","default":"``","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil) }}, "Expected CONFIG_DOCS to match")
           end
         end
       CR
@@ -280,48 +202,18 @@ describe ADI::Extension, tags: "compiled" do
           macro finished
             \{%
              options = Schema::OPTIONS
-
-             unless options.size == 1
-               raise "#{options}"
-             end
-
-             unless options[0]["name"] == "rule"
-               raise "#{options}"
-             end
-
-             unless options[0]["type"].stringify == "NamedTuple(T)"
-               raise "#{options}"
-             end
-
-             unless options[0]["default"] == {id: 999, stop: false}
-               raise "#{options}"
-             end
-
              members = options[0]["members"]
-             unless members.size == 3 # Account for __nil
-               raise "#{members}"
-             end
-
-             unless members["id"].type.stringify == "Int32"
-               raise "#{members}"
-             end
-
-             unless members["id"].value.nil?
-               raise "#{members}"
-             end
-
-             unless members["stop"].type.stringify == "Bool"
-               raise "#{members}"
-             end
-
-             unless members["stop"].value == false
-               raise "#{members}"
-             end
-
-             unless Schema::CONFIG_DOCS.stringify == %([{"name":"rule","type":"`NamedTuple(T)`","default":"`{id: 999}`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil)
-               raise "#{Schema::CONFIG_DOCS}"
-             end
             %}
+            ASPEC.compile_time_assert(\{{ options.size == 1 }}, "Expected options size to be 1")
+            ASPEC.compile_time_assert(\{{ options[0]["name"] == "rule" }}, "Expected option name to be rule")
+            ASPEC.compile_time_assert(\{{ options[0]["type"].stringify == "NamedTuple(T)" }}, "Expected option type to be NamedTuple(T)")
+            ASPEC.compile_time_assert(\{{ options[0]["default"] == {id: 999, stop: false} }}, "Expected option default to match")
+            ASPEC.compile_time_assert(\{{ members.size == 3 }}, "Expected members size to be 3") # Account for __nil
+            ASPEC.compile_time_assert(\{{ members["id"].type.stringify == "Int32" }}, "Expected id type to be Int32")
+            ASPEC.compile_time_assert(\{{ members["id"].value.nil? }}, "Expected id value to be nil")
+            ASPEC.compile_time_assert(\{{ members["stop"].type.stringify == "Bool" }}, "Expected stop type to be Bool")
+            ASPEC.compile_time_assert(\{{ members["stop"].value == false }}, "Expected stop value to be false")
+            ASPEC.compile_time_assert(\{{ Schema::CONFIG_DOCS.stringify == %([{"name":"rule","type":"`NamedTuple(T)`","default":"`{id: 999}`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil) }}, "Expected CONFIG_DOCS to match")
           end
         end
       CR
@@ -340,48 +232,18 @@ describe ADI::Extension, tags: "compiled" do
           macro finished
             \{%
              options = Schema::OPTIONS
-
-             unless options.size == 1
-               raise "#{options}"
-             end
-
-             unless options[0]["name"] == "rule"
-               raise "#{options}"
-             end
-
-             unless options[0]["type"].stringify == "(NamedTuple(T) | Nil)"
-               raise "#{options}"
-             end
-
-             unless options[0]["default"].nil?
-               raise "#{options}"
-             end
-
              members = options[0]["members"]
-             unless members.size == 3 # Account for __nil
-               raise "#{members}"
-             end
-
-             unless members["id"].type.stringify == "Int32"
-               raise "#{members}"
-             end
-
-             unless members["id"].value.nil?
-               raise "#{members}"
-             end
-
-             unless members["stop"].type.stringify == "Bool"
-               raise "#{members}"
-             end
-
-             unless members["stop"].value == false
-               raise "#{members}"
-             end
-
-             unless Schema::CONFIG_DOCS.stringify == %([{"name":"rule","type":"`(NamedTuple(T) | Nil)`","default":"`nil`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil)
-               raise "#{Schema::CONFIG_DOCS}"
-             end
             %}
+            ASPEC.compile_time_assert(\{{ options.size == 1 }}, "Expected options size to be 1")
+            ASPEC.compile_time_assert(\{{ options[0]["name"] == "rule" }}, "Expected option name to be rule")
+            ASPEC.compile_time_assert(\{{ options[0]["type"].stringify == "(NamedTuple(T) | Nil)" }}, "Expected option type to be (NamedTuple(T) | Nil)")
+            ASPEC.compile_time_assert(\{{ options[0]["default"].nil? }}, "Expected option default to be nil")
+            ASPEC.compile_time_assert(\{{ members.size == 3 }}, "Expected members size to be 3") # Account for __nil
+            ASPEC.compile_time_assert(\{{ members["id"].type.stringify == "Int32" }}, "Expected id type to be Int32")
+            ASPEC.compile_time_assert(\{{ members["id"].value.nil? }}, "Expected id value to be nil")
+            ASPEC.compile_time_assert(\{{ members["stop"].type.stringify == "Bool" }}, "Expected stop type to be Bool")
+            ASPEC.compile_time_assert(\{{ members["stop"].value == false }}, "Expected stop value to be false")
+            ASPEC.compile_time_assert(\{{ Schema::CONFIG_DOCS.stringify == %([{"name":"rule","type":"`(NamedTuple(T) | Nil)`","default":"`nil`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil) }}, "Expected CONFIG_DOCS to match")
           end
         end
       CR
@@ -400,48 +262,18 @@ describe ADI::Extension, tags: "compiled" do
           macro finished
             \{%
              options = Schema::OPTIONS
-
-             unless options.size == 1
-               raise "#{options}"
-             end
-
-             unless options[0]["name"] == "rule"
-               raise "#{options}"
-             end
-
-             unless options[0]["type"].stringify == "(NamedTuple(T) | Nil)"
-               raise "#{options}"
-             end
-
-             unless options[0]["default"].nil?
-               raise "#{options}"
-             end
-
              members = options[0]["members"]
-             unless members.size == 3 # Account for __nil
-               raise "#{members}"
-             end
-
-             unless members["id"].type.stringify == "Int32"
-               raise "#{members}"
-             end
-
-             unless members["id"].value.nil?
-               raise "#{members}"
-             end
-
-             unless members["stop"].type.stringify == "Bool"
-               raise "#{members}"
-             end
-
-             unless members["stop"].value == false
-               raise "#{members}"
-             end
-
-             unless Schema::CONFIG_DOCS.stringify == %([{"name":"rule","type":"`(NamedTuple(T) | Nil)`","default":"`{id: 999}`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil)
-               raise "#{Schema::CONFIG_DOCS}"
-             end
             %}
+            ASPEC.compile_time_assert(\{{ options.size == 1 }}, "Expected options size to be 1")
+            ASPEC.compile_time_assert(\{{ options[0]["name"] == "rule" }}, "Expected option name to be rule")
+            ASPEC.compile_time_assert(\{{ options[0]["type"].stringify == "(NamedTuple(T) | Nil)" }}, "Expected option type to be (NamedTuple(T) | Nil)")
+            ASPEC.compile_time_assert(\{{ options[0]["default"].nil? }}, "Expected option default to be nil")
+            ASPEC.compile_time_assert(\{{ members.size == 3 }}, "Expected members size to be 3") # Account for __nil
+            ASPEC.compile_time_assert(\{{ members["id"].type.stringify == "Int32" }}, "Expected id type to be Int32")
+            ASPEC.compile_time_assert(\{{ members["id"].value.nil? }}, "Expected id value to be nil")
+            ASPEC.compile_time_assert(\{{ members["stop"].type.stringify == "Bool" }}, "Expected stop type to be Bool")
+            ASPEC.compile_time_assert(\{{ members["stop"].value == false }}, "Expected stop value to be false")
+            ASPEC.compile_time_assert(\{{ Schema::CONFIG_DOCS.stringify == %([{"name":"rule","type":"`(NamedTuple(T) | Nil)`","default":"`{id: 999}`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil) }}, "Expected CONFIG_DOCS to match")
           end
         end
       CR
@@ -462,44 +294,17 @@ describe ADI::Extension, tags: "compiled" do
           macro finished
             \{%
              options = Schema::OPTIONS
-
-             unless options.size == 1
-               raise "#{options}"
-             end
-
-             unless options[0]["name"] == "rules"
-               raise "#{options}"
-             end
-
-             unless options[0]["type"].stringify == "Array(T)"
-               raise "#{options}"
-             end
-
-             unless options[0]["default"].stringify == "[]"
-               raise "#{options}"
-             end
-
              members = options[0]["members"]
-             unless members.size == 3 # Account for __nil
-               raise "#{members}"
-             end
-
-             unless members["id"].type.stringify == "Int32"
-               raise "#{members}"
-             end
-
-             unless members["id"].value.nil?
-               raise "#{members}"
-             end
-
-             unless members["stop"].type.stringify == "Bool"
-               raise "#{members}"
-             end
-
-             unless members["stop"].value == false
-               raise "#{members}"
-             end
             %}
+            ASPEC.compile_time_assert(\{{ options.size == 1 }}, "Expected options size to be 1")
+            ASPEC.compile_time_assert(\{{ options[0]["name"] == "rules" }}, "Expected option name to be rules")
+            ASPEC.compile_time_assert(\{{ options[0]["type"].stringify == "Array(T)" }}, "Expected option type to be Array(T)")
+            ASPEC.compile_time_assert(\{{ options[0]["default"].stringify == "[]" }}, "Expected option default to be empty array")
+            ASPEC.compile_time_assert(\{{ members.size == 3 }}, "Expected members size to be 3") # Account for __nil
+            ASPEC.compile_time_assert(\{{ members["id"].type.stringify == "Int32" }}, "Expected id type to be Int32")
+            ASPEC.compile_time_assert(\{{ members["id"].value.nil? }}, "Expected id value to be nil")
+            ASPEC.compile_time_assert(\{{ members["stop"].type.stringify == "Bool" }}, "Expected stop type to be Bool")
+            ASPEC.compile_time_assert(\{{ members["stop"].value == false }}, "Expected stop value to be false")
           end
         end
       CR
@@ -518,48 +323,18 @@ describe ADI::Extension, tags: "compiled" do
           macro finished
             \{%
              options = Schema::OPTIONS
-
-             unless options.size == 1
-               raise "#{options}"
-             end
-
-             unless options[0]["name"] == "rules"
-               raise "#{options}"
-             end
-
-             unless options[0]["type"].stringify == "Array(T)"
-               raise "#{options}"
-             end
-
-             unless options[0]["default"] == [{id: 10, stop: false}]
-               raise "#{options}"
-             end
-
              members = options[0]["members"]
-             unless members.size == 3 # Account for __nil
-               raise "#{members}"
-             end
-
-             unless members["id"].type.stringify == "Int32"
-               raise "#{members}"
-             end
-
-             unless members["id"].value.nil?
-               raise "#{members}"
-             end
-
-             unless members["stop"].type.stringify == "Bool"
-               raise "#{members}"
-             end
-
-             unless members["stop"].value == false
-               raise "#{members}"
-             end
-
-             unless Schema::CONFIG_DOCS.stringify == %([{"name":"rules","type":"`Array(T)`","default":"`[{id: 10}]`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil)
-               raise "#{Schema::CONFIG_DOCS}"
-             end
             %}
+            ASPEC.compile_time_assert(\{{ options.size == 1 }}, "Expected options size to be 1")
+            ASPEC.compile_time_assert(\{{ options[0]["name"] == "rules" }}, "Expected option name to be rules")
+            ASPEC.compile_time_assert(\{{ options[0]["type"].stringify == "Array(T)" }}, "Expected option type to be Array(T)")
+            ASPEC.compile_time_assert(\{{ options[0]["default"] == [{id: 10, stop: false}] }}, "Expected option default to match")
+            ASPEC.compile_time_assert(\{{ members.size == 3 }}, "Expected members size to be 3") # Account for __nil
+            ASPEC.compile_time_assert(\{{ members["id"].type.stringify == "Int32" }}, "Expected id type to be Int32")
+            ASPEC.compile_time_assert(\{{ members["id"].value.nil? }}, "Expected id value to be nil")
+            ASPEC.compile_time_assert(\{{ members["stop"].type.stringify == "Bool" }}, "Expected stop type to be Bool")
+            ASPEC.compile_time_assert(\{{ members["stop"].value == false }}, "Expected stop value to be false")
+            ASPEC.compile_time_assert(\{{ Schema::CONFIG_DOCS.stringify == %([{"name":"rules","type":"`Array(T)`","default":"`[{id: 10}]`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil) }}, "Expected CONFIG_DOCS to match")
           end
         end
       CR
@@ -578,48 +353,18 @@ describe ADI::Extension, tags: "compiled" do
           macro finished
             \{%
              options = Schema::OPTIONS
-
-             unless options.size == 1
-               raise "#{options}"
-             end
-
-             unless options[0]["name"] == "rules"
-               raise "#{options}"
-             end
-
-             unless options[0]["type"].stringify == "(Array(T) | Nil)"
-               raise "#{options}"
-             end
-
-             unless options[0]["default"].nil?
-               raise "#{options}"
-             end
-
              members = options[0]["members"]
-             unless members.size == 3 # Account for __nil
-               raise "#{members}"
-             end
-
-             unless members["id"].type.stringify == "Int32"
-               raise "#{members}"
-             end
-
-             unless members["id"].value.nil?
-               raise "#{members}"
-             end
-
-             unless members["stop"].type.stringify == "Bool"
-               raise "#{members}"
-             end
-
-             unless members["stop"].value == false
-               raise "#{members}"
-             end
-
-             unless Schema::CONFIG_DOCS.stringify == %([{"name":"rules","type":"`(Array(T) | Nil)`","default":"`nil`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil)
-               raise "#{Schema::CONFIG_DOCS}"
-             end
             %}
+            ASPEC.compile_time_assert(\{{ options.size == 1 }}, "Expected options size to be 1")
+            ASPEC.compile_time_assert(\{{ options[0]["name"] == "rules" }}, "Expected option name to be rules")
+            ASPEC.compile_time_assert(\{{ options[0]["type"].stringify == "(Array(T) | Nil)" }}, "Expected option type to be (Array(T) | Nil)")
+            ASPEC.compile_time_assert(\{{ options[0]["default"].nil? }}, "Expected option default to be nil")
+            ASPEC.compile_time_assert(\{{ members.size == 3 }}, "Expected members size to be 3") # Account for __nil
+            ASPEC.compile_time_assert(\{{ members["id"].type.stringify == "Int32" }}, "Expected id type to be Int32")
+            ASPEC.compile_time_assert(\{{ members["id"].value.nil? }}, "Expected id value to be nil")
+            ASPEC.compile_time_assert(\{{ members["stop"].type.stringify == "Bool" }}, "Expected stop type to be Bool")
+            ASPEC.compile_time_assert(\{{ members["stop"].value == false }}, "Expected stop value to be false")
+            ASPEC.compile_time_assert(\{{ Schema::CONFIG_DOCS.stringify == %([{"name":"rules","type":"`(Array(T) | Nil)`","default":"`nil`","members":[{"name":"id","type":"`Int32`","default":"``","doc":""},{"name":"stop","type":"`Bool`","default":"`false`","doc":""}]}] of Nil) }}, "Expected CONFIG_DOCS to match")
           end
         end
       CR
@@ -643,36 +388,15 @@ describe ADI::Extension, tags: "compiled" do
           macro finished
             \{%
                schemas = Schema::OBJECT_SCHEMAS
-
-               unless schemas.size == 1
-                 raise "#{schemas}"
-               end
-
-               unless schemas["JwtConfig"] != nil
-                 raise "#{schemas}"
-               end
-
                jwt_schema = schemas["JwtConfig"]
-               unless jwt_schema["members"].size == 3 # Account for __nil
-                 raise "#{jwt_schema}"
-               end
-
-               unless jwt_schema["members"]["secret"].type.stringify == "String"
-                 raise "#{jwt_schema}"
-               end
-
-               unless jwt_schema["members"]["secret"].value.nil?
-                 raise "#{jwt_schema}"
-               end
-
-               unless jwt_schema["members"]["algorithm"].type.stringify == "String"
-                 raise "#{jwt_schema}"
-               end
-
-               unless jwt_schema["members"]["algorithm"].value == "hmac.sha256"
-                 raise "#{jwt_schema}"
-               end
             %}
+            ASPEC.compile_time_assert(\{{ schemas.size == 1 }}, "Expected schemas size to be 1")
+            ASPEC.compile_time_assert(\{{ schemas["JwtConfig"] != nil }}, "Expected JwtConfig schema to exist")
+            ASPEC.compile_time_assert(\{{ jwt_schema["members"].size == 3 }}, "Expected jwt_schema members size to be 3") # Account for __nil
+            ASPEC.compile_time_assert(\{{ jwt_schema["members"]["secret"].type.stringify == "String" }}, "Expected secret type to be String")
+            ASPEC.compile_time_assert(\{{ jwt_schema["members"]["secret"].value.nil? }}, "Expected secret value to be nil")
+            ASPEC.compile_time_assert(\{{ jwt_schema["members"]["algorithm"].type.stringify == "String" }}, "Expected algorithm type to be String")
+            ASPEC.compile_time_assert(\{{ jwt_schema["members"]["algorithm"].value == "hmac.sha256" }}, "Expected algorithm value to be hmac.sha256")
           end
         end
       CR
@@ -698,22 +422,13 @@ describe ADI::Extension, tags: "compiled" do
             \{%
                schemas = Schema::OBJECT_SCHEMAS
                outer_schema = schemas["OuterConfig"]
-
-               # The inner member should have nested members from InnerConfig
                inner_member = outer_schema["members"]["inner"]
-               unless inner_member["members"] != nil
-                 raise "#{inner_member}"
-               end
-
-               unless inner_member["members"]["value"].type.stringify == "String"
-                 raise "#{inner_member}"
-               end
-
-               # OuterConfig's members_string should include InnerConfig's nested members
-               unless outer_schema["members_string"] == %([{"name":"name","type":"`String`","default":"``","doc":""},{"name":"inner","type":"`InnerConfig`","default":"``","doc":"","members":[{"name":"value","type":"`String`","default":"``","doc":""}]}])
-                 raise "#{outer_schema["members_string"]}"
-               end
             %}
+            # The inner member should have nested members from InnerConfig
+            ASPEC.compile_time_assert(\{{ inner_member["members"] != nil }}, "Expected inner member to have members")
+            ASPEC.compile_time_assert(\{{ inner_member["members"]["value"].type.stringify == "String" }}, "Expected inner value type to be String")
+            # OuterConfig's members_string should include InnerConfig's nested members
+            ASPEC.compile_time_assert(\{{ outer_schema["members_string"] == %([{"name":"name","type":"`String`","default":"``","doc":""},{"name":"inner","type":"`InnerConfig`","default":"``","doc":"","members":[{"name":"value","type":"`String`","default":"``","doc":""}]}]) }}, "Expected members_string to match")
           end
         end
       CR
@@ -734,48 +449,18 @@ describe ADI::Extension, tags: "compiled" do
           macro finished
             \{%
                options = Schema::OPTIONS
-
-               unless options.size == 1
-                 raise "#{options}"
-               end
-
-               unless options[0]["name"] == "hubs"
-                 raise "#{options}"
-               end
-
-               unless options[0]["type"].stringify == "Hash(K, V)"
-                 raise "#{options}"
-               end
-
-               unless options[0]["default"].stringify == "{__nil: nil}"
-                 raise "#{options}"
-               end
-
                members = options[0]["members"]
-               unless members.size == 3 # Account for __nil
-                 raise "#{members}"
-               end
-
-               unless members["url"].type.stringify == "String"
-                 raise "#{members}"
-               end
-
-               unless members["url"].value.nil?
-                 raise "#{members}"
-               end
-
-               unless members["port"].type.stringify == "Int32"
-                 raise "#{members}"
-               end
-
-               unless members["port"].value == 5432
-                 raise "#{members}"
-               end
-
-               unless Schema::CONFIG_DOCS.stringify == %([{"name":"hubs","type":"`Hash(K, V)`","default":"`{__nil: nil}`","members":[{"name":"url","type":"`String`","default":"``","doc":""},{"name":"port","type":"`Int32`","default":"`5432`","doc":""}]}] of Nil)
-                 raise "#{Schema::CONFIG_DOCS}"
-               end
             %}
+            ASPEC.compile_time_assert(\{{ options.size == 1 }}, "Expected options size to be 1")
+            ASPEC.compile_time_assert(\{{ options[0]["name"] == "hubs" }}, "Expected option name to be hubs")
+            ASPEC.compile_time_assert(\{{ options[0]["type"].stringify == "Hash(K, V)" }}, "Expected option type to be Hash(K, V)")
+            ASPEC.compile_time_assert(\{{ options[0]["default"].stringify == "{__nil: nil}" }}, "Expected option default to be {__nil: nil}")
+            ASPEC.compile_time_assert(\{{ members.size == 3 }}, "Expected members size to be 3") # Account for __nil
+            ASPEC.compile_time_assert(\{{ members["url"].type.stringify == "String" }}, "Expected url type to be String")
+            ASPEC.compile_time_assert(\{{ members["url"].value.nil? }}, "Expected url value to be nil")
+            ASPEC.compile_time_assert(\{{ members["port"].type.stringify == "Int32" }}, "Expected port type to be Int32")
+            ASPEC.compile_time_assert(\{{ members["port"].value == 5432 }}, "Expected port value to be 5432")
+            ASPEC.compile_time_assert(\{{ Schema::CONFIG_DOCS.stringify == %([{"name":"hubs","type":"`Hash(K, V)`","default":"`{__nil: nil}`","members":[{"name":"url","type":"`String`","default":"``","doc":""},{"name":"port","type":"`Int32`","default":"`5432`","doc":""}]}] of Nil) }}, "Expected CONFIG_DOCS to match")
           end
         end
       CR
@@ -794,40 +479,16 @@ describe ADI::Extension, tags: "compiled" do
           macro finished
             \{%
                options = Schema::OPTIONS
-
-               unless options.size == 1
-                 raise "#{options}"
-               end
-
-               unless options[0]["name"] == "hubs"
-                 raise "#{options}"
-               end
-
-               unless options[0]["type"].stringify == "(Hash(K, V) | Nil)"
-                 raise "#{options}"
-               end
-
-               unless options[0]["default"].nil?
-                 raise "#{options}"
-               end
-
                members = options[0]["members"]
-               unless members.size == 3 # Account for __nil
-                 raise "#{members}"
-               end
-
-               unless members["url"].type.stringify == "String"
-                 raise "#{members}"
-               end
-
-               unless members["port"].type.stringify == "Int32"
-                 raise "#{members}"
-               end
-
-               unless Schema::CONFIG_DOCS.stringify == %([{"name":"hubs","type":"`(Hash(K, V) | Nil)`","default":"`nil`","members":[{"name":"url","type":"`String`","default":"``","doc":""},{"name":"port","type":"`Int32`","default":"`5432`","doc":""}]}] of Nil)
-                 raise "#{Schema::CONFIG_DOCS}"
-               end
             %}
+            ASPEC.compile_time_assert(\{{ options.size == 1 }}, "Expected options size to be 1")
+            ASPEC.compile_time_assert(\{{ options[0]["name"] == "hubs" }}, "Expected option name to be hubs")
+            ASPEC.compile_time_assert(\{{ options[0]["type"].stringify == "(Hash(K, V) | Nil)" }}, "Expected option type to be (Hash(K, V) | Nil)")
+            ASPEC.compile_time_assert(\{{ options[0]["default"].nil? }}, "Expected option default to be nil")
+            ASPEC.compile_time_assert(\{{ members.size == 3 }}, "Expected members size to be 3") # Account for __nil
+            ASPEC.compile_time_assert(\{{ members["url"].type.stringify == "String" }}, "Expected url type to be String")
+            ASPEC.compile_time_assert(\{{ members["port"].type.stringify == "Int32" }}, "Expected port type to be Int32")
+            ASPEC.compile_time_assert(\{{ Schema::CONFIG_DOCS.stringify == %([{"name":"hubs","type":"`(Hash(K, V) | Nil)`","default":"`nil`","members":[{"name":"url","type":"`String`","default":"``","doc":""},{"name":"port","type":"`Int32`","default":"`5432`","doc":""}]}] of Nil) }}, "Expected CONFIG_DOCS to match")
           end
         end
       CR
@@ -853,28 +514,13 @@ describe ADI::Extension, tags: "compiled" do
           macro finished
             \{%
                options = Schema::OPTIONS
-
-               unless options.size == 1
-                 raise "#{options}"
-               end
-
                jwt_member = options[0]["members"]["jwt"]
-               unless jwt_member["members"] != nil
-                 raise "#{jwt_member}"
-               end
-
-               unless jwt_member["members"]["secret"].type.stringify == "String"
-                 raise "#{jwt_member}"
-               end
-
-               unless jwt_member["members"]["algorithm"].value == "hmac.sha256"
-                 raise "#{jwt_member}"
-               end
-
-               unless Schema::CONFIG_DOCS.stringify == %([{"name":"hubs","type":"`Hash(K, V)`","default":"`{__nil: nil}`","members":[{"name":"url","type":"`String`","default":"``","doc":""},{"name":"jwt","type":"`JwtConfig`","default":"``","doc":"","members":[{"name":"secret","type":"`String`","default":"``","doc":""},{"name":"algorithm","type":"`String`","default":"`hmac.sha256`","doc":""}]}]}] of Nil)
-                 raise "#{Schema::CONFIG_DOCS}"
-               end
             %}
+            ASPEC.compile_time_assert(\{{ options.size == 1 }}, "Expected options size to be 1")
+            ASPEC.compile_time_assert(\{{ jwt_member["members"] != nil }}, "Expected jwt member to have members")
+            ASPEC.compile_time_assert(\{{ jwt_member["members"]["secret"].type.stringify == "String" }}, "Expected secret type to be String")
+            ASPEC.compile_time_assert(\{{ jwt_member["members"]["algorithm"].value == "hmac.sha256" }}, "Expected algorithm value to be hmac.sha256")
+            ASPEC.compile_time_assert(\{{ Schema::CONFIG_DOCS.stringify == %([{"name":"hubs","type":"`Hash(K, V)`","default":"`{__nil: nil}`","members":[{"name":"url","type":"`String`","default":"``","doc":""},{"name":"jwt","type":"`JwtConfig`","default":"``","doc":"","members":[{"name":"secret","type":"`String`","default":"``","doc":""},{"name":"algorithm","type":"`String`","default":"`hmac.sha256`","doc":""}]}]}] of Nil) }}, "Expected CONFIG_DOCS to match")
           end
         end
       CR
@@ -893,29 +539,14 @@ describe ADI::Extension, tags: "compiled" do
           macro finished
             \{%
                options = Schema::OPTIONS
-
-               unless options.size == 1
-                 raise "#{options}"
-               end
-
-               unless options[0]["name"] == "hubs"
-                 raise "#{options}"
-               end
-
-               unless options[0]["type"].stringify == "Hash(K, V)"
-                 raise "#{options}"
-               end
-
-               # Custom default should be preserved
                default = options[0]["default"]
-               unless default["default"]["url"] == "localhost"
-                 raise "#{default}"
-               end
-
-               unless default["default"]["port"] == 8080
-                 raise "#{default}"
-               end
             %}
+            ASPEC.compile_time_assert(\{{ options.size == 1 }}, "Expected options size to be 1")
+            ASPEC.compile_time_assert(\{{ options[0]["name"] == "hubs" }}, "Expected option name to be hubs")
+            ASPEC.compile_time_assert(\{{ options[0]["type"].stringify == "Hash(K, V)" }}, "Expected option type to be Hash(K, V)")
+            # Custom default should be preserved
+            ASPEC.compile_time_assert(\{{ default["default"]["url"] == "localhost" }}, "Expected default url to be localhost")
+            ASPEC.compile_time_assert(\{{ default["default"]["port"] == 8080 }}, "Expected default port to be 8080")
           end
         end
       CR
@@ -943,28 +574,13 @@ describe ADI::Extension, tags: "compiled" do
           macro finished
             \{%
                options = Schema::OPTIONS
-
-               unless options.size == 1
-                 raise "#{options}"
-               end
-
                jwt_member = options[0]["members"]["jwt"]
-               unless jwt_member["members"] != nil
-                 raise "#{jwt_member}"
-               end
-
-               unless jwt_member["members"]["secret"].type.stringify == "String"
-                 raise "#{jwt_member}"
-               end
-
-               unless jwt_member["members"]["algorithm"].value == "hmac.sha256"
-                 raise "#{jwt_member}"
-               end
-
-               unless Schema::CONFIG_DOCS.stringify == %([{"name":"items","type":"`Array(T)`","default":"`[]`","members":[{"name":"name","type":"`String`","default":"``","doc":""},{"name":"jwt","type":"`JwtConfig`","default":"``","doc":"","members":[{"name":"secret","type":"`String`","default":"``","doc":""},{"name":"algorithm","type":"`String`","default":"`hmac.sha256`","doc":""}]}]}] of Nil)
-                 raise "#{Schema::CONFIG_DOCS}"
-               end
             %}
+            ASPEC.compile_time_assert(\{{ options.size == 1 }}, "Expected options size to be 1")
+            ASPEC.compile_time_assert(\{{ jwt_member["members"] != nil }}, "Expected jwt member to have members")
+            ASPEC.compile_time_assert(\{{ jwt_member["members"]["secret"].type.stringify == "String" }}, "Expected secret type to be String")
+            ASPEC.compile_time_assert(\{{ jwt_member["members"]["algorithm"].value == "hmac.sha256" }}, "Expected algorithm value to be hmac.sha256")
+            ASPEC.compile_time_assert(\{{ Schema::CONFIG_DOCS.stringify == %([{"name":"items","type":"`Array(T)`","default":"`[]`","members":[{"name":"name","type":"`String`","default":"``","doc":""},{"name":"jwt","type":"`JwtConfig`","default":"``","doc":"","members":[{"name":"secret","type":"`String`","default":"``","doc":""},{"name":"algorithm","type":"`String`","default":"`hmac.sha256`","doc":""}]}]}] of Nil) }}, "Expected CONFIG_DOCS to match")
           end
         end
       CR
@@ -993,28 +609,13 @@ describe ADI::Extension, tags: "compiled" do
           macro finished
             \{%
                options = Schema::OPTIONS
-
-               unless options.size == 1
-                 raise "#{options}"
-               end
-
                jwt_member = options[0]["members"]["jwt"]
-               unless jwt_member["members"] != nil
-                 raise "#{jwt_member}"
-               end
-
-               unless jwt_member["members"]["secret"].type.stringify == "String"
-                 raise "#{jwt_member}"
-               end
-
-               unless jwt_member["members"]["algorithm"].value == "hmac.sha256"
-                 raise "#{jwt_member}"
-               end
-
-               unless Schema::CONFIG_DOCS.stringify == %([{"name":"connection","type":"`(NamedTuple(T) | Nil)`","default":"`nil`","members":[{"name":"url","type":"`String`","default":"``","doc":""},{"name":"jwt","type":"`JwtConfig`","default":"``","doc":"","members":[{"name":"secret","type":"`String`","default":"``","doc":""},{"name":"algorithm","type":"`String`","default":"`hmac.sha256`","doc":""}]}]}] of Nil)
-                 raise "#{Schema::CONFIG_DOCS}"
-               end
             %}
+            ASPEC.compile_time_assert(\{{ options.size == 1 }}, "Expected options size to be 1")
+            ASPEC.compile_time_assert(\{{ jwt_member["members"] != nil }}, "Expected jwt member to have members")
+            ASPEC.compile_time_assert(\{{ jwt_member["members"]["secret"].type.stringify == "String" }}, "Expected secret type to be String")
+            ASPEC.compile_time_assert(\{{ jwt_member["members"]["algorithm"].value == "hmac.sha256" }}, "Expected algorithm value to be hmac.sha256")
+            ASPEC.compile_time_assert(\{{ Schema::CONFIG_DOCS.stringify == %([{"name":"connection","type":"`(NamedTuple(T) | Nil)`","default":"`nil`","members":[{"name":"url","type":"`String`","default":"``","doc":""},{"name":"jwt","type":"`JwtConfig`","default":"``","doc":"","members":[{"name":"secret","type":"`String`","default":"``","doc":""},{"name":"algorithm","type":"`String`","default":"`hmac.sha256`","doc":""}]}]}] of Nil) }}, "Expected CONFIG_DOCS to match")
           end
         end
       CR

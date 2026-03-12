@@ -39,27 +39,11 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
 
       macro finished
         macro finished
-          \{%
-            unless ADI::ServiceContainer::ALIASES.keys == ["bar"]
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES["bar"].size == 1
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES["bar"][0]["id"] == "foo"
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES["bar"][0]["public"] == false
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES["bar"][0]["name"].nil?
-              raise ""
-            end
-          %}
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES.keys == ["bar"] }}, "Expected alias keys to be [bar]")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES["bar"].size == 1 }}, "Expected bar alias size to be 1")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES["bar"][0]["id"] == "foo" }}, "Expected bar alias id to be foo")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES["bar"][0]["public"] == false }}, "Expected bar alias public to be false")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES["bar"][0]["name"].nil? }}, "Expected bar alias name to be nil")
         end
       end
     CR
@@ -75,27 +59,11 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
 
       macro finished
         macro finished
-          \{%
-            unless ADI::ServiceContainer::ALIASES.keys == ["bar"]
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES["bar"].size == 1
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES["bar"][0]["id"] == "foo"
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES["bar"][0]["public"] == false
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES["bar"][0]["name"].nil?
-              raise ""
-            end
-          %}
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES.keys == ["bar"] }}, "Expected alias keys to be [bar]")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES["bar"].size == 1 }}, "Expected bar alias size to be 1")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES["bar"][0]["id"] == "foo" }}, "Expected bar alias id to be foo")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES["bar"][0]["public"] == false }}, "Expected bar alias public to be false")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES["bar"][0]["name"].nil? }}, "Expected bar alias name to be nil")
         end
       end
     CR
@@ -113,27 +81,11 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
 
       macro finished
         macro finished
-          \{%
-            unless ADI::ServiceContainer::ALIASES.keys == [SomeInterface]
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 1
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["id"] == "foo"
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["public"] == true
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["name"].nil?
-              raise ""
-            end
-          %}
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES.keys == [SomeInterface] }}, "Expected alias keys to be [SomeInterface]")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES[SomeInterface].size == 1 }}, "Expected SomeInterface alias size to be 1")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES[SomeInterface][0]["id"] == "foo" }}, "Expected SomeInterface alias id to be foo")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES[SomeInterface][0]["public"] == true }}, "Expected SomeInterface alias public to be true")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES[SomeInterface][0]["name"].nil? }}, "Expected SomeInterface alias name to be nil")
         end
       end
     CR
@@ -151,27 +103,11 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
 
       macro finished
         macro finished
-          \{%
-            unless ADI::ServiceContainer::ALIASES.keys == [SomeInterface]
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 1
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["id"] == "foo"
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["public"] == false
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["name"].nil?
-              raise ""
-            end
-          %}
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES.keys == [SomeInterface] }}, "Expected alias keys to be [SomeInterface]")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES[SomeInterface].size == 1 }}, "Expected SomeInterface alias size to be 1")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES[SomeInterface][0]["id"] == "foo" }}, "Expected SomeInterface alias id to be foo")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES[SomeInterface][0]["public"] == false }}, "Expected SomeInterface alias public to be false")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES[SomeInterface][0]["name"].nil? }}, "Expected SomeInterface alias name to be nil")
         end
       end
     CR
@@ -192,19 +128,9 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
 
       macro finished
         macro finished
-          \{%
-            unless ADI::ServiceContainer::ALIASES.keys == [SomeInterface, OtherInterface]
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 1
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES[OtherInterface].size == 1
-              raise ""
-            end
-          %}
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES.keys == [SomeInterface, OtherInterface] }}, "Expected alias keys to be [SomeInterface, OtherInterface]")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES[SomeInterface].size == 1 }}, "Expected SomeInterface alias size to be 1")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES[OtherInterface].size == 1 }}, "Expected OtherInterface alias size to be 1")
         end
       end
     CR
@@ -222,23 +148,10 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
 
       macro finished
         macro finished
-          \{%
-            unless ADI::ServiceContainer::ALIASES.keys == [SomeInterface]
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 1
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["id"] == "foo"
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["name"].id == "my_param"
-              raise ""
-            end
-          %}
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES.keys == [SomeInterface] }}, "Expected alias keys to be [SomeInterface]")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES[SomeInterface].size == 1 }}, "Expected SomeInterface alias size to be 1")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES[SomeInterface][0]["id"] == "foo" }}, "Expected SomeInterface alias id to be foo")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES[SomeInterface][0]["name"].id == "my_param" }}, "Expected SomeInterface alias name to be my_param")
         end
       end
     CR
@@ -262,19 +175,9 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
 
       macro finished
         macro finished
-          \{%
-            unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 2
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES[SomeInterface][0]["name"].id == "first"
-              raise ""
-            end
-
-            unless ADI::ServiceContainer::ALIASES[SomeInterface][1]["name"].id == "second"
-              raise ""
-            end
-          %}
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES[SomeInterface].size == 2 }}, "Expected SomeInterface alias size to be 2")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES[SomeInterface][0]["name"].id == "first" }}, "Expected SomeInterface alias[0] name to be first")
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES[SomeInterface][1]["name"].id == "second" }}, "Expected SomeInterface alias[1] name to be second")
         end
       end
     CR
@@ -298,21 +201,13 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
 
       macro finished
         macro finished
+          ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::ALIASES[SomeInterface].size == 2 }}, "Expected SomeInterface alias size to be 2")
           \{%
-            unless ADI::ServiceContainer::ALIASES[SomeInterface].size == 2
-              raise ""
-            end
-
             named = ADI::ServiceContainer::ALIASES[SomeInterface].find { |a| !a["name"].nil? }
             type_only = ADI::ServiceContainer::ALIASES[SomeInterface].find { |a| a["name"].nil? }
-            unless named["id"] == "specific"
-              raise ""
-            end
-
-            unless type_only["id"] == "default"
-              raise ""
-            end
           %}
+          ASPEC.compile_time_assert(\{{ named["id"] == "specific" }}, "Expected named alias id to be specific")
+          ASPEC.compile_time_assert(\{{ type_only["id"] == "default" }}, "Expected type-only alias id to be default")
         end
       end
     CR

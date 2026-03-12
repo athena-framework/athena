@@ -75,39 +75,15 @@ describe ADI::ServiceContainer::NormalizeDefinitions, tags: "compiled" do
         macro finished
           \{%
             some_service = ADI::ServiceContainer::SERVICE_HASH["some_service"]
-
-            unless some_service["class"] == SomeService
-              raise "#{some_service}"
-            end
-
-            unless some_service["public"] == true
-              raise "#{some_service}"
-            end
-
-            unless some_service["calls"].size == 0
-              raise "#{some_service}"
-            end
-
-            unless some_service["tags"].size == 0
-              raise "#{some_service}"
-            end
-
-            unless some_service["generics"].size == 0
-              raise "#{some_service}"
-            end
-
-            unless some_service["parameters"].size == 0
-              raise "#{some_service}"
-            end
-
-            unless some_service["shared"] == true
-              raise "#{some_service}"
-            end
-
-            unless some_service["referenced_services"].size == 0
-              raise "#{some_service}"
-            end
           %}
+          ASPEC.compile_time_assert(\{{ some_service["class"] == SomeService }}, "Expected class to be SomeService")
+          ASPEC.compile_time_assert(\{{ some_service["public"] == true }}, "Expected public to be true")
+          ASPEC.compile_time_assert(\{{ some_service["calls"].size == 0 }}, "Expected calls to be empty")
+          ASPEC.compile_time_assert(\{{ some_service["tags"].size == 0 }}, "Expected tags to be empty")
+          ASPEC.compile_time_assert(\{{ some_service["generics"].size == 0 }}, "Expected generics to be empty")
+          ASPEC.compile_time_assert(\{{ some_service["parameters"].size == 0 }}, "Expected parameters to be empty")
+          ASPEC.compile_time_assert(\{{ some_service["shared"] == true }}, "Expected shared to be true")
+          ASPEC.compile_time_assert(\{{ some_service["referenced_services"].size == 0 }}, "Expected referenced_services to be empty")
         end
       end
     CR
