@@ -1,10 +1,7 @@
 require "../spec_helper"
 
 private def assert_compiles(code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_compiles <<-CR, line: line
-    require "../spec_helper.cr"
-    #{code}
-  CR
+  ASPEC::Methods.assert_compiles code, line: line, preamble: %(require "../spec_helper.cr")
 end
 
 # 1. Basic inlining: single-use private service

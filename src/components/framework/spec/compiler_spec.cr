@@ -1,19 +1,11 @@
 require "./spec_helper"
 
 private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line
-    require "./spec_helper.cr"
-    #{code}
-    ATH.run
-  CR
+  ASPEC::Methods.assert_compile_time_error message, code, line: line, preamble: %(require "./spec_helper.cr"), postamble: "ATH.run"
 end
 
 private def assert_compiles(code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_compiles <<-CR, line: line
-    require "./spec_helper.cr"
-    #{code}
-    ATH.run
-  CR
+  ASPEC::Methods.assert_compiles code, line: line, preamble: %(require "./spec_helper.cr"), postamble: "ATH.run"
 end
 
 describe Athena::Framework do

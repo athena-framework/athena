@@ -18,12 +18,27 @@ module Athena::Spec::Methods
   # CR
   # ```
   #
+  # The *preamble* and *postamble* parameters may be used to add code before/after the actual *code*.
+  # This is primarily useful when wrapping this method in another private method for use within a specific test file to share common before/after code.
+  #
+  # ```
+  # private def assert_compiles(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+  #   ASPEC::Methods.assert_compile_time_error message, code, preamble: %(require "../spec_helper.cr"), postamble: "MyClass.new", line: line
+  # end
+  # ```
+  #
   # NOTE: When files are required within the *code*, they are relative to the file calling this method.
-  def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
+  def assert_compile_time_error(message : String, code : String, *, preamble : String = "", postamble : String = "", line : Int32 = __LINE__, file : String = __FILE__) : Nil
+    full_code = String.build do |str|
+      str.puts preamble unless preamble.empty?
+      str.puts code
+      str.puts postamble unless postamble.empty?
+    end
+
     std_out = IO::Memory.new
     std_err = IO::Memory.new
 
-    result = execute code, std_out, std_err, file, codegen: false, macro_code_coverage: true
+    result = execute full_code, std_out, std_err, file, codegen: false, macro_code_coverage: true
 
     fail std_err.to_s, line: line if result.success?
     std_err.to_s.should contain(message), line: line
@@ -32,8 +47,9 @@ module Athena::Spec::Methods
     # Ignore coverage report output if the output dir is not defined, or if there is no report.
     # TODO: Maybe default this to something?
     if !std_out.empty? && (macro_coverage_output_dir = ENV["ATHENA_SPEC_COVERAGE_OUTPUT_DIR"]?.presence)
+      coverage_line_offset = preamble.empty? ? line : line - preamble.count('\n') - 1
       File.open ::Path[macro_coverage_output_dir, "macro_coverage.#{Path[file].stem}:#{line}.codecov.json"], "w" do |coverage_report|
-        coverage_report.print adjust_coverage_line_numbers(std_out, file, line)
+        coverage_report.print adjust_coverage_line_numbers(std_out, file, coverage_line_offset)
       end
     end
 
@@ -67,12 +83,27 @@ module Athena::Spec::Methods
   # CR
   # ```
   #
+  # The *preamble* and *postamble* parameters may be used to add code before/after the actual *code*.
+  # This is primarily useful when wrapping this method in another private method for use within a specific test file to share common before/after code.
+  #
+  # ```
+  # private def assert_compiles(code : String, *, line : Int32 = __LINE__) : Nil
+  #   ASPEC::Methods.assert_compiles code, preamble: %(require "../spec_helper.cr"), postamble: "MyClass.new", line: line
+  # end
+  # ```
+  #
   # NOTE: When files are required within the *code*, they are relative to the file calling this method.
-  def assert_compiles(code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
+  def assert_compiles(code : String, *, preamble : String = "", postamble : String = "", line : Int32 = __LINE__, file : String = __FILE__) : Nil
+    full_code = String.build do |str|
+      str.puts preamble unless preamble.empty?
+      str.puts code
+      str.puts postamble unless postamble.empty?
+    end
+
     std_out = IO::Memory.new
     std_err = IO::Memory.new
 
-    result = execute code, std_out, std_err, file, codegen: false, macro_code_coverage: true
+    result = execute full_code, std_out, std_err, file, codegen: false, macro_code_coverage: true
 
     fail std_err.to_s, line: line unless result.success?
     std_err.close
@@ -80,8 +111,9 @@ module Athena::Spec::Methods
     # Ignore coverage report output if the output dir is not defined, or if there is no report.
     # TODO: Maybe default this to something?
     if !std_out.empty? && (macro_coverage_output_dir = ENV["ATHENA_SPEC_COVERAGE_OUTPUT_DIR"]?.presence)
+      coverage_line_offset = preamble.empty? ? line : line - preamble.count('\n') - 1
       File.open ::Path[macro_coverage_output_dir, "macro_coverage.#{Path[file].stem}:#{line}.codecov.json"], "w" do |coverage_report|
-        coverage_report.print adjust_coverage_line_numbers(std_out, file, line)
+        coverage_report.print adjust_coverage_line_numbers(std_out, file, coverage_line_offset)
       end
     end
 
