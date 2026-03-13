@@ -1,7 +1,7 @@
 require "./spec_helper"
 
 private def assert_compiles(code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_compiles <<-CR, line: line - 11 # Account for extra code before *code* is interpolated
+  ASPEC::Methods.assert_compiles code, line: line, preamble: <<-'CR'
     require "./spec_helper.cr"
 
     @[ADI::Register(public: true)]
@@ -12,8 +12,6 @@ private def assert_compiles(code : String, *, line : Int32 = __LINE__) : Nil
         @discovery : ABM::Discovery,
       ); end
     end
-
-    #{code}
   CR
 end
 
