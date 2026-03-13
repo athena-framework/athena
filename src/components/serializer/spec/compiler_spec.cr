@@ -1,10 +1,7 @@
 require "./spec_helper"
 
 private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line
-    require "athena-serializer"
-    #{code}
-  CR
+  ASPEC::Methods.assert_compile_time_error message, code, line: line, preamble: %(require "athena-serializer")
 end
 
 describe Athena::Serializer, tags: "compiled" do
