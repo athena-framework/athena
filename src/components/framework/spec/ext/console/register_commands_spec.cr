@@ -1,11 +1,7 @@
 require "../../spec_helper"
 
 private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
-  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line, file: file
-    require "../../spec_helper.cr"
-
-    #{code}
-  CR
+  ASPEC::Methods.assert_compile_time_error message, code, line: line, file: file, preamble: %(require "../../spec_helper.cr")
 end
 
 @[ADI::Register]

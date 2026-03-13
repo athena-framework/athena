@@ -1,0 +1,8 @@
+project: spec
+kind: Added
+body: Add ability to add code before/after the actual code of `ASPEC::Methods.assert_compiles` and `ASPEC::Methods.assert_compile_time_error`
+time: 2026-03-12T21:37:46.918445149-04:00
+custom:
+    Author: George Dietrich
+    PR: "687"
+    Username: blacksmoke16

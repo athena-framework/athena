@@ -1,7 +1,7 @@
 require "../spec_helper"
 
 private def assert_compile_time_error(message : String, code : String, *, line : Int32 = __LINE__) : Nil
-  ASPEC::Methods.assert_compile_time_error message, <<-CR, line: line
+  ASPEC::Methods.assert_compile_time_error message, code, line: line, preamble: <<-'CRYSTAL', postamble: <<-'CR'
     require "../spec_helper.cr"
     module MySchema
       include ADI::Extension::Schema
@@ -16,7 +16,7 @@ private def assert_compile_time_error(message : String, code : String, *, line :
           macro finished
             {% verbatim do %}
               {%
-                #{code}
+  CRYSTAL
               %}
             {% end %}
           end
