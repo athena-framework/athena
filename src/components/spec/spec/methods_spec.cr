@@ -43,7 +43,7 @@ describe ASPEC::Methods do
         CR
     end
 
-    describe "adjusts macro coverage line numbers for the stdin file", focus: true do
+    describe "adjusts macro coverage line numbers for the stdin file" do
       it "without before/after code" do
         temp_dir = File.tempname
         Dir.mkdir_p(temp_dir)
