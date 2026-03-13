@@ -8,8 +8,8 @@ describe AMC::Discovery do
       token_factory: AMC::TokenFactory::JWT.new("looooooooooooongenoughtestsecret", jwt_lifetime: 4000)
     ) { "ID" })
 
-    request = HTTP::Request.new("OPTIONS", "/", headers: HTTP::Headers{"access-control-request-method" => "GET"})
-    response = HTTP::Server::Response.new IO::Memory.new
+    request = ::HTTP::Request.new("OPTIONS", "/", headers: ::HTTP::Headers{"access-control-request-method" => "GET"})
+    response = ::HTTP::Server::Response.new IO::Memory.new
 
     discovery = AMC::Discovery.new registry
     discovery.add_link request, response
@@ -24,8 +24,8 @@ describe AMC::Discovery do
       token_factory: AMC::TokenFactory::JWT.new("looooooooooooongenoughtestsecret", jwt_lifetime: 4000)
     ) { "ID" })
 
-    request = HTTP::Request.new("POST", "/")
-    response = HTTP::Server::Response.new IO::Memory.new
+    request = ::HTTP::Request.new("POST", "/")
+    response = ::HTTP::Server::Response.new IO::Memory.new
 
     discovery = AMC::Discovery.new registry
     discovery.add_link request, response

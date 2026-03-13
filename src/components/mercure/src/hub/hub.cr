@@ -12,17 +12,17 @@ class Athena::Mercure::Hub
 
   @uri : URI
   @public_url : String?
-  @http_client : HTTP::Client
+  @http_client : ::HTTP::Client
 
   def initialize(
     url : String,
     @token_provider : AMC::TokenProvider::Interface,
     @token_factory : AMC::TokenFactory::Interface? = nil,
     @public_url : String? = nil,
-    http_client : HTTP::Client? = nil,
+    http_client : ::HTTP::Client? = nil,
   )
     @uri = URI.parse url
-    @http_client = http_client || HTTP::Client.new @uri
+    @http_client = http_client || ::HTTP::Client.new @uri
   end
 
   # :inherit:
@@ -39,7 +39,7 @@ class Athena::Mercure::Hub
   def publish(update : AMC::Update) : String
     @http_client.post(
       @uri.path,
-      headers: HTTP::Headers{"authorization" => "Bearer #{@token_provider.jwt}"},
+      headers: ::HTTP::Headers{"authorization" => "Bearer #{@token_provider.jwt}"},
       form: URI::Params.build { |form| self.encode form, update }
     ).body
   rescue ex : ::Exception
