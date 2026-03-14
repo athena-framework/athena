@@ -73,7 +73,11 @@ module Athena::DependencyInjection::ServiceContainer::ResolveParameterPlaceholde
 
                     # gsub always returns a StringLiteral, so non-string values must be stringified here.
                     # The actual type is preserved below for single-placeholder values.
-                    resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
+                    if resolved_value.is_a?(StringLiteral)
+                      resolved_value
+                    else
+                      resolved_value.stringify
+                    end
                   else
                     '%'
                   end
@@ -110,7 +114,11 @@ module Athena::DependencyInjection::ServiceContainer::ResolveParameterPlaceholde
                           param_name.raise "#{stack[0] == "parameters" ? "Parameter".id : "Configuration value".id} '#{path.id}[#{sk}]' referenced unknown parameter '#{param_name.id}'."
                         end
 
-                        resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
+                        if resolved_value.is_a?(StringLiteral)
+                          resolved_value
+                        else
+                          resolved_value.stringify
+                        end
                       else
                         '%'
                       end
@@ -146,7 +154,11 @@ module Athena::DependencyInjection::ServiceContainer::ResolveParameterPlaceholde
                           param_name.raise "#{stack[0] == "parameters" ? "Parameter".id : "Configuration value".id} '#{path.id}[#{a_idx}]' referenced unknown parameter '#{param_name.id}'."
                         end
 
-                        resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
+                        if resolved_value.is_a?(StringLiteral)
+                          resolved_value
+                        else
+                          resolved_value.stringify
+                        end
                       else
                         '%'
                       end

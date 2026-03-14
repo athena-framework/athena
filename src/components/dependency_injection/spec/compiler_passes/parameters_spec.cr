@@ -11,7 +11,8 @@ require "../spec_helper"
   _array: "%app.array%",
   _nested_array: "%app.nested_array%",
   _nested_hash: "%app.nested_mapping%",
-  _non_string: "%app.enable_v2_protocol%"
+  _non_string: "%app.enable_v2_protocol%",
+  _nested_deferred_string: "%app.full_url%"
 )]
 class ParametersClient
   def initialize(
@@ -25,6 +26,7 @@ class ParametersClient
     nested_array : Array(Array(String) | String),
     nested_hash : Hash(String, Bool | String | Array(String) | Array(Array(String) | String)),
     non_string : Bool,
+    nested_deferred_string : String,
   )
     reference.should eq "google.com"
     with_percent.should eq "foo%bar"
@@ -33,9 +35,10 @@ class ParametersClient
     with_multiple_placeholders.should eq "https://google.com/path/to/false"
     hash.should eq({10 => "google.com", 20 => "https://google.com/path/to/thing"})
     array.should eq ["google.com", "https://google.com/path/to/thing", "foo%bar", "https://google.com/path/t%o/thing"]
-    nested_array.should eq [["google.com", "https://google.com/path/to/thing", "foo%bar", "https://google.com/path/t%o/thing"], "google.com"]
-    nested_hash.should eq({"string" => "google.com", "array" => ["google.com", "https://google.com/path/to/thing", "foo%bar", "https://google.com/path/t%o/thing"], "nested_array" => [["google.com", "https://google.com/path/to/thing", "foo%bar", "https://google.com/path/t%o/thing"], "google.com"], "bool" => false})
+    nested_array.should eq [["google.com", "https://google.com/path/to/thing", "foo%bar", "https://google.com/path/t%o/thing"], "google.com", "foo%bar"]
+    nested_hash.should eq({"string" => "google.com", "array" => ["google.com", "https://google.com/path/to/thing", "foo%bar", "https://google.com/path/t%o/thing"], "nested_array" => [["google.com", "https://google.com/path/to/thing", "foo%bar", "https://google.com/path/t%o/thing"], "google.com", "foo%bar"], "bool" => false, "escaped" => "foo%bar"})
     non_string.should be_false
+    nested_deferred_string.should eq "Visit: https://google.com/path/to/thing!"
   end
 end
 

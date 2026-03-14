@@ -15,10 +15,12 @@ ADI.configure({
       "array"        => "%app.array%",
       "nested_array" => "%app.nested_array%",
       "bool"         => "%app.enable_v2_protocol%",
+      "escaped"      => "foo%%bar", # Escape `%` in hash
     },
     "app.nested_array": [
       "%app.array%",
       "%app.domain%",
+      "foo%%bar", # Escape `%` in array
     ],
     "app.array": [
       "%app.domain%",
@@ -30,6 +32,7 @@ ADI.configure({
     "app.with_percent":             "foo%%bar", # Escape `%`
     "app.with_percent_placeholder": "https://%app.domain%/path/t%%o/thing",
     "app.enable_v2_protocol":       false,
+    "app.full_url":                 "Visit: %app.placeholder%!", # String that contains a placeholder to a yet to be defined parameter that'll need re-processed
     "app.placeholder":              "https://%app.domain%/path/to/thing",
     "app.placeholders":             "https://%app.domain%/path/to/%app.enable_v2_protocol%",
     "app.empty":                    "",
