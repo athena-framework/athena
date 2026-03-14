@@ -4,53 +4,47 @@ module Athena::DependencyInjection::ServiceContainer::ResolveParameterPlaceholde
     macro finished
       {% verbatim do %}
 
-        # I hate how much code it takes to do this, but is quite cool I got it to work.
-        # WTB https://github.com/crystal-lang/crystal/issues/8835 :((
-        #
-        # The purpose of this module is to resolve placeholder values within various parameters.
+        # Resolves `%parameter%` placeholders within configuration values.
         # E.g. `"https://%app.domain%/"` => `"https://example.com/"`.
         #
         # It is assumed that any user added parameters via another module have already happened.
         # Parameters added after this module will not be resolved.
         #
-        # The macro API is quite limited compared to the normal stdlib API.
-        # As such we do not have access to recursion, nor do we have the ability to use a regex to extract the parameter name from the value.
-        # These together makes this code quite crazy to grok.
+        # ## Processing strategy
         #
-        # We first create an array that we can iterate over, using a somewhat custom variation of `NamedTupleLiteral#to_a` that also includes the collection the related key/value are located at.
-        # The first tuple in this array is for the configuration parameters are these are most likely going to need to be resolved first anyway.
-        # We then add the rest of the tuples, all using the `CONFIG` hash as the root collection.
-        # Having this array is important since arrays are reference types, we can push more things to it while looping thru it to have somewhat pseudo recursion; this will be important later.
-        # Next, we iterate over each key/value/collection grouping in the array, checking if the value is a supported type:
+        # `to_process` is an array of `{key, value, collection, stack}` tuples. Since arrays are reference types,
+        # we can push new items while iterating to achieve pseudo-recursion without actual recursion (which macros don't support).
         #
-        # * A string literal that has `%%` in it, or any text in between two `%`.
-        # * A hash literal where one of the value of that hash has a `%%` in it, or any text in between two `%`.
+        # Each tuple tracks:
+        # - `key`: the key within the collection to update
+        # - `value`: the current value to inspect/resolve
+        # - `collection`: the parent collection (CONFIG, a sub-hash, etc.) so we can write back resolved values
+        # - `stack`: path segments for error messages (e.g., `["parameters", "app.name"]`)
+        #
+        # ## Supported value types
+        #
+        # * `StringLiteral` containing `%%` (escaped `%`) or `%param.name%` placeholders
+        # * `HashLiteral` — each value is checked for placeholders
         #   * NOTE: NamedTuple literals are _NOT_ supported as a terminal value, use a HashLiteral instead
-        # * An array/tuple literal whose value has a `%%` in it, or any text in between two `%`.
+        # * `ArrayLiteral`/`TupleLiteral` — each element is checked for placeholders
+        # * `NamedTupleLiteral` — recursively expanded into `to_process` for its children
         #
-        # In each case, in order to extract the parameter name from the string, we iterate over the characters that make up the string, building out the key based on the chars between the `%`s.
-        # This is done via the following algorithm:
+        # ## Placeholder resolution
         #
-        # 1. If the current char is a `%` and next char is a `%` we skip as that implies the `%%` context which is an escaped `%`.
-        # 2. If this is the first time we saw a `%` and the current char is a `%` and we're either at the beginning, or the previous char wasn't a `%`,
-        #    then we know we're not starting to parse the parameter key.
-        # 3. If we're in parameter key parsing mode and the current char is a `%` we know we're done and can resolve this key's placeholder
-        #    by first looking up the parameter's value within `CONFIG["parameters"]`,
-        #    ensuring its a string, resetting the key (since there may be multiple placeholders), finally exiting parameter key parsing mode.
-        # 4. If we're in parameter key parsing mode, but the current character is not `%`, we append this character to the `key` variable
-        # 5. If we're not in parameter key parsing mode, we append this character to the `new_value` variable, which represents the rebuilt value with placeholders resolved.
+        # `StringLiteral#gsub` with a block replaces each `%param%` with its resolved value and `%%` with a literal `%`.
         #
-        # After all this we'll either end up with a fully resolved value, denoted by it not longer matching the regex, or a value that needs additional placeholders resolved,
-        # e.g. because the parameters it depends on are not yet resolved, or was resolved to a value that contained other yet to be resolved values.
-        # In either case, if the value is not fully resolved we push the same key, but the new value _BACK_ into the original array we're iterating over along with the collection they belong to.
-        # This will cause it to loop again and start the process all over on the previously resolved value;
-        # this will run until either they're all resolved, or an unknown parameter is encountered.
+        # When the entire string is a single placeholder (e.g., `"%app.debug%"`), the resolved value is looked up
+        # directly from CONFIG rather than using the gsub result. This is critical for two reasons:
+        # 1. It preserves non-string types (a `BoolLiteral` stays a `BoolLiteral`, not `"false"`)
+        # 2. It preserves reference semantics for collections — if `%app.array%` resolves to an `ArrayLiteral`
+        #    whose elements haven't been resolved yet, keeping the reference means those elements will be
+        #    updated in-place when they're resolved later in the loop.
         #
-        # The process is also essentially the same for array/hash literals, but operating on the sub-hash's value or the array's elements.
-        # But are two main differences:
+        # If a resolved value still contains placeholders (e.g., because it references another parameter that
+        # hasn't been resolved yet), it is pushed back into `to_process` for another pass.
         #
-        # 1.The path to the value we're updating is no longer _just_ `CONFIG["parameters"][k]`, but the key/index of the collection.
-        # 2. In the re-process context, we're pushing the whole collection, as the value, which should match the left hand side of the assignment above it, minus the sub-key/index.
+        # For hash/array values, the re-process entry pushes the whole sub-collection (`h[k]`) as the value,
+        # which matches the assignment path (`h[k][sk]` / `h[k][a_idx]`) minus the sub-key/index.
 
         {%
           to_process = CONFIG.to_a.map { |tup| {tup[0], tup[1], CONFIG, [tup[0]]} }
@@ -62,21 +56,11 @@ module Athena::DependencyInjection::ServiceContainer::ResolveParameterPlaceholde
               end
             else
               if v.is_a?(StringLiteral) && v =~ /%%|%([^%\s]++)%/
-                key = ""
-                char_is_part_of_key = false
-
-                new_value = ""
-
-                chars = v.chars
-
-                chars.each_with_index do |c, idx|
-                  if c == '%' && chars[idx + 1] == '%'
-                    # Do nothing as we'll just add the next char
-                  elsif !char_is_part_of_key && c == '%' && (idx == 0 || chars[idx - 1] != '%')
-                    char_is_part_of_key = true
-                  elsif char_is_part_of_key && c == '%'
-                    resolved_value = CONFIG["parameters"][key]
-
+                # gsub replaces each %param% with its resolved value, and %% with a literal %.
+                # matches[1] is the captured parameter name, or nil for %% matches.
+                new_value = v.gsub /%%|%([^%\s]++)%/ do |str, matches|
+                  if param_name = matches[1]
+                    resolved_value = CONFIG["parameters"][param_name]
                     if resolved_value == nil
                       path = "#{stack[0]}"
 
@@ -84,47 +68,42 @@ module Athena::DependencyInjection::ServiceContainer::ResolveParameterPlaceholde
                         path += "[#{p}]"
                       end
 
-                      key.raise "#{stack[0] == "parameters" ? "Parameter".id : "Configuration value".id} '#{path.id}' referenced unknown parameter '#{key.id}'."
+                      param_name.raise "#{stack[0] == "parameters" ? "Parameter".id : "Configuration value".id} '#{path.id}' referenced unknown parameter '#{param_name.id}'."
                     end
 
-                    if new_value.empty?
-                      new_value = resolved_value
+                    # gsub always returns a StringLiteral, so non-string values must be stringified here.
+                    # The actual type is preserved below for single-placeholder values.
+                    if resolved_value.is_a?(StringLiteral)
+                      resolved_value
                     else
-                      new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
+                      resolved_value.stringify
                     end
-
-                    key = ""
-                    char_is_part_of_key = false
-                  elsif char_is_part_of_key
-                    key += c
                   else
-                    new_value += c
+                    '%'
                   end
                 end
 
+                # When the entire value is a single placeholder (e.g., "%app.debug%"), replace the gsub
+                # result with a direct lookup. This preserves non-string types (BoolLiteral, NumberLiteral,
+                # etc.) and, critically, reference semantics for collections — an ArrayLiteral whose elements
+                # haven't been resolved yet will be updated in-place when the loop processes them later.
+                if v =~ /^%([^%\s]++)%$/
+                  new_value = CONFIG["parameters"][v.gsub(/%/, "")]
+                end
+
+                # If fully resolved, assign it. Otherwise push back for another pass.
                 if !new_value.is_a?(StringLiteral) || (new_value.is_a?(StringLiteral) && !(new_value =~ /%%|%([^%\s]++)%/))
                   h[k] = new_value
                 else
                   to_process << {k, new_value, h, stack}
                 end
               elsif v.is_a?(HashLiteral)
+                # Same placeholder resolution as above, applied to each hash value.
                 v.each do |sk, sv|
                   if sv.is_a?(StringLiteral) && sv =~ /%%|%([^%\s]++)%/
-                    key = ""
-                    char_is_part_of_key = false
-
-                    new_value = ""
-
-                    chars = sv.chars
-
-                    chars.each_with_index do |c, c_idx|
-                      if c == '%' && chars[c_idx + 1] == '%'
-                        # Do nothing as we'll just add the next char
-                      elsif !char_is_part_of_key && c == '%' && (c_idx == 0 || chars[c_idx - 1] != '%')
-                        char_is_part_of_key = true
-                      elsif char_is_part_of_key && c == '%'
-                        resolved_value = CONFIG["parameters"][key]
-
+                    new_value = sv.gsub /%%|%([^%\s]++)%/ do |str, matches|
+                      if param_name = matches[1]
+                        resolved_value = CONFIG["parameters"][param_name]
                         if resolved_value == nil
                           path = "#{stack[0]}"
 
@@ -132,49 +111,39 @@ module Athena::DependencyInjection::ServiceContainer::ResolveParameterPlaceholde
                             path += "[#{p}]"
                           end
 
-                          h[k][sk].raise "#{stack[0] == "parameters" ? "Parameter".id : "Configuration value".id} '#{path.id}[#{sk}]' referenced unknown parameter '#{key.id}'."
+                          param_name.raise "#{stack[0] == "parameters" ? "Parameter".id : "Configuration value".id} '#{path.id}[#{sk}]' referenced unknown parameter '#{param_name.id}'."
                         end
 
-                        if new_value.empty?
-                          new_value = resolved_value
+                        if resolved_value.is_a?(StringLiteral)
+                          resolved_value
                         else
-                          new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
+                          resolved_value.stringify
                         end
-
-                        key = ""
-                        char_is_part_of_key = false
-                      elsif char_is_part_of_key
-                        key += c
                       else
-                        new_value += c
+                        '%'
                       end
+                    end
+
+                    # See single-placeholder comment above — same type/reference preservation applies.
+                    if sv =~ /^%([^%\s]++)%$/
+                      new_value = CONFIG["parameters"][sv.gsub(/%/, "")]
                     end
 
                     if !new_value.is_a?(StringLiteral) || (new_value.is_a?(StringLiteral) && !(new_value =~ /%%|%([^%\s]++)%/))
                       h[k][sk] = new_value
                     else
+                      # Re-process the whole hash, not just the single value, since h[k][sk] is the assignment path.
                       to_process << {k, h[k], h, stack}
                     end
                   end
                 end
               elsif v.is_a?(ArrayLiteral) || v.is_a?(TupleLiteral)
+                # Same placeholder resolution as above, applied to each array/tuple element.
                 v.each_with_index do |av, a_idx|
                   if av.is_a?(StringLiteral) && av =~ /%%|%([^%\s]++)%/
-                    key = ""
-                    char_is_part_of_key = false
-
-                    new_value = ""
-
-                    chars = av.chars
-
-                    chars.each_with_index do |c, c_idx|
-                      if c == '%' && chars[c_idx + 1] == '%'
-                        # Do nothing as we'll just add the next char
-                      elsif !char_is_part_of_key && c == '%' && (c_idx == 0 || chars[c_idx - 1] != '%')
-                        char_is_part_of_key = true
-                      elsif char_is_part_of_key && c == '%'
-                        resolved_value = CONFIG["parameters"][key]
-
+                    new_value = av.gsub /%%|%([^%\s]++)%/ do |str, matches|
+                      if param_name = matches[1]
+                        resolved_value = CONFIG["parameters"][param_name]
                         if resolved_value == nil
                           path = "#{stack[0]}"
 
@@ -182,22 +151,22 @@ module Athena::DependencyInjection::ServiceContainer::ResolveParameterPlaceholde
                             path += "[#{p}]"
                           end
 
-                          h[k][a_idx].raise "#{stack[0] == "parameters" ? "Parameter".id : "Configuration value".id} '#{path.id}[#{a_idx}]' referenced unknown parameter '#{key.id}'."
+                          param_name.raise "#{stack[0] == "parameters" ? "Parameter".id : "Configuration value".id} '#{path.id}[#{a_idx}]' referenced unknown parameter '#{param_name.id}'."
                         end
 
-                        if new_value.empty?
-                          new_value = resolved_value
+                        if resolved_value.is_a?(StringLiteral)
+                          resolved_value
                         else
-                          new_value += resolved_value.is_a?(StringLiteral) ? resolved_value : resolved_value.stringify
+                          resolved_value.stringify
                         end
-
-                        key = ""
-                        char_is_part_of_key = false
-                      elsif char_is_part_of_key
-                        key += c
                       else
-                        new_value += c
+                        '%'
                       end
+                    end
+
+                    # See single-placeholder comment above — same type/reference preservation applies.
+                    if av =~ /^%([^%\s]++)%$/
+                      new_value = CONFIG["parameters"][av.gsub(/%/, "")]
                     end
 
                     if !new_value.is_a?(StringLiteral) || (new_value.is_a?(StringLiteral) && !(new_value =~ /%%|%([^%\s]++)%/))
