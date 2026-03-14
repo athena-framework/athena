@@ -5,7 +5,6 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
   # :nodoc:
   PASSES = [
     {Athena::Framework::CompilerPasses::MakeControllerServicesPublicPass, nil, nil},
-    {Athena::Framework::Console::CompilerPasses::RegisterCommands, :before_removing, nil},
     {Athena::Framework::EventDispatcher::CompilerPasses::RegisterEventListenersPass, :before_removing, nil},
   ]
 
@@ -330,64 +329,66 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
             end
           %}
 
-          # Format Listener
-          {%
-            cfg = CONFIG["framework"]["format_listener"]
+          # Format Listener (requires athena-negotiation)
+          {% if @top_level.has_constant?("ANG") %}
+            {%
+              cfg = CONFIG["framework"]["format_listener"]
 
-            if cfg["enabled"] && !cfg["rules"].empty?
-              matcher_arguments_to_service_id_map = {} of Nil => Nil
+              if cfg["enabled"] && !cfg["rules"].empty?
+                matcher_arguments_to_service_id_map = {} of Nil => Nil
 
-              calls = [] of Nil
+                calls = [] of Nil
 
-              cfg["rules"].each_with_index do |rule, idx|
-                matcher_id = {rule["path"], rule["host"], rule["methods"], nil}.symbolize
+                cfg["rules"].each_with_index do |rule, idx|
+                  matcher_id = {rule["path"], rule["host"], rule["methods"], nil}.symbolize
 
-                # Optimization to allow reusing request matcher instances that are common between the rules.
-                if matcher_arguments_to_service_id_map[matcher_id] == nil
-                  matchers = [] of Nil
+                  # Optimization to allow reusing request matcher instances that are common between the rules.
+                  if matcher_arguments_to_service_id_map[matcher_id] == nil
+                    matchers = [] of Nil
 
-                  if v = rule["path"]
-                    matchers << "AHTTP::RequestMatcher::Path.new(#{v})".id
+                    if v = rule["path"]
+                      matchers << "AHTTP::RequestMatcher::Path.new(#{v})".id
+                    end
+
+                    if v = rule["host"]
+                      matchers << "AHTTP::RequestMatcher::Hostname.new(#{v})".id
+                    end
+
+                    if v = rule["methods"]
+                      matchers << "AHTTP::RequestMatcher::Method.new(#{v})".id
+                    end
+
+                    SERVICE_HASH[matcher_service_id = "framework_view_handler_request_match_#{idx}"] = {
+                      class:      AHTTP::RequestMatcher,
+                      parameters: {
+                        matchers: {value: "#{matchers} of AHTTP::RequestMatcher::Interface".id},
+                      },
+                    }
+
+                    matcher_arguments_to_service_id_map[matcher_id] = matcher_service_id
+                  else
+                    matcher_service_id = matcher_arguments_to_service_id_map[matcher_id]
                   end
 
-                  if v = rule["host"]
-                    matchers << "AHTTP::RequestMatcher::Hostname.new(#{v})".id
-                  end
-
-                  if v = rule["methods"]
-                    matchers << "AHTTP::RequestMatcher::Method.new(#{v})".id
-                  end
-
-                  SERVICE_HASH[matcher_service_id = "framework_view_handler_request_match_#{idx}"] = {
-                    class:      AHTTP::RequestMatcher,
-                    parameters: {
-                      matchers: {value: "#{matchers} of AHTTP::RequestMatcher::Interface".id},
-                    },
-                  }
-
-                  matcher_arguments_to_service_id_map[matcher_id] = matcher_service_id
-                else
-                  matcher_service_id = matcher_arguments_to_service_id_map[matcher_id]
+                  calls << {"add", {matcher_service_id.id, "ATH::View::FormatNegotiator::Rule.new(
+                    stop: #{rule["stop"]},
+                    priorities: #{rule["priorities"]},
+                    prefer_extension: #{rule["prefer_extension"]},
+                    fallback_format: #{rule["fallback_format"]}
+                  )".id}}
                 end
 
-                calls << {"add", {matcher_service_id.id, "ATH::View::FormatNegotiator::Rule.new(
-                  stop: #{rule["stop"]},
-                  priorities: #{rule["priorities"]},
-                  prefer_extension: #{rule["prefer_extension"]},
-                  fallback_format: #{rule["fallback_format"]}
-                )".id}}
+                SERVICE_HASH["athena_framework_view_format_negotiator"] = {
+                  class: ATH::View::FormatNegotiator,
+                  calls: calls,
+                }
+
+                SERVICE_HASH["athena_framework_listeners_format"] = {
+                  class: ATH::Listeners::Format,
+                }
               end
-
-              SERVICE_HASH["athena_framework_view_format_negotiator"] = {
-                class: ATH::View::FormatNegotiator,
-                calls: calls,
-              }
-
-              SERVICE_HASH["athena_framework_listeners_format"] = {
-                class: ATH::Listeners::Format,
-              }
-            end
-          %}
+            %}
+          {% end %}
 
           # View Handler
           {%

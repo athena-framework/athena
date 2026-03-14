@@ -1,3 +1,5 @@
+{% skip_file unless @top_level.has_constant?("ANG") %}
+
 # An extension of `ANG::Negotiator` that supports resolving the format based on an applications `ATH::Bundle::Schema::FormatListener` rules.
 #
 # See the [Getting Started](/getting_started/routing#content-negotiation) docs for more information.

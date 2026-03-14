@@ -1,6 +1,14 @@
 require "spec"
 require "log/spec"
 
+# Require optional components before the framework so they are available during conditional compilation.
+require "athena-clock"
+require "athena-console"
+require "athena-contracts/event_dispatcher"
+require "athena-negotiation"
+require "athena-serializer"
+require "athena-validator"
+
 require "../src/athena"
 require "./controllers/*"
 

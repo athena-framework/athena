@@ -2,13 +2,8 @@ require "ecr"
 require "http/server"
 require "json"
 
-require "athena-contracts/event_dispatcher"
-
-require "athena-clock"
-require "athena-console"
 require "athena-dependency_injection"
 require "athena-http_kernel"
-require "athena-negotiation"
 
 require "./annotation_resolver"
 require "./annotations"
@@ -19,19 +14,33 @@ require "./logging"
 
 require "./ext/http"
 require "./ext/http_kernel"
-require "./ext/serializer"
 
-require "./commands/*"
 require "./controller/**"
 require "./compiler_passes/*"
 require "./listeners/*"
 require "./view/*"
 
-require "./ext/clock"
-require "./ext/console"
 require "./ext/event_dispatcher"
 require "./ext/routing"
-require "./ext/validator"
+
+{% begin %}
+  {% if @top_level.has_constant?("ASR") %}
+    require "./ext/serializer"
+  {% end %}
+
+  {% if @top_level.has_constant?("AVD") %}
+    require "./ext/validator"
+  {% end %}
+
+  {% if @top_level.has_constant?("ACON") %}
+    require "./commands/*"
+    require "./ext/console"
+  {% end %}
+
+  {% if @top_level.has_constant?("ACLK") %}
+    require "./ext/clock"
+  {% end %}
+{% end %}
 
 # Convenience alias to make referencing `Athena::Framework` types easier.
 alias ATH = Athena::Framework
@@ -152,7 +161,11 @@ module Athena::Framework
   #
   # Checkout the [Getting Started](/getting_started/commands) docs for more information.
   def self.run_console : Nil
-    ADI.container.athena_console_application.run
+    {% if @top_level.has_constant?("ACON") %}
+      ADI.container.athena_console_application.run
+    {% else %}
+      {% raise "ATH.run_console requires the athena-console component. Add it to your shard.yml dependencies." %}
+    {% end %}
   end
 
   # :nodoc:

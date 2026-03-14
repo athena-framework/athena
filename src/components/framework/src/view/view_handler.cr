@@ -17,18 +17,35 @@ class Athena::Framework::View::ViewHandler
   @failed_validation_status : ::HTTP::Status
   @emit_nil : Bool
 
-  def initialize(
-    @url_generator : ART::Generator::Interface,
-    @serializer : ASR::SerializerInterface,
-    @request_store : AHTTP::RequestStore,
-    format_handlers : Array(Athena::Framework::View::FormatHandlerInterface),
-    @failed_validation_status : ::HTTP::Status = ::HTTP::Status::UNPROCESSABLE_ENTITY,
-    @empty_content_status : ::HTTP::Status = ::HTTP::Status::NO_CONTENT,
-    @emit_nil : Bool = false,
-  )
-    format_handlers.each do |format_handler|
-      self.register_handler format_handler.format, format_handler
-    end
+  macro finished
+    {% if @top_level.has_constant?("ASR") %}
+      def initialize(
+        @url_generator : ART::Generator::Interface,
+        @serializer : ASR::SerializerInterface,
+        @request_store : AHTTP::RequestStore,
+        format_handlers : Array(Athena::Framework::View::FormatHandlerInterface),
+        @failed_validation_status : ::HTTP::Status = ::HTTP::Status::UNPROCESSABLE_ENTITY,
+        @empty_content_status : ::HTTP::Status = ::HTTP::Status::NO_CONTENT,
+        @emit_nil : Bool = false,
+      )
+        format_handlers.each do |format_handler|
+          self.register_handler format_handler.format, format_handler
+        end
+      end
+    {% else %}
+      def initialize(
+        @url_generator : ART::Generator::Interface,
+        @request_store : AHTTP::RequestStore,
+        format_handlers : Array(Athena::Framework::View::FormatHandlerInterface),
+        @failed_validation_status : ::HTTP::Status = ::HTTP::Status::UNPROCESSABLE_ENTITY,
+        @empty_content_status : ::HTTP::Status = ::HTTP::Status::NO_CONTENT,
+        @emit_nil : Bool = false,
+      )
+        format_handlers.each do |format_handler|
+          self.register_handler format_handler.format, format_handler
+        end
+      end
+    {% end %}
   end
 
   # :inherit:
@@ -124,59 +141,81 @@ class Athena::Framework::View::ViewHandler
     response
   end
 
-  private def init_response(view : ATH::ViewBase, format : String) : AHTTP::Response
-    content = nil
+  macro finished
+    {% if @top_level.has_constant?("ASR") %}
+      private def init_response(view : ATH::ViewBase, format : String) : AHTTP::Response
+        content = nil
 
-    # Skip serialization if the action's return type is explicitly `Nil`.
-    if @emit_nil || view.return_type != Nil
-      # TODO: Support Form typed views.
+        # Skip serialization if the action's return type is explicitly `Nil`.
+        if @emit_nil || view.return_type != Nil
+          # TODO: Support Form typed views.
 
-      # Fallback on `to_json` for non ASR::Serializable types.
-      content = if data = view.serializable_data
-                  data.to_json
-                else
-                  data = view.data
+          # Fallback on `to_json` for non ASR::Serializable types.
+          content = if data = view.serializable_data
+                      data.to_json
+                    else
+                      data = view.data
 
-                  context = self.serialization_context view
+                      context = self.serialization_context view
 
-                  # TODO: Implement some sort of Adapter system to convert ATH::View::Context
-                  # into the serializer's required format. Just do that here for now.
-                  athena_serializer_context = ASR::SerializationContext.new
+                      # TODO: Implement some sort of Adapter system to convert ATH::View::Context
+                      # into the serializer's required format. Just do that here for now.
+                      athena_serializer_context = ASR::SerializationContext.new
 
-                  context.emit_nil?.try do |en|
-                    athena_serializer_context.emit_nil = en
-                  end
+                      context.emit_nil?.try do |en|
+                        athena_serializer_context.emit_nil = en
+                      end
 
-                  context.version.try do |v|
-                    athena_serializer_context.version = v
-                  end
+                      context.version.try do |v|
+                        athena_serializer_context.version = v
+                      end
 
-                  context.groups.try do |g|
-                    athena_serializer_context.groups = g
-                  end
+                      context.groups.try do |g|
+                        athena_serializer_context.groups = g
+                      end
 
-                  context.exclusion_strategies.each do |s|
-                    athena_serializer_context.add_exclusion_strategy s
-                  end
+                      context.exclusion_strategies.each do |s|
+                        athena_serializer_context.add_exclusion_strategy s
+                      end
 
-                  serialized_data = @serializer.serialize data, format, athena_serializer_context
+                      serialized_data = @serializer.serialize data, format, athena_serializer_context
 
-                  # If the serialized data is "null", but the data is not `nil`, assume this means the serializer component failed to serialize it,
-                  # raise an error as it is likely the user forgot to include either `JSON::Serializable` or `ASR::Serializable`.
-                  if "null" == serialized_data && !data.nil?
-                    raise AHK::Exception::Logic.new "Failed to serialize response body. Did you forget to include either `JSON::Serializable` or `ASR::Serializable`?"
-                  end
+                      # If the serialized data is "null", but the data is not `nil`, assume this means the serializer component failed to serialize it,
+                      # raise an error as it is likely the user forgot to include either `JSON::Serializable` or `ASR::Serializable`.
+                      if "null" == serialized_data && !data.nil?
+                        raise AHK::Exception::Logic.new "Failed to serialize response body. Did you forget to include either `JSON::Serializable` or `ASR::Serializable`?"
+                      end
 
-                  serialized_data
-                end
-    end
+                      serialized_data
+                    end
+        end
 
-    response = view.response
-    response.status = self.status view, content
+        response = view.response
+        response.status = self.status view, content
 
-    response.content = content unless content.nil?
+        response.content = content unless content.nil?
 
-    response
+        response
+      end
+    {% else %}
+      private def init_response(view : ATH::ViewBase, format : String) : AHTTP::Response
+        content = nil
+
+        # Skip serialization if the action's return type is explicitly `Nil`.
+        if @emit_nil || view.return_type != Nil
+          if data = view.data
+            content = data.to_json
+          end
+        end
+
+        response = view.response
+        response.status = self.status view, content
+
+        response.content = content unless content.nil?
+
+        response
+      end
+    {% end %}
   end
 
   private def serialization_context(view : ATH::ViewBase) : ATH::View::Context

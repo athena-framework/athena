@@ -1,3 +1,5 @@
+{% skip_file unless @top_level.has_constant?("ACON") %}
+
 @[ACONA::AsCommand("debug:router", description: "Display current routes for an application")]
 @[ADI::Register]
 # Utility command to allow viewing all of the routes the framework is aware of within your application.

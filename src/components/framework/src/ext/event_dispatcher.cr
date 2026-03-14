@@ -1,6 +1,8 @@
 @[ADI::Register(name: "event_dispatcher", public: true)]
 @[ADI::AsAlias(AED::EventDispatcherInterface)]
-@[ADI::AsAlias(ACTR::EventDispatcher::Interface)]
+{% if @top_level.has_constant?("ACTR") %}
+  @[ADI::AsAlias(ACTR::EventDispatcher::Interface)]
+{% end %}
 class AED::EventDispatcher; end
 
 # :nodoc:

@@ -1,3 +1,5 @@
+{% skip_file unless @top_level.has_constant?("ACON") %}
+
 @[ACONA::AsCommand("debug:router:match", description: "Simulate a path match to see which route, if any, would handle it")]
 @[ADI::Register]
 # Similar to `ATH::Commands::DebugRouter`, but instead of providing the route name, you provide the request path

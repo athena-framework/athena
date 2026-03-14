@@ -96,7 +96,13 @@ require "uri/params/serializable"
 # }
 # ```
 struct Athena::Framework::Controller::ValueResolvers::RequestBody
-  include Athena::Framework::Controller::ValueResolvers::Interface::Typed(Athena::Serializer::Serializable, JSON::Serializable, URI::Params::Serializable, Athena::HTTP::UploadedFile?, Array(Athena::HTTP::UploadedFile))
+  {% begin %}
+    {% if @top_level.has_constant?("ASR") %}
+      include Athena::Framework::Controller::ValueResolvers::Interface::Typed(Athena::Serializer::Serializable, JSON::Serializable, URI::Params::Serializable, Athena::HTTP::UploadedFile?, Array(Athena::HTTP::UploadedFile))
+    {% else %}
+      include Athena::Framework::Controller::ValueResolvers::Interface::Typed(JSON::Serializable, URI::Params::Serializable, Athena::HTTP::UploadedFile?, Array(Athena::HTTP::UploadedFile))
+    {% end %}
+  {% end %}
 
   # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on the request's body.
   # See the related resolver documentation for more information.
@@ -129,9 +135,17 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   # **Type:** `Array(String) | AVD::Constraints::GroupSequence | Nil` **Default:** `nil`
   #
   # The [validation groups](/Validator/Constraint/#Athena::Validator::Constraint--validation-groups) that should be used when validating the resolved object.
-  configuration ::Athena::Framework::Annotations::MapRequestBody,
-    accept_formats : Array(String)? = nil,
-    validation_groups : Array(String) | AVD::Constraints::GroupSequence | Nil = nil
+  {% begin %}
+    {% if @top_level.has_constant?("AVD") %}
+      configuration ::Athena::Framework::Annotations::MapRequestBody,
+        accept_formats : Array(String)? = nil,
+        validation_groups : Array(String) | AVD::Constraints::GroupSequence | Nil = nil
+    {% else %}
+      configuration ::Athena::Framework::Annotations::MapRequestBody,
+        accept_formats : Array(String)? = nil,
+        validation_groups : Array(String) | Nil = nil
+    {% end %}
+  {% end %}
 
   # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on the request's query string.
   # See the related resolver documentation for more information.
@@ -157,8 +171,15 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   # **Type:** `Array(String) | AVD::Constraints::GroupSequence | Nil` **Default:** `nil`
   #
   # The [validation groups](/Validator/Constraint/#Athena::Validator::Constraint--validation-groups) that should be used when validating the resolved object.
-  configuration ::Athena::Framework::Annotations::MapQueryString,
-    validation_groups : Array(String) | AVD::Constraints::GroupSequence | Nil = nil
+  {% begin %}
+    {% if @top_level.has_constant?("AVD") %}
+      configuration ::Athena::Framework::Annotations::MapQueryString,
+        validation_groups : Array(String) | AVD::Constraints::GroupSequence | Nil = nil
+    {% else %}
+      configuration ::Athena::Framework::Annotations::MapQueryString,
+        validation_groups : Array(String) | Nil = nil
+    {% end %}
+  {% end %}
 
   # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on [AHTTP::Request#files](/HTTP/Request/#Athena::HTTP::Request#files),
   # if the related bundle configuration [is enabled](/Framework/Bundle/Schema/FileUploads/).
@@ -199,45 +220,76 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   #
   # Validate the uploaded file(s) against these constraint(s).
   # Mostly commonly will be a single `AVD::Constraints::File` or `AVD::Constraints::Image` constraint.
-  configuration ::Athena::Framework::Annotations::MapUploadedFile,
-    constraints : AVD::Constraint | Array(AVD::Constraint) | Nil = nil,
-    name : String? = nil
+  {% begin %}
+    {% if @top_level.has_constant?("AVD") %}
+      configuration ::Athena::Framework::Annotations::MapUploadedFile,
+        constraints : AVD::Constraint | Array(AVD::Constraint) | Nil = nil,
+        name : String? = nil
+    {% else %}
+      configuration ::Athena::Framework::Annotations::MapUploadedFile,
+        name : String? = nil
+    {% end %}
+  {% end %}
 
-  def initialize(
-    @serializer : ASR::SerializerInterface,
-    @validator : AVD::Validator::ValidatorInterface,
-    @annotation_resolver : ATH::AnnotationResolver,
-  ); end
+  macro finished
+    {% if @top_level.has_constant?("ASR") && @top_level.has_constant?("AVD") %}
+      def initialize(
+        @serializer : ASR::SerializerInterface,
+        @validator : AVD::Validator::ValidatorInterface,
+        @annotation_resolver : ATH::AnnotationResolver,
+      ); end
+    {% elsif @top_level.has_constant?("ASR") %}
+      def initialize(
+        @serializer : ASR::SerializerInterface,
+        @annotation_resolver : ATH::AnnotationResolver,
+      ); end
+    {% elsif @top_level.has_constant?("AVD") %}
+      def initialize(
+        @validator : AVD::Validator::ValidatorInterface,
+        @annotation_resolver : ATH::AnnotationResolver,
+      ); end
+    {% else %}
+      def initialize(
+        @annotation_resolver : ATH::AnnotationResolver,
+      ); end
+    {% end %}
+  end
 
   # :inherit:
-  def resolve(request : AHTTP::Request, parameter : AHK::Controller::ParameterMetadata)
-    validation_groups = nil
-    constraints = nil
-    parameter_annotations = @annotation_resolver.action_parameter_annotations request, parameter.name
+  macro finished
+    def resolve(request : AHTTP::Request, parameter : AHK::Controller::ParameterMetadata)
+      validation_groups = nil
+      constraints = nil
+      parameter_annotations = @annotation_resolver.action_parameter_annotations request, parameter.name
 
-    object = if configuration = parameter_annotations[ATHA::MapQueryString]?
-               validation_groups = configuration.validation_groups
-               self.map_query_string request, parameter, configuration
-             elsif configuration = parameter_annotations[ATHA::MapRequestBody]?
-               validation_groups = configuration.validation_groups
-               self.map_request_body request, parameter, configuration
-             elsif configuration = parameter_annotations[ATHA::MapUploadedFile]?
-               constraints = configuration.constraints
-               self.map_uploaded_file request, parameter, configuration
-             else
-               return
-             end
+      object = if configuration = parameter_annotations[ATHA::MapQueryString]?
+                 validation_groups = configuration.validation_groups
+                 self.map_query_string request, parameter, configuration
+               elsif configuration = parameter_annotations[ATHA::MapRequestBody]?
+                 validation_groups = configuration.validation_groups
+                 self.map_request_body request, parameter, configuration
+               elsif configuration = parameter_annotations[ATHA::MapUploadedFile]?
+                 {% if @top_level.has_constant?("AVD") %}
+                   constraints = configuration.constraints
+                 {% end %}
+                 self.map_uploaded_file request, parameter, configuration
+               else
+                 return
+               end
 
-    if object && (object.is_a?(AVD::Validatable) || !constraints.nil?)
-      if object.is_a?(Array) && constraints && !constraints.is_a?(AVD::Constraints::All)
-        constraints = AVD::Constraints::All.new constraints
-      end
+      {% if @top_level.has_constant?("AVD") %}
+        if object && (object.is_a?(AVD::Validatable) || !constraints.nil?)
+          if object.is_a?(Array) && constraints && !constraints.is_a?(AVD::Constraints::All)
+            constraints = AVD::Constraints::All.new constraints
+          end
 
-      errors = @validator.validate object, constraints: constraints, groups: validation_groups
-      raise AVD::Exception::ValidationFailed.new errors unless errors.empty?
+          errors = @validator.validate object, constraints: constraints, groups: validation_groups
+          raise AVD::Exception::ValidationFailed.new errors unless errors.empty?
+        end
+      {% end %}
+
+      object
     end
-
-    object
   end
 
   private def map_query_string(request : AHTTP::Request, parameter : AHK::Controller::ParameterMetadata, configuration : ATHA::MapQueryStringConfiguration)
@@ -281,7 +333,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
     else
       raise AHK::Exception::UnprocessableEntity.new ex.message.not_nil!
     end
-  rescue ex : JSON::ParseException | ASR::Exception::DeserializationException
+  rescue ex : JSON::ParseException
     # Otherwise if it really is a `ParseException` we can be assured it's just malformed
     raise AHK::Exception::BadRequest.new "Malformed JSON payload.", cause: ex
   rescue ex : URI::SerializableError
@@ -290,8 +342,18 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
     raise AHK::Exception::BadRequest.new "Malformed www form data payload.", cause: ex
   end
 
-  private def deserialize_json(body : IO, klass : ASR::Serializable.class)
-    @serializer.deserialize klass, body, :json
+  macro finished
+    {% if @top_level.has_constant?("ASR") %}
+      private def deserialize_json(body : IO, klass : ASR::Serializable.class)
+        @serializer.deserialize klass, body, :json
+      end
+
+      private def map_request_body(request : AHTTP::Request, parameter : AHK::Controller::ParameterMetadata, configuration : ATHA::MapRequestBodyConfiguration)
+        previous_def
+      rescue ex : ASR::Exception::DeserializationException
+        raise AHK::Exception::BadRequest.new "Malformed JSON payload.", cause: ex
+      end
+    {% end %}
   end
 
   private def deserialize_json(body : IO, klass : JSON::Serializable.class)

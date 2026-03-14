@@ -135,42 +135,79 @@ class Athena::Framework::View(T)
   end
 
   # Recurses over all the types within `T` to determine what serializer the data should use.
-  protected def serializable_data : T?
-    {% begin %}
-      {%
-        types_to_recurse = [T]
+  macro finished
+    {% if @top_level.has_constant?("ASR") %}
+      protected def serializable_data : T?
+        \{% begin %}
+          \{%
+            types_to_recurse = [T]
 
-        types_to_recurse.each do |t|
-          t = t.resolve
+            types_to_recurse.each do |t|
+              t = t.resolve
 
-          if t.union?
-            t.union_types.each do |ut|
-              types_to_recurse << ut
+              if t.union?
+                t.union_types.each do |ut|
+                  types_to_recurse << ut
+                end
+              elsif t <= NamedTuple
+                t.keys.each do |k|
+                  types_to_recurse << t[k].resolve
+                end
+              elsif t <= Enumerable
+                t.type_vars.each do |ut|
+                  types_to_recurse << ut
+                end
+
+                # Use `to_json` if a type includes `JSON::Serializable` but not `ASR::Serializable`
+              elsif (t <= JSON::Serializable) && !(t <= ASR::Serializable)
+                use_serializer_component = false
+
+                # Use the serializer component if the type is `ASR::Serializable`
+              elsif t <= ASR::Serializable
+                use_serializer_component = true
+              else
+                # Fallback on the serializer component
+                use_serializer_component = true
+              end
             end
-          elsif t <= NamedTuple
-            t.keys.each do |k|
-              types_to_recurse << t[k].resolve
+          %}
+
+          \{{ use_serializer_component == true ? nil : "self.data".id }}
+        \{% end %}
+      end
+    {% else %}
+      protected def serializable_data : T?
+        \{% begin %}
+          \{%
+            types_to_recurse = [T]
+
+            types_to_recurse.each do |t|
+              t = t.resolve
+
+              if t.union?
+                t.union_types.each do |ut|
+                  types_to_recurse << ut
+                end
+              elsif t <= NamedTuple
+                t.keys.each do |k|
+                  types_to_recurse << t[k].resolve
+                end
+              elsif t <= Enumerable
+                t.type_vars.each do |ut|
+                  types_to_recurse << ut
+                end
+              elsif t <= JSON::Serializable
+                use_serializer_component = false
+              else
+                # Fallback on `to_json` when the serializer component is not available
+                use_serializer_component = false
+              end
             end
-          elsif t <= Enumerable
-            t.type_vars.each do |ut|
-              types_to_recurse << ut
-            end
+          %}
 
-            # Use `to_json` if a type includes `JSON::Serializable` but not `ASR::Serializable`
-          elsif (t <= JSON::Serializable) && !(t <= ASR::Serializable)
-            use_serializer_component = false
-
-            # Use the serializer component if the type is `ASR::Serializable`
-          elsif t <= ASR::Serializable
-            use_serializer_component = true
-          else
-            # Fallback on the serializer component
-            use_serializer_component = true
-          end
-        end
-      %}
-
-      {{ use_serializer_component == true ? nil : "self.data".id }}
+          \{{ use_serializer_component == true ? nil : "self.data".id }}
+        \{% end %}
+      end
     {% end %}
   end
 end

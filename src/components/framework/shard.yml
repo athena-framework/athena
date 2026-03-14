@@ -17,39 +17,12 @@ authors:
   - George Dietrich <dev@dietrich.pub>
 
 dependencies:
-  athena-clock:
-    github: athena-framework/clock
-    version: ~> 0.2.0
-  athena-console:
-    github: athena-framework/console
-    version: ~> 0.4.0
-  athena-contracts:
-    github: athena-framework/contracts
-    version: ~> 0.1.0
   athena-dependency_injection:
     github: athena-framework/dependency-injection
     version: ~> 0.4.0
   athena-event_dispatcher:
     github: athena-framework/event-dispatcher
     version: ~> 0.4.0
-  athena-http:
-    github: athena-framework/http
-    version: ~> 0.1.0
-  athena-http_kernel:
-    github: athena-framework/http-kernel
-    version: ~> 0.1.0
-  athena-mime:
-    github: athena-framework/mime
-    version: ~> 0.2.0
-  athena-negotiation:
-    github: athena-framework/negotiation
-    version: ~> 0.2.0
   athena-routing:
     github: athena-framework/routing
     version: ~> 0.1.4
-  athena-serializer:
-    github: athena-framework/serializer
-    version: ~> 0.4.0
-  athena-validator:
-    github: athena-framework/validator
-    version: ~> 0.4.0

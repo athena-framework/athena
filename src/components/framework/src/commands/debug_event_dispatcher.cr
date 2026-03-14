@@ -1,3 +1,5 @@
+{% skip_file unless @top_level.has_constant?("ACON") %}
+
 @[ACONA::AsCommand("debug:event-dispatcher", description: "Display configured listeners for an application")]
 @[ADI::Register]
 # Utility command to allow viewing information about an `AED::EventDispatcherInterface`.
