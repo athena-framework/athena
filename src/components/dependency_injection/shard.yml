@@ -2,7 +2,7 @@ name: athena-dependency_injection
 
 version: 0.4.4
 
-crystal: ~> 1.4
+crystal: ~> 1.19
 
 license: MIT
 
