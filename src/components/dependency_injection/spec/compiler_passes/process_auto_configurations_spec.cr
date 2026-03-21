@@ -218,6 +218,75 @@ class ConstructorTwo < AutoConfigureConstructor
   private def initialize(@num : Int32); end
 end
 
+module ManualTagInterface; end
+
+module ManualPublicInterface; end
+
+module ManualCallsInterface; end
+
+abstract class ManualConstructorBase; end
+
+module ManualAutoConfigSetup
+  macro included
+    macro finished
+      {% verbatim do %}
+        {%
+          AUTO_CONFIGURATIONS[ManualTagInterface] = {tags: ["manual_tag"]}
+          AUTO_CONFIGURATIONS[ManualPublicInterface] = {public: true}
+          AUTO_CONFIGURATIONS[ManualCallsInterface] = {calls: [{"foo", {6}}, {"foo"}]}
+          AUTO_CONFIGURATIONS[ManualConstructorBase] = {constructor: "create", public: true}
+        %}
+      {% end %}
+    end
+  end
+end
+
+ADI.add_compiler_pass ManualAutoConfigSetup, priority: 200
+
+@[ADI::Register]
+record ManualTagService1 do
+  include ManualTagInterface
+end
+
+@[ADI::Register]
+record ManualTagService2 do
+  include ManualTagInterface
+end
+
+@[ADI::Register(public: true, _services: "!manual_tag")]
+class ManualTagClient
+  getter services : Array(ManualTagInterface)
+
+  def initialize(@services : Array(ManualTagInterface)); end
+end
+
+@[ADI::Register]
+record ManualPublicService do
+  include ManualPublicInterface
+end
+
+@[ADI::Register(public: true)]
+class ManualCallsClient
+  include ManualCallsInterface
+
+  getter values = [] of Int32
+
+  def foo(value : Int32 = 1)
+    @values << value
+  end
+end
+
+@[ADI::Register(public: true)]
+class ManualConstructorChild < ManualConstructorBase
+  getter num
+
+  def self.create : self
+    new 42
+  end
+
+  private def initialize(@num : Int32); end
+end
+
 describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
   describe "compiler errors", tags: "compiled" do
     describe "tags" do
@@ -275,6 +344,30 @@ describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
             end
           CR
         end
+      end
+
+      it "errors when both an annotation and a manual entry exist for the same type" do
+        assert_compile_time_error "Auto configuration for 'ManualConflict' is already defined in 'AUTO_CONFIGURATIONS'. Remove the annotation or the manual entry.", <<-CR
+          @[ADI::Autoconfigure(tags: ["conflict_tag"])]
+          module ManualConflict; end
+
+          module ConflictSetup
+            macro included
+              macro finished
+                {% verbatim do %}
+                  {% AUTO_CONFIGURATIONS[ManualConflict] = {tags: ["conflict_tag"]} %}
+                {% end %}
+              end
+            end
+          end
+
+          ADI.add_compiler_pass ConflictSetup, priority: 200
+
+          @[ADI::Register]
+          record Foo do
+            include ManualConflict
+          end
+        CR
       end
     end
 
@@ -374,18 +467,40 @@ describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
     it "provides an empty array if there were no services configured with the desired tag" do
       ADI.container.unused_tag_client.services.should be_empty
     end
+
+    it "applies tags to manually configured matching services" do
+      ADI.container.manual_tag_client.services.should eq [ManualTagService1.new, ManualTagService2.new]
+    end
   end
 
-  it "allows making a service public" do
-    ADI.container.auto_configured_public_service.should be_a AutoConfiguredPublicService
+  describe "public" do
+    it "when wired up via annotation" do
+      ADI.container.auto_configured_public_service.should be_a AutoConfiguredPublicService
+    end
+
+    it "when manually wired up" do
+      ADI.container.manual_public_service.should be_a ManualPublicService
+    end
   end
 
-  it "allows defining calls" do
-    ADI.container.call_autoconfigure_client.values.should eq [6, 3, 1]
+  describe "calls" do
+    it "when wired up via annotation" do
+      ADI.container.call_autoconfigure_client.values.should eq [6, 3, 1]
+    end
+
+    it "when manually wired up" do
+      ADI.container.manual_calls_client.values.should eq [6, 1]
+    end
   end
 
-  it "allows specifying the constructor" do
-    ADI.container.constructor_one.num.should eq 123
-    ADI.container.constructor_two.num.should eq 999
+  describe "constructor" do
+    it "when wired up via annotation" do
+      ADI.container.constructor_one.num.should eq 123
+      ADI.container.constructor_two.num.should eq 999
+    end
+
+    it "when manually wired up" do
+      ADI.container.manual_constructor_child.num.should eq 42
+    end
   end
 end

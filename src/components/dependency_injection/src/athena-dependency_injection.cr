@@ -17,8 +17,9 @@ alias ADI = Athena::DependencyInjection
 module Athena::DependencyInjection
   VERSION = "0.4.4"
 
-  private BINDINGS   = {} of Nil => Nil
-  private EXTENSIONS = {} of Nil => Nil
+  private BINDINGS            = {} of Nil => Nil
+  private AUTO_CONFIGURATIONS = {} of Nil => Nil
+  private EXTENSIONS          = {} of Nil => Nil
 
   # :nodoc:
   CONFIG = {parameters: {__nil: nil}} # Ensure this type is a NamedTupleLiteral

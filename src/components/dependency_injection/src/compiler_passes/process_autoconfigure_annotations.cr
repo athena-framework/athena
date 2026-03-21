@@ -1,12 +1,16 @@
 # :nodoc:
 #
-# Processes `@[ADI::Autoconfigure]` annotations
+# Processes `@[ADI::Autoconfigure]` annotations and `AUTO_CONFIGURATIONS` entries
 module Athena::DependencyInjection::ServiceContainer::ProcessAutoconfigureAnnotations
   macro included
     macro finished
       {% verbatim do %}
         {%
           __nil = nil
+
+          # Unified hash of auto configurations keyed by resolved type.
+          # Each value is a named tuple: {tags, calls, bind, public, constructor}
+          auto_configs = AUTO_CONFIGURATIONS
 
           # Build out a list of interfaces, and types that can be used to autoconfigure other services
           #
@@ -30,50 +34,74 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAutoconfigureAnnota
           # Don't process types more than once.
           types_to_process = types_to_process.uniq
 
+          types_to_process.each do |t|
+            if auto_configs[t]
+              t.raise "Auto configuration for '#{t.id}' is already defined in 'AUTO_CONFIGURATIONS'. Remove the annotation or the manual entry."
+            end
+
+            tags = [] of Nil
+
+            if at = t.annotation(ADI::AutoconfigureTag)
+              tag_name = if n = at[0]
+                           if n.is_a?(Path)
+                             n.resolve
+                           else
+                             n
+                           end
+                         else
+                           t.stringify
+                         end
+
+              tag = {name: tag_name}
+
+              at.named_args.each do |k, v|
+                tag[k.id.stringify] = v
+              end
+
+              tags << tag
+            end
+
+            ann = t.annotation ADI::Autoconfigure
+
+            if ann && (v = ann["tags"]) != nil
+              unless v.is_a? ArrayLiteral
+                v.raise "'tags' field of auto configuration '#{t.id}' must be an 'ArrayLiteral', got '#{v.class_name.id}'."
+              end
+
+              v.each do |tag|
+                tags << tag
+              end
+            end
+
+            auto_configs[t] = {
+              tags:        tags,
+              calls:       ann ? ann["calls"] : nil,
+              bind:        ann ? ann["bind"] : nil,
+              public:      ann ? ann["public"] : nil,
+              constructor: ann ? ann["constructor"] : nil,
+            }
+          end
+
           SERVICE_HASH.each do |service_id, definition|
             klass = definition["class"]
 
-            types_to_process.each do |t|
-              if definition["class"] <= t
-                tags = [] of Nil
-
-                if at = t.annotation(ADI::AutoconfigureTag)
-                  tag_name = if n = at[0]
-                               if n.is_a?(Path)
-                                 n.resolve
-                               else
-                                 n
-                               end
-                             else
-                               t.stringify
-                             end
-
-                  tag = {name: tag_name}
-
-                  at.named_args.each do |k, v|
-                    tag[k.id.stringify] = v
-                  end
-
-                  tags << tag
+            auto_configs.each do |t, config|
+              if klass <= t
+                if (v = config["constructor"]) != nil
+                  definition["factory"] = {klass, v}
                 end
 
-                ann = t.annotation ADI::Autoconfigure
-
-                if ann && (v = ann["constructor"])
-                  definition["factory"] = {definition["class"], v}
-                end
-
-                if ann && (v = ann["bind"]) != nil
+                if (v = config["bind"]) != nil
                   v.each do |k, v|
                     definition["bindings"][k] = v
                   end
                 end
 
-                if ann && (v = ann["public"]) != nil
+                if (v = config["public"]) != nil
                   definition["public"] = v
                 end
 
-                if ann && (v = ann["calls"]) != nil
+                if (v = config["calls"]) != nil
                   calls = [] of Nil
 
                   v.each do |call|
@@ -94,18 +122,8 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAutoconfigureAnnota
                   definition["calls"] = calls
                 end
 
-                if ann && (v = ann["tags"]) != nil
-                  unless v.is_a? ArrayLiteral
-                    v.raise "'tags' field of auto configuration '#{t.id}' must be an 'ArrayLiteral', got '#{v.class_name.id}'."
-                  end
-
-                  v.each do |t|
-                    tags << t
-                  end
-                end
-
                 # Append raw tags - will be normalized by ProcessTags pass
-                tags.each do |tag|
+                (config["tags"] || [] of Nil).each do |tag|
                   definition["tags"] << tag
                 end
               end
