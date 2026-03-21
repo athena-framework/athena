@@ -121,6 +121,9 @@ BAR_TAG = "bar"
 @[ADI::AutoconfigureTag(BAR_TAG)]
 module Namespace::ExplicitTagConstInterface; end
 
+@[ADI::AutoconfigureTag("prioritized_tag", priority: 10)]
+module Namespace::PrioritizedTagInterface; end
+
 @[ADI::Register]
 record FQNService1 do
   include Namespace::FQNTagInterface
@@ -131,6 +134,23 @@ end
 record FQNService2 do
   include Namespace::FQNTagInterface
   include Namespace::ExplicitTagInterface
+end
+
+@[ADI::Register]
+record PrioritizedService1 do
+  include Namespace::PrioritizedTagInterface
+end
+
+@[ADI::Register(tags: [{name: "prioritized_tag", priority: 20}])]
+record PrioritizedService2 do
+  include Namespace::PrioritizedTagInterface
+end
+
+@[ADI::Register(public: true, _services: "!prioritized_tag")]
+class PrioritizedTagClient
+  getter services : Array(Namespace::PrioritizedTagInterface)
+
+  def initialize(@services : Array(Namespace::PrioritizedTagInterface)); end
 end
 
 @[ADI::Register(public: true, _services: "!Namespace::FQNTagInterface")]
@@ -437,6 +457,12 @@ describe ADI::ServiceContainer::ProcessAutoconfigureAnnotations do
 
       it "with tag name const" do
         ADI.container.fqn_tag_const_client.services.should eq [FQNService1.new]
+      end
+
+      it "with named args" do
+        services = ADI.container.prioritized_tag_client.services
+        services[0].should eq PrioritizedService2.new
+        services[1].should eq PrioritizedService1.new
       end
     end
 

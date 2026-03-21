@@ -123,8 +123,10 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAutoconfigureAnnota
                 end
 
                 # Append raw tags - will be normalized by ProcessTags pass
-                (config["tags"] || [] of Nil).each do |tag|
-                  definition["tags"] << tag
+                if tags = config["tags"]
+                  tags.each do |tag|
+                    definition["tags"] << tag
+                  end
                 end
               end
             end
