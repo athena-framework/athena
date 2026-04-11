@@ -48,7 +48,7 @@ module Athena::Spec::Methods
     # TODO: Maybe default this to something?
     if !std_out.empty? && (macro_coverage_output_dir = ENV["ATHENA_SPEC_COVERAGE_OUTPUT_DIR"]?.presence)
       coverage_line_offset = preamble.empty? ? line : line - preamble.count('\n') - 1
-      File.open ::Path[macro_coverage_output_dir, "macro_coverage.#{Path[file].stem}:#{line}.codecov.json"], "w" do |coverage_report|
+      File.open ::Path[macro_coverage_output_dir, "macro_coverage.#{Path[file].stem}#L#{line}.codecov.json"], "w" do |coverage_report|
         coverage_report.print adjust_coverage_line_numbers(std_out, file, coverage_line_offset)
       end
     end
@@ -112,7 +112,7 @@ module Athena::Spec::Methods
     # TODO: Maybe default this to something?
     if !std_out.empty? && (macro_coverage_output_dir = ENV["ATHENA_SPEC_COVERAGE_OUTPUT_DIR"]?.presence)
       coverage_line_offset = preamble.empty? ? line : line - preamble.count('\n') - 1
-      File.open ::Path[macro_coverage_output_dir, "macro_coverage.#{Path[file].stem}:#{line}.codecov.json"], "w" do |coverage_report|
+      File.open ::Path[macro_coverage_output_dir, "macro_coverage.#{Path[file].stem}#L#{line}.codecov.json"], "w" do |coverage_report|
         coverage_report.print adjust_coverage_line_numbers(std_out, file, coverage_line_offset)
       end
     end

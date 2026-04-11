@@ -36,13 +36,14 @@ describe ASPEC::Methods do
     end
   end
 
-  describe ".assert_compiles", tags: "compiled" do
-    it do
+  describe ".assert_compiles" do
+    it tags: "compiled" do
       assert_compiles <<-CR
           raise "Oh no"
         CR
     end
 
+    # These run in the unit test suite to ensure this integration also works on other OSs.
     describe "adjusts macro coverage line numbers for the stdin file" do
       it "without before/after code" do
         temp_dir = File.tempname
@@ -60,7 +61,7 @@ describe ASPEC::Methods do
         CR
 
         coverage_file = Dir.glob(File.join(temp_dir, "macro_coverage.*.codecov.json")).first
-        coverage_file.should end_with "macro_coverage.methods_spec:#{spec_line}.codecov.json"
+        coverage_file.should end_with "macro_coverage.methods_spec#L#{spec_line}.codecov.json"
 
         File.open coverage_file do |file|
           coverage = JSON.parse file
@@ -95,7 +96,7 @@ describe ASPEC::Methods do
         CR
 
         coverage_file = Dir.glob(File.join(temp_dir, "macro_coverage.*.codecov.json")).first
-        coverage_file.should end_with "macro_coverage.methods_spec:#{spec_line}.codecov.json"
+        coverage_file.should end_with "macro_coverage.methods_spec#L#{spec_line}.codecov.json"
 
         File.open coverage_file do |file|
           coverage = JSON.parse file
