@@ -247,6 +247,44 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
             end
           %}
 
+          # Component Integrations
+
+          # Clock
+          {%
+            SERVICE_HASH[clock = "clock"] = {
+              class:   Athena::Clock,
+              factory: {Athena::Clock, "create"},
+            }
+
+            ALIASES[Athena::Clock::Interface] = [
+              {id: clock, public: false},
+            ]
+          %}
+
+          # Validator
+          {%
+            # SERVICE_HASH["athena_validator_constraint_validator_factory"] = {
+            #   class:      Athena::Validator::ConstraintValidatorFactory,
+            #   parameters: {
+            #     constraint_validators: {value: "!athena.validator.constraint_validator"},
+            #   },
+            # }
+
+            # SERVICE_HASH[validator = "validator"] = {
+            #   class: Athena::Validator::Validator::RecursiveValidator,
+            # }
+
+            # ALIASES[Athena::Validator::Validator::ValidatorInterface] = [
+            #   {id: validator, public: false},
+            # ]
+
+            # AUTO_CONFIGURATIONS[Athena::Validator::ServiceConstraintValidator] = {
+            #   tags: ["athena.validator.constraint_validator"],
+            # }
+          %}
+
+          # Opt-in Features
+
           # CORS Listener
           {%
             cfg = CONFIG["framework"]["cors"]

@@ -16,6 +16,11 @@ class Athena::Clock
   # NOTE: It is preferable injecting an `Athena::Clock::Interface` when possible versus using the global clock getter.
   class_property clock : ACLK::Interface = ACLK::Native.new
 
+  # :nodoc:
+  def self.create : self
+    new
+  end
+
   @clock : ACLK::Interface?
   @location : Time::Location?
 

@@ -27,11 +27,10 @@ require "./compiler_passes/*"
 require "./listeners/*"
 require "./view/*"
 
-require "./ext/clock"
 require "./ext/console"
 require "./ext/event_dispatcher"
 require "./ext/routing"
-require "./ext/validator"
+# require "./ext/validator"
 
 # Convenience alias to make referencing `Athena::Framework` types easier.
 alias ATH = Athena::Framework
@@ -235,3 +234,15 @@ module Athena::Framework
 end
 
 ATH.register_bundle ATH::Bundle
+
+@[ADI::Register]
+class ExampleController < ATH::Controller
+  def initialize(@clock : ACLK::Interface); end
+
+  @[ARTA::Get("/")]
+  def root : String
+    "At the index"
+  end
+end
+
+ATH.run
