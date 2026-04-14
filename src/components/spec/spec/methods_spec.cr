@@ -60,7 +60,7 @@ describe ASPEC::Methods do
           end
         CR
 
-        coverage_file = Dir.glob(File.join(temp_dir, "macro_coverage.*.codecov.json")).first
+        coverage_file = Dir.glob(::Path[temp_dir, "macro_coverage.*.codecov.json"]).first
         coverage_file.should end_with "macro_coverage.methods_spec#L#{spec_line}.codecov.json"
 
         File.open coverage_file do |file|
@@ -95,7 +95,7 @@ describe ASPEC::Methods do
           end
         CR
 
-        coverage_file = Dir.glob(File.join(temp_dir, "macro_coverage.*.codecov.json")).first
+        coverage_file = Dir.glob(::Path[temp_dir, "macro_coverage.*.codecov.json"]).first
         coverage_file.should end_with "macro_coverage.methods_spec#L#{spec_line}.codecov.json"
 
         File.open coverage_file do |file|
