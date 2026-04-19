@@ -7,7 +7,7 @@ require "./test_case"
 
 # A set of common [Spec](https://crystal-lang.org/api/Spec.html) compliant testing utilities/types.
 module Athena::Spec
-  VERSION = "0.4.1"
+  VERSION = "0.4.2"
 
   # Asserts a *condition*, raising *message* if it is falsey.
   # This is primarily intended to be used with `ASPEC::Methods.assert_compiles` to assert state that exists at compile time.

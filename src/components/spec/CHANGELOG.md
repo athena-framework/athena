@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.4.2] - 2026-04-19
+
+### Added
+
+- Generate macro code coverage report for `ASPEC::Methods.assert_compiles` ([#642]) (George Dietrich) <!-- blacksmoke16 -->
+- Add `ASPEC.compile_time_assert` helper function for use with `assert_compiles` ([#686]) (George Dietrich) <!-- blacksmoke16 -->
+- Add ability to add code before/after the actual code of `ASPEC::Methods.assert_compiles` and `ASPEC::Methods.assert_compile_time_error` ([#687]) (George Dietrich) <!-- blacksmoke16 -->
+
+### Fixed
+
+- Fix compile time error when inadvertently using a type name that conflicts with an internal component type ([#678]) (George Dietrich) <!-- blacksmoke16 -->
+- Fix incorrect macro code coverage line numbers ([#686]) (George Dietrich) <!-- blacksmoke16 -->
+- Fix macro code coverage output file writing on windows ([#696]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.4.2]: https://github.com/athena-framework/spec/releases/tag/v0.4.2
+[#642]: https://github.com/athena-framework/athena/pull/642
+[#686]: https://github.com/athena-framework/athena/pull/686
+[#687]: https://github.com/athena-framework/athena/pull/687
+[#678]: https://github.com/athena-framework/athena/pull/678
+[#696]: https://github.com/athena-framework/athena/pull/696
+
 ## [0.4.1] - 2025-11-12
 
 ### Fixed
