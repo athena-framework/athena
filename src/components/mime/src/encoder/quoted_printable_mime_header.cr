@@ -12,7 +12,7 @@ struct Athena::MIME::Encoder::QuotedPrintableMIMEHeader
     allowed_bytes.concat('0'..'9')
     allowed_bytes.concat ['!', '*', '+', '-', '/']
     allowed_bytes.concat ['=', '\r', '\n'] # Not allowed as per spec, but don't want to modify them as they're handled elsewhere
-end
+  end
 
   # :inherit:
   def name : String

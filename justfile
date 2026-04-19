@@ -51,12 +51,12 @@ lint: spellcheck format ameba
 # Check Crystal formatting
 [group('check')]
 format:
-    {{ CRYSTAL }} tool format
+    {{ CRYSTAL }} tool format --check
 
 # Fix Crystal formatting issues
 [group('check')]
 format-fix:
-    {{ CRYSTAL }} tool format --fix
+    {{ CRYSTAL }} tool format
 
 # Run Ameba static analysis
 [group('check')]
