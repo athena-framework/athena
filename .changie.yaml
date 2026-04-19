@@ -20,7 +20,7 @@ projects:
     replacements:
       - { path: src/bundles/mercure/shard.yml, find: '^version: .*', replace: 'version: {{.VersionNoPrefix}}' }
       - { path: src/bundles/mercure/src/athena-mercure_bundle.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
-      - { path: src/bundles/mercure/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+      - { path: src/components/mercure-bundle/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
 
   # Components
   - label: Clock
