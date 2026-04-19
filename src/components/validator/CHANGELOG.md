@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.5.0] - 2026-04-19
+
+### Changed
+
+- **Breaking:** Split `AVD::Constraints::Size` into `Count` and `Length` constraints ([#611]) (George Dietrich) <!-- blacksmoke16 -->
+- Make identifying constraint violation inequality easier within spec failures ([#610]) (George Dietrich) <!-- blacksmoke16 -->
+
+### Added
+
+- Allow picking the unit used for `AVD::Constraints::Length` validations ([#612]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.5.0]: https://github.com/athena-framework/validator/releases/tag/v0.5.0
+[#610]: https://github.com/athena-framework/athena/pull/610
+[#611]: https://github.com/athena-framework/athena/pull/611
+[#612]: https://github.com/athena-framework/athena/pull/612
+
 ## [0.4.1] - 2025-09-04
 
 ### Changed
