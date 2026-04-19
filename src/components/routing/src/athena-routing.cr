@@ -27,7 +27,7 @@ alias ARTA = ART::Annotations
 
 # Provides a performant and robust HTTP based routing library/framework.
 module Athena::Routing
-  VERSION = "0.1.12"
+  VERSION = "0.2.0"
 
   {% if @top_level.has_constant?("Athena") && Athena.has_constant?("HTTP") && Athena::HTTP.has_constant?("Request") %}
     # Represents the type of the *request* parameter within an `ART::Route::Condition`.
