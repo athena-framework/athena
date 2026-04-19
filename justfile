@@ -71,14 +71,14 @@ spellcheck:
 # Build the docs
 [group('docs')]
 build-docs: _symlink_lib
-    NO_MKDOCS_2_WARNING=1 {{ UV }} run --frozen mkdocs build -d {{ OUTPUT_DIR }}
+    DISABLE_MKDOCS_2_WARNING=true NO_MKDOCS_2_WARNING=1 {{ UV }} run --frozen mkdocs build -d {{ OUTPUT_DIR }}
 
 # Serve live-preview of the docs
 [group('docs')]
 serve-docs: _symlink_lib
-    NO_MKDOCS_2_WARNING=1 {{ UV }} run --frozen mkdocs serve --livereload
+    DISABLE_MKDOCS_2_WARNING=true NO_MKDOCS_2_WARNING=1 {{ UV }} run --frozen mkdocs serve --livereload
 
-# Clean MkDocs build artifacts
+# Clean docs build artifacts
 [group('docs')]
 clean-docs:
     rm -rf {{ OUTPUT_DIR }}
