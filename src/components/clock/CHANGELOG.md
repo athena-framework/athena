@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.0] - 2026-04-19
+
+### Removed
+
+- Remove `ACLK::Monotonic` ([#667]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.3.0]: https://github.com/athena-framework/clock/releases/tag/v0.3.0
+[#667]: https://github.com/athena-framework/athena/pull/667
+
 ## [0.2.0] - 2025-01-26
 
 ### Changed
