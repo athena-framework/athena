@@ -63,18 +63,43 @@ class Athena::HTTP::Request
   #
   # Additional formats may be registered via `.register_format`.
   FORMATS = {
-    "atom"   => Set{"application/atom+xml"},
-    "css"    => Set{"text/css"},
-    "csv"    => Set{"text/csv"},
-    "form"   => Set{"application/x-www-form-urlencoded", "multipart/form-data"},
-    "html"   => Set{"text/html", "application/xhtml+xml"},
-    "js"     => Set{"application/javascript", "application/x-javascript", "text/javascript"},
-    "json"   => Set{"application/json", "application/x-json"},
-    "jsonld" => Set{"application/ld+json"},
-    "rdf"    => Set{"application/rdf+xml"},
-    "rss"    => Set{"application/rss+xml"},
-    "txt"    => Set{"text/plain"},
-    "xml"    => Set{"text/xml", "application/xml", "application/x-xml"},
+    "atom"    => Set{"application/atom+xml"},
+    "css"     => Set{"text/css"},
+    "csv"     => Set{"text/csv"},
+    "form"    => Set{"application/x-www-form-urlencoded", "multipart/form-data"},
+    "hal"     => Set{"application/hal+json", "application/hal+xml"},
+    "html"    => Set{"text/html", "application/xhtml+xml"},
+    "js"      => Set{"application/javascript", "application/x-javascript", "text/javascript"},
+    "json"    => Set{"application/json", "application/x-json"},
+    "jsonapi" => Set{"application/vnd.api+json"},
+    "jsonld"  => Set{"application/ld+json"},
+    "pdf"     => Set{"application/pdf"},
+    "problem" => Set{"application/problem+json"},
+    "rdf"     => Set{"application/rdf+xml"},
+    "rss"     => Set{"application/rss+xml"},
+    "soap"    => Set{"application/soap+xml"},
+    "txt"     => Set{"text/plain"},
+    "wbxml"   => Set{"application/vnd.wap.wbxml"},
+    "xml"     => Set{"text/xml", "application/xml", "application/x-xml"},
+    "yaml"    => Set{"text/yaml", "application/x-yaml"},
+  }
+
+  # Maps a [structured syntax suffix](https://www.iana.org/assignments/media-type-structured-suffix/media-type-structured-suffix.xhtml)
+  # (per [RFC 6839](https://datatracker.ietf.org/doc/html/rfc6839) / [RFC 7303](https://datatracker.ietf.org/doc/html/rfc7303))
+  # to its underlying format.
+  #
+  # Used by `#format` when the MIME type isn't an exact match in `FORMATS`; e.g. `application/vnd.github+json` -> `json`.
+  private STRUCTURED_SUFFIX_FORMATS = {
+    "json"  => "json",
+    "xml"   => "xml",
+    "xhtml" => "html",
+    "cbor"  => "cbor",
+    "zip"   => "zip",
+    "ber"   => "asn1",
+    "der"   => "asn1",
+    "tlv"   => "tlv",
+    "wbxml" => "xml",
+    "yaml"  => "yaml",
   }
 
   # Returns which `AHTTP::Request::ProxyHeader`s have been whitelisted by the application as set via `.set_trusted_proxies`, defaulting to all of them.
@@ -183,21 +208,46 @@ class Athena::HTTP::Request
     self.format @request.headers.fetch "content-type", ""
   end
 
-  # Returns the format for the provided *mime_type*.
+  # Returns the format for the provided *mime_type*, or `nil` if it cannot be resolved.
+  #
+  # Resolution order:
+  # 1. Exact match against `FORMATS`.
+  # 2. Canonical MIME type match (i.e. the portion before any `;` parameters).
+  # 3. Structured syntax suffix per [RFC 6839](https://datatracker.ietf.org/doc/html/rfc6839) / [RFC 7303](https://datatracker.ietf.org/doc/html/rfc7303); e.g. `application/vnd.github+json` -> `json`.
+  # 4. If *subtype_fallback* is `true` and the subtype contains no `+`, returns the subtype with any `x-` prefix stripped; e.g. `application/x-foo` -> `foo`.
   #
   # ```
-  # request.format "text/plain" # => "txt"
+  # request.format "text/plain"                                # => "txt"
+  # request.format "application/vnd.github+json"               # => "json"
+  # request.format "application/x-foo", subtype_fallback: true # => "foo"
   # ```
-  def format(mime_type : String) : String?
+  #
+  # ameba:disable Metrics/CyclomaticComplexity
+  def format(mime_type : String, subtype_fallback : Bool = false) : String?
     canonical_mime_type = nil
 
-    if mime_type.includes? ";"
-      canonical_mime_type = mime_type.split(";").first.strip
+    if mime_type.includes? ';'
+      canonical_mime_type = mime_type.split(';', 2).first.strip
     end
 
     FORMATS.each do |format, mime_types|
       return format if mime_types.includes? mime_type
       return format if canonical_mime_type && mime_types.includes? canonical_mime_type
+    end
+
+    canonical_mime_type ||= mime_type
+
+    if canonical_mime_type.starts_with?("application/") && (plus_idx = canonical_mime_type.rindex('+'))
+      suffix = canonical_mime_type[(plus_idx + 1)..]
+      if format = STRUCTURED_SUFFIX_FORMATS[suffix]?
+        return format
+      end
+    end
+
+    if subtype_fallback && (slash_idx = canonical_mime_type.index('/'))
+      subtype = canonical_mime_type[(slash_idx + 1)..]
+      subtype = subtype[2..] if subtype.starts_with?("x-")
+      return subtype unless subtype.includes?('+')
     end
   end
 

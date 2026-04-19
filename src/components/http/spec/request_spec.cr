@@ -83,6 +83,52 @@ struct AHTTP::RequestTest < ASPEC::TestCase
       {"rdf", {"application/rdf+xml"}},
       {"atom", {"application/atom+xml"}},
       {"form", {"application/x-www-form-urlencoded", "multipart/form-data"}},
+      {"hal", {"application/hal+json", "application/hal+xml"}},
+      {"jsonapi", {"application/vnd.api+json"}},
+      {"pdf", {"application/pdf"}},
+      {"problem", {"application/problem+json"}},
+      {"soap", {"application/soap+xml"}},
+      {"wbxml", {"application/vnd.wap.wbxml"}},
+      {"yaml", {"text/yaml", "application/x-yaml"}},
+    }
+  end
+
+  @[DataProvider("structured_suffix_format_provider")]
+  def test_structured_suffix_format(mime_type : String, expected : String?) : Nil
+    AHTTP::Request.new("GET", "/").format(mime_type).should eq expected
+  end
+
+  def structured_suffix_format_provider : Tuple
+    {
+      {"application/vnd.github+json", "json"},
+      {"application/vnd.oci.image.manifest.v1+json", "json"},
+      {"application/foo+xml", "xml"},
+      {"application/foo+yaml", "yaml"},
+      {"application/foo+cbor", "cbor"},
+      {"application/ber-stream+ber", "asn1"},
+      {"application/foo+json; charset=utf-8", "json"},
+      {"application/ld+json", "jsonld"},
+      {"application/vnd.api+json", "jsonapi"},
+      {"text/vnd.foo+xml", nil},
+    }
+  end
+
+  @[DataProvider("subtype_fallback_provider")]
+  def test_format_subtype_fallback(mime_type : String, subtype_fallback : Bool, expected : String?) : Nil
+    AHTTP::Request.new("GET", "/").format(mime_type, subtype_fallback: subtype_fallback).should eq expected
+  end
+
+  def subtype_fallback_provider : Tuple
+    {
+      {"application/unknown", false, nil},
+      {"application/foo", false, nil},
+      {"application/x-foo", false, nil},
+      {"application/foo", true, "foo"},
+      {"application/x-foo", true, "foo"},
+      {"application/foo+bar", true, nil},
+      {"text/unknown", true, "unknown"},
+      {"garbage", true, nil},
+      {"application/json", true, "json"},
     }
   end
 
