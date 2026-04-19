@@ -43,7 +43,7 @@ alias ATHA = ATH::Annotations
 alias ATHR = ATH::Controller::ValueResolvers
 
 module Athena::Framework
-  VERSION = "0.21.1"
+  VERSION = "0.22.0"
 
   # The name of the environment variable used to determine Athena's current environment.
   ENV_NAME = "ATHENA_ENV"

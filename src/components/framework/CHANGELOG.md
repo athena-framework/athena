@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.22.0] - 2026-04-19
+
+### Changed
+
+- **Breaking:** Store `ATH::Action` within `ATH::Request#attributes` instead of within an ivar ([#636]) (George Dietrich) <!-- blacksmoke16 -->
+- **Breaking:** Extract out HTTP related `framework` types into the new `http` component ([#640]) (George Dietrich) <!-- blacksmoke16 -->
+- **Breaking:** Extract out Request/Response handling related `framework` types into the new `http_kernel` component ([#657]) (George Dietrich) <!-- blacksmoke16 -->
+- **Breaking:** Refactor how annotations are fetched off an action/parameter ([#655]) (George Dietrich) <!-- blacksmoke16 -->
+
+### Fixed
+
+- Fix CORS error when using HTTP/2 but providing uppercase header names ([#670]) (George Dietrich) <!-- blackmsoke16 -->
+- Fix compile time error when inadvertently using a type name that conflicts with an internal component type ([#678]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.22.0]: https://github.com/athena-framework/framework/releases/tag/v0.22.0
+[#636]: https://github.com/athena-framework/athena/pull/636
+[#640]: https://github.com/athena-framework/athena/pull/640
+[#657]: https://github.com/athena-framework/athena/pull/657
+[#655]: https://github.com/athena-framework/athena/pull/655
+[#670]: https://github.com/athena-framework/athena/pull/670
+[#678]: https://github.com/athena-framework/athena/pull/678
+
 ## [0.21.1] - 2025-10-04
 
 ### Fixed
