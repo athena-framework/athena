@@ -2,7 +2,7 @@ name: athena-mercure_bundle
 
 version: 0.1.0
 
-crystal: ~> 1.13
+crystal: ~> 1.19
 
 license: MIT
 

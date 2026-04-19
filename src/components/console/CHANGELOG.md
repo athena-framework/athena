@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.3] - 2026-04-19
+
+### Added
+
+- Add opt-in support for deriving the command name from `PROGRAM_NAME` when a CLI binary is invoked via a symlink ([#645]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.4.3]: https://github.com/athena-framework/console/releases/tag/v0.4.3
+[#645]: https://github.com/athena-framework/athena/pull/645
+
 ## [0.4.2] - 2025-09-04
 
 ### Added

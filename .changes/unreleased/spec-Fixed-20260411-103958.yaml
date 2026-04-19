@@ -1,8 +1,0 @@
-project: spec
-kind: Fixed
-body: Fix macro code coverage output file writing on windows
-time: 2026-04-11T10:39:58.355020284-04:00
-custom:
-    Author: George Dietrich
-    PR: "696"
-    Username: blacksmoke16

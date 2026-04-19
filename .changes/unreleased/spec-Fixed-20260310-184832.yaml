@@ -1,8 +1,0 @@
-project: spec
-kind: Fixed
-body: Fix incorrect macro code coverage line numbers
-time: 2026-03-10T18:48:32.409693383-04:00
-custom:
-    Author: George Dietrich
-    PR: "686"
-    Username: blacksmoke16
