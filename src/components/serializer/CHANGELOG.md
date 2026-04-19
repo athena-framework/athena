@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.4.3] - 2026-04-19
+
+### Changed
+
+- Improve compile time error messages ([#646]) (George Dietrich) <!-- blacksmoke16 -->
+
+### Removed
+
+- Remove `ASR::PropertyMetadata#class` method and generic variable ([#672]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.4.3]: https://github.com/athena-framework/serializer/releases/tag/v0.4.3
+[#646]: https://github.com/athena-framework/athena/pull/646
+[#672]: https://github.com/athena-framework/athena/pull/672
+
 ## [0.4.2] - 2025-08-12
 
 ### Fixed
