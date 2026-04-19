@@ -27,7 +27,7 @@ jobs:
       # See: https://lore.kernel.org/git/176677910605.6.2281395015810449820.1087545551@dietrich.pub/T/
       - name: Cache Git installation
         id: cache-git
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/git-custom
           key: git-2.51.1-subtree-${{ runner.os }}-${{ runner.arch }}
