@@ -87,10 +87,7 @@ clean-docs:
 # Create a new change file
 [group('administrative')]
 change:
-    #!/usr/bin/env bash
-    changie new \
-      --custom Author="${CHANGIE_CUSTOM_AUTHOR}" \
-      --custom Username="${CHANGIE_CUSTOM_USERNAME}"
+    changie new
 
 # Batch change files into a version changelog
 [group('administrative')]
