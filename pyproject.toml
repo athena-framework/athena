@@ -11,7 +11,7 @@ dependencies = [
     "mkdocs~=1.6.1",
     "mkdocs-material~=9.7.0",
     "mkdocstrings-crystal~=0.3.9",
-    "mkdocs-gen-files~=0.5.0",
+    "mkdocs-gen-files~=0.6.1",
     "mkdocs-literate-nav~=0.6.2",
     "mkdocs-section-index>=0.3.10",
 ]
