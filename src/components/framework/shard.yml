@@ -2,7 +2,7 @@ name: athena
 
 version: 0.22.0
 
-crystal: ~> 1.14
+crystal: ~> 1.19
 
 license: MIT
 
