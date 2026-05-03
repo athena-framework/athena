@@ -1,0 +1,9 @@
+project: event-dispatcher
+kind: Changed
+body: Event listeners with a generic type parameter now match all subclasses and module includers of the parameter's type
+time: 2026-05-02T22:54:24.690293195-04:00
+custom:
+    Author: George Dietrich
+    Breaking: "No"
+    PR: "703"
+    Username: blacksmoke16

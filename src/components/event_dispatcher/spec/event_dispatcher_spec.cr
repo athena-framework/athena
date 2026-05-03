@@ -36,6 +36,57 @@ class TestListener
   end
 end
 
+module SomeInterface; end
+
+abstract class Animal; end
+
+class Dog < Animal; end
+
+class Cat < Animal
+  include SomeInterface
+end
+
+abstract class ParentAnimal < Animal; end
+
+class Sloth < ParentAnimal
+  include SomeInterface
+end
+
+class ThreeToedSloth < Sloth; end
+
+class GenericAnimalEvent(T) < AED::Event
+  getter animal : T
+
+  def initialize(@animal : T); end
+end
+
+class AnimalListener
+  getter all_animal_calls : Array(Animal.class) = [] of Animal.class
+  getter only_child_animal_calls : Array(Animal.class) = [] of Animal.class
+  getter only_interface_animal_calls : Array(Animal.class) = [] of Animal.class
+  getter non_abstract_animal_calls : Array(Animal.class) = [] of Animal.class
+
+  @[AEDA::AsEventListener]
+  def all_animals(event : GenericAnimalEvent(Animal)) : Nil
+    @all_animal_calls << event.animal.class
+  end
+
+  @[AEDA::AsEventListener]
+  def only_child_animals(event : GenericAnimalEvent(ParentAnimal), dispatcher : AED::EventDispatcherInterface) : Nil
+    @only_child_animal_calls << event.animal.class
+  end
+
+  @[AEDA::AsEventListener]
+  def only_interface_animals(event : GenericAnimalEvent(SomeInterface)) : Nil
+    @only_interface_animal_calls << event.animal.class
+  end
+
+  @[AEDA::AsEventListener]
+  def non_abstract_animals(event : GenericAnimalEvent(Sloth)) : Nil
+    @non_abstract_animal_calls << event.animal.class
+  end
+end
+
 struct EventDispatcherTest < ASPEC::TestCase
   @dispatcher : AED::EventDispatcher
 
@@ -242,6 +293,32 @@ struct EventDispatcherTest < ASPEC::TestCase
 
     pre_foo_invoked.should be_true
     other_pre_foo_invoked.should be_false
+  end
+
+  def test_listener_generic_polymorphism : Nil
+    animal_listener = AnimalListener.new
+
+    @dispatcher.listener animal_listener
+
+    @dispatcher.has_listeners?(GenericAnimalEvent(Cat)).should be_true
+    @dispatcher.has_listeners?(GenericAnimalEvent(Sloth)).should be_true
+    @dispatcher.has_listeners?(GenericAnimalEvent(ThreeToedSloth)).should be_true
+    @dispatcher.has_listeners?(GenericAnimalEvent(Dog)).should be_true
+
+    # Should not include module/abstract types that cannot actually exist.
+    @dispatcher.has_listeners?(GenericAnimalEvent(Animal)).should be_false
+    @dispatcher.has_listeners?(GenericAnimalEvent(SomeInterface)).should be_false
+    @dispatcher.has_listeners?(GenericAnimalEvent(ParentAnimal)).should be_false
+
+    @dispatcher.dispatch GenericAnimalEvent(Cat).new Cat.new
+    @dispatcher.dispatch GenericAnimalEvent(Sloth).new Sloth.new
+    @dispatcher.dispatch GenericAnimalEvent(Dog).new Dog.new
+    @dispatcher.dispatch GenericAnimalEvent(ThreeToedSloth).new ThreeToedSloth.new
+
+    animal_listener.all_animal_calls.should eq [Cat, Sloth, Dog, ThreeToedSloth]
+    animal_listener.only_child_animal_calls.should eq [Sloth, ThreeToedSloth]
+    animal_listener.only_interface_animal_calls.should eq [Cat, Sloth]
+    animal_listener.non_abstract_animal_calls.should eq [Sloth, ThreeToedSloth]
   end
 
   def test_remove_listener : Nil

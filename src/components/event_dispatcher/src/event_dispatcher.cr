@@ -95,7 +95,19 @@ class Athena::EventDispatcher::EventDispatcher
             m.raise "Event listener method '#{T.name}##{m.name}' expects a 'NumberLiteral' for its 'AEDA::AsEventListener#priority' field, but got a '#{priority.class_name.id}'."
           end
 
-          listeners << {event_arg.restriction.resolve.id, m.args.size, m.name.id, priority}
+          # A listener whose event arg is `Foo(Animal)` will not be invoked for a dispatched `Foo(Dog)`, because the dispatcher matches on exact `event.class`.
+          # To work around this, register a listener for each non-abstract descendant of that type.
+          restriction = event_arg.restriction
+          if restriction.is_a?(Generic) && restriction.type_vars.size == 1
+            type_param = restriction.type_vars.first.resolve
+            concrete_types = [type_param] + type_param.all_subclasses + type_param.includers
+            concrete_types.each do |concrete_type|
+              concrete_event = "#{restriction.name}(#{concrete_type})".id
+              listeners << {concrete_event, m.args.size, m.name.id, priority} if !(concrete_type.abstract? || concrete_type.module?)
+            end
+          else
+            listeners << {restriction.id, m.args.size, m.name.id, priority}
+          end
         end
       %}
 
