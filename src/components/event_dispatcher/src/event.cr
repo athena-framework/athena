@@ -33,9 +33,54 @@
 # The added benefit of this is that the listener is also aware of the type returned by the related methods, so no manual casting is required.
 #
 # TIP: Use type aliases to give better names to commonly used generic types.
+#
 # ```
 # alias UserCreatedEvent = AED::GenericEvent(User, String)
 # ```
+#
+# ### Polymorphism
+#
+# There is special handling for an event class has a single generic type variable.
+# When used within an event listener, if the generic type has child types or is included in other types (when it's a module), then that listener will be registered for each concrete descendant of that type.
+#
+# ```
+# abstract struct Animal; end
+#
+# struct Dog < Animal; end
+#
+# struct Cat < Animal; end
+#
+# class GenericAnimalEvent(T) < AED::Event
+#   getter animal : T
+#
+#   def initialize(@animal : T); end
+# end
+#
+# class AnimalsListener
+#   @[AEDA::AsEventListener]
+#   def all_animals(event : GenericAnimalEvent(Animal)) : Nil
+#     pp "All Animals: #{event.animal}"
+#   end
+#
+#   @[AEDA::AsEventListener]
+#   def dog_only(event : GenericAnimalEvent(Dog)) : Nil
+#     pp "Dog Only: #{event.animal}"
+#   end
+# end
+#
+# dispatcher = AED::EventDispatcher.new
+# animal_listener = AnimalsListener.new
+# dispatcher.listener animal_listener
+#
+# dispatcher.dispatch GenericAnimalEvent(Cat).new Cat.new
+# dispatcher.dispatch GenericAnimalEvent(Dog).new Dog.new
+# # "All Animals: Cat()"
+# # "All Animals: Dog()"
+# # "Dog Only: Dog()"
+# ```
+#
+# In this example, notice how the `all_animals` event listener's *event* parameter is typed as `GenericAnimalEvent(Animal)` and gets invoked for both children of the abstract `Animal` type.
+# Whereas the event for the `dog_only` event listener is typed as `GenericAnimalEvent(Dog)`, so it only gets invoked once when the animal is a `Dog`.
 abstract class Athena::EventDispatcher::Event < Athena::Contracts::EventDispatcher::Event
   # Returns an `AED::Callable` based on the event class the method was called on.
   # Optionally allows customizing the *priority* and *name* of the listener.

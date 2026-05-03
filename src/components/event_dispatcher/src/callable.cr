@@ -146,10 +146,14 @@ abstract struct Athena::EventDispatcher::Callable
     def_equals @event_class, @priority, @callback, @instance
 
     # :nodoc:
-    def call(event : E, dispatcher : AED::EventDispatcherInterface) : Nil
+    def call(event : ACTR::EventDispatcher::Event, dispatcher : AED::EventDispatcherInterface) : Nil
+      return unless event.is_a?(E)
+
       case cb = @callback
-      in Proc(E, Nil)                                then cb.call event
-      in Proc(E, AED::EventDispatcherInterface, Nil) then cb.call event, dispatcher
+      when Proc(E, Nil)                                then cb.call event
+      when Proc(E, AED::EventDispatcherInterface, Nil) then cb.call event, dispatcher
+      else
+        raise "BUG: Tried to call unknown event type."
       end
     end
 
