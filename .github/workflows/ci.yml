@@ -19,7 +19,7 @@ jobs:
   check_spelling:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - name: Check Spelling
         uses: crate-ci/typos@bbaefadf97b0ec5fdc942684b647f1a6ab250274 # v1.46.0
   check_format:
@@ -31,7 +31,7 @@ jobs:
           - nightly
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
       - name: Install Crystal
         uses: crystal-lang/install-crystal@d8ef131ecec0352ce0e39b81b0a6d95def58fe2f # v1.9.2
@@ -42,7 +42,7 @@ jobs:
   coding_standards:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
       - name: Install Crystal
         uses: crystal-lang/install-crystal@d8ef131ecec0352ce0e39b81b0a6d95def58fe2f # v1.9.2
@@ -61,7 +61,7 @@ jobs:
           - nightly
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
       - name: Install kcov
         if: ${{ matrix.crystal == vars.COVERAGE_CHANNEL }}
@@ -121,9 +121,9 @@ jobs:
           - nightly
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         if: github.event_name != 'pull_request'
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         if: github.event_name == 'pull_request'
         with:
           fetch-depth: 0
