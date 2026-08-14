@@ -8,7 +8,7 @@ private def assert_route(
 )
   route_collection.size.should eq 1
 
-  self.assert_route route_collection.first, **args, file: file, line: line
+  assert_route route_collection.first, **args, file: file, line: line
 end
 
 private def assert_route(
