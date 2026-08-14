@@ -8,13 +8,43 @@ Lint/NotNil:
   Enabled: false
 Lint/Typos:
   Enabled: false # This has its own dedicated CI job
-Lint/UselessAssign:
-  ExcludeTypeDeclarations: true # TODO: Disable this once https://github.com/crystal-ameba/ameba/issues/447 is resolved
 Naming/AccessorMethodName:
   Enabled: false
 Naming/BlockParameterName:
   Enabled: false
 Naming/QueryBoolMethods:
   Enabled: false
+Style/RedundantSelf: # I like being explicit to differentiate method call vs local variable
+  Enabled: false
 Style/LargeNumbers:
   Enabled: true
+
+# TODO: Do a pass on 1.7 rules
+Lint/AssignmentInCallArgument:
+  Enabled: false
+Lint/UnusedExpression:
+  Enabled: false
+Style/VerboseNilType: # This flags usages of `Nil` in multi-type unions
+  Enabled: false
+Style/HeredocEscape:
+  Enabled: false
+Lint/WhitespaceAroundMacroExpression:
+  Enabled: false
+Style/HeredocIndent:
+  Enabled: false
+Style/MultilineStringLiteral:
+  Enabled: false
+Style/PercentLiteralDelimiters:
+  Enabled: false
+Style/RedundantNilInControlExpression:
+  Enabled: false
+Lint/UnusedRescueVariable:
+  Enabled: false
+Style/RedundantReturn:
+  Enabled: false
+Lint/UselessAssign:
+  Enabled: false
+Lint/UnneededDisableDirective:
+  Enabled: false
+Lint/ElseNil:
+  Enabled: false
