@@ -134,6 +134,8 @@ struct Athena::Framework::Listeners::CORS
   end
 
   # Configures the given *response* for CORS preflight
+  #
+  # ameba:disable Metrics/CyclomaticComplexity
   private def set_preflight_response(request : AHTTP::Request) : AHTTP::Response
     response = AHTTP::Response.new
     response.headers["vary"] = "origin"
