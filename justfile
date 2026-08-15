@@ -61,7 +61,7 @@ format-fix:
 # Run Ameba static analysis
 [group('check')]
 ameba:
-    ./bin/ameba
+    ./lib/ameba/bin/ameba.cr
 
 # Run typos spellchecker
 [group('check')]
