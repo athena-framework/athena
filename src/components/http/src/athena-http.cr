@@ -1,3 +1,7 @@
+require "http/headers"
+require "http/status"
+require "http/server/response"
+
 require "./ext/conversion_types"
 
 require "./abstract_file"

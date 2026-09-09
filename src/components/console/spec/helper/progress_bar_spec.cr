@@ -1048,7 +1048,7 @@ struct ProgressBarTest < ASPEC::TestCase
       self.generate_output(
         " \e[44;37m Looks good to me...                   \e[0m\n",
         "  4/15 #{done * 7}#{progress}#{empty * 19}  26%\n",
-        " \xf0\x9f\x8f\x81  < 1 sec                      \e[41;37m 98kiB \e[0m",
+        " \xf0\x9f\x8f\x81  < 1 sec                      \e[41;37m 98KiB \e[0m",
       )
     )
 
