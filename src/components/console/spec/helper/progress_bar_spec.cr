@@ -1011,6 +1011,8 @@ struct ProgressBarTest < ASPEC::TestCase
 
   def test_ansi_colors_and_emojis : Nil
     ENV["COLUMNS"] = "156"
+    unit_suffix = {{ compare_versions(Crystal::VERSION, "1.22.0-dev") >= 0 ? "KiB" : "kiB" }}
+
     idx = 0
 
     ACON::Helper::ProgressBar.set_placeholder_formatter "custom_memory" do
@@ -1048,7 +1050,7 @@ struct ProgressBarTest < ASPEC::TestCase
       self.generate_output(
         " \e[44;37m Looks good to me...                   \e[0m\n",
         "  4/15 #{done * 7}#{progress}#{empty * 19}  26%\n",
-        " \xf0\x9f\x8f\x81  < 1 sec                      \e[41;37m 98kiB \e[0m",
+        " \xf0\x9f\x8f\x81  < 1 sec                      \e[41;37m 98#{unit_suffix} \e[0m",
       )
     )
 
@@ -1062,7 +1064,7 @@ struct ProgressBarTest < ASPEC::TestCase
       self.generate_output(
         " \e[44;37m Thanks, bye                           \e[0m\n",
         " 15/15 #{done * 28} 100%\n",
-        " \xf0\x9f\x8f\x81  < 1 sec                     \e[41;37m 195kiB \e[0m",
+        " \xf0\x9f\x8f\x81  < 1 sec                     \e[41;37m 195#{unit_suffix} \e[0m",
       )
     )
 

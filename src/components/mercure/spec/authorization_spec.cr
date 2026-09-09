@@ -98,7 +98,7 @@ struct AuthorizationTest < ASPEC::TestCase
     ) { "ID" })
 
     uri = URI.parse request_url
-    request = ::HTTP::Request.new("GET", uri.path, headers: ::HTTP::Headers{"host" => uri.hostname || ""})
+    request = ::HTTP::Request.new("GET", uri.path.presence ? uri.path : "/", headers: ::HTTP::Headers{"host" => uri.hostname || ""})
 
     authorization = AMC::Authorization.new registry
 
@@ -126,7 +126,7 @@ struct AuthorizationTest < ASPEC::TestCase
     ) { "ID" })
 
     uri = URI.parse request_url
-    request = ::HTTP::Request.new("GET", uri.path, headers: ::HTTP::Headers{"host" => uri.hostname || ""})
+    request = ::HTTP::Request.new("GET", uri.path.presence ? uri.path : "/", headers: ::HTTP::Headers{"host" => uri.hostname || ""})
 
     authorization = AMC::Authorization.new registry
 

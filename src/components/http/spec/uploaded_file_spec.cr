@@ -84,8 +84,9 @@ struct UploadedFileTest < ASPEC::TestCase
   def test_move_failed_too_big : Nil
     AHTTP::UploadedFile.max_file_size = 1024 * 5
     file = AHTTP::UploadedFile.new "#{__DIR__}/assets/test.gif", "original.gif", "image/gif", :size_limit_exceeded
+    unit_suffix = {{ compare_versions(Crystal::VERSION, "1.22.0-dev") >= 0 ? "KiB" : "kiB" }}
 
-    expect_raises ::AHTTP::Exception::FileSizeLimitExceeded, "The file 'original.gif' exceeds your max_file_size configuration value (limit is 5.0kiB)." do
+    expect_raises ::AHTTP::Exception::FileSizeLimitExceeded, "The file 'original.gif' exceeds your max_file_size configuration value (limit is 5.0#{unit_suffix})." do
       file.move "#{__DIR__}/assets/directory"
     end
   ensure

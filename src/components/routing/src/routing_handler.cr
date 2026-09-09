@@ -1,4 +1,6 @@
 require "log"
+require "http/server/context"
+require "http/server/handler"
 
 # Provides basic routing functionality to an [HTTP::Server](https://crystal-lang.org/api/HTTP/Server.html).
 #

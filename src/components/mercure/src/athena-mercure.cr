@@ -1,7 +1,10 @@
 require "jwt"
 
 require "http/client"
+require "http/cookie"
+require "http/request"
 require "http/headers"
+require "http/server/response"
 
 require "./authorization"
 require "./discovery"
