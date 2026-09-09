@@ -90,7 +90,7 @@ struct AuthorizationTest < ASPEC::TestCase
   end
 
   @[DataProvider("applicable_cookie_domains")]
-  def test_applicable_cookie_domains(expected : String?, hub_url : String, request_url : String) : Nil
+  def ftest_applicable_cookie_domains(expected : String?, hub_url : String, request_url : String) : Nil
     registry = AMC::Hub::Registry.new(AMC::Spec::MockHub.new(
       hub_url,
       AMC::TokenProvider::Static.new("JWT"),
@@ -98,7 +98,7 @@ struct AuthorizationTest < ASPEC::TestCase
     ) { "ID" })
 
     uri = URI.parse request_url
-    request = ::HTTP::Request.new("GET", uri.path, headers: ::HTTP::Headers{"host" => uri.hostname || ""})
+    request = ::HTTP::Request.new("GET", uri.path.presence ? uri.path : "/", headers: ::HTTP::Headers{"host" => uri.hostname || ""})
 
     authorization = AMC::Authorization.new registry
 
