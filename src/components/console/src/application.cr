@@ -551,7 +551,7 @@ class Athena::Console::Application
       input.interactive = false
     end
 
-    shell_verbosity = ENV["SHELL_VERBOSITY"]?.try(&.to_i) || 0
+    shell_verbosity = ENV["SHELL_VERBOSITY"]?.try(&.to_i?) || 0
 
     case shell_verbosity
     when -2 then output.verbosity = :silent
