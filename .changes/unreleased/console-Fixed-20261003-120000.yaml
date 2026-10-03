@@ -1,0 +1,8 @@
+project: console
+kind: Fixed
+body: Exit with `ACON::Command::Status::FAILURE` instead of `SUCCESS` when a caught `ACON::Exception` has no positive `code`
+time: 2026-10-03T12:00:00.000000000-03:00
+custom:
+    Author: Damián Búho
+    PR: "726"
+    Username: damian-buho
