@@ -499,7 +499,7 @@ class Athena::Console::Application
 
       self.render_exception ex, output
 
-      exit_code = if ex.is_a? ACON::Exception
+      exit_code = if ex.is_a?(ACON::Exception) && ex.code.positive?
                     ACON::Command::Status.new ex.code
                   else
                     ACON::Command::Status::FAILURE
