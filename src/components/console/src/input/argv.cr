@@ -127,8 +127,28 @@ class Athena::Console::Input::ARGV < Athena::Console::Input
       argument = @definition.argument(count - 1)
       @arguments[argument.name].as(ACON::Input::Value::Array) << token
 
-      # TODO: Handle unexpected argument.
+      # Otherwise the argument is unexpected.
     else
+      expected_arguments = @definition.arguments.keys
+      command_name = nil
+
+      # The application's `command` argument is not one of the command's own arguments.
+      if "command" == expected_arguments.first?
+        expected_arguments.shift
+        command_name = @arguments["command"]?.try &.to_s.presence
+      end
+
+      message = if !expected_arguments.empty?
+                  expected = "'#{expected_arguments.join "' '"}'"
+
+                  command_name ? "Too many arguments to '#{command_name}' command, expected arguments #{expected}." : "Too many arguments, expected arguments #{expected}."
+                elsif command_name
+                  "No arguments expected for '#{command_name}' command, got '#{token}'."
+                else
+                  "No arguments expected, got '#{token}'."
+                end
+
+      raise ACON::Exception::UnexpectedArgument.new message
     end
   end
 
