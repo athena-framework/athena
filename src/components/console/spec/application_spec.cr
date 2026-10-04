@@ -811,6 +811,19 @@ struct ApplicationTest < ASPEC::TestCase
     tester.output.verbosity.should eq ACON::Output::Verbosity::DEBUG
   end
 
+  def test_run_ignores_non_integer_shell_verbosity : Nil
+    app = ACON::Application.new "foo"
+    app.auto_exit = false
+    app.catch_exceptions = false
+
+    self.ensure_static_command_help app
+    tester = ACON::Spec::ApplicationTester.new app
+
+    ENV["SHELL_VERBOSITY"] = "foo"
+    tester.run command: "list", decorated: false
+    tester.output.verbosity.should eq ACON::Output::Verbosity::NORMAL
+  end
+
   def test_run_help_help_command : Nil
     app = ACON::Application.new "foo"
     app.auto_exit = false

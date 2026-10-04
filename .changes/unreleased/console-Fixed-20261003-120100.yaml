@@ -1,0 +1,8 @@
+project: console
+kind: Fixed
+body: Treat a non-integer `SHELL_VERBOSITY` as `0` instead of raising
+time: 2026-10-03T12:01:00.000000000-03:00
+custom:
+    Author: Damián Búho
+    PR: "727"
+    Username: damian-buho
