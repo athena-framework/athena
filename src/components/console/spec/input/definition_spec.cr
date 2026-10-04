@@ -308,6 +308,17 @@ struct InputDefinitionTest < ASPEC::TestCase
     })
   end
 
+  def test_ignore_extra_arguments : Nil
+    definition = ACON::Input::Definition.new
+    definition.ignore_extra_arguments?.should be_false
+
+    definition.ignore_extra_arguments = true
+    definition.ignore_extra_arguments?.should be_true
+
+    definition.ignore_extra_arguments = false
+    definition.ignore_extra_arguments?.should be_false
+  end
+
   def test_negation_to_name : Nil
     definition = ACON::Input::Definition.new ACON::Input::Option.new "foo", value_mode: :negatable
     definition.negation_to_name("no-foo").should eq "foo"

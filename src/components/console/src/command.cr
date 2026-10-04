@@ -138,6 +138,43 @@
 #
 # See `ACON::Input::Interface` for more information.
 #
+# ## Sub-commands
+#
+# Commands form a tree based on their names, with each `:` separated segment being a level.
+# For example, given `docker`, `docker:compose`, and `docker:compose:up` commands, the leaf can be invoked by separating each segment with a space instead of a colon:
+#
+# ```console
+# ./console docker compose up web --detach
+# ./console docker:compose:up web --detach
+# ```
+#
+# Each level parses its own options, while only the last command is executed.
+# For example, `./console docker --context=prod compose -f app.yaml up web` has `docker` parse `--context`, `docker:compose` parse `-f`, and `docker:compose:up` parse `web`.
+# The options of the application itself, such as `--verbose`, are accepted at every level.
+# Intermediate levels do not need to be registered: `./console cache clear` runs `cache:clear` even if there is no `cache` command.
+#
+# A token that names a sub-command takes precedence over the arguments of its parent.
+# With both `deploy` and `deploy:rollback` registered, `./console deploy rollback` runs `deploy:rollback`, while `./console deploy prod` binds `prod` to an argument of `deploy`.
+# Use `--` to bind such a token as an argument instead, e.g. `./console deploy -- rollback`.
+#
+# A level that only groups other commands can use `ACON::Commands::Group`, which lists its sub-commands when invoked without one.
+# A level with its own `#execute` method still runs it when invoked without a sub-command.
+#
+# The commands resolved at each level, along with their bound input, are exposed via `ACON::Application#command_chain`.
+# This allows the running command to read the options of its ancestors:
+#
+# ```
+# protected def execute(input : ACON::Input::Interface, output : ACON::Output::Interface) : ACON::Command::Status
+#   # ./console docker --context=prod compose up
+#   context = self.application.command_chain.try(&.input("docker")).try &.option("context") # => "prod"
+#
+#   ACON::Command::Status::SUCCESS
+# end
+# ```
+#
+# NOTE: Sub-commands are only resolved from `ACON::Input::ARGV` input.
+# `ACON::Spec::ApplicationTester` can run an array of tokens in order to test them.
+#
 # ## Testing the Command
 #
 # `Athena::Console` also includes a way to test your console commands without needing to build and run a binary.
@@ -541,6 +578,7 @@ abstract class Athena::Console::Command
     full_definition = ACON::Input::Definition.new
     full_definition.options = @definition.options.values
     full_definition << application.definition.options.values
+    full_definition.ignore_extra_arguments = @definition.ignore_extra_arguments?
 
     if merge_args
       full_definition.arguments = application.definition.arguments.values

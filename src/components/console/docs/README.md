@@ -108,6 +108,7 @@ This is to ensure the performance of the script is sufficient, and to avoid any 
 ## Learn More
 
 * Asking [ACON::Question](/Console/Question/)s
+* Invoking [sub-commands](/Console/Command/#Athena::Console::Command--sub-commands), e.g. `./console docker compose up`
 * Reusable output [styles](/Console/Formatter/OutputStyleInterface/)
 * High level reusable formatting [styles](/Console/Style/Interface/)
 * [Testing abstractions](/Console/Spec/)

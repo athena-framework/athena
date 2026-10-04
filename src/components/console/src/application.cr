@@ -94,13 +94,16 @@ class Athena::Console::Application
   # * `ACON::Helper::Question`
   property helper_set : ACON::Helper::HelperSet { self.default_helper_set }
 
+  # Returns the commands resolved for the current invocation and their bound inputs, or `nil` if no command is running.
+  # See [Sub-commands][Athena::Console::Command--sub-commands] for more information.
+  getter command_chain : ACON::CommandChain? = nil
+
   @commands = Hash(String, ACON::Command).new
   @default_command : String = "list"
   @definition : ACON::Input::Definition? = nil
   @initialized : Bool = false
   @running_command : ACON::Command? = nil
   @terminal : ACON::Terminal
-  @wants_help : Bool = false
 
   def initialize(@name : String, @version : String = "UNKNOWN")
     @terminal = ACON::Terminal.new
@@ -429,18 +432,7 @@ class Athena::Console::Application
       raise ACON::Exception::CommandNotFound.new "The '#{name}' command cannot be found because it is registered under multiple names. Make sure you don't set a different name via constructor or 'name='."
     end
 
-    command = @commands[name]
-
-    if @wants_help
-      @wants_help = false
-
-      help_command = self.get "help"
-      help_command.as(ACON::Commands::Help).command = command
-
-      return help_command
-    end
-
-    command
+    @commands[name]
   end
 
   # Returns `true` if a command with the provided *name* exists, otherwise `false`.
@@ -604,13 +596,14 @@ class Athena::Console::Application
     end
 
     command_name = self.command_name input
+    wants_help = false
 
     if input.has_parameter? "--help", "-h", only_params: true
       if command_name.nil?
         command_name = "help"
         input = ACON::Input::Hash.new(command_name: @default_command)
       else
-        @wants_help = true
+        wants_help = true
       end
     end
 
@@ -627,9 +620,13 @@ class Athena::Console::Application
 
       command = self.find command_name
     rescue ex : ::Exception
-      if (ex.is_a?(ACON::Exception::CommandNotFound) && !ex.is_a?(ACON::Exception::NamespaceNotFound)) &&
-         1 == (alternatives = ex.alternatives).size &&
-         input.interactive?
+      if ex.is_a?(ACON::Exception::CommandNotFound) && !ex.is_a?(ACON::Exception::NamespaceNotFound) && input.is_a?(ACON::Input::ARGV) && !self.tree_descendants(command_name).empty?
+        # The name is a namespace: an implicit node roots the walk, and lists its commands when invoked bare.
+        command = ACON::Commands::Group.new command_name
+        command.application = self
+      elsif (ex.is_a?(ACON::Exception::CommandNotFound) && !ex.is_a?(ACON::Exception::NamespaceNotFound)) &&
+            1 == (alternatives = ex.alternatives).size &&
+            input.interactive?
         alternative = alternatives.not_nil!.first
 
         style = ACON::Style::Athena.new input, output
@@ -659,7 +656,7 @@ class Athena::Console::Application
               )
             )
 
-            return ACON::Command::Status::SUCCESS
+            return ACON::Command::Status::FAILURE
           end
 
           raise ex
@@ -669,8 +666,40 @@ class Athena::Console::Application
       end
     end
 
+    if command.is_a? ACON::Commands::Lazy
+      command = command.command
+    end
+
+    chain = nil
+    if input.is_a?(ACON::Input::ARGV) && (resolved = self.resolve_command_tree command, input)
+      command, input, chain = resolved
+    end
+
+    if wants_help
+      help_command = self.get "help"
+
+      if help_command.is_a? ACON::Commands::Lazy
+        help_command = help_command.command
+      end
+
+      if help_command.is_a? ACON::Commands::Help
+        help_command.command = command
+      end
+
+      command = help_command
+    end
+
+    previous_chain = @command_chain
     @running_command = command
-    exit_status = self.do_run_command command, input, output
+    @command_chain = chain || ACON::CommandChain.new([{command, input}] of {ACON::Command, ACON::Input::Interface})
+
+    begin
+      exit_status = self.do_run_command command, input, output
+    ensure
+      # `@running_command` is left as is: `#render_exception` reports the synopsis of the command that failed.
+      @command_chain = previous_chain
+    end
+
     @running_command = nil
 
     exit_status
@@ -815,6 +844,33 @@ class Athena::Console::Application
     %(    #{abbreviations.join("\n    ")})
   end
 
+  # Re-emits the application options bound at a tree level as tokens, so that the leaf input carries them too.
+  private def application_option_tokens(input : ACON::Input::Interface, consumed : Array(String)) : Array(String)
+    tokens = [] of String
+    values = input.options
+
+    self.definition.options.each_value do |option|
+      name = option.name
+      value = values[name]?
+
+      next if value == option.default
+
+      if !option.accepts_value?
+        # The token is replayed as it was given, so that a repeated shortcut such as `-vv` keeps its meaning.
+        given = (option.shortcut || "").split('|', remove_empty: true).map { |shortcut| "-#{shortcut}" }
+        tokens << (value ? (consumed.find { |token| "--#{name}" == token || given.includes?(token) } || "--#{name}") : "--no-#{name}")
+      elsif value.nil?
+        tokens << "--#{name}"
+      else
+        (value.is_a?(Array) ? value : [value]).each do |v|
+          tokens << "--#{name}=#{v}"
+        end
+      end
+    end
+
+    tokens
+  end
+
   private def extract_all_namespaces(name : String) : Array(String)
     # Pop off the shortcut name of the command.
     parts = name.split(':').tap &.pop
@@ -885,6 +941,107 @@ class Athena::Console::Application
     end
   end
 
+  # Resolves a spaced sub-command invocation through the tree derived from registered command names.
+  #
+  # Returns the leaf command, the input it must run with, and the resolved chain,
+  # or `nil` when the resolved command has no registered descendants and the regular, flat pipeline applies.
+  #
+  # ameba:disable Metrics/CyclomaticComplexity
+  private def resolve_command_tree(command : ACON::Command, input : ACON::Input::ARGV) : {ACON::Command, ACON::Input::ARGV, ACON::CommandChain}?
+    path = command.name
+    return if @single_command || self.tree_descendants(path).empty?
+
+    tokens = input.raw_tokens
+    node = self.has?(path) ? command : nil
+    is_root = true
+    application_options = [] of String
+    levels = [] of {ACON::Command, ACON::Input::Interface}
+
+    loop do
+      definition = ACON::Input::Definition.new
+
+      if node
+        definition.options = node.native_definition.options.values
+        definition << self.definition.options.values
+      else
+        definition.options = self.definition.options.values
+      end
+
+      if is_root
+        definition.arguments = self.definition.arguments.values
+      end
+
+      definition.ignore_extra_arguments = true
+
+      level_input = ACON::Input::ARGV.new tokens
+      level_input.bind definition
+      unparsed = level_input.unparsed_tokens
+      consumed = tokens[0, tokens.size - unparsed.size]
+
+      # No sub-command was given, or `--` marked the remaining tokens as this node's own arguments.
+      break if unparsed.empty? || "--" == consumed.last? || "--" == unparsed.first
+
+      segment = unparsed.shift
+      child_path = "#{path}:#{segment}"
+
+      # An alias of the current node is not a sub-command.
+      has = self.has?(child_path) && self.get(child_path).name != path
+
+      if !has && self.tree_descendants(child_path).empty?
+        raise self.unknown_segment_exception(segment, path) if node.nil? || node.native_definition.arguments.empty?
+
+        # The segment names no sub-command: it starts the node's own arguments.
+        break
+      end
+
+      application_options.concat self.application_option_tokens(level_input, consumed)
+
+      if node
+        levels << {node.is_a?(ACON::Commands::Lazy) ? node.command : node, level_input}
+      end
+
+      if has
+        node = self.get child_path
+        canonical_name = node.name
+
+        # An alias names the command it points to, unless that would orphan the sub-commands registered under it.
+        if !self.tree_descendants(canonical_name).empty? || self.tree_descendants(child_path).empty?
+          child_path = canonical_name
+        end
+      else
+        node = nil
+      end
+
+      path = child_path
+      tokens = unparsed
+      is_root = false
+
+      break if has && self.tree_descendants(child_path).empty?
+    end
+
+    return if is_root
+
+    if self.has? path
+      command = self.get path
+      command = command.command if command.is_a? ACON::Commands::Lazy
+    else
+      # Implicit node: no command is registered at this level, it lists its sub-commands.
+      command = ACON::Commands::Group.new path
+      command.application = self
+    end
+
+    leaf_input = ACON::Input::ARGV.new [path].concat(application_options).concat(tokens)
+    leaf_input.interactive = input.interactive?
+
+    if stream = input.stream
+      leaf_input.stream = stream
+    end
+
+    levels << {command, leaf_input}
+
+    {command, leaf_input, ACON::CommandChain.new(levels)}
+  end
+
   private def split_string_by_width(line : String, width : Int32, & : String -> Nil) : Nil
     if line.empty?
       return yield line
@@ -893,5 +1050,38 @@ class Athena::Console::Application
     line.each_char.each_slice(width).map(&.join).each do |set|
       yield set
     end
+  end
+
+  # Returns the registered command names below the provided *path*, excluding aliases of the command registered at *path* itself.
+  private def tree_descendants(path : String) : Array(String)
+    names = @commands.keys
+    if command_loader = @command_loader
+      names.concat command_loader.names
+    end
+
+    prefix = "#{path}:"
+
+    names.select do |name|
+      name.starts_with?(prefix) && (!(command = @commands[name]?) || command.name != path)
+    end
+  end
+
+  private def unknown_segment_exception(segment : String, path : String) : ACON::Exception::CommandNotFound
+    message = "There is no command '#{segment}' under '#{path.tr(":", " ")}'."
+
+    children = Hash(String, String).new
+    self.tree_descendants(path).each do |name|
+      child_segment = name[(path.size + 1)..].split(':').first
+      children[child_segment] = "#{path}:#{child_segment}"
+    end
+
+    matching_segments = self.find_alternatives segment, children.keys
+    alternatives = children.select { |child_segment, _| matching_segments.includes? child_segment }.values
+
+    unless alternatives.empty?
+      message += "\n\nDid you mean one of these?\n    #{alternatives.join("\n    ")}"
+    end
+
+    ACON::Exception::CommandNotFound.new message, alternatives
   end
 end

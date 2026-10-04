@@ -32,6 +32,15 @@ class Athena::Console::Descriptor::Text < Athena::Console::Descriptor
     commands = description.commands
     namespaces = description.namespaces
 
+    unless described_namespace
+      # A registered command collapses the tree below its name.
+      commands.reject! do |name, _|
+        segments = name.split ':'
+
+        (1...segments.size).any? { |idx| commands.has_key? segments[0, idx].join(':') }
+      end
+    end
+
     if described_namespace && !namespaces.empty?
       namespaces.values.first[:commands].each do |n|
         commands[n] = description.command n
@@ -127,6 +136,17 @@ class Athena::Console::Descriptor::Text < Athena::Console::Descriptor
       self.write_text "<comment>Help:</comment>", context
       self.write_text "\n"
       self.write_text "  #{help.gsub("\n", "\n  ")}", context
+      self.write_text "\n"
+    end
+
+    if (application = command.application?) && !(children = self.sub_commands(application, command.name)).empty?
+      width = children.keys.max_of { |segment| ACON::Helper.width segment }
+
+      self.write_text "\n<comment>Available sub-commands:</comment>", context
+      children.each do |segment, child_description|
+        self.write_text "\n"
+        self.write_text "  <info>#{segment}</info>#{" " * (width - ACON::Helper.width(segment) + 2)}#{child_description}", context
+      end
       self.write_text "\n"
     end
   end
@@ -262,6 +282,26 @@ class Athena::Console::Descriptor::Text < Athena::Console::Descriptor
     else
       default
     end
+  end
+
+  # Returns the sub-command segments directly below the provided *path*, with their description.
+  private def sub_commands(application : ACON::Application, path : String) : Hash(String, String)
+    prefix = "#{path}:"
+    children = Hash(String, String).new
+
+    application.commands(path).each do |name, child|
+      next if name != child.name || child.hidden?
+
+      segment = name[prefix.size..].split(':').first
+
+      if "#{prefix}#{segment}" == name
+        children[segment] = child.description
+      else
+        children[segment] ||= ""
+      end
+    end
+
+    children
   end
 
   private def width(commands : Array(ACON::Command) | Array(String)) : Int32
