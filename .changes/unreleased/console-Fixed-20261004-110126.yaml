@@ -1,0 +1,8 @@
+project: console
+kind: Fixed
+body: Fix input forwarding for `PROGRAM_NAME` based commands
+time: 2026-10-04T11:01:26.084669152-04:00
+custom:
+    Author: George Dietrich
+    PR: "736"
+    Username: blacksmoke16

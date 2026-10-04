@@ -75,12 +75,8 @@ class Athena::Console::Application
   # See the related interface for more information.
   setter command_loader : ACON::Loader::Interface? = nil
 
-  # Returns `true` if `self` only supports a single command.
-  # See [Single Command Applications](/Console/Application/#Athena::Console::Application--single-command-applications) for more information.
-  getter? single_command : Bool = false
-
   # When set to `true`, the application will check if `PROGRAM_NAME`'s basename matches a registered command.
-  # If it does, that command will be used and any arguments will be passed to it.
+  # If it does, `self` behaves as a [single command application](/Console/Application/#Athena::Console::Application--single-command-applications) for that command.
   #
   # This enables symlink-based command invocation, where `./command-name` (symlinked to the main binary) will automatically execute the `command-name` command.
   # Any arguments are passed to the matched command rather than being interpreted as a command name.
@@ -103,6 +99,7 @@ class Athena::Console::Application
   @definition : ACON::Input::Definition? = nil
   @initialized : Bool = false
   @running_command : ACON::Command? = nil
+  @single_command : Bool = false
   @terminal : ACON::Terminal
 
   def initialize(@name : String, @version : String = "UNKNOWN")
@@ -510,6 +507,14 @@ class Athena::Console::Application
     self.add(ACON::Commands::Generic.new(name, &block)).not_nil!
   end
 
+  # Returns `true` if `self` only supports a single command.
+  # See [Single Command Applications](/Console/Application/#Athena::Console::Application--single-command-applications) for more information.
+  #
+  # This is also the case if `#use_program_name_as_command?` is `true` and `PROGRAM_NAME`'s basename matches a registered command.
+  def single_command? : Bool
+    @single_command || !self.program_name_command.nil?
+  end
+
   # Returns the `#name` and `#version` of the application.
   # Used when the `-V` or `--version` option is passed.
   def long_version : String
@@ -519,12 +524,7 @@ class Athena::Console::Application
   protected def command_name(input : ACON::Input::Interface) : String?
     return @default_command if @single_command
 
-    if @use_program_name_as_command
-      prog_name = self.program_name
-      return prog_name if self.has?(prog_name)
-    end
-
-    input.first_argument
+    self.program_name_command || input.first_argument
   end
 
   protected def program_name : String
@@ -941,6 +941,14 @@ class Athena::Console::Application
     end
   end
 
+  # Returns the name of the registered command matching `PROGRAM_NAME`'s basename if `#use_program_name_as_command?` is `true`, otherwise `nil`.
+  private def program_name_command : String?
+    return unless @use_program_name_as_command
+
+    program_name = self.program_name
+    program_name if self.has? program_name
+  end
+
   # Resolves a spaced sub-command invocation through the tree derived from registered command names.
   #
   # Returns the leaf command, the input it must run with, and the resolved chain,
@@ -949,7 +957,7 @@ class Athena::Console::Application
   # ameba:disable Metrics/CyclomaticComplexity
   private def resolve_command_tree(command : ACON::Command, input : ACON::Input::ARGV) : {ACON::Command, ACON::Input::ARGV, ACON::CommandChain}?
     path = command.name
-    return if @single_command || self.tree_descendants(path).empty?
+    return if self.single_command? || self.tree_descendants(path).empty?
 
     tokens = input.raw_tokens
     node = self.has?(path) ? command : nil

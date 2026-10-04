@@ -1,5 +1,11 @@
 require "./spec_helper"
 
+private class ProgramNameTreeApplication < ACON::Application
+  protected def program_name : String
+    "deploy"
+  end
+end
+
 struct ApplicationCommandTreeTest < ASPEC::TestCase
   @runs = Hash(String, ACON::Input::Interface).new
 
@@ -531,6 +537,21 @@ struct ApplicationCommandTreeTest < ASPEC::TestCase
 
     names.should eq ["ns:sub"]
     ns_input.should be_nil
+  end
+
+  def test_a_program_name_command_does_not_walk_the_tree : Nil
+    @runs.clear
+
+    app = ProgramNameTreeApplication.new "foo"
+    app.auto_exit = false
+    app.catch_exceptions = false
+    app.use_program_name_as_command = true
+    app.add self.recording_command("deploy").argument("target")
+    app.add self.recording_command("deploy:rollback")
+
+    self.run_tokens(app, "rollback").should eq ACON::Command::Status::SUCCESS
+    @runs["deploy"].argument("target").should eq "rollback"
+    @runs.has_key?("deploy:rollback").should be_false
   end
 
   private def create_application : ACON::Application
