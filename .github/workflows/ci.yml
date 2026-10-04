@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Check Spelling
-        uses: crate-ci/typos@8a48f81b6c64dcfea44b3633223084c4be58ac5f # v1.49.0
+        uses: crate-ci/typos@00f422f3b19c57bc6338715ebfe3316d38768461 # v1.50.3
   check_format:
     strategy:
       fail-fast: false
@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@d8ef131ecec0352ce0e39b81b0a6d95def58fe2f # v1.9.2
+        uses: crystal-lang/install-crystal@46e48b6238ee23b1a6ef08ec39f12fb234676006 # v1.9.3
         with:
           crystal: ${{ matrix.crystal }}
       - name: Check Format
@@ -45,7 +45,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@d8ef131ecec0352ce0e39b81b0a6d95def58fe2f # v1.9.2
+        uses: crystal-lang/install-crystal@46e48b6238ee23b1a6ef08ec39f12fb234676006 # v1.9.3
       - name: Install Dependencies
         run: shards install
         env:
@@ -78,7 +78,7 @@ jobs:
           make -j$(nproc) &&
           sudo make install
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@d8ef131ecec0352ce0e39b81b0a6d95def58fe2f # v1.9.2
+        uses: crystal-lang/install-crystal@46e48b6238ee23b1a6ef08ec39f12fb234676006 # v1.9.3
         with:
           crystal: ${{ matrix.crystal }}
       - name: Install System Dependencies
@@ -90,7 +90,7 @@ jobs:
       - name: Compiled Specs
         run: just test-compiled
         shell: bash
-      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+      - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         if: ${{ matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -98,7 +98,7 @@ jobs:
           directory: coverage
           files: '**/cov.xml,**/macro_coverage.*.codecov.json' # There is no `unreachable.codecov.json` file when running _only_ compiled specs
           verbose: true
-      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+      - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         if: ${{ matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -143,7 +143,7 @@ jobs:
           make -j$(nproc) &&
           sudo make install
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@d8ef131ecec0352ce0e39b81b0a6d95def58fe2f # v1.9.2
+        uses: crystal-lang/install-crystal@46e48b6238ee23b1a6ef08ec39f12fb234676006 # v1.9.3
         with:
           crystal: ${{ matrix.crystal }}
       - name: Install System Dependencies
@@ -159,7 +159,7 @@ jobs:
       - name: Specs
         run: just test-unit
         shell: bash
-      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+      - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -167,7 +167,7 @@ jobs:
           directory: coverage
           files: '**/cov.xml,**/unreachable.codecov.json'
           verbose: true
-      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+      - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
