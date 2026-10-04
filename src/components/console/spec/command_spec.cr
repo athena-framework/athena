@@ -195,5 +195,24 @@ describe ACON::Command do
         tester.execute "--bar": true
       end
     end
+
+    it "ignore extra arguments" do
+      unparsed_tokens = nil
+
+      command = ACON::Commands::Generic.new "docker" do |input|
+        unparsed_tokens = input.as(ACON::Input::ARGV).unparsed_tokens
+
+        ACON::Command::Status::SUCCESS
+      end
+      command.definition.ignore_extra_arguments = true
+
+      application = ACON::Application.new "foo"
+      application.auto_exit = false
+      application.catch_exceptions = false
+      application.add command
+
+      application.run(ACON::Input::ARGV.new(["docker", "compose", "up", "--detach"]), ACON::Output::Null.new).should eq ACON::Command::Status::SUCCESS
+      unparsed_tokens.should eq ["compose", "up", "--detach"]
+    end
   end
 end

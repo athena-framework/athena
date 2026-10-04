@@ -138,14 +138,53 @@ module Athena::Console::Spec
 
     # :ditto:
     def run(
-      input : Hash(String, _) = Hash(String, String).new,
       *,
       decorated : Bool? = nil,
       interactive : Bool? = nil,
       capture_stderr_separately : Bool = false,
       verbosity : ACON::Output::Verbosity? = nil,
     ) : ACON::Command::Status
-      @input = ACON::Input::Hash.new input
+      # Kept separate from the `Hash` overload, as a default *input* value there makes Crystal's default overload ordering discard the `Array(String)` overload.
+      self.run Hash(String, String).new, decorated: decorated, interactive: interactive, capture_stderr_separately: capture_stderr_separately, verbosity: verbosity
+    end
+
+    # :ditto:
+    def run(
+      input : Hash(String, _),
+      *,
+      decorated : Bool? = nil,
+      interactive : Bool? = nil,
+      capture_stderr_separately : Bool = false,
+      verbosity : ACON::Output::Verbosity? = nil,
+    ) : ACON::Command::Status
+      self.run_input ACON::Input::Hash.new(input), decorated, interactive, capture_stderr_separately, verbosity
+    end
+
+    # Runs the application with the provided *input* tokens, as if they were passed on the command line.
+    # Useful for testing [sub-command][Athena::Console::Command--sub-commands] invocations.
+    #
+    # ```
+    # tester.run ["docker", "--context=prod", "compose", "up"]
+    # ```
+    def run(
+      input : Array(String),
+      *,
+      decorated : Bool? = nil,
+      interactive : Bool? = nil,
+      capture_stderr_separately : Bool = false,
+      verbosity : ACON::Output::Verbosity? = nil,
+    ) : ACON::Command::Status
+      self.run_input ACON::Input::ARGV.new(input), decorated, interactive, capture_stderr_separately, verbosity
+    end
+
+    private def run_input(
+      input : ACON::Input::Interface,
+      decorated : Bool?,
+      interactive : Bool?,
+      capture_stderr_separately : Bool,
+      verbosity : ACON::Output::Verbosity?,
+    ) : ACON::Command::Status
+      @input = input
 
       interactive.try do |i|
         self.input.interactive = i

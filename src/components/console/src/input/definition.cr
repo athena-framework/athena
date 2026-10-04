@@ -14,6 +14,12 @@ class Athena::Console::Input::Definition
 
   getter required_argument_count : Int32 = 0
 
+  # If `true`, the parser stops on the first extra argument instead of raising,
+  # leaving it and the following tokens available via `ACON::Input::ARGV#unparsed_tokens`.
+  #
+  # Within a command, set the flag within `ACON::Command#configure`.
+  property? ignore_extra_arguments : Bool = false
+
   def self.new(definition : ::Hash(String, ACON::Input::Option) | ::Hash(String, ACON::Input::Argument)) : self
     new definition.values
   end

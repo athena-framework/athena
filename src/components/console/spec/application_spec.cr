@@ -99,11 +99,13 @@ struct ApplicationTest < ASPEC::TestCase
     app.get("foo:bar").should be foo
 
     app = ACON::Application.new "foo"
+    app.auto_exit = false
     app.add FooCommand.new
 
-    pointerof(app.@wants_help).value = true
+    tester = ACON::Spec::ApplicationTester.new app
+    tester.run({"command" => "foo:bar", "--help" => true}, decorated: false)
 
-    app.get("foo:bar").should be_a ACON::Commands::Help
+    tester.display.should contain "Display help for the given command."
   end
 
   def test_has_get_with_loader : Nil
@@ -388,7 +390,7 @@ struct ApplicationTest < ASPEC::TestCase
     app.add Foo2Command.new
 
     tester = ACON::Spec::ApplicationTester.new app
-    tester.run(command: "foo", decorated: false) # .should eq ACON::Command::Status::FAILURE
+    tester.run(command: "foo", decorated: false).should eq ACON::Command::Status::FAILURE
 
     output = tester.display true
     output.should contain "Available commands for the 'foo' namespace:"

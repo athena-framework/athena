@@ -1,0 +1,8 @@
+project: console
+kind: Added
+body: Add improved sub-command support
+time: 2026-10-04T10:48:23.234094925-04:00
+custom:
+    Author: George Dietrich
+    PR: "735"
+    Username: blacksmoke16

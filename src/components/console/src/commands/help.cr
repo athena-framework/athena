@@ -21,11 +21,30 @@ class Athena::Console::Commands::Help < Athena::Console::Command
         To display the list of available commands, please use the <info>list</info> command.
         HELP
       )
+
+    self.definition.ignore_extra_arguments = true
   end
 
   protected def execute(input : ACON::Input::Interface, output : ACON::Output::Interface) : ACON::Command::Status
     if @command.nil?
-      @command = self.application.find input.argument("command_name", String)
+      application = self.application
+      name = input.argument("command_name", String)
+
+      if input.is_a? ACON::Input::ARGV
+        # A spaced path names a command in a tree: `help docker compose`.
+        input.unparsed_tokens.each do |token|
+          child_path = "#{application.has?(name) ? application.get(name).name : name}:#{token}"
+          break if !application.has?(child_path) && !self.namespace?(child_path)
+
+          name = child_path
+        end
+      end
+
+      @command = if !application.has?(name) && self.namespace?(name)
+                   ACON::Commands::Group.new(name).tap(&.application=(application))
+                 else
+                   application.find name
+                 end
     end
 
     ACON::Helper::Descriptor.new.describe(
@@ -40,5 +59,10 @@ class Athena::Console::Commands::Help < Athena::Console::Command
     @command = nil
 
     ACON::Command::Status::SUCCESS
+  end
+
+  # Only resolves the commands below the provided *path*, unlike `ACON::Application#namespaces` which resolves them all.
+  private def namespace?(path : String) : Bool
+    self.application.commands(path).any? { |_, command| !command.hidden? }
   end
 end

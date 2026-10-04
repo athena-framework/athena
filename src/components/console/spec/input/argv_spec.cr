@@ -270,6 +270,56 @@ struct ARGVTest < ASPEC::TestCase
     }
   end
 
+  def test_unparsed_tokens : Nil
+    definition = ACON::Input::Definition.new ACON::Input::Option.new("verbose", "v")
+    definition.ignore_extra_arguments = true
+
+    input = ACON::Input::ARGV.new ["--verbose", "compose", "up", "--detach"]
+    input.bind definition
+
+    input.option("verbose", Bool).should be_true
+    input.arguments.should be_empty
+    input.unparsed_tokens.should eq ["compose", "up", "--detach"]
+  end
+
+  def test_unparsed_tokens_after_parsed_arguments : Nil
+    definition = ACON::Input::Definition.new ACON::Input::Argument.new("name", :required)
+    definition.ignore_extra_arguments = true
+
+    input = ACON::Input::ARGV.new ["foo", "sub", "--opt=1"]
+    input.bind definition
+
+    input.arguments.should eq({"name" => "foo"})
+    input.unparsed_tokens.should eq ["sub", "--opt=1"]
+  end
+
+  def test_unparsed_tokens_with_fully_parsed_input : Nil
+    definition = ACON::Input::Definition.new ACON::Input::Argument.new("names", :is_array)
+    definition.ignore_extra_arguments = true
+
+    input = ACON::Input::ARGV.new ["foo", "bar"]
+    input.bind definition
+
+    input.arguments.should eq({"names" => ["foo", "bar"]})
+    input.unparsed_tokens.should be_empty
+  end
+
+  def test_ignore_extra_arguments_does_not_ignore_unknown_options : Nil
+    definition = ACON::Input::Definition.new
+    definition.ignore_extra_arguments = true
+
+    expect_raises ACON::Exception::Runtime, "The '--unknown' option does not exist." do
+      ACON::Input::ARGV.new(["--unknown", "sub"]).bind definition
+    end
+  end
+
+  def test_raw_tokens : Nil
+    input = ACON::Input::ARGV.new ["foo", "--bar"]
+    input.bind ACON::Input::Definition.new ACON::Input::Argument.new("name"), ACON::Input::Option.new("bar")
+
+    input.raw_tokens.should eq ["foo", "--bar"]
+  end
+
   def test_to_s : Nil
     input = ACON::Input::ARGV.new "-b", "bar"
     input.to_s.should eq "-b bar"

@@ -6,6 +6,7 @@ require "athena-clock"
 require "./annotations"
 require "./application"
 require "./command"
+require "./command_chain"
 require "./cursor"
 require "./terminal"
 

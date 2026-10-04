@@ -71,6 +71,18 @@ class Athena::Console::Input::ARGV < Athena::Console::Input
     default
   end
 
+  # Returns the tokens `self` was created with.
+  def raw_tokens : Array(String)
+    @tokens.dup
+  end
+
+  # Returns the tokens left unparsed when the definition ignores extra arguments.
+  #
+  # See `ACON::Input::Definition#ignore_extra_arguments=`.
+  def unparsed_tokens : Array(String)
+    @parsed.dup
+  end
+
   # :inherit:
   def to_s(io : IO) : Nil
     @tokens.join io, " " do |token, join_io|
@@ -94,7 +106,14 @@ class Athena::Console::Input::ARGV < Athena::Console::Input
     @parsed = @tokens.dup
 
     while token = @parsed.shift?
-      parse_options = self.parse_token token, parse_options
+      begin
+        parse_options = self.parse_token token, parse_options
+      rescue ex : ACON::Exception::UnexpectedArgument
+        raise ex unless @definition.ignore_extra_arguments?
+
+        @parsed.unshift token
+        break
+      end
     end
   end
 
