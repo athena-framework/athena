@@ -906,6 +906,28 @@ struct ApplicationTest < ASPEC::TestCase
     app.run(input, ACON::Output::Null.new).value.should eq 1
   end
 
+  def test_run_returns_failure_status_on_exception_with_zero_code : Nil
+    app = ACON::Application.new "foo"
+    app.auto_exit = false
+    app.register "foo" do
+      raise ACON::Exception::Logic.new ""
+    end
+
+    input = ACON::Input::Hash.new({"command" => "foo"})
+
+    app.run(input, ACON::Output::Null.new).value.should eq 1
+  end
+
+  def test_run_returns_failure_status_on_invalid_option : Nil
+    app = ACON::Application.new "foo"
+    app.auto_exit = false
+    app.add FooCommand.new
+
+    input = ACON::Input::ARGV.new ["foo:bar", "--bogus"]
+
+    app.run(input, ACON::Output::Null.new).value.should eq 1
+  end
+
   def test_add_option_duplicate_shortcut : Nil
     app = ACON::Application.new "foo"
     app.auto_exit = false
