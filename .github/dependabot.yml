@@ -11,6 +11,10 @@ updates:
     labels:
       - 'kind:infrastructure'
       - 'kind:maintenance'
+    groups:
+      github-actions:
+        patterns:
+          - '*'
   - package-ecosystem: 'uv'
     directory: '/'
     schedule:
