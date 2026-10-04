@@ -226,6 +226,50 @@ struct ARGVTest < ASPEC::TestCase
     }
   end
 
+  @[DataProvider("unexpected_arguments_provider")]
+  def test_parse_unexpected_arguments(input_args : Array(String), definition : ACON::Input::Definition, message : String) : Nil
+    input = ACON::Input::ARGV.new input_args
+
+    expect_raises ACON::Exception::UnexpectedArgument, message do
+      input.bind definition
+    end
+  end
+
+  def unexpected_arguments_provider : Hash
+    {
+      "no arguments defined" => {
+        ["foo", "bar"],
+        ACON::Input::Definition.new,
+        "No arguments expected, got 'foo'.",
+      },
+      "too many arguments" => {
+        ["foo", "bar"],
+        ACON::Input::Definition.new(ACON::Input::Argument.new("number")),
+        "Too many arguments, expected arguments 'number'.",
+      },
+      "too many arguments with multiple arguments defined" => {
+        ["foo", "bar", "zzz"],
+        ACON::Input::Definition.new(ACON::Input::Argument.new("number"), ACON::Input::Argument.new("county")),
+        "Too many arguments, expected arguments 'number' 'county'.",
+      },
+      "no arguments defined besides the command" => {
+        ["acme:foo", "bar"],
+        ACON::Input::Definition.new(ACON::Input::Argument.new("command", :required)),
+        "No arguments expected for 'acme:foo' command, got 'bar'.",
+      },
+      "too many arguments to a command" => {
+        ["acme:foo", "bar", "baz"],
+        ACON::Input::Definition.new(ACON::Input::Argument.new("command", :required), ACON::Input::Argument.new("name", :required)),
+        "Too many arguments to 'acme:foo' command, expected arguments 'name'.",
+      },
+      "too many arguments with a non-command first argument" => {
+        ["acme:foo", "bar"],
+        ACON::Input::Definition.new(ACON::Input::Argument.new("name", :required)),
+        "Too many arguments, expected arguments 'name'.",
+      },
+    }
+  end
+
   def test_to_s : Nil
     input = ACON::Input::ARGV.new "-b", "bar"
     input.to_s.should eq "-b bar"

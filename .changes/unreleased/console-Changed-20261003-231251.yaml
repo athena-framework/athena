@@ -1,0 +1,9 @@
+project: console
+kind: Changed
+body: Raise an error if a command receives more arguments than it expects
+time: 2026-10-03T23:12:51.305184112-04:00
+custom:
+    Author: George Dietrich
+    Breaking: "Yes"
+    PR: "734"
+    Username: blacksmoke16
