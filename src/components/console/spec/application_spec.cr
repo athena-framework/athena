@@ -1164,6 +1164,55 @@ struct ApplicationTest < ASPEC::TestCase
     tester.display.should contain "first arg: somevalue"
   end
 
+  def test_use_program_name_as_command_binds_argv_tokens_to_the_command_arguments : Nil
+    app = ProgramNameApplication.new "foo", test_program_name: "mycommand"
+    app.auto_exit = false
+    app.use_program_name_as_command = true
+
+    app.register("mycommand") do |input, output|
+      output.puts "first: #{input.argument "first"}, second: #{input.argument "second"}"
+      ACON::Command::Status::SUCCESS
+    end.argument("first").argument("second")
+
+    output = ACON::Output::IO.new IO::Memory.new
+    app.run(ACON::Input::ARGV.new(["one", "two"]), output).should eq ACON::Command::Status::SUCCESS
+
+    output.to_s.should contain "first: one, second: two"
+  end
+
+  def test_use_program_name_as_command_rejects_extra_argv_tokens : Nil
+    app = ProgramNameApplication.new "foo", test_program_name: "mycommand"
+    app.auto_exit = false
+    app.catch_exceptions = false
+    app.use_program_name_as_command = true
+
+    app.register("mycommand") { ACON::Command::Status::SUCCESS }.argument("arg")
+
+    expect_raises ACON::Exception::UnexpectedArgument, "Too many arguments, expected arguments 'arg'." do
+      app.run ACON::Input::ARGV.new(["one", "two"]), ACON::Output::Null.new
+    end
+  end
+
+  def test_use_program_name_as_command_is_a_single_command_application : Nil
+    app = ProgramNameApplication.new "foo", test_program_name: "mycommand"
+    app.register("mycommand") { ACON::Command::Status::SUCCESS }.help("%command.full_name%")
+
+    app.single_command?.should be_false
+    app.get("mycommand").processed_help.should eq "./#{Path.new(PROGRAM_NAME).basename} mycommand"
+
+    app.use_program_name_as_command = true
+
+    app.single_command?.should be_true
+    app.get("mycommand").processed_help.should eq Path.new(PROGRAM_NAME).basename
+  end
+
+  def test_use_program_name_as_command_without_a_match_is_not_a_single_command_application : Nil
+    app = ProgramNameApplication.new "foo", test_program_name: "nonexistent"
+    app.use_program_name_as_command = true
+
+    app.single_command?.should be_false
+  end
+
   def test_use_program_name_as_command_disabled_ignores_program_name : Nil
     app = ProgramNameApplication.new "foo", test_program_name: "mycommand"
     app.auto_exit = false
