@@ -1,0 +1,9 @@
+project: http-kernel
+kind: Changed
+body: Reduce compile times and binary size of applications with many actions with differing argument types
+time: 2026-10-04T21:01:27.846923005-04:00
+custom:
+    Author: George Dietrich
+    Breaking: "Yes"
+    PR: "738"
+    Username: blacksmoke16

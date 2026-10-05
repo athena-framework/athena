@@ -29,8 +29,9 @@ class Athena::Validator::Validator::RecursiveContextualValidator
   def validate(value : _, constraints : Array(AVD::Constraint) | AVD::Constraint | Nil = nil, groups : Array(String) | String | AVD::Constraints::GroupSequence | Nil = nil) : AVD::Validator::ContextualValidatorInterface
     groups = self.normalize_groups groups
 
-    previous_value = @context.value
-    previous_object = @context.object
+    # Hold onto the containers instead of their values, as the values would be typed as the union of everything that has been validated.
+    previous_value = @context.value_container
+    previous_object = @context.object_container
     previous_metadata = @context.metadata
     previous_path = @context.property_path
     previous_group = @context.group
@@ -106,8 +107,8 @@ class Athena::Validator::Validator::RecursiveContextualValidator
 
     property_path = AVD::PropertyPath.append @default_property_path, property_name
 
-    previous_value = @context.value
-    previous_object = @context.object
+    previous_value = @context.value_container
+    previous_object = @context.object_container
     previous_metadata = @context.metadata
     previous_path = @context.property_path
     previous_group = @context.group
@@ -141,8 +142,8 @@ class Athena::Validator::Validator::RecursiveContextualValidator
 
     property_path = AVD::PropertyPath.append @default_property_path, property_name
 
-    previous_value = @context.value
-    previous_object = @context.object
+    previous_value = @context.value_container
+    previous_object = @context.object_container
     previous_metadata = @context.metadata
     previous_path = @context.property_path
     previous_group = @context.group

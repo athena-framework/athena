@@ -67,11 +67,9 @@ struct Athena::HTTPKernel::HTTPKernel
     # Emit the action event.
     @event_dispatcher.dispatch AHK::Events::Action.new request, action
 
-    # Resolve the arguments for this action from the request.
-    arguments = @argument_resolver.get_arguments request, action
-
-    # Call the action and get the response.
-    response = action.execute arguments
+    # Resolve the arguments for this action from the request, then call the action and get the response.
+    # The action resolves its own arguments so that they are typed specifically to it, rather than as the union of every action's arguments.
+    response = action.execute request, @argument_resolver
 
     unless response.is_a? AHTTP::Response
       view_event = AHK::Events::View.new request, response
