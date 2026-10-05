@@ -231,6 +231,39 @@ abstract struct Athena::Validator::Spec::ValidatorTestCase < AVD::Spec::Abstract
     violation.code.should be_nil
   end
 
+  def test_validate_value_with_constraints_in_context : Nil
+    object = Entity.new
+
+    callback2 = AVD::Constraints::Callback::CallbackProc.new do |value, context|
+      context.value.should eq "Fred"
+      context.object.should eq object
+      value.should eq "Fred"
+
+      context.add_violation "message"
+    end
+
+    callback1 = AVD::Constraints::Callback::CallbackProc.new do |_value, context|
+      previous_value = context.value
+      previous_object = context.object
+
+      context
+        .validator
+        .in_context(context)
+        .validate("Fred", AVD::Constraints::Callback.new(callback: callback2, groups: "group"))
+
+      # Context changes shouldn't leak from #validate.
+      previous_value.should eq context.value
+      previous_object.should eq context.object
+    end
+
+    @metadata.add_constraint AVD::Constraints::Callback.new callback: callback1, groups: "group"
+
+    violations = self.validate object, nil, "group"
+
+    violations.size.should eq 1
+    violations.first.invalid_value.should eq "Fred"
+  end
+
   def test_validate_sub_object_with_cascade_disabled_by_default : Nil
     object = Entity.new
     object.sub_object = SubEntity.new

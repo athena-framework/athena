@@ -24,7 +24,7 @@ class Athena::Validator::ExecutionContext
   getter metadata : AVD::Metadata::MetadataInterface? = nil
 
   # The value that is currently being validated.
-  @value_container : AVD::Container = AVD::ValueContainer.new(nil)
+  protected getter value_container : AVD::Container = AVD::ValueContainer.new(nil)
 
   protected getter root_container : AVD::Container
 
@@ -72,9 +72,12 @@ class Athena::Validator::ExecutionContext
   end
 
   # :nodoc:
+  #
+  # *value* and *object* may also be `AVD::Container`s, such as when restoring a previous node,
+  # so that they do not need to be unwrapped into the union of every type that has been validated.
   def set_node(value : _, object : _, metadata : AVD::Metadata::MetadataInterface?, property_path : String) : Nil
-    @value_container = AVD::ValueContainer.new value
-    @object_container = AVD::ValueContainer.new object
+    @value_container = value.is_a?(AVD::Container) ? value : AVD::ValueContainer.new(value)
+    @object_container = object.is_a?(AVD::Container) ? object : AVD::ValueContainer.new(object)
     @metadata = metadata
     @property_path = property_path
   end

@@ -6,6 +6,8 @@ abstract class Athena::HTTPKernel::ActionBase
 
   abstract def execute(arguments : Array)
 
+  abstract def execute(request : AHTTP::Request, argument_resolver : AHK::Controller::ArgumentResolverInterface)
+
   # :inherit:
   def inspect(io : IO) : Nil
     io << "#<AHK::Action>"
@@ -29,6 +31,11 @@ class Athena::HTTPKernel::Action(ReturnType, ParameterTypeTuple, ParametersType)
   # Returns the type that this action returns.
   def return_type : ReturnType.class
     ReturnType
+  end
+
+  # Executes this action with the arguments resolved from the provided *request* via the provided *argument_resolver*.
+  def execute(request : AHTTP::Request, argument_resolver : AHK::Controller::ArgumentResolverInterface) : ReturnType
+    self.execute argument_resolver.get_arguments(request, self)
   end
 
   # Executes this action with the provided *arguments* array.

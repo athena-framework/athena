@@ -93,6 +93,12 @@ module Athena::Validator::ExecutionContextInterface
   # Internal
 
   # :nodoc:
+  protected abstract def value_container : AVD::Container
+
+  # :nodoc:
+  abstract def object_container : AVD::Container
+
+  # :nodoc:
   protected abstract def set_node(value : _, object : _, metadata : AVD::Metadata::MetadataInterface?, property_path : String) : Nil
 
   # :nodoc:

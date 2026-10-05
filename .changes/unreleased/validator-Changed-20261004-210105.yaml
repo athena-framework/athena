@@ -1,0 +1,9 @@
+project: validator
+kind: Changed
+body: Improve compile times and compiler memory usage of applications that validate many different types
+time: 2026-10-04T21:01:05.868858725-04:00
+custom:
+    Author: George Dietrich
+    Breaking: "No"
+    PR: "738"
+    Username: blacksmoke16
