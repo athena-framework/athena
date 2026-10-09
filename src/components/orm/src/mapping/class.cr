@@ -584,7 +584,9 @@ class Athena::ORM::Mapping::Class(T)
   end
 
   # Returns whether the field named *field_name* is part of the identifier.
-  def is_identifier(field_name : String) : Bool
+  #
+  # ameba:disable Naming/PredicateName
+  def is_identifier?(field_name : String) : Bool
     return false if @identifier.empty?
 
     return field_name == @identifier.first if !@is_identifier_composite
@@ -774,6 +776,8 @@ class Athena::ORM::Mapping::Class(T)
   end
 
   # :nodoc:
+  #
+  # ameba:disable Metrics/CyclomaticComplexity
   def validate_and_complete_association_mapping(mapping : Driver::ColumnMapping) : Association
     # TODO: Handle unsetting things?
 

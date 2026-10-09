@@ -289,7 +289,7 @@ class Athena::ORM::EntityManager
     uow = self.unit_of_work
     entity = entity.as(AORM::Entity)
 
-    uow.is_scheduled_for_insert?(entity) || uow.is_in_identity_map(entity) && !uow.is_scheduled_for_delete?(entity)
+    uow.is_scheduled_for_insert?(entity) || uow.is_in_identity_map?(entity) && !uow.is_scheduled_for_delete?(entity)
   end
 
   # :inherit:

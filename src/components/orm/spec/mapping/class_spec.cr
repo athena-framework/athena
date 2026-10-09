@@ -145,8 +145,8 @@ struct MappingClassTest < ASPEC::TestCase
     metadata.is_identifier_composite.should be_false
     metadata.single_identifier_field_name.should eq "id"
     metadata.single_identifier_column_name.should eq "id"
-    metadata.is_identifier("id").should be_true
-    metadata.is_identifier("label").should be_false
+    metadata.is_identifier?("id").should be_true
+    metadata.is_identifier?("label").should be_false
   end
 
   def test_two_ids_flip_composite_flag : Nil
@@ -156,8 +156,8 @@ struct MappingClassTest < ASPEC::TestCase
 
     metadata.is_identifier_composite.should be_true
     metadata.identifier.should eq Set{"id_a", "id_b"}
-    metadata.is_identifier("id_a").should be_true
-    metadata.is_identifier("id_b").should be_true
+    metadata.is_identifier?("id_a").should be_true
+    metadata.is_identifier?("id_b").should be_true
   end
 
   def test_single_identifier_field_name_raises_for_composite : Nil

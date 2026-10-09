@@ -61,7 +61,7 @@ class Athena::ORM::Proxy(T) < Athena::ORM::Entity
     uow = em.unit_of_work
     # Vacate this proxy's identity-map slot before loading so the persister's `register_managed` of the loaded entity doesn't trip the collision check.
     # The guard handles proxies built via `from_id` without going through the UoW (e.g. unit tests).
-    uow.remove_from_identity_map self if uow.is_in_identity_map self
+    uow.remove_from_identity_map self if uow.is_in_identity_map? self
 
     loaded = uow.entity_persister(T).load(id)
     raise "Proxy target #{T} with id #{id.inspect} not found" if loaded.nil?

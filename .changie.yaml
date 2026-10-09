@@ -114,6 +114,13 @@ projects:
       - { path: src/components/negotiation/shard.yml, find: '^version: .*', replace: 'version: {{.VersionNoPrefix}}' }
       - { path: src/components/negotiation/src/athena-negotiation.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
       - { path: src/components/negotiation/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+  - label: ORM
+    key: orm
+    changelog: src/components/orm/CHANGELOG.md
+    replacements:
+      - { path: src/components/orm/shard.yml, find: '^version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/components/orm/src/athena-orm.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/components/orm/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
   - label: Routing
     key: routing
     changelog: src/components/routing/CHANGELOG.md
