@@ -1,0 +1,8 @@
+project: console
+kind: Fixed
+body: Fix table borders around colspan cells and header-less tables
+time: 2026-10-08T23:30:20.194846501-04:00
+custom:
+    Author: George Dietrich
+    PR: "743"
+    Username: blacksmoke16

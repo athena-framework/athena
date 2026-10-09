@@ -326,7 +326,7 @@
 # | 99921-58-10-7 | Divine Comedy | Dante Alighieri |
 # +---------------+---------------+-----------------+
 # | This value spans 3 columns.                     |
-# +---------------+---------------+-----------------+
+# +-------------------------------------------------+
 # ```
 #
 # TIP: This table cells with colspan and `center` alignment can be used to create header cells that span the entire table width:
@@ -345,7 +345,7 @@
 # ```
 # Would generate:
 # ```text
-# +--------+--------+--------+
+# +--------------------------+
 # |     Main table title     |
 # +--------+--------+--------+
 # | ISBN   | Title  | Author |
@@ -907,6 +907,8 @@ class Athena::Console::Helper::Table
     is_header = !@orientation.horizontal?
     is_first_row = @orientation.horizontal?
     has_title = !!@header_title.presence
+    previous_row = nil
+    pending_separators = 0
 
     row_groups.each do |row_group|
       is_header_separator_rendered : Bool = false
@@ -920,18 +922,25 @@ class Athena::Console::Helper::Table
         end
 
         if row.is_a? Table::Separator
-          self.render_row_separator
+          # Defer rendering until the row below is known, to align crossings with it
+          pending_separators += 1
 
           next
         end
 
         # TODO: Handle empty/nil rows?
 
+        pending_separators.times do
+          self.render_row_separator row_above: previous_row, row_below: row
+        end
+        pending_separators = 0
+
         if is_header && !is_header_separator_rendered && @style.display_outside_border?
           self.render_row_separator(
-            is_header ? RowSeparator::TOP : RowSeparator::TOP_BOTTOM,
+            RowSeparator::TOP,
             has_title ? @header_title : nil,
-            has_title ? @style.header_title_format : nil
+            has_title ? @style.header_title_format : nil,
+            row_below: row
           )
 
           has_title = false
@@ -940,9 +949,11 @@ class Athena::Console::Helper::Table
 
         if is_first_row
           self.render_row_separator(
-            is_header ? RowSeparator::TOP : RowSeparator::TOP_BOTTOM,
+            @orientation.horizontal? || @headers.all?(&.empty?) ? RowSeparator::TOP : RowSeparator::TOP_BOTTOM,
             has_title ? @header_title : nil,
-            has_title ? @style.header_title_format : nil
+            has_title ? @style.header_title_format : nil,
+            previous_row,
+            row
           )
 
           is_first_row = false
@@ -959,11 +970,17 @@ class Athena::Console::Helper::Table
         else
           self.render_row row, is_header ? @style.cell_header_format : @style.cell_row_format
         end
+
+        previous_row = row
       end
     end
 
+    pending_separators.times do
+      self.render_row_separator row_above: previous_row
+    end
+
     if @style.display_outside_border?
-      self.render_row_separator :bottom, @footer_title, @style.footer_title_format
+      self.render_row_separator :bottom, @footer_title, @style.footer_title_format, previous_row
     end
 
     self.cleanup
@@ -1322,7 +1339,13 @@ class Athena::Console::Helper::Table
   end
 
   # ameba:disable Metrics/CyclomaticComplexity
-  private def render_row_separator(type : RowSeparator = :middle, title : String? = nil, title_format : String? = nil) : Nil
+  private def render_row_separator(
+    type : RowSeparator = :middle,
+    title : String? = nil,
+    title_format : String? = nil,
+    row_above : Rows::Type? = nil,
+    row_below : Rows::Type? = nil,
+  ) : Nil
     return unless count = @number_of_columns
 
     borders = @style.border_chars
@@ -1336,6 +1359,12 @@ class Athena::Console::Helper::Table
                                                        {borders[0], crossings[7], crossings[6], crossings[5]}
                                                      end
 
+    # Only draw a crossing where a vertical border meets the separator; a cell spanning several columns has no border on the columns it covers
+    has_line_above = !type.top?
+    has_line_below = !type.bottom?
+    columns_above = row_above.try { |row| self.get_row_columns row }
+    columns_below = row_below.try { |row| self.get_row_columns row }
+
     markup = String.build do |io|
       break "" if count.zero?
 
@@ -1343,7 +1372,26 @@ class Athena::Console::Helper::Table
 
       count.times do |column|
         io << horizontal * @effective_column_widths[column]
-        io << ((column == (count - 1)) ? right_char : middle_char)
+
+        if column == (count - 1)
+          io << right_char
+
+          next
+        end
+
+        border_above = has_line_above && (columns_above.nil? || columns_above.includes?(column + 1))
+        border_below = has_line_below && (columns_below.nil? || columns_below.includes?(column + 1))
+
+        # The one-sided junctions reuse the top/bottom crossing chars; for the `double-box` style these are double-horizontal (╤/╧) while an inner separator is single (─), as that style has no single-line ┬/┴ to fall back to
+        io << if border_above && border_below
+          middle_char
+        elsif border_below
+          crossings[2]
+        elsif border_above
+          crossings[6]
+        else
+          horizontal
+        end
       end
     end
 
