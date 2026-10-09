@@ -929,7 +929,7 @@ class Athena::Console::Helper::Table
 
         if is_header && !is_header_separator_rendered && @style.display_outside_border?
           self.render_row_separator(
-            is_header ? RowSeparator::TOP : RowSeparator::TOP_BOTTOM,
+            RowSeparator::TOP,
             has_title ? @header_title : nil,
             has_title ? @style.header_title_format : nil
           )
@@ -940,7 +940,7 @@ class Athena::Console::Helper::Table
 
         if is_first_row
           self.render_row_separator(
-            is_header ? RowSeparator::TOP : RowSeparator::TOP_BOTTOM,
+            @orientation.horizontal? ? RowSeparator::TOP : RowSeparator::TOP_BOTTOM,
             has_title ? @header_title : nil,
             has_title ? @style.header_title_format : nil
           )

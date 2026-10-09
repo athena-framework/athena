@@ -1158,6 +1158,53 @@ struct TableSpec < ASPEC::TestCase
     }
   end
 
+  def test_render_horizontal_top_border : Nil
+    boxed = ACON::Helper::Table::Style.new
+      .horizontal_border_chars('─')
+      .vertical_border_chars('│')
+      .crossing_chars('┼', '┌', '┬', '┐', '┤', '┘', '┴', '└', '├')
+
+    ACON::Helper::Table.new(output = self.io_output)
+      .style(boxed)
+      .header_title("Title")
+      .headers("Hello", "World")
+      .rows([[1, 2], [3, 4]])
+      .horizontal
+      .render
+
+    self.output_content(output).should eq self.normalize <<-TABLE
+    ┌──── Title ┬───┐
+    │ Hello │ 1 │ 3 │
+    │ World │ 2 │ 4 │
+    └───────┴───┴───┘
+
+    TABLE
+  end
+
+  def test_render_default_orientation_top_border : Nil
+    boxed = ACON::Helper::Table::Style.new
+      .horizontal_border_chars('─')
+      .vertical_border_chars('│')
+      .crossing_chars('┼', '┌', '┬', '┐', '┤', '┘', '┴', '└', '├')
+
+    ACON::Helper::Table.new(output = self.io_output)
+      .style(boxed)
+      .header_title("Title")
+      .headers("Hello", "World")
+      .rows([[1, 2], [3, 4]])
+      .render
+
+    self.output_content(output).should eq self.normalize <<-TABLE
+    ┌──── Title ────┐
+    │ Hello │ World │
+    ├───────┼───────┤
+    │ 1     │ 2     │
+    │ 3     │ 4     │
+    └───────┴───────┘
+
+    TABLE
+  end
+
   @[DataProvider("vertical_provider")]
   def test_render_vertical(headers, rows, expected, style : String, header_title, footer_title)
     ACON::Helper::Table.new(output = self.io_output)

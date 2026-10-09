@@ -1,0 +1,8 @@
+project: console
+kind: Fixed
+body: Fix horizontal table top border is incorrectly rendered
+time: 2026-10-08T23:23:44.320490441-04:00
+custom:
+    Author: George Dietrich
+    PR: "743"
+    Username: blacksmoke16
