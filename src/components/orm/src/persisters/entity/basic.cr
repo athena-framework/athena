@@ -12,7 +12,7 @@ class Athena::ORM::Persisters::Entity::Basic
     "<"   => "< %s",
     "<="  => "<= %s",
     "IN"  => "IN (%s)",
-    "NIN" => "NOT IN (%s)",
+    "NIN" => "NOT IN (%s)", # spellchecker:disable-line
   }
 
   @connection : AORM::Connection
@@ -269,7 +269,7 @@ class Athena::ORM::Persisters::Entity::Basic
   def insert_column_list : Array(String)
     columns = [] of String
 
-    @class_metadata.field_info.each do |name, field|
+    @class_metadata.field_info.each do |name, _field|
       # TODO: Handle versioning
       # TODO: Handle embedded classes
 
@@ -328,7 +328,7 @@ class Athena::ORM::Persisters::Entity::Basic
       placeholder = "?"
       column = column_name
 
-      if (field_name = @class_metadata.field_names[column_name]?)
+      if field_name = @class_metadata.field_names[column_name]?
         column = @quote_strategy.column_name field_name, @class_metadata, @platform
 
         if @class_metadata.field_mappings.has_key? field_name
@@ -483,6 +483,7 @@ class Athena::ORM::Persisters::Entity::Basic
     self.prepare_update_data entity, true
   end
 
+  # ameba:disable Metrics/CyclomaticComplexity
   protected def prepare_update_data(entity : AORM::Entity, is_insert : Bool = false) : Hash(String, Hash(String, Mapping::Value))
     uow = @em.unit_of_work
     result = Hash(String, Hash(String, Mapping::Value)).new do |hash, key|
@@ -704,6 +705,7 @@ class Athena::ORM::Persisters::Entity::Basic
     columns.join ", "
   end
 
+  # ameba:disable Metrics/CyclomaticComplexity
   def select_condition_statement_sql(field : String, value : _, association : Mapping::Association? = nil, comparison : String? = nil) : String
     value = value.is_a?(Mapping::Value) ? value.value : value
     comparison ||= value.is_a?(Array) ? "IN" : "="
@@ -735,7 +737,7 @@ class Athena::ORM::Persisters::Entity::Basic
         next
       end
 
-      if comparison == "IN" || comparison == "NIN"
+      if comparison == "IN" || comparison == "NIN" # spellchecker:disable-line
         elements = value.is_a?(Array) ? value : [value]
 
         if elements.empty?

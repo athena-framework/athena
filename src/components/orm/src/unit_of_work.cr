@@ -154,7 +154,7 @@ class Athena::ORM::UnitOfWork
   # Per-collection list of entities flagged for removal during change-set computation; applied after the transaction commits, alongside snapshots.
   @pending_collection_element_removals = Hash(AORM::BasePersistentCollection, Array(AORM::Entity)).new.compare_by_identity
 
-  # Per-entity changeset patches that must be applied as follow-up UPDATEs
+  # Per-entity changeset patches that must be applied as follow-up UPDATE
   # after the main inserts run — needed when a FK can't be set during INSERT
   # because the referenced row hasn't been written yet (i.e. cyclic FKs).
   @extra_updates = Hash(AORM::Entity, Hash(String, Change)).new.compare_by_identity
@@ -184,6 +184,8 @@ class Athena::ORM::UnitOfWork
   end
 
   # :nodoc:
+  #
+  # ameba:disable Metrics/CyclomaticComplexity
   def commit : Nil
     # TODO: Ensure connected to primary
 
@@ -679,7 +681,7 @@ class Athena::ORM::UnitOfWork
 
     case self.entity_state(entity, :detached)
     in .managed?
-      self.remove_from_identity_map(entity) if self.is_in_identity_map(entity)
+      self.remove_from_identity_map(entity) if self.is_in_identity_map?(entity)
 
       @entity_insertions.delete entity
       @entity_updates.delete entity
@@ -855,6 +857,8 @@ class Athena::ORM::UnitOfWork
   end
 
   # Returns `true` if *entity* will be inserted on the next flush.
+  #
+  # ameba:disable Naming/PredicateName
   def is_scheduled_for_insert?(entity : AORM::Entity) : Bool
     @entity_insertions.includes? entity
   end
@@ -862,7 +866,7 @@ class Athena::ORM::UnitOfWork
   # :nodoc:
   def schedule_for_delete(entity : AORM::Entity) : Nil
     if @entity_insertions.includes? entity
-      if self.is_in_identity_map entity
+      if self.is_in_identity_map? entity
         self.remove_from_identity_map entity
       end
 
@@ -872,7 +876,7 @@ class Athena::ORM::UnitOfWork
       return
     end
 
-    return unless self.is_in_identity_map entity
+    return unless self.is_in_identity_map? entity
 
     self.remove_from_identity_map entity
 
@@ -885,6 +889,8 @@ class Athena::ORM::UnitOfWork
   end
 
   # Returns `true` if *entity* will be deleted on the next flush.
+  #
+  # ameba:disable Naming/PredicateName
   def is_scheduled_for_delete?(entity : AORM::Entity) : Bool
     @entity_deletions.includes? entity
   end
@@ -903,6 +909,8 @@ class Athena::ORM::UnitOfWork
   # Returns `true` if *entity* changed, and will be updated by the current flush.
   #
   # Like `#scheduled_entity_updates`, this is only known during a flush.
+  #
+  # ameba:disable Naming/PredicateName
   def is_scheduled_for_update?(entity : AORM::Entity) : Bool
     @entity_updates.includes? entity
   end
@@ -938,7 +946,7 @@ class Athena::ORM::UnitOfWork
       raise "illegal composite identifier"
     end
 
-    values = self.is_in_identity_map(entity) ? self.entity_identifier(entity) : class_metadata.identifier_values(entity)
+    values = self.is_in_identity_map?(entity) ? self.entity_identifier(entity) : class_metadata.identifier_values(entity)
 
     id = values[class_metadata.identifier.first]?
     return nil if id.nil?
@@ -1089,7 +1097,9 @@ class Athena::ORM::UnitOfWork
   # Returns `true` if *entity* is registered in the identity map.
   #
   # Entities are registered once their identifier is known: when they are loaded, when a new entity with an assigned identifier is persisted, or when a generated identifier is read back on insert.
-  def is_in_identity_map(entity : AORM::Entity) : Bool
+  #
+  # ameba:disable Naming/PredicateName
+  def is_in_identity_map?(entity : AORM::Entity) : Bool
     return false if !@entity_identifiers.has_key?(entity) || @entity_identifiers[entity].empty?
 
     class_metadata = @em.class_metadata self.metadata_class_for(entity)
@@ -1238,7 +1248,7 @@ class Athena::ORM::UnitOfWork
       end
 
       # TODO: Handle versioning
-      if (!class_metadata.is_identifier(name) || !class_metadata.identifier_identity?) && true
+      if (!class_metadata.is_identifier?(name) || !class_metadata.identifier_identity?) && true
         actual_data[name] = class_metadata.create_column_value_from_entity name, entity
       end
     end
@@ -1341,6 +1351,8 @@ class Athena::ORM::UnitOfWork
   end
 
   # Compute association changeset
+  #
+  # ameba:disable Metrics/CyclomaticComplexity
   private def compute_association_changes(assoc : AORM::Mapping::Association, value) : Nil
     unwrapped_value = if assoc.is_a?(Mapping::ToMany)
                         # Iterate the backing collection without forcing a lazy load via `unwrap` that returns the inner ArrayCollection whether the PC is initialized or not.
@@ -1363,7 +1375,7 @@ class Athena::ORM::UnitOfWork
 
     target_class_metadata = @em.class_metadata assoc.target_entity
 
-    unwrapped_value.each_with_index do |entity, _|
+    unwrapped_value.each do |entity|
       raise "BUG: unwrapped_value is not an entity" unless entity.is_a? AORM::Entity
 
       case self.entity_state(entity, EntityState::New)
@@ -1407,6 +1419,8 @@ class Athena::ORM::UnitOfWork
   # ```
   #
   # Changes to the entity's collections aren't recomputed.
+  #
+  # ameba:disable Metrics/CyclomaticComplexity
   def recompute_single_entity_change_set(class_metadata : AORM::Mapping::ClassInterface, entity : AORM::Entity) : Nil
     raise "Entity is not managed" unless @entity_states[entity]? == EntityState::Managed
 
@@ -1422,7 +1436,7 @@ class Athena::ORM::UnitOfWork
       next if (assoc = class_metadata.association_mappings[name]?) && assoc.is_a?(Mapping::ToMany)
 
       # TODO: Skip version field
-      if !class_metadata.is_identifier(name) || !class_metadata.identifier_identity?
+      if !class_metadata.is_identifier?(name) || !class_metadata.identifier_identity?
         actual_data[name] = class_metadata.create_column_value_from_entity name, entity
       end
     end

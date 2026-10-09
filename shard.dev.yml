@@ -28,6 +28,8 @@ dependencies:
     path: ./src/components/mime
   athena-negotiation:
     path: ./src/components/negotiation
+  athena-orm:
+    path: ./src/components/orm
   athena-routing:
     path: ./src/components/routing
   athena-serializer:

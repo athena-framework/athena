@@ -43,6 +43,9 @@ dependencies:
   athena-negotiation:
     github: athena-framework/negotiation
     branch: docs
+  athena-orm:
+    github: athena-framework/orm
+    branch: docs
   athena-routing:
     github: athena-framework/routing
     branch: docs

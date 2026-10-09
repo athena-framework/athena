@@ -67,7 +67,7 @@ jobs:
         if: ${{ matrix.crystal == vars.COVERAGE_CHANNEL }}
         run: |
           sudo apt-get update &&
-          sudo apt-get install binutils-dev libssl-dev libcurl4-openssl-dev libelf-dev libstdc++-12-dev zlib1g-dev libdw-dev libiberty-dev
+          sudo apt-get install mold binutils-dev libssl-dev libcurl4-openssl-dev libelf-dev libstdc++-12-dev zlib1g-dev libdw-dev libiberty-dev
           curl -L -o ./kcov.tar.gz https://github.com/SimonKagstrom/kcov/archive/refs/tags/v43.tar.gz &&
           mkdir kcov-source &&
           tar xzf kcov.tar.gz -C kcov-source --strip-components=1 &&
@@ -132,7 +132,7 @@ jobs:
         if: ${{ matrix.os == 'blacksmith-4vcpu-ubuntu-2404' && matrix.crystal == vars.COVERAGE_CHANNEL }}
         run: |
           sudo apt-get update &&
-          sudo apt-get install binutils-dev libssl-dev libcurl4-openssl-dev libelf-dev libstdc++-12-dev zlib1g-dev libdw-dev libiberty-dev
+          sudo apt-get install mold binutils-dev libssl-dev libcurl4-openssl-dev libelf-dev libstdc++-12-dev zlib1g-dev libdw-dev libiberty-dev
           curl -L -o ./kcov.tar.gz https://github.com/SimonKagstrom/kcov/archive/refs/tags/v43.tar.gz &&
           mkdir kcov-source &&
           tar xzf kcov.tar.gz -C kcov-source --strip-components=1 &&

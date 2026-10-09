@@ -274,7 +274,7 @@ struct ProxyHydrationTest < ASPEC::TestCase
 
     @uow.detach owner
 
-    @uow.is_in_identity_map(avatar).should be_false
+    @uow.is_in_identity_map?(avatar).should be_false
     @uow.entity_state(avatar, :new).should eq AORM::UnitOfWork::EntityState::New
   end
 

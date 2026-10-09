@@ -437,7 +437,7 @@ struct UnitOfWorkTest < ASPEC::TestCase
     user_persister.inserts.size.should eq 0
     user_persister.updates.size.should eq 0
     user_persister.deletes.size.should eq 0
-    @uow.is_in_identity_map(user).should be_false
+    @uow.is_in_identity_map?(user).should be_false
     @uow.is_scheduled_for_insert?(user).should be_true
 
     user_persister.reset
@@ -560,7 +560,7 @@ struct UnitOfWorkTest < ASPEC::TestCase
     @uow.schedule_extra_update user, {"username" => AORM::UnitOfWork::Change.new(nil, val2)}
 
     extras = @uow.extra_update_for user
-    extras.keys.sort.should eq ["avatar", "username"]
+    extras.keys.sort!.should eq ["avatar", "username"]
   end
 
   def test_execute_extra_updates_runs_persister_update_with_patched_changeset : Nil
@@ -614,7 +614,7 @@ struct UnitOfWorkTest < ASPEC::TestCase
     log.map(&.class).should eq [UpdateOrderAlpha, UpdateOrderBeta]
   end
 
-  # Within a single class, UPDATEs are ordered by identifier hash rather than by when the entities were loaded.
+  # Within a single class, UPDATE are ordered by identifier hash rather than by when the entities were loaded.
   def test_commit_executes_updates_ordered_by_identifier_within_a_class : Nil
     log = [] of AORM::Entity
     @uow.set_entity_persister UpdateOrderAlpha, UpdateLoggingPersister.new(@em, @em.class_metadata(UpdateOrderAlpha), log)
@@ -700,7 +700,7 @@ struct UnitOfWorkTest < ASPEC::TestCase
 
     order.index(avatar).should_not be_nil
     order.index(user).should_not be_nil
-    order.index(avatar).not_nil!.should be < order.index(user).not_nil!
+    order.index!(avatar).should be < order.index!(user)
   end
 
   @[Pending]
@@ -795,13 +795,13 @@ struct UnitOfWorkTest < ASPEC::TestCase
     @uow.persist phone
     @uow.commit
 
-    @uow.is_in_identity_map(phone).should be_true
+    @uow.is_in_identity_map?(phone).should be_true
 
     @uow.schedule_for_delete phone
-    @uow.is_in_identity_map(phone).should be_false
+    @uow.is_in_identity_map?(phone).should be_false
 
     @uow.persist phone
-    @uow.is_in_identity_map(phone).should be_true
+    @uow.is_in_identity_map?(phone).should be_true
   end
 
   @[DataProvider("entities_with_valid_identifiers_provider")]
@@ -1468,7 +1468,7 @@ struct UnitOfWorkTest < ASPEC::TestCase
   def test_add_to_identity_map_returns_true_when_inserting_a_new_entry : Nil
     phone = managed_phone "555-0001"
 
-    @uow.is_in_identity_map(phone).should be_true
+    @uow.is_in_identity_map?(phone).should be_true
   end
 
   def test_add_to_identity_map_is_idempotent_for_the_same_instance : Nil
@@ -1493,7 +1493,7 @@ struct UnitOfWorkTest < ASPEC::TestCase
     phone = managed_phone "555-0004"
 
     @uow.remove_from_identity_map(phone).should be_true
-    @uow.is_in_identity_map(phone).should be_false
+    @uow.is_in_identity_map?(phone).should be_false
   end
 
   def test_remove_from_identity_map_returns_false_when_not_present : Nil
@@ -1729,11 +1729,11 @@ struct UnitOfWorkTest < ASPEC::TestCase
     @uow.set_entity_persister CmsPhonenumber, persister
 
     phone = managed_phone "555-DETACH"
-    @uow.is_in_identity_map(phone).should be_true
+    @uow.is_in_identity_map?(phone).should be_true
 
     @uow.detach phone
 
-    @uow.is_in_identity_map(phone).should be_false
+    @uow.is_in_identity_map?(phone).should be_false
     @uow.@entity_states.has_key?(phone).should be_false
     @uow.@entity_identifiers.has_key?(phone).should be_false
     @uow.@original_entity_data.has_key?(phone).should be_false
@@ -1753,7 +1753,7 @@ struct UnitOfWorkTest < ASPEC::TestCase
     @uow.detach phone
 
     @uow.is_scheduled_for_insert?(phone).should be_false
-    @uow.is_in_identity_map(phone).should be_false
+    @uow.is_in_identity_map?(phone).should be_false
 
     @uow.commit
 
@@ -1779,7 +1779,7 @@ struct UnitOfWorkTest < ASPEC::TestCase
 
     @uow.expose_add_to_entity_identifier_and_entity_map cm, entity
 
-    @uow.is_in_identity_map(entity).should be_true
+    @uow.is_in_identity_map?(entity).should be_true
     @uow.@entity_states[entity].should eq AORM::UnitOfWork::EntityState::Managed
     @uow.entity_identifier(entity)["id"].value.should eq "natural-key-1"
     @uow.@original_entity_data[entity]["id"].value.should eq "natural-key-1"
@@ -1794,7 +1794,7 @@ struct UnitOfWorkTest < ASPEC::TestCase
 
     @uow.expose_add_to_entity_identifier_and_entity_map cm, entity
 
-    @uow.is_in_identity_map(entity).should be_true
+    @uow.is_in_identity_map?(entity).should be_true
     identifier = @uow.entity_identifier entity
     identifier["id1"].value.should eq "tenant-a"
     identifier["id2"].value.should eq "item-42"
@@ -1822,8 +1822,8 @@ struct UnitOfWorkTest < ASPEC::TestCase
 
     @uow.detach owner
 
-    @uow.is_in_identity_map(owner).should be_false
-    @uow.is_in_identity_map(target).should be_false
+    @uow.is_in_identity_map?(owner).should be_false
+    @uow.is_in_identity_map?(target).should be_false
   end
 
   # `cascade_remove` walks every association tagged with `cascade: ["remove"]` and routes each related entity through the same `remove` path.

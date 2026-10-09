@@ -11,18 +11,18 @@ struct BooleanTypeTest < ASPEC::TestCase
 
   def test_converts_to_db_value : Nil
     @platform.db_boolean = true
-    @type.to_db(true, @platform).should eq true
+    @type.to_db(true, @platform).should be_true
 
     @platform.db_boolean = false
-    @type.to_db(false, @platform).should eq false
+    @type.to_db(false, @platform).should be_false
   end
 
   def test_converts_to_crystal_value : Nil
     @platform.crystal_boolean = true
-    @type.to_crystal_value(true, @platform).should eq true
+    @type.to_crystal_value(true, @platform).should be_true
 
     @platform.crystal_boolean = false
-    @type.to_crystal_value(false, @platform).should eq false
+    @type.to_crystal_value(false, @platform).should be_false
   end
 
   def test_converts_to_crystal_value_returns_nil : Nil

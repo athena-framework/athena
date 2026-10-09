@@ -9,6 +9,8 @@ abstract class Athena::ORM::Mapping::ToOneOwningSide < Athena::ORM::Mapping::Own
   include Athena::ORM::Mapping::ToOne
 
   # :nodoc:
+  #
+  # ameba:disable Metrics/CyclomaticComplexity
   def self.new(
     mapping : Driver::ColumnMapping,
     naming_strategy : NamingStrategyInterface,
@@ -25,14 +27,16 @@ abstract class Athena::ORM::Mapping::ToOneOwningSide < Athena::ORM::Mapping::Own
     # Honor user-supplied @[AORMA::JoinColumn] annotations when present;
     # otherwise fall back to the naming-strategy default (`<field>_id`).
     if defs = mapping.join_column_defs
-      instance.join_columns.replace(defs.map { |d|
-        JoinColumn.new(
-          name: d.name || naming_strategy.join_column_name(instance.field_name, entity_class),
-          referenced_column_name: d.referenced_column_name || naming_strategy.reference_column_name,
-          nullable: d.nullable,
-          on_delete: d.on_delete
-        )
-      })
+      instance.join_columns.replace(
+        defs.map do |d|
+          JoinColumn.new(
+            name: d.name || naming_strategy.join_column_name(instance.field_name, entity_class),
+            referenced_column_name: d.referenced_column_name || naming_strategy.reference_column_name,
+            nullable: d.nullable,
+            on_delete: d.on_delete
+          )
+        end
+      )
     elsif instance.join_columns.empty?
       instance.join_columns.replace([
         JoinColumn.new(

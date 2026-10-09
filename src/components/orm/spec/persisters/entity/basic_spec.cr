@@ -386,12 +386,12 @@ struct BasicPersisterTest < ASPEC::TestCase
     end
   end
 
-  def test_select_condition_statement_sql_with_nin_keeps_in_then_or_null : Nil
+  def test_select_condition_statement_sql_with_not_in_keeps_in_then_or_null : Nil
     persister = build_persister
 
-    sql = persister.select_condition_statement_sql("id", [1, nil, 2], comparison: "NIN")
+    sql = persister.select_condition_statement_sql("id", [1, nil, 2], comparison: "NIN") # spellchecker:disable-line
 
-    # NIN mirrors IN's NULL split, just with NOT IN.
+    # NOT IN mirrors IN's NULL split, just with NOT IN.
     sql.should match(/\(t\d+\.id NOT IN \(\?, \?\) OR t\d+\.id IS NULL\)/)
   end
 
@@ -551,7 +551,7 @@ struct BasicPersisterTest < ASPEC::TestCase
 
     sql = persister.select_sql({"username" => "fred".as(DB::Any)}, order_by: {"username" => "DESC"})
 
-    sql.index(" WHERE ").not_nil!.should be < sql.index(" ORDER BY ").not_nil!
+    sql.index!(" WHERE ").should be < sql.index!(" ORDER BY ")
   end
 
   # No order_by argument means no ORDER BY clause — empty string spliced in cleanly.
@@ -620,7 +620,7 @@ struct BasicPersisterTest < ASPEC::TestCase
     first.should eq second
   end
 
-  # Distinct entity classes get distinct aliases so multi-table SELECTs don't collide.
+  # Distinct entity classes get distinct aliases so multi-table SELECT don't collide.
   def test_sql_table_alias_yields_distinct_aliases_for_different_entities : Nil
     persister = build_persister
 

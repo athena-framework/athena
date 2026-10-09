@@ -14,7 +14,7 @@ class Athena::ORM::Internal::Hydrators::Object < Athena::ORM::Internal::Hydrator
       @hints.defer_eager_load = true
     end
 
-    self.rsm.alias_map.each do |alias_name, entity_class|
+    self.rsm.alias_map.each do |alias_name, _entity_class|
       @id_template[alias_name] = ""
 
       # Remember which associations are "fetch joined", so that we know where to inject collection stubs or proxies and where not.
@@ -79,6 +79,8 @@ class Athena::ORM::Internal::Hydrators::Object < Athena::ORM::Internal::Hydrator
       entity_class = self.rsm.alias_map[alias_name]
 
       # TODO: Handle parent joins
+      #
+      # ameba:disable Lint/LiteralInCondition
       if false
       else
         # Root entity
@@ -93,6 +95,7 @@ class Athena::ORM::Internal::Hydrators::Object < Athena::ORM::Internal::Hydrator
 
           # TODO: Handle mixed elements
 
+          # ameba:disable Lint/LiteralInCondition
           if false
             # TODO: Handle indexed alias
           else

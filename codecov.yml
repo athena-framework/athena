@@ -67,6 +67,10 @@ component_management:
       name: Negotiation Component
       paths:
         - src/components/negotiation/**
+    - component_id: orm_component
+      name: ORM Component
+      paths:
+        - src/components/orm/**
     - component_id: routing_component
       name: Routing Component
       paths:
