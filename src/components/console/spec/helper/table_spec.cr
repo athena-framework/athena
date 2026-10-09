@@ -111,6 +111,59 @@ struct TableSpec < ASPEC::TestCase
         self.get_table_contents("double_box_separator"),
         false,
       },
+      "Box style without headers" => {
+        [] of String,
+        [
+          ["A", "1"],
+          ["B", "2"],
+        ],
+        "box",
+        self.get_table_contents("box_headerless"),
+        false,
+      },
+      "Box style with an empty header row" => {
+        [[] of String],
+        [
+          ["A", "1"],
+          ["B", "2"],
+        ],
+        "box",
+        self.get_table_contents("box_headerless"),
+        false,
+      },
+      # `double-box` defines no single-line ┬/┴, so colspan separators reuse the double-horizontal ╤/╧ junctions
+      "Double box with colspans" => {
+        [["Col 1", "Col 2", "Col 3"]],
+        [
+          [ACON::Helper::Table::Cell.new("spans two", colspan: 2), "c"],
+          ACON::Helper::Table::Separator.new,
+          ["a", ACON::Helper::Table::Cell.new("spans two", colspan: 2)],
+        ],
+        "double-box",
+        self.get_table_contents("double_box_colspans"),
+        false,
+      },
+      "Box style with a header spanning all columns" => {
+        [ACON::Helper::Table::Cell.new("Books", colspan: 2)],
+        [
+          ["A", "1"],
+          ["B", "2"],
+        ],
+        "box",
+        self.get_table_contents("box_header_spanning_all_columns"),
+        false,
+      },
+      "Box style with a trailing separator" => {
+        [["Foo", "Bar"]],
+        [
+          ["a", "b"],
+          [ACON::Helper::Table::Cell.new("spans two", colspan: 2)],
+          ACON::Helper::Table::Separator.new,
+        ],
+        "box",
+        self.get_table_contents("box_trailing_separator"),
+        false,
+      },
       "Default missing cell values" => {
         [["ISBN", "Title"]],
         [
@@ -549,15 +602,15 @@ struct TableSpec < ASPEC::TestCase
     table.render
 
     self.output_content(output).should eq self.normalize <<-TABLE
-    +----+---+
+    +--------+
     | foo    |
-    +----+---+
-    +----+---+
+    +--------+
+    +--------+
     | foo    |
-    +----+---+
-    +----+---+
+    +--------+
+    +--------+
     | foo    |
-    +----+---+
+    +--------+
 
     TABLE
   end
@@ -768,13 +821,13 @@ struct TableSpec < ASPEC::TestCase
       .render
 
     self.output_content(output).should eq self.normalize <<-'TABLE'
-    +-----------------+-----------------+-----------------+
+    +-----------------------------------------------------+
     | Lorem ipsum dolor sit amet, consectetur adipi       |
     | scing elit, sed do eiusmod tempor                   |
-    +-----------------+-----------------+-----------------+
+    +-----------------------------------------------------+
     | Lorem ipsum dolor sit amet, consectetur adipi       |
     | scing elit, sed do eiusmod tempor                   |
-    +-----------------+-----------------+-----------------+
+    +-----------------------------------+-----------------+
     | Lorem ipsum dolor sit amet, co    | hello world     |
     | nsectetur                         |                 |
     +-----------------+-----------------+-----------------+
@@ -1089,9 +1142,9 @@ struct TableSpec < ASPEC::TestCase
     │ ISBN          │ Title         │ Author          │
     ├───────────────┼───────────────┼─────────────────┤
     │ 99921-58-10-7 │ Divine Comedy │ Dante Alighieri │
-    ├───────────────┼───────────────┼─────────────────┤
+    ├───────────────┴───────────────┴─────────────────┤
     │ This value spans 3 columns.                     │
-    └───────────────┴───────────────┴─────────────────┘
+    └─────────────────────────────────────────────────┘
 
     TABLE
   end
