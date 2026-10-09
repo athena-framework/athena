@@ -14,15 +14,15 @@ struct PostgresPlatformBooleanTest < ASPEC::TestCase
   end
 
   def test_convert_from_boolean_normalizes_whitespace_and_case : Nil
-    @platform.convert_from_boolean("  FALSE  ").should eq false
-    @platform.convert_from_boolean(" Off ").should eq false
-    @platform.convert_from_boolean(" T ").should eq true
+    @platform.convert_from_boolean("  FALSE  ").should be_false
+    @platform.convert_from_boolean(" Off ").should be_false
+    @platform.convert_from_boolean(" T ").should be_true
   end
 
   # Anything not in the false-literal set is truthy
   def test_convert_from_boolean_treats_unknown_string_as_true : Nil
-    @platform.convert_from_boolean("anything else").should eq true
-    @platform.convert_from_boolean("maybe").should eq true
+    @platform.convert_from_boolean("anything else").should be_true
+    @platform.convert_from_boolean("maybe").should be_true
   end
 
   def test_convert_from_boolean_preserves_nil : Nil
@@ -30,8 +30,8 @@ struct PostgresPlatformBooleanTest < ASPEC::TestCase
   end
 
   def test_convert_from_boolean_passes_bool_through : Nil
-    @platform.convert_from_boolean(true).should eq true
-    @platform.convert_from_boolean(false).should eq false
+    @platform.convert_from_boolean(true).should be_true
+    @platform.convert_from_boolean(false).should be_false
   end
 
   def test_convert_booleans_to_db_value_raises_on_invalid_literal : Nil

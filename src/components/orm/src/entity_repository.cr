@@ -21,7 +21,7 @@ require "./repository_interface"
 #
 # ```
 # repository.find_by name: "George", active: true
-# repository.find_by nmae: "George" # Error: Unknown field 'nmae' for entity type User.
+# repository.find_by nmae: "George" # Error: Unknown field 'nmae' for entity type User. # spellchecker:disable-line
 # ```
 #
 # Or as a `Criteria` hash keyed by field name, which also supports:

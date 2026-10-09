@@ -73,24 +73,22 @@ class Athena::ORM::Internal::TopologicalSort
 
     # Visit all adjacent nodes
     @edges[entity].each do |adjacent_id, optional|
-      begin
-        visit(adjacent_id)
-      rescue ex : CycleDetectedException
-        if ex.cycle_collected?
-          # Complete cycle found downstream, nothing we can do
-          raise ex
-        end
-
-        if optional
-          # This edge is part of a cycle but is optional - break the cycle here
-          next
-        end
-
-        # Cannot break cycle at this edge, backtrack
-        @states[entity] = State::NotVisited
-        ex.add_to_cycle(entity)
+      visit(adjacent_id)
+    rescue ex : CycleDetectedException
+      if ex.cycle_collected?
+        # Complete cycle found downstream, nothing we can do
         raise ex
       end
+
+      if optional
+        # This edge is part of a cycle but is optional - break the cycle here
+        next
+      end
+
+      # Cannot break cycle at this edge, backtrack
+      @states[entity] = State::NotVisited
+      ex.add_to_cycle(entity)
+      raise ex
     end
 
     @states[entity] = State::Visited

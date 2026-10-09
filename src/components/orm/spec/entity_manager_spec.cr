@@ -33,7 +33,7 @@ struct EntityManagerTest < ASPEC::TestCase
     @em.find CompositeKeyed, {"tenant" => "acme", "record" => "42"}
 
     persister.load_by_id_calls.size.should eq 1
-    persister.load_by_id_calls.first.keys.sort.should eq ["record", "tenant"]
+    persister.load_by_id_calls.first.keys.sort!.should eq ["record", "tenant"]
   end
 
   def test_find_with_partial_composite_id_hash_raises : Nil
