@@ -56,7 +56,7 @@ jobs:
           echo "Changed shards: $JSON_ARR"
           echo "updated_shards=$JSON_ARR" >> "$GITHUB_OUTPUT"
 
-          PR_LABELS=$(gh api --jq '.[0].labels | map(.name)' /repos/athena-framework/athena/commits/${{ github.event.after }}/pulls)
+          PR_LABELS=$(gh api --jq '(.[0].labels // []) | map(.name)' /repos/athena-framework/athena/commits/${{ github.event.after }}/pulls)
 
           IS_KIND_DOCUMENTATION=$([ "null" != "$(jq 'index("kind:documentation")' <<< $PR_LABELS)" ] && echo "true" || echo "false")
           IS_KIND_RELEASE=$([ "null" != "$(jq 'index("kind:release")' <<< $PR_LABELS)" ] && echo "true" || echo "false")

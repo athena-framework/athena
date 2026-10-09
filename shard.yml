@@ -45,6 +45,8 @@ dependencies:
     github: athena-framework/mime
   athena-negotiation:
     github: athena-framework/negotiation
+  athena-orm:
+    github: athena-framework/orm
   athena-routing:
     github: athena-framework/routing
   athena-serializer:
