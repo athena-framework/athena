@@ -13,9 +13,11 @@ require "athena-negotiation"
 require "./annotation_resolver"
 require "./annotations"
 require "./bundle"
+require "./closeable"
 require "./controller"
 require "./file_parser"
 require "./logging"
+require "./services_closer"
 
 require "./ext/http"
 require "./ext/http_kernel"
@@ -32,6 +34,11 @@ require "./ext/console"
 require "./ext/event_dispatcher"
 require "./ext/routing"
 require "./ext/validator"
+
+# Integrations with optional components are required once every file has been, so that they're enabled whether the component is required before or after the framework.
+macro finished
+  require "./ext/orm"
+end
 
 # Convenience alias to make referencing `Athena::Framework` types easier.
 alias ATH = Athena::Framework
@@ -170,19 +177,24 @@ module Athena::Framework
         # Reinitialize the container since keep-alive requests reuse the same fiber.
         Fiber.current.container = ADI::ServiceContainer.new
 
-        handler = ADI.container.athena_http_kernel
+        begin
+          handler = ADI.container.athena_http_kernel
 
-        # Convert the raw `HTTP::Request` into an `AHTTP::Request` instance.
-        request = AHTTP::Request.new context.request
+          # Convert the raw `HTTP::Request` into an `AHTTP::Request` instance.
+          request = AHTTP::Request.new context.request
 
-        # Handle the request.
-        athena_response = handler.handle request
+          # Handle the request.
+          athena_response = handler.handle request
 
-        # Send the response based on the current context.
-        athena_response.send request, context.response
+          # Send the response based on the current context.
+          athena_response.send request, context.response
 
-        # Emit the terminate event now that the response has been sent.
-        handler.terminate request, athena_response
+          # Emit the terminate event now that the response has been sent.
+          handler.terminate request, athena_response
+        ensure
+          # Release the request's resources, even if sending the response failed.
+          ADI.container.athena_framework_services_closer.close
+        end
       end
 
       @server = if handlers.empty?

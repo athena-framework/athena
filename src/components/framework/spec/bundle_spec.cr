@@ -182,4 +182,84 @@ describe ATH::Bundle, tags: "compiled" do
       CR
     end
   end
+
+  describe ATH::ORM::Registry do
+    it "correctly wires up the services based on its configuration" do
+      assert_compiles <<-'CR'
+        @[ADI::Register(public: true)]
+        class EntityManagerConsumer
+          def initialize(@entity_manager : AORM::EntityManagerInterface); end
+        end
+
+        ADI.container.entity_manager_consumer
+
+        macro finished
+          macro finished
+            \{%
+               service = ADI::ServiceContainer::SERVICE_HASH["athena_framework_orm_registry"]
+            %}
+            ASPEC.compile_time_assert(\{{ service["parameters"]["url"]["value"] == "mock://" }}, "Expected url to be mock://")
+            ASPEC.compile_time_assert(\{{ service["tags"].keys.includes? "athena.closeable" }}, "Expected athena_framework_orm_registry to be tagged as closeable")
+          end
+        end
+      CR
+    end
+
+    it "is enabled when the component is required before the framework" do
+      ASPEC::Methods.assert_compiles <<-'CR', preamble: %(require "athena-orm"\nrequire "../src/athena")
+        ATH.configure({
+          framework: {
+            orm: {
+              url: ENV["DATABASE_URL"],
+            },
+          },
+        })
+
+        @[ADI::Register(public: true)]
+        class EntityManagerConsumer
+          def initialize(@entity_manager : AORM::EntityManagerInterface); end
+        end
+
+        ADI.container.entity_manager_consumer
+      CR
+    end
+
+    it "does not exist if the component is not required" do
+      ASPEC::Methods.assert_compile_time_error "undefined method 'athena_framework_orm_registry'", <<-'CR', preamble: %(require "../src/athena")
+        ADI.container.athena_framework_orm_registry
+      CR
+    end
+
+    it "requires the component to be required if configured" do
+      ASPEC::Methods.assert_compile_time_error "'framework.orm' is configured, but the 'athena-orm' component is not installed.", <<-'CR', preamble: %(require "../src/athena")
+        ATH.configure({
+          framework: {
+            orm: {
+              url: "mock://",
+            },
+          },
+        })
+      CR
+    end
+
+    it "warns, and does not exist, if the url is not configured" do
+      # Fails the compilation in order to assert the warning, which is part of its output.
+      ASPEC::Methods.assert_compile_time_error "Warning: The 'athena-orm' component is installed, but 'framework.orm.url' isn't configured, so no entity manager is available.", <<-'CR', preamble: %(require "../src/athena")
+        require "athena-orm"
+
+        ADI.container.athena_framework_orm_registry
+        CR
+
+      ASPEC::Methods.assert_compiles <<-'CR', preamble: %(require "../src/athena")
+        require "athena-orm"
+        require "athena-spec"
+
+        macro finished
+          macro finished
+            ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::SERVICE_HASH["athena_framework_orm_registry"].nil? }}, "Expected athena_framework_orm_registry service to not exist")
+          end
+        end
+        CR
+    end
+  end
 end

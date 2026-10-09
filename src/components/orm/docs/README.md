@@ -85,6 +85,9 @@ end
 
 Each entity manager uses its own connection from the database's pool, which goes back to the pool once the block returns.
 
+TIP: Within the [Athena Framework](/Framework/), configure the database URL via the [orm](/Framework/Bundle/Schema/ORM/) key instead, and inject an `AORM::EntityManagerInterface`.
+Each request gets its own entity manager, whose connection goes back to the pool once the request is done.
+
 ### Persisting Entities
 
 New entities are passed to `#persist`, then written to the database by `#flush`:

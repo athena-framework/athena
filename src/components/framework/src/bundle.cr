@@ -216,6 +216,27 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
       # Defaults to 10 MiB.
       property max_file_size : Int64 = 1024 * 1024 * 10
     end
+
+    # Configures the integration with the [ORM](/ORM/) component, which is enabled when the component is required.
+    # It provides the [AORM::EntityManager](/ORM/EntityManager/) of each request via `ATH::ORM::Registry`.
+    #
+    # ```
+    # ATH.configure({
+    #   framework: {
+    #     orm: {
+    #       url: ENV["DATABASE_URL"],
+    #     },
+    #   },
+    # })
+    # ```
+    module ORM
+      include ADI::Extension::Schema
+
+      # The URL of the database to connect to.
+      # If it isn't configured, no entity manager is available.
+      # Connection pool options may be provided as query parameters, see the [crystal-db docs](https://crystal-lang.org/reference/database/connection_pool.html).
+      property url : String? = nil
+    end
   end
 
   # :nodoc:
@@ -420,6 +441,36 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
                   max_file_size: {value: cfg["max_file_size"]},
                 },
               }
+            end
+          %}
+
+          # ORM
+          {%
+            cfg = CONFIG["framework"]["orm"]
+
+            if @top_level.has_constant?("AORM") && !cfg["url"]
+              warning "The 'athena-orm' component is installed, but 'framework.orm.url' isn't configured, so no entity manager is available."
+            elsif @top_level.has_constant?("AORM")
+              SERVICE_HASH[registry_id = "athena_framework_orm_registry"] = {
+                class:      ATH::ORM::Registry,
+                parameters: {
+                  url: {value: cfg["url"]},
+                },
+              }
+
+              SERVICE_HASH[entity_manager_id = "athena_framework_orm_entity_manager"] = {
+                class:      AORM::EntityManager,
+                factory:    {ATH::ORM::Registry, "entity_manager"},
+                parameters: {
+                  registry: {value: registry_id.id},
+                },
+              }
+
+              ALIASES[AORM::EntityManagerInterface] = [
+                {id: entity_manager_id, public: false},
+              ]
+            elsif cfg["url"]
+              cfg["url"].raise "'framework.orm' is configured, but the 'athena-orm' component is not installed. Add it as a dependency and require it."
             end
           %}
         {% end %}
