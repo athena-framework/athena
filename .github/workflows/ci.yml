@@ -150,7 +150,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest' || matrix.os == 'ubuntu-24.04-arm'
         run: sudo apt-get update && sudo apt install -y libmagic-dev
       - name: Install System Dependencies
-        if: matrix.os == 'macos-latest'
+        if: startsWith(matrix.os, 'blacksmith-6vcpu-macos')
         run: brew install libmagic
       - name: Install Dependencies
         run: shards install --skip-postinstall --skip-executables
