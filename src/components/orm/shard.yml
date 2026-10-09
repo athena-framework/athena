@@ -1,0 +1,25 @@
+name: athena-orm
+
+version: 0.1.0
+
+crystal: ~> 1.21
+
+license: MIT
+
+repository: https://github.com/athena-framework/orm
+
+documentation: https://athenaframework.org/ORM
+
+description: |
+  Annotation driven object-relational mapper.
+
+authors:
+  - George Dietrich <dev@dietrich.pub>
+
+dependencies:
+  athena-contracts:
+    github: athena-framework/contracts
+    version: ~> 0.1.0
+  db:
+    github: crystal-lang/crystal-db
+    version: ~> 0.15.0
