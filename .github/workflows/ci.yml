@@ -129,7 +129,7 @@ jobs:
           fetch-depth: 0
       - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
       - name: Install kcov
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.crystal == vars.COVERAGE_CHANNEL }}
+        if: ${{ matrix.os == 'blacksmith-4vcpu-ubuntu-2404' && matrix.crystal == vars.COVERAGE_CHANNEL }}
         run: |
           sudo apt-get update &&
           sudo apt-get install binutils-dev libssl-dev libcurl4-openssl-dev libelf-dev libstdc++-12-dev zlib1g-dev libdw-dev libiberty-dev
@@ -147,7 +147,7 @@ jobs:
         with:
           crystal: ${{ matrix.crystal }}
       - name: Install System Dependencies
-        if: matrix.os == 'ubuntu-latest' || matrix.os == 'ubuntu-24.04-arm'
+        if: startsWith(matrix.os, 'blacksmith-4vcpu-ubuntu')
         run: sudo apt-get update && sudo apt install -y libmagic-dev
       - name: Install System Dependencies
         if: startsWith(matrix.os, 'blacksmith-6vcpu-macos')
@@ -160,7 +160,7 @@ jobs:
         run: just test-unit
         shell: bash
       - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
+        if: ${{ matrix.os == 'blacksmith-4vcpu-ubuntu-2404' && matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
@@ -168,7 +168,7 @@ jobs:
           files: '**/cov.xml,**/unreachable.codecov.json'
           verbose: true
       - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
+        if: ${{ matrix.os == 'blacksmith-4vcpu-ubuntu-2404' && matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
