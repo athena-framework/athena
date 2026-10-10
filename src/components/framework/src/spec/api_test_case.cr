@@ -107,14 +107,10 @@ require "./web_test_case"
 # Any services that are mutated/replaced within the `initialize` method will affect all `test_*` methods.
 # However, services can also be mutated/replaced within specific `test_*` methods to scope it that particular test;
 # just be sure that you do it _before_ calling `#request`.
+#
+# The requests a test makes share its container.
+# Its `ACTR::Service::Resettable` services are reset after each request, and its `ACTR::Service::Closeable` services are closed once the test is done, see `ATH::Spec::ContainerTestCase`.
 abstract struct Athena::Framework::Spec::APITestCase < ATH::Spec::WebTestCase
-  def initialize
-    # Ensure each test method has a unique container.
-    self.init_container
-
-    super
-  end
-
   # Returns a reference to the `AbstractBrowser` being used for the test.
   def client : ATH::Spec::HTTPBrowser
     @client.as(ATH::Spec::HTTPBrowser).not_nil!
@@ -168,11 +164,5 @@ abstract struct Athena::Framework::Spec::APITestCase < ATH::Spec::WebTestCase
   # :ditto:
   def request(request : ::HTTP::Request | AHTTP::Request) : ::HTTP::Server::Response
     self.client.request AHTTP::Request.new request
-  end
-
-  # Helper method to init the container.
-  # Creates a new container instance and assigns it to the current fiber.
-  protected def init_container : Nil
-    Fiber.current.container = ADI::Spec::MockableServiceContainer.new
   end
 end

@@ -17,6 +17,7 @@
 # ```
 #
 # The [Athena Framework](/Framework/) closes each of its `ACTR::Service::Closeable` services once a request is done, even if sending the response failed.
+# The requests made within a test share the test's container, so their services are instead closed once the test is done, see [ATH::Spec::ContainerTestCase](/Framework/Spec/ContainerTestCase/).
 #
 # NOTE: A service may be instantiated only in order to close it.
 # Acquire the resource lazily, on first use, so that units of work that don't need it don't pay for it.

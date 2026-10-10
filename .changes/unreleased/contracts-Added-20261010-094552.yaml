@@ -1,0 +1,8 @@
+project: contracts
+kind: Added
+body: Add `ACTR::Service::Resettable` for services whose state should be reset between units of work
+time: 2026-10-10T09:45:52.479335509-04:00
+custom:
+    Author: George Dietrich
+    PR: "747"
+    Username: blacksmoke16
