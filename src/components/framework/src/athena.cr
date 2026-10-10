@@ -3,6 +3,7 @@ require "http/server"
 require "json"
 
 require "athena-contracts/event_dispatcher"
+require "athena-contracts/service"
 
 require "athena-clock"
 require "athena-console"
@@ -13,7 +14,6 @@ require "athena-negotiation"
 require "./annotation_resolver"
 require "./annotations"
 require "./bundle"
-require "./closeable"
 require "./controller"
 require "./file_parser"
 require "./logging"
@@ -34,11 +34,6 @@ require "./ext/console"
 require "./ext/event_dispatcher"
 require "./ext/routing"
 require "./ext/validator"
-
-# Integrations with optional components are required once every file has been, so that they're enabled whether the component is required before or after the framework.
-macro finished
-  require "./ext/orm"
-end
 
 # Convenience alias to make referencing `Athena::Framework` types easier.
 alias ATH = Athena::Framework

@@ -2,7 +2,6 @@ require "spec"
 require "log/spec"
 
 require "../src/athena"
-require "athena-orm"
 require "./controllers/*"
 
 require "../src/spec"
@@ -167,77 +166,10 @@ def new_response(
   end
 end
 
-class MockStatement < DB::Statement
-  def perform_query(args : Enumerable) : DB::ResultSet
-    raise "BUG: MockStatement doesn't support queries."
-  end
-
-  def perform_exec(args : Enumerable) : DB::ExecResult
-    connection.as(MockConnection).executed_statements << command
-
-    DB::ExecResult.new 0, 0
-  end
-end
-
-class MockConnection < DB::Connection
-  class_getter built = 0
-  class_getter released = 0
-
-  # The driver shard every connection claims to be from, which determines its `AORM::Driver`.
-  class_property driver_name : String = "sqlite3"
-
-  # The SQL of each statement executed on this connection, in execution order.
-  getter executed_statements = [] of String
-
-  def initialize(options : DB::Connection::Options)
-    super options
-
-    @@built += 1
-  end
-
-  def driver_name : String
-    @@driver_name
-  end
-
-  def build_prepared_statement(query) : DB::Statement
-    MockStatement.new self, query
-  end
-
-  def build_unprepared_statement(query) : DB::Statement
-    MockStatement.new self, query
-  end
-
-  def release
-    @@released += 1
-
-    super
-  end
-end
-
-# Connects to `mock://` URLs.
-class MockDriver < DB::Driver
-  class ConnectionBuilder < DB::ConnectionBuilder
-    def initialize(@options : DB::Connection::Options); end
-
-    def build : DB::Connection
-      MockConnection.new @options
-    end
-  end
-
-  def connection_builder(uri : URI) : DB::ConnectionBuilder
-    ConnectionBuilder.new self.connection_options(HTTP::Params.parse(uri.query || ""))
-  end
-end
-
-DB.register_driver "mock", MockDriver
-
 ATH.configure({
   framework: {
     file_uploads: {
       enabled: true,
-    },
-    orm: {
-      url: "mock://",
     },
   },
 })

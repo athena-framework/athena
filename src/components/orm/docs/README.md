@@ -29,6 +29,24 @@ require "athena-orm"
 require "pg"
 ```
 
+#### With Dependency Injection
+
+Within an [Athena Framework](/Framework/) application, or any other application using the [dependency injection](/DependencyInjection/) component, require `athena-orm/bundle` instead, and configure the URL of the database:
+
+```crystal
+require "athena"
+require "athena-orm/bundle"
+
+ADI.configure({
+  orm: {
+    url: ENV["DATABASE_URL"],
+  },
+})
+```
+
+Then inject an `AORM::EntityManagerInterface` where it's needed.
+See [AORM::Bundle](/ORM/Bundle/) for more information.
+
 ### Supported Databases
 
 | Database   | Driver Shard                                                           | Platform                                              |
@@ -84,9 +102,6 @@ end
 ```
 
 Each entity manager uses its own connection from the database's pool, which goes back to the pool once the block returns.
-
-TIP: Within the [Athena Framework](/Framework/), configure the database URL via the [orm](/Framework/Bundle/Schema/ORM/) key instead, and inject an `AORM::EntityManagerInterface`.
-Each request gets its own entity manager, whose connection goes back to the pool once the request is done.
 
 ### Persisting Entities
 
