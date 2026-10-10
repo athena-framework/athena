@@ -1,0 +1,8 @@
+project: contracts
+kind: Added
+body: Add new `ACTR::Service` module and `Closable` interface
+time: 2026-10-09T23:30:55.092592099-04:00
+custom:
+    Author: George Dietrich
+    PR: "744"
+    Username: blacksmoke16
