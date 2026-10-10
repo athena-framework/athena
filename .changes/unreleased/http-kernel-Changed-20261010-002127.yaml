@@ -1,0 +1,9 @@
+project: http-kernel
+kind: Changed
+body: Exclude `_action` route parameter from `Matched route ...` log message
+time: 2026-10-10T00:21:27.065954474-04:00
+custom:
+    Author: George Dietrich
+    Breaking: "No"
+    PR: "745"
+    Username: blacksmoke16

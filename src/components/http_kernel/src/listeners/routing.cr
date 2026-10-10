@@ -26,7 +26,7 @@ struct Athena::HTTPKernel::Listeners::Routing
 
       Log.info &.emit %(Matched route '#{matched_route = parameters["_route"]? || "n/a"}'),
         route: matched_route,
-        route_parameters: parameters.to_h,
+        route_parameters: parameters.to_h.reject("_action"),
         request_uri: request.resource,
         method: request.method
 
