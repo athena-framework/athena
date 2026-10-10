@@ -1,0 +1,8 @@
+project: spec
+kind: Fixed
+body: Fix `ASPEC::TestCase#tear_down` not running when every test of a test case is pending
+time: 2026-10-10T09:24:04.736985649-04:00
+custom:
+    Author: George Dietrich
+    PR: "746"
+    Username: blacksmoke16

@@ -353,6 +353,9 @@ abstract struct Athena::Spec::TestCase
   def self.run : Nil
     instance = construct
 
+    # Whether the initialization done by `before_all` has yet to be used by a test.
+    initialized = false
+
     {% begin %}
       {{!!@type.annotation(Pending) ? "pending".id : "describe".id}} {{@type.name.stringify}}, focus: {{!!@type.annotation Focus}}{% if (tags = @type.annotation(Tags)) %}, tags: {{tags.args}}{% end %} do
         before_all do
@@ -362,10 +365,16 @@ abstract struct Athena::Spec::TestCase
           # which could possibly lead to segfaults if there was an exception raised during
           # initialization of an object when assigning an ivar in initialize and some state of that object is interacted with.
           instance.initialize
+          initialized = true
         end
 
         before_each do
-          instance.initialize
+          # The first test uses the initialization done by `before_all`, so each initialization is followed by exactly one `tear_down`.
+          if initialized
+            initialized = false
+          else
+            instance.initialize
+          end
         end
 
         after_each do
@@ -373,6 +382,9 @@ abstract struct Athena::Spec::TestCase
         end
 
         after_all do
+          # Pending tests don't run the `before_each` and `after_each` hooks, so no test may have used the initialization done by `before_all`.
+          instance.tear_down if initialized
+
           instance.after_all
         end
 

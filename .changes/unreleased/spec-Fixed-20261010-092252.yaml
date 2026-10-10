@@ -1,0 +1,8 @@
+project: spec
+kind: Fixed
+body: Fix `ASPEC::TestCase#initialize` running twice before the first test without a `#tear_down` in between
+time: 2026-10-10T09:22:52.00305967-04:00
+custom:
+    Author: George Dietrich
+    PR: "746"
+    Username: blacksmoke16
