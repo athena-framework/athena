@@ -18,6 +18,7 @@ require "./controller"
 require "./file_parser"
 require "./logging"
 require "./services_closer"
+require "./services_resetter"
 
 require "./ext/http"
 require "./ext/http_kernel"

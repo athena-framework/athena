@@ -17,6 +17,8 @@ class Athena::Framework::Spec::HTTPBrowser < ATH::Spec::AbstractBrowser
 
     response
   ensure
-    ADI.container.athena_framework_services_closer.close
+    # The requests of a test share its container, so each request starts from reset services.
+    # They're closed once the test is done, see `ATH::Spec::ContainerTestCase#tear_down`.
+    ADI.container.athena_framework_services_resetter.reset
   end
 end
