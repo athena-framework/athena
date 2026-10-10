@@ -1,0 +1,9 @@
+project: framework
+kind: Changed
+body: '`ATH::Spec::HTTPBrowser` resets `ACTR::Service::Resettable` services after each request, instead of closing'
+time: 2026-10-10T09:46:49.58789009-04:00
+custom:
+    Author: George Dietrich
+    Breaking: "No"
+    PR: "747"
+    Username: blacksmoke16

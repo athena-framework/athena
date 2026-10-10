@@ -1,0 +1,8 @@
+project: framework
+kind: Added
+body: Add `ATH::Spec::ContainerTestCase` for testing services that require a container
+time: 2026-10-10T09:46:21.92186644-04:00
+custom:
+    Author: George Dietrich
+    PR: "747"
+    Username: blacksmoke16
