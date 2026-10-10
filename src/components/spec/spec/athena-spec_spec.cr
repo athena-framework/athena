@@ -164,6 +164,47 @@ struct BeforeAllTest < ASPEC::TestCase
   end
 end
 
+struct InitializeTearDownTest < ASPEC::TestCase
+  @@initialize_calls = 0
+  @@tear_down_calls = 0
+
+  def initialize
+    @@initialize_calls += 1
+  end
+
+  def tear_down : Nil
+    @@tear_down_calls += 1
+  end
+
+  def test_initializes_once_per_test : Nil
+    @@initialize_calls.should eq @@tear_down_calls + 1
+  end
+
+  def test_initializes_once_per_test2 : Nil
+    @@initialize_calls.should eq @@tear_down_calls + 1
+  end
+end
+
+struct PendingTearDownTest < ASPEC::TestCase
+  @@initialize_calls = 0
+  @@tear_down_calls = 0
+
+  def initialize
+    @@initialize_calls += 1
+  end
+
+  def tear_down : Nil
+    @@tear_down_calls += 1
+  end
+
+  def ptest_pending : Nil
+  end
+
+  def after_all : Nil
+    it "tears down each initialization when every test is pending" { @@tear_down_calls.should eq @@initialize_calls }
+  end
+end
+
 abstract struct GenericTestCase(T) < ASPEC::TestCase
 end
 
