@@ -27,6 +27,10 @@ plugins:
           crystal_docs_flags:
             - ../../../docs/index.cr
             - ./lib/athena-contracts/src/event_dispatcher.cr
+            - ./lib/athena-contracts/src/service.cr
+            - ./lib/athena-dependency_injection/src/athena-dependency_injection.cr
             - ./lib/athena-orm/src/athena-orm.cr
+            - ./lib/athena-orm/src/bundle/bundle.cr
+            - ./lib/athena-orm/src/bundle/registry.cr
           source_locations:
             lib/athena-orm: https://github.com/athena-framework/orm/blob/v{shard_version}/{file}#L{line}

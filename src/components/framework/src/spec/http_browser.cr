@@ -16,5 +16,7 @@ class Athena::Framework::Spec::HTTPBrowser < ATH::Spec::AbstractBrowser
     handler.terminate request, athena_response
 
     response
+  ensure
+    ADI.container.athena_framework_services_closer.close
   end
 end

@@ -1,0 +1,8 @@
+project: framework
+kind: Added
+body: Close each `ACTR::Service::Closable` service after each request
+time: 2026-10-09T23:31:33.709243675-04:00
+custom:
+    Author: George Dietrich
+    PR: "744"
+    Username: blacksmoke16

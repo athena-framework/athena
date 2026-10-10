@@ -29,6 +29,24 @@ require "athena-orm"
 require "pg"
 ```
 
+#### With Dependency Injection
+
+Within an [Athena Framework](/Framework/) application, or any other application using the [dependency injection](/DependencyInjection/) component, require `athena-orm/bundle` instead, and configure the URL of the database:
+
+```crystal
+require "athena"
+require "athena-orm/bundle"
+
+ADI.configure({
+  orm: {
+    url: ENV["DATABASE_URL"],
+  },
+})
+```
+
+Then inject an `AORM::EntityManagerInterface` where it's needed.
+See [AORM::Bundle](/ORM/Bundle/) for more information.
+
 ### Supported Databases
 
 | Database   | Driver Shard                                                           | Platform                                              |
