@@ -1,0 +1,8 @@
+project: console
+kind: Added
+body: Display command, option, and value descriptions in `fish` shell completion
+time: 2026-10-11T00:02:17.696445097-04:00
+custom:
+    Author: George Dietrich
+    PR: "750"
+    Username: blacksmoke16

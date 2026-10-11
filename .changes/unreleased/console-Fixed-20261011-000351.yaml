@@ -1,0 +1,8 @@
+project: console
+kind: Fixed
+body: Fix `bash` and `fish` shell completion of `--option=value` style option values
+time: 2026-10-11T00:03:51.871377953-04:00
+custom:
+    Author: George Dietrich
+    PR: "750"
+    Username: blacksmoke16

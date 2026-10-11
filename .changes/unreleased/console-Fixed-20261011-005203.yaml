@@ -1,0 +1,8 @@
+project: console
+kind: Fixed
+body: 'Fix shell completion running command substitutions in `zsh`, not working with aliases or `SHELL_VERBOSITY=-1`, and mishandling `\E` in `bash`'
+time: 2026-10-11T00:52:03.626577439-04:00
+custom:
+    Author: George Dietrich
+    PR: "750"
+    Username: blacksmoke16
