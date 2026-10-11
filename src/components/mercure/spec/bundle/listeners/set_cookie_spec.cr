@@ -4,7 +4,7 @@ struct SetCookieListenerTest < ASPEC::TestCase
   def test_no_cookies_attribute : Nil
     event = new_response_event
 
-    ABM::Listeners::SetCookie.new.on_response event
+    AMC::Bundle::Listeners::SetCookie.new.on_response event
 
     event.response.headers.cookies.should be_empty
   end
@@ -17,7 +17,7 @@ struct SetCookieListenerTest < ASPEC::TestCase
 
     event = new_response_event(request: request)
 
-    ABM::Listeners::SetCookie.new.on_response event
+    AMC::Bundle::Listeners::SetCookie.new.on_response event
 
     event.response.headers.cookies["mercureAuthorization"].value.should eq "token123"
   end
@@ -30,7 +30,7 @@ struct SetCookieListenerTest < ASPEC::TestCase
 
     event = new_response_event(request: request)
 
-    ABM::Listeners::SetCookie.new.on_response event
+    AMC::Bundle::Listeners::SetCookie.new.on_response event
 
     request.attributes.has?("_mercure_authorization_cookies").should be_false
   end
@@ -44,7 +44,7 @@ struct SetCookieListenerTest < ASPEC::TestCase
 
     event = new_response_event(request: request)
 
-    ABM::Listeners::SetCookie.new.on_response event
+    AMC::Bundle::Listeners::SetCookie.new.on_response event
 
     # The last cookie with the same name wins in the cookies collection,
     # but both should have been added via <<

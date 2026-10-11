@@ -1,7 +1,5 @@
-struct Athena::MercureBundle < ADI::AbstractBundle; end
-
-# Extension of [AMC::Authorization](/Mercure/Authorization) to add support for [AHTTP::Request](/HTTP/Request).
-class Athena::MercureBundle::Authorization < Athena::Mercure::Authorization
+# Extension of `AMC::Authorization` to add support for [AHTTP::Request](/HTTP/Request/).
+class Athena::Mercure::Bundle::Authorization < Athena::Mercure::Authorization
   def initialize(
     hub_registry : AMC::Hub::Registry,
     cookie_lifetime : Time::Span = 1.hour,

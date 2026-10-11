@@ -1,6 +1,5 @@
-# Adds Mercure hub `Link` headers that was stored in the request attributes via `ABM::Discovery`.
-@[ADI::Register]
-struct Athena::MercureBundle::Listeners::AddLinkHeader
+# Adds Mercure hub `Link` headers that was stored in the request attributes via `AMC::Bundle::Discovery`.
+struct Athena::Mercure::Bundle::Listeners::AddLinkHeader
   # :nodoc:
   def initialize; end
 

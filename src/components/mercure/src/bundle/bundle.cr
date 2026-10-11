@@ -1,18 +1,113 @@
-require "athena-dependency_injection"
-require "athena-http_kernel"
-require "athena-mercure"
-
-require "./authorization"
-require "./discovery"
-
-require "./listeners/*"
-
-# Convenience alias to make referencing `Athena::MercureBundle` types easier.
-alias ABM = Athena::MercureBundle
-
-# The `Athena::MercureBundle` integrates the `Athena::Mercure` component into the Athena framework.
+# Integrates the Mercure component with the [dependency injection](/DependencyInjection/) component, such as within an [Athena Framework](/Framework/) application.
+#
+# Require `athena-mercure/bundle` to register the bundle, then configure at least one hub:
+#
+# ```
+# require "athena"
+# require "athena-mercure/bundle"
+#
+# ADI.configure({
+#   mercure: {
+#     hubs: {
+#       default: {
+#         url: ENV["MERCURE_URL"],
+#         jwt: {
+#           secret:    ENV["MERCURE_JWT_SECRET"],
+#           publish:   ["*"],
+#           subscribe: ["*"],
+#         },
+#       },
+#     },
+#   },
+# })
+# ```
+#
+# See `Schema` for the full set of possible configuration options.
+#
+# If multiple hubs are configured, they may be injected using the hub name as a constructor parameter typed to `AMC::Hub::Interface`.
+# For example `some_hub : AMC::Hub::Interface` assuming the key used in the `hubs` named tuple was `some_hub`.
+#
+# The bundle brings `AMC::Hub`, `AMC::Bundle::Authorization`, and `AMC::Bundle::Discovery` into the framework as injectable services, with event listeners that handle response headers and cookies automatically.
+#
+# ## Publishing
+#
+# Inject `AMC::Hub::Interface` to publish updates from a controller:
+#
+# ```
+# @[ARTA::Route(path: "/broadcast")]
+# class BroadcastController < ATH::Controller
+#   def initialize(@hub : AMC::Hub::Interface); end
+#
+#   @[ARTA::Post("/")]
+#   def broadcast : Nil
+#     @hub.publish AMC::Update.new(
+#       "https://example.com/books/1",
+#       {status: "OutOfStock"}.to_json
+#     )
+#   end
+# end
+# ```
+#
+# ## Authorization
+#
+# Inject `AMC::Bundle::Authorization` to set the `mercureAuthorization` cookie for [private updates](/Mercure/#authorization).
+# The `AMC::Bundle::Listeners::SetCookie` listener automatically adds the cookie to the response — there is no need to modify the response directly:
+#
+# ```
+# @[ARTA::Route(path: "/auth")]
+# class AuthController < ATH::Controller
+#   def initialize(@authorization : AMC::Bundle::Authorization); end
+#
+#   @[ARTA::Get("/subscribe")]
+#   def subscribe(request : AHTTP::Request) : Nil
+#     @authorization.set_cookie(
+#       request,
+#       subscribe: ["https://example.com/books/{id}"],
+#     )
+#   end
+# end
+# ```
+#
+# See [Authorization](/Mercure/#authorization) in the Mercure component docs for more on private updates and cookie-based auth.
+#
+# ## Discovery
+#
+# Inject `AMC::Bundle::Discovery` to add the Mercure hub `Link` header to a response.
+# The `AMC::Bundle::Listeners::AddLinkHeader` listener handles adding the header — there is no need to modify the response directly:
+#
+# ```
+# @[ARTA::Route(path: "/books")]
+# class BookController < ATH::Controller
+#   def initialize(@discovery : AMC::Bundle::Discovery); end
+#
+#   @[ARTA::Get("/{id}")]
+#   def show(request : AHTTP::Request, id : Int32) : {id: Int32, title: String}
+#     @discovery.add_link request
+#
+#     {id: id, title: "Hello World!"}
+#   end
+# end
+# ```
+#
+# The response will include a `Link: <https://hub.example.com/.well-known/mercure>; rel="mercure"` header.
+# A client can then extract the hub URL to subscribe to updates for this resource:
+#
+# ```js
+# fetch('/books/1')
+#   .then(response => {
+#     const hubUrl = response.headers.get('Link').match(/<([^>]+)>;\s+rel=(?:mercure|"[^"]*mercure[^"]*")/)[1];
+#
+#     const hub = new URL(hubUrl, window.origin);
+#     hub.searchParams.append('topic', 'https://example.com/books/{id}');
+#
+#     const eventSource = new EventSource(hub);
+#     eventSource.onmessage = event => console.log(event.data);
+#   });
+# ```
+#
+# See [Discovery](/Mercure/#discovery) in the Mercure component docs for more on the discovery protocol.
 @[ADI::Bundle("mercure")]
-struct Athena::MercureBundle < ADI::AbstractBundle
+struct Athena::Mercure::Bundle < ADI::AbstractBundle
   # :nodoc:
   PASSES = [] of _
 
@@ -87,7 +182,7 @@ struct Athena::MercureBundle < ADI::AbstractBundle
     # The name of the hub to use when none is specified. Defaults to the first defined hub if not explicitly set.
     property default_hub : String? = nil
 
-    # Default lifetime for authorization cookies set via `ABM::Authorization`.
+    # Default lifetime for authorization cookies set via `AMC::Bundle::Authorization`.
     property default_cookie_lifetime : Time::Span = 1.hour
   end
 
@@ -198,7 +293,7 @@ struct Athena::MercureBundle < ADI::AbstractBundle
             }
 
             SERVICE_HASH["mercure_authorization"] = {
-              class:      ABM::Authorization,
+              class:      Athena::Mercure::Bundle::Authorization,
               parameters: {
                 hub_registry:    {value: hub_registry_id.id},
                 cookie_lifetime: {value: cfg["default_cookie_lifetime"]},
@@ -206,10 +301,18 @@ struct Athena::MercureBundle < ADI::AbstractBundle
             }
 
             SERVICE_HASH["mercure_discovery"] = {
-              class:      ABM::Discovery,
+              class:      Athena::Mercure::Bundle::Discovery,
               parameters: {
                 hub_registry: {value: hub_registry_id.id},
               },
+            }
+
+            SERVICE_HASH["mercure_add_link_header_listener"] = {
+              class: Athena::Mercure::Bundle::Listeners::AddLinkHeader,
+            }
+
+            SERVICE_HASH["mercure_set_cookie_listener"] = {
+              class: Athena::Mercure::Bundle::Listeners::SetCookie,
             }
           %}
         {% end %}
@@ -217,5 +320,3 @@ struct Athena::MercureBundle < ADI::AbstractBundle
     end
   end
 end
-
-ADI.register_bundle Athena::MercureBundle

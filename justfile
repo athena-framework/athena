@@ -21,28 +21,28 @@ install:
 
 # Run shard entrypoint with live reload
 [group('dev')]
-watch shard type='component':
-    watchexec --restart --watch=src/ --emit-events-to=none --clear --no-project-ignore -- {{ CRYSTAL }} run src/{{ type }}s/{{ shard }}/src/{{ if shard == 'framework' { 'athena' } else { 'athena-' + shard } }}{{ if type == 'bundle' { '_bundle' } else { '' } }}.cr
+watch shard:
+    watchexec --restart --watch=src/ --emit-events-to=none --clear --no-project-ignore -- {{ CRYSTAL }} run src/components/{{ shard }}/src/{{ if shard == 'framework' { 'athena' } else { 'athena-' + shard } }}.cr
 
 # Run tests with live reload
 [group('dev')]
-watch-test shard type='component':
-    watchexec --restart --watch=src/ --emit-events-to=none --clear --no-project-ignore -- {{ CRYSTAL }} spec src/{{ type }}s/{{ shard }}/
+watch-test shard:
+    watchexec --restart --watch=src/ --emit-events-to=none --clear --no-project-ignore -- {{ CRYSTAL }} spec src/components/{{ shard }}/
 
-# Run test suite; `type` is ignored when running test suite for all shards
+# Run test suite
 [group('dev')]
-test shard='all' type='component':
-    ./scripts/test.sh {{ shard }} all {{ type }}
+test shard='all':
+    ./scripts/test.sh {{ shard }} all
 
-# Run unit tests only; `type` is ignored when running test suite for all shards
+# Run unit tests only
 [group('dev')]
-test-unit shard='all' type='component':
-    ./scripts/test.sh {{ shard }} unit {{ type }}
+test-unit shard='all':
+    ./scripts/test.sh {{ shard }} unit
 
-# Run compiled tests only; `type` is ignored when running test suite for all shards
+# Run compiled tests only
 [group('dev')]
-test-compiled shard='all' type='component':
-    ./scripts/test.sh {{ shard }} compiled {{ type }}
+test-compiled shard='all':
+    ./scripts/test.sh {{ shard }} compiled
 
 # Run all linters (format + ameba + spellcheck)
 [group('check')]

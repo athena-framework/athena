@@ -1,12 +1,5 @@
-require "spec"
-
-require "athena-spec"
-
-require "../src/athena-mercure_bundle"
-
-require "athena-mercure/src/spec"
-
-ASPEC.run_all
+require "../spec_helper"
+require "../../src/bundle"
 
 def new_hub_registry(
   url : String = "https://example.com/.well-known/mercure",

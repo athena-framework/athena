@@ -36,10 +36,6 @@ jobs:
           for shardDir in $(find src/ -maxdepth 3 -type f -name shard.yml | xargs -I{} dirname {} | sort); do
             # The git repos uses hyphens instead of underscores.
             REPO_NAME=$(basename "$shardDir" | tr '_' '-')
-            if [[ "$shardDir" == src/bundles/* ]]; then
-              REPO_NAME="${REPO_NAME}-bundle"
-            fi
-
             REPO_URL="git@github.com:athena-framework/$REPO_NAME.git"
 
             if ! $(git diff --quiet --exit-code $BEFORE_SHA $AFTER_SHA -- "$shardDir"); then

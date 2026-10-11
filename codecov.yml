@@ -12,12 +12,6 @@ coverage:
 
 component_management:
   individual_components:
-    # Bundles
-    - component_id: mercure_bundle
-      name: Mercure Bundle
-      paths:
-        - src/bundles/mercure/**
-
     # Components
     - component_id: clock_component
       name: Clock Component

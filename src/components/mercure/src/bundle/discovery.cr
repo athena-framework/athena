@@ -1,6 +1,6 @@
-# Extension of [AMC::Discovery](/Mercure/Discovery/) that accepts [AHTTP::Request](/HTTP/Request/)
-# and stores the link in a request attribute for the [AddLinkHeader](/MercureBundle/Listeners/AddLinkHeader/) listener.
-class Athena::MercureBundle::Discovery < AMC::Discovery
+# Extension of `AMC::Discovery` that accepts [AHTTP::Request](/HTTP/Request/)
+# and stores the link in a request attribute for the `AMC::Bundle::Listeners::AddLinkHeader` listener.
+class Athena::Mercure::Bundle::Discovery < AMC::Discovery
   def initialize(
     hub_registry : AMC::Hub::Registry,
   )
