@@ -17,8 +17,6 @@ require "./bundle"
 require "./controller"
 require "./file_parser"
 require "./logging"
-require "./services_closer"
-require "./services_resetter"
 
 require "./ext/http"
 require "./ext/http_kernel"
@@ -189,7 +187,7 @@ module Athena::Framework
           handler.terminate request, athena_response
         ensure
           # Release the request's resources, even if sending the response failed.
-          ADI.container.athena_framework_services_closer.close
+          ADI.container.athena_dependency_injection_services_closer.close
         end
       end
 

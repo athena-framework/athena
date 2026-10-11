@@ -51,10 +51,10 @@ In other cases, the related component may provide these out of the box, such as:
 Checkout the `Spec` namespace of each component in the [API Reference](../api_reference.md) for more examples.
 
 Other services are best tested together with their real dependencies.
-[ATH::Spec::ContainerTestCase](/Framework/Spec/ContainerTestCase) gives each test its own service container to get them from, and closes its [closeable](/Contracts/Service/Closeable) services once the test is done:
+[ADI::Spec::ContainerTestCase](/DependencyInjection/Spec/ContainerTestCase) gives each test its own service container to get them from, and closes its [closeable](/Contracts/Service/Closeable) services once the test is done:
 
 ```crystal
-struct GreetingServiceTest < ATH::Spec::ContainerTestCase
+struct GreetingServiceTest < ADI::Spec::ContainerTestCase
   def test_greet : Nil
     self.container.greeting_service.greet("George").should eq "Hello George!"
   end

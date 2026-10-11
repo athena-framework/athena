@@ -53,6 +53,48 @@ describe AORM::Bundle::Registry do
     end
   end
 
+  describe "#reset" do
+    it "clears the entity manager, keeping it open on its connection" do
+      registry = AORM::Bundle::Registry.new "mock://"
+      entity_manager = registry.manager
+      released = PooledMockConnection.released
+
+      group = CmsGroup.new
+      group.name = "admins"
+      entity_manager.persist group
+
+      registry.reset
+
+      entity_manager.contains(group).should be_false
+      entity_manager.closed?.should be_false
+      registry.manager.should be entity_manager
+      PooledMockConnection.released.should eq released
+    ensure
+      registry.try &.close
+    end
+
+    # A transaction spanning several units of work, such as the one of a test, belongs to whoever began it.
+    it "leaves open transactions" do
+      registry = AORM::Bundle::Registry.new "mock://"
+      entity_manager = registry.manager
+      entity_manager.begin_transaction
+
+      registry.reset
+
+      entity_manager.connection.transaction_active?.should be_true
+    ensure
+      registry.try &.close
+    end
+
+    it "does nothing if the entity manager wasn't created" do
+      released = PooledMockConnection.released
+
+      AORM::Bundle::Registry.new("mock://").reset
+
+      PooledMockConnection.released.should eq released
+    end
+  end
+
   describe "#close" do
     it "rolls back an open transaction, closes the entity manager, and releases its connection" do
       registry = AORM::Bundle::Registry.new "mock://"

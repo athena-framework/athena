@@ -287,6 +287,50 @@ end
 Mapped properties and callbacks can be shared between entities through a module or an abstract parent class, see [AORM::Entity](/ORM/Entity/).
 See [AORMA::PrePersist](/ORM/Annotations/PrePersist/) for the rules callbacks follow, and [AORM::Events::EventArgs](/ORM/Events/EventArgs/) for every event, including those dispatched to an event dispatcher on each flush.
 
+### Testing
+
+The ORM comes with helpers that run each test in a database transaction, which is rolled back once the test is done, so tests don't see each other's data.
+Which one to use depends on how the application gets its entity manager.
+
+Applications using an [AORM::EntityManagerFactory](/ORM/EntityManagerFactory/) inherit from [AORM::Spec::DBTestCase](/ORM/Spec/DBTestCase/), returning their factory:
+
+```crystal
+require "athena-orm/spec"
+
+abstract struct AppDBTestCase < AORM::Spec::DBTestCase
+  def entity_manager_factory : AORM::EntityManagerFactory
+    ORM
+  end
+end
+
+struct UserRepositoryTest < AppDBTestCase
+  def test_persist : Nil
+    # ...
+    self.em.persist user
+    self.em.flush
+  end
+end
+```
+
+Applications using [AORM::Bundle](/ORM/Bundle/) include [AORM::Spec::DatabaseTransaction](/ORM/Spec/DatabaseTransaction/) into an [ADI::Spec::ContainerTestCase](/DependencyInjection/Spec/ContainerTestCase/), or within the [Athena Framework](/Framework/), an [ATH::Spec::APITestCase](/Framework/Spec/APITestCase/).
+Its `#em` is the entity manager the container injects, so the services and requests of the test run within its transaction:
+
+```crystal
+require "athena-orm/spec"
+
+struct UserControllerTest < ATH::Spec::APITestCase
+  include AORM::Spec::DatabaseTransaction
+
+  def test_show : Nil
+    # ...
+    self.em.persist user
+    self.em.flush
+
+    self.get("/user/#{user.id}").body.should contain "George"
+  end
+end
+```
+
 ## Learn More
 
 * Working with entities in an [AORM::EntityManager](/ORM/EntityManager/), and transactions

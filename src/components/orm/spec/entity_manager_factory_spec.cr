@@ -1,5 +1,13 @@
 require "./spec_helper"
 
+private class MockEventDispatcher
+  include ACTR::EventDispatcher::Interface
+
+  def dispatch(event : ACTR::EventDispatcher::Event) : ACTR::EventDispatcher::Event
+    event
+  end
+end
+
 struct EntityManagerFactoryTest < ASPEC::TestCase
   @database : DB::Database
   @factory : AORM::EntityManagerFactory
@@ -7,6 +15,18 @@ struct EntityManagerFactoryTest < ASPEC::TestCase
   def initialize
     @database = DB::Database.new(DB::Connection::Options.new, DB::Pool::Options.new) { MockConnection.new.as(DB::Connection) }
     @factory = AORM::EntityManagerFactory.new @database
+  end
+
+  def test_create_entity_manager : Nil
+    connection = MockConnection.new
+    event_dispatcher = MockEventDispatcher.new
+    factory = AORM::EntityManagerFactory.new @database, event_dispatcher
+
+    em = factory.create_entity_manager connection
+
+    em.connection.wrapped.should be connection
+    em.event_dispatcher.should be event_dispatcher
+    em.class_metadata(ForumUser).should be factory.create_entity_manager(MockConnection.new).class_metadata(ForumUser)
   end
 
   def test_with_entity_manager_returns_the_block_value : Nil

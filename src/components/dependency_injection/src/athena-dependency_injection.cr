@@ -1,9 +1,13 @@
+require "athena-contracts/service"
+
 require "./abstract_bundle"
 require "./annotations"
 require "./annotation_configurations"
 require "./extension"
 require "./proxy"
 require "./service_container"
+require "./services_closer"
+require "./services_resetter"
 
 # :nodoc:
 class Fiber

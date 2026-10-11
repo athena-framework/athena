@@ -65,7 +65,7 @@ describe ADI::ServiceContainer::DefineGetters, tags: "compiled" do
       end
 
       it "does not expose typed getter for non-public typed aliases" do
-        assert_compile_time_error "undefined method 'get' for Athena::DependencyInjection::ServiceContainer", <<-'CR'
+        assert_compile_time_error "expected argument #1 to 'Athena::DependencyInjection::ServiceContainer#get'", <<-'CR'
           module SomeInterface; end
 
           @[ADI::Register]

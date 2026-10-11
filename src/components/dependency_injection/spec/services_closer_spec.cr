@@ -10,12 +10,12 @@ private class MockCloseable
   end
 end
 
-describe ATH::ServicesCloser do
+describe ADI::ServicesCloser do
   describe "#close" do
     it "closes each closeable" do
       closeables = [MockCloseable.new, MockCloseable.new]
 
-      ATH::ServicesCloser.new(closeables.map &.as(ACTR::Service::Closeable)).close
+      ADI::ServicesCloser.new(closeables.map &.as(ACTR::Service::Closeable)).close
 
       closeables.all?(&.closed?).should be_true
     end

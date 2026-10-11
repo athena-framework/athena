@@ -2,8 +2,10 @@
 #
 # The entity manager is created the first time it's needed, on a connection checked out from the connection pool of the configured [url](/ORM/Bundle/Schema/#Athena::ORM::Bundle::Schema#url).
 # `#close` closes it and returns its connection to the pool, which the [Athena Framework](/Framework/) does once each request is done.
+# `#reset` only clears it, which the framework does between the requests made within a test, see [ADI::Spec::ContainerTestCase](/DependencyInjection/Spec/ContainerTestCase/).
 class Athena::ORM::Bundle::Registry
   include ACTR::Service::Closeable
+  include ACTR::Service::Resettable
 
   # The connection pool and class metadata, shared by every unit of work.
   @@database : DB::Database? = nil
@@ -38,6 +40,13 @@ class Athena::ORM::Bundle::Registry
         raise ex
       end
     end
+  end
+
+  # Clears the entity manager, if one was created, keeping it open on its connection.
+  #
+  # Transactions left open are left to whoever began them.
+  def reset : Nil
+    @entity_manager.try &.clear
   end
 
   # Closes the entity manager, if one was created, rolling back any transaction left open and returning its connection to the pool.

@@ -32,5 +32,6 @@ plugins:
             - ./lib/athena-orm/src/athena-orm.cr
             - ./lib/athena-orm/src/bundle/bundle.cr
             - ./lib/athena-orm/src/bundle/registry.cr
+            - ./lib/athena-orm/src/spec.cr
           source_locations:
             lib/athena-orm: https://github.com/athena-framework/orm/blob/v{shard_version}/{file}#L{line}
