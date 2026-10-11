@@ -4,11 +4,11 @@
 # zsh completions for <%= @command_name %>
 #
 # References:
-#   - https://github.com/symfony/symfony/blob/503a7b3cb62fb6de70176b07bd1c4242e3addc5b/src/Symfony/Component/Console/Resources/completion.zsh
+#   - https://github.com/symfony/symfony/blob/ea4569ce9fc21d6bae180274e1b4d3ca19dd5002/src/Symfony/Component/Console/Resources/completion.zsh
 
 _athena_<%= @command_name %>() {
-    local lastParam flagPrefix requestComp out comp
-    local -a completions
+    local lastParam out comp completion_cmd
+    local -a completions flagPrefix requestComp inputs
 
     # The user could have moved the cursor backwards on the command-line.
     # We need to trigger completion from the $CURRENT location, so we need
@@ -21,12 +21,20 @@ _athena_<%= @command_name %>() {
     setopt local_options BASH_REMATCH
     if [[ "${lastParam}" =~ '-.*=' ]]; then
         # We are dealing with a flag with an =
-        flagPrefix="-P ${BASH_REMATCH}"
+        flagPrefix=(-P "${BASH_REMATCH}")
     fi
 
-    # Prepare the command to obtain completions
+    # Prepare the command to obtain completions. An alias is resolved here, as the request is not read again by the shell.
+    completion_cmd="${words[1]}"
+    if [[ -n "${aliases[$completion_cmd]}" ]]; then
+        requestComp=(${(z)aliases[$completion_cmd]})
+    else
+        requestComp=(${~completion_cmd})
+    fi
+
     # Crystal doesn\'t get the script as the first arg, so skip it when iterating over `words` and decrement CURRENT by 2 instead of 1 to compensate
-    requestComp="${words[0]} ${words[1]} _complete --no-interaction -szsh -a<%= @version %> -c$((CURRENT-2))" i=""
+    requestComp+=(_complete --no-interaction -szsh -a<%= @version %> "-c$((CURRENT-2))")
+
     for w in ${words[@]:1}; do
         w=$(printf -- '%b' "$w")
         # remove quotes from typed values
@@ -40,19 +48,17 @@ _athena_<%= @command_name %>() {
         fi
         # empty values are ignored
         if [ ! -z "$w" ]; then
-            i="${i}-i${w} "
+            inputs+=("-i$w")
         fi
     done
 
     # Ensure at least 1 input
-    if [ "${i}" = "" ]; then
-        requestComp="${requestComp} -i\" \""
-    else
-        requestComp="${requestComp} ${i}"
+    if (( ! $#inputs )); then
+        inputs=(-i' ')
     fi
 
-    # Use eval to handle any environment variables and such
-    out=$(eval ${requestComp} 2>/dev/null)
+    # The request is run without being read again by the shell, so that a "$(...)" or a backtick typed on the command line is not executed
+    out=$(SHELL_VERBOSITY=0 "${requestComp[@]}" "${inputs[@]}" 2>/dev/null)
 
     while IFS='\n' read -r comp; do
         if [ -n "$comp" ]; then
@@ -68,7 +74,7 @@ _athena_<%= @command_name %>() {
     done < <(printf "%s\n" "${out[@]}")
 
     # Let inbuilt _describe handle completions
-    eval _describe "completions" completions $flagPrefix
+    _describe "completions" completions "${flagPrefix[@]}"
     return $?
 }
 
