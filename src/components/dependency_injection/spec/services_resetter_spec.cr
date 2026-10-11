@@ -10,12 +10,12 @@ private class MockResettable
   end
 end
 
-describe ATH::ServicesResetter do
+describe ADI::ServicesResetter do
   describe "#reset" do
     it "resets each resettable" do
       resettables = [MockResettable.new, MockResettable.new]
 
-      ATH::ServicesResetter.new(resettables.map &.as(ACTR::Service::Resettable)).reset
+      ADI::ServicesResetter.new(resettables.map &.as(ACTR::Service::Resettable)).reset
 
       resettables.all?(&.reset_called?).should be_true
     end

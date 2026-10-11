@@ -109,7 +109,7 @@ require "./web_test_case"
 # just be sure that you do it _before_ calling `#request`.
 #
 # The requests a test makes share its container.
-# Its `ACTR::Service::Resettable` services are reset after each request, and its `ACTR::Service::Closeable` services are closed once the test is done, see `ATH::Spec::ContainerTestCase`.
+# Its `ACTR::Service::Resettable` services are reset after each request, and its `ACTR::Service::Closeable` services are closed once the test is done, see `ADI::Spec::ContainerTestCase`.
 abstract struct Athena::Framework::Spec::APITestCase < ATH::Spec::WebTestCase
   # Returns a reference to the `AbstractBrowser` being used for the test.
   def client : ATH::Spec::HTTPBrowser

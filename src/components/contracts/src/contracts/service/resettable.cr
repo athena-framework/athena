@@ -16,7 +16,7 @@
 # end
 # ```
 #
-# The [Athena Framework](/Framework/) gives each request its own service container, except for the requests made within a test, which share the test's container, see [ATH::Spec::ContainerTestCase](/Framework/Spec/ContainerTestCase/).
+# The [Athena Framework](/Framework/) gives each request its own service container, except for the requests made within a test, which share the test's container, see [ADI::Spec::ContainerTestCase](/DependencyInjection/Spec/ContainerTestCase/).
 # It resets each of its `ACTR::Service::Resettable` services after each of those requests.
 #
 # TIP: Prefer stateless services where possible.

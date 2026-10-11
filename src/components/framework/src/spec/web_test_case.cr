@@ -1,10 +1,9 @@
-require "./container_test_case"
 require "./expectations/*"
 
 # Base `ASPEC::TestCase` for web based integration tests.
 #
 # NOTE: Currently only `API` based tests are supported. This type exists to allow for introduction of other types in the future.
-abstract struct Athena::Framework::Spec::WebTestCase < ATH::Spec::ContainerTestCase
+abstract struct Athena::Framework::Spec::WebTestCase < ADI::Spec::ContainerTestCase
   include ATH::Spec::Expectations::HTTP
 
   protected getter client : AbstractBrowser

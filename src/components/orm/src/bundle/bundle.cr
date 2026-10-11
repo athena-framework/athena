@@ -50,6 +50,7 @@ struct Athena::ORM::Bundle < ADI::AbstractBundle
 
             SERVICE_HASH[registry_id = "athena_orm_registry"] = {
               class:      Athena::ORM::Bundle::Registry,
+              public:     true,
               parameters: {
                 url: {value: cfg["url"]},
               },

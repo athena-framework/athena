@@ -27,11 +27,18 @@ class Athena::ORM::EntityManagerFactory
     @event_dispatcher : ACTR::EventDispatcher::Interface? = nil,
   ); end
 
+  # Returns an entity manager on *connection*, sharing the factory's class metadata and event dispatcher.
+  #
+  # The connection, and any transaction left open on it, are left to the caller, see `#with_entity_manager` to have the factory manage them.
+  def create_entity_manager(connection : DB::Connection) : AORM::EntityManager
+    AORM::EntityManager.new connection, @event_dispatcher, metadata_cache: @metadata_cache
+  end
+
   # Yields an entity manager on a connection checked out from the pool, and returns the block's value.
   # Afterwards the entity manager is closed, any transaction the block left open is rolled back, and the connection goes back to the pool.
   def with_entity_manager(& : AORM::EntityManager -> T) : T forall T
     @database.using_connection do |connection|
-      em = AORM::EntityManager.new connection, @event_dispatcher, metadata_cache: @metadata_cache
+      em = self.create_entity_manager connection
 
       begin
         yield em
