@@ -9,7 +9,7 @@ struct BundleAuthorizationTest < ASPEC::TestCase
       {"x-foo" => "baz"},
     )
 
-    authorization = ABM::Authorization.new new_hub_registry(token_factory: token_factory)
+    authorization = AMC::Bundle::Authorization.new new_hub_registry(token_factory: token_factory)
     request = new_request(headers: ::HTTP::Headers{"host" => "example.com"})
 
     authorization.set_cookie request, ["foo"], ["bar"], {"x-foo" => "baz"}
@@ -20,7 +20,7 @@ struct BundleAuthorizationTest < ASPEC::TestCase
   end
 
   def test_set_cookie_stores_in_request_attributes : Nil
-    authorization = ABM::Authorization.new new_hub_registry
+    authorization = AMC::Bundle::Authorization.new new_hub_registry
     request = new_request(headers: ::HTTP::Headers{"host" => "example.com"})
 
     authorization.set_cookie request
@@ -30,7 +30,7 @@ struct BundleAuthorizationTest < ASPEC::TestCase
   end
 
   def test_set_cookie_prevents_duplicate : Nil
-    authorization = ABM::Authorization.new new_hub_registry
+    authorization = AMC::Bundle::Authorization.new new_hub_registry
     request = new_request(headers: ::HTTP::Headers{"host" => "example.com"})
 
     expect_raises AMC::Exception::Runtime, "The 'mercureAuthorization' cookie for the 'default hub' has already been set." do
@@ -40,7 +40,7 @@ struct BundleAuthorizationTest < ASPEC::TestCase
   end
 
   def test_clear_cookie : Nil
-    authorization = ABM::Authorization.new new_hub_registry
+    authorization = AMC::Bundle::Authorization.new new_hub_registry
     request = new_request(headers: ::HTTP::Headers{"host" => "example.com"})
 
     authorization.clear_cookie request
@@ -50,7 +50,7 @@ struct BundleAuthorizationTest < ASPEC::TestCase
   end
 
   def test_create_cookie : Nil
-    authorization = ABM::Authorization.new new_hub_registry
+    authorization = AMC::Bundle::Authorization.new new_hub_registry
     request = new_request(headers: ::HTTP::Headers{"host" => "example.com"})
 
     cookie = authorization.create_cookie request

@@ -47,6 +47,33 @@ dependencies:
     version: ~> 0.1.0
 ```
 
+#### With Dependency Injection
+
+Within an [Athena Framework](/Framework/) application, or any other application using the [dependency injection](/DependencyInjection/) and [HTTP kernel](/HTTPKernel/) components, require `athena-mercure/bundle` and configure at least one hub:
+
+```crystal
+require "athena"
+require "athena-mercure/bundle"
+
+ADI.configure({
+  mercure: {
+    hubs: {
+      default: {
+        url: ENV["MERCURE_URL"],
+        jwt: {
+          secret:    ENV["MERCURE_JWT_SECRET"],
+          publish:   ["*"],
+          subscribe: ["*"],
+        },
+      },
+    },
+  },
+})
+```
+
+Then inject an [AMC::Hub::Interface](/Mercure/Hub/Interface/), [AMC::Bundle::Authorization](/Mercure/Bundle/Authorization/), or [AMC::Bundle::Discovery](/Mercure/Bundle/Discovery/) where it's needed.
+See [AMC::Bundle](/Mercure/Bundle/) for more information.
+
 ### Setup
 
 Because the Mercure Hub is a separate process from the Athena HTTP server, it does mean you have to [install](https://mercure.rocks/docs/hub/install) a Mercure hub by yourself.

@@ -26,7 +26,17 @@ plugins:
         crystal:
           crystal_docs_flags:
             - ../../../docs/index.cr
+            - ./lib/athena-dependency_injection/src/athena-dependency_injection.cr
+            - ./lib/athena-http/src/athena-http.cr
+            - ./lib/athena-contracts/src/athena-contracts.cr
+            - ./lib/athena-event_dispatcher/src/athena-event_dispatcher.cr
+            - ./lib/athena-http_kernel/src/athena-http_kernel.cr
             - ./lib/athena-mercure/src/athena-mercure.cr
+            - ./lib/athena-mercure/src/bundle/bundle.cr
+            - ./lib/athena-mercure/src/bundle/authorization.cr
+            - ./lib/athena-mercure/src/bundle/discovery.cr
+            - ./lib/athena-mercure/src/bundle/listeners/add_link_header.cr
+            - ./lib/athena-mercure/src/bundle/listeners/set_cookie.cr
             - ./lib/athena-mercure/src/spec.cr
           source_locations:
             lib/athena-mercure: https://github.com/athena-framework/mercure/blob/v{shard_version}/{file}#L{line}

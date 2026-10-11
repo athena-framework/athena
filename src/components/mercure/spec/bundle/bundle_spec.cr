@@ -8,14 +8,14 @@ private def assert_compiles(code : String, *, line : Int32 = __LINE__) : Nil
     class MercureConsumer
       def initialize(
         @hub : AMC::Hub::Interface,
-        @authorization : ABM::Authorization,
-        @discovery : ABM::Discovery,
+        @authorization : AMC::Bundle::Authorization,
+        @discovery : AMC::Bundle::Discovery,
       ); end
     end
   CR
 end
 
-describe ABM, tags: "compiled" do
+describe AMC::Bundle, tags: "compiled" do
   it "registers services for a hub with a jwt secret" do
     assert_compiles <<-'CR'
       ADI.configure({
@@ -57,9 +57,9 @@ describe ABM, tags: "compiled" do
           # Hub registry
           ASPEC.compile_time_assert(\{{ sh["mercure_hub_registry"]["class"].resolve == Athena::Mercure::Hub::Registry }}, "Expected registry class to be Athena::Mercure::Hub::Registry")
           # Authorization
-          ASPEC.compile_time_assert(\{{ sh["mercure_authorization"]["class"].resolve == Athena::MercureBundle::Authorization }}, "Expected auth class to be Athena::MercureBundle::Authorization")
+          ASPEC.compile_time_assert(\{{ sh["mercure_authorization"]["class"].resolve == Athena::Mercure::Bundle::Authorization }}, "Expected auth class to be Athena::Mercure::Bundle::Authorization")
           # Discovery
-          ASPEC.compile_time_assert(\{{ sh["mercure_discovery"]["class"].resolve == Athena::MercureBundle::Discovery }}, "Expected discovery class to be Athena::MercureBundle::Discovery")
+          ASPEC.compile_time_assert(\{{ sh["mercure_discovery"]["class"].resolve == Athena::Mercure::Bundle::Discovery }}, "Expected discovery class to be Athena::Mercure::Bundle::Discovery")
         end
       end
     CR
@@ -219,6 +219,33 @@ describe ABM, tags: "compiled" do
             lifetime = ADI::ServiceContainer::SERVICE_HASH["mercure_authorization"]["parameters"]["cookie_lifetime"]["value"]
           %}
           ASPEC.compile_time_assert(\{{ lifetime.stringify == "2.hours" }}, "Expected cookie_lifetime to be 2.hours")
+        end
+      end
+    CR
+  end
+
+  it "registers the listeners with the framework's event dispatcher" do
+    ASPEC::Methods.assert_compiles <<-'CR', preamble: %(require "athena"\nrequire "./spec_helper.cr")
+      ADI.configure({
+        mercure: {
+          hubs: {
+            default: {
+              url: "https://hub.example.com/.well-known/mercure",
+              jwt: {
+                value: "eyJhbGciOiJIUzI1NiJ9.static-token",
+              },
+            },
+          },
+        },
+      })
+
+      macro finished
+        macro finished
+          \{%
+            listener_ids = ADI::ServiceContainer::SERVICE_HASH["event_dispatcher"]["calls"].map { |(_, args)| args[0].stringify }
+          %}
+          ASPEC.compile_time_assert(\{{ listener_ids.includes? "mercure_add_link_header_listener" }}, "Expected the add link header listener to be registered")
+          ASPEC.compile_time_assert(\{{ listener_ids.includes? "mercure_set_cookie_listener" }}, "Expected the set cookie listener to be registered")
         end
       end
     CR

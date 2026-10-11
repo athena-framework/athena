@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
 # $1 shard name
-# $2 shard type
 function runSpecs() (
   set -e
-  $CRYSTAL spec "${DEFAULT_BUILD_OPTIONS[@]}" "${DEFAULT_OPTIONS[@]}" "src/$2/$1/spec"
+  $CRYSTAL spec "${DEFAULT_BUILD_OPTIONS[@]}" "${DEFAULT_OPTIONS[@]}" "src/components/$1/spec"
 )
 
 # Runtime coverage generation logic based on https://hannes.kaeufler.net/posts/measuring-code-coverage-in-crystal-with-kcov.
@@ -13,16 +12,14 @@ function runSpecs() (
 # Compiled time code generates a macro code coverage report for the entire shard, and each compiled sub-process spec.
 #
 # $1 shard name
-# $2 shard type
 function runSpecsWithCoverage() (
   set -e
   SHARD_NAME=$1
-  SHARD_TYPE=$2
-  SHARD_PATH="$SHARD_TYPE/$SHARD_NAME"
-  COVERAGE_BIN_PATH="./coverage/$SHARD_TYPE/bin/$SHARD_NAME"
+  SHARD_PATH="components/$SHARD_NAME"
+  COVERAGE_BIN_PATH="./coverage/components/bin/$SHARD_NAME"
 
   rm -rf "./coverage/$SHARD_PATH"
-  mkdir -p "./coverage/$SHARD_PATH" "./coverage/$SHARD_TYPE/bin"
+  mkdir -p "./coverage/$SHARD_PATH" "./coverage/components/bin"
 
   # Build spec binary that covers entire `spec/` directory to run coverage against.
   echo "require \"../../../src/$SHARD_PATH/spec/**\"" > "$COVERAGE_BIN_PATH.cr" && \
@@ -62,11 +59,9 @@ IS_CI=${CI:="false"}
 #
 # $1 - (optional) shard name to runs specs for, or "all". Defaults to "all".
 # $2 - (optional) "type" of specs to run: "unit", "compiled", or "all". Defaults to "all".
-# $3 - (optional) "type" of the shard: "component", "bundle". Defaults to "component".
 
 SHARD=${1-all}
 SPEC_TYPE=${2-all}
-SHARD_TYPE=${3-component}s
 
 if [ "$SPEC_TYPE" == "unit" ]
 then
@@ -86,25 +81,24 @@ if [ "$SHARD" != "all" ]
 then
   if [ "$HAS_KCOV" = "true" ]
   then
-    runSpecsWithCoverage "$SHARD" "$SHARD_TYPE"
+    runSpecsWithCoverage "$SHARD"
   else
-    runSpecs "$SHARD" "$SHARD_TYPE"
+    runSpecs "$SHARD"
   fi
   exit $?
 fi
 
-# If we got this far we need to run specs for all shards, so cannot just rely on `$SHARD_TYPE`
+# If we got this far we need to run specs for all shards
 for shardPath in $(find src/ -maxdepth 3 -type f -name shard.yml | xargs -I{} dirname {} | sed 's|^src/||' | sort); do
-  type=${shardPath%/*}
   name=${shardPath#*/}
 
   echo "::group::$shardPath"
 
   if [ "$HAS_KCOV" = "true" ]
   then
-    runSpecsWithCoverage "$name" "$type"
+    runSpecsWithCoverage "$name"
   else
-    runSpecs "$name" "$type"
+    runSpecs "$name"
   fi
 
   if [ $? -eq 1 ]; then

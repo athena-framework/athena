@@ -4,7 +4,7 @@ struct AddLinkHeaderListenerTest < ASPEC::TestCase
   def test_no_links_attribute : Nil
     event = new_response_event
 
-    ABM::Listeners::AddLinkHeader.new.on_response event
+    AMC::Bundle::Listeners::AddLinkHeader.new.on_response event
 
     event.response.headers["link"]?.should be_nil
   end
@@ -15,7 +15,7 @@ struct AddLinkHeaderListenerTest < ASPEC::TestCase
 
     event = new_response_event(request: request)
 
-    ABM::Listeners::AddLinkHeader.new.on_response event
+    AMC::Bundle::Listeners::AddLinkHeader.new.on_response event
 
     event.response.headers.get("link").should eq [%(<https://hub.example.com/.well-known/mercure>; rel="mercure")]
   end
@@ -29,7 +29,7 @@ struct AddLinkHeaderListenerTest < ASPEC::TestCase
 
     event = new_response_event(request: request)
 
-    ABM::Listeners::AddLinkHeader.new.on_response event
+    AMC::Bundle::Listeners::AddLinkHeader.new.on_response event
 
     event.response.headers.get("link").should eq [
       %(<https://hub1.example.com/.well-known/mercure>; rel="mercure"),
@@ -46,7 +46,7 @@ struct AddLinkHeaderListenerTest < ASPEC::TestCase
 
     event = new_response_event(request: request, response: response)
 
-    ABM::Listeners::AddLinkHeader.new.on_response event
+    AMC::Bundle::Listeners::AddLinkHeader.new.on_response event
 
     event.response.headers.get("link").should eq [
       %(<https://example.com>; rel="preload"),
