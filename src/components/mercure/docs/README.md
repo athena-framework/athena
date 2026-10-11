@@ -49,7 +49,7 @@ dependencies:
 
 #### With Dependency Injection
 
-Within an [Athena Framework](/Framework/) application, or any other application using the [dependency injection](/DependencyInjection/) component, require `athena-mercure/bundle` and configure at least one hub:
+Within an [Athena Framework](/Framework/) application, or any other application using the [dependency injection](/DependencyInjection/) and [HTTP kernel](/HTTPKernel/) components, require `athena-mercure/bundle` and configure at least one hub:
 
 ```crystal
 require "athena"

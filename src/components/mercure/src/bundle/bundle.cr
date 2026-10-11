@@ -1,4 +1,4 @@
-# Integrates the Mercure component with the [dependency injection](/DependencyInjection/) component, such as within an [Athena Framework](/Framework/) application.
+# Integrates the Mercure component with the [dependency injection](/DependencyInjection/) and [HTTP kernel](/HTTPKernel/) components, such as within an [Athena Framework](/Framework/) application.
 #
 # Require `athena-mercure/bundle` to register the bundle, then configure at least one hub:
 #
