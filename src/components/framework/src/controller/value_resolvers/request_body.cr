@@ -204,7 +204,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
     name : String? = nil
 
   def initialize(
-    @serializer : ASR::SerializerInterface,
+    @serializer : ATH::Serializer::Interface,
     @validator : AVD::Validator::ValidatorInterface,
     @annotation_resolver : ATH::AnnotationResolver,
   ); end
@@ -268,7 +268,7 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
     when "form"
       self.deserialize_form body, parameter.type
     when "json"
-      self.deserialize_json body, parameter.type
+      @serializer.deserialize body, parameter.type, "json"
     else
       raise AHK::Exception::UnsupportedMediaType.new "Unsupported format."
     end
@@ -281,24 +281,13 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
     else
       raise AHK::Exception::UnprocessableEntity.new ex.message.not_nil!
     end
-  rescue ex : JSON::ParseException | ASR::Exception::DeserializationException
+  rescue ex : JSON::ParseException
     # Otherwise if it really is a `ParseException` we can be assured it's just malformed
     raise AHK::Exception::BadRequest.new "Malformed JSON payload.", cause: ex
   rescue ex : URI::SerializableError
     raise AHK::Exception::UnprocessableEntity.new ex.message.not_nil!, cause: ex
   rescue ex : URI::Error
     raise AHK::Exception::BadRequest.new "Malformed www form data payload.", cause: ex
-  end
-
-  private def deserialize_json(body : IO, klass : ASR::Serializable.class)
-    @serializer.deserialize klass, body, :json
-  end
-
-  private def deserialize_json(body : IO, klass : JSON::Serializable.class)
-    klass.from_json body
-  end
-
-  private def deserialize_json(body : IO, klass : _) : Nil
   end
 
   private def deserialize_form(body : IO, klass : URI::Params::Serializable.class)

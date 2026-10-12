@@ -219,7 +219,7 @@
 # If more precision is required, a [free variable](https://crystal-lang.org/reference/syntax_and_semantics/type_restrictions.html#free-variables)
 # can be used to extract the type of the related parameter such that it can be used to generate the proper code.
 #
-# An example of this is how `ATHR::RequestBody` handles both `ASR::Serializable` and `JSON::Serializable` types via:
+# For example, a resolver could handle both `ASR::Serializable` and `JSON::Serializable` types via:
 #
 # ```
 # {% begin %}

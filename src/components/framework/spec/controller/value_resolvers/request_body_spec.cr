@@ -25,13 +25,13 @@ end
 struct RequestBodyResolverTest < ASPEC::TestCase
   @target : ATHR::RequestBody
 
-  @serializer : ASR::SerializerInterface
+  @serializer : ATH::Serializer::Interface
   @validator : AVD::Validator::ValidatorInterface
   @annotation_resolver : MockAnnotationResolver
 
   def initialize
     @validator = AVD::Spec::MockValidator.new
-    @serializer = DeserializableMockSerializer(Nil).new
+    @serializer = ATH::Serializer::ComponentSerializer.new ASR::Serializer.new
     @annotation_resolver = MockAnnotationResolver.new
 
     @target = ATHR::RequestBody.new @serializer, @validator, @annotation_resolver
@@ -167,13 +167,10 @@ struct RequestBodyResolverTest < ASPEC::TestCase
   end
 
   def test_it_supports_multiple_serializable : Nil
-    serializer = DeserializableMockSerializer(MockJSONAndURISerializableEntity).new
-    serializer.deserialized_response = MockJSONAndURISerializableEntity.new 10, "Fred"
-
     form_request = new_request body: "id=10&name=Fred", format: "form"
     json_request = new_request body: %({"id":10,"name":"Fred"})
 
-    resolver = ATHR::RequestBody.new serializer, @validator, @annotation_resolver
+    resolver = ATHR::RequestBody.new @serializer, @validator, @annotation_resolver
     form_object = resolver.resolve form_request, self.get_config(MockJSONAndURISerializableEntity)
     form_object = form_object.should be_a MockJSONAndURISerializableEntity
 

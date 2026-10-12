@@ -1,5 +1,7 @@
 require "athena-serializer"
 
+require "./serializer/component_serializer"
+
 @[ADI::Register]
 @[ADI::AsAlias]
 struct Athena::Serializer::Serializer; end

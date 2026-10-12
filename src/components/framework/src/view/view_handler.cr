@@ -19,7 +19,7 @@ class Athena::Framework::View::ViewHandler
 
   def initialize(
     @url_generator : ART::Generator::Interface,
-    @serializer : ASR::SerializerInterface,
+    @serializer : ATH::Serializer::Interface,
     @request_store : AHTTP::RequestStore,
     format_handlers : Array(Athena::Framework::View::FormatHandlerInterface),
     @failed_validation_status : ::HTTP::Status = ::HTTP::Status::UNPROCESSABLE_ENTITY,
@@ -130,45 +130,7 @@ class Athena::Framework::View::ViewHandler
     # Skip serialization if the action's return type is explicitly `Nil`.
     if @emit_nil || view.return_type != Nil
       # TODO: Support Form typed views.
-
-      # Fallback on `to_json` for non ASR::Serializable types.
-      content = if data = view.serializable_data
-                  data.to_json
-                else
-                  data = view.data
-
-                  context = self.serialization_context view
-
-                  # TODO: Implement some sort of Adapter system to convert ATH::View::Context
-                  # into the serializer's required format. Just do that here for now.
-                  athena_serializer_context = ASR::SerializationContext.new
-
-                  context.emit_nil?.try do |en|
-                    athena_serializer_context.emit_nil = en
-                  end
-
-                  context.version.try do |v|
-                    athena_serializer_context.version = v
-                  end
-
-                  context.groups.try do |g|
-                    athena_serializer_context.groups = g
-                  end
-
-                  context.exclusion_strategies.each do |s|
-                    athena_serializer_context.add_exclusion_strategy s
-                  end
-
-                  serialized_data = @serializer.serialize data, format, athena_serializer_context
-
-                  # If the serialized data is "null", but the data is not `nil`, assume this means the serializer component failed to serialize it,
-                  # raise an error as it is likely the user forgot to include either `JSON::Serializable` or `ASR::Serializable`.
-                  if "null" == serialized_data && !data.nil?
-                    raise AHK::Exception::Logic.new "Failed to serialize response body. Did you forget to include either `JSON::Serializable` or `ASR::Serializable`?"
-                  end
-
-                  serialized_data
-                end
+      content = view.serialize @serializer, format, self.serialization_context(view)
     end
 
     response = view.response

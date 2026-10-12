@@ -11,7 +11,7 @@ module Athena::Framework::View::ViewHandlerInterface
   # Determines if `self` can handle the provided *format*.
   #
   # First checks if a custom format handler supports the provided *format*,
-  # otherwise falls back on the `ASR::SerializerInterface`.
+  # otherwise falls back on the `ATH::Serializer::Interface`.
   abstract def supports?(format : String) : Bool
 
   # Handles the conversion of the provided *view* into an `AHTTP::Response`.
