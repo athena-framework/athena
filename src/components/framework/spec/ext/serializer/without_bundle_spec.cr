@@ -86,13 +86,8 @@ describe "Serializer bundle not registered", tags: "compiled" do
       CR
     end
 
-    it "errors if a view's data is ASR::Serializable" do
-      # Compiled normally as the error is raised while typing, after which the method's return type errors too.
-      ASPEC::Methods.assert_runtime_error %('ASREntity' includes 'ASR::Serializable', but the Serializer bundle is not registered. Add `require "athena-serializer/bundle"` to use it.), <<-'CR'
-        require "../../../src/athena"
-        require "../../../src/spec"
-        require "athena-serializer"
-
+    it "errors if an action returns ASR::Serializable data" do
+      assert_compile_time_error %(The return type of route action 'CompileController#action' contains 'ASREntity', which includes 'ASR::Serializable', but the Serializer bundle is not registered. Add `require "athena-serializer/bundle"` to serialize it.), <<-'CR'
         class ASREntity
           include ASR::Serializable
 
@@ -103,18 +98,10 @@ describe "Serializer bundle not registered", tags: "compiled" do
 
         class CompileController < ATH::Controller
           @[ARTA::Get("/")]
-          def action : Hash(String, Array(ASREntity))
-            {"entities" => [ASREntity.new]}
+          def action : ATH::View(Hash(String, Array(ASREntity)))
+            self.view({"entities" => [ASREntity.new]})
           end
         end
-
-        struct CompileTest < ATH::Spec::APITestCase
-          def test_action : Nil
-            self.get "/"
-          end
-        end
-
-        ASPEC.run_all
       CR
     end
 

@@ -98,9 +98,18 @@ require "uri/params/serializable"
 struct Athena::Framework::Controller::ValueResolvers::RequestBody
   include Athena::Framework::Controller::ValueResolvers::Interface
 
-  # `ASR::Serializable` types are only supported if the Serializer bundle is registered, which may happen after this type is defined.
+  # Whether the Serializer bundle is registered determines the supported types and how JSON is deserialized, but it may be registered after this type is defined.
   macro finished
     include Athena::Framework::Controller::ValueResolvers::Interface::Typed({% if ADI::ServiceContainer::EXTENSIONS["serializer"] %}Athena::Serializer::Serializable, {% end %}JSON::Serializable, URI::Params::Serializable, Athena::HTTP::UploadedFile?, Array(Athena::HTTP::UploadedFile))
+
+    {% unless ADI::ServiceContainer::EXTENSIONS["serializer"] %}
+      private def deserialize_json(body : IO, klass : JSON::Serializable.class)
+        klass.from_json body
+      end
+
+      private def deserialize_json(body : IO, klass : _) : Nil
+      end
+    {% end %}
   end
 
   # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on the request's body.
@@ -297,13 +306,6 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
     raise AHK::Exception::UnprocessableEntity.new ex.message.not_nil!, cause: ex
   rescue ex : URI::Error
     raise AHK::Exception::BadRequest.new "Malformed www form data payload.", cause: ex
-  end
-
-  private def deserialize_json(body : IO, klass : JSON::Serializable.class)
-    klass.from_json body
-  end
-
-  private def deserialize_json(body : IO, klass : _) : Nil
   end
 
   private def deserialize_form(body : IO, klass : URI::Params::Serializable.class)

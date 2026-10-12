@@ -141,33 +141,6 @@ class Athena::Framework::View(T)
     {% if ADI::ServiceContainer::EXTENSIONS["serializer"] %}
       serializer.not_nil!.serialize @data, format, context
     {% else %}
-      {%
-        # `ASR::Serializable` types are only serializable via the component, so error if one was used without registering its bundle.
-        if asr_serializable = parse_type("ASR::Serializable").resolve?
-          types_to_recurse = [T]
-
-          types_to_recurse.each do |t|
-            t = t.resolve
-
-            if t.union?
-              t.union_types.each do |ut|
-                types_to_recurse << ut
-              end
-            elsif t <= NamedTuple
-              t.keys.each do |k|
-                types_to_recurse << t[k].resolve
-              end
-            elsif t <= Enumerable
-              t.type_vars.each do |ut|
-                types_to_recurse << ut
-              end
-            elsif t <= asr_serializable
-              raise "'#{t}' includes 'ASR::Serializable', but the Serializer bundle is not registered. Add `require \"athena-serializer/bundle\"` to use it."
-            end
-          end
-        end
-      %}
-
       @data.to_json
     {% end %}
   end
