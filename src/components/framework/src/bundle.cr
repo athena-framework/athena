@@ -389,6 +389,20 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
             end
           %}
 
+          # Serializer
+          {%
+            # Requiring the Serializer component alone does not register its bundle, so check for the bundle to know the `serializer` service exists.
+            if ADI::ServiceContainer::EXTENSIONS["serializer"]
+              SERVICE_HASH[serializer_id = "athena_framework_serializer_component_serializer"] = {
+                class: ATH::Serializer::ComponentSerializer,
+              }
+
+              ALIASES[ATH::Serializer::Interface] = [
+                {id: serializer_id, public: false},
+              ]
+            end
+          %}
+
           # View Handler
           {%
             cfg = CONFIG["framework"]["view_handler"]

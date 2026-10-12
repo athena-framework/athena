@@ -47,9 +47,6 @@ dependencies:
   athena-routing:
     github: athena-framework/routing
     version: ~> 0.2.0
-  athena-serializer:
-    github: athena-framework/serializer
-    version: ~> 0.4.0
   athena-validator:
     github: athena-framework/validator
     version: ~> 0.5.0

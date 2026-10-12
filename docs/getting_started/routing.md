@@ -64,7 +64,8 @@ ATH.run
 ```
 
 A [View](./middleware.md#4-view-event) event is emitted if the returned value is _NOT_ an [AHTTP::Response](/HTTP/Response).
-By default, non `AHTTP::Response`s are JSON serialized.
+By default, non `AHTTP::Response`s are JSON serialized via their `#to_json` method, such as from including [JSON::Serializable](https://crystal-lang.org/api/JSON/Serializable.html).
+Requiring the [Serializer](/Serializer/) component's bundle, `require "athena-serializer/bundle"`, serializes them via the component instead, which adds support for [ASR::Serializable](/Serializer/Serializable/) types and serialization groups/versions.
 However, this event can be listened on to customize how the value is serialized.
 More on this in the [Content Negotiation](#content-negotiation) section.
 

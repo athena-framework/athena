@@ -197,9 +197,9 @@ struct ViewHandlerTest < ASPEC::TestCase
   private def create_view_handler(**args) : ATH::View::ViewHandler
     ATH::View::ViewHandler.new(
       @url_generator,
-      @serializer,
       @request_store,
       ([] of Athena::Framework::View::FormatHandlerInterface),
+      @serializer,
       **args
     )
   end

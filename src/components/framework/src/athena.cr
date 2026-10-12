@@ -22,7 +22,6 @@ require "./serializer/interface"
 
 require "./ext/http"
 require "./ext/http_kernel"
-require "./ext/serializer"
 
 require "./commands/*"
 require "./controller/**"
@@ -35,6 +34,12 @@ require "./ext/console"
 require "./ext/event_dispatcher"
 require "./ext/routing"
 require "./ext/validator"
+
+macro finished
+  {% if @top_level.has_constant?("ASR") %}
+    require "./ext/serializer/component_serializer"
+  {% end %}
+end
 
 # Convenience alias to make referencing `Athena::Framework` types easier.
 alias ATH = Athena::Framework

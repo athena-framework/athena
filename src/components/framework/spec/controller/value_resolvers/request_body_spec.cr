@@ -34,11 +34,11 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     @serializer = ATH::Serializer::ComponentSerializer.new ASR::Serializer.new
     @annotation_resolver = MockAnnotationResolver.new
 
-    @target = ATHR::RequestBody.new @serializer, @validator, @annotation_resolver
+    @target = ATHR::RequestBody.new @validator, @annotation_resolver, @serializer
   end
 
   def test_no_annotation : Nil
-    ATHR::RequestBody.new(@serializer, @validator, @annotation_resolver).resolve(new_request, new_parameter).should be_nil
+    ATHR::RequestBody.new(@validator, @annotation_resolver, @serializer).resolve(new_request, new_parameter).should be_nil
   end
 
   def test_raises_on_no_body : Nil
@@ -94,7 +94,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     )
 
     expect_raises AVD::Exception::ValidationFailed, "Validation failed" do
-      ATHR::RequestBody.new(serializer, validator, @annotation_resolver).resolve new_request(body: %({"id":10,"name":""})), self.get_config(MockValidatableASRSerializableEntity)
+      ATHR::RequestBody.new(validator, @annotation_resolver, serializer).resolve new_request(body: %({"id":10,"name":""})), self.get_config(MockValidatableASRSerializableEntity)
     end
   end
 
@@ -114,7 +114,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
 
     request = new_request body: %({"id":10,"name":"Fred"})
 
-    object = ATHR::RequestBody.new(serializer, @validator, @annotation_resolver).resolve request, self.get_config(MockASRSerializableEntity)
+    object = ATHR::RequestBody.new(@validator, @annotation_resolver, serializer).resolve request, self.get_config(MockASRSerializableEntity)
     object = object.should be_a MockASRSerializableEntity
 
     object.id.should eq 10
@@ -127,7 +127,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
 
     request = new_request body: "id=10&name=Fred", format: "form"
 
-    object = ATHR::RequestBody.new(serializer, @validator, @annotation_resolver).resolve request, self.get_config(MockURISerializableEntity)
+    object = ATHR::RequestBody.new(@validator, @annotation_resolver, serializer).resolve request, self.get_config(MockURISerializableEntity)
     object = object.should be_a MockURISerializableEntity
 
     object.id.should eq 10
@@ -149,7 +149,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
 
     request = new_request query: "id=10&name=Fred"
 
-    object = ATHR::RequestBody.new(serializer, @validator, @annotation_resolver).resolve request, self.get_config(MockURISerializableEntity, ATHA::MapQueryString, ATHA::MapQueryStringConfiguration.new)
+    object = ATHR::RequestBody.new(@validator, @annotation_resolver, serializer).resolve request, self.get_config(MockURISerializableEntity, ATHA::MapQueryString, ATHA::MapQueryStringConfiguration.new)
     object = object.should be_a MockURISerializableEntity
 
     object.id.should eq 10
@@ -161,7 +161,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     serializer.deserialized_response = MockURISerializableEntity.new 10, "Fred"
 
     ATHR::RequestBody
-      .new(serializer, @validator, @annotation_resolver)
+      .new(@validator, @annotation_resolver, serializer)
       .resolve(new_request, self.get_config(MockURISerializableEntity, ATHA::MapQueryString, ATHA::MapQueryStringConfiguration.new))
       .should be_nil
   end
@@ -170,7 +170,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
     form_request = new_request body: "id=10&name=Fred", format: "form"
     json_request = new_request body: %({"id":10,"name":"Fred"})
 
-    resolver = ATHR::RequestBody.new @serializer, @validator, @annotation_resolver
+    resolver = ATHR::RequestBody.new @validator, @annotation_resolver, @serializer
     form_object = resolver.resolve form_request, self.get_config(MockJSONAndURISerializableEntity)
     form_object = form_object.should be_a MockJSONAndURISerializableEntity
 
@@ -190,7 +190,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
 
     request = new_request body: %({"id":10,"name":"Fred"})
 
-    object = ATHR::RequestBody.new(serializer, @validator, @annotation_resolver).resolve request, self.get_config(MockValidatableASRSerializableEntity)
+    object = ATHR::RequestBody.new(@validator, @annotation_resolver, serializer).resolve request, self.get_config(MockValidatableASRSerializableEntity)
     object = object.should be_a MockValidatableASRSerializableEntity
 
     object.id.should eq 10
@@ -225,7 +225,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
 
   @[DataProvider("uploaded_file_context")]
   def test_uploaded_file_single_constraints_no_violation(request : AHTTP::Request) : Nil
-    @target = ATHR::RequestBody.new @serializer, AVD.validator, @annotation_resolver
+    @target = ATHR::RequestBody.new AVD.validator, @annotation_resolver, @serializer
 
     object = @target.resolve request, self.get_config(
       AHTTP::UploadedFile,
@@ -243,7 +243,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
 
   @[DataProvider("uploaded_file_context")]
   def test_uploaded_file_single_constraints_with_violation(request : AHTTP::Request) : Nil
-    @target = ATHR::RequestBody.new @serializer, AVD.validator, @annotation_resolver
+    @target = ATHR::RequestBody.new AVD.validator, @annotation_resolver, @serializer
 
     ex = expect_raises AVD::Exception::ValidationFailed do
       @target.resolve request, self.get_config(
@@ -290,7 +290,7 @@ struct RequestBodyResolverTest < ASPEC::TestCase
 
   @[DataProvider("uploaded_file_context")]
   def test_uploaded_file_array_of_files_with_constraint(request : AHTTP::Request) : Nil
-    @target = ATHR::RequestBody.new @serializer, AVD.validator, @annotation_resolver
+    @target = ATHR::RequestBody.new AVD.validator, @annotation_resolver, @serializer
 
     ex = expect_raises AVD::Exception::ValidationFailed do
       @target.resolve request, self.get_config(

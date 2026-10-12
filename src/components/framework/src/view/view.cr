@@ -134,10 +134,14 @@ class Athena::Framework::View(T)
     self.response.headers.merge! headers
   end
 
-  # Returns `#data` serialized into the provided *format* via the provided *serializer*.
+  # Returns `#data` serialized into the provided *format* via the provided *serializer* if the [Serializer bundle](/Serializer/Bundle/) is registered, otherwise as JSON via `#to_json`.
   #
   # Calling the serializer from here passes it `#data` as `T`, rather than a union of the data types of every view.
-  protected def serialize(serializer : ATH::Serializer::Interface, format : String, context : ATH::View::Context) : String
-    serializer.serialize @data, format, context
+  protected def serialize(serializer : ATH::Serializer::Interface?, format : String, context : ATH::View::Context) : String
+    {% if ADI::ServiceContainer::EXTENSIONS["serializer"] %}
+      serializer.not_nil!.serialize @data, format, context
+    {% else %}
+      @data.to_json
+    {% end %}
   end
 end

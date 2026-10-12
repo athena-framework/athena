@@ -12,6 +12,19 @@ dependencies:
     version: ~> 0.4.0
 ```
 
+### With Dependency Injection
+
+Within an [Athena Framework](/Framework/) application, or any other application using the [dependency injection](/DependencyInjection/) component, also require `athena-serializer/bundle`:
+
+```crystal
+require "athena"
+require "athena-serializer/bundle"
+```
+
+Then inject an `ASR::SerializerInterface` where it's needed.
+The framework also uses it to serialize the data returned from controller actions, and to deserialize request bodies.
+See [ASR::Bundle](/Serializer/Bundle/) for more information.
+
 ## Usage
 
 The `Athena::Serializer` component focuses around [ASR::Serializer](/Serializer/Serializer/) implementations, with the default being [ASR::Serializer] as the main entrypoint into (de)serializing objects.

@@ -150,6 +150,34 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             {% m.raise "Route action return type must be set for '#{klass.name}##{m.name}'." %}
           {% end %}
 
+          # Raise compile time error if the action returns an `ASR::Serializable` type, which can only be serialized via the Serializer bundle.
+          {%
+            if !ADI::ServiceContainer::EXTENSIONS["serializer"] && (asr_serializable = parse_type("ASR::Serializable").resolve?)
+              return_type = m.return_type.resolve
+              types_to_recurse = [return_type <= ATH::View ? return_type.type_vars.first : return_type]
+
+              types_to_recurse.each do |t|
+                t = t.resolve
+
+                if t.union?
+                  t.union_types.each do |ut|
+                    types_to_recurse << ut
+                  end
+                elsif t <= NamedTuple
+                  t.keys.each do |k|
+                    types_to_recurse << t[k].resolve
+                  end
+                elsif t <= Enumerable
+                  t.type_vars.each do |ut|
+                    types_to_recurse << ut
+                  end
+                elsif t <= asr_serializable
+                  m.return_type.raise "The return type of route action '#{klass.name}##{m.name}' contains '#{t}', which includes 'ASR::Serializable', but the Serializer bundle is not registered. Add `require \"athena-serializer/bundle\"` to serialize it."
+                end
+              end
+            end
+          %}
+
           # Determine routes that this method should handle
           {%
             routes_for_method = [] of Nil # Tuple(Annotation, Array(String))

@@ -9,7 +9,7 @@ require "uri/params/serializable"
 # If the object is also `AVD::Validatable`, any validations defined on it are executed before returning the object.
 # Requires the type of the related parameter to include one or more of:
 #
-# * `ASR::Serializable`
+# * `ASR::Serializable`, if the [Serializer bundle](/Serializer/Bundle/) is registered
 # * `JSON::Serializable`
 # * `URI::Params::Serializable`
 #
@@ -96,7 +96,21 @@ require "uri/params/serializable"
 # }
 # ```
 struct Athena::Framework::Controller::ValueResolvers::RequestBody
-  include Athena::Framework::Controller::ValueResolvers::Interface::Typed(Athena::Serializer::Serializable, JSON::Serializable, URI::Params::Serializable, Athena::HTTP::UploadedFile?, Array(Athena::HTTP::UploadedFile))
+  include Athena::Framework::Controller::ValueResolvers::Interface
+
+  # Whether the Serializer bundle is registered determines the supported types and how JSON is deserialized, but it may be registered after this type is defined.
+  macro finished
+    include Athena::Framework::Controller::ValueResolvers::Interface::Typed({% if ADI::ServiceContainer::EXTENSIONS["serializer"] %}Athena::Serializer::Serializable, {% end %}JSON::Serializable, URI::Params::Serializable, Athena::HTTP::UploadedFile?, Array(Athena::HTTP::UploadedFile))
+
+    {% unless ADI::ServiceContainer::EXTENSIONS["serializer"] %}
+      private def deserialize_json(body : IO, klass : JSON::Serializable.class)
+        klass.from_json body
+      end
+
+      private def deserialize_json(body : IO, klass : _) : Nil
+      end
+    {% end %}
+  end
 
   # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on the request's body.
   # See the related resolver documentation for more information.
@@ -204,9 +218,9 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
     name : String? = nil
 
   def initialize(
-    @serializer : ATH::Serializer::Interface,
     @validator : AVD::Validator::ValidatorInterface,
     @annotation_resolver : ATH::AnnotationResolver,
+    @serializer : ATH::Serializer::Interface? = nil,
   ); end
 
   # :inherit:
@@ -268,7 +282,11 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
     when "form"
       self.deserialize_form body, parameter.type
     when "json"
-      @serializer.deserialize body, parameter.type, "json"
+      {% if ADI::ServiceContainer::EXTENSIONS["serializer"] %}
+        @serializer.not_nil!.deserialize body, parameter.type, "json"
+      {% else %}
+        self.deserialize_json body, parameter.type
+      {% end %}
     else
       raise AHK::Exception::UnsupportedMediaType.new "Unsupported format."
     end
