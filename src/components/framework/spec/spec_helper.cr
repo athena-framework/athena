@@ -31,33 +31,27 @@ class TestController < ATH::Controller
 end
 
 class MockSerializer
-  include ASR::SerializerInterface
+  include ATH::Serializer::Interface
 
   setter data : String? = "SERIALIZED_DATA"
-  setter context_assertion : Proc(ASR::SerializationContext, Nil)?
+  setter context_assertion : Proc(ATH::View::Context, Nil)?
 
-  def initialize(@context_assertion : Proc(ASR::SerializationContext, Nil)? = nil); end
+  def initialize(@context_assertion : Proc(ATH::View::Context, Nil)? = nil); end
 
-  def serialize(data : _, format : ASR::Format | String, context : ASR::SerializationContext = ASR::SerializationContext.new, **named_args) : String
-    String.build do |str|
-      serialize data, format, str, context, **named_args
-    end
-  end
-
-  def serialize(data : _, format : ASR::Format | String, io : IO, context : ASR::SerializationContext = ASR::SerializationContext.new, **named_args) : Nil
-    @data.to_json io
-
+  def serialize(data : _, format : String, context : ATH::View::Context) : String
     @context_assertion.try &.call context
+
+    @data.to_json
   end
 
-  def deserialize(type : ASR::Model.class, data : String | IO, format : ASR::Format | String, context : ASR::DeserializationContext = ASR::DeserializationContext.new)
+  def deserialize(data : IO, type : _, format : String)
   end
 end
 
 class DeserializableMockSerializer(T) < MockSerializer
   setter deserialized_response : T? = nil
 
-  def deserialize(type : ASR::Model.class, data : String | IO, format : ASR::Format | String, context : ASR::DeserializationContext = ASR::DeserializationContext.new)
+  def deserialize(data : IO, type : _, format : String)
     @deserialized_response
   end
 end

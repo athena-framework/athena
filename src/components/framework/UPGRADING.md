@@ -2,6 +2,45 @@
 
 Documents the changes that may be required when upgrading to a newer component version.
 
+## Upgrade to 0.23.0
+
+### Framework services serialize through `ATH::Serializer::Interface`
+
+`ATH::View::ViewHandler` and `ATHR::RequestBody` now depend on the new [ATH::Serializer::Interface](https://athenaframework.org/Framework/Serializer/Interface) instead of `ASR::SerializerInterface`.
+The [ATH::Serializer::ComponentSerializer](https://athenaframework.org/Framework/Serializer/ComponentSerializer) service implements it with the Serializer component, so applications using the default services do not need to change anything.
+Code that constructs either type directly, such as in specs, needs to provide an `ATH::Serializer::Interface` instead:
+
+Before:
+
+```crystal
+ATH::View::ViewHandler.new url_generator, ASR::Serializer.new, request_store, format_handlers
+```
+
+After:
+
+```crystal
+ATH::View::ViewHandler.new url_generator, ATH::Serializer::ComponentSerializer.new(ASR::Serializer.new), request_store, format_handlers
+```
+
+### Exclusion strategies removed from `ATH::View::Context`
+
+`ATH::View::Context#exclusion_strategies` and `ATH::View::Context#add_exclusion_strategy` have been removed.
+Actions that need a custom exclusion strategy can serialize the data themselves and return an `AHTTP::Response`:
+
+```crystal
+class ArticleController < ATH::Controller
+  def initialize(@serializer : ASR::SerializerInterface); end
+
+  @[ARTA::Get("/article")]
+  def article : AHTTP::Response
+    context = ASR::SerializationContext.new
+    context.add_exclusion_strategy MyExclusionStrategy.new
+
+    AHTTP::Response.new @serializer.serialize(Article.new, :json, context), headers: HTTP::Headers{"content-type" => "application/json"}
+  end
+end
+```
+
 ## Upgrade to 0.22.0
 
 ### Dedicated service for accessing annotations defined on a controller action and/or parameter

@@ -141,7 +141,7 @@ struct ViewHandlerTest < ASPEC::TestCase
   def test_serialize_nil_view_handler(emit_nil : Bool) : Nil
     view_handler = self.create_view_handler emit_nil: emit_nil
 
-    @serializer.context_assertion = ->(context : ASR::SerializationContext) do
+    @serializer.context_assertion = ->(context : ATH::View::Context) do
       context.emit_nil?.should eq emit_nil
     end
 
@@ -185,7 +185,7 @@ struct ViewHandlerTest < ASPEC::TestCase
     view_handler.serialization_version = SemanticVersion.new 4, 5, 6
     view_handler.emit_nil = true
 
-    @serializer.context_assertion = ->(context : ASR::SerializationContext) do
+    @serializer.context_assertion = ->(context : ATH::View::Context) do
       context.emit_nil?.should be_true
       context.version.should eq SemanticVersion.new 4, 5, 6
       context.groups.should eq Set{"one", "two"}

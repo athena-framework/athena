@@ -134,43 +134,10 @@ class Athena::Framework::View(T)
     self.response.headers.merge! headers
   end
 
-  # Recurses over all the types within `T` to determine what serializer the data should use.
-  protected def serializable_data : T?
-    {% begin %}
-      {%
-        types_to_recurse = [T]
-
-        types_to_recurse.each do |t|
-          t = t.resolve
-
-          if t.union?
-            t.union_types.each do |ut|
-              types_to_recurse << ut
-            end
-          elsif t <= NamedTuple
-            t.keys.each do |k|
-              types_to_recurse << t[k].resolve
-            end
-          elsif t <= Enumerable
-            t.type_vars.each do |ut|
-              types_to_recurse << ut
-            end
-
-            # Use `to_json` if a type includes `JSON::Serializable` but not `ASR::Serializable`
-          elsif (t <= JSON::Serializable) && !(t <= ASR::Serializable)
-            use_serializer_component = false
-
-            # Use the serializer component if the type is `ASR::Serializable`
-          elsif t <= ASR::Serializable
-            use_serializer_component = true
-          else
-            # Fallback on the serializer component
-            use_serializer_component = true
-          end
-        end
-      %}
-
-      {{ use_serializer_component == true ? nil : "self.data".id }}
-    {% end %}
+  # Returns `#data` serialized into the provided *format* via the provided *serializer*.
+  #
+  # Calling the serializer from here passes it `#data` as `T`, rather than a union of the data types of every view.
+  protected def serialize(serializer : ATH::Serializer::Interface, format : String, context : ATH::View::Context) : String
+    serializer.serialize @data, format, context
   end
 end

@@ -13,16 +13,6 @@ class Athena::Framework::View::Context
   # `ASR::ExclusionStrategies::Version` is an example of this.
   property version : SemanticVersion? = nil
 
-  # Returns any `ASR::ExclusionStrategies::ExclusionStrategyInterface` that should be used by the serializer.
-  getter exclusion_strategies = Array(ASR::ExclusionStrategies::ExclusionStrategyInterface).new
-
-  # Adds the provided *strategy* to the `#exclusion_strategies` array.
-  def add_exclusion_strategy(strategy : ASR::ExclusionStrategies::ExclusionStrategyInterface) : self
-    @exclusion_strategies << strategy
-
-    self
-  end
-
   # Adds the provided *group* to the `#groups` array.
   def add_group(group : String) : self
     (@groups ||= Set(String).new) << group

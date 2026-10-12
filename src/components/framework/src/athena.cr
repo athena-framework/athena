@@ -18,6 +18,8 @@ require "./controller"
 require "./file_parser"
 require "./logging"
 
+require "./serializer/interface"
+
 require "./ext/http"
 require "./ext/http_kernel"
 require "./ext/serializer"
@@ -104,6 +106,10 @@ module Athena::Framework
   #
   # See each listener and the [Getting Started](/getting_started/middleware) docs for more information.
   module Listeners; end
+
+  # Types used to serialize the data returned from controller actions, and deserialize request bodies.
+  # See `ATH::Serializer::Interface` for more information.
+  module Serializer; end
 
   # :nodoc:
   module CompilerPasses; end

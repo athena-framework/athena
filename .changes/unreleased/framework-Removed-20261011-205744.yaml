@@ -1,0 +1,8 @@
+project: framework
+kind: Removed
+body: Remove `ATH::View::Context#exclusion_strategies` and `#add_exclusion_strategy`
+time: 2026-10-11T20:57:44.132792334-04:00
+custom:
+    Author: George Dietrich
+    PR: "752"
+    Username: blacksmoke16
