@@ -4,22 +4,44 @@ Documents the changes that may be required when upgrading to a newer component v
 
 ## Upgrade to 0.23.0
 
+### The Serializer component is optional
+
+The framework no longer depends on the [Serializer](https://athenaframework.org/Serializer/) component.
+Without it, the data returned from controller actions is serialized via `#to_json`, and `ATHR::RequestBody` deserializes JSON request bodies into `JSON::Serializable` types.
+Applications that use `ASR::Serializable` types, serialization groups or versions, or inject `ASR::SerializerInterface` need to add the component to their `shard.yml` and register its [bundle](https://athenaframework.org/Serializer/Bundle/):
+
+```yaml
+dependencies:
+  athena-serializer:
+    github: athena-framework/serializer
+```
+
+```crystal
+require "athena"
+require "athena-serializer/bundle"
+```
+
+The bundle registers the serializer as the `serializer` service, which was previously `athena_serializer_serializer`.
+
 ### Framework services serialize through `ATH::Serializer::Interface`
 
 `ATH::View::ViewHandler` and `ATHR::RequestBody` now depend on the new [ATH::Serializer::Interface](https://athenaframework.org/Framework/Serializer/Interface) instead of `ASR::SerializerInterface`.
-The [ATH::Serializer::ComponentSerializer](https://athenaframework.org/Framework/Serializer/ComponentSerializer) service implements it with the Serializer component, so applications using the default services do not need to change anything.
+The serializer is now an optional parameter.
+If the Serializer bundle is registered, the [ATH::Serializer::ComponentSerializer](https://athenaframework.org/Framework/Serializer/ComponentSerializer) service implements it with the Serializer component, so applications using the default services do not need to change anything.
 Code that constructs either type directly, such as in specs, needs to provide an `ATH::Serializer::Interface` instead:
 
 Before:
 
 ```crystal
 ATH::View::ViewHandler.new url_generator, ASR::Serializer.new, request_store, format_handlers
+ATHR::RequestBody.new ASR::Serializer.new, validator, annotation_resolver
 ```
 
 After:
 
 ```crystal
-ATH::View::ViewHandler.new url_generator, ATH::Serializer::ComponentSerializer.new(ASR::Serializer.new), request_store, format_handlers
+ATH::View::ViewHandler.new url_generator, request_store, format_handlers, ATH::Serializer::ComponentSerializer.new(ASR::Serializer.new)
+ATHR::RequestBody.new validator, annotation_resolver, ATH::Serializer::ComponentSerializer.new(ASR::Serializer.new)
 ```
 
 ### Exclusion strategies removed from `ATH::View::Context`

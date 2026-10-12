@@ -1,6 +1,5 @@
-@[ADI::Register]
-@[ADI::AsAlias(ATH::Serializer::Interface)]
 # Implements `ATH::Serializer::Interface` with the [Serializer](/Serializer/) component.
+# The framework uses it if the [Serializer bundle](/Serializer/Bundle/) is registered.
 #
 # Types that include `JSON::Serializable`, but not `ASR::Serializable`, are (de)serialized via `JSON::Serializable` instead.
 struct Athena::Framework::Serializer::ComponentSerializer

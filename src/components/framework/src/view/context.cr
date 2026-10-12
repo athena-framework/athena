@@ -1,4 +1,6 @@
 # Represents (de)serialization options in a serializer agnostic way.
+#
+# NOTE: These options only apply if the [Serializer bundle](/Serializer/Bundle/) is registered, otherwise data is serialized via `#to_json`.
 class Athena::Framework::View::Context
   # Returns the groups that can be used to create different "views" of an object.
   #

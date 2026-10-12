@@ -19,9 +19,9 @@ class Athena::Framework::View::ViewHandler
 
   def initialize(
     @url_generator : ART::Generator::Interface,
-    @serializer : ATH::Serializer::Interface,
     @request_store : AHTTP::RequestStore,
     format_handlers : Array(Athena::Framework::View::FormatHandlerInterface),
+    @serializer : ATH::Serializer::Interface? = nil,
     @failed_validation_status : ::HTTP::Status = ::HTTP::Status::UNPROCESSABLE_ENTITY,
     @empty_content_status : ::HTTP::Status = ::HTTP::Status::NO_CONTENT,
     @emit_nil : Bool = false,

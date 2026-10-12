@@ -1,0 +1,8 @@
+project: serializer
+kind: Added
+body: Add `ASR::Bundle` to integrate the component with the DI component
+time: 2026-10-11T23:39:53.319277461-04:00
+custom:
+    Author: George Dietrich
+    PR: "753"
+    Username: blacksmoke16

@@ -281,7 +281,7 @@ While the components that make up Athena Framework can be used within a wide ran
 At its core, Athena Framework is a MVC web application framework. It can be used to serve any kind of content, but best lends itself to creating RESTful JSON APIs due to the features explained in the previous section, as well as due its native JSON support:
 
 * Objects returned from the controller are JSON serialized by default
-* Native support for both [ASR::Serializable](/Serializer/Serializable) and [JSON::Serializable](https://crystal-lang.org/api/JSON/Serializable.html)
+* Native support for [JSON::Serializable](https://crystal-lang.org/api/JSON/Serializable.html), and for [ASR::Serializable](/Serializer/Serializable) via the [Serializer bundle](/Serializer/Bundle/)
 * Native support for DTOs to deserialize and validate, see [ATHR::RequestBody](/Framework/Controller/ValueResolvers/RequestBody/)
 
 ```crystal
