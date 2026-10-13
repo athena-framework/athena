@@ -28,7 +28,9 @@ module Athena::Spec::Methods
   # ```
   #
   # NOTE: When files are required within the *code*, they are relative to the file calling this method.
-  def assert_compile_time_error(message : String, code : String, *, preamble : String = "", postamble : String = "", line : Int32 = __LINE__, file : String = __FILE__) : Nil
+  #
+  # Compile-time *flags* may be provided to compile the *code* with.
+  def assert_compile_time_error(message : String, code : String, *, preamble : String = "", postamble : String = "", flags : Enumerable(String) = [] of String, line : Int32 = __LINE__, file : String = __FILE__) : Nil
     full_code = String.build do |str|
       str.puts preamble unless preamble.empty?
       str.puts code
@@ -38,7 +40,7 @@ module Athena::Spec::Methods
     std_out = IO::Memory.new
     std_err = IO::Memory.new
 
-    result = execute full_code, std_out, std_err, file, codegen: false, macro_code_coverage: true
+    result = execute full_code, std_out, std_err, file, flags, codegen: false, macro_code_coverage: true
 
     fail std_err.to_s, line: line if result.success?
     std_err.to_s.should contain(message), line: line
@@ -66,9 +68,11 @@ module Athena::Spec::Methods
   # ```
   #
   # NOTE: When files are required within the *code*, they are relative to the file calling this method.
-  def assert_runtime_error(message : String, code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
+  #
+  # Compile-time *flags* may be provided to compile the *code* with.
+  def assert_runtime_error(message : String, code : String, *, flags : Enumerable(String) = [] of String, line : Int32 = __LINE__, file : String = __FILE__) : Nil
     buffer = IO::Memory.new
-    result = execute code, buffer, buffer, file, codegen: true
+    result = execute code, buffer, buffer, file, flags, codegen: true
 
     fail buffer.to_s, line: line if result.success?
     buffer.to_s.should contain(message), line: line
@@ -93,7 +97,9 @@ module Athena::Spec::Methods
   # ```
   #
   # NOTE: When files are required within the *code*, they are relative to the file calling this method.
-  def assert_compiles(code : String, *, preamble : String = "", postamble : String = "", line : Int32 = __LINE__, file : String = __FILE__) : Nil
+  #
+  # Compile-time *flags* may be provided to compile the *code* with.
+  def assert_compiles(code : String, *, preamble : String = "", postamble : String = "", flags : Enumerable(String) = [] of String, line : Int32 = __LINE__, file : String = __FILE__) : Nil
     full_code = String.build do |str|
       str.puts preamble unless preamble.empty?
       str.puts code
@@ -103,7 +109,7 @@ module Athena::Spec::Methods
     std_out = IO::Memory.new
     std_err = IO::Memory.new
 
-    result = execute full_code, std_out, std_err, file, codegen: false, macro_code_coverage: true
+    result = execute full_code, std_out, std_err, file, flags, codegen: false, macro_code_coverage: true
 
     fail std_err.to_s, line: line unless result.success?
     std_err.close
@@ -129,9 +135,11 @@ module Athena::Spec::Methods
   # ```
   #
   # NOTE: When files are required within the *code*, they are relative to the file calling this method.
-  def assert_executes(code : String, *, line : Int32 = __LINE__, file : String = __FILE__) : Nil
+  #
+  # Compile-time *flags* may be provided to compile the *code* with.
+  def assert_executes(code : String, *, flags : Enumerable(String) = [] of String, line : Int32 = __LINE__, file : String = __FILE__) : Nil
     buffer = IO::Memory.new
-    result = execute code, buffer, buffer, file, codegen: true
+    result = execute code, buffer, buffer, file, flags, codegen: true
 
     fail buffer.to_s, line: line unless result.success?
     buffer.close
@@ -150,7 +158,7 @@ module Athena::Spec::Methods
     coverage.to_pretty_json
   end
 
-  private def execute(code : String, std_out : IO, std_err : IO, file : String, codegen : Bool, macro_code_coverage : Bool = false) : Process::Status
+  private def execute(code : String, std_out : IO, std_err : IO, file : String, flags : Enumerable(String), codegen : Bool, macro_code_coverage : Bool = false) : Process::Status
     input = IO::Memory.new <<-CR
       #{code}
     CR
@@ -164,6 +172,7 @@ module Athena::Spec::Methods
     end
 
     args << "--no-color"
+    flags.each { |flag| args.push "-D", flag }
     args.push "--stdin-filename", file
     args << "--no-codegen" if !macro_code_coverage && !codegen
 

@@ -132,6 +132,12 @@ module Athena::Framework
   # See each command class for more information.
   module Commands; end
 
+  {% begin %}
+    # The TLS context `ATH.run` may be provided to serve HTTPS requests.
+    # Applications built with `-Dwithout_openssl` do not support TLS, in which case this is `NoReturn`.
+    alias SSLContext = {{ flag?(:without_openssl) ? "NoReturn".id : "OpenSSL::SSL::Context::Server".id }}
+  {% end %}
+
   # Runs an `HTTP::Server` listening on the given *port* and *host*.
   #
   # ```
@@ -147,6 +153,8 @@ module Athena::Framework
   # ATH.run
   # ```
   #
+  # *ssl_context* can be used to serve HTTPS requests, unless the application is built with `-Dwithout_openssl`.
+  #
   # *prepend_handlers* can be used to execute an array of `HTTP::Handler` _before_ Athena takes over.
   # This can be useful to provide backwards compatibility with existing handlers until they can ported to Athena concepts,
   # or for supporting things Athena does not support, such as WebSockets.
@@ -156,7 +164,7 @@ module Athena::Framework
     port : Int32 = 3000,
     host : String = "0.0.0.0",
     reuse_port : Bool = false,
-    ssl_context : OpenSSL::SSL::Context::Server? = nil,
+    ssl_context : ATH::SSLContext? = nil,
     *,
     prepend_handlers : Array(::HTTP::Handler) = [] of ::HTTP::Handler,
   ) : Nil
@@ -179,11 +187,14 @@ module Athena::Framework
   #
   # Currently an implementation detail. In the future could be exposed to allow having separate "groups" of controllers that a `Server` instance handles.
   struct Server
+    # Declared separately, since an ivar only inferred from a `Nil` restriction is a compile error, which this is without OpenSSL.
+    @ssl_context : ATH::SSLContext?
+
     def initialize(
       @port : Int32 = 3000,
       @host : String = "0.0.0.0",
       @reuse_port : Bool = false,
-      @ssl_context : OpenSSL::SSL::Context::Server? = nil,
+      @ssl_context : ATH::SSLContext? = nil,
       prepend_handlers handlers : Array(::HTTP::Handler) = [] of ::HTTP::Handler,
     )
       handler_proc = ::HTTP::Handler::HandlerProc.new do |context|

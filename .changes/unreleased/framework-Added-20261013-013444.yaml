@@ -1,0 +1,8 @@
+project: framework
+kind: Added
+body: Support building with `-Dwithout_openssl`
+time: 2026-10-13T01:34:44.63585172-04:00
+custom:
+    Author: George Dietrich
+    PR: "759"
+    Username: blacksmoke16

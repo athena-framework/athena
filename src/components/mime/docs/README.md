@@ -23,6 +23,9 @@ dependencies:
     version: ~> 0.2.0
 ```
 
+Guessing a file's MIME type based on its content uses `libmagic`, which is usually provided by the `file` package.
+Build with `-Dwithout_libmagic` to only guess based on file extensions, see [AMIME::MagicTypesGuesser](/MIME/MagicTypesGuesser/).
+
 ## Usage
 
 The [AMIME::Email](/MIME/Email/) class provides fluent setters to allow constructing an email with the desired information:

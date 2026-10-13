@@ -4,6 +4,8 @@ require "./types_guesser_interface"
 #
 # Only natively supported on Unix systems and MSYS2 where the `file` package is easily installable.
 # If you have the available lib files on Windows MSVC you may build with `-Dathena_use_libmagic` to explicitly enable the implementation.
+# Building with `-Dwithout_libmagic` disables it on any platform, so that applications do not link `libmagic` or need its database at runtime.
+# MIME types are then only guessed based on file extensions via `AMIME::NativeTypesGuesser`.
 struct Athena::MIME::MagicTypesGuesser
   include Athena::MIME::TypesGuesserInterface
 
@@ -13,7 +15,7 @@ struct Athena::MIME::MagicTypesGuesser
 
   # As of now `libmagic` is only really supported on Unix and MSYS2.
   # Respect this by default, but also allow using a dedicated flag to enable just in case.
-  {% if flag?("athena_use_libmagic") || flag?("unix") || (flag?("windows") && flag?("gnu")) %}
+  {% if !flag?("without_libmagic") && (flag?("athena_use_libmagic") || flag?("unix") || (flag?("windows") && flag?("gnu"))) %}
     @[Link("magic", pkg_config: "libmagic")]
     lib LibMagic
       type MagicT = Void*

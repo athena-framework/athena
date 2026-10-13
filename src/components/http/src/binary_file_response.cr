@@ -1,6 +1,9 @@
 require "./response"
-require "digest/sha256"
 require "athena-mime"
+
+{% unless flag?(:without_openssl) %}
+  require "digest/sha256"
+{% end %}
 
 # Represents a static file that should be returned the client; includes various options to enhance the response headers. See `.new` for details.
 #
@@ -122,8 +125,14 @@ class Athena::HTTP::BinaryFileResponse < Athena::HTTP::Response
   end
 
   # Sets the `etag` header on `self` based on a `SHA256` hash of the file.
+  #
+  # TODO: Support applications built with `-Dwithout_openssl`, where this currently raises a `NotImplementedError`.
   def set_auto_etag : self
-    self.set_etag Digest::SHA256.base64digest &.file(@file.path)
+    {% if flag?(:without_openssl) %}
+      raise NotImplementedError.new "AHTTP::BinaryFileResponse#set_auto_etag in applications built with `-Dwithout_openssl`"
+    {% else %}
+      self.set_etag Digest::SHA256.base64digest &.file(@file.path)
+    {% end %}
 
     self
   end

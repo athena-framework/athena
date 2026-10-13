@@ -306,3 +306,14 @@ struct AHTTP::BinaryFileResponseTest < ASPEC::TestCase
     AHTTP::BinaryFileResponse::ContentDisposition::Inline.to_s.should eq "inline"
   end
 end
+
+describe AHTTP::BinaryFileResponse, tags: "compiled" do
+  it "does not support automatic ETags when built with -Dwithout_openssl" do
+    ASPEC::Methods.assert_runtime_error "Not Implemented: AHTTP::BinaryFileResponse#set_auto_etag in applications built with `-Dwithout_openssl`", <<-'CR', flags: ["without_openssl"]
+      require "../src/athena-http"
+
+      AHTTP::BinaryFileResponse.new "#{__DIR__}/assets/foo.txt"
+      AHTTP::BinaryFileResponse.new "#{__DIR__}/assets/foo.txt", auto_etag: true
+    CR
+  end
+end

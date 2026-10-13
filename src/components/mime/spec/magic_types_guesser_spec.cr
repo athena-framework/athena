@@ -37,6 +37,17 @@ struct MagicTypesGuesserTest < AbstractTypesGuesserTestCase
   end
 
   private def assert_pending : Nil
-    pending! "Guesser is not supported" if {{ flag?("windows") && !flag?("gnu") }}
+    pending! "Guesser is not supported" if {{ flag?("without_libmagic") || (flag?("windows") && !flag?("gnu")) }}
+  end
+end
+
+describe AMIME::MagicTypesGuesser, tags: "compiled" do
+  it "is not supported when built with -Dwithout_libmagic" do
+    ASPEC::Methods.assert_executes <<-'CR', flags: ["without_libmagic"]
+      require "../src/athena-mime"
+
+      raise "Expected the guesser to not be supported" if AMIME::MagicTypesGuesser.new.supported?
+      raise "Expected the MIME type to be guessed from the extension" unless AMIME::Types.new.guess_mime_type("#{__DIR__}/fixtures/mimetypes/test.gif") == "image/gif"
+    CR
   end
 end
