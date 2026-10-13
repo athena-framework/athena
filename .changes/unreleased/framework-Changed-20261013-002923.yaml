@@ -1,0 +1,9 @@
+project: framework
+kind: Changed
+body: The Clock and Negotiation components are now optional dependencies; require athena-clock to inject ACLK::Interface, and athena-negotiation to enable the format listener
+time: 2026-10-13T00:29:23.419737117-04:00
+custom:
+    Author: George Dietrich
+    Breaking: "Yes"
+    PR: "758"
+    Username: blacksmoke16

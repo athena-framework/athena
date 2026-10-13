@@ -5,10 +5,8 @@ require "json"
 require "athena-contracts/event_dispatcher"
 require "athena-contracts/service"
 
-require "athena-clock"
 require "athena-dependency_injection"
 require "athena-http_kernel"
-require "athena-negotiation"
 
 require "./annotation_resolver"
 require "./annotations"
@@ -38,6 +36,10 @@ macro finished
   {% if @top_level.has_constant?("ACON") %}
     require "./ext/console"
     require "./commands/*"
+  {% end %}
+
+  {% if @top_level.has_constant?("ANG") %}
+    require "./ext/negotiation/*"
   {% end %}
 end
 

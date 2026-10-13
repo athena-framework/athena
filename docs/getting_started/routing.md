@@ -398,6 +398,7 @@ Or in other words, allow having the same controller action be rendered based on 
 ### Format Priority
 
 The content negotiation logic is disabled by default, but can be easily enabled via the related [bundle configuration](./configuration.md).
+It requires the [Negotiation](/Negotiation) component, so add it to your `shard.yml` and `require "athena-negotiation"`.
 Content negotiation configuration is represented by an array of [rules](/Framework/Bundle/Schema/FormatListener/#Athena::Framework::Bundle::Schema::FormatListener#rules) used to describe allowed formats, their priorities, and how things should function if a unsupported format is requested.
 
 For example, say we configured things like:
@@ -479,6 +480,7 @@ The following is a demonstration of how the various negotiation features can be 
 
 ```crystal
 require "athena"
+require "athena-negotiation"
 require "csv"
 
 # An interface to denote a type can provide its data in CSV format.
