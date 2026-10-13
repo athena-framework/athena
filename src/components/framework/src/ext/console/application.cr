@@ -1,4 +1,3 @@
-@[ADI::Register(public: true, name: "athena_console_application")]
 # Entrypoint for the `Athena::Console` integration.
 #
 # ```

@@ -8,6 +8,63 @@ private def assert_compile_time_error(message : String, code : String, *, line :
   ASPEC::Methods.assert_compile_time_error message, code, line: line, preamble: %(require "../spec_helper.cr"), postamble: "ADI::ServiceContainer.new"
 end
 
+# Defines a bundle whose extension aliases `SomeInterface`, both type-only and named, along with a service injecting both aliases.
+private BUNDLE_ALIASES_PREAMBLE = <<-'CR'
+  require "../spec_helper.cr"
+
+  module SomeInterface; end
+
+  class BundleService
+    include SomeInterface
+  end
+
+  class BundleNamedService
+    include SomeInterface
+  end
+
+  @[ADI::Bundle("alias_bundle")]
+  struct AliasBundle < ADI::AbstractBundle
+    PASSES = [] of _
+
+    module Schema
+      include ADI::Extension::Schema
+    end
+
+    module Extension
+      macro included
+        macro finished
+          {% verbatim do %}
+            {%
+              SERVICE_HASH["bundle_service"] = {class: BundleService}
+              SERVICE_HASH["bundle_named_service"] = {class: BundleNamedService}
+
+              ALIASES[SomeInterface] = [
+                {id: "bundle_service", public: false},
+                {id: "bundle_named_service", public: false, name: "named_param"},
+              ]
+            %}
+          {% end %}
+        end
+      end
+    end
+  end
+
+  ADI.register_bundle AliasBundle
+
+  @[ADI::Register(public: true)]
+  class SomeInterfaceConsumer
+    def initialize(@some_param : SomeInterface, @named_param : SomeInterface); end
+  end
+  CR
+
+private def assert_compiles_with_bundle_aliases(code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compiles code, line: line, preamble: BUNDLE_ALIASES_PREAMBLE, postamble: "ADI::ServiceContainer.new"
+end
+
+private def assert_compile_time_error_with_bundle_aliases(message : String, code : String, *, line : Int32 = __LINE__) : Nil
+  ASPEC::Methods.assert_compile_time_error message, code, line: line, preamble: BUNDLE_ALIASES_PREAMBLE, postamble: "ADI::ServiceContainer.new"
+end
+
 describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
   it "errors if unable to determine the alias name" do
     assert_compile_time_error "Alias cannot be automatically determined for 'foo' (Foo). If the type includes multiple interfaces, provide the interface to alias as the first positional argument to `@[ADI::AsAlias]`.", <<-'CR'
@@ -239,5 +296,75 @@ describe ADI::ServiceContainer::ProcessAliases, tags: "compiled" do
         include SomeInterface
       end
     CR
+  end
+
+  describe "with aliases defined by a bundle extension" do
+    it "allows a type-only alias to replace the type-only alias of the extension" do
+      assert_compiles_with_bundle_aliases <<-'CR'
+        @[ADI::Register]
+        @[ADI::AsAlias(SomeInterface)]
+        class AppService
+          include SomeInterface
+        end
+
+        macro finished
+          macro finished
+            \{%
+              aliases = ADI::ServiceContainer::ALIASES[SomeInterface]
+              named = aliases.find { |a| !a["name"].nil? }
+              type_only = aliases.find { |a| a["name"].nil? }
+              consumer_parameters = ADI::ServiceContainer::SERVICE_HASH["some_interface_consumer"]["parameters"]
+            %}
+            ASPEC.compile_time_assert(\{{ aliases.size == 2 }}, "Expected SomeInterface alias size to be 2")
+            ASPEC.compile_time_assert(\{{ type_only["id"] == "app_service" }}, "Expected type-only alias id to be app_service")
+            ASPEC.compile_time_assert(\{{ named["id"] == "bundle_named_service" }}, "Expected named alias id to be bundle_named_service")
+            ASPEC.compile_time_assert(\{{ consumer_parameters["some_param"]["value"].stringify == "app_service" }}, "Expected some_param to be app_service")
+            ASPEC.compile_time_assert(\{{ consumer_parameters["named_param"]["value"].stringify == "bundle_named_service" }}, "Expected named_param to be bundle_named_service")
+          end
+        end
+      CR
+    end
+
+    it "allows a named alias to replace the alias of the extension with the same name" do
+      assert_compiles_with_bundle_aliases <<-'CR'
+        @[ADI::Register]
+        @[ADI::AsAlias(SomeInterface, name: "named_param")]
+        class AppService
+          include SomeInterface
+        end
+
+        macro finished
+          macro finished
+            \{%
+              aliases = ADI::ServiceContainer::ALIASES[SomeInterface]
+              named = aliases.find { |a| !a["name"].nil? }
+              type_only = aliases.find { |a| a["name"].nil? }
+              consumer_parameters = ADI::ServiceContainer::SERVICE_HASH["some_interface_consumer"]["parameters"]
+            %}
+            ASPEC.compile_time_assert(\{{ aliases.size == 2 }}, "Expected SomeInterface alias size to be 2")
+            ASPEC.compile_time_assert(\{{ named["id"] == "app_service" }}, "Expected named alias id to be app_service")
+            ASPEC.compile_time_assert(\{{ type_only["id"] == "bundle_service" }}, "Expected type-only alias id to be bundle_service")
+            ASPEC.compile_time_assert(\{{ consumer_parameters["some_param"]["value"].stringify == "bundle_service" }}, "Expected some_param to be bundle_service")
+            ASPEC.compile_time_assert(\{{ consumer_parameters["named_param"]["value"].stringify == "app_service" }}, "Expected named_param to be app_service")
+          end
+        end
+      CR
+    end
+
+    it "errors if more than one annotation replaces the same alias of the extension" do
+      assert_compile_time_error_with_bundle_aliases "Duplicate alias for type 'SomeInterface'. A type-only alias", <<-'CR'
+        @[ADI::Register]
+        @[ADI::AsAlias(SomeInterface)]
+        class AppService
+          include SomeInterface
+        end
+
+        @[ADI::Register]
+        @[ADI::AsAlias(SomeInterface)]
+        class OtherAppService
+          include SomeInterface
+        end
+      CR
+    end
   end
 end

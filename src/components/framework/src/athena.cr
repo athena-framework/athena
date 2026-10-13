@@ -20,9 +20,6 @@ require "./logging"
 
 require "./serializer/interface"
 
-require "./ext/http"
-require "./ext/http_kernel"
-
 require "./commands/*"
 require "./controller/**"
 require "./compiler_passes/*"

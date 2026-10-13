@@ -1,5 +1,3 @@
-@[ADI::Register(name: "clock", factory: "create")]
-@[ADI::AsAlias(ACLK::Interface)]
 # :nodoc:
 class Athena::Clock
   # :nodoc:

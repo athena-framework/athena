@@ -2,8 +2,6 @@ require "./configurable_view_handler_interface"
 
 ADI.bind format_handlers : Array(Athena::Framework::View::FormatHandlerInterface), "!athena.format_handler"
 
-@[ADI::AsAlias(ATH::View::ConfigurableViewHandlerInterface)]
-@[ADI::AsAlias(ATH::View::ViewHandlerInterface)]
 # Default implementation of `ATH::View::ConfigurableViewHandlerInterface`.
 class Athena::Framework::View::ViewHandler
   include Athena::Framework::View::ConfigurableViewHandlerInterface

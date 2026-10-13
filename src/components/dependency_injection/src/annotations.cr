@@ -89,6 +89,13 @@ module Athena::DependencyInjection
   #
   # NOTE: Named aliases cannot be accessed directly via `container.get(Interface)`.
   # Only type-only aliases support the `public` parameter for direct container access.
+  #
+  # ### Replacing Aliases
+  #
+  # An alias, whether type-only or named, may only be defined once.
+  # The exceptions are aliases defined by a bundle's extension, such as the default implementations of the [Athena Framework](/Framework/)'s interfaces.
+  # Applying this annotation for one of those aliases replaces it, allowing an application to provide its own implementation.
+  # Applying it more than once for the same alias is still an error.
   annotation AsAlias; end
 
   # Applies the provided configuration to any registered service of the type the annotation is applied to.
