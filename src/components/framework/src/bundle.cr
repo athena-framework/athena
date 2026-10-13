@@ -5,7 +5,6 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
   # :nodoc:
   PASSES = [
     {Athena::Framework::CompilerPasses::MakeControllerServicesPublicPass, nil, nil},
-    {Athena::Framework::EventDispatcher::CompilerPasses::RegisterEventListenersPass, :before_removing, nil},
   ]
 
   # Represents the possible properties used to configure and customize Athena Framework features.
@@ -246,18 +245,6 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
             end
           %}
 
-          # Clock
-          {%
-            SERVICE_HASH[clock_id = "clock"] = {
-              class:   Athena::Clock,
-              factory: {Athena::Clock, "create"},
-            }
-
-            ALIASES[Athena::Clock::Interface] = [
-              {id: clock_id, public: false},
-            ]
-          %}
-
           # Console
           {%
             # Requiring the Console component alone does not register its bundle, so check for the bundle to know commands are registered.
@@ -274,22 +261,6 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
                 class: ATH::Commands::DebugRouterMatch,
               }
             end
-          %}
-
-          # Event Dispatcher
-          {%
-            SERVICE_HASH[event_dispatcher_id = "event_dispatcher"] = {
-              class:  AED::EventDispatcher,
-              public: true,
-            }
-
-            ALIASES[AED::EventDispatcherInterface] = [
-              {id: event_dispatcher_id, public: false},
-            ]
-
-            ALIASES[ACTR::EventDispatcher::Interface] = [
-              {id: event_dispatcher_id, public: false},
-            ]
           %}
 
           # HTTP

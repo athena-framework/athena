@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-# Changes here should also be reflected in `framework/spec/ext/event_dispatcher/register_listeners_spec.cr`
+# Changes here should also be reflected in `dependency_injection/spec/compiler_passes/register_event_listeners_spec.cr`
 describe Athena::EventDispatcher do
   describe "compiler errors", tags: "compiled" do
     it "when the listener method is static" do

@@ -66,6 +66,35 @@ end
 @[ADI::Register(public: true)]
 record FallbackService, specific : FallbackInterface, other : FallbackInterface
 
+# Self reference tests
+module SelfReferenceInterface; end
+
+@[ADI::Register(public: true)]
+@[ADI::AsAlias]
+class SelfReferenceService
+  include SelfReferenceInterface
+
+  getter inner : SelfReferenceInterface?
+
+  def initialize(@inner : SelfReferenceInterface? = nil); end
+end
+
+module SelfAliasInterface; end
+
+class SelfAliasDefault
+  include SelfAliasInterface
+end
+
+@[ADI::Register(public: true)]
+@[ADI::AsAlias]
+class SelfAliasService
+  include SelfAliasInterface
+
+  getter inner : SelfAliasInterface
+
+  def initialize(@inner : SelfAliasInterface = SelfAliasDefault.new); end
+end
+
 describe ADI::ServiceContainer do
   describe "compiler errors", tags: "compiled" do
     it "does not resolve an un-aliased interface when there is only 1 implementation" do
@@ -104,5 +133,13 @@ describe ADI::ServiceContainer do
     service = ADI.container.fallback_service
     service.specific.should be_a SpecificImpl
     service.other.should be_a DefaultImpl
+  end
+
+  it "does not resolve a service as its own dependency" do
+    ADI.container.self_reference_service.inner.should be_nil
+  end
+
+  it "does not resolve a service as its own dependency via an alias" do
+    ADI.container.self_alias_service.inner.should be_a SelfAliasDefault
   end
 end

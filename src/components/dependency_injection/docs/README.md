@@ -30,3 +30,13 @@ fiber is truly independent from one another, with them not being reused or shari
 An example of this is how `HTTP::Server` reuses fibers for `connection: keep-alive` requests.
 Because of this, or in cases similar to, you may want to manually reset the container via `Fiber.current.container = ADI::ServiceContainer.new`.
 
+### Component Services
+
+The container also registers the services of other Athena components that are present, without any additional configuration:
+
+* `clock` - Injectable via `ACLK::Interface`, if the [Clock](/Clock/) component is present
+* `event_dispatcher` - Injectable via `AED::EventDispatcherInterface` and `ACTR::EventDispatcher::Interface`, if the [Event Dispatcher](/EventDispatcher/) component is present.
+Services with an [AEDA::AsEventListener](/EventDispatcher/Annotations/AsEventListener/) method are registered as its listeners.
+
+Other components integrate with the container via a [bundle](/getting_started/configuration/#bundles) that is registered by requiring it, such as `require "athena-console/bundle"`.
+

@@ -6,14 +6,16 @@ module Athena::DependencyInjection::ServiceContainer::AutoWire
         {%
           printed = false
 
-          SERVICE_HASH.each do |_, definition|
+          SERVICE_HASH.each do |service_id, definition|
             definition["parameters"].each do |name, param|
               param_resolved_restriction = param["resolved_restriction"]
               resolved_services = [] of Nil
 
               # Gather a list of services that are compatible with the parameter's type restriction.
+              # A service is never a candidate for its own parameters, as it cannot be constructed with itself.
               SERVICE_HASH.each do |id, s_metadata|
-                if (type = param_resolved_restriction) &&
+                if id != service_id &&
+                   (type = param_resolved_restriction) &&
                    (
                      s_metadata["class"] <= type ||
                      (type < ADI::Proxy && s_metadata["class"] <= type.type_vars.first.resolve)
@@ -40,13 +42,15 @@ module Athena::DependencyInjection::ServiceContainer::AutoWire
                                    # Try named alias first (more specific match by parameter name)
                                    named_alias = aliases_for_type.find { |entry| entry["name"] && entry["name"].id == name.id }
 
-                                   if named_alias
-                                     named_alias["id"]
-                                   else
-                                     # Fall back to type-only alias
-                                     type_only_alias = aliases_for_type.find(&.["name"].nil?)
-                                     type_only_alias ? type_only_alias["id"] : nil
-                                   end
+                                   alias_id = if named_alias
+                                                named_alias["id"]
+                                              else
+                                                # Fall back to type-only alias
+                                                type_only_alias = aliases_for_type.find(&.["name"].nil?)
+                                                type_only_alias ? type_only_alias["id"] : nil
+                                              end
+
+                                   alias_id == service_id ? nil : alias_id
                                  end
 
               if resolved_service

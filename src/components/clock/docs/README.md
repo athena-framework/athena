@@ -18,6 +18,11 @@ dependencies:
     version: ~> 0.3.0
 ```
 
+### With Dependency Injection
+
+Within an [Athena Framework](/Framework/) application, or any other application using the [dependency injection](/DependencyInjection/) component, the `clock` service is registered automatically.
+It may be injected via `ACLK::Interface`.
+
 ## Usage
 
 The core `Athena::Clock` type can be used to return the current time via a global clock.
