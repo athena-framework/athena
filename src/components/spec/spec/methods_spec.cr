@@ -26,6 +26,12 @@ describe ASPEC::Methods do
           Foo.new
         CR
     end
+
+    it "compiles with the provided flags" do
+      assert_compile_time_error "Flag set", <<-CR, flags: ["custom_flag"]
+          {% if flag?(:custom_flag) %}{% raise "Flag set" %}{% end %}
+        CR
+    end
   end
 
   describe ".assert_runtime_error", tags: "compiled" do
@@ -34,12 +40,24 @@ describe ASPEC::Methods do
           raise "Oh no"
         CR
     end
+
+    it "compiles with the provided flags" do
+      assert_runtime_error "Flag set", <<-CR, flags: ["custom_flag"]
+          raise "Flag set" if {{ flag?(:custom_flag) }}
+        CR
+    end
   end
 
   describe ".assert_compiles" do
     it tags: "compiled" do
       assert_compiles <<-CR
           raise "Oh no"
+        CR
+    end
+
+    it "compiles with the provided flags", tags: "compiled" do
+      assert_compiles <<-CR, flags: ["custom_flag"]
+          {% raise "Flag not set" unless flag?(:custom_flag) %}
         CR
     end
 
@@ -121,6 +139,12 @@ describe ASPEC::Methods do
     it do
       assert_executes <<-CR
         puts 1 + 1
+        CR
+    end
+
+    it "compiles with the provided flags" do
+      assert_executes <<-CR, flags: ["custom_flag"]
+        raise "Flag not set" unless {{ flag?(:custom_flag) }}
         CR
     end
   end

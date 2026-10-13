@@ -1,0 +1,8 @@
+project: spec
+kind: Added
+body: Add a `flags` parameter to the `ASPEC::Methods` assertions to compile the code with compile-time flags
+time: 2026-10-13T01:30:11.392010553-04:00
+custom:
+    Author: George Dietrich
+    PR: "759"
+    Username: blacksmoke16
