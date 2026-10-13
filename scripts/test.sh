@@ -100,8 +100,11 @@ then
   # The logs are printed in order once all shards have finished so that the output of each shard is not interleaved.
   LOG_DIR=$(mktemp -d)
 
+  # Each shard uses its own cache dir since the compiler writes binaries to fixed paths within it, e.g. `crystal spec` always outputs `crystal-run-spec.tmp`.
+  CACHE_DIR=$($CRYSTAL env CRYSTAL_CACHE_DIR)
+
   for shardPath in $SHARD_PATHS; do echo "${shardPath#*/}"; done | \
-    xargs -P "$JOBS" -I{} bash -c '"$0" "$1" "$2" > "$3/$1.log" 2>&1; echo $? > "$3/$1.status"; echo "Finished components/$1 with exit status $(cat "$3/$1.status")"' "$0" {} "$SPEC_TYPE" "$LOG_DIR"
+    xargs -P "$JOBS" -I{} bash -c 'CRYSTAL_CACHE_DIR="$4/$1" "$0" "$1" "$2" > "$3/$1.log" 2>&1; echo $? > "$3/$1.status"; echo "Finished components/$1 with exit status $(cat "$3/$1.status")"' "$0" {} "$SPEC_TYPE" "$LOG_DIR" "$CACHE_DIR"
 
   for shardPath in $SHARD_PATHS; do
     name=${shardPath#*/}
@@ -131,7 +134,7 @@ for shardPath in $SHARD_PATHS; do
     runSpecs "$name"
   fi
 
-  if [ $? -eq 1 ]; then
+  if [ $? -ne 0 ]; then
     EXIT_CODE=1
   fi
 
