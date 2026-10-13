@@ -24,8 +24,6 @@ require "./compiler_passes/*"
 require "./listeners/*"
 require "./view/*"
 
-require "./ext/clock"
-require "./ext/event_dispatcher"
 require "./ext/routing"
 
 macro finished

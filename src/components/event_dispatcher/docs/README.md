@@ -19,6 +19,12 @@ dependencies:
     github: athena-framework/event-dispatcher
     version: ~> 0.4.0
 ```
+
+### With Dependency Injection
+
+Within an [Athena Framework](/Framework/) application, or any other application using the [dependency injection](/DependencyInjection/) component, the `event_dispatcher` service is registered automatically.
+It may be injected via `AED::EventDispatcherInterface`, and services with an [AEDA::AsEventListener](/EventDispatcher/Annotations/AsEventListener/) method are registered as listeners.
+
 ## Usage
 
 Usage of this component centers around [AED::EventDispatcherInterface](/EventDispatcher/EventDispatcherInterface/), an extension of the base [ACTR::EventDispatcher::Interface](/Contracts/EventDispatcher/Interface/) with extra functionality,

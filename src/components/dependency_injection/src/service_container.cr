@@ -48,6 +48,7 @@ class Athena::DependencyInjection::ServiceContainer
         # Ensure merged configuration is available
         MergeConfigs,
         MergeExtensionConfig,
+        RegisterComponentServices,
       ],
 
       100 => [
@@ -76,7 +77,8 @@ class Athena::DependencyInjection::ServiceContainer
 
     # Determine what could be removed?
     before_removing: {
-      # Framework passes (RegisterCommands, RegisterEventListenersPass) run at priority 0; analysis must run after them
+      # Passes that add references between services, such as RegisterEventListeners or the console bundle's RegisterCommands, run at priority 0; analysis must run after them
+        0 => [RegisterEventListeners],
       -50 => [AnalyzeServiceReferences],
     },
 
