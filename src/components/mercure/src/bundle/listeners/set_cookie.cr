@@ -1,4 +1,4 @@
-# Adds `mercureAuthorization` cookies that were stored in the request attributes via `AMC::Bundle::Authorization`.
+# Adds the Mercure authorization cookies that were stored in the request attributes via `AMC::Bundle::Authorization`.
 struct Athena::Mercure::Bundle::Listeners::SetCookie
   # :nodoc:
   def initialize; end

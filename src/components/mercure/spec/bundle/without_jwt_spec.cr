@@ -43,6 +43,7 @@ describe AMC::Bundle, tags: "compiled" do
                 url: "https://hub.example.com/.well-known/mercure",
                 jwt: {
                   secret: "looooooooooooongenoughtestsecret",
+                  claims: {"iss" => "https://example.com", "sub" => "urn:app", "client_id" => "https://example.com"},
                 },
               },
             },
@@ -63,6 +64,7 @@ describe AMC::Bundle, tags: "compiled" do
               url: "https://hub.example.com/.well-known/mercure",
               jwt: {
                 secret: "looooooooooooongenoughtestsecret",
+                claims: {"iss" => "https://example.com", "sub" => "urn:app", "client_id" => "https://example.com"},
               },
             },
           },

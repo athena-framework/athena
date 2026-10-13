@@ -60,6 +60,28 @@ describe Athena::Mercure::Hub do
       .url.should eq URL
   end
 
+  describe "#cookie_name" do
+    it "defaults to the protocol 1.0 cookie name" do
+      hub = AMC::Hub.new URL, AMC::TokenProvider::Static.new("FOO"), http_client: MockHTTPClient.new URI.parse URL
+
+      hub.protocol_version.should eq AMC::ProtocolVersion::V1
+      hub.cookie_name.should eq "__Secure-mercure_access_token"
+    end
+
+    it "defaults to the protocol 0.x cookie name" do
+      hub = AMC::Hub.new URL, AMC::TokenProvider::Static.new("FOO"), http_client: MockHTTPClient.new(URI.parse URL), protocol_version: :legacy
+
+      hub.protocol_version.should eq AMC::ProtocolVersion::Legacy
+      hub.cookie_name.should eq "mercureAuthorization"
+    end
+
+    it "explicit cookie name" do
+      AMC::Hub
+        .new(URL, AMC::TokenProvider::Static.new("FOO"), http_client: MockHTTPClient.new(URI.parse URL), cookie_name: "mercure_access_token")
+        .cookie_name.should eq "mercure_access_token"
+    end
+  end
+
   it "#publish" do
     foo_hub = AMC::Spec::MockHub.new("https://foo.com", AMC::TokenProvider::Static.new("FOO")) { "foo" }
     foo_hub.publish(AMC::Update.new("https://demo.mercure.rocks/demo/books/1.jsonld")).should eq "foo"

@@ -10,6 +10,12 @@ class Athena::Mercure::Hub
   # :inherit:
   getter token_factory : AMC::TokenFactory::Interface?
 
+  # :inherit:
+  getter protocol_version : AMC::ProtocolVersion
+
+  # :inherit:
+  getter cookie_name : String
+
   @uri : URI
   @public_url : String?
   @http_client : ::HTTP::Client
@@ -20,9 +26,12 @@ class Athena::Mercure::Hub
     @token_factory : AMC::TokenFactory::Interface? = nil,
     @public_url : String? = nil,
     http_client : ::HTTP::Client? = nil,
+    cookie_name : String? = nil,
+    @protocol_version : AMC::ProtocolVersion = :v1,
   )
     @uri = URI.parse url
     @http_client = http_client || ::HTTP::Client.new @uri
+    @cookie_name = cookie_name || @protocol_version.default_cookie_name
   end
 
   # :inherit:

@@ -4,6 +4,7 @@ require "athena-http_kernel"
 require "./athena-mercure"
 
 require "./bundle/bundle"
+require "./bundle/compiler_passes/configure_debug_cookie_name"
 require "./bundle/authorization"
 require "./bundle/discovery"
 require "./bundle/listeners/*"

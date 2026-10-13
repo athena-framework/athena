@@ -1,27 +1,25 @@
 # Helper class for adding the Mercure authorization cookie to an HTTP response in order to enable private updates.
 # See [Authorization](/Mercure/#authorization) for more information.
 class Athena::Mercure::Authorization
-  private COOKIE_NAME = "mercureAuthorization"
-
   def initialize(
     @hub_registry : AMC::Hub::Registry,
     @cookie_lifetime : Time::Span = 1.hour,
     @cookie_samesite : ::HTTP::Cookie::SameSite = :strict,
   ); end
 
-  # Sets the `mercureAuthorization` cookie on the provided *response* given the provided *request*, optionally for the provided *hub_name*.
+  # Sets the authorization cookie of the hub, see `AMC::Hub::Interface#cookie_name`, on the provided *response* given the provided *request*, optionally for the provided *hub_name*.
   # The JWT cookie value by default does not have access to publish or subscribe to any topic.
-  # Be sure to set the *subscribe* and *publish* arrays to the topics you want it to be able to interact with, or `["*"]` to handle all topics.
+  # Be sure to provide the *grants* it should have, such as the topics to subscribe to, or `["*"]` to subscribe to all topics.
+  # See `AMC::Grant.from` for the accepted shorthands.
   # *additional_claims* may also be used to define additional claims to the JWT if needed.
   def set_cookie(
     request : ::HTTP::Request,
     response : ::HTTP::Server::Response,
-    subscribe : Array(String)? = [] of String,
-    publish : Array(String)? = [] of String,
+    grants : Array(AMC::Grant) | Array(String) | Hash(String, Array(String)) | String = [] of AMC::Grant,
     additional_claims : Hash? = nil,
     hub_name : String? = nil,
   ) : Nil
-    self.update_cookies request, response, hub_name, self.create_cookie(request, subscribe, publish, additional_claims, hub_name)
+    self.update_cookies request, response, hub_name, self.create_cookie(request, grants, additional_claims, hub_name)
   end
 
   # Clears the Mercure cookie from the provided *response*, optionally for the provided *hub_name*.
@@ -36,12 +34,12 @@ class Athena::Mercure::Authorization
   # Returns a Mercure auth cookie given the provided *request* and optionally for the provided *hub_name*.
   #
   # The JWT cookie value by default does not have access to publish or subscribe to any topic.
-  # Be sure to set the *subscribe* and *publish* arrays to the topics you want it to be able to interact with, or `["*"]` to handle all topics.
+  # Be sure to provide the *grants* it should have, such as the topics to subscribe to, or `["*"]` to subscribe to all topics.
+  # See `AMC::Grant.from` for the accepted shorthands.
   # *additional_claims* may also be used to define additional claims to the JWT if needed.
   def create_cookie(
     request : ::HTTP::Request,
-    subscribe : Array(String)? = [] of String,
-    publish : Array(String)? = [] of String,
+    grants : Array(AMC::Grant) | Array(String) | Hash(String, Array(String)) | String = [] of AMC::Grant,
     additional_claims : Hash? = nil,
     hub_name : String? = nil,
   ) : ::HTTP::Cookie
@@ -61,15 +59,16 @@ class Athena::Mercure::Authorization
                         end
     end
 
-    token = token_factory.create subscribe, publish, additional_claims
+    token = token_factory.create AMC::Grant.from(grants), additional_claims
     uri = URI.parse hub.public_url
+    secure = self.secure? uri
 
     ::HTTP::Cookie.new(
-      COOKIE_NAME,
+      self.cookie_name(hub, secure),
       token,
-      uri.path || "/",
+      uri.path.presence || "/",
       domain: self.cookie_domain(request, uri),
-      secure: true,
+      secure: secure,
       http_only: true,
       samesite: @cookie_samesite,
       max_age: cookie_lifetime
@@ -79,17 +78,33 @@ class Athena::Mercure::Authorization
   private def create_clear_cookie(request : ::HTTP::Request, hub_name : String? = nil) : ::HTTP::Cookie
     hub = @hub_registry.hub hub_name
     uri = URI.parse hub.public_url
+    secure = self.secure? uri
 
     ::HTTP::Cookie.new(
-      COOKIE_NAME,
+      self.cookie_name(hub, secure),
       "",
-      uri.path || "/",
+      uri.path.presence || "/",
       domain: self.cookie_domain(request, uri),
-      secure: true,
+      secure: secure,
       http_only: true,
       samesite: @cookie_samesite,
       max_age: 1.second
     )
+  end
+
+  # Hubs are assumed to be served over HTTPS, unless their public URL is explicitly not.
+  private def secure?(uri : URI) : Bool
+    "http" != uri.scheme.try &.downcase
+  end
+
+  private def cookie_name(hub : AMC::Hub::Interface, secure : Bool) : String
+    cookie_name = hub.cookie_name
+
+    if !secure && (cookie_name.starts_with?("__Secure-") || cookie_name.starts_with?("__Host-"))
+      raise AMC::Exception::InvalidArgument.new "The '#{cookie_name}' cookie name requires a hub public URL served over HTTPS. Configure a cookie name without a prefix on the hub for plain HTTP development."
+    end
+
+    cookie_name
   end
 
   private def cookie_domain(request : ::HTTP::Request, uri : URI) : String?
@@ -125,8 +140,8 @@ class Athena::Mercure::Authorization
     hub_name : String?,
     cookie : ::HTTP::Cookie,
   ) : Nil
-    unless response.cookies[COOKIE_NAME]?.nil?
-      raise AMC::Exception::Runtime.new "The 'mercureAuthorization' cookie for the '#{hub_name ? "#{hub_name} hub" : "default hub"}' has already been set. You cannot set it two times during the same request."
+    unless response.cookies[cookie.name]?.nil?
+      raise AMC::Exception::Runtime.new "The '#{cookie.name}' cookie for the '#{hub_name ? "#{hub_name} hub" : "default hub"}' has already been set. You cannot set it two times during the same request."
     end
 
     response.cookies << cookie
