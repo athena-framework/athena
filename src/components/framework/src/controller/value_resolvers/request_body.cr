@@ -6,7 +6,7 @@ require "uri/params/serializable"
 # The `ATHA::MapQueryString` annotation works similarly, but uses the request's query string instead of its body.
 # Lastly, the `ATHA::MapUploadedFile` annotation works by resolving one or more `AHTTP::UploadedFile` from [AHTTP::Request#files](/HTTP/Request/#Athena::HTTP::Request#files).
 #
-# If the object is also `AVD::Validatable`, any validations defined on it are executed before returning the object.
+# If the [Validator bundle](/Validator/Bundle/) is registered, and the object is also `AVD::Validatable`, any validations defined on it are executed before returning the object.
 # Requires the type of the related parameter to include one or more of:
 #
 # * `ASR::Serializable`, if the [Serializer bundle](/Serializer/Bundle/) is registered
@@ -15,6 +15,7 @@ require "uri/params/serializable"
 #
 # ```
 # require "athena"
+# require "athena-validator/bundle"
 #
 # # A type representing the structure of the request body.
 # struct UserCreate
@@ -110,6 +111,28 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
       private def deserialize_json(body : IO, klass : _) : Nil
       end
     {% end %}
+
+    # Whether the Validator bundle is registered determines if resolved objects are validated.
+    # Without it, these types are `NoReturn` so that they drop out of the unions using them, and the Validator component isn't needed.
+    {% if ADI::ServiceContainer::EXTENSIONS["validation"] %}
+      # :nodoc:
+      alias Validator = Athena::Validator::Validator::ValidatorInterface
+
+      # :nodoc:
+      alias GroupSequence = Athena::Validator::Constraints::GroupSequence
+
+      # :nodoc:
+      alias Constraints = Athena::Validator::Constraint | Array(Athena::Validator::Constraint)
+    {% else %}
+      # :nodoc:
+      alias Validator = NoReturn
+
+      # :nodoc:
+      alias GroupSequence = NoReturn
+
+      # :nodoc:
+      alias Constraints = NoReturn
+    {% end %}
   end
 
   # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on the request's body.
@@ -143,9 +166,10 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   # **Type:** `Array(String) | AVD::Constraints::GroupSequence | Nil` **Default:** `nil`
   #
   # The [validation groups](/Validator/Constraint/#Athena::Validator::Constraint--validation-groups) that should be used when validating the resolved object.
+  # Requires the [Validator bundle](/Validator/Bundle/) to be registered.
   configuration ::Athena::Framework::Annotations::MapRequestBody,
     accept_formats : Array(String)? = nil,
-    validation_groups : Array(String) | AVD::Constraints::GroupSequence | Nil = nil
+    validation_groups : Array(String) | ATHR::RequestBody::GroupSequence | Nil = nil
 
   # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on the request's query string.
   # See the related resolver documentation for more information.
@@ -171,8 +195,9 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   # **Type:** `Array(String) | AVD::Constraints::GroupSequence | Nil` **Default:** `nil`
   #
   # The [validation groups](/Validator/Constraint/#Athena::Validator::Constraint--validation-groups) that should be used when validating the resolved object.
+  # Requires the [Validator bundle](/Validator/Bundle/) to be registered.
   configuration ::Athena::Framework::Annotations::MapQueryString,
-    validation_groups : Array(String) | AVD::Constraints::GroupSequence | Nil = nil
+    validation_groups : Array(String) | ATHR::RequestBody::GroupSequence | Nil = nil
 
   # Enables the `ATHR::RequestBody` resolver for the parameter this annotation is applied to based on [AHTTP::Request#files](/HTTP/Request/#Athena::HTTP::Request#files),
   # if the related bundle configuration [is enabled](/Framework/Bundle/Schema/FileUploads/).
@@ -213,14 +238,18 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
   #
   # Validate the uploaded file(s) against these constraint(s).
   # Mostly commonly will be a single `AVD::Constraints::File` or `AVD::Constraints::Image` constraint.
+  # Requires the [Validator bundle](/Validator/Bundle/) to be registered.
   configuration ::Athena::Framework::Annotations::MapUploadedFile,
-    constraints : AVD::Constraint | Array(AVD::Constraint) | Nil = nil,
+    constraints : ATHR::RequestBody::Constraints? = nil,
     name : String? = nil
 
+  # Declared separately, since an ivar only inferred from a `Nil` restriction is a compile error, which this is without the Validator bundle.
+  @validator : ATHR::RequestBody::Validator?
+
   def initialize(
-    @validator : AVD::Validator::ValidatorInterface,
     @annotation_resolver : ATH::AnnotationResolver,
     @serializer : ATH::Serializer::Interface? = nil,
+    @validator : ATHR::RequestBody::Validator? = nil,
   ); end
 
   # :inherit:
@@ -242,14 +271,16 @@ struct Athena::Framework::Controller::ValueResolvers::RequestBody
                return
              end
 
-    if object && (object.is_a?(AVD::Validatable) || !constraints.nil?)
-      if object.is_a?(Array) && constraints && !constraints.is_a?(AVD::Constraints::All)
-        constraints = AVD::Constraints::All.new constraints
-      end
+    {% if ADI::ServiceContainer::EXTENSIONS["validation"] %}
+      if object && (validator = @validator) && (object.is_a?(AVD::Validatable) || !constraints.nil?)
+        if object.is_a?(Array) && constraints && !constraints.is_a?(AVD::Constraints::All)
+          constraints = AVD::Constraints::All.new constraints
+        end
 
-      errors = @validator.validate object, constraints: constraints, groups: validation_groups
-      raise AVD::Exception::ValidationFailed.new errors unless errors.empty?
-    end
+        errors = validator.validate object, constraints: constraints, groups: validation_groups
+        raise AVD::Exception::ValidationFailed.new errors unless errors.empty?
+      end
+    {% end %}
 
     object
   end

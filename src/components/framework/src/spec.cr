@@ -4,9 +4,14 @@ require "athena-clock/spec"
 require "athena-console/spec"
 require "athena-event_dispatcher/spec"
 require "athena-dependency_injection/spec"
-require "athena-validator/spec"
 
 require "./spec/*"
+
+macro finished
+  {% if @top_level.has_constant?("AVD") %}
+    require "athena-validator/spec"
+  {% end %}
+end
 
 # :nodoc:
 #

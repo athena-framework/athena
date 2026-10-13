@@ -35,8 +35,7 @@ abstract class Athena::Validator::ConstraintValidator
   end
 end
 
-# Extension of `AVD::ConstraintValidator` used to denote a service validator
-# that can be used with [Athena Dependency Injection](https://github.com/athena-framework/dependency-injection).
+# Extension of `AVD::ConstraintValidator` used to denote a constraint validator that is a service, see the [Validator bundle](/Validator/Bundle/).
 abstract class Athena::Validator::ServiceConstraintValidator < Athena::Validator::ConstraintValidator
   macro inherited
     def self.new : NoReturn

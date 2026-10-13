@@ -30,11 +30,14 @@ require "./ext/clock"
 require "./ext/console"
 require "./ext/event_dispatcher"
 require "./ext/routing"
-require "./ext/validator"
 
 macro finished
   {% if @top_level.has_constant?("ASR") %}
     require "./ext/serializer/component_serializer"
+  {% end %}
+
+  {% if @top_level.has_constant?("AVD") %}
+    require "./ext/validator/validation_failed_exception"
   {% end %}
 end
 

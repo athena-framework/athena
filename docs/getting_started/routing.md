@@ -117,7 +117,7 @@ ATH.run
 
 This works well enough for one-off parameters.
 However [ATHA::MapQueryString](/Framework/Annotations/MapQueryString) can be used to the request's query string into a DTO type, much like how `JSON::Serializable` works for example.
-In addition to making it easier to reuse, it also allows for enhanced validation of the query parameters via the [`Athena::Validator`](/Validator/#validating-objects) component.
+In addition to making it easier to reuse, it also allows for enhanced validation of the query parameters via the [`Athena::Validator`](/Validator/#validating-objects) component, if its [bundle](/Validator/Bundle/) is registered.
 
 ### Raw Request
 

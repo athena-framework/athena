@@ -1,5 +1,6 @@
 The [Athena::Validator](/Validator) component adds a robust/flexible validation framework.
-This component is also mostly optional, but is leveraged for the super useful [ATHR::RequestBody](/Framework/Controller/ValueResolvers/RequestBody) resolver type to ensure only valid data make it into the system.
+This component is optional; to use it within the framework, add it to your `shard.yml` and register its [bundle](/Validator/Bundle/) via `require "athena-validator/bundle"`.
+It is then leveraged for the super useful [ATHR::RequestBody](/Framework/Controller/ValueResolvers/RequestBody) resolver type to ensure only valid data make it into the system.
 This component can also be used to define validation requirements for [ATH::Params::ParamInterface](/Framework/Params/ParamInterface)s.
 
 ## Custom Constraints
