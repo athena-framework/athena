@@ -1,0 +1,8 @@
+project: framework
+kind: Removed
+body: Remove ATH::Console::Application and its athena_console_application service in favor of ACON::Application.new(name, version, container)
+time: 2026-10-12T23:28:44.839073875-04:00
+custom:
+    Author: George Dietrich
+    PR: "756"
+    Username: blacksmoke16

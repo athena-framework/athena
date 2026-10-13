@@ -1,5 +1,4 @@
 @[ACONA::AsCommand("debug:event-dispatcher", description: "Display configured listeners for an application")]
-@[ADI::Register]
 # Utility command to allow viewing information about an `AED::EventDispatcherInterface`.
 # Includes the type/method of each event listener, along with the order they run in based on their priority.
 # Accepts an optional argument to allow filtering the list to a specific event, or ones that contain the provided string.

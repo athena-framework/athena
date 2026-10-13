@@ -37,7 +37,7 @@ E.g. if feature(s) are disabled in the configuration, then the types related to 
 Similarly, the configuration values can be accessed/used as constructor arguments to the various services, something a runtime approach would not allow.
 
 The [Framework Bundle](/Framework/Bundle/) is registered by the framework itself.
-Other components ship an opt-in bundle that is registered by requiring it, such as `require "athena-orm/bundle"` for the [ORM](/ORM/Bundle/), `require "athena-mercure/bundle"` for [Mercure](/Mercure/Bundle/), `require "athena-serializer/bundle"` for the [Serializer](/Serializer/Bundle/), or `require "athena-validator/bundle"` for the [Validator](/Validator/Bundle/).
+Other components ship an opt-in bundle that is registered by requiring it, such as `require "athena-orm/bundle"` for the [ORM](/ORM/Bundle/), `require "athena-mercure/bundle"` for [Mercure](/Mercure/Bundle/), `require "athena-serializer/bundle"` for the [Serializer](/Serializer/Bundle/), `require "athena-validator/bundle"` for the [Validator](/Validator/Bundle/), or `require "athena-console/bundle"` for the [Console](/Console/Bundle/).
 Each bundle and its schema are documented in the API docs of its component.
 
 TODO: Expand upon bundle internals and how to create custom bundles.

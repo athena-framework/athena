@@ -35,6 +35,20 @@ The bundle registers the validator as the `validator` service, which was previou
 
 The validator parameter of `ATHR::RequestBody` is now optional, and comes last.
 
+### The Console component is optional
+
+The framework no longer depends on the [Console](https://athenaframework.org/Console/) component.
+Applications that define console commands, or use `ATH.run_console`, need to add the component to their `shard.yml` and register its [bundle](https://athenaframework.org/Console/Bundle/):
+
+```crystal
+require "athena"
+require "athena-console/bundle"
+```
+
+`ATH::Console::Application`, and its `athena_console_application` service, have been removed.
+`ATH.run_console` now runs the application created via `ACON::Application.new("Athena", ATH::VERSION, ADI.container)`, which can also be used to create a customized application.
+Commands are now tagged `console.command` instead of `athena.console.command`.
+
 ### Framework services serialize through `ATH::Serializer::Interface`
 
 `ATH::View::ViewHandler` and `ATHR::RequestBody` now depend on the new [ATH::Serializer::Interface](https://athenaframework.org/Framework/Serializer/Interface) instead of `ASR::SerializerInterface`.
