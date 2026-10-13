@@ -1,0 +1,8 @@
+project: mercure
+kind: Added
+body: Add AMC::TokenFactory::DefaultClaims to add default claims to every token a factory creates
+time: 2026-10-13T19:49:09.257631968-04:00
+custom:
+    Author: George Dietrich
+    PR: "762"
+    Username: blacksmoke16
