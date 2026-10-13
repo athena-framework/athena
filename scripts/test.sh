@@ -103,7 +103,17 @@ then
   # Each shard uses its own cache dir since the compiler writes binaries to fixed paths within it, e.g. `crystal spec` always outputs `crystal-run-spec.tmp`.
   CACHE_DIR=$($CRYSTAL env CRYSTAL_CACHE_DIR)
 
-  for shardPath in $SHARD_PATHS; do echo "${shardPath#*/}"; done | \
+  # The slowest shards are started first so they do not extend the total run time by starting after the others.
+  SLOWEST_SHARDS="orm framework dependency_injection"
+
+  {
+    for name in $SLOWEST_SHARDS; do echo "$name"; done
+
+    for shardPath in $SHARD_PATHS; do
+      name=${shardPath#*/}
+      [[ " $SLOWEST_SHARDS " == *" $name "* ]] || echo "$name"
+    done
+  } | \
     xargs -P "$JOBS" -I{} bash -c 'CRYSTAL_CACHE_DIR="$4/$1" "$0" "$1" "$2" > "$3/$1.log" 2>&1; echo $? > "$3/$1.status"; echo "Finished components/$1 with exit status $(cat "$3/$1.status")"' "$0" {} "$SPEC_TYPE" "$LOG_DIR" "$CACHE_DIR"
 
   for shardPath in $SHARD_PATHS; do
