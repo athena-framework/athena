@@ -4,6 +4,3 @@ module Athena::Framework::Console::Command
 end
 
 require "./console/**"
-
-@[ADI::Autoconfigure(tags: [ATH::Console::Command::TAG])]
-abstract class ACON::Command; end

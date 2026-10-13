@@ -247,6 +247,115 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
             end
           %}
 
+          # Clock
+          {%
+            SERVICE_HASH[clock_id = "clock"] = {
+              class:   Athena::Clock,
+              factory: {Athena::Clock, "create"},
+            }
+
+            ALIASES[Athena::Clock::Interface] = [
+              {id: clock_id, public: false},
+            ]
+          %}
+
+          # Console
+          {%
+            SERVICE_HASH["athena_console_application"] = {
+              class:  ATH::Console::Application,
+              public: true,
+            }
+
+            AUTO_CONFIGURATIONS[ACON::Command] = {
+              tags: [ATH::Console::Command::TAG],
+            }
+          %}
+
+          # Event Dispatcher
+          {%
+            SERVICE_HASH[event_dispatcher_id = "event_dispatcher"] = {
+              class:  AED::EventDispatcher,
+              public: true,
+            }
+
+            ALIASES[AED::EventDispatcherInterface] = [
+              {id: event_dispatcher_id, public: false},
+            ]
+
+            ALIASES[ACTR::EventDispatcher::Interface] = [
+              {id: event_dispatcher_id, public: false},
+            ]
+          %}
+
+          # HTTP
+          {%
+            SERVICE_HASH["request_store"] = {
+              class:  AHTTP::RequestStore,
+              public: true,
+            }
+          %}
+
+          # HTTP Kernel
+          {%
+            SERVICE_HASH["athena_http_kernel"] = {
+              class:  AHK::HTTPKernel,
+              public: true,
+            }
+
+            SERVICE_HASH["athena_http_kernel_listeners_routing"] = {
+              class: AHK::Listeners::Routing,
+            }
+
+            SERVICE_HASH["athena_http_kernel_listeners_error"] = {
+              class: AHK::Listeners::Error,
+            }
+
+            SERVICE_HASH[action_resolver_id = "athena_http_kernel_action_resolver"] = {
+              class: AHK::ActionResolver,
+            }
+
+            ALIASES[AHK::ActionResolverInterface] = [
+              {id: action_resolver_id, public: false},
+            ]
+
+            SERVICE_HASH["parameter_resolver_request_attribute"] = {
+              class: AHK::Controller::ValueResolvers::RequestAttribute,
+              tags:  [{name: ATHR::Interface::TAG, priority: 100}],
+            }
+
+            SERVICE_HASH["parameter_resolver_request"] = {
+              class: AHK::Controller::ValueResolvers::Request,
+              tags:  [{name: ATHR::Interface::TAG, priority: 50}],
+            }
+
+            SERVICE_HASH["athena_http_kernel_controller_value_resolvers_default_value"] = {
+              class: AHK::Controller::ValueResolvers::DefaultValue,
+              tags:  [{name: ATHR::Interface::TAG, priority: -100}],
+            }
+
+            SERVICE_HASH[argument_resolver_id = "athena_http_kernel_controller_argument_resolver"] = {
+              class:      AHK::Controller::ArgumentResolver,
+              parameters: {
+                value_resolvers: {value: "!athena.controller.value_resolver"},
+              },
+            }
+
+            ALIASES[AHK::Controller::ArgumentResolverInterface] = [
+              {id: argument_resolver_id, public: false},
+            ]
+
+            SERVICE_HASH[error_renderer_id = "athena_http_kernel_error_renderer"] = {
+              class:      AHK::ErrorRenderer,
+              parameters: {
+                debug: {value: "%framework.debug%"},
+              },
+            }
+
+            ALIASES[AHK::ErrorRendererInterface] = [
+              {id: error_renderer_id, public: false},
+            ]
+          %}
+
           # CORS Listener
           {%
             cfg = CONFIG["framework"]["cors"]
@@ -303,6 +412,16 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
                 strict_requirements: {value: cfg["strict_requirements"]},
               },
             }
+
+            ALIASES["router"] = [
+              {id: router_id, public: true},
+            ]
+
+            {ART::Generator::Interface, ART::Matcher::URLMatcherInterface, ART::RouterInterface, ART::RequestContextAwareInterface}.each do |router_interface|
+              ALIASES[router_interface] = [
+                {id: router_id, public: false},
+              ]
+            end
 
             SERVICE_HASH[request_context_id = "athena_routing_request_context"] = {
               class:      ART::RequestContext,
@@ -407,7 +526,7 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
           {%
             cfg = CONFIG["framework"]["view_handler"]
 
-            SERVICE_HASH["athena_framework_view_view_handler"] = {
+            SERVICE_HASH[view_handler_id = "athena_framework_view_view_handler"] = {
               class:      ATH::View::ViewHandler,
               parameters: {
                 emit_nil:                 {value: cfg["serialize_nil"]},
@@ -415,6 +534,14 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
                 empty_content_status:     {value: cfg["empty_content_status"]},
               },
             }
+
+            ALIASES[ATH::View::ConfigurableViewHandlerInterface] = [
+              {id: view_handler_id, public: false},
+            ]
+
+            ALIASES[ATH::View::ViewHandlerInterface] = [
+              {id: view_handler_id, public: false},
+            ]
           %}
 
           # File Uploads

@@ -4,6 +4,14 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAliases
     macro finished
       {% verbatim do %}
         {%
+          # Aliases defined before this pass, such as by bundle extensions, are defaults that an `ADI::AsAlias` annotation may replace.
+          # Hash(String | TypeNode, Array(StringLiteral?)) - the names of the replaceable aliases of each alias type
+          replaceable_aliases = {} of Nil => Nil
+
+          ALIASES.each do |alias_id, aliases|
+            replaceable_aliases[alias_id] = aliases.map { |a| a["name"] }
+          end
+
           SERVICE_HASH.each do |service_id, definition|
             interface_modules = definition["class"].ancestors.select &.name.ends_with? "Interface"
             default_alias = 1 == interface_modules.size ? interface_modules[0] : nil
@@ -28,7 +36,11 @@ module Athena::DependencyInjection::ServiceContainer::ProcessAliases
               ALIASES[alias_id] = [] of Nil if ALIASES[alias_id].nil?
 
               # Check for duplicate type+name combination
-              if ALIASES[alias_id].any? { |a| a["name"] == param_name }
+              if (replaceable_names = replaceable_aliases[alias_id]) && replaceable_names.includes?(param_name)
+                # Only the first annotation may replace it, so another one for the same type+name combination is still a duplicate.
+                replaceable_aliases[alias_id] = replaceable_names.reject { |n| n == param_name }
+                ALIASES[alias_id] = ALIASES[alias_id].reject { |a| a["name"] == param_name }
+              elsif ALIASES[alias_id].any? { |a| a["name"] == param_name }
                 if param_name
                   ann.raise "Duplicate alias for type '#{alias_id}' with name '#{param_name.id}'. " \
                             "An alias with this type and name combination is already registered."
