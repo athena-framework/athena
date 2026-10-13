@@ -1,0 +1,9 @@
+project: framework
+kind: Changed
+body: Console commands are now tagged `console.command` instead of `athena.console.command`
+time: 2026-10-12T23:29:03.265936041-04:00
+custom:
+    Author: George Dietrich
+    Breaking: "Yes"
+    PR: "756"
+    Username: blacksmoke16

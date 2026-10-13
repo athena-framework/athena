@@ -27,7 +27,12 @@ plugins:
           crystal_docs_flags:
             - ../../../docs/index.cr
             - ./lib/athena-clock/src/athena-clock.cr
+            - ./lib/athena-dependency_injection/src/athena-dependency_injection.cr
             - ./lib/athena-console/src/athena-console.cr
+            - ./lib/athena-console/src/bundle/bundle.cr
+            - ./lib/athena-console/src/bundle/application.cr
+            - ./lib/athena-console/src/bundle/compiler_passes/register_commands.cr
+            - ./lib/athena-console/src/bundle/container_command_loader.cr
             - ./lib/athena-console/src/spec.cr
           source_locations:
             lib/athena-console: https://github.com/athena-framework/console/blob/v{shard_version}/{file}#L{line}

@@ -5,7 +5,6 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
   # :nodoc:
   PASSES = [
     {Athena::Framework::CompilerPasses::MakeControllerServicesPublicPass, nil, nil},
-    {Athena::Framework::Console::CompilerPasses::RegisterCommands, :before_removing, nil},
     {Athena::Framework::EventDispatcher::CompilerPasses::RegisterEventListenersPass, :before_removing, nil},
   ]
 
@@ -261,14 +260,20 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
 
           # Console
           {%
-            SERVICE_HASH["athena_console_application"] = {
-              class:  ATH::Console::Application,
-              public: true,
-            }
+            # Requiring the Console component alone does not register its bundle, so check for the bundle to know commands are registered.
+            if ADI::ServiceContainer::EXTENSIONS["console"]
+              SERVICE_HASH["athena_framework_commands_debug_event_dispatcher"] = {
+                class: ATH::Commands::DebugEventDispatcher,
+              }
 
-            AUTO_CONFIGURATIONS[ACON::Command] = {
-              tags: [ATH::Console::Command::TAG],
-            }
+              SERVICE_HASH["athena_framework_commands_debug_router"] = {
+                class: ATH::Commands::DebugRouter,
+              }
+
+              SERVICE_HASH["athena_framework_commands_debug_router_match"] = {
+                class: ATH::Commands::DebugRouterMatch,
+              }
+            end
           %}
 
           # Event Dispatcher

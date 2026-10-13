@@ -1,0 +1,9 @@
+project: framework
+kind: Changed
+body: The Console component is now an optional dependency; require athena-console/bundle to use `ATH.run_console` and console commands
+time: 2026-10-12T23:28:19.401106463-04:00
+custom:
+    Author: George Dietrich
+    Breaking: "Yes"
+    PR: "756"
+    Username: blacksmoke16

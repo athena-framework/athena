@@ -1,7 +1,8 @@
-# Contains types related to the `Athena::Console` integration.
-module Athena::Framework::Console::CompilerPasses::RegisterCommands
-  TAG = "athena.console.command"
-
+# :nodoc:
+#
+# Registers the services tagged `console.command` with the `console_command_loader` service.
+# Commands with an `ACONA::AsCommand` annotation are wrapped in an `ACON::Commands::Lazy` so they are only instantiated when executed.
+module Athena::Console::Bundle::CompilerPasses::RegisterCommands
   macro included
     macro finished
       {% verbatim do %}
@@ -12,7 +13,7 @@ module Athena::Framework::Console::CompilerPasses::RegisterCommands
           # Services that are not configured via the annotation so must be registered eagerly.
           eager_service_ids = [] of Nil
 
-          (TAG_HASH[ATH::Console::Command::TAG] || [] of Nil).each do |(service_id, _attributes)|
+          (TAG_HASH["console.command"] || [] of Nil).each do |(service_id, _attributes)|
             metadata = SERVICE_HASH[service_id]
 
             # TODO: Any benefit in allowing commands to be configured via tags instead of the annotation?
@@ -72,8 +73,8 @@ module Athena::Framework::Console::CompilerPasses::RegisterCommands
             end
           end
 
-          SERVICE_HASH[loader_id = "athena_console_command_loader_container"] = {
-            class:               "Athena::Framework::Console::ContainerCommandLoaderLocator",
+          SERVICE_HASH[locator_id = "console_command_loader_locator"] = {
+            class:               "Athena::Console::Bundle::ContainerCommandLoaderLocator",
             tags:                [] of Nil,
             generics:            [] of Nil,
             calls:               [] of Nil,
@@ -84,30 +85,26 @@ module Athena::Framework::Console::CompilerPasses::RegisterCommands
             },
           }
 
-          SERVICE_HASH[command_loader_service_id = "athena_console_command_loader"] = {
-            class:      Athena::Framework::Console::ContainerCommandLoader,
-            tags:       [] of Nil,
-            generics:   [] of Nil,
-            calls:      [] of Nil,
-            public:     false,
-            parameters: {
-              command_map: {value: "#{command_map} of String => ACON::Command.class".id},
-              loader:      {value: loader_id.id},
+          SERVICE_HASH["console_command_loader"] = {
+            class:    Athena::Console::Bundle::ContainerCommandLoader,
+            tags:     [] of Nil,
+            generics: [] of Nil,
+            calls:    [] of Nil,
+            public:   true,
+            # Track eager commands as referenced services to ensure their getters are generated
+            referenced_services: eager_service_ids,
+            parameters:          {
+              command_map:    {value: "#{command_map} of String => ACON::Command.class".id},
+              loader:         {value: locator_id.id},
+              eager_commands: {value: "#{eager_service_ids} of ACON::Command".id},
             },
           }
-
-          SERVICE_HASH["athena_console_application"]["parameters"]["command_loader"]["value"] = command_loader_service_id.id
-          SERVICE_HASH["athena_console_application"]["parameters"]["eager_commands"]["value"] = "#{eager_service_ids} of ACON::Command".id
-          # Track eager commands as referenced services to ensure their getters are generated
-          eager_service_ids.each do |sid|
-            SERVICE_HASH["athena_console_application"]["referenced_services"] << sid
-          end
         %}
 
         # :nodoc:
         #
         # TODO: Define some more generic way to create these
-        struct ::Athena::Framework::Console::ContainerCommandLoaderLocator
+        struct ::Athena::Console::Bundle::ContainerCommandLoaderLocator
           def initialize(@container : ::ADI::ServiceContainer); end
 
           {% for service_type, service_id in command_refs %}

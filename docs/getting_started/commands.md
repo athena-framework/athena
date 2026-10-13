@@ -3,6 +3,8 @@ This integration can be a way to define alternate entry points into your busines
 such as for use with scheduled jobs (Cron, Airflow, etc), or one-off internal/administrative things (running migrations, creating users, etc)
 all the while sharing the same dependencies due to it also leveraging [dependency injection](../why_athena.md#dependency-injection).
 
+The integration is optional; to use it, add the component to your `shard.yml` and register its [bundle](/Console/Bundle/) via `require "athena-console/bundle"`.
+
 ## Basic Usage
 
 Similar to [event listeners](./middleware.md#event-listeners), console commands can simply be registered as a service to be automatically registered.

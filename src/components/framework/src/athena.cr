@@ -6,7 +6,6 @@ require "athena-contracts/event_dispatcher"
 require "athena-contracts/service"
 
 require "athena-clock"
-require "athena-console"
 require "athena-dependency_injection"
 require "athena-http_kernel"
 require "athena-negotiation"
@@ -20,14 +19,12 @@ require "./logging"
 
 require "./serializer/interface"
 
-require "./commands/*"
 require "./controller/**"
 require "./compiler_passes/*"
 require "./listeners/*"
 require "./view/*"
 
 require "./ext/clock"
-require "./ext/console"
 require "./ext/event_dispatcher"
 require "./ext/routing"
 
@@ -38,6 +35,11 @@ macro finished
 
   {% if @top_level.has_constant?("AVD") %}
     require "./ext/validator/validation_failed_exception"
+  {% end %}
+
+  {% if @top_level.has_constant?("ACON") %}
+    require "./ext/console"
+    require "./commands/*"
   {% end %}
 end
 
@@ -120,6 +122,7 @@ module Athena::Framework
   module CompilerPasses; end
 
   # Namespace for the built in `Athena::Console` commands that come bundled with the framework.
+  # They are registered if the [Console bundle](/Console/Bundle/) is registered.
   # Currently it provides:
   #
   # - `ATH::Commands::DebugEventDispatcher` - Display configured listeners for an application
@@ -160,11 +163,16 @@ module Athena::Framework
     ATH::Server.new(port, host, reuse_port, ssl_context, prepend_handlers).start
   end
 
-  # Runs an `ATH::Console::Application` as the entrypoint of `Athena::Console`.
+  # Runs an `ACON::Application` with the commands registered as services as the entrypoint of `Athena::Console`.
+  # Requires the [Console bundle](/Console/Bundle/) to be registered.
   #
   # Checkout the [Getting Started](/getting_started/commands) docs for more information.
   def self.run_console : Nil
-    ADI.container.athena_console_application.run
+    {% if ADI::ServiceContainer::EXTENSIONS["console"] %}
+      ACON::Application.new("Athena", ATH::VERSION, ADI.container).run
+    {% else %}
+      {% raise "'ATH.run_console' requires the Console bundle. Add `require \"athena-console/bundle\"` to register it." %}
+    {% end %}
   end
 
   # :nodoc:

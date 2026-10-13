@@ -100,11 +100,9 @@ class Athena::Console::Application
   @initialized : Bool = false
   @running_command : ACON::Command? = nil
   @single_command : Bool = false
-  @terminal : ACON::Terminal
+  @terminal : ACON::Terminal = ACON::Terminal.new
 
   def initialize(@name : String, @version : String = "UNKNOWN")
-    @terminal = ACON::Terminal.new
-
     # TODO: Emit events when certain signals are triggered.
     # This will require the ability to optional set an event dispatcher on this type.
   end

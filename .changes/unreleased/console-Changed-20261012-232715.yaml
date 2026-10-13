@@ -1,0 +1,9 @@
+project: console
+kind: Changed
+body: Add `ACON::Bundle` to integrate the component with the DI component, and an `ACON::Application` constructor that runs the commands registered within a service container
+time: 2026-10-12T23:27:15.57364458-04:00
+custom:
+    Author: George Dietrich
+    Breaking: "No"
+    PR: "756"
+    Username: blacksmoke16

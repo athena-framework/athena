@@ -13,6 +13,18 @@ dependencies:
     version: ~> 0.4.0
 ```
 
+### With Dependency Injection
+
+Within an [Athena Framework](/Framework/) application, or any other application using the [dependency injection](/DependencyInjection/) component, also require `athena-console/bundle`:
+
+```crystal
+require "athena"
+require "athena-console/bundle"
+```
+
+Then register commands as services, and they will be available to the application created via `ACON::Application.new(name, version, container)`, or [ATH.run_console](/Framework/#Athena::Framework.run_console) within the framework.
+See [ACON::Bundle](/Console/Bundle/) for more information.
+
 ## Usage
 
 In its most basic form, a [ACON::Command](/Console/Command/) consists of an `#execute` method that provides access to [input](/Console/Input/Interface/) and [output](/Console/Output/Interface/) of the command and returns a [ACON::Command::Status](/Console/Command/Status/) member.
