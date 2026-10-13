@@ -18,6 +18,19 @@ dependencies:
     version: ~> 0.5.0
 ```
 
+### With Dependency Injection
+
+Within an [Athena Framework](/Framework/) application, or any other application using the [dependency injection](/DependencyInjection/) component, also require `athena-validator/bundle`:
+
+```crystal
+require "athena"
+require "athena-validator/bundle"
+```
+
+Then inject an `AVD::Validator::ValidatorInterface` where it's needed.
+The framework also uses it to validate request bodies, and constraint validators may be services that depend on other services.
+See [AVD::Bundle](/Validator/Bundle/) for more information.
+
 ## Usage
 
 `Athena::Validator` comes with a set of common [AVD::Constraints](/Validator/Constraints/) built-in that any project could find useful.

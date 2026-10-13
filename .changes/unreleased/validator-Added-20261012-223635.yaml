@@ -1,0 +1,8 @@
+project: validator
+kind: Added
+body: 'Added: Add AVD::Bundle to integrate the component with the DI component'
+time: 2026-10-12T22:36:35.764536531-04:00
+custom:
+    Author: George Dietrich
+    PR: "755"
+    Username: blacksmoke16

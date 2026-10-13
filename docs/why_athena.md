@@ -129,7 +129,7 @@ While this is a bit of extra boilerplate, it is an incredibly powerful pattern. 
 
 ### Flexibility
 
-Athena Framework is very flexible in that it is able to support both simple and complex use cases by adapting to the needs of the application without getting in the way of customizations the user wants to make. This is accomplished by providing all the components to the user, but not requiring they be used. If an application does not need to validate anything, the [Athena::Validator](/Validator/) component can just be ignored. But if the need ever arises it is there and well integrated into the framework.
+Athena Framework is very flexible in that it is able to support both simple and complex use cases by adapting to the needs of the application without getting in the way of customizations the user wants to make. This is accomplished by providing all the components to the user, but not requiring they be used. If an application does not need to validate anything, the [Athena::Validator](/Validator/) component does not need to be installed. But if the need ever arises, registering its [bundle](/Validator/Bundle/) integrates it into the framework.
 
 #### Dependency Injection
 
@@ -282,10 +282,11 @@ At its core, Athena Framework is a MVC web application framework. It can be used
 
 * Objects returned from the controller are JSON serialized by default
 * Native support for [JSON::Serializable](https://crystal-lang.org/api/JSON/Serializable.html), and for [ASR::Serializable](/Serializer/Serializable) via the [Serializer bundle](/Serializer/Bundle/)
-* Native support for DTOs to deserialize and validate, see [ATHR::RequestBody](/Framework/Controller/ValueResolvers/RequestBody/)
+* Native support for DTOs to deserialize, and validate via the [Validator bundle](/Validator/Bundle/), see [ATHR::RequestBody](/Framework/Controller/ValueResolvers/RequestBody/)
 
 ```crystal
 require "athena"
+require "athena-validator/bundle"
 
 struct UserCreate
   include AVD::Validatable

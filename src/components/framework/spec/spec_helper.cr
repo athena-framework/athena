@@ -3,6 +3,7 @@ require "log/spec"
 
 require "../src/athena"
 require "athena-serializer/bundle"
+require "athena-validator/bundle"
 require "./controllers/*"
 
 require "../src/spec"

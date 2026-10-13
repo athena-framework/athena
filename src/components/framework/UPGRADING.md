@@ -10,18 +10,30 @@ The framework no longer depends on the [Serializer](https://athenaframework.org/
 Without it, the data returned from controller actions is serialized via `#to_json`, and `ATHR::RequestBody` deserializes JSON request bodies into `JSON::Serializable` types.
 Applications that use `ASR::Serializable` types, serialization groups or versions, or inject `ASR::SerializerInterface` need to add the component to their `shard.yml` and register its [bundle](https://athenaframework.org/Serializer/Bundle/):
 
-```yaml
-dependencies:
-  athena-serializer:
-    github: athena-framework/serializer
-```
-
 ```crystal
 require "athena"
 require "athena-serializer/bundle"
 ```
 
 The bundle registers the serializer as the `serializer` service, which was previously `athena_serializer_serializer`.
+
+### The Validator component is optional
+
+The framework no longer depends on the [Validator](https://athenaframework.org/Validator/) component.
+Without it, `ATHR::RequestBody` does not validate the objects it resolves.
+Applications that validate request bodies, query strings or uploaded files, inject `AVD::Validator::ValidatorInterface`, or define `AVD::ServiceConstraintValidator`s need to add the component to their `shard.yml` and register its [bundle](https://athenaframework.org/Validator/Bundle/):
+
+```crystal
+require "athena"
+require "athena-validator/bundle"
+```
+
+If the bundle is not registered, it is a compile time error for an `ATHA::MapRequestBody` or `ATHA::MapQueryString` parameter's type to include `AVD::Validatable`, or for those annotations to set `validation_groups`, or `ATHA::MapUploadedFile` to set `constraints`.
+
+The bundle registers the validator as the `validator` service, which was previously `athena_validator_validator_recursive_validator`.
+`AVD::ServiceConstraintValidator`s are now tagged `validator.constraint_validator` instead of `athena.validator.constraint_validator`.
+
+The validator parameter of `ATHR::RequestBody` is now optional, and comes last.
 
 ### Framework services serialize through `ATH::Serializer::Interface`
 
@@ -41,7 +53,7 @@ After:
 
 ```crystal
 ATH::View::ViewHandler.new url_generator, request_store, format_handlers, ATH::Serializer::ComponentSerializer.new(ASR::Serializer.new)
-ATHR::RequestBody.new validator, annotation_resolver, ATH::Serializer::ComponentSerializer.new(ASR::Serializer.new)
+ATHR::RequestBody.new annotation_resolver, ATH::Serializer::ComponentSerializer.new(ASR::Serializer.new), validator
 ```
 
 ### Exclusion strategies removed from `ATH::View::Context`

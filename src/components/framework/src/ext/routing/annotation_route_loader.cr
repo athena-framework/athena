@@ -178,6 +178,31 @@ module Athena::Framework::Routing::AnnotationRouteLoader
             end
           %}
 
+          # Raise compile time error if a parameter resolved by `ATHR::RequestBody` would be validated, which requires the Validator bundle.
+          {%
+            unless ADI::ServiceContainer::EXTENSIONS["validation"]
+              validatable = parse_type("AVD::Validatable").resolve?
+
+              m.args.each do |arg|
+                {ATHA::MapRequestBody => "validation_groups", ATHA::MapQueryString => "validation_groups", ATHA::MapUploadedFile => "constraints"}.each do |ann_class, field|
+                  if ann = arg.annotation ann_class
+                    if ann[field] != nil
+                      arg.raise "Route action parameter '#{klass.name}##{m.name}:#{arg.name}' sets '#{field.id}' on '@[#{ann.name}]', but the Validator bundle is not registered. Add `require \"athena-validator/bundle\"` to validate it."
+                    end
+
+                    if validatable && !arg.restriction.is_a?(Nop)
+                      type = arg.restriction.resolve
+
+                      if (type.union? ? type.union_types : [type]).any?(&.<=(validatable))
+                        arg.raise "The type of route action parameter '#{klass.name}##{m.name}:#{arg.name}' is '#{type}', which includes 'AVD::Validatable', but the Validator bundle is not registered. Add `require \"athena-validator/bundle\"` to validate it."
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          %}
+
           # Determine routes that this method should handle
           {%
             routes_for_method = [] of Nil # Tuple(Annotation, Array(String))
