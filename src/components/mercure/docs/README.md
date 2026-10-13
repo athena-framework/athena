@@ -47,6 +47,21 @@ dependencies:
     version: ~> 0.1.0
 ```
 
+Generating the JWTs used to authorize with a hub, such as via `AMC::TokenFactory::JWT`, also requires the [jwt](https://github.com/crystal-community/jwt) shard:
+
+```yaml
+dependencies:
+  jwt:
+    github: crystal-community/jwt
+    version: ~> 1.7
+```
+
+```crystal
+require "jwt"
+```
+
+The `jwt` shard links OpenSSL and GMP, so applications that only use static tokens, such as ones built with `-Dwithout_openssl`, can leave it out.
+
 #### With Dependency Injection
 
 Within an [Athena Framework](/Framework/) application, or any other application using the [dependency injection](/DependencyInjection/) and [HTTP kernel](/HTTPKernel/) components, require `athena-mercure/bundle` and configure at least one hub:

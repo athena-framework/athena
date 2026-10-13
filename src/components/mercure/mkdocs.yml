@@ -31,6 +31,7 @@ plugins:
             - ./lib/athena-contracts/src/athena-contracts.cr
             - ./lib/athena-event_dispatcher/src/athena-event_dispatcher.cr
             - ./lib/athena-http_kernel/src/athena-http_kernel.cr
+            - ./lib/jwt/src/jwt.cr
             - ./lib/athena-mercure/src/athena-mercure.cr
             - ./lib/athena-mercure/src/bundle/bundle.cr
             - ./lib/athena-mercure/src/bundle/authorization.cr

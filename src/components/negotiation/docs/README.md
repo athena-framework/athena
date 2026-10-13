@@ -12,6 +12,11 @@ dependencies:
     version: ~> 0.2.0
 ```
 
+### With Athena Framework
+
+Within an [Athena Framework](/Framework/) application, requiring `athena-negotiation` allows enabling the [format listener](/Framework/Bundle/Schema/FormatListener/), which determines the format of each request based on its `Accept` header.
+See [Content Negotiation](/getting_started/routing/#content-negotiation) for more information.
+
 ## Usage
 
 The main type of [Athena::Negotiation](/Negotiation/) is [ANG::AbstractNegotiator](/Negotiation/AbstractNegotiator/) which is used to implement negotiators for each `Accept*` header.

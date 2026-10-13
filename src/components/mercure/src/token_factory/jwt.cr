@@ -1,4 +1,6 @@
 # A token factory implementation based on the [Crystal JWT](https://github.com/crystal-community/jwt) shard.
+#
+# NOTE: Only available if the `jwt` shard is installed and required, see the [installation](/Mercure/#installation) instructions.
 struct Athena::Mercure::TokenFactory::JWT
   include Athena::Mercure::TokenFactory::Interface
 
