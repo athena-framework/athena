@@ -53,12 +53,15 @@ DEFAULT_OPTIONS=(--order=random)
 CRYSTAL=${CRYSTAL:=crystal}
 HAS_KCOV=$(if command -v "kcov" &>/dev/null; then echo "true"; else echo "false"; fi)
 IS_CI=${CI:="false"}
+JOBS=${JOBS:=$(getconf _NPROCESSORS_ONLN)}
 
 # Runs the specs for all, or optionally a single shard.
 # Optionally generates code coverage report data as well.
 #
 # $1 - (optional) shard name to runs specs for, or "all". Defaults to "all".
 # $2 - (optional) "type" of specs to run: "unit", "compiled", or "all". Defaults to "all".
+#
+# The JOBS env var controls how many shards run concurrently when running all shards. Defaults to the number of CPUs.
 
 SHARD=${1-all}
 SPEC_TYPE=${2-all}
@@ -89,7 +92,34 @@ then
 fi
 
 # If we got this far we need to run specs for all shards
-for shardPath in $(find src/ -maxdepth 3 -type f -name shard.yml | xargs -I{} dirname {} | sed 's|^src/||' | sort); do
+SHARD_PATHS=$(find src/ -maxdepth 3 -type f -name shard.yml | xargs -I{} dirname {} | sed 's|^src/||' | sort)
+
+if [ "$JOBS" -gt 1 ]
+then
+  # Each shard runs via a separate invocation of this script with its output buffered to a log file.
+  # The logs are printed in order once all shards have finished so that the output of each shard is not interleaved.
+  LOG_DIR=$(mktemp -d)
+
+  for shardPath in $SHARD_PATHS; do echo "${shardPath#*/}"; done | \
+    xargs -P "$JOBS" -I{} bash -c '"$0" "$1" "$2" > "$3/$1.log" 2>&1; echo $? > "$3/$1.status"; echo "Finished components/$1 with exit status $(cat "$3/$1.status")"' "$0" {} "$SPEC_TYPE" "$LOG_DIR"
+
+  for shardPath in $SHARD_PATHS; do
+    name=${shardPath#*/}
+
+    echo "::group::$shardPath"
+    cat "$LOG_DIR/$name.log"
+    echo "::endgroup::"
+
+    if [ "$(cat "$LOG_DIR/$name.status")" -ne 0 ]; then
+      EXIT_CODE=1
+    fi
+  done
+
+  rm -rf "$LOG_DIR"
+  exit $EXIT_CODE
+fi
+
+for shardPath in $SHARD_PATHS; do
   name=${shardPath#*/}
 
   echo "::group::$shardPath"
