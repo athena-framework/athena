@@ -24,6 +24,9 @@
 #
 # See `Schema` for the full set of possible configuration options.
 #
+# NOTE: Hubs configured with a *secret* generate their JWTs via the optional `jwt` shard, see the [installation](/Mercure/#installation) instructions.
+# Hubs with a static token, via `jwt: {value: "..."}`, do not need it, but `AMC::Bundle::Authorization` cookies are not available to them.
+#
 # If multiple hubs are configured, they may be injected using the hub name as a constructor parameter typed to `AMC::Hub::Interface`.
 # For example `some_hub : AMC::Hub::Interface` assuming the key used in the `hubs` named tuple was `some_hub`.
 #
@@ -146,6 +149,7 @@ struct Athena::Mercure::Bundle < ADI::AbstractBundle
 
     # JWT configuration for authenticating with a Mercure hub.
     # Provide either *secret* to generate tokens dynamically, or *value* to use a static token.
+    # Generating tokens requires the optional `jwt` shard, see the [installation](/Mercure/#installation) instructions.
     #
     # ---
     # >>secret: The secret key used to sign JWTs.
@@ -153,7 +157,7 @@ struct Athena::Mercure::Bundle < ADI::AbstractBundle
     # Should be set via ENV var.
     # >>publish: Topic selectors that the generated JWT grants publish access to. Included in the JWT's `mercure.publish` claim.
     # >>subscribe: Topic selectors that the generated JWT grants subscribe access to. Included in the JWT's `mercure.subscribe` claim.
-    # >>algorithm: The signing algorithm used to encode the JWT.
+    # >>algorithm: The signing algorithm used to encode the JWT, as the name of a [JWT::Algorithm](https://github.com/crystal-community/jwt#supported-algorithms) member, such as `:hs256` or `:rs256`.
     # >>passphrase: Passphrase for the secret key, if the algorithm requires one (e.g. RSA).
     # >>value: A pre-built static JWT token string provided via `AMC::TokenProvider::Static`. When set, the token is used as-is and *secret*, *algorithm*, and *passphrase* are ignored.
     # ---
@@ -161,7 +165,7 @@ struct Athena::Mercure::Bundle < ADI::AbstractBundle
       secret : String? = nil,
       publish : Array(String) = [] of String,
       subscribe : Array(String) = [] of String,
-      algorithm : ::JWT::Algorithm = :hs256,
+      algorithm : Symbol = :hs256,
       passphrase : String = "",
       value : String? = nil
 
@@ -215,6 +219,16 @@ struct Athena::Mercure::Bundle < ADI::AbstractBundle
                   },
                 }
               else
+                unless @top_level.has_constant?("JWT")
+                  name.raise "Mercure hub '#{name.id}' generates JWTs, which requires the `jwt` shard. Add it to your `shard.yml` and `require \"jwt\"`, or use a static token via 'jwt.value'."
+                end
+
+                algorithms = parse_type("::JWT::Algorithm").resolve.constants.map(&.stringify.downcase)
+
+                unless algorithms.includes? jwt["algorithm"].id.stringify.downcase
+                  jwt["algorithm"].raise "Unknown JWT algorithm '#{jwt["algorithm"].id}' for Mercure hub '#{name.id}'. Expected one of: #{algorithms.join(", ").id}."
+                end
+
                 # TODO: Maybe support providing the factory/provider service ID?
 
                 # TODO: Service is already lazy so no need for dedicated lazy service?

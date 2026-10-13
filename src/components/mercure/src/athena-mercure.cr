@@ -1,5 +1,3 @@
-require "jwt"
-
 require "http/client"
 require "http/cookie"
 require "http/request"
@@ -13,7 +11,14 @@ require "./update"
 require "./exception/*"
 require "./hub/*"
 require "./token_provider/*"
-require "./token_factory/*"
+require "./token_factory/interface"
+
+# The JWT token factory requires the optional `jwt` shard, which may be required after this component.
+macro finished
+  {% if @top_level.has_constant?("JWT") %}
+    require "./token_factory/jwt"
+  {% end %}
+end
 
 # Convenience alias to make referencing `Athena::Mercure` types easier.
 alias AMC = Athena::Mercure

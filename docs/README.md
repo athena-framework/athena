@@ -23,7 +23,7 @@ These include:
 * [Validator](/Validator/) (`AVD`) - Object/value validation library
 
 These components may be used on their own to aid in existing projects or integrated into existing (or new) frameworks.
-Some components also ship an opt-in bundle that integrates them into the framework, such as the [ORM](/ORM/Bundle/) and [Mercure](/Mercure/Bundle/) components.
+Some components also ship an opt-in bundle that integrates them into the framework, such as the [Console](/Console/Bundle/), [Serializer](/Serializer/Bundle/), [Validator](/Validator/Bundle/), [ORM](/ORM/Bundle/), and [Mercure](/Mercure/Bundle/) components, see [Optional Components](./getting_started/README.md#optional-components).
 
 TIP: Each component may also define additional shortcut aliases. Check the `Aliases` page of each component in the [API Reference](./api_reference.md) for more information.
 

@@ -48,6 +48,8 @@ In other cases, the related component may provide these out of the box, such as:
 * [ACLK::Spec::MockClock](/Clock/Spec/MockClock) For testing time sensitive types
 * [AVD::Spec::FailingConstraint](/Validator/Spec/FailingConstraint) For testing invalid constraint related logic
 
+NOTE: `athena/spec` only includes the testing utilities of [optional components](./README.md#optional-components), such as the clock or validator, if the component itself is required.
+
 Checkout the `Spec` namespace of each component in the [API Reference](../api_reference.md) for more examples.
 
 Other services are best tested together with their real dependencies.

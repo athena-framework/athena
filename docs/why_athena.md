@@ -129,7 +129,7 @@ While this is a bit of extra boilerplate, it is an incredibly powerful pattern. 
 
 ### Flexibility
 
-Athena Framework is very flexible in that it is able to support both simple and complex use cases by adapting to the needs of the application without getting in the way of customizations the user wants to make. This is accomplished by providing all the components to the user, but not requiring they be used. If an application does not need to validate anything, the [Athena::Validator](/Validator/) component does not need to be installed. But if the need ever arises, registering its [bundle](/Validator/Bundle/) integrates it into the framework.
+Athena Framework is very flexible in that it is able to support both simple and complex use cases by adapting to the needs of the application without getting in the way of customizations the user wants to make. This is accomplished by only requiring the components the framework itself depends upon, while the others can be installed and integrated into the framework as the need arises. If an application does not need to validate anything, the [Athena::Validator](/Validator/) component does not need to be installed. But if the need ever arises, registering its [bundle](/Validator/Bundle/) integrates it into the framework.
 
 #### Dependency Injection
 
@@ -334,6 +334,7 @@ ATH.run
 ### CLI Applications
 
 Athena Framework can also be used to build CLI based applications. These could either be used directly by the end user, used for internal administrative tasks, or invoked on a schedule via `cron` or something similar.
+Commands are provided by the [Console](/Console/) component, which is integrated into the framework by requiring its [bundle](/Console/Bundle/).
 
 ```crystal
 @[ACONA::AsCommand("app:create-user")]

@@ -12,6 +12,8 @@ dependencies:
     version: ~> 0.4.0
 ```
 
+The component's YAML support links `libyaml`.
+
 ### With Dependency Injection
 
 Within an [Athena Framework](/Framework/) application, or any other application using the [dependency injection](/DependencyInjection/) component, also require `athena-serializer/bundle`:
