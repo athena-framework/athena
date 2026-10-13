@@ -1,4 +1,4 @@
-require "../spec_helper"
+require "../../spec_helper"
 
 struct FormatListenerTest < ASPEC::TestCase
   def test_fallback_format : Nil

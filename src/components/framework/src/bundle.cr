@@ -38,6 +38,7 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
     property trusted_header_overrides : Hash(Athena::HTTP::Request::ProxyHeader, String) = {} of NoReturn => NoReturn
 
     # Configuration related to the `ATH::Listeners::Format` listener.
+    # Enabling it requires the [Negotiation](/Negotiation/) component.
     #
     # If enabled, the rules are used to determine the best format for the current request based on its
     # [Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) header.
@@ -428,6 +429,10 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
           # Format Listener
           {%
             cfg = CONFIG["framework"]["format_listener"]
+
+            if cfg["enabled"] && !@top_level.has_constant?("ANG")
+              cfg["enabled"].raise "The format listener requires the Negotiation component. Add `athena-negotiation` to your `shard.yml` and `require \"athena-negotiation\"` to enable it."
+            end
 
             if cfg["enabled"] && !cfg["rules"].empty?
               matcher_arguments_to_service_id_map = {} of Nil => Nil

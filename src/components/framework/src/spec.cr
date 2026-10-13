@@ -1,12 +1,15 @@
 require "athena-spec"
 
-require "athena-clock/spec"
 require "athena-event_dispatcher/spec"
 require "athena-dependency_injection/spec"
 
 require "./spec/*"
 
 macro finished
+  {% if @top_level.has_constant?("ACLK") %}
+    require "athena-clock/spec"
+  {% end %}
+
   {% if @top_level.has_constant?("ACON") %}
     require "athena-console/spec"
   {% end %}

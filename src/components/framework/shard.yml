@@ -17,9 +17,6 @@ authors:
   - George Dietrich <dev@dietrich.pub>
 
 dependencies:
-  athena-clock:
-    github: athena-framework/clock
-    version: ~> 0.3.0
   athena-contracts:
     github: athena-framework/contracts
     version: ~> 0.1.0
@@ -35,12 +32,6 @@ dependencies:
   athena-http_kernel:
     github: athena-framework/http-kernel
     version: ~> 0.1.0
-  athena-mime:
-    github: athena-framework/mime
-    version: ~> 0.2.0
-  athena-negotiation:
-    github: athena-framework/negotiation
-    version: ~> 0.2.0
   athena-routing:
     github: athena-framework/routing
     version: ~> 0.2.0

@@ -49,6 +49,17 @@ require "athena-console/bundle"
 `ATH.run_console` now runs the application created via `ACON::Application.new("Athena", ATH::VERSION, ADI.container)`, which can also be used to create a customized application.
 Commands are now tagged `console.command` instead of `athena.console.command`.
 
+### The Clock and Negotiation components are optional
+
+The framework no longer depends on the [Clock](https://athenaframework.org/Clock/) or [Negotiation](https://athenaframework.org/Negotiation/) components.
+Applications that use either need to add it to their `shard.yml` and require it:
+
+```crystal
+require "athena"
+require "athena-clock"
+require "athena-negotiation"
+```
+
 ### Framework services serialize through `ATH::Serializer::Interface`
 
 `ATH::View::ViewHandler` and `ATHR::RequestBody` now depend on the new [ATH::Serializer::Interface](https://athenaframework.org/Framework/Serializer/Interface) instead of `ASR::SerializerInterface`.

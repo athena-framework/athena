@@ -5,6 +5,7 @@ require "mime"
 #
 # [AHTTP::Request::FORMATS](/HTTP/Request/#Athena::HTTP::Request::FORMATS) is used to determine the related format from the request's `MIME` type.
 #
+# Requires the [Negotiation](/Negotiation/) component.
 # See the [Getting Started](/getting_started/routing#content-negotiation) docs for more information.
 struct Athena::Framework::Listeners::Format
   def initialize(
