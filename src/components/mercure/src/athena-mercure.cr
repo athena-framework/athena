@@ -3,15 +3,19 @@ require "http/cookie"
 require "http/request"
 require "http/headers"
 require "http/server/response"
+require "json"
 
 require "./authorization"
 require "./discovery"
+require "./grant"
+require "./protocol_version"
 require "./update"
 
 require "./exception/*"
 require "./hub/*"
 require "./token_provider/*"
 require "./token_factory/interface"
+require "./token_factory/default_claims"
 
 # The JWT token factory requires the optional `jwt` shard, which may be required after this component.
 macro finished

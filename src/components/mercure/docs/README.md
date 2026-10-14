@@ -79,6 +79,11 @@ ADI.configure({
           secret:    ENV["MERCURE_JWT_SECRET"],
           publish:   ["*"],
           subscribe: ["*"],
+          claims:    {
+            "iss"       => "https://example.com",
+            "sub"       => "urn:example:app",
+            "client_id" => "https://example.com",
+          },
         },
       },
     },
@@ -121,6 +126,13 @@ volumes:
   mercure_config:
 ```
 
+### Protocol version
+
+The component speaks the Mercure protocol 1.0 by default, as implemented by Mercure hubs 1.0 and newer.
+Its JWTs are [RFC 9068](https://datatracker.ietf.org/doc/html/rfc9068) access tokens, which require the `iss`, `aud`, `sub`, and `client_id` claims.
+Subscribers select topics via the `match` query parameter, or `match_urlpattern` for [URL patterns](https://developer.mozilla.org/en-US/docs/Web/API/URL_Pattern_API), instead of the 0.x `topic` query parameter.
+To use a hub older than 1.0, configure both the [AMC::Hub](/Mercure/Hub/) and the [AMC::TokenFactory::JWT](/Mercure/TokenFactory/JWT/) for the Mercure protocol 0.x via `protocol_version: :legacy`, or the hub's `protocol_version: "0.x"` in the [bundle](/Mercure/Bundle/).
+
 ## Usage
 
 Now that the Mercure hub is running, we can use it to publish updates, and subscribe to receive those updates on the client side.
@@ -136,10 +148,19 @@ An [AMC::Update](/Mercure/Update/) instance should then be instantiated that rep
 A complete example of this flow is as follows:
 
 ```crystal
-token_factory = AMC::TokenFactory::JWT.new ENV["MERCURE_JWT_SECRET"]
+# Adds the claims required by the Mercure protocol 1.0 to every JWT the factory creates.
+token_factory = AMC::TokenFactory::DefaultClaims.new(
+  AMC::TokenFactory::JWT.new(ENV["MERCURE_JWT_SECRET"]),
+  {
+    "iss"       => "https://example.com",
+    "aud"       => ENV["MERCURE_URL"],
+    "sub"       => "urn:example:app",
+    "client_id" => "https://example.com",
+  } of String => String | Array(String)
+)
 
-# Use `*` to give the created JWT access to all topics.
-token_provider = AMC::TokenProvider::Factory.new token_factory, publish: ["*"]
+# Use `*` to give the created JWT access to publish to all topics.
+token_provider = AMC::TokenProvider::Factory.new token_factory, [AMC::Grant.new(:publish, ["*"])]
 
 hub = AMC::Hub.new ENV["MERCURE_URL"], token_provider, token_factory
 
@@ -164,7 +185,7 @@ For example via JS:
   <body>
     <script type="application/javascript">
       const url = new URL("http://localhost/.well-known/mercure");
-      url.searchParams.append("topic", "https://example.com/my-topic");
+      url.searchParams.append("match", "https://example.com/my-topic");
 
       const eventSource = new EventSource(url);
 
@@ -198,6 +219,28 @@ The preferred way of providing the JWT in a browser context is via a cookie.
 WARNING: To use the cookies, the Athena app and the Mercure Hub must be served from the same domain (can be different sub-domains).
 
 The Mercure component provides [AMC::Authorization](/Mercure/Authorization/) that can handle generating/setting the cookie given a request/response.
+The JWT of the cookie is allowed the provided [AMC::Grant](/Mercure/Grant/)s, or one of their shorthands to subscribe to some topics:
+
+```crystal
+authorization = AMC::Authorization.new hub_registry
+
+# Subscribe to the updates of a topic.
+authorization.set_cookie request, response, "https://example.com/books/1"
+
+# Or of the topics matching a URL pattern.
+authorization.set_cookie request, response, {"urlpattern" => ["https://example.com/books/:id"]}
+
+# Or a list of grants, such as to also expose a payload to the subscribers of the topics.
+authorization.set_cookie request, response, [
+  AMC::Grant.new(:subscribe, ["https://example.com/books/1"], JSON.parse(%({"user": "george"}))),
+  AMC::Grant.new(:publish, ["https://example.com/books/1/comments"]),
+]
+```
+
+The cookie is named after the hub's `cookie_name`, which defaults to `__Secure-mercure_access_token` under the Mercure protocol 1.0, and `mercureAuthorization` under the 0.x protocol.
+Browsers only accept `__Secure-` cookies over HTTPS, so use a hub with a `cookie_name` without the prefix, such as `mercure_access_token`, when developing over plain HTTP.
+The [bundle](/Mercure/Bundle/) does so by default when the `framework.debug` parameter is `true`.
+
 Cookies set by this helper class are automatically passed by the browser to the Mercure hub if the `withCredentials` attribute of `EventSource` is set to `true`:
 
 ```js
@@ -238,7 +281,7 @@ fetch('/books/1') // Has Link: <https://hub.example.com/.well-known/mercure>; re
 
     // Append the topic(s) to subscribe as query parameter
     const hub = new URL(hubUrl, window.origin);
-    hub.searchParams.append('topic', 'https://example.com/books/{id}');
+    hub.searchParams.append('match_urlpattern', 'https://example.com/books/:id');
 
     // Subscribe to updates
     const eventSource = new EventSource(hub);

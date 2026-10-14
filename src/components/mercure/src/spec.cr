@@ -14,6 +14,12 @@ module Athena::Mercure::Spec
     # :inherit:
     getter token_factory : AMC::TokenFactory::Interface?
 
+    # :inherit:
+    getter protocol_version : AMC::ProtocolVersion
+
+    # :inherit:
+    getter cookie_name : String
+
     @publisher : Proc(AMC::Update, String)
 
     def initialize(
@@ -21,8 +27,11 @@ module Athena::Mercure::Spec
       @token_provider : AMC::TokenProvider::Interface,
       @public_url : String? = nil,
       @token_factory : AMC::TokenFactory::Interface? = nil,
+      cookie_name : String? = nil,
+      @protocol_version : AMC::ProtocolVersion = :v1,
       &@publisher : AMC::Update -> String
     )
+      @cookie_name = cookie_name || @protocol_version.default_cookie_name
     end
 
     # :inherit:
@@ -44,16 +53,15 @@ module Athena::Mercure::Spec
 
     def initialize(
       @token : String,
-      @subscribe : Array(String)? = [] of String,
-      @publish : Array(String)? = [] of String,
+      @grants : Array(AMC::Grant) = [] of AMC::Grant,
       @additional_claims : Hash(String, String) = {} of String => String,
     )
     end
 
-    def create(subscribe : Array(String) | ::Nil = [] of String, publish : Array(String) | ::Nil = [] of String, additional_claims : Hash | ::Nil = nil) : String
-      subscribe.should eq @subscribe
-      publish.should eq @publish
-      additional_claims.should eq @additional_claims
+    def create(grants : Array(AMC::Grant) = [] of AMC::Grant, additional_claims : Hash | ::Nil = nil) : String
+      grants.should eq @grants
+      # No additional claims are equivalent to an empty hash of them.
+      (additional_claims || {} of String => String).should eq @additional_claims
 
       @token
     ensure

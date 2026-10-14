@@ -14,6 +14,12 @@ module Athena::Mercure::Hub::Interface
   # Returns the `AMC::TokenFactory::Interface` associated with this hub.
   abstract def token_factory : AMC::TokenFactory::Interface?
 
+  # Returns the version of the Mercure protocol this hub speaks.
+  abstract def protocol_version : AMC::ProtocolVersion
+
+  # Returns the name of the cookie subscribers of this hub are authorized with.
+  abstract def cookie_name : String
+
   # Publishes the provided *update* to this hub.
   abstract def publish(update : AMC::Update) : String
 end

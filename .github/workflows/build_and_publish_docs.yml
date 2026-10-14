@@ -21,7 +21,7 @@ jobs:
       - name: Install Crystal
         uses: crystal-lang/install-crystal@46e48b6238ee23b1a6ef08ec39f12fb234676006 # v1.9.3
       - name: Install Crystal Shard Dependencies
-        run: shards install --without-development
+        run: shards install
         env:
           SHARDS_OVERRIDE: ${{ inputs.branch == 'dev' && 'shard.dev.yml' || 'shard.prod.yml' }}
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0

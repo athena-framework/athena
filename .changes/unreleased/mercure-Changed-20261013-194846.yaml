@@ -1,0 +1,9 @@
+project: mercure
+kind: Changed
+body: '`AMC::TokenFactory::Interface#create`, `AMC::TokenProvider::Factory` and `AMC::Authorization` cookies are built from `AMC::Grants`'
+time: 2026-10-13T19:48:46.323076714-04:00
+custom:
+    Author: George Dietrich
+    Breaking: "Yes"
+    PR: "762"
+    Username: blacksmoke16

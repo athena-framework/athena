@@ -1,0 +1,8 @@
+project: mercure
+kind: Added
+body: Add the bundle's publisher/subscriber, jwt.provider/jwt.factory, claims, protocol_version and cookie_name hub options
+time: 2026-10-13T19:49:25.583760436-04:00
+custom:
+    Author: George Dietrich
+    PR: "762"
+    Username: blacksmoke16
