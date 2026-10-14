@@ -46,13 +46,22 @@ class Athena::Mercure::Hub
 
   # :inherit:
   def publish(update : AMC::Update) : String
-    @http_client.post(
-      @uri.path,
-      headers: ::HTTP::Headers{"authorization" => "Bearer #{@token_provider.jwt}"},
-      form: URI::Params.build { |form| self.encode form, update }
-    ).body
-  rescue ex : ::Exception
-    raise AMC::Exception::Runtime.new "Failed to send an update.", cause: ex
+    response = begin
+      @http_client.post(
+        @uri.path,
+        headers: ::HTTP::Headers{"authorization" => "Bearer #{@token_provider.jwt}"},
+        form: URI::Params.build { |form| self.encode form, update }
+      )
+    rescue ex : ::Exception
+      raise AMC::Exception::Runtime.new "Failed to send an update.", cause: ex
+    end
+
+    # The hub rejects an update with an error response, such as a `401` if the JWT is not valid.
+    unless response.success?
+      raise AMC::Exception::Runtime.new "Failed to send an update. The hub responded with HTTP #{response.status_code}."
+    end
+
+    response.body
   end
 
   private def encode(form : URI::Params::Builder, update : AMC::Update) : Nil

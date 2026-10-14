@@ -4,6 +4,7 @@ private URL = "https://demo.mercure.rocks/.well-known/mercure"
 
 private class MockHTTPClient < ::HTTP::Client
   setter exception : ::Exception? = nil
+  setter response : ::HTTP::Client::Response = ::HTTP::Client::Response.new :ok, "ID"
 
   def post(path, headers : ::HTTP::Headers? = nil, *, form : String | IO) : ::HTTP::Client::Response
     if ex = @exception
@@ -14,7 +15,7 @@ private class MockHTTPClient < ::HTTP::Client
     headers.should eq ::HTTP::Headers{"authorization" => "Bearer FOO"}
     form.should eq "topic=https%3A%2F%2Fdemo.mercure.rocks%2Fdemo%2Fbooks%2F1.jsonld&data=Hi+from+Athena%21&private=on&id=id&retry=3"
 
-    ::HTTP::Client::Response.new :ok, "ID"
+    @response
   end
 end
 
@@ -51,6 +52,24 @@ describe Athena::Mercure::Hub do
           3
         ))
       end
+    end
+  end
+
+  it "#publish error response" do
+    http_client = MockHTTPClient.new URI.parse URL
+    http_client.response = ::HTTP::Client::Response.new :unauthorized, "Unauthorized"
+
+    hub = AMC::Hub.new URL, AMC::TokenProvider::Static.new("FOO"), http_client: http_client
+
+    expect_raises AMC::Exception::Runtime, "Failed to send an update. The hub responded with HTTP 401." do
+      hub.publish(AMC::Update.new(
+        "https://demo.mercure.rocks/demo/books/1.jsonld",
+        "Hi from Athena!",
+        true,
+        "id",
+        nil,
+        3
+      ))
     end
   end
 
