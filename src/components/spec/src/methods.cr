@@ -165,6 +165,8 @@ module Athena::Spec::Methods
 
     args = [] of String
 
+    macro_code_coverage = false unless ENV["ATHENA_SPEC_COVERAGE_OUTPUT_DIR"]?.presence
+
     if macro_code_coverage
       args.push "tool", "macro_code_coverage"
     else
