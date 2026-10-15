@@ -8,7 +8,7 @@ private struct MarkerType < AORM::Types::Type
 
   def initialize(@marker : Int32 = 0); end
 
-  def sql_declaration(column : Sechema::Column, platform : AORM::Platforms::Platform) : String
+  def sql_declaration(column : AORM::Schema::Column, platform : AORM::Platforms::Platform) : String
     "MARKER#{@marker}"
   end
 

@@ -14,6 +14,10 @@ struct AbstractMySQLPlatformTest < ASPEC::TestCase
   def test_quote_single_identifier_escapes_backticks : Nil
     AORM::Platforms::MySQL.new.quote_single_identifier("we`ird").should eq "`we``ird`"
   end
+
+  def test_quote_string_literal_also_escapes_backslashes : Nil
+    AORM::Platforms::MySQL.new.quote_string_literal(%q(it's a\b)).should eq %q('it''s a\\b')
+  end
 end
 
 struct MySQLPlatformDeclarationTest < ASPEC::TestCase

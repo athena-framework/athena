@@ -20,6 +20,6 @@ struct VersionTest < ASPEC::TestCase
   def test_direction_to_s : Nil
     AORM::Migrations::Version::Direction::UP.to_s.should eq "up"
     AORM::Migrations::Version::Direction::DOWN.to_s.should eq "down"
-    "#{AORM::Migrations::Version::Direction::UP}".should eq "up"
+    "Direction: #{AORM::Migrations::Version::Direction::UP}".should eq "Direction: up"
   end
 end

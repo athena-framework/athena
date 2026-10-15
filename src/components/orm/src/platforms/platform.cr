@@ -17,6 +17,11 @@ abstract class Athena::ORM::Platforms::Platform
     %("#{identifier.gsub('"', "\"\"")}")
   end
 
+  # Returns *str* quoted as a string literal, with any embedded single quotes doubled.
+  def quote_string_literal(str : String) : String
+    "'#{str.gsub('\'', "''")}'"
+  end
+
   # Returns the `Time::Format` pattern used to parse date and time values that a driver returns as strings.
   def date_time_format_string : String
     "%F %T"
@@ -115,6 +120,12 @@ abstract class Athena::ORM::Platforms::Platform
   def convert_from_boolean(value : _) : Bool
     raise "#{self.class} cannot convert #{value.class} to Bool"
   end
+
+  # Returns the metadata provider that reads the metadata of the schema objects of the database *connection* is to.
+  abstract def create_metadata_provider(connection : AORM::Connection) : Schema::Metadata::MetadataProviderInterface
+
+  # Returns the schema manager that inspects the schema of the database *connection* is to, see `AORM::Connection#create_schema_manager`.
+  abstract def create_schema_manager(connection : AORM::Connection) : Schema::AbstractSchemaManager
 
   # SQL Declarations
 

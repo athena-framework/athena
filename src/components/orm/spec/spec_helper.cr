@@ -27,6 +27,14 @@ class MockPlatform < AORM::Platforms::Platform
     @crystal_boolean : Bool? = nil,
   ); end
 
+  def create_metadata_provider(connection : AORM::Connection) : AORM::Schema::Metadata::MetadataProviderInterface
+    AORM::Platforms::SQLiteMetadataProvider.new connection
+  end
+
+  def create_schema_manager(connection : AORM::Connection) : AORM::Schema::AbstractSchemaManager
+    AORM::Schema::SQLiteSchemaManager.new connection, self
+  end
+
   def boolean_type_declaration_sql(column : AORM::Schema::Column) : String
     "BOOLEAN"
   end

@@ -2,6 +2,7 @@ require "./athena-orm"
 
 require "./migrations/exception/*"
 require "./migrations/metadata/*"
+require "./migrations/metadata/storage/*"
 require "./migrations/query/*"
 require "./migrations/version/*"
 
