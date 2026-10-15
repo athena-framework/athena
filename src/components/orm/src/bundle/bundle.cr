@@ -26,6 +26,28 @@
 #   end
 # end
 # ```
+#
+# ## Migrations
+#
+# Requiring `athena-orm/migrations` also wires the services of [migrations](/ORM/database_migrations/), and their `orm:migrations:*` commands when the [console bundle](/Console/Bundle/) is registered.
+# Their namespace and directory must then be configured:
+#
+# ```
+# require "athena-orm/bundle"
+# require "athena-orm/migrations"
+#
+# ADI.configure({
+#   orm: {
+#     url:        ENV["DATABASE_URL"],
+#     migrations: {
+#       namespace: "App::Migrations",
+#       directory: "#{__DIR__}/migrations",
+#     },
+#   },
+# })
+# ```
+#
+# See `Schema::Migrations` for the other configuration properties.
 @[ADI::Bundle("orm")]
 struct Athena::ORM::Bundle < ADI::AbstractBundle
   # :nodoc:
@@ -49,8 +71,11 @@ struct Athena::ORM::Bundle < ADI::AbstractBundle
       # Required when `athena-orm/migrations` is required.
       property namespace : String? = nil
 
-      # The directory new migrations are generated in.
-      property directory : String = "src/migrations"
+      # The directory new migrations are generated in, e.g. `"#{__DIR__}/migrations"`.
+      # A relative path is relative to the directory the command runs in.
+      #
+      # Required when `athena-orm/migrations` is required.
+      property directory : String? = nil
 
       # Whether new migrations are generated to run in a transaction, see `AORM::Migrations::AbstractMigration#transactional?`.
       property transactional : Bool = true
@@ -114,6 +139,10 @@ struct Athena::ORM::Bundle < ADI::AbstractBundle
 
               unless migrations_cfg["namespace"]
                 raise "Required configuration property 'orm.migrations.namespace : String' must be provided when 'athena-orm/migrations' is required."
+              end
+
+              unless migrations_cfg["directory"]
+                raise "Required configuration property 'orm.migrations.directory : String' must be provided when 'athena-orm/migrations' is required."
               end
               namespace_prefix = "#{migrations_cfg["namespace"].id}::"
 

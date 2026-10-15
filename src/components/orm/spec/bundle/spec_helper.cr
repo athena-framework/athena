@@ -34,6 +34,7 @@ ADI.configure({
     url:        "mock://",
     migrations: {
       namespace: "App::Migrations",
+      directory: "src/migrations",
     },
   },
 })

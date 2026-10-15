@@ -48,6 +48,7 @@ end
 # ```
 #
 # The version of a migration is the fully qualified name of its type, and migrations run in the order of their versions.
+# See the [migrations guide](/ORM/database_migrations/) for how to configure, generate and execute them.
 module Athena::ORM::Migrations
   # Messages a migration writes via `AbstractMigration#write`, and warnings it raises via `AbstractMigration#warn_if`, are logged here.
   Log = ::Log.for "athena.orm.migrations"

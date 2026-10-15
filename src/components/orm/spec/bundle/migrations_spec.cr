@@ -120,7 +120,25 @@ describe AORM::Bundle, tags: "compiled" do
     ASPEC::Methods.assert_compile_time_error "Required configuration property 'orm.migrations.namespace : String' must be provided when 'athena-orm/migrations' is required.", <<-'CR', preamble: %(require "../spec_helper.cr"\nrequire "../../src/bundle"\nrequire "../../src/migrations")
       ADI.configure({
         orm: {
-          url: "mock://",
+          url:        "mock://",
+          migrations: {
+            directory: "src/migrations",
+          },
+        },
+      })
+
+      ADI.container
+    CR
+  end
+
+  it "requires the directory when migrations are required" do
+    ASPEC::Methods.assert_compile_time_error "Required configuration property 'orm.migrations.directory : String' must be provided when 'athena-orm/migrations' is required.", <<-'CR', preamble: %(require "../spec_helper.cr"\nrequire "../../src/bundle"\nrequire "../../src/migrations")
+      ADI.configure({
+        orm: {
+          url:        "mock://",
+          migrations: {
+            namespace: "App::Migrations",
+          },
         },
       })
 

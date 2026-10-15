@@ -15,8 +15,9 @@ class Athena::ORM::Migrations::Generator
   record MigrationTemplate, namespace : String, class_name : String, up : String?, down : String?, transactional : Bool do
     ECR.def_to_s "#{__DIR__}/migration.ecr"
 
-    # Returns *code* indented as a method body, each line ending in a newline, or nothing if there's no *code*.
     private def body(code : String?) : String
+      # Returns *code* indented as a method body, each line ending in a newline, or nothing if there's no *code*.
+      # This isn't a doc comment, which `crystal docs` emits between `private` and `def` when expanding the `record` block, failing to parse it.
       return "" if code.nil?
 
       code.each_line.join { |line| "    #{line}\n" }

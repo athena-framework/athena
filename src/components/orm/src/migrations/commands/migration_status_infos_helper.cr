@@ -44,11 +44,12 @@ class Athena::ORM::Migrations::Commands::MigrationStatusInfosHelper
                  "<comment>not migrated</comment>"
                end
 
+      # Whole seconds are printed without a fraction, e.g. `2s`, and other times with up to 14 significant digits, e.g. `1.5s`.
       table.add_row(
         version.to_s,
         status,
         executed_at.to_s,
-        execution_time ? "#{execution_time.total_seconds}s" : "",
+        execution_time ? "#{"%.14g" % execution_time.total_seconds}s" : "",
         description,
       )
     end

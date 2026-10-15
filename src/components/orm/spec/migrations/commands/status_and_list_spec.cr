@@ -35,7 +35,7 @@ struct ListCommandTest < ASPEC::TestCase
   def test_lists_available_and_executed_migrations : Nil
     storage = InMemoryMetadataStorage.new
     storage.complete AORM::Migrations::Version::ExecutionResult.new(migrations_spec_version(MigrationsSpec::Version1), :up, Time.utc(2026, 10, 14, 12, 30)).tap(&.time = 1.5.seconds)
-    storage.complete AORM::Migrations::Version::ExecutionResult.new(AORM::Migrations::Version.new("MigrationsSpec::Removed"), :up)
+    storage.complete AORM::Migrations::Version::ExecutionResult.new(AORM::Migrations::Version.new("MigrationsSpec::Removed"), :up).tap(&.time = 2.seconds)
 
     fixture = MigrationsCommandsFixture.new [MigrationsSpec::Version1, MigrationsSpec::Version2] of AORM::Migrations::AbstractMigration.class, storage
     tester = ACON::Spec::CommandTester.new AORM::Migrations::Commands::List.new(fixture.plan_calculator, fixture.storage, fixture.status_infos_helper)
@@ -43,7 +43,7 @@ struct ListCommandTest < ASPEC::TestCase
     tester.execute.should eq ACON::Command::Status::SUCCESS
 
     display = tester.display
-    display.should match /\| MigrationsSpec::Removed\s+\| migrated, not available\s+\|/
+    display.should match /\| MigrationsSpec::Removed\s+\| migrated, not available\s+\|[^|]+\| 2s\s+\|/
     display.should match /\| MigrationsSpec::Version1\s+\| migrated\s+\| 2026-10-14 12:30:00 \| 1\.5s\s+\|/
     display.should match /\| MigrationsSpec::Version2\s+\| not migrated\s+\|/
     display.index!("MigrationsSpec::Removed").should be < display.index!("MigrationsSpec::Version1")
