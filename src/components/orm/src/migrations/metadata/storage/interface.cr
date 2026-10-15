@@ -8,7 +8,4 @@ module Athena::ORM::Migrations::Metadata::Storage::Interface
 
   # Records the migration of *result* as executed if it was applied, or as no longer executed if it was reverted.
   abstract def complete(result : AORM::Migrations::Version::ExecutionResult) : Nil
-
-  # Forgets every executed migration.
-  abstract def reset : Nil
 end

@@ -17,6 +17,14 @@ struct SchemaManagerTest < ASPEC::TestCase
     wrapped.executed_statements.last[0].should contain "NOT IN ('geometry_columns', 'spatial_ref_sys', 'sqlite_sequence')"
   end
 
+  # The schema manager, and the metadata provider it lists tables with, come from the connection's platform.
+  def test_comes_from_the_connections_platform : Nil
+    wrapped = MockConnection.new
+    wrapped.queue_result rows({"name" => "users"})
+
+    AORM::Connection.new(wrapped, MockPlatformDriver.new).create_schema_manager.introspect_table_names.should eq ["users"]
+  end
+
   def test_postgres_qualifies_tables_outside_the_current_schema : Nil
     wrapped = MockConnection.new driver_name: "postgres"
     wrapped.queue_result rows({"current_schema" => "public"})

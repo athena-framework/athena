@@ -60,10 +60,6 @@ class InMemoryMetadataStorage
       @executed << AORM::Migrations::Metadata::ExecutedMigration.new result.version, result.executed_at, result.time
     end
   end
-
-  def reset : Nil
-    @executed.clear
-  end
 end
 
 def migrations_spec_version(migration_class : AORM::Migrations::AbstractMigration.class) : AORM::Migrations::Version

@@ -47,7 +47,7 @@ class Athena::ORM::Migrations::Metadata::Storage::TableMetadataStorage
     AORM::Migrations::Metadata::ExecutedMigrationsList.new migrations.sort_by!(&.version.to_s)
   end
 
-  # :inherit:
+  # Forgets every executed migration.
   def reset : Nil
     self.check_initialization
 

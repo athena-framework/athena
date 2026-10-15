@@ -70,6 +70,13 @@ private class FailingMetadataStorage < InMemoryMetadataStorage
   end
 end
 
+# Exposes how each execution state is described when a migration fails or is skipped in it.
+private class StateDescribingExecutor < AORM::Migrations::Version::Executor
+  def describe(state : AORM::Migrations::Version::State) : String
+    self.execution_state_as_string state
+  end
+end
+
 struct ExecutorTest < ASPEC::TestCase
   @wrapped : MockConnection
   @storage : InMemoryMetadataStorage
@@ -265,6 +272,16 @@ struct ExecutorTest < ASPEC::TestCase
 
     executor.execute(self.plan(ExecutorSpecMigration, :up), AORM::Migrations::MigratorConfiguration.new).sql.size.should eq 2
     executor.execute(self.plan(ExecutorSpecMigration, :up), AORM::Migrations::MigratorConfiguration.new).sql.size.should eq 2
+  end
+
+  # A migration only fails or is skipped once it's started, so it's never described as having no state.
+  def test_describes_each_execution_state : Nil
+    executor = StateDescribingExecutor.new @storage, AORM::Connection.new(@wrapped)
+
+    executor.describe(:none).should eq "No State"
+    executor.describe(:pre).should eq "Pre-Checks"
+    executor.describe(:exec).should eq "Execution"
+    executor.describe(:post).should eq "Post-Checks"
   end
 
   private def executor(storage : InMemoryMetadataStorage = @storage) : AORM::Migrations::Version::Executor

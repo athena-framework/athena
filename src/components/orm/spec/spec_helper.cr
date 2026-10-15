@@ -17,6 +17,13 @@ class SpecCollectionTypes
   @@persistent_entity : AORM::PersistentCollection(AORM::Entity)? = nil
 end
 
+# Connects with a `MockPlatform`, whatever driver shard the wrapped connection is from.
+struct MockPlatformDriver < AORM::Driver
+  def database_platform(connection : DB::Connection) : AORM::Platforms::Platform
+    MockPlatform.new
+  end
+end
+
 class MockPlatform < AORM::Platforms::Platform
   setter db_boolean : Bool?
   setter crystal_boolean : Bool?

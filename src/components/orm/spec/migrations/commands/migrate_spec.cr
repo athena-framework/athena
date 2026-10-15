@@ -40,6 +40,38 @@ struct MigrateCommandTest < ASPEC::TestCase
     tester.display.should contain %(The version "prev" couldn't be reached, you are at version "0")
   end
 
+  @[DataProvider("target_aliases")]
+  def test_execute_at_version(target_alias : String, level : String, executed_migration : String?) : Nil
+    storage = executed_migration ? InMemoryMetadataStorage.new(MigrationsSpec::Version1) : InMemoryMetadataStorage.new
+    @fixture = MigrationsCommandsFixture.new [MigrationsSpec::Version1] of AORM::Migrations::AbstractMigration.class, storage
+    tester = self.command_tester
+
+    tester.execute(version: target_alias, interactive: false).should eq ACON::Command::Status::SUCCESS
+
+    message = if target_alias.in? "current", "latest", "first"
+                %([#{level}] Already at the #{target_alias} version ("#{executed_migration || "0"}"))
+              elsif target_alias == "MigrationsSpec::Version1"
+                %([#{level}] You are already at version "#{target_alias}")
+              else
+                %([#{level}] The version "#{target_alias}" couldn't be reached, you are at version "#{executed_migration || "0"}")
+              end
+
+    # Long messages wrap onto several lines of the output.
+    tester.display.should match Regex.new(message.split(' ').join("\\s+") { |word| Regex.escape word })
+  end
+
+  def target_aliases : Tuple
+    {
+      {"MigrationsSpec::Version1", "OK", "MigrationsSpec::Version1"}, # already at the migration
+      {"latest", "OK", "MigrationsSpec::Version1"},                   # already at latest
+      {"first", "OK", nil},                                           # already at first
+      {"next", "ERROR", "MigrationsSpec::Version1"},                  # already at latest, no next available
+      {"prev", "ERROR", nil},                                         # no prev, already at first
+      {"current", "OK", "MigrationsSpec::Version1"},                  # already at latest, always
+      {"current+1", "ERROR", "MigrationsSpec::Version1"},             # no current+1
+    }
+  end
+
   def test_unknown_version : Nil
     tester = self.command_tester
 
