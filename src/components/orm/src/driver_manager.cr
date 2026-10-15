@@ -17,10 +17,10 @@ module Athena::ORM::DriverManager
 
   # Returns the driver adapting *connection*'s driver shard.
   #
-  # Raises `AORM::Exceptions::UnknownDriver` if the ORM doesn't support it.
+  # Raises `AORM::Exception::UnknownDriver` if the ORM doesn't support it.
   def self.driver(connection : DB::Connection) : AORM::Driver
     driver_name = connection.driver_name
-    driver_class = DRIVER_MAP[driver_name]? || raise Exceptions::UnknownDriver.new driver_name, DRIVER_MAP.keys
+    driver_class = DRIVER_MAP[driver_name]? || raise Exception::UnknownDriver.new driver_name, DRIVER_MAP.keys
 
     driver_class.new
   end

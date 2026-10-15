@@ -103,7 +103,7 @@ struct SimpleObjectHydratorTest < ASPEC::TestCase
 
     rs = FakeResultSet.new([] of Hash(String, DB::Any))
 
-    expect_raises(Exception, /more than one object result/) do
+    expect_raises(AORM::Exception::Runtime, "Cannot use the SimpleObject hydrator with a ResultSetMapping that contains more than one object result.") do
       AORM::Internal::Hydrators::SimpleObject.new(em).hydrate_all(rs, rsm)
     end
   end

@@ -25,4 +25,18 @@ struct SmallFloatTypeTest < ASPEC::TestCase
 
     @type.to_crystal_value(rs, @platform).should eq 1.5_f32
   end
+
+  def test_rejects_other_values : Nil
+    expect_raises(AORM::Exception::ValueNotConvertible, %(Could not convert database value "true" to type "smallfloat".)) do
+      @type.to_crystal_value(true, @platform)
+    end
+  end
+
+  def test_rejects_unparsable_values : Nil
+    ex = expect_raises(AORM::Exception::ValueNotConvertible, %(Could not convert database value "abc" to type "smallfloat".)) do
+      @type.to_crystal_value("abc", @platform)
+    end
+
+    ex.cause.should be_a ArgumentError
+  end
 end

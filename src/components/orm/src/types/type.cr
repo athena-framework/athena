@@ -195,14 +195,14 @@ module Athena::ORM::Types
 
     # Returns the type registered as *name*.
     #
-    # Raises if no type is registered with that name.
+    # Raises `AORM::Exception::UnknownColumnType` if no type is registered with that name.
     def self.get_type(name : ::String) : self
       self.type_registry.get(name)
     end
 
     # Registers *type* as *name*, so fields can be mapped to it with `@[AORMA::Column(type: name)]`.
     #
-    # Raises if a type is already registered with that name; use `.override_type` to replace one.
+    # Raises `AORM::Exception::TypesAlreadyExists` if a type is already registered with that name; use `.override_type` to replace one.
     def self.add_type(name : ::String, type : AORM::Types::Type) : Nil
       self.type_registry.register(name, type)
     end
@@ -214,7 +214,7 @@ module Athena::ORM::Types
 
     # Replaces the type registered as *name* with *type*, e.g. to change how a built-in type converts its values.
     #
-    # Raises if no type is registered with that name.
+    # Raises `AORM::Exception::TypeNotFound` if no type is registered with that name.
     def self.override_type(name : ::String, type : AORM::Types::Type) : Nil
       self.type_registry.override name, type
     end

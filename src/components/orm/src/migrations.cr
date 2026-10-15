@@ -54,7 +54,10 @@ module Athena::ORM::Migrations
   Log = ::Log.for "athena.orm.migrations"
 
   # Both acts as a namespace for exceptions related to migrations, as well as a way to check for exceptions from them.
-  module Exception; end
+  # They are also `AORM::Exception`s.
+  module Exception
+    include AORM::Exception
+  end
 
   # Contains the types describing which migrations are available, which have been executed, and which are planned to be.
   module Metadata; end

@@ -273,7 +273,7 @@ module Athena::ORM::Query
         end
       end
 
-      raise "Cannot add index-by: field '#{field_name}' is not registered on alias '#{alias_name}'"
+      raise AORM::Exception::Logic.new "Cannot add index-by: field '#{field_name}' is not registered on alias '#{alias_name}'"
     end
 
     # Indexes the results of the entity under *alias_name* by the result column *column_name*.

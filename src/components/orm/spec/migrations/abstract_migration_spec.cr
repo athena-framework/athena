@@ -80,6 +80,10 @@ struct AbstractMigrationTest < ASPEC::TestCase
     expect_raises AORM::Migrations::Exception::ControlException, "Unknown Reason" do
       ControlledMigration.new(migrations_spec_connection, true).abort
     end
+
+    expect_raises AORM::Exception, "Unknown Reason" do
+      ControlledMigration.new(migrations_spec_connection, true).abort
+    end
   end
 
   def test_raise_irreversible_migration_exception : Nil

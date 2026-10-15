@@ -50,7 +50,7 @@ abstract class Athena::ORM::Mapping::ToOneOwningSide < Athena::ORM::Mapping::Own
 
     instance.join_columns.each do |jc|
       if instance.id?
-        raise "cannot set nullable field for join columns in a to-one association" unless jc.nullable.nil?
+        raise AORM::Exception::Mapping.cannot_set_nullable_on_to_one_identifier_join_columns instance.source_entity.to_s, instance.field_name unless jc.nullable.nil?
 
         jc.nullable = false
       elsif jc.nullable.nil?
@@ -86,7 +86,7 @@ abstract class Athena::ORM::Mapping::ToOneOwningSide < Athena::ORM::Mapping::Own
     end
 
     unless unique_constraint_columns.empty?
-      raise "table must be set before defining a one to one relationship" if table.nil?
+      raise AORM::Exception::Runtime.new "The table has to be set before defining a one to one relationship." if table.nil?
 
       # TODO: Handle unique constraints
     end

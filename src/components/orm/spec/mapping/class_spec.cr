@@ -121,7 +121,7 @@ struct MappingClassTest < ASPEC::TestCase
     metadata = AORM::Mapping::Class(SinglePkFixture).new
     metadata.map_field AORM::Mapping::Driver::ColumnMapping.new(field_name: "id", column_name: "shared")
 
-    expect_raises Exception, /Duplicate column name 'shared'/ do
+    expect_raises AORM::Exception::Mapping, "Duplicate definition of column 'shared' on entity 'SinglePkFixture' in a field or discriminator column mapping." do
       metadata.map_field AORM::Mapping::Driver::ColumnMapping.new(field_name: "label", column_name: "shared")
     end
   end
@@ -130,7 +130,7 @@ struct MappingClassTest < ASPEC::TestCase
     metadata = AORM::Mapping::Class(SinglePkFixture).new
     metadata.map_field AORM::Mapping::Driver::ColumnMapping.new(field_name: "id", column_name: "col_a")
 
-    expect_raises Exception, /Duplicate field mapping 'id'/ do
+    expect_raises AORM::Exception::Mapping, %(Property "id" in "SinglePkFixture" was already declared, but it must be declared only once) do
       metadata.map_field AORM::Mapping::Driver::ColumnMapping.new(field_name: "id", column_name: "col_b")
     end
   end
@@ -165,7 +165,7 @@ struct MappingClassTest < ASPEC::TestCase
     metadata.map_field AORM::Mapping::Driver::ColumnMapping.new(field_name: "id_a", id: true)
     metadata.map_field AORM::Mapping::Driver::ColumnMapping.new(field_name: "id_b", id: true)
 
-    expect_raises Exception, /single id not allowed on composite primary key/ do
+    expect_raises AORM::Exception::Mapping, "Single id is not allowed on composite primary key in entity CompositePkFixture" do
       metadata.single_identifier_field_name
     end
   end
@@ -174,7 +174,7 @@ struct MappingClassTest < ASPEC::TestCase
     metadata = AORM::Mapping::Class(NoIdFixture).new
     metadata.map_field AORM::Mapping::Driver::ColumnMapping.new(field_name: "name")
 
-    expect_raises Exception, /no ID defined/ do
+    expect_raises AORM::Exception::Mapping, "No ID defined for entity NoIdFixture" do
       metadata.single_identifier_field_name
     end
   end
@@ -256,7 +256,7 @@ struct MappingClassTest < ASPEC::TestCase
   def test_assign_identifier_raises_on_unknown_field : Nil
     metadata = AORM::Mapping::Class(SinglePkFixture).new
 
-    expect_raises Exception, /Field nope not found/ do
+    expect_raises Exception, "BUG: Field nope not found on SinglePkFixture" do
       metadata.assign_identifier(SinglePkFixture.new, "nope", 1_i64)
     end
   end
@@ -264,7 +264,7 @@ struct MappingClassTest < ASPEC::TestCase
   def test_set_field_value_raises_on_type_mismatch : Nil
     metadata = AORM::Mapping::Class(SinglePkFixture).new
 
-    expect_raises Exception, "Type mismatch for 'label' on SinglePkFixture: got Int32" do
+    expect_raises AORM::Exception::Mapping, "Type mismatch for 'label' on SinglePkFixture: got Int32" do
       metadata.set_field_value SinglePkFixture.new, "label", 1
     end
   end
@@ -272,7 +272,7 @@ struct MappingClassTest < ASPEC::TestCase
   def test_create_column_value_raises_on_type_mismatch : Nil
     metadata = AORM::Mapping::Class(SinglePkFixture).new
 
-    expect_raises Exception, "Type mismatch for 'label' on SinglePkFixture: got Int32" do
+    expect_raises AORM::Exception::Mapping, "Type mismatch for 'label' on SinglePkFixture: got Int32" do
       metadata.create_column_value "label", 1
     end
   end
@@ -288,7 +288,7 @@ struct MappingClassTest < ASPEC::TestCase
   def test_assign_identifier_raises_on_type_mismatch : Nil
     metadata = AORM::Mapping::Class(SinglePkFixture).new
 
-    expect_raises Exception, /type mismatch/ do
+    expect_raises AORM::Exception::Mapping, "Type mismatch for 'id' on SinglePkFixture: got String" do
       metadata.assign_identifier(SinglePkFixture.new, "id", "not-an-int")
     end
   end
@@ -363,7 +363,7 @@ struct MappingClassTest < ASPEC::TestCase
   def test_many_to_one_with_orphan_removal_raises : Nil
     metadata = AORM::Mapping::Class(AssocOwner).new
 
-    expect_raises Exception, /illegal orphan removal/ do
+    expect_raises AORM::Exception::Mapping, "Orphan removal is only allowed on one-to-one and one-to-many associations, but AssocOwner#target is not." do
       metadata.map_many_to_one AORM::Mapping::Driver::ColumnMapping.new(
         field_name: "target", orphan_removal: true
       )
@@ -373,7 +373,7 @@ struct MappingClassTest < ASPEC::TestCase
   def test_to_many_with_id_raises : Nil
     metadata = AORM::Mapping::Class(AssocOwner).new
 
-    expect_raises Exception, /illegal to many identifier association/ do
+    expect_raises AORM::Exception::Mapping, "Many-to-many or one-to-many associations are not allowed to be identifier in 'AssocOwner#collection'." do
       metadata.map_one_to_many AORM::Mapping::Driver::ColumnMapping.new(
         field_name: "collection", mapped_by: "target", id: true
       )
@@ -384,8 +384,17 @@ struct MappingClassTest < ASPEC::TestCase
     metadata = AORM::Mapping::Class(AssocOwner).new
     metadata.map_field AORM::Mapping::Driver::ColumnMapping.new(field_name: "target", type: "string")
 
-    expect_raises Exception, /Duplicate field mapping 'target'/ do
+    expect_raises AORM::Exception::Mapping, %(Property "target" in "AssocOwner" was already declared, but it must be declared only once) do
       metadata.map_one_to_one AORM::Mapping::Driver::ColumnMapping.new(field_name: "target")
+    end
+  end
+
+  def test_field_collides_with_existing_association : Nil
+    metadata = AORM::Mapping::Class(AssocOwner).new
+    metadata.map_one_to_one AORM::Mapping::Driver::ColumnMapping.new(field_name: "target")
+
+    expect_raises AORM::Exception::Mapping, %(Property "target" in "AssocOwner" was already declared, but it must be declared only once) do
+      metadata.map_field AORM::Mapping::Driver::ColumnMapping.new(field_name: "target", type: "string")
     end
   end
 

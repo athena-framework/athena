@@ -32,4 +32,18 @@ struct SmallIntTypeTest < ASPEC::TestCase
 
     @type.to_crystal_value(rs, @platform).should eq 7_i16
   end
+
+  def test_rejects_other_values : Nil
+    expect_raises(AORM::Exception::ValueNotConvertible, %(Could not convert database value "true" to type "smallint".)) do
+      @type.to_crystal_value(true, @platform)
+    end
+  end
+
+  def test_rejects_unparsable_values : Nil
+    ex = expect_raises(AORM::Exception::ValueNotConvertible, %(Could not convert database value "40000" to type "smallint".)) do
+      @type.to_crystal_value(40_000, @platform)
+    end
+
+    ex.cause.should be_a OverflowError
+  end
 end

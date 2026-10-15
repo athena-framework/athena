@@ -27,12 +27,14 @@ macro finished
         case value
         when Nil, ::BigDecimal       then value
         when ::String, ::Int         then ::BigDecimal.new value
-        when ::Bool, ::Time, Bytes   then raise "Number cannot accept #{value.class}"
+        when ::Bool, ::Time, Bytes   then raise AORM::Exception::ValueNotConvertible.new value.to_s, AORM::Types::NUMBER
         else
           # SQLite can return a decimal column as a float, and Postgres as a `PG::Numeric`.
           # A float's shortest representation is the decimal it was read from.
           ::BigDecimal.new value.to_s
         end
+      rescue ex : InvalidBigDecimalException
+        raise AORM::Exception::ValueNotConvertible.new value.to_s, AORM::Types::NUMBER, cause: ex
       end
 
       # :inherit:

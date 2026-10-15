@@ -48,10 +48,18 @@ struct EntityRepositoryTest < ASPEC::TestCase
     @persister.load_by_id_calls.should be_empty
   end
 
-  def test_find_bang_raises_no_result_when_the_entity_is_missing : Nil
+  def test_find_bang_raises_entity_not_found_when_the_entity_is_missing : Nil
     @persister.mock_load_by_id_result = nil
 
-    expect_raises(AORM::Exceptions::NoResult) do
+    expect_raises(AORM::Exception::EntityNotFound, "Entity of type 'CmsPhonenumber' for IDs phonenumber(missing) was not found") do
+      repository.find!("missing")
+    end
+  end
+
+  def test_exceptions_can_be_rescued_via_the_namespace : Nil
+    @persister.mock_load_by_id_result = nil
+
+    expect_raises AORM::Exception, "was not found" do
       repository.find!("missing")
     end
   end

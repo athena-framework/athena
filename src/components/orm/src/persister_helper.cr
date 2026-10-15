@@ -57,7 +57,7 @@ module Athena::ORM
 
       # TODO: Iterate over many-to-many owning side association mappings
 
-      raise "Could not resolve type of column '#{column_name}' of class '#{metadata.entity_class}'"
+      raise AORM::Exception::Runtime.new %(Could not resolve type of column "#{column_name}" of class "#{metadata.entity_class}")
     end
 
     # Returns the type name of each parameter bound when filtering *field* by a single value, in binding order.

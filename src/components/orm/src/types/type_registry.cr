@@ -14,9 +14,9 @@ struct Athena::ORM::Types::TypeRegistry
 
   # Returns the type registered as *name*.
   #
-  # Raises if no type is registered with that name.
+  # Raises `AORM::Exception::UnknownColumnType` if no type is registered with that name.
   def get(name : ::String) : AORM::Types::Type
-    @instances[name]? || raise "Unknown type: #{name}"
+    @instances[name]? || raise AORM::Exception::UnknownColumnType.new name
   end
 
   # Returns `true` if a type is registered as *name*.
@@ -26,17 +26,17 @@ struct Athena::ORM::Types::TypeRegistry
 
   # Registers *type* as *name*.
   #
-  # Raises if a type is already registered with that name.
+  # Raises `AORM::Exception::TypesAlreadyExists` if a type is already registered with that name.
   def register(name : ::String, type : AORM::Types::Type) : Nil
-    raise "Type '#{name}' already exists" if @instances.has_key?(name)
+    raise AORM::Exception::TypesAlreadyExists.new name if @instances.has_key?(name)
     @instances[name] = type
   end
 
   # Replaces the type registered as *name* with *type*.
   #
-  # Raises if no type is registered with that name.
+  # Raises `AORM::Exception::TypeNotFound` if no type is registered with that name.
   def override(name : ::String, type : AORM::Types::Type) : Nil
-    raise "Type '#{name}' not found" unless @instances.has_key?(name)
+    raise AORM::Exception::TypeNotFound.new name unless @instances.has_key?(name)
     @instances[name] = type
   end
 end

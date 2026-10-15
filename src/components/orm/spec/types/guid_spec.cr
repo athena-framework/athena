@@ -33,4 +33,18 @@ struct GuidTypeTest < ASPEC::TestCase
 
     @type.to_crystal_value(rs, @platform).should eq UUID.new("4f8b3c2a-1d5e-4b7a-9c3f-2e6d8a1b5c7e")
   end
+
+  def test_rejects_other_values : Nil
+    expect_raises(AORM::Exception::ValueNotConvertible, %(Could not convert database value "1" to type "guid".)) do
+      @type.to_crystal_value(1, @platform)
+    end
+  end
+
+  def test_rejects_unparsable_values : Nil
+    ex = expect_raises(AORM::Exception::ValueNotConvertible, %(Could not convert database value "not-a-uuid" to type "guid".)) do
+      @type.to_crystal_value("not-a-uuid", @platform)
+    end
+
+    ex.cause.should be_a ArgumentError
+  end
 end

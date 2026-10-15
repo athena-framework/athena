@@ -231,7 +231,7 @@ struct ResultSetMappingTest < ASPEC::TestCase
     rsm = AORM::Query::ResultSetMapping.new
     rsm.add_entity_result(CmsUser, "u")
 
-    expect_raises(Exception, /not registered/) do
+    expect_raises(AORM::Exception::Logic, /not registered/) do
       rsm.add_index_by("u", "id")
     end
   end

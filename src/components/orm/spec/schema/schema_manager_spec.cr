@@ -68,7 +68,7 @@ struct SchemaManagerTest < ASPEC::TestCase
     wrapped = MockConnection.new driver_name: "mysql"
     wrapped.queue_result rows({"DATABASE()" => nil})
 
-    expect_raises Exception, "A database is required for the method: Athena::ORM::Platforms::MySQLMetadataProvider#initialize." do
+    expect_raises AORM::Exception::DatabaseRequired, "A database is required for the method: Athena::ORM::Platforms::MySQLMetadataProvider#initialize." do
       AORM::Connection.new(wrapped).create_schema_manager.introspect_table_names
     end
   end

@@ -11,7 +11,7 @@ struct Athena::ORM::ID::AssignedGenerator < Athena::ORM::ID::AbstractGenerator
       value = class_metadata.create_column_value_from_entity id_field, entity
 
       if value.nil?
-        raise "entity missing assigned ID"
+        raise AORM::Exception::EntityMissingAssignedId.for_field entity, id_field
       end
 
       if class_metadata.association_mappings.has_key?(id_field) && value.is_a?(AORM::Entity)

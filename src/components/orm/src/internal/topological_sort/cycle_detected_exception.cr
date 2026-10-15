@@ -2,7 +2,9 @@
 #
 # Raised when a cycle is detected during topological sorting.
 # Tracks the nodes forming the cycle for diagnostic purposes.
-class Athena::ORM::Internal::TopologicalSort::CycleDetectedException < Athena::ORM::Exceptions::ORMException
+class Athena::ORM::Internal::TopologicalSort::CycleDetectedException < RuntimeError
+  include Athena::ORM::Exception
+
   getter cycle : Array(AORM::Entity)
   getter? cycle_collected : Bool = false
 

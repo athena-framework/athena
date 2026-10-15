@@ -22,9 +22,13 @@ struct Athena::ORM::Types::Datetime < Athena::ORM::Types::Type
   def to_crystal_value(value : _, platform : Platforms::Platform) : ::Time?
     return value if value.is_a?(::Time?)
 
-    raise "Datetime cannot accept #{value.class}" unless value.is_a? ::String
+    raise AORM::Exception::ValueNotConvertible.new value.to_s, AORM::Types::DATETIME unless value.is_a? ::String
 
-    ::Time.parse_utc value, platform.date_time_format_string
+    begin
+      ::Time.parse_utc value, platform.date_time_format_string
+    rescue ex : ::Time::Format::Error
+      raise AORM::Exception::InvalidFormat.new value, AORM::Types::DATETIME, platform.date_time_format_string, ex
+    end
   end
 
   # :inherit:

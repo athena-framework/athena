@@ -24,8 +24,10 @@ struct Athena::ORM::Types::Guid < Athena::ORM::Types::Type
     case value
     when Nil, UUID then value
     when ::String  then UUID.new value
-    else                raise "Guid cannot accept #{value.class}"
+    else                raise AORM::Exception::ValueNotConvertible.new value.to_s, AORM::Types::GUID
     end
+  rescue ex : ArgumentError
+    raise AORM::Exception::ValueNotConvertible.new value.to_s, AORM::Types::GUID, cause: ex
   end
 
   # :inherit:

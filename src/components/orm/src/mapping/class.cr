@@ -54,14 +54,14 @@ module Athena::ORM::Mapping
   # Raised by the per-field accessors when *value* doesn't fit *field_name* on *entity_class*.
   # Describing an arbitrary value's class costs code proportional to every type it could be, so it's generated once here rather than in each field of every entity.
   def self.raise_type_mismatch(field_name : String, entity_class : String, value) : NoReturn
-    raise "Type mismatch for '#{field_name}' on #{entity_class}: got #{value.class}"
+    raise AORM::Exception::Mapping.field_type_mismatch entity_class, field_name, value.class.to_s
   end
 
   # :nodoc:
   #
-  # Raised when *id_field* isn't an identifier field on *entity_class*, or *id_value* doesn't fit it.
-  def self.raise_identifier_mismatch(id_field : String, entity_class : String, id_value) : NoReturn
-    raise "BUG: Field #{id_field} not found on #{entity_class} or type mismatch (got #{id_value.class})"
+  # Raised when *id_field* isn't a field of *entity_class*.
+  def self.raise_unknown_identifier_field(id_field : String, entity_class : String) : NoReturn
+    raise "BUG: Field #{id_field} not found on #{entity_class}"
   end
 
   # :nodoc:
@@ -237,7 +237,7 @@ class Athena::ORM::Mapping::Class(T)
   # :nodoc:
   def add_lifecycle_callback(event : AORM::Events::EventArgs.class, callback : Proc(AORM::Entity, AORM::Events::EventArgs, Nil)) : Nil
     if self.embedded_class?
-      raise "Can't have lifecycle callbacks on embedded classes"
+      raise AORM::Exception::Mapping.illegal_lifecycle_callback_on_embedded_class event, T.to_s
     end
 
     self.lifecycle_callbacks[event] << callback
@@ -510,7 +510,7 @@ class Athena::ORM::Mapping::Class(T)
   def new_instance(data : Hash(String, _)) : AORM::Entity
     {% begin %}
       {% if T.abstract? %}
-        raise "Cannot instantiate abstract entity {{T}}"
+        raise AORM::Exception::InvalidArgument.new %(The provided class "{{T}}" is abstract, and cannot be instantiated)
       {% else %}
         instance = T.allocate
         self.apply_data instance, data
@@ -564,9 +564,9 @@ class Athena::ORM::Mapping::Class(T)
   #
   # Raises if the identifier is composite, or the entity has no identifier.
   def single_identifier_field_name : String
-    raise "single id not allowed on composite primary key" if @is_identifier_composite
+    raise AORM::Exception::Mapping.single_id_not_allowed_on_composite_primary_key T.to_s if @is_identifier_composite
 
-    raise "no ID defined" unless id = @identifier.first?
+    raise AORM::Exception::Mapping.no_id_defined T.to_s unless id = @identifier.first?
 
     id
   end
@@ -649,9 +649,11 @@ class Athena::ORM::Mapping::Class(T)
             pointerof(typed_entity.@{{ ivar.id }}).value = id_value
             return
           end
+
+          AORM::Mapping.raise_type_mismatch id_field, T.to_s, id_value
         end
       {% end %}
-      AORM::Mapping.raise_identifier_mismatch id_field, T.to_s, id_value
+      AORM::Mapping.raise_unknown_identifier_field id_field, T.to_s
     {% end %}
   end
 
@@ -691,14 +693,14 @@ class Athena::ORM::Mapping::Class(T)
   end
 
   private def validate_and_complete_field_mapping(mapping : Driver::ColumnMapping) : Field
-    raise "Missing field name" if mapping.field_name.nil?
+    raise AORM::Exception::Mapping.missing_field_name T.to_s if mapping.field_name.nil?
 
     # mapping = TypedFieldMapper.new.validate_and_complete(mapping, @field_info[mapping.field_name])
     mapping = @field_info[mapping.field_name].apply_type_mapping TypedFieldMapper.new, mapping
 
     # A field's Crystal type is always known, so instead of defaulting to `string`, which couldn't read a value of another type back, an unmapped type is an error.
     if mapping.type.nil?
-      raise "'#{T}##{mapping.field_name}': no column type is mapped to #{@field_info[mapping.field_name].type_name}, so pass one with `@[AORMA::Column(type: ...)]`."
+      raise AORM::Exception::Mapping.missing_required_option "#{T}##{mapping.field_name}", "type", "no column type is mapped to #{@field_info[mapping.field_name].type_name}, so pass one with `@[AORMA::Column(type: ...)]`"
     end
 
     if mapping.column_name.nil?
@@ -713,7 +715,7 @@ class Athena::ORM::Mapping::Class(T)
 
     # TODO: Handle discriminator maps
     if @field_names.has_key? mapping.column_name
-      raise "Duplicate column name '#{mapping.column_name}'."
+      raise AORM::Exception::Mapping.duplicate_column_name T.to_s, mapping.column_name
     end
 
     @field_names[mapping.column_name] = mapping.field_name
@@ -732,7 +734,7 @@ class Athena::ORM::Mapping::Class(T)
     if mapping.enum_type
       # Enum fields are always tracked and bound as their integer value.
       unless mapping.type.in?(Types::INTEGER, Types::BIGINT)
-        raise "Enum field '#{mapping.field_name}' on #{T} must be mapped to an integer type, got '#{mapping.type}'"
+        raise AORM::Exception::Mapping.integer_type_required_for_enum T.to_s, mapping.field_name, mapping.type.to_s
       end
     end
 
@@ -785,13 +787,21 @@ class Athena::ORM::Mapping::Class(T)
     mapping = @field_info[mapping.field_name].apply_type_association_mapping mapping
 
     if "many_to_one" == mapping.type && mapping.orphan_removal
-      raise "illegal orphan removal"
+      raise AORM::Exception::Mapping.illegal_orphan_removal T.to_s, mapping.field_name
     end
 
-    # TODO: Handle PK FKs
+    if mapping.id
+      raise AORM::Exception::Mapping.illegal_orphan_removal_on_identifier_association T.to_s, mapping.field_name if mapping.orphan_removal
 
-    raise "Missing field name" if mapping.field_name.nil?
-    raise "Missing target entity" if mapping.target_entity.nil?
+      if (join_column_defs = mapping.join_column_defs) && join_column_defs.size >= 2
+        raise AORM::Exception::Mapping.cannot_map_composite_primary_key_entities_as_foreign_id mapping.target_entity, T.to_s, mapping.field_name
+      end
+
+      # TODO: Handle PK FKs
+    end
+
+    raise AORM::Exception::Mapping.missing_field_name T.to_s if mapping.field_name.nil?
+    raise AORM::Exception::Mapping.missing_target_entity mapping.field_name if mapping.target_entity.nil?
 
     if !(mapped_by = mapping.mapped_by) # && !(join_table = mapping.join_table)
       # TODO: Handle join table info
@@ -800,7 +810,7 @@ class Athena::ORM::Mapping::Class(T)
     end
 
     if mapping.id && mapping.type.try &.ends_with? "to_many"
-      raise "illegal to many identifier association"
+      raise AORM::Exception::Mapping.illegal_to_many_identifier_association T.to_s, mapping.field_name
     end
 
     unless mapping.fetch_mode
@@ -812,14 +822,18 @@ class Athena::ORM::Mapping::Class(T)
 
     if cascades.includes? "all"
       cascades = all_cascades
-    else
-      # TODO: Validate cascades
+    elsif !(invalid_cascades = cascades - all_cascades).empty?
+      raise AORM::Exception::Mapping.invalid_cascade_option invalid_cascades, T.to_s, mapping.field_name
     end
 
     mapping = mapping.copy_with cascade: cascades
 
     case mapping.type
     when "one_to_one"
+      if !mapping.is_owning_side && (join_column_defs = mapping.join_column_defs) && !join_column_defs.empty?
+        raise AORM::Exception::Mapping.join_column_not_allowed_on_one_to_one_inverse_side T.to_s, mapping.field_name
+      end
+
       mapping.is_owning_side ? OneToOneOwningSide.new(
         mapping,
         @naming_strategy,
@@ -845,7 +859,7 @@ class Athena::ORM::Mapping::Class(T)
         self.inheritance_type.single_table?
       )
     else
-      raise "Invalid association type"
+      raise AORM::Exception::Mapping.invalid_association_type T.to_s, mapping.field_name, mapping.type.to_s
     end
   end
 
@@ -857,8 +871,8 @@ class Athena::ORM::Mapping::Class(T)
   end
 
   private def assert_field_not_mapped(field_name : String)
-    if @field_mappings.has_key? field_name
-      raise "Duplicate field mapping '#{field_name}'."
+    if @field_mappings.has_key?(field_name) || @association_mappings.has_key?(field_name)
+      raise AORM::Exception::Mapping.duplicate_field_mapping T.to_s, field_name
     end
   end
 

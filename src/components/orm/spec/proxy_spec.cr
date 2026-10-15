@@ -106,7 +106,7 @@ struct ProxyTest < ASPEC::TestCase
 
     proxy = AORM::Proxy(ProxyAvatar).from_id em, {"id" => 99.as(::DB::Any)}
 
-    expect_raises(Exception, /Proxy target ProxyAvatar.*not found/) do
+    expect_raises(AORM::Exception::EntityNotFound, "Entity of type 'ProxyAvatar' for IDs id(99) was not found") do
       proxy.inner
     end
   end

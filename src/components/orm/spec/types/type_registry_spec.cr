@@ -35,7 +35,7 @@ struct TypeRegistryTest < ASPEC::TestCase
   def test_get_raises_for_an_unknown_name : Nil
     registry = AORM::Types::TypeRegistry.new
 
-    expect_raises(Exception, /Unknown type: nope/) do
+    expect_raises(AORM::Exception::UnknownColumnType, %(Unknown column type "nope" requested.)) do
       registry.get("nope")
     end
   end
@@ -58,7 +58,7 @@ struct TypeRegistryTest < ASPEC::TestCase
   def test_register_raises_when_the_name_already_exists : Nil
     registry = AORM::Types::TypeRegistry.new({"x" => MarkerType.new(1).as(AORM::Types::Type)})
 
-    expect_raises(Exception, /'x' already exists/) do
+    expect_raises(AORM::Exception::TypesAlreadyExists, %(Type "x" already exists.)) do
       registry.register("x", MarkerType.new(2))
     end
   end
@@ -74,7 +74,7 @@ struct TypeRegistryTest < ASPEC::TestCase
   def test_override_raises_for_an_unknown_name : Nil
     registry = AORM::Types::TypeRegistry.new
 
-    expect_raises(Exception, /'nope' not found/) do
+    expect_raises(AORM::Exception::TypeNotFound, %(Type to be overwritten "nope" does not exist.)) do
       registry.override("nope", MarkerType.new(1))
     end
   end

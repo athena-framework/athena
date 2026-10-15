@@ -5,13 +5,13 @@ abstract class Athena::ORM::Mapping::ToOneInverseSide < Athena::ORM::Mapping::In
   # :nodoc:
   def self.new(mapping : Driver::ColumnMapping, name : String) : self
     if mapping.lazy_proxy
-      raise "AORM::Proxy(T) is only valid on owning-side ToOne fields; field '#{mapping.field_name}' on '#{mapping.source_entity}' is the inverse side"
+      raise AORM::Exception::Mapping.proxy_not_allowed_on_to_one_inverse_side mapping.source_entity.to_s, mapping.field_name
     end
 
     instance = new mapping
 
     if instance.id?
-      raise "An inverse association is not allowed to be identifier in '#{name}##{instance.field_name}'."
+      raise AORM::Exception::Mapping.illegal_inverse_identifier_association name, instance.field_name
     end
 
     if instance.orphan_removal?

@@ -98,6 +98,6 @@ abstract class Athena::ORM::Mapping::Association
     return "many_to_many" if self.is_a? ManyToMany
     return "one_to_one" if self.is_a? OneToOne
 
-    raise "Cannot determine type for #{self.class}"
+    raise AORM::Exception::Runtime.new "Cannot determine type for #{self.class}"
   end
 end

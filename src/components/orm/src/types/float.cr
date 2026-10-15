@@ -14,8 +14,10 @@ struct Athena::ORM::Types::Float < Athena::ORM::Types::Type
     case value
     when Nil                      then nil
     when ::Int, ::Float, ::String then value.to_f64
-    else                               raise "Float cannot accept #{value.class}"
+    else                               raise AORM::Exception::ValueNotConvertible.new value.to_s, AORM::Types::FLOAT
     end
+  rescue ex : ArgumentError | OverflowError
+    raise AORM::Exception::ValueNotConvertible.new value.to_s, AORM::Types::FLOAT, cause: ex
   end
 
   # :inherit:

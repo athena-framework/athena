@@ -43,7 +43,7 @@ describe AORM::Bundle::Registry do
       connection.driver_name = "unknown"
       released = PooledMockConnection.released
 
-      expect_raises AORM::Exceptions::UnknownDriver do
+      expect_raises AORM::Exception::UnknownDriver do
         registry.manager
       end
 

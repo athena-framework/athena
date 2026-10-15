@@ -838,14 +838,14 @@ struct UnitOfWorkTest < ASPEC::TestCase
     entity = EntityWithStringIdentifier.new
     entity.id = nil
 
-    expect_raises(Exception, "entity without identity") do
+    expect_raises(AORM::Exception::ORMInvalidArgument, "The given entity of type 'EntityWithStringIdentifier'") do
       @uow.register_managed entity, {} of String => AORM::Mapping::Value, {} of String => AORM::Mapping::Value
     end
   end
 
   @[DataProvider("entities_with_invalid_identifiers_provider")]
   def test_add_to_identity_map_invalid_identifiers(entity : AORM::Entity, id : Hash(String, AORM::Mapping::Value)) : Nil
-    expect_raises(Exception) do
+    expect_raises(AORM::Exception::ORMInvalidArgument) do
       @uow.register_managed entity, id, {} of String => AORM::Mapping::Value
     end
   end
@@ -968,7 +968,7 @@ struct UnitOfWorkTest < ASPEC::TestCase
 
     @uow.persist non_cascading
 
-    expect_raises(Exception, "new entities found through relationships") do
+    expect_raises(AORM::Exception::ORMInvalidArgument, "A new entity was found through the relationship 'EntityWithNonCascadingAssociation#non_cascaded' that was not configured to cascade persist operations for entity: ") do
       @uow.commit
     end
 
@@ -994,7 +994,7 @@ struct UnitOfWorkTest < ASPEC::TestCase
     unknown_entity = EntityWithStringIdentifier.new
     unknown_entity.id = "test"
 
-    expect_raises(Exception, /Unable to find.*entity identifier associated with the UnitOfWork/) do
+    expect_raises(AORM::Exception::EntityNotFound, /Unable to find ".*" entity identifier associated with the UnitOfWork/) do
       @uow.entity_identifier unknown_entity
     end
   end
@@ -1092,7 +1092,7 @@ struct UnitOfWorkTest < ASPEC::TestCase
     # For entities with assigned IDs, persist automatically adds to identity map
 
     # Persisting entity2 with same ID should throw collision error
-    expect_raises(Exception, "entity identity collision") do
+    expect_raises(AORM::Exception::EntityIdentityCollision, %(While adding an entity of class EntityWithStringIdentifier with an ID hash of "same-id" to the identity map,)) do
       @uow.persist entity2
     end
   end
@@ -1181,7 +1181,7 @@ struct UnitOfWorkTest < ASPEC::TestCase
     user.username = "fred-new"
 
     # Never registered as managed.
-    expect_raises(Exception, /not managed/) do
+    expect_raises(AORM::Exception::ORMInvalidArgument, /is not managed/) do
       @uow.refresh user
     end
   end
@@ -1196,7 +1196,7 @@ struct UnitOfWorkTest < ASPEC::TestCase
     @uow.register_managed user, {"id" => 9}, {"id" => 9, "username" => "fred-removed"}
     @uow.schedule_for_delete user
 
-    expect_raises(Exception, /not managed/) do
+    expect_raises(AORM::Exception::ORMInvalidArgument, /is not managed/) do
       @uow.refresh user
     end
   end
@@ -1242,7 +1242,7 @@ struct UnitOfWorkTest < ASPEC::TestCase
   def test_one_to_many_required_mapped_by : Nil
     # Direct construction without `mapped_by` should fail loudly — OneToMany
     # is always the inverse side, so the `mapped_by` pointer is mandatory.
-    expect_raises(Exception, /mapped_by/) do
+    expect_raises(AORM::Exception::Mapping, /requires the 'mapped_by' attribute/) do
       AORM::Mapping::OneToManyInverseSide.new(
         AORM::Mapping::Driver::ColumnMapping.new(
           field_name: "x",
@@ -1397,7 +1397,7 @@ struct UnitOfWorkTest < ASPEC::TestCase
     user.username = "Fred"
     # Never persisted, so the UoW has no identifier for it.
 
-    expect_raises(Exception, /Entity has no identity/) do
+    expect_raises(AORM::Exception::ORMInvalidArgument, "Entity has no identity, therefore scheduling for update cannot be performed.") do
       @uow.schedule_for_update user
     end
   end
@@ -1413,7 +1413,7 @@ struct UnitOfWorkTest < ASPEC::TestCase
     @uow.commit
     @uow.schedule_for_delete phone
 
-    expect_raises(Exception, /Entity scheduled for deletion/) do
+    expect_raises(AORM::Exception::ORMInvalidArgument, "Entity is removed, therefore schedule for update cannot be performed.") do
       @uow.schedule_for_update phone
     end
   end
@@ -1484,7 +1484,7 @@ struct UnitOfWorkTest < ASPEC::TestCase
     other.phonenumber = "555-0003"
     @uow.@entity_identifiers[other] = {"phonenumber" => AORM::Mapping::ColumnValue.new("phonenumber", "555-0003").as(AORM::Mapping::Value)}
 
-    expect_raises(Exception, /identity collision/) do
+    expect_raises(AORM::Exception::EntityIdentityCollision, /While adding an entity of class CmsPhonenumber/) do
       @uow.add_to_identity_map other
     end
   end
@@ -1558,8 +1558,23 @@ struct UnitOfWorkTest < ASPEC::TestCase
   def test_entity_identifier_raises_for_an_unknown_entity : Nil
     user = ForumUser.new
 
-    expect_raises(Exception, /Unable to find/) do
+    expect_raises(AORM::Exception::EntityNotFound, /Unable to find/) do
       @uow.entity_identifier user
+    end
+  end
+
+  def test_single_identifier_value_raises_for_a_composite_identifier : Nil
+    expect_raises(AORM::Exception::ORMInvalidArgument, "Binding an entity with a composite primary key to a query is not supported.") do
+      @uow.single_identifier_value EntityWithCompositeStringIdentifier.new
+    end
+  end
+
+  def test_recompute_single_entity_change_set_requires_a_computed_change_set : Nil
+    entity = CascadePersistedEntity.new
+    @uow.persist entity
+
+    expect_raises(AORM::Exception::Runtime, "Cannot call recompute_single_entity_change_set before compute_change_set on an entity.") do
+      @uow.recompute_single_entity_change_set @em.class_metadata(CascadePersistedEntity), entity
     end
   end
 
@@ -1640,7 +1655,7 @@ struct UnitOfWorkTest < ASPEC::TestCase
     user.username = "fred"
     @uow.@entity_states[user] = AORM::UnitOfWork::EntityState::Detached
 
-    expect_raises(Exception, "Detached entity ForumUser cannot be persisted") do
+    expect_raises(AORM::Exception::ORMInvalidArgument, /Detached entity #<ForumUser:0x[0-9a-f]+> cannot be persisted/) do
       @uow.persist user
     end
   end
@@ -1649,7 +1664,7 @@ struct UnitOfWorkTest < ASPEC::TestCase
     user = ForumUser.new
     pointerof(user.@id).value = 1
 
-    expect_raises(Exception, "Detached entity ForumUser cannot be removed") do
+    expect_raises(AORM::Exception::ORMInvalidArgument, /Detached entity #<ForumUser:0x[0-9a-f]+> cannot be removed/) do
       @uow.remove user
     end
   end
