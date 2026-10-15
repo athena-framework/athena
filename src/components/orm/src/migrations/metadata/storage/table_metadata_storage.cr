@@ -40,7 +40,7 @@ class Athena::ORM::Migrations::Metadata::Storage::TableMetadataStorage
         executed_at = executed_at_type.to_crystal_value(rs, @platform).as(Time?)
         execution_time = execution_time_type.to_crystal_value(rs, @platform).as(Int32?)
 
-        migrations << AORM::Migrations::Metadata::ExecutedMigration.new version, executed_at, execution_time.try(&.total_milliseconds)
+        migrations << AORM::Migrations::Metadata::ExecutedMigration.new version, executed_at, execution_time.try(&.milliseconds)
       end
     end
 

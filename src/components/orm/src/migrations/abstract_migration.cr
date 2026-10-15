@@ -3,7 +3,7 @@
 # A migration applies one change to the database's schema or data in `#up`, and reverts it in `#down`, by adding the SQL to execute via `#add_sql`:
 #
 # ```
-# struct App::Migrations::Version20261014120000 < AORM::Migrations::AbstractMigration
+# class App::Migrations::Version20261014120000 < AORM::Migrations::AbstractMigration
 #   def description : String
 #     "Add the users' email"
 #   end
@@ -18,7 +18,8 @@
 # end
 # ```
 #
-# A new instance is created each time the migration is executed.
+# A new instance is created each time the migration is executed, via `.new` with just the connection.
+# A migration therefore can't define an `#initialize` that takes other arguments.
 # Its SQL is executed once `#up` or `#down` returns, so `#connection` can be used to read the data the migration needs, but changes made through it aren't part of the migration's SQL.
 #
 # ## Transactions
@@ -26,7 +27,7 @@
 # Each migration runs in a transaction, see `#transactional?`.
 # Some databases, such as MySQL and MariaDB, implicitly commit the transaction when a statement changes the schema, such as `CREATE TABLE`.
 # Statements executed before such a statement can't be rolled back if a later one fails, so it's best to return `false` from `#transactional?` in migrations that change the schema on those databases.
-abstract struct Athena::ORM::Migrations::AbstractMigration
+abstract class Athena::ORM::Migrations::AbstractMigration
   # Returns the connection the migration is executed on.
   protected getter connection : AORM::Connection
 

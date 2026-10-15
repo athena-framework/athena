@@ -8,6 +8,8 @@ require "./migrations/version/*"
 
 require "./migrations/abstract_migration"
 require "./migrations/migrations_repository"
+require "./migrations/migrator"
+require "./migrations/migrator_configuration"
 
 # Versions a database's schema through migrations, each a type that applies one change, and reverts it.
 #
@@ -16,7 +18,7 @@ require "./migrations/migrations_repository"
 # ```
 # require "athena-orm/migrations"
 #
-# struct App::Migrations::Version20261014120000 < AORM::Migrations::AbstractMigration
+# class App::Migrations::Version20261014120000 < AORM::Migrations::AbstractMigration
 #   def description : String
 #     "Create the users table"
 #   end

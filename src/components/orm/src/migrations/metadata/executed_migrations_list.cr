@@ -1,5 +1,5 @@
 # The executed migrations, in the order they were executed.
-struct Athena::ORM::Migrations::Metadata::ExecutedMigrationsList
+class Athena::ORM::Migrations::Metadata::ExecutedMigrationsList
   # Returns the migrations in the list.
   getter items : Array(AORM::Migrations::Metadata::ExecutedMigration)
 

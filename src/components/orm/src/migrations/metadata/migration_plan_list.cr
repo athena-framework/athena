@@ -1,5 +1,5 @@
 # The migrations planned to be executed, in the order they will be, all in the same direction.
-struct Athena::ORM::Migrations::Metadata::MigrationPlanList
+class Athena::ORM::Migrations::Metadata::MigrationPlanList
   # Returns the planned migrations.
   getter items : Array(AORM::Migrations::Metadata::MigrationPlan)
 

@@ -1,8 +1,11 @@
 require "./spec_helper"
 
-private struct ControlledMigration < AORM::Migrations::AbstractMigration
-  def initialize(connection : AORM::Connection, @condition : Bool)
-    super connection
+# Migrations are created with only a connection, so the condition is set after creating it.
+private class ControlledMigration < AORM::Migrations::AbstractMigration
+  setter condition : Bool = false
+
+  def self.new(connection : AORM::Connection, condition : Bool) : self
+    new(connection).tap &.condition = condition
   end
 
   def up : Nil

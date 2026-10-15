@@ -1,5 +1,5 @@
 # The available migrations, ordered by version.
-struct Athena::ORM::Migrations::Metadata::AvailableMigrationsList
+class Athena::ORM::Migrations::Metadata::AvailableMigrationsList
   # Returns the migrations in the list.
   getter items : Array(AORM::Migrations::Metadata::AvailableMigration)
 

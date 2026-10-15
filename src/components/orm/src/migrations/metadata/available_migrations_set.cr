@@ -1,5 +1,5 @@
 # The unordered set of available migrations, as provided by `AORM::Migrations::MigrationsRepository#migrations`.
-struct Athena::ORM::Migrations::Metadata::AvailableMigrationsSet
+class Athena::ORM::Migrations::Metadata::AvailableMigrationsSet
   # Returns the migrations in the set.
   getter items : Array(AORM::Migrations::Metadata::AvailableMigration)
 
