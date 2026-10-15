@@ -2,7 +2,7 @@
 class Athena::ORM::Migrations::Exception::MigrationNotAvailable < RuntimeError
   include Athena::ORM::Migrations::Exception
 
-  def initialize(version : AORM::Migrations::Version::Version)
+  def initialize(version : AORM::Migrations::Version)
     super "The migration #{version} is not available"
   end
 end

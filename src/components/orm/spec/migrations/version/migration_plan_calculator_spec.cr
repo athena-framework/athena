@@ -34,12 +34,12 @@ struct MigrationPlanCalculatorTest < ASPEC::TestCase
 
   def test_plan_for_a_missing_version_raises : Nil
     expect_raises AORM::Migrations::Exception::MigrationClassNotFound, %(Migration class "D" was not found?) do
-      self.calculator.plan_for_versions [AORM::Migrations::Version::Version.new("D")], :up
+      self.calculator.plan_for_versions [AORM::Migrations::Version.new("D")], :up
     end
   end
 
   def test_plan_for_no_versions : Nil
-    plan = self.calculator.plan_for_versions [] of AORM::Migrations::Version::Version, :up
+    plan = self.calculator.plan_for_versions [] of AORM::Migrations::Version, :up
 
     plan.size.should eq 0
     plan.direction.should eq AORM::Migrations::Version::Direction::UP
@@ -64,7 +64,7 @@ struct MigrationPlanCalculatorTest < ASPEC::TestCase
 
   @[DataProvider("some_executed_provider")]
   def test_plan_until_version_when_some_executed(to : String, expected : Array(AORM::Migrations::AbstractMigration.class), direction : AORM::Migrations::Version::Direction) : Nil
-    plan = self.calculator(InMemoryMetadataStorage.new V1, V2).plan_until_version AORM::Migrations::Version::Version.new(to)
+    plan = self.calculator(InMemoryMetadataStorage.new V1, V2).plan_until_version AORM::Migrations::Version.new(to)
 
     plan.direction.should eq direction
     plan.items.map(&.migration_class).should eq expected
@@ -89,7 +89,7 @@ struct MigrationPlanCalculatorTest < ASPEC::TestCase
 
   def test_plan_until_a_missing_version_raises : Nil
     expect_raises AORM::Migrations::Exception::MigrationClassNotFound, %(Migration class "D" was not found?) do
-      self.calculator.plan_until_version AORM::Migrations::Version::Version.new("D")
+      self.calculator.plan_until_version AORM::Migrations::Version.new("D")
     end
   end
 

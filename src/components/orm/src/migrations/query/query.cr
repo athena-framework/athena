@@ -1,5 +1,5 @@
 # A SQL statement a migration executes, with the parameters bound to it, see `AORM::Migrations::AbstractMigration#add_sql`.
-struct Athena::ORM::Migrations::Query::Query
+struct Athena::ORM::Migrations::Query
   # Returns the SQL of the statement.
   getter statement : String
 

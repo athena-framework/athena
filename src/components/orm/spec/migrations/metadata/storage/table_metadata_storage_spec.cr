@@ -6,8 +6,8 @@ end
 
 private NO_ROWS = [] of Hash(String, DB::Any)
 
-private def version(version : String) : AORM::Migrations::Version::Version
-  AORM::Migrations::Version::Version.new version
+private def version(version : String) : AORM::Migrations::Version
+  AORM::Migrations::Version.new version
 end
 
 struct TableMetadataStorageTest < ASPEC::TestCase

@@ -36,7 +36,7 @@ class Athena::ORM::Migrations::Metadata::Storage::TableMetadataStorage
 
     @connection.execute_query sql do |rs|
       rs.each do
-        version = AORM::Migrations::Version::Version.new rs.read(String)
+        version = AORM::Migrations::Version.new rs.read(String)
         executed_at = executed_at_type.to_crystal_value(rs, @platform).as(Time?)
         execution_time = execution_time_type.to_crystal_value(rs, @platform).as(Int32?)
 
@@ -76,11 +76,11 @@ class Athena::ORM::Migrations::Metadata::Storage::TableMetadataStorage
   end
 
   # Returns the SQL `#complete` would execute for *result*, such as to show it during a dry run.
-  def sql(result : AORM::Migrations::Version::ExecutionResult) : Array(AORM::Migrations::Query::Query)
-    queries = [AORM::Migrations::Query::Query.new "-- Version #{result.version} update table metadata"]
+  def sql(result : AORM::Migrations::Version::ExecutionResult) : Array(AORM::Migrations::Query)
+    queries = [AORM::Migrations::Query.new "-- Version #{result.version} update table metadata"]
 
     if result.direction.down?
-      queries << AORM::Migrations::Query::Query.new(
+      queries << AORM::Migrations::Query.new(
         "DELETE FROM #{@configuration.table_name} WHERE #{@configuration.version_column_name} = #{@platform.quote_string_literal result.version.to_s}"
       )
 
@@ -89,7 +89,7 @@ class Athena::ORM::Migrations::Metadata::Storage::TableMetadataStorage
 
     executed_at = (result.executed_at || Time.utc).to_utc.to_s "%F %T"
 
-    queries << AORM::Migrations::Query::Query.new(
+    queries << AORM::Migrations::Query.new(
       "INSERT INTO #{@configuration.table_name} (#{@configuration.version_column_name}, #{@configuration.executed_at_column_name}, #{@configuration.execution_time_column_name}) " \
       "VALUES (#{@platform.quote_string_literal result.version.to_s}, #{@platform.quote_string_literal executed_at}, 0)"
     )

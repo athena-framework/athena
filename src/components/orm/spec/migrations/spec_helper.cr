@@ -42,7 +42,7 @@ class InMemoryMetadataStorage
 
   def initialize(*executed_versions : AORM::Migrations::AbstractMigration.class)
     executed_versions.each do |migration_class|
-      @executed << AORM::Migrations::Metadata::ExecutedMigration.new AORM::Migrations::Version::Version.new(migration_class.name)
+      @executed << AORM::Migrations::Metadata::ExecutedMigration.new AORM::Migrations::Version.new(migration_class.name)
     end
   end
 
@@ -66,8 +66,8 @@ class InMemoryMetadataStorage
   end
 end
 
-def migrations_spec_version(migration_class : AORM::Migrations::AbstractMigration.class) : AORM::Migrations::Version::Version
-  AORM::Migrations::Version::Version.new migration_class.name
+def migrations_spec_version(migration_class : AORM::Migrations::AbstractMigration.class) : AORM::Migrations::Version
+  AORM::Migrations::Version.new migration_class.name
 end
 
 def migrations_spec_connection : AORM::Connection

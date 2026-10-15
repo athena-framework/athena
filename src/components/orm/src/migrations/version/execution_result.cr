@@ -1,7 +1,7 @@
 # The outcome of executing a migration.
 class Athena::ORM::Migrations::Version::ExecutionResult
   # Returns the version of the executed migration.
-  getter version : AORM::Migrations::Version::Version
+  getter version : AORM::Migrations::Version
 
   # Returns whether the migration was applied or reverted.
   getter direction : AORM::Migrations::Version::Direction
@@ -10,7 +10,7 @@ class Athena::ORM::Migrations::Version::ExecutionResult
   property executed_at : Time?
 
   # The SQL the migration executed.
-  property sql : Array(AORM::Migrations::Query::Query) = [] of AORM::Migrations::Query::Query
+  property sql : Array(AORM::Migrations::Query) = [] of AORM::Migrations::Query
 
   # How long executing the migration took.
   property time : Time::Span? = nil
@@ -27,7 +27,7 @@ class Athena::ORM::Migrations::Version::ExecutionResult
   property state : AORM::Migrations::Version::State = :none
 
   def initialize(
-    @version : AORM::Migrations::Version::Version,
+    @version : AORM::Migrations::Version,
     @direction : AORM::Migrations::Version::Direction = :up,
     @executed_at : Time? = nil,
   ); end

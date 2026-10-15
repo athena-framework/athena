@@ -29,24 +29,24 @@ class Athena::ORM::Migrations::Version::AliasResolver
   # Raises `AORM::Migrations::Exception::UnknownMigrationVersion` if it doesn't resolve to one, and `AORM::Migrations::Exception::NoMigrationsToExecute` for `next` if every migration has been executed.
   #
   # ameba:disable Metrics/CyclomaticComplexity
-  def resolve_version_alias(version_alias : String) : AORM::Migrations::Version::Version
+  def resolve_version_alias(version_alias : String) : AORM::Migrations::Version
     available_migrations = @migration_plan_calculator.migrations
     executed_migrations = @metadata_storage.executed_migrations
 
     case version_alias
     when ALIAS_FIRST, "0"
-      return AORM::Migrations::Version::Version.new "0"
+      return AORM::Migrations::Version.new "0"
     when ALIAS_CURRENT
       begin
         return executed_migrations.last.version
       rescue AORM::Migrations::Exception::NoMigrationsFoundWithCriteria
-        return AORM::Migrations::Version::Version.new "0"
+        return AORM::Migrations::Version.new "0"
       end
     when ALIAS_PREV
       begin
         return executed_migrations.last(-1).version
       rescue AORM::Migrations::Exception::NoMigrationsFoundWithCriteria
-        return AORM::Migrations::Version::Version.new "0"
+        return AORM::Migrations::Version.new "0"
       end
     when ALIAS_NEXT
       begin
@@ -61,7 +61,7 @@ class Athena::ORM::Migrations::Version::AliasResolver
         return self.resolve_version_alias ALIAS_CURRENT
       end
     else
-      version = AORM::Migrations::Version::Version.new version_alias
+      version = AORM::Migrations::Version.new version_alias
 
       return available_migrations.migration(version).version if available_migrations.has_migration? version
 

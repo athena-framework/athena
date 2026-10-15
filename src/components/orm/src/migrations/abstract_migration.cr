@@ -35,7 +35,7 @@ abstract class Athena::ORM::Migrations::AbstractMigration
   protected getter platform : AORM::Platforms::Platform
 
   # Returns the SQL added via `#add_sql`, in the order it was added.
-  getter sql : Array(AORM::Migrations::Query::Query) = [] of AORM::Migrations::Query::Query
+  getter sql : Array(AORM::Migrations::Query) = [] of AORM::Migrations::Query
 
   @frozen : Bool = false
 
@@ -110,7 +110,7 @@ abstract class Athena::ORM::Migrations::AbstractMigration
   protected def add_sql(sql : String, params : Array = [] of DB::Any, types : Array(String?) = [] of String?) : Nil
     raise AORM::Migrations::Exception::FrozenMigration.new if @frozen
 
-    @sql << AORM::Migrations::Query::Query.new sql, Array(DB::Any).new(params.size) { |idx| params[idx] }, types
+    @sql << AORM::Migrations::Query.new sql, Array(DB::Any).new(params.size) { |idx| params[idx] }, types
   end
 
   # :nodoc:

@@ -32,7 +32,7 @@ struct MigrationsRepositoryTest < ASPEC::TestCase
     end
   end
 
-  private def version(version : String) : AORM::Migrations::Version::Version
-    AORM::Migrations::Version::Version.new version
+  private def version(version : String) : AORM::Migrations::Version
+    AORM::Migrations::Version.new version
   end
 end

@@ -1,7 +1,7 @@
 # A migration that has been executed, as recorded by the metadata storage.
 struct Athena::ORM::Migrations::Metadata::ExecutedMigration
   # Returns the version of the migration.
-  getter version : AORM::Migrations::Version::Version
+  getter version : AORM::Migrations::Version
 
   # Returns the time the migration was executed at, if it was recorded.
   getter executed_at : Time?
@@ -10,7 +10,7 @@ struct Athena::ORM::Migrations::Metadata::ExecutedMigration
   getter execution_time : Time::Span?
 
   def initialize(
-    @version : AORM::Migrations::Version::Version,
+    @version : AORM::Migrations::Version,
     @executed_at : Time? = nil,
     @execution_time : Time::Span? = nil,
   ); end

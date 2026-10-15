@@ -59,8 +59,8 @@ end
 
 # Also provides the SQL to record a migration, like `AORM::Migrations::Metadata::Storage::TableMetadataStorage`.
 private class DryRunMetadataStorage < InMemoryMetadataStorage
-  def sql(result : AORM::Migrations::Version::ExecutionResult) : Array(AORM::Migrations::Query::Query)
-    [AORM::Migrations::Query::Query.new "INSERT INTO athena_orm_migration_versions (version) VALUES ('#{result.version}')"]
+  def sql(result : AORM::Migrations::Version::ExecutionResult) : Array(AORM::Migrations::Query)
+    [AORM::Migrations::Query.new "INSERT INTO athena_orm_migration_versions (version) VALUES ('#{result.version}')"]
   end
 end
 
@@ -83,7 +83,7 @@ struct ExecutorTest < ASPEC::TestCase
 
   def test_add_sql : Nil
     executor = self.executor
-    query = AORM::Migrations::Query::Query.new "SELECT 1", [1] of DB::Any, [AORM::Types::INTEGER] of String?
+    query = AORM::Migrations::Query.new "SELECT 1", [1] of DB::Any, [AORM::Types::INTEGER] of String?
 
     executor.add_sql query
 

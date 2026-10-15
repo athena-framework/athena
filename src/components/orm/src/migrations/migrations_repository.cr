@@ -6,10 +6,10 @@
 #   App::Migrations::Version20261015090000,
 # ] of AORM::Migrations::AbstractMigration.class
 #
-# repository.has_migration? AORM::Migrations::Version::Version.new("App::Migrations::Version20261014120000") # => true
+# repository.has_migration? AORM::Migrations::Version.new("App::Migrations::Version20261014120000") # => true
 # ```
 class Athena::ORM::Migrations::MigrationsRepository
-  @migrations = Hash(AORM::Migrations::Version::Version, AORM::Migrations::Metadata::AvailableMigration).new
+  @migrations = Hash(AORM::Migrations::Version, AORM::Migrations::Metadata::AvailableMigration).new
 
   # Raises `AORM::Migrations::Exception::DuplicateMigrationVersion` if *migration_classes* contains the same type more than once.
   def initialize(migration_classes : Enumerable(AORM::Migrations::AbstractMigration.class))
@@ -19,14 +19,14 @@ class Athena::ORM::Migrations::MigrationsRepository
   end
 
   # Returns `true` if there is a migration with the provided *version*.
-  def has_migration?(version : AORM::Migrations::Version::Version) : Bool
+  def has_migration?(version : AORM::Migrations::Version) : Bool
     @migrations.has_key? version
   end
 
   # Returns the migration with the provided *version*.
   #
   # Raises `AORM::Migrations::Exception::MigrationClassNotFound` if there isn't one.
-  def migration(version : AORM::Migrations::Version::Version) : AORM::Migrations::Metadata::AvailableMigration
+  def migration(version : AORM::Migrations::Version) : AORM::Migrations::Metadata::AvailableMigration
     @migrations[version]? || raise AORM::Migrations::Exception::MigrationClassNotFound.new version.to_s
   end
 
@@ -36,7 +36,7 @@ class Athena::ORM::Migrations::MigrationsRepository
   end
 
   private def register_migration(migration_class : AORM::Migrations::AbstractMigration.class) : Nil
-    version = AORM::Migrations::Version::Version.new migration_class.name
+    version = AORM::Migrations::Version.new migration_class.name
 
     if @migrations.has_key? version
       raise AORM::Migrations::Exception::DuplicateMigrationVersion.new version.to_s, version.to_s

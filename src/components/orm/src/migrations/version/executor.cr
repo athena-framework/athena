@@ -3,7 +3,7 @@
 # Each execution runs in a transaction if the migration is `AORM::Migrations::AbstractMigration#transactional?`, which is rolled back if the migration fails or is skipped.
 class Athena::ORM::Migrations::Version::Executor
   # Returns the SQL of the migration being executed, and of the metadata storage during a dry run.
-  getter sql : Array(AORM::Migrations::Query::Query) = [] of AORM::Migrations::Query::Query
+  getter sql : Array(AORM::Migrations::Query) = [] of AORM::Migrations::Query
 
   def initialize(
     @metadata_storage : AORM::Migrations::Metadata::Storage::Interface,
@@ -11,7 +11,7 @@ class Athena::ORM::Migrations::Version::Executor
   ); end
 
   # Adds *query* to the SQL of the migration being executed.
-  def add_sql(query : AORM::Migrations::Query::Query) : Nil
+  def add_sql(query : AORM::Migrations::Query) : Nil
     @sql << query
   end
 
@@ -45,7 +45,7 @@ class Athena::ORM::Migrations::Version::Executor
   end
 
   private def start_migration(migration : AORM::Migrations::AbstractMigration) : Nil
-    @sql = [] of AORM::Migrations::Query::Query
+    @sql = [] of AORM::Migrations::Query
 
     return unless migration.transactional?
 
@@ -151,7 +151,7 @@ class Athena::ORM::Migrations::Version::Executor
     end
   end
 
-  private def output_sql_query(query : AORM::Migrations::Query::Query, configuration : AORM::Migrations::MigratorConfiguration) : Nil
+  private def output_sql_query(query : AORM::Migrations::Query, configuration : AORM::Migrations::MigratorConfiguration) : Nil
     message = "#{query.statement} #{self.format_parameters query}"
 
     if configuration.time_all_queries?
@@ -162,7 +162,7 @@ class Athena::ORM::Migrations::Version::Executor
   end
 
   # Returns the parameters of *query* as they're bound, each converted through its type, e.g. `with parameters ([1], [2026-10-14 12:30:00])`.
-  private def format_parameters(query : AORM::Migrations::Query::Query) : String
+  private def format_parameters(query : AORM::Migrations::Query) : String
     return "" if query.parameters.empty?
 
     formatted_parameters = query.parameters.map_with_index do |value, idx|

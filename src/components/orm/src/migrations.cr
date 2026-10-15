@@ -1,9 +1,15 @@
 require "./athena-orm"
 
+# Types nesting others are required first, so that they aren't defined as modules by the nested types.
+require "./migrations/configuration/configuration"
+require "./migrations/generator/generator"
+require "./migrations/query/query"
+require "./migrations/version/version"
+
 require "./migrations/exception/*"
+require "./migrations/generator/*"
 require "./migrations/metadata/*"
 require "./migrations/metadata/storage/*"
-require "./migrations/query/*"
 require "./migrations/version/*"
 
 require "./migrations/abstract_migration"
@@ -43,10 +49,4 @@ module Athena::ORM::Migrations
 
   # Contains the types describing which migrations are available, which have been executed, and which are planned to be.
   module Metadata; end
-
-  # Contains the SQL statements migrations execute, see `AbstractMigration#add_sql`.
-  module Query; end
-
-  # Contains the types describing the versions of migrations and the result of executing one.
-  module Version; end
 end

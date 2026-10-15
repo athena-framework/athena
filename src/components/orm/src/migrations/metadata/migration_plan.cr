@@ -1,7 +1,7 @@
 # A migration planned to be executed in a given direction.
 class Athena::ORM::Migrations::Metadata::MigrationPlan
   # Returns the version of the migration.
-  getter version : AORM::Migrations::Version::Version
+  getter version : AORM::Migrations::Version
 
   # Returns the type of the migration.
   getter migration_class : AORM::Migrations::AbstractMigration.class
@@ -13,7 +13,7 @@ class Athena::ORM::Migrations::Metadata::MigrationPlan
   getter result : AORM::Migrations::Version::ExecutionResult? = nil
 
   def initialize(
-    @version : AORM::Migrations::Version::Version,
+    @version : AORM::Migrations::Version,
     @migration_class : AORM::Migrations::AbstractMigration.class,
     @direction : AORM::Migrations::Version::Direction,
   ); end

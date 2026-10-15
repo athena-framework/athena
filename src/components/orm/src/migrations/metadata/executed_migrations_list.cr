@@ -29,14 +29,14 @@ class Athena::ORM::Migrations::Metadata::ExecutedMigrationsList
   end
 
   # Returns `true` if the list contains a migration with the provided *version*.
-  def has_migration?(version : AORM::Migrations::Version::Version) : Bool
+  def has_migration?(version : AORM::Migrations::Version) : Bool
     @items.any? &.version.==(version)
   end
 
   # Returns the migration with the provided *version*.
   #
   # Raises `AORM::Migrations::Exception::MigrationNotExecuted` if the list doesn't contain one.
-  def migration(version : AORM::Migrations::Version::Version) : AORM::Migrations::Metadata::ExecutedMigration
+  def migration(version : AORM::Migrations::Version) : AORM::Migrations::Metadata::ExecutedMigration
     @items.find(&.version.==(version)) || raise AORM::Migrations::Exception::MigrationNotExecuted.new version.to_s
   end
 

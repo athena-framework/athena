@@ -9,7 +9,7 @@ class Athena::ORM::Migrations::Version::MigrationPlanCalculator
   # They're planned in order of their versions, or in reverse order when reverting them.
   #
   # Raises `AORM::Migrations::Exception::MigrationClassNotFound` if there's no migration with one of the *versions*.
-  def plan_for_versions(versions : Enumerable(AORM::Migrations::Version::Version), direction : AORM::Migrations::Version::Direction) : AORM::Migrations::Metadata::MigrationPlanList
+  def plan_for_versions(versions : Enumerable(AORM::Migrations::Version), direction : AORM::Migrations::Version::Direction) : AORM::Migrations::Metadata::MigrationPlanList
     migrations_to_check = self.arrange_migrations_for_direction direction, self.migrations
     available_migrations = migrations_to_check.select { |migration| versions.includes? migration.version }
 
@@ -30,7 +30,7 @@ class Athena::ORM::Migrations::Version::MigrationPlanCalculator
   # A version of `0` reverts every executed migration.
   #
   # Raises `AORM::Migrations::Exception::MigrationClassNotFound` if there's no migration with the version *to*.
-  def plan_until_version(to : AORM::Migrations::Version::Version) : AORM::Migrations::Metadata::MigrationPlanList
+  def plan_until_version(to : AORM::Migrations::Version) : AORM::Migrations::Metadata::MigrationPlanList
     if to.to_s != "0" && !@migrations_repository.has_migration?(to)
       raise AORM::Migrations::Exception::MigrationClassNotFound.new to.to_s
     end
@@ -54,7 +54,7 @@ class Athena::ORM::Migrations::Version::MigrationPlanCalculator
   end
 
   private def find_direction(
-    to : AORM::Migrations::Version::Version,
+    to : AORM::Migrations::Version,
     executed_migrations : AORM::Migrations::Metadata::ExecutedMigrationsList,
     available_migrations : AORM::Migrations::Metadata::AvailableMigrationsList,
   ) : AORM::Migrations::Version::Direction
@@ -81,7 +81,7 @@ class Athena::ORM::Migrations::Version::MigrationPlanCalculator
   end
 
   private def find_migrations_to_execute(
-    to : AORM::Migrations::Version::Version,
+    to : AORM::Migrations::Version,
     migrations_to_check : Array(AORM::Migrations::Metadata::AvailableMigration),
     direction : AORM::Migrations::Version::Direction,
     executed_migrations : AORM::Migrations::Metadata::ExecutedMigrationsList,

@@ -6,8 +6,8 @@ class Athena::ORM::Migrations::Migrator
 
   # Executes the migrations of *migrations_plan*, and returns the SQL each executed, keyed by its version.
   # Stops at the first migration that fails, re-raising what it raised.
-  def migrate(migrations_plan : AORM::Migrations::Metadata::MigrationPlanList, configuration : AORM::Migrations::MigratorConfiguration) : Hash(AORM::Migrations::Version::Version, Array(AORM::Migrations::Query::Query))
-    sql = Hash(AORM::Migrations::Version::Version, Array(AORM::Migrations::Query::Query)).new
+  def migrate(migrations_plan : AORM::Migrations::Metadata::MigrationPlanList, configuration : AORM::Migrations::MigratorConfiguration) : Hash(AORM::Migrations::Version, Array(AORM::Migrations::Query))
+    sql = Hash(AORM::Migrations::Version, Array(AORM::Migrations::Query)).new
 
     if migrations_plan.size.zero?
       Log.notice { "No migrations to execute." }
