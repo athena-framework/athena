@@ -17,6 +17,14 @@ require "./migrations/migrations_repository"
 require "./migrations/migrator"
 require "./migrations/migrator_configuration"
 
+# The commands are only defined when the console component is required, before or after this file.
+macro finished
+  {% if @top_level.has_constant? "ACON" %}
+    require "./migrations/commands/abstract_command"
+    require "./migrations/commands/*"
+  {% end %}
+end
+
 # Versions a database's schema through migrations, each a type that applies one change, and reverts it.
 #
 # Require `athena-orm/migrations` to use them:

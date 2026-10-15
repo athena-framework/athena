@@ -31,6 +31,9 @@ DB.register_driver "mock", MockDriver
 
 ADI.configure({
   orm: {
-    url: "mock://",
+    url:        "mock://",
+    migrations: {
+      namespace: "App::Migrations",
+    },
   },
 })

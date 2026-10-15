@@ -53,6 +53,16 @@ describe AORM::Bundle::Registry do
     end
   end
 
+  describe ".connection" do
+    it "is the connection of the entity manager" do
+      registry = AORM::Bundle::Registry.new "mock://"
+
+      AORM::Bundle::Registry.connection(registry).should be registry.manager.connection
+    ensure
+      registry.try &.close
+    end
+  end
+
   describe "#reset" do
     it "clears the entity manager, keeping it open on its connection" do
       registry = AORM::Bundle::Registry.new "mock://"
