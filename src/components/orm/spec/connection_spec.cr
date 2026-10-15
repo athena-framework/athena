@@ -86,7 +86,7 @@ struct ConnectionTest < ASPEC::TestCase
   end
 
   def test_execute_statement_returns_the_affected_row_count : Nil
-    @connection.execute_statement("DELETE FROM t", [] of DB::Any, [] of String?).should eq 1
+    @connection.execute_statement("DELETE FROM t").should eq 1
   end
 
   def test_execute_query_binds_parameters_converted_through_their_types : Nil
@@ -96,7 +96,7 @@ struct ConnectionTest < ASPEC::TestCase
   end
 
   def test_execute_query_returns_the_block_value : Nil
-    @connection.execute_query("SELECT 1", [] of DB::Any, [] of String?) { :done }.should eq :done
+    @connection.execute_query("SELECT 1") { :done }.should eq :done
   end
 
   def test_execute_query_without_a_block_returns_the_result_set : Nil
@@ -116,7 +116,7 @@ struct ConnectionTest < ASPEC::TestCase
   def test_fetch_one_returns_nil_without_rows : Nil
     @wrapped.queue_result [] of Hash(String, DB::Any)
 
-    @connection.fetch_one("SELECT c FROM t", [] of DB::Any, [] of String?).should be_nil
+    @connection.fetch_one("SELECT c FROM t").should be_nil
   end
 
   def test_nested_transactions_are_savepoints : Nil

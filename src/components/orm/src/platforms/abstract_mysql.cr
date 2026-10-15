@@ -14,6 +14,23 @@ abstract class Athena::ORM::Platforms::AbstractMySQL < Athena::ORM::Platforms::P
   end
 
   # :inherit:
+  #
+  # MySQL and MariaDB also require backslashes to be escaped.
+  def quote_string_literal(str : String) : String
+    super str.gsub('\\', "\\\\")
+  end
+
+  # :inherit:
+  def create_metadata_provider(connection : AORM::Connection) : Schema::Metadata::MetadataProviderInterface
+    MySQLMetadataProvider.new connection
+  end
+
+  # :inherit:
+  def create_schema_manager(connection : AORM::Connection) : Schema::AbstractSchemaManager
+    Schema::MySQLSchemaManager.new connection, self
+  end
+
+  # :inherit:
   def boolean_type_declaration_sql(column : Schema::Column) : String
     "TINYINT"
   end

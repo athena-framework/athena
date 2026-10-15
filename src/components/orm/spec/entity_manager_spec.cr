@@ -49,8 +49,7 @@ struct EntityManagerTest < ASPEC::TestCase
   end
 
   def test_find_with_extra_id_field_succeeds : Nil
-    # Extra (unmapped) keys in the id hash are allowed — only missing fields
-    # are an error. Matches Doctrine's permissiveness.
+    # Extra (unmapped) keys in the id hash are allowed — only missing fields are an error.
     persister = MockEntityPersister.new @em, @em.class_metadata CompositeKeyed
     @uow.set_entity_persister CompositeKeyed, persister
 

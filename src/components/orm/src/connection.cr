@@ -12,7 +12,7 @@ module Athena::ORM
   # # Each parameter is converted through the type at the same position before being bound.
   # connection.execute_statement "UPDATE posts SET published_at = ? WHERE id = ?", [Time.utc, 1], [AORM::Types::DATETIME, AORM::Types::INTEGER] of String? # => 1
   #
-  # connection.fetch_one "SELECT COUNT(*) FROM posts", [] of DB::Any, [] of String? # => 10
+  # connection.fetch_one "SELECT COUNT(*) FROM posts" # => 10
   # ```
   #
   # The `DB::QueryMethods` methods, such as `#exec` and `#query`, bind their arguments as given, without any conversion.
@@ -64,6 +64,11 @@ module Athena::ORM
       @platform
     end
 
+    # Returns a schema manager that inspects the schema of the database this connection is to.
+    def create_schema_manager : Schema::AbstractSchemaManager
+      @platform.create_schema_manager self
+    end
+
     # :nodoc:
     #
     # Boxed values already hold a type's Crystal-side value, so they pass through unchanged.
@@ -82,13 +87,13 @@ module Athena::ORM
     end
 
     # Executes *sql*, binding each of *params* converted through the type at the same position in *types*, and returns the number of affected rows.
-    def execute_statement(sql : String, params : Array, types : Array(String?)) : Int64
+    def execute_statement(sql : String, params : Array = [] of DB::Any, types : Array(String?) = [] of String?) : Int64
       self.exec(sql, args: self.convert_parameters(params, types)).rows_affected
     end
 
     # Executes *sql*, binding each of *params* converted through the type at the same position in *types*, and yields the result set.
     # Returns the block's value.
-    def execute_query(sql : String, params : Array, types : Array(String?), &)
+    def execute_query(sql : String, params : Array = [] of DB::Any, types : Array(String?) = [] of String?, &)
       self.query sql, args: self.convert_parameters(params, types) do |rs|
         yield rs
       end
@@ -96,12 +101,12 @@ module Athena::ORM
 
     # Executes *sql*, binding each of *params* converted through the type at the same position in *types*, and returns the result set.
     # The caller is responsible for closing it.
-    def execute_query(sql : String, params : Array, types : Array(String?)) : DB::ResultSet
+    def execute_query(sql : String, params : Array = [] of DB::Any, types : Array(String?) = [] of String?) : DB::ResultSet
       self.query sql, args: self.convert_parameters(params, types)
     end
 
     # Executes *sql* like `#execute_query`, returning the first column of the first row, or `nil` when there are no rows.
-    def fetch_one(sql : String, params : Array, types : Array(String?))
+    def fetch_one(sql : String, params : Array = [] of DB::Any, types : Array(String?) = [] of String?)
       self.execute_query sql, params, types do |rs|
         rs.move_next ? rs.read : nil
       end
@@ -109,7 +114,7 @@ module Athena::ORM
 
     # The driver picks each parameter's encoding from its runtime class, so only the value is converted; there is no separate binding type.
     # Parameters may be wrapped in a `Mapping::Value`, and converting is what narrows them to something the driver can bind.
-    private def convert_parameters(params : Array, types : Array(String?)) : Array(DB::Any)
+    private def convert_parameters(params : Array = [] of DB::Any, types : Array(String?) = [] of String?) : Array(DB::Any)
       Array(DB::Any).new(params.size) do |idx|
         param = params[idx]
         value = param.is_a?(Mapping::Value) ? param.value : param

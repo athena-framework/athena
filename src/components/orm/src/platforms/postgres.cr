@@ -8,6 +8,16 @@ class Athena::ORM::Platforms::Postgres < Athena::ORM::Platforms::Platform
   # through to the parent overloads, where `Bool` and `Int` are handled.
   private FALSE_LITERALS = ["f", "false", "n", "no", "off", "0"]
 
+  # :inherit:
+  def create_metadata_provider(connection : AORM::Connection) : Schema::Metadata::MetadataProviderInterface
+    PostgresMetadataProvider.new connection
+  end
+
+  # :inherit:
+  def create_schema_manager(connection : AORM::Connection) : Schema::AbstractSchemaManager
+    Schema::PostgresSchemaManager.new connection, self
+  end
+
   # Converts *value*, a boolean literal such as `"t"` or `"off"`, into a `Bool`.
   def convert_from_boolean(value : ::String) : Bool
     !FALSE_LITERALS.includes? value.strip.downcase

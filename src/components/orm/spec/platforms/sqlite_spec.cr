@@ -1,5 +1,11 @@
 require "../spec_helper"
 
+struct SQLitePlatformTest < ASPEC::TestCase
+  def test_quote_string_literal_doubles_single_quotes : Nil
+    AORM::Platforms::SQLite.new.quote_string_literal(%q(it's a\b)).should eq %q('it''s a\b')
+  end
+end
+
 struct SQLitePlatformDeclarationTest < ASPEC::TestCase
   @platform : AORM::Platforms::SQLite = AORM::Platforms::SQLite.new
 

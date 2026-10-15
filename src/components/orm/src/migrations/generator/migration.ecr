@@ -1,0 +1,21 @@
+class <%= @namespace %>::<%= @class_name %> < AORM::Migrations::AbstractMigration
+  def description : String
+    ""
+  end
+
+  def up : Nil
+    # this up migration is auto-generated, please modify it to your needs
+<%= self.body @up -%>
+  end
+
+  def down : Nil
+    # this down migration is auto-generated, please modify it to your needs
+<%= self.body @down -%>
+  end
+<%- unless @transactional -%>
+
+  def transactional? : Bool
+    false
+  end
+<%- end -%>
+end

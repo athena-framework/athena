@@ -96,8 +96,7 @@ class Athena::ORM::Persisters::Entity::Basic
     @connection.fetch_one(sql, params, types).as(Int64).to_i32
   end
 
-  # Builds the `SELECT COUNT(*) FROM ... [WHERE ...]` SQL for the given
-  # criteria. Mirrors Doctrine's `BasicEntityPersister::getCountSQL`.
+  # Builds the `SELECT COUNT(*) FROM ... [WHERE ...]` SQL for the given criteria.
   def count_sql(criteria : Hash(String, _)) : String
     quoted_table = @quote_strategy.table_name @class_metadata, @platform
     table_alias = self.sql_table_alias @class_metadata.entity_class

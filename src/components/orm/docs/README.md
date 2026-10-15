@@ -86,7 +86,7 @@ end
 The column types are inferred from the Crystal types of the instance variables, see [AORMA::Column](/ORM/Annotations/Column/) for how, and how to configure each column.
 [AORMA::GeneratedValue](/ORM/Annotations/GeneratedValue/) has the database generate the identifier when the row is inserted, such as via an `AUTO_INCREMENT` column.
 
-NOTE: The ORM doesn't create or migrate tables; they must already exist in the database.
+NOTE: The ORM doesn't create tables from the mapping; they must already exist in the database, such as by creating them via [migrations](database_migrations.md).
 
 ### Obtaining an Entity Manager
 
@@ -340,3 +340,4 @@ end
 * Querying with [native SQL](/ORM/NativeQuery/)
 * Custom [types](/ORM/Types/Type/) for value objects
 * Listening to [events](/ORM/Events/EventArgs/)
+* Versioning the database's schema with [migrations](database_migrations.md)

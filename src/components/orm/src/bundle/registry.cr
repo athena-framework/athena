@@ -19,6 +19,13 @@ class Athena::ORM::Bundle::Registry
     registry.manager
   end
 
+  # :nodoc:
+  #
+  # Factory for the connection of the entity manager of the current unit of work.
+  def self.connection(registry : Athena::ORM::Bundle::Registry) : AORM::Connection
+    registry.manager.connection
+  end
+
   @entity_manager : AORM::EntityManager? = nil
 
   def initialize(

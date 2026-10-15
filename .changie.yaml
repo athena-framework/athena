@@ -28,6 +28,7 @@ projects:
       - { path: src/components/console/shard.yml, find: '^version: .*', replace: 'version: {{.VersionNoPrefix}}' }
       - { path: src/components/console/src/athena-console.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
       - { path: src/components/console/docs/README.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
+      - { path: src/components/orm/docs/database_migrations.md, find: '    version: ~> .*', replace: '    version: ~> {{.Major}}.{{.Minor}}.0' }
   - label: Contracts
     key: contracts
     changelog: src/components/contracts/CHANGELOG.md
