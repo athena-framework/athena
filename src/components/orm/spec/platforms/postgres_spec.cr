@@ -35,7 +35,7 @@ struct PostgresPlatformBooleanTest < ASPEC::TestCase
   end
 
   def test_convert_booleans_to_db_value_raises_on_invalid_literal : Nil
-    expect_raises(Exception, /cannot convert.+to a boolean DB value/i) do
+    expect_raises(AORM::Exception::InvalidType, %(Could not convert value "my-bool" to type boolean. Expected one of the following types: Bool, Nil, Array(Bool).)) do
       @platform.convert_booleans_to_db_value("my-bool")
     end
   end
@@ -76,8 +76,11 @@ struct PostgresPlatformDeclarationTest < ASPEC::TestCase
   end
 
   def test_decimal_declaration_requires_precision_and_scale : Nil
-    expect_raises(Exception, "Precision required") { @platform.decimal_type_declaration_sql column }
-    expect_raises(Exception, "Scale required") { @platform.decimal_type_declaration_sql column precision: 10 }
+    ex = expect_raises(AORM::Exception::InvalidColumnDeclaration, %(Column "c" has invalid type)) { @platform.decimal_type_declaration_sql column }
+    ex.cause.should be_a AORM::Exception::ColumnPrecisionRequired
+
+    ex = expect_raises(AORM::Exception::InvalidColumnDeclaration, %(Column "c" has invalid type)) { @platform.decimal_type_declaration_sql column precision: 10 }
+    ex.cause.should be_a AORM::Exception::ColumnScaleRequired
   end
 
   # A length is optional for `VARCHAR` columns on Postgres.

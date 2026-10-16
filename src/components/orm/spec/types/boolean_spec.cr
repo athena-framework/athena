@@ -28,4 +28,10 @@ struct BooleanTypeTest < ASPEC::TestCase
   def test_converts_to_crystal_value_returns_nil : Nil
     @type.to_crystal_value(nil, @platform).should be_nil
   end
+
+  def test_rejects_other_values : Nil
+    expect_raises(AORM::Exception::ValueNotConvertible, %(Could not convert database value "yes" to type "boolean".)) do
+      @type.to_crystal_value("yes", @platform)
+    end
+  end
 end

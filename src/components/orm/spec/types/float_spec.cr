@@ -22,7 +22,7 @@ struct FloatTypeTest < ASPEC::TestCase
   end
 
   def test_rejects_non_numeric_values : Nil
-    expect_raises(Exception, "Float cannot accept Bool") do
+    expect_raises(AORM::Exception::ValueNotConvertible, %(Could not convert database value "true" to type "float".)) do
       @type.to_crystal_value(true, @platform)
     end
   end
@@ -32,5 +32,13 @@ struct FloatTypeTest < ASPEC::TestCase
     rs.move_next
 
     @type.to_crystal_value(rs, @platform).should eq 1.5
+  end
+
+  def test_rejects_unparsable_values : Nil
+    ex = expect_raises(AORM::Exception::ValueNotConvertible, %(Could not convert database value "abc" to type "float".)) do
+      @type.to_crystal_value("abc", @platform)
+    end
+
+    ex.cause.should be_a ArgumentError
   end
 end

@@ -27,7 +27,7 @@ struct EnumTest < ASPEC::TestCase
   end
 
   def test_enum_field_rejects_a_non_integer_type : Nil
-    expect_raises(Exception, /Enum field 'suit' on CardWithStringSuit must be mapped to an integer type, got 'string'/) do
+    expect_raises(AORM::Exception::Mapping, "Enum field 'suit' on CardWithStringSuit must be mapped to an integer type, got 'string'") do
       @em.class_metadata CardWithStringSuit
     end
   end

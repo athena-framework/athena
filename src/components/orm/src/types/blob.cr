@@ -14,7 +14,7 @@ struct Athena::ORM::Types::Blob < Athena::ORM::Types::Type
     case value
     when Nil, Bytes then value
     when ::String   then value.to_slice
-    else                 raise "Blob cannot accept #{value.class}"
+    else                 raise AORM::Exception::ValueNotConvertible.new value.to_s, AORM::Types::BLOB
     end
   end
 

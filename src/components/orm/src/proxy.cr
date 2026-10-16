@@ -64,7 +64,7 @@ class Athena::ORM::Proxy(T) < Athena::ORM::Entity
     uow.remove_from_identity_map self if uow.is_in_identity_map? self
 
     loaded = uow.entity_persister(T).load(id)
-    raise "Proxy target #{T} with id #{id.inspect} not found" if loaded.nil?
+    raise AORM::Exception::EntityNotFound.from_class_name_and_identifier T.to_s, id if loaded.nil?
 
     loaded.as(T)
   end
@@ -149,7 +149,7 @@ class Athena::ORM::Proxy(T) < Athena::ORM::Entity
           @id.not_nil!["id"].not_nil!.as({{non_nil_type}})
         end
       {% else %}
-        raise "Proxy(#{T}) has no field named `id` tagged with @[AORMA::ID]; use `.proxy_id` for the raw identifier hash or `.inner.<your_pk>` to load and read the actual PK value."
+        raise AORM::Exception::Logic.new "Proxy(#{T}) has no field named `id` tagged with @[AORMA::ID]; use `.proxy_id` for the raw identifier hash or `.inner.<your_pk>` to load and read the actual PK value."
       {% end %}
     {% end %}
   end

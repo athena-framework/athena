@@ -398,7 +398,7 @@ struct BasicPersisterTest < ASPEC::TestCase
   def test_select_condition_statement_column_sql_raises_for_unknown_field : Nil
     persister = build_persister
 
-    expect_raises(Exception, /unrecognized field/) do
+    expect_raises(AORM::Exception::UnrecognizedField, "Unrecognized field: ForumUser#nonexistent_field") do
       persister.select_condition_statement_sql("nonexistent_field", 1)
     end
   end
@@ -485,7 +485,7 @@ struct BasicPersisterTest < ASPEC::TestCase
   def test_order_by_sql_raises_on_invalid_orientation : Nil
     persister = build_persister
 
-    expect_raises(Exception, /Invalid ORDER BY orientation/) do
+    expect_raises(AORM::Exception::InvalidOrientation, "Invalid order by orientation specified for ForumUser#username") do
       persister.order_by_sql({"username" => "SIDEWAYS"}, "t0")
     end
   end
@@ -493,7 +493,7 @@ struct BasicPersisterTest < ASPEC::TestCase
   def test_order_by_sql_raises_on_unrecognized_field : Nil
     persister = build_persister
 
-    expect_raises(Exception, /Unrecognized field/) do
+    expect_raises(AORM::Exception::UnrecognizedField, "Unrecognized field: ForumUser#nonexistent") do
       persister.order_by_sql({"nonexistent" => "ASC"}, "t0")
     end
   end
@@ -660,7 +660,7 @@ struct BasicPersisterTest < ASPEC::TestCase
 
     tag = OwnedTag.new
 
-    expect_raises(Exception, /inverse side/) do
+    expect_raises(AORM::Exception::InvalidFindByCall, /^You cannot search for the association field '.+#tags', because it is the inverse side of an association/) do
       persister.select_condition_statement_sql("tags", tag)
     end
   end

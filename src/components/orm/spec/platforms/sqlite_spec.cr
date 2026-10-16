@@ -4,6 +4,12 @@ struct SQLitePlatformTest < ASPEC::TestCase
   def test_quote_string_literal_doubles_single_quotes : Nil
     AORM::Platforms::SQLite.new.quote_string_literal(%q(it's a\b)).should eq %q('it''s a\b')
   end
+
+  def test_modify_limit_query_rejects_a_negative_offset : Nil
+    expect_raises AORM::Exception::InvalidArgument, "Offset must be a positive integer or zero, -1 given." do
+      AORM::Platforms::SQLite.new.modify_limit_query "SELECT 1", 10, -1
+    end
+  end
 end
 
 struct SQLitePlatformDeclarationTest < ASPEC::TestCase

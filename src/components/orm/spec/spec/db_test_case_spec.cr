@@ -37,7 +37,7 @@ struct DBTestCaseTest < ASPEC::TestCase
     database = DB::Database.new(DB::Connection::Options.new, DB::Pool::Options.new) { MockConnection.new(driver_name: "unknown").as(DB::Connection) }
     @test_case.entity_manager_factory = AORM::EntityManagerFactory.new database
 
-    expect_raises AORM::Exceptions::UnknownDriver do
+    expect_raises AORM::Exception::UnknownDriver do
       @test_case.em
     end
 

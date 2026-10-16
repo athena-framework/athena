@@ -14,7 +14,7 @@ struct Athena::ORM::Types::Binary < Athena::ORM::Types::Type
     case value
     when Nil, Bytes then value
     when ::String   then value.to_slice
-    else                 raise "Binary cannot accept #{value.class}"
+    else                 raise AORM::Exception::ValueNotConvertible.new value.to_s, AORM::Types::BINARY
     end
   end
 

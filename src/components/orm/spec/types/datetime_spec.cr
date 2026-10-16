@@ -56,8 +56,16 @@ struct DatetimeTypeTest < ASPEC::TestCase
   end
 
   def test_raises_for_invalid_datetime_string : Nil
-    expect_raises(Time::Format::Error) do
+    ex = expect_raises(AORM::Exception::InvalidFormat, %(Could not convert database value "invalid datetime string" to type datetime. Expected format "#{@platform.date_time_format_string}".)) do
       @type.to_crystal_value("invalid datetime string", @platform)
+    end
+
+    ex.cause.should be_a Time::Format::Error
+  end
+
+  def test_rejects_other_values : Nil
+    expect_raises(AORM::Exception::ValueNotConvertible, %(Could not convert database value "1" to type "datetime".)) do
+      @type.to_crystal_value(1, @platform)
     end
   end
 end

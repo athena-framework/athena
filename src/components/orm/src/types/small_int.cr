@@ -21,8 +21,10 @@ struct Athena::ORM::Types::SmallInt < Athena::ORM::Types::Type
     case value
     when Nil                      then nil
     when ::Int, ::Float, ::String then value.to_i16
-    else                               raise "SmallInt cannot accept #{value.class}"
+    else                               raise AORM::Exception::ValueNotConvertible.new value.to_s, AORM::Types::SMALLINT
     end
+  rescue ex : ArgumentError | OverflowError
+    raise AORM::Exception::ValueNotConvertible.new value.to_s, AORM::Types::SMALLINT, cause: ex
   end
 
   # :inherit:

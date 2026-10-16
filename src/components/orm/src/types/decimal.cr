@@ -18,7 +18,7 @@ struct Athena::ORM::Types::Decimal < Athena::ORM::Types::Type
   def to_crystal_value(value : _, platform : Platforms::Platform) : ::String?
     case value
     when Nil, ::String         then value
-    when ::Bool, ::Time, Bytes then raise "Decimal cannot accept #{value.class}"
+    when ::Bool, ::Time, Bytes then raise AORM::Exception::ValueNotConvertible.new value.to_s, AORM::Types::DECIMAL
     else
       # SQLite can return a decimal column as a float or integer, and Postgres as a `PG::Numeric`.
       value.to_s

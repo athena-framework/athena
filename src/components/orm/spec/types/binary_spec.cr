@@ -19,7 +19,7 @@ struct BinaryTypeTest < ASPEC::TestCase
   end
 
   def test_rejects_other_values : Nil
-    expect_raises(Exception, "Binary cannot accept Int32") do
+    expect_raises(AORM::Exception::ValueNotConvertible, %(Could not convert database value "1" to type "binary".)) do
       @type.to_crystal_value(1, @platform)
     end
   end

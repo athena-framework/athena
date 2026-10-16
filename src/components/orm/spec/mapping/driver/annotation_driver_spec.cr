@@ -311,6 +311,62 @@ class NullableIdJoinColumnFixture < AORM::Entity
   property owner : DriverAssocTarget? = nil
 end
 
+@[AORMA::Entity]
+class DriverCompositeTarget < AORM::Entity
+  @[AORMA::Column]
+  @[AORMA::ID]
+  property tenant : String? = nil
+
+  @[AORMA::Column]
+  @[AORMA::ID]
+  property code : String? = nil
+end
+
+@[AORMA::Entity]
+class CompositeForeignIdFixture < AORM::Entity
+  @[AORMA::Column]
+  @[AORMA::ID]
+  property id : Int64? = nil
+
+  @[AORMA::ID]
+  @[AORMA::ManyToOne]
+  @[AORMA::JoinColumn(name: "target_tenant", referenced_column_name: "tenant")]
+  @[AORMA::JoinColumn(name: "target_code", referenced_column_name: "code")]
+  property target : DriverCompositeTarget? = nil
+end
+
+@[AORMA::Entity]
+class OrphanRemovalIdentifierFixture < AORM::Entity
+  @[AORMA::Column]
+  @[AORMA::ID]
+  property id : Int64? = nil
+
+  @[AORMA::ID]
+  @[AORMA::OneToOne(orphan_removal: true)]
+  property owner : DriverAssocTarget? = nil
+end
+
+@[AORMA::Entity]
+class InvalidCascadeFixture < AORM::Entity
+  @[AORMA::Column]
+  @[AORMA::ID]
+  property id : Int64? = nil
+
+  @[AORMA::ManyToOne(cascade: ["persist", "merge", "flush"])]
+  property owner : DriverAssocTarget? = nil
+end
+
+@[AORMA::Entity]
+class OneToOneInverseJoinColumnFixture < AORM::Entity
+  @[AORMA::Column]
+  @[AORMA::ID]
+  property id : Int64? = nil
+
+  @[AORMA::OneToOne(mapped_by: "target")]
+  @[AORMA::JoinColumn(name: "owner_id")]
+  property owner : DriverAssocTarget? = nil
+end
+
 @[AORMA::Entity(repository_class: CustomDriverRepository)]
 class WithCustomRepositoryFixture < AORM::Entity
   @[AORMA::Column]
@@ -404,7 +460,7 @@ struct AnnotationDriverTest < ASPEC::TestCase
   end
 
   def test_field_of_an_unmapped_type_without_an_explicit_type_is_rejected : Nil
-    expect_raises(Exception, "'UnmappedTypeFixture#initial': no column type is mapped to Char, so pass one with `@[AORMA::Column(type: ...)]`.") do
+    expect_raises(AORM::Exception::Mapping, "The mapping of field 'UnmappedTypeFixture#initial' is invalid: The option 'type' is required. (Hint: no column type is mapped to Char, so pass one with `@[AORMA::Column(type: ...)]`)") do
       load UnmappedTypeFixture
     end
   end
@@ -486,13 +542,13 @@ struct AnnotationDriverTest < ASPEC::TestCase
 
   # The inverse side never holds the target's identifier, so it can't be loaded lazily from it.
   def test_one_to_one_inverse_side_rejects_proxy_typing : Nil
-    expect_raises(Exception, "AORM::Proxy(T) is only valid on owning-side ToOne fields; field 'owner' on 'OneToOneInverseProxyFixture' is the inverse side") do
+    expect_raises(AORM::Exception::Mapping, "AORM::Proxy(T) is only valid on owning-side ToOne fields; field 'owner' on 'OneToOneInverseProxyFixture' is the inverse side") do
       load OneToOneInverseProxyFixture
     end
   end
 
   def test_one_to_one_inverse_side_cannot_be_part_of_the_identifier : Nil
-    expect_raises(Exception, "An inverse association is not allowed to be identifier in 'OneToOneInverseIdentifierFixture#owner'.") do
+    expect_raises(AORM::Exception::Mapping, "An inverse association is not allowed to be identifier in 'OneToOneInverseIdentifierFixture#owner'.") do
       load OneToOneInverseIdentifierFixture
     end
   end
@@ -649,8 +705,32 @@ struct AnnotationDriverTest < ASPEC::TestCase
     assoc.join_columns.first.nullable.should be_false
   end
 
+  def test_identifier_association_rejects_orphan_removal : Nil
+    expect_raises(AORM::Exception::Mapping, "The orphan removal option is not allowed on an association that is part of the identifier in 'OrphanRemovalIdentifierFixture#owner'.") do
+      load OrphanRemovalIdentifierFixture
+    end
+  end
+
+  def test_identifier_association_rejects_a_composite_target : Nil
+    expect_raises(AORM::Exception::Mapping, "It is not possible to map entity 'DriverCompositeTarget' with a composite primary key as part of the primary key of another entity 'CompositeForeignIdFixture#target'.") do
+      load CompositeForeignIdFixture
+    end
+  end
+
+  def test_association_rejects_invalid_cascade_options : Nil
+    expect_raises(AORM::Exception::Mapping, "You have specified invalid cascade options for InvalidCascadeFixture#owner: 'merge', 'flush'; available options: 'remove', 'persist', 'refresh', and 'detach'") do
+      load InvalidCascadeFixture
+    end
+  end
+
+  def test_one_to_one_inverse_side_rejects_join_columns : Nil
+    expect_raises(AORM::Exception::Mapping, "OneToOneInverseJoinColumnFixture#owner is a OneToOne inverse side, which does not allow join columns.") do
+      load OneToOneInverseJoinColumnFixture
+    end
+  end
+
   def test_to_one_identifier_join_column_rejects_explicit_nullable : Nil
-    expect_raises(Exception, /cannot set nullable/) do
+    expect_raises(AORM::Exception::Mapping, /^Cannot specify the "nullable" attribute for join columns in to-one associations \(NullableIdJoinColumnFixture#\w+\) that are part of the identifier$/) do
       load NullableIdJoinColumnFixture
     end
   end

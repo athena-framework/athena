@@ -10,7 +10,7 @@ class Athena::ORM::Platforms::MySQLMetadataProvider
   def initialize(@connection : AORM::Connection)
     database_name = @connection.fetch_one "SELECT DATABASE()"
 
-    raise "A database is required for the method: #{self.class}#initialize." if database_name.nil?
+    raise AORM::Exception::DatabaseRequired.new "#{self.class}#initialize" if database_name.nil?
 
     @database_name = database_name.as(String)
   end

@@ -172,7 +172,8 @@ class Athena::ORM::Persisters::Entity::Basic
 
       if id_generator.is_a?(AORM::ID::RowConsumingGenerator)
         id_hash = @connection.execute_query sql, params, types do |rs|
-          raise ::DB::NoResultsError.new "INSERT ... RETURNING produced no rows for #{@class_metadata.entity_class}" unless rs.move_next
+          # Reading the generated identifier back replaces asking the connection for the last one, so no row means no identifier was generated.
+          raise AORM::Exception::NoIdentityValue.new unless rs.move_next
           id_generator.consume_row rs, @class_metadata, @platform
         end
         uow.assign_post_insert_id entity, id_hash
@@ -714,7 +715,7 @@ class Athena::ORM::Persisters::Entity::Basic
 
     if columns.size > 1 && comparison == "IN"
       # TODO: Try and support this
-      raise "cant use in operator on composite keys"
+      raise AORM::Exception::CantUseInOperatorOnCompositeKeys.create
     end
 
     columns.each do |column|
@@ -784,7 +785,7 @@ class Athena::ORM::Persisters::Entity::Basic
       orientation = orientation.strip.upcase
 
       unless orientation.in?({"ASC", "DESC"})
-        raise "Invalid ORDER BY orientation '#{orientation}' for field '#{field}' on '#{@class_metadata.entity_class}'"
+        raise AORM::Exception::InvalidOrientation.from_class_name_and_field @class_metadata.entity_class.to_s, field
       end
 
       if @class_metadata.field_mappings.has_key? field
@@ -796,7 +797,7 @@ class Athena::ORM::Persisters::Entity::Basic
 
       if assoc = @class_metadata.association_mappings[field]?
         unless assoc.is_a?(Mapping::OwningSide) && assoc.is_a?(Mapping::ToOne)
-          raise "Cannot order by inverse side of association '#{field}' on '#{@class_metadata.entity_class}'. Use the owning side."
+          raise AORM::Exception::InvalidFindByCall.from_inverse_side_usage @class_metadata.entity_class.to_s, field
         end
 
         # TODO: Resolve inherited associations to their declaring class's table alias.
@@ -808,7 +809,7 @@ class Athena::ORM::Persisters::Entity::Basic
         next
       end
 
-      raise "Unrecognized field '#{field}' on '#{@class_metadata.entity_class}'"
+      raise AORM::Exception::UnrecognizedField.by_fully_qualified_name @class_metadata.entity_class.to_s, field
     end
 
     " ORDER BY #{parts.join(", ")}"
@@ -890,7 +891,7 @@ class Athena::ORM::Persisters::Entity::Basic
         raise "TODO: ManyToMany association criteria"
       else
         unless assoc.is_a?(Mapping::OwningSide) && assoc.is_a?(Mapping::ToOne)
-          raise "Cannot match on inverse side of association '#{field}' on '#{@class_metadata.entity_class}'. Use the owning side."
+          raise AORM::Exception::InvalidFindByCall.from_inverse_side_usage @class_metadata.entity_class.to_s, field
         end
 
         # TODO: Handle inherited associations
@@ -909,7 +910,7 @@ class Athena::ORM::Persisters::Entity::Basic
       return [field]
     end
 
-    raise "unrecognized field"
+    raise AORM::Exception::UnrecognizedField.by_fully_qualified_name @class_metadata.entity_class.to_s, field
   end
 
   private def switch_persister_context(offset : Int?, limit : Int?) : Nil
@@ -1046,7 +1047,7 @@ class Athena::ORM::Persisters::Entity::Basic
       # TODO: Handle foreign identifiers
 
       field_name = source_class_metadata.field_names[source_key_column]?
-      raise "Join column doesn't point to mapped field" unless field_name
+      raise AORM::Exception::Mapping.join_column_must_point_to_mapped_field source_class_metadata.entity_class.to_s, source_key_column unless field_name
 
       value = source_class_metadata.create_column_value_from_entity field_name, source_entity
 

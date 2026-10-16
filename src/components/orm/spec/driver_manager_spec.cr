@@ -19,7 +19,7 @@ struct DriverManagerTest < ASPEC::TestCase
   end
 
   def test_unknown_driver_raises : Nil
-    expect_raises AORM::Exceptions::UnknownDriver, %(The given driver "oracle" is unknown, the ORM currently supports only the following drivers: postgres, mysql, sqlite3.) do
+    expect_raises AORM::Exception::UnknownDriver, %(The given driver "oracle" is unknown, the ORM currently supports only the following drivers: postgres, mysql, sqlite3.) do
       AORM::DriverManager.driver MockConnection.new(driver_name: "oracle")
     end
   end

@@ -3,8 +3,8 @@ class Athena::ORM::Internal::Hydrators::SimpleObject < Athena::ORM::Internal::Hy
   private getter! class_metadata : Mapping::ClassInterface
 
   protected def prepare : Nil
-    raise "Cannot use SimpleObject with an RSM that contains more than one object result" if self.rsm.alias_map.size != 1
-    raise "Cannot use SimpleObject Hydrator with a RSM that contains scalar mappings" unless self.rsm.scalar_mappings.empty?
+    raise AORM::Exception::Runtime.new "Cannot use the SimpleObject hydrator with a ResultSetMapping that contains more than one object result." if self.rsm.alias_map.size != 1
+    raise AORM::Exception::Runtime.new "Cannot use the SimpleObject hydrator with a ResultSetMapping that contains scalar mappings." unless self.rsm.scalar_mappings.empty?
 
     @class_metadata = self.class_metadata(self.rsm.alias_map.first_value)
   end
@@ -35,7 +35,7 @@ class Athena::ORM::Internal::Hydrators::SimpleObject < Athena::ORM::Internal::Hy
 
     self.rs.column_names.each do |column|
       if self.rsm.relation_map.has_key? column
-        raise "Unable to retrieve association information for column '#{column}."
+        raise AORM::Exception::Runtime.new %(Unable to retrieve association information for column "#{column}")
       end
 
       cache_key_info = self.hydrate_column_info column

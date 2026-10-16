@@ -144,7 +144,7 @@ The simplest way to find an entity is by its identifier:
 ```crystal
 em.find User, 1  # => #<User:0x7f3a1c2b5e40 @id=1, @name="Jim", @active=true>
 em.find User, 99 # => nil
-em.find! User, 99 # => raises AORM::Exceptions::NoResult
+em.find! User, 99 # => raises AORM::Exception::EntityNotFound
 ```
 
 The [AORM::EntityRepository](/ORM/EntityRepository/) of each entity finds entities by simple conditions:
