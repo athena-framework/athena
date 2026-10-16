@@ -91,4 +91,10 @@ struct EntityManagerTest < ASPEC::TestCase
       @em.persist CompositeKeyed.new
     end
   end
+
+  def test_inspect_leaves_out_the_state : Nil
+    em = AORM::EntityManager.new MockConnection.new
+
+    em.inspect.should match /\A#<Athena::ORM::EntityManager:0x[0-9a-f]+>\z/
+  end
 end

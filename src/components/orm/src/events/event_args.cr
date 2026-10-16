@@ -55,4 +55,12 @@ abstract class Athena::ORM::Events::EventArgs < ACTR::EventDispatcher::Event
       @@post_remove_{{idx}} : AORM::Events::PostRemoveEventArgs({{entity.id}})? = nil
     {% end %}
   end
+
+  # :nodoc:
+  #
+  # Pretty prints `#inspect`, like `Object#pretty_print`.
+  # `Reference#pretty_print` is generated from the receiver's type, so pretty printing a value typed as this class or `ACTR::EventDispatcher::Event`, as spec failure messages do, would compile it for each lifecycle event of every entity.
+  def pretty_print(pp : PrettyPrint) : Nil
+    pp.text self.inspect
+  end
 end

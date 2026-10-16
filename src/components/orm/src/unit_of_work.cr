@@ -559,7 +559,8 @@ class Athena::ORM::UnitOfWork
   def persist(entity : AORM::Entity) : Nil
     visited = Set(AORM::Entity).new
 
-    self.persist entity, visited
+    # Upcast so the persist internals are compiled once rather than once per entity class, also for callers that don't go through `EntityManager#persist`.
+    self.persist entity.as(AORM::Entity), visited
   end
 
   private def persist(entity : AORM::Entity, visited : Set(AORM::Entity)) : Nil

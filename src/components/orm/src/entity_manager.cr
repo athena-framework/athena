@@ -388,6 +388,16 @@ class Athena::ORM::EntityManager
     NativeQuery.new(self, sql, rsm)
   end
 
+  # Appends the class name and object address of this entity manager to *io*, leaving out its state, such as the unit of work and its identity map.
+  # Values referencing the entity manager, such as `AORM::Events::LifecycleEventArgs`, print it this way too.
+  #
+  # ```
+  # em.inspect # => "#<Athena::ORM::EntityManager:0x7f3a1c2b5e40>"
+  # ```
+  def inspect(io : IO) : Nil
+    self.to_s io
+  end
+
   private def unless_closed(&) : Nil
     raise AORM::Exception::EntityManagerClosed.create if @closed
     yield
