@@ -657,6 +657,15 @@ class Athena::ORM::Mapping::Class(T)
     {% end %}
   end
 
+  # Appends the class name and object address of this metadata to *io*, leaving out its mappings.
+  #
+  # ```
+  # em.class_metadata(User).inspect # => "#<Athena::ORM::Mapping::Class(User):0x7f3a1c2b5e40>"
+  # ```
+  def inspect(io : IO) : Nil
+    self.to_s io
+  end
+
   # Returns whether the identifier values are assigned by your code, rather than generated.
   def identifier_natural? : Bool
     @id_generator_type.none?

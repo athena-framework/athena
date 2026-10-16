@@ -147,4 +147,11 @@ struct ArrayCollectionTest < ASPEC::TestCase
     collection.size.should eq 3
     collection.to_a.should eq [1, 2, 3]
   end
+
+  def test_pretty_inspect_prints_inspect_on_one_line : Nil
+    collection = AORM::ArrayCollection(Int32).new
+    (1..40).each { |i| collection << i }
+
+    collection.pretty_inspect.should eq collection.inspect
+  end
 end

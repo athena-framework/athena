@@ -488,4 +488,12 @@ struct MappingClassTest < ASPEC::TestCase
 
     metadata.field_value(entity, "id").should eq 99_i64
   end
+
+  def test_inspect_leaves_out_the_mappings : Nil
+    metadata = AORM::Mapping::Class(SinglePkFixture).new
+    metadata.map_field AORM::Mapping::Driver::ColumnMapping.new(field_name: "id", id: true)
+
+    metadata.inspect.should match /\A#<Athena::ORM::Mapping::Class\(SinglePkFixture\):0x[0-9a-f]+>\z/
+    metadata.pretty_inspect.should eq metadata.inspect
+  end
 end

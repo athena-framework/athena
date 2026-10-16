@@ -48,6 +48,13 @@ end
 #
 # Non-generic ancestor of every collection implementation.
 abstract class Athena::ORM::BaseCollection
+  # :nodoc:
+  #
+  # Pretty prints `#inspect`, like `Object#pretty_print`.
+  # `Reference#pretty_print` is generated from the receiver's type, so pretty printing a value typed as this class, as spec failure messages do, would compile it for every collection type of every entity.
+  def pretty_print(pp : PrettyPrint) : Nil
+    pp.text self.inspect
+  end
 end
 
 # :nodoc:
