@@ -1,8 +1,0 @@
-project: spec
-kind: Fixed
-body: Fix that macro code coverage was running when the env var was not set
-time: 2026-10-13T20:50:38.983149743-04:00
-custom:
-    Author: George Dietrich
-    PR: "763"
-    Username: blacksmoke16
