@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.2] - 2026-10-18
+
+### Changed
+
+- Event listeners with a generic type parameter now match all subclasses and module includers of the parameter's type ([#703]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.4.2]: https://github.com/athena-framework/event-dispatcher/releases/tag/v0.4.2
+[#703]: https://github.com/athena-framework/athena/pull/703
+
 ## [0.4.1] - 2026-04-19
 
 ### Changed
