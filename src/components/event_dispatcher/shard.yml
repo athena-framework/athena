@@ -19,4 +19,4 @@ authors:
 dependencies:
   athena-contracts:
     github: athena-framework/contracts
-    version: ~> 0.1.0
+    version: ~> 0.1.1
