@@ -31,6 +31,29 @@ Then inject an `AVD::Validator::ValidatorInterface` where it's needed.
 The framework also uses it to validate request bodies, and constraint validators may be services that depend on other services.
 See [AVD::Bundle](/Validator/Bundle/) for more information.
 
+### Optional Components
+
+Some constraints require additional components, which are not installed alongside the validator:
+
+| Component                | Shard               | Required By                                                                                                                              |
+| ------------------------ | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| [MIME](/MIME/)           | `athena-mime`       | The `mime_types` of [AVD::Constraints::File](/Validator/Constraints/File/), and [AVD::Constraints::Image](/Validator/Constraints/Image/) |
+| [ImageSize](/ImageSize/) | `athena-image_size` | Validating the dimensions of images via [AVD::Constraints::Image](/Validator/Constraints/Image/)                                         |
+
+To use one, add it to your `shard.yml` and require it, for example:
+
+```yaml
+dependencies:
+  athena-image_size:
+    github: athena-framework/image-size
+    version: ~> 0.1.0
+```
+
+```crystal
+require "athena-validator"
+require "athena-image_size"
+```
+
 ## Usage
 
 `Athena::Validator` comes with a set of common [AVD::Constraints](/Validator/Constraints/) built-in that any project could find useful.

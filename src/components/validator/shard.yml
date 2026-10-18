@@ -15,14 +15,3 @@ description: |
 
 authors:
   - George Dietrich <dev@dietrich.pub>
-
-dependencies:
-  athena-http:
-    github: athena-framework/http
-    version: ~> 0.1.0
-  athena-image_size:
-    github: athena-framework/image-size
-    version: ~> 0.1.0
-  athena-mime:
-    github: athena-framework/mime
-    version: ~> 0.2.0

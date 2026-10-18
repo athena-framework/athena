@@ -2,6 +2,15 @@
 
 Documents the changes that may be required when upgrading to a newer component version.
 
+## Upgrade to 0.6.0
+
+### The HTTP, MIME, and ImageSize components are optional
+
+The component no longer depends on the [HTTP](https://athenaframework.org/HTTP/), [MIME](https://athenaframework.org/MIME/), and [ImageSize](https://athenaframework.org/ImageSize/) components.
+The `mime_types` of `AVD::Constraints::File`, and `AVD::Constraints::Image`, require the MIME component.
+Validating the dimensions of images via `AVD::Constraints::Image` also requires the ImageSize component.
+Applications that use them need to add them to their `shard.yml` and require them:
+
 ## Upgrade to 0.5.0
 
 ### Split `AVD::Constraints::Size` constraint
