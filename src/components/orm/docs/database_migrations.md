@@ -13,7 +13,7 @@ They are executed via commands of the [console](/Console/) component, so add it 
 dependencies:
   athena-console:
     github: athena-framework/console
-    version: ~> 0.4.0
+    version: ~> 0.5.0
 ```
 
 Then, in the entry point of the console application, require both bundles, `athena-orm/migrations` and the migrations themselves, and configure the namespace and directory of the migrations:
