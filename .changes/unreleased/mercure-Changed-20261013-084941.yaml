@@ -1,9 +1,0 @@
-project: mercure
-kind: Changed
-body: The jwt shard is now an optional dependency; add it to your shard.yml and require "jwt" to generate tokens from a secret, or use a static token via `jwt.value`
-time: 2026-10-13T08:49:41.26446945-04:00
-custom:
-    Author: George Dietrich
-    Breaking: "Yes"
-    PR: "760"
-    Username: blacksmoke16

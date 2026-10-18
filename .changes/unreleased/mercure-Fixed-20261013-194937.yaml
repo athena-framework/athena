@@ -1,8 +1,0 @@
-project: mercure
-kind: Fixed
-body: Fix non-default hubs of the Mercure bundle being removed from the hub registry, and fix only the last hub's named token aliases being registered
-time: 2026-10-13T19:49:37.583963449-04:00
-custom:
-    Author: George Dietrich
-    PR: "762"
-    Username: blacksmoke16

@@ -32,7 +32,7 @@ alias AMC = Athena::Mercure
 #
 # Mercure comes with an authorization mechanism, automatic reconnection in case of network issues with retrieving of lost updates, a presence API, "connection-less" push for smartphones and auto-discoverability (a supported client can automatically discover and subscribe to updates of a given resource thanks to a specific HTTP header).
 module Athena::Mercure
-  VERSION = "0.1.0"
+  VERSION = "0.2.0"
 
   # See `AMC::TokenFactory::Interface`
   module TokenFactory; end
