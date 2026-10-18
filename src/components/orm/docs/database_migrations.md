@@ -222,3 +222,7 @@ $ ./bin/console orm:migrations:version --delete --all
 TIP: To start using migrations with an existing database, write a first migration creating its current schema.
 Then create the table in that database with `orm:migrations:sync-metadata-storage`, and record the migration as executed with `orm:migrations:version --add`.
 New databases get the same schema by executing it.
+
+## Testing
+
+[AORM::Spec.migrate_database](/ORM/Spec/#Athena::ORM::Spec.migrate_database(container)) migrates the test database to the latest version before the specs run, see [testing](/ORM/#testing).

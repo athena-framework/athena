@@ -163,6 +163,7 @@ struct Athena::ORM::Bundle < ADI::AbstractBundle
 
               SERVICE_HASH[metadata_storage_id = "athena_orm_migrations_metadata_storage"] = {
                 class:      Athena::ORM::Migrations::Metadata::Storage::TableMetadataStorage,
+                public:     true,
                 parameters: {
                   connection:    {value: connection_id.id},
                   configuration: {value: storage_configuration},
@@ -182,6 +183,7 @@ struct Athena::ORM::Bundle < ADI::AbstractBundle
 
               SERVICE_HASH[plan_calculator_id = "athena_orm_migrations_plan_calculator"] = {
                 class:      Athena::ORM::Migrations::Version::MigrationPlanCalculator,
+                public:     true,
                 parameters: {
                   migrations_repository: {value: repository_id.id},
                   metadata_storage:      {value: metadata_storage_id.id},
@@ -198,6 +200,7 @@ struct Athena::ORM::Bundle < ADI::AbstractBundle
 
               SERVICE_HASH[alias_resolver_id = "athena_orm_migrations_alias_resolver"] = {
                 class:      Athena::ORM::Migrations::Version::AliasResolver,
+                public:     true,
                 parameters: {
                   migration_plan_calculator:   {value: plan_calculator_id.id},
                   metadata_storage:            {value: metadata_storage_id.id},
@@ -215,6 +218,7 @@ struct Athena::ORM::Bundle < ADI::AbstractBundle
 
               SERVICE_HASH[migrator_id = "athena_orm_migrations_migrator"] = {
                 class:      Athena::ORM::Migrations::Migrator,
+                public:     true,
                 parameters: {
                   executor: {value: executor_id.id},
                 },

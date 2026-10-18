@@ -332,6 +332,17 @@ struct UserControllerTest < ATH::Spec::APITestCase
 end
 ```
 
+Applications using [migrations](database_migrations.md) through [AORM::Bundle](/ORM/Bundle/) can bring the test database up to date before the specs run with [AORM::Spec.migrate_database](/ORM/Spec/#Athena::ORM::Spec.migrate_database(container)), which executes the migrations that haven't been executed yet:
+
+```crystal
+# spec/spec_helper.cr
+require "athena-orm/spec"
+
+Spec.before_suite do
+  AORM::Spec.migrate_database
+end
+```
+
 ## Learn More
 
 * Working with entities in an [AORM::EntityManager](/ORM/EntityManager/), and transactions
