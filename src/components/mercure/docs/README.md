@@ -44,7 +44,7 @@ First, install the component by adding the following to your `shard.yml`, then r
 dependencies:
   athena-mercure:
     github: athena-framework/mercure
-    version: ~> 0.1.0
+    version: ~> 0.2.0
 ```
 
 Generating the JWTs used to authorize with a hub, such as via `AMC::TokenFactory::JWT`, also requires the [jwt](https://github.com/crystal-community/jwt) shard:

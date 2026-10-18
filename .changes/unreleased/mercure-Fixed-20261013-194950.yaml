@@ -1,8 +1,0 @@
-project: mercure
-kind: Fixed
-body: Fix overriding the mercure claim of an AMC::TokenFactory::JWT token emitting a duplicate claim
-time: 2026-10-13T19:49:50.123527755-04:00
-custom:
-    Author: George Dietrich
-    PR: "762"
-    Username: blacksmoke16

@@ -1,6 +1,6 @@
 name: athena
 
-version: 0.22.0
+version: 0.23.0
 
 crystal: ~> 1.19
 
@@ -19,10 +19,10 @@ authors:
 dependencies:
   athena-contracts:
     github: athena-framework/contracts
-    version: ~> 0.1.0
+    version: ~> 0.1.1
   athena-dependency_injection:
     github: athena-framework/dependency-injection
-    version: ~> 0.4.0
+    version: ~> 0.4.6
   athena-event_dispatcher:
     github: athena-framework/event-dispatcher
     version: ~> 0.4.0
@@ -31,7 +31,7 @@ dependencies:
     version: ~> 0.1.0
   athena-http_kernel:
     github: athena-framework/http-kernel
-    version: ~> 0.1.0
+    version: ~> 0.2.0
   athena-routing:
     github: athena-framework/routing
     version: ~> 0.2.0

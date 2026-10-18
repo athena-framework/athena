@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.4] - 2026-10-18
+
+### Added
+
+- Add `ASR::Bundle` to integrate the component with the DI component ([#753]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.4.4]: https://github.com/athena-framework/serializer/releases/tag/v0.4.4
+[#753]: https://github.com/athena-framework/athena/pull/753
+
 ## [0.4.3] - 2026-04-19
 
 ### Changed

@@ -1,8 +1,0 @@
-project: mime
-kind: Added
-body: Add the `-Dwithout_libmagic` flag to disable the `libmagic` based `AMIME::MagicTypesGuesser`
-time: 2026-10-13T01:30:36.851846894-04:00
-custom:
-    Author: George Dietrich
-    PR: "759"
-    Username: blacksmoke16

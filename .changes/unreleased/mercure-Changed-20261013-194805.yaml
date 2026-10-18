@@ -1,9 +1,0 @@
-project: mercure
-kind: Changed
-body: The Mercure component and bundle now default to the Mercure protocol 1.0
-time: 2026-10-13T19:48:05.939405235-04:00
-custom:
-    Author: George Dietrich
-    Breaking: "Yes"
-    PR: "762"
-    Username: blacksmoke16

@@ -1,8 +1,0 @@
-project: http
-kind: Fixed
-body: Add the missing athena-mime dependency
-time: 2026-10-13T00:28:59.98196129-04:00
-custom:
-    Author: George Dietrich
-    PR: "758"
-    Username: blacksmoke16

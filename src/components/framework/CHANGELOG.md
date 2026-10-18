@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.23.0] - 2026-10-18
+
+### Changed
+
+- **Breaking:** `ATH::View::ViewHandler` and `ATHR::RequestBody` now depend on `ATH::Serializer::Interface` instead of `ASR::SerializerInterface` ([#752]) (George Dietrich) <!-- blacksmoke16 -->
+- **Breaking:** The Serializer component is now an optional dependency; require `athena-serializer/bundle` to (de)serialize `ASR::Serializable` types ([#753]) (George Dietrich) <!-- blacksmoke16 -->
+- **Breaking:** The *serializer* parameter of `ATH::View::ViewHandler` and `ATHR::RequestBody` is now optional, and comes after *format_handlers* ([#753]) (George Dietrich) <!-- blacksmoke16 -->
+- **Breaking:** The Validator component is now an optional dependency; require athena-validator/bundle to validate `ATHR::RequestBody` resolved objects ([#755]) (George Dietrich) <!-- blacksmoke16 -->
+- **Breaking:** The *validator* parameter of `ATHR::RequestBody` is now optional, and comes last ([#755]) (George Dietrich) <!-- blacksmoke16 -->
+- **Breaking:** The Console component is now an optional dependency; require `athena-console/bundle` to use `ATH.run_console` and console commands ([#756]) (George Dietrich) <!-- blacksmoke16 -->
+- **Breaking:** Console commands are now tagged `console.command` instead of `athena.console.command` ([#756]) (George Dietrich) <!-- blacksmoke16 -->
+- **Breaking:** The Clock and Negotiation components are now optional dependencies; require `athena-clock` to inject `ACLK::Interface`, and `athena-negotiation` to enable the format listener ([#758]) (George Dietrich) <!-- blacksmoke16 -->
+- `ATH::Spec::HTTPBrowser` resets `ACTR::Service::Resettable` services after each request, instead of closing ([#747]) (George Dietrich) <!-- blacksmoke16 -->
+
+### Added
+
+- Close each `ACTR::Service::Closable` service after each request ([#744]) (George Dietrich) <!-- blacksmoke16 -->
+- Support building with `-Dwithout_openssl` ([#759]) (George Dietrich) <!-- blacksmoke16 -->
+
+### Removed
+
+- Remove `ATH::View::Context#exclusion_strategies` and `#add_exclusion_strategy` ([#752]) (George Dietrich) <!-- blacksmoke16 -->
+- Remove `ATH::Console::Application` and its `athena_console_application` service in favor of `ACON::Application.new(name, version, container)` ([#756]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.23.0]: https://github.com/athena-framework/framework/releases/tag/v0.23.0
+[#747]: https://github.com/athena-framework/athena/pull/747
+[#752]: https://github.com/athena-framework/athena/pull/752
+[#753]: https://github.com/athena-framework/athena/pull/753
+[#755]: https://github.com/athena-framework/athena/pull/755
+[#756]: https://github.com/athena-framework/athena/pull/756
+[#758]: https://github.com/athena-framework/athena/pull/758
+[#744]: https://github.com/athena-framework/athena/pull/744
+[#759]: https://github.com/athena-framework/athena/pull/759
+
 ## [0.22.0] - 2026-04-19
 
 ### Changed

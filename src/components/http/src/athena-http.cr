@@ -26,7 +26,7 @@ require "./request_matcher/*"
 alias AHTTP = Athena::HTTP
 
 module Athena::HTTP
-  VERSION = "0.1.0"
+  VERSION = "0.1.1"
 
   # Both acts as a namespace for exceptions related to the `Athena::HTTP` component, as well as a way to check for exceptions from the component.
   module Exception; end
