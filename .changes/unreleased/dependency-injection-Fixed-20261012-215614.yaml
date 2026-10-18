@@ -1,8 +1,0 @@
-project: dependency-injection
-kind: Fixed
-body: Allow an `ADI::AsAlias` annotation to replace an alias defined by a bundle extension
-time: 2026-10-12T21:56:14.182208279-04:00
-custom:
-    Author: George Dietrich
-    PR: "754"
-    Username: blacksmoke16

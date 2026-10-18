@@ -1,8 +1,0 @@
-project: dependency-injection
-kind: Added
-body: Register the clock and event_dispatcher services, and AEDA::AsEventListener listeners, when the Clock and Event Dispatcher components are present
-time: 2026-10-13T00:17:44.733005669-04:00
-custom:
-    Author: George Dietrich
-    PR: "757"
-    Username: blacksmoke16

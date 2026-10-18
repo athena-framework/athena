@@ -1,8 +1,0 @@
-project: dependency-injection
-kind: Fixed
-body: Fix an infinite recursion error when a service is being autowired with itself
-time: 2026-10-13T00:17:14.506277207-04:00
-custom:
-    Author: George Dietrich
-    PR: "757"
-    Username: blacksmoke16
