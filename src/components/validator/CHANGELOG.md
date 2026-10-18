@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.6.0] - 2026-10-18
+
+### Changed
+
+- **Breaking:** The HTTP, MIME, and ImageSize components are now optional dependencies; add `athena-mime` to validate MIME types via `AVD::Constraints::File` or use `AVD::Constraints::Image`, and `athena-image_size` to validate image dimensions ([#767]) (George Dietrich) <!-- blacksmoke16 -->
+- **Breaking:** Service constraint validators are now tagged as `validator.constraint_validator` instead of `athena.validator.constraint_validator` ([#755]) (George Dietrich) <!-- blacksmoke16 -->
+- Improve compile times and compiler memory usage of applications that validate many different types ([#738]) (George Dietrich) <!-- blacksmoke16 -->
+
+### Added
+
+- Add `AVD::Bundle` to integrate the component with the DI component ([#755]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.6.0]: https://github.com/athena-framework/validator/releases/tag/v0.6.0
+[#738]: https://github.com/athena-framework/athena/pull/738
+[#755]: https://github.com/athena-framework/athena/pull/755
+[#767]: https://github.com/athena-framework/athena/pull/767
+
 ## [0.5.0] - 2026-04-19
 
 ### Changed

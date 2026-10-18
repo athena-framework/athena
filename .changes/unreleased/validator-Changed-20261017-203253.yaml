@@ -1,9 +1,0 @@
-project: validator
-kind: Changed
-body: The HTTP, MIME, and ImageSize components are now optional dependencies; add `athena-mime` to validate MIME types via `AVD::Constraints::File` or use `AVD::Constraints::Image`, and `athena-image_size` to validate image dimensions
-time: 2026-10-17T20:32:53.870362096-04:00
-custom:
-    Author: George Dietrich
-    Breaking: "Yes"
-    PR: "767"
-    Username: blacksmoke16
