@@ -10,7 +10,7 @@ Add the framework component to your `shard.yml`:
 dependencies:
   athena:
     github: athena-framework/framework
-    version: ~> 0.22.0
+    version: ~> 0.23.0
 ```
 
 Then run `shards install`.

@@ -1,9 +1,0 @@
-project: framework
-kind: Changed
-body: The serializer parameter of `ATH::View::ViewHandler` and `ATHR::RequestBody` is now optional, and comes after `format_handlers` and last respectively
-time: 2026-10-11T23:38:57.63111952-04:00
-custom:
-    Author: George Dietrich
-    Breaking: "Yes"
-    PR: "753"
-    Username: blacksmoke16

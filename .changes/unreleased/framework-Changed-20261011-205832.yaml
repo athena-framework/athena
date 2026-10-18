@@ -1,9 +1,0 @@
-project: framework
-kind: Changed
-body: '`ATH::View::ViewHandler` and `ATHR::RequestBody` now depend on `ATH::Serializer::Interface` instead of `ASR::SerializerInterface`'
-time: 2026-10-11T20:58:32.22532407-04:00
-custom:
-    Author: George Dietrich
-    Breaking: "Yes"
-    PR: "752"
-    Username: blacksmoke16

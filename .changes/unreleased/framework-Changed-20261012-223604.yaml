@@ -1,9 +1,0 @@
-project: framework
-kind: Changed
-body: The Validator component is now an optional dependency; require athena-validator/bundle to validate `ATHR::RequestBody` resolved objects
-time: 2026-10-12T22:36:04.55790368-04:00
-custom:
-    Author: George Dietrich
-    Breaking: "Yes"
-    PR: "755"
-    Username: blacksmoke16
