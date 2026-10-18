@@ -1,8 +1,0 @@
-project: http
-kind: Added
-body: Support building with `-Dwithout_openssl`, where `AHTTP::BinaryFileResponse#set_auto_etag` is not yet supported
-time: 2026-10-13T01:31:33.638852049-04:00
-custom:
-    Author: George Dietrich
-    PR: "759"
-    Username: blacksmoke16
