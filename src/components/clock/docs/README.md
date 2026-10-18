@@ -4,7 +4,6 @@ This allows for more easily testing time sensitive code.
 The component provides a [ACLK::Interface](/Clock/Interface/) with the following implementations for different use cases:
 
 * [ACLK::Native](/Clock/Native/) - Provides access to the system clock for most usages
-* [ACLK::Monotonic](/Clock/Monotonic/) - Provides access to a high resolution, monotonic clock for when needing to measure time precisely
 * [ACLK::Spec::MockClock](/Clock/Spec/MockClock/) - Provides the ability to freeze and change the current time for use in tests
 
 ## Installation
@@ -30,7 +29,7 @@ The core `Athena::Clock` type can be used to return the current time via a globa
 ```crystal
 # By default, `Athena::Clock` uses the native clock implementation,
 # but it can be changed to any other implementation
-Athena::Clock.clock = ACLK::Monotonic.new
+Athena::Clock.clock = MyCustomClock.new
 
 # Then, obtain a clock instance
 clock = ACLK.clock
