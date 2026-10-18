@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.1] - 2026-10-18
+
+### Fixed
+
+- Fix undefined constant `::HTTP::Handler` compile error on Crystal 1.22+ when requiring the component without `http/server` ([#725]) (George Dietrich) <!-- blacksmoke16 -->
+
+[0.2.1]: https://github.com/athena-framework/routing/releases/tag/v0.2.1
+[#725]: https://github.com/athena-framework/athena/pull/725
+
 ## [0.2.0] - 2026-04-19
 
 ### Changed
