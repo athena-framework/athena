@@ -1,9 +1,9 @@
-require "athena-image_size"
-
 # An extension of `AVD::Constraints::File` whose `AVD::Constraints::File#mime_types` and `AVD::Constraints::File#mime_type_message` are setup to specifically handle image files.
 # This constraint also provides the ability to validate against various image specific parameters.
 #
 # See `AVD::Constraints::File` for common documentation.
+#
+# NOTE: This constraint requires the [MIME](/MIME/) component, and the [ImageSize](/ImageSize/) component to validate the dimensions of images, see the [installation](/Validator/#installation) instructions.
 #
 # ```
 # class Profile
@@ -398,7 +398,11 @@ class Athena::Validator::Constraints::Image < Athena::Validator::Constraints::Fi
                value.to_s
              end
 
-      image_size = AIS::Image.from_file_path? path
+      image_size = {% if @top_level.has_constant?("AIS") %}
+                     AIS::Image.from_file_path? path
+                   {% else %}
+                     raise AVD::Exception::Logic.new "You cannot validate the dimensions of images as the ImageSize component is not installed. Add `athena-image_size` to your `shard.yml` and `require \"athena-image_size\"`."
+                   {% end %}
 
       if image_size.nil? || image_size.width.zero? || image_size.height.zero?
         self
