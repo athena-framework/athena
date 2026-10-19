@@ -1,9 +1,12 @@
 # Simulates a browser to make requests to some destination.
 #
-# NOTE: Currently just acts as a client to make `HTTP` requests. This type exists to allow for introduction of other functionality in the future.
+# NOTE: Currently just acts as a client to make `HTTP` requests, sending the cookies it received with subsequent requests. This type exists to allow for introduction of other functionality in the future.
 abstract class Athena::Framework::Spec::AbstractBrowser
   @request : AHTTP::Request?
   @response : ::HTTP::Server::Response?
+
+  # Returns the `ATH::Spec::CookieJar` storing the cookies received from previous requests, which are sent with subsequent requests.
+  getter cookie_jar : ATH::Spec::CookieJar = ATH::Spec::CookieJar.new
 
   # :nodoc:
   #
@@ -41,8 +44,23 @@ abstract class Athena::Framework::Spec::AbstractBrowser
 
   # Makes an HTTP request with the provided *request*, returning the resulting response.
   def request(request : AHTTP::Request | ::HTTP::Request) : ::HTTP::Server::Response
-    @request = AHTTP::Request.new request
+    @request = request = AHTTP::Request.new request
 
-    @response = self.do_request self.request
+    uri = URI.new scheme: request.scheme, host: request.host || "localhost", path: request.path
+
+    unless (jar_values = @cookie_jar.all_values uri).empty?
+      # Cookies explicitly provided with the request take precedence over those from the jar.
+      cookies = request.cookies
+      jar_values.each do |name, value|
+        cookies << ::HTTP::Cookie.new(name, value) unless cookies.has_key? name
+      end
+      cookies.add_request_headers request.headers
+    end
+
+    @response = response = self.do_request request
+
+    @cookie_jar.update_from_response response, uri
+
+    response
   end
 end
