@@ -66,6 +66,8 @@ struct HTTPBrowserTest < ATH::Spec::APITestCase
 
   def test_removes_cookies_cleared_by_a_response : Nil
     self.get "/browser/cookies/set"
+    self.assert_browser_has_cookie "key", path: "/browser"
+
     self.get "/browser/cookies/clear"
 
     self.assert_browser_not_has_cookie "key", path: "/browser"
