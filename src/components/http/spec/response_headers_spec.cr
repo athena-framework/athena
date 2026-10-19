@@ -37,6 +37,31 @@ describe AHTTP::Response::Headers do
     end
   end
 
+  describe "#clear_cookie" do
+    it "adds an expired cookie" do
+      headers = AHTTP::Response::Headers.new
+      headers.clear_cookie "key"
+
+      cookie = headers.cookies["key"]
+      cookie.value.should be_empty
+      cookie.path.should eq "/"
+      cookie.http_only.should be_true
+      cookie.expired?.should be_true
+    end
+
+    it "uses the provided cookie attributes" do
+      headers = AHTTP::Response::Headers.new
+      headers.clear_cookie "key", path: "/foo", domain: "example.com", secure: true, http_only: false, samesite: ::HTTP::Cookie::SameSite::Lax
+
+      cookie = headers.cookies["key"]
+      cookie.path.should eq "/foo"
+      cookie.domain.should eq "example.com"
+      cookie.secure.should be_true
+      cookie.http_only.should be_false
+      cookie.samesite.should eq ::HTTP::Cookie::SameSite::Lax
+    end
+  end
+
   describe "#[]=" do
     it "with string value" do
       headers = AHTTP::Response::Headers.new
@@ -136,6 +161,15 @@ describe AHTTP::Response::Headers do
     headers.add_cache_control_directive "private"
     headers.get_cache_control_directive("private").should be_true
     headers.get_cache_control_directive("public").should be_nil
+  end
+
+  it "#has_cache_control_directive?" do
+    headers = AHTTP::Response::Headers.new
+    headers.add_cache_control_directive "public"
+    headers.has_cache_control_directive?("public").should be_true
+
+    headers.remove_cache_control_directive "public"
+    headers.has_cache_control_directive?("public").should be_false
   end
 
   describe "cache-control" do

@@ -187,6 +187,59 @@ class Athena::HTTP::Response
     self
   end
 
+  # Marks `self` as "private".
+  #
+  # Adds the `private` `cache-control` directive and removes the `public` directive.
+  def set_private : self
+    @headers.remove_cache_control_directive "public"
+    @headers.add_cache_control_directive "private"
+
+    self
+  end
+
+  # Returns a `Time` representing the `expires` header if set, otherwise `nil`.
+  #
+  # An invalid `expires` header value, such as `0` or `-1`, is treated as being in the past.
+  def expires : Time?
+    return unless header = @headers["expires"]?
+
+    # See https://tools.ietf.org/html/rfc2616#section-14.21.
+    ::HTTP.parse_time(header) || Time.utc - 2.days
+  end
+
+  # Updates the `expires` header to the provided *time*.
+  # Removes the header if *time* is `nil`.
+  def expires=(time : Time?) : self
+    if time.nil?
+      @headers.delete "expires"
+      return self
+    end
+
+    @headers["expires"] = ::HTTP.format_time time
+
+    self
+  end
+
+  # Returns the number of seconds after which the response should no longer be considered fresh, or `nil` if unknown.
+  #
+  # Uses the `s-maxage` or `max-age` `cache-control` directive if present, otherwise the difference between the `expires` and `date` headers.
+  def max_age : Int32?
+    if value = @headers.get_cache_control_directive("s-maxage") || @headers.get_cache_control_directive("max-age")
+      return value.to_s.to_i? || 0
+    end
+
+    if (expires = self.expires) && (date = @headers.date)
+      return {(expires - date).total_seconds.to_i, 0}.max
+    end
+  end
+
+  # Sets the number of seconds after which the response should no longer be considered fresh, via the `max-age` `cache-control` directive.
+  def max_age=(value : Int32) : self
+    @headers.add_cache_control_directive "max-age", value.to_s
+
+    self
+  end
+
   # Returns the value of the `etag` header if set, otherwise `nil`.
   def etag : String?
     @headers["etag"]?
