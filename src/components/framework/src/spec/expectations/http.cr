@@ -1,3 +1,4 @@
+require "./browser/*"
 require "./response/*"
 require "./request/*"
 
@@ -80,6 +81,22 @@ module Athena::Framework::Spec::Expectations::HTTP
   def assert_cookie_has_value(name : String, value : String, path : String? = nil, domain : String? = nil, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
     self.response.should Response::HasCookie.new(name, path, domain, description), file: file, line: line
     self.response.should Response::CookieValueEquals.new(name, value, path, domain, description), file: file, line: line
+  end
+
+  # Asserts the browser has a cookie with the provided *name*, and optionally *path* and *domain*, that would be sent with subsequent requests.
+  def assert_browser_has_cookie(name : String, path : String = "/", domain : String? = nil, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
+    self.client.should Browser::HasCookie.new(name, path, domain, description), file: file, line: line
+  end
+
+  # Asserts the browser does not have a cookie with the provided *name*, and optionally *path* and *domain*.
+  def assert_browser_not_has_cookie(name : String, path : String = "/", domain : String? = nil, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
+    self.client.should_not Browser::HasCookie.new(name, path, domain, description), file: file, line: line
+  end
+
+  # Asserts the value of the browser's cookie with the provided *name*, and optionally *path* and *domain*, equals that of the provided *value*.
+  def assert_browser_cookie_has_value(name : String, value : String, path : String = "/", domain : String? = nil, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
+    self.client.should Browser::HasCookie.new(name, path, domain, description), file: file, line: line
+    self.client.should Browser::CookieValueEquals.new(name, value, path, domain, description), file: file, line: line
   end
 
   # Asserts the request attribute with the provided *name* equals the provided *value*.
