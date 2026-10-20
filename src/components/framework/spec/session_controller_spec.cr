@@ -29,6 +29,46 @@ struct SessionControllerTest < ATH::Spec::APITestCase
     self.get("/session/flash").body.should eq %([])
   end
 
+  def test_flash_message_expectation : Nil
+    self.post "/session/flash"
+
+    self.assert_session_has_flash_message "notice"
+    self.assert_session_has_flash_message "notice", "Saved!"
+    self.assert_session_has_flash_message "notice", ["Other", "Saved!"]
+  end
+
+  def test_browser_session_is_used_by_requests : Nil
+    session = self.client.session
+    session.set "visits", 41
+    session.save
+
+    self.assert_browser_cookie_has_value "athena_session_id", session.id
+    self.get("/session/visits").body.should eq "42"
+  end
+
+  def test_browser_session_has_the_data_of_requests : Nil
+    self.get "/session/visits"
+
+    self.client.session.get("visits", Int32).should eq 1
+  end
+
+  def test_browser_session_replaces_an_unknown_session_id : Nil
+    self.client.cookie_jar.set ::HTTP::Cookie.new "athena_session_id", "a" * 32
+
+    session = self.client.session
+
+    session.id.should_not eq "a" * 32
+    self.assert_browser_cookie_has_value "athena_session_id", session.id
+  end
+
+  def test_browser_session_sets_its_cookie_for_the_domains_of_cookies_with_its_name : Nil
+    self.client.cookie_jar.set ::HTTP::Cookie.new "athena_session_id", "a" * 32, path: "/admin", domain: "example.com"
+
+    session = self.client.session
+
+    self.assert_browser_cookie_has_value "athena_session_id", session.id, domain: "example.com"
+  end
+
   def test_invalidating_the_session_clears_its_cookie : Nil
     self.get "/session/visits"
     self.assert_browser_has_cookie "athena_session_id"

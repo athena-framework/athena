@@ -164,18 +164,14 @@ def new_response(
   end
 end
 
-# Keeps sessions in memory, so each test starts without any, as each test has its own container.
-@[ADI::Register(name: "memory_session_handler")]
-class MemorySessionHandler < AHTTP::Session::Storage::Handler::Memory; end
-
 ATH.configure({
   framework: {
+    test:         true,
     file_uploads: {
       enabled: true,
     },
     session: {
-      enabled:    true,
-      handler_id: "memory_session_handler",
+      enabled: true,
     },
   },
 })

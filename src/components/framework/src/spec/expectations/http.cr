@@ -113,6 +113,14 @@ module Athena::Framework::Spec::Expectations::HTTP
     end
   end
 
+  # Asserts the session of the request has a flash message of the provided *type*.
+  # Optionally asserts one of its messages is the provided *message*, or one of the provided *messages*.
+  #
+  # Flash messages read by the request, e.g. via `AHTTP::Session::FlashBag#get`, are no longer in the session.
+  def assert_session_has_flash_message(type : String, message : String | Array(String) | Nil = nil, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
+    self.request.should Request::SessionHasFlashMessage.new(type, message.is_a?(String) ? [message] : message, description), file: file, line: line
+  end
+
   private abstract def client : AbstractBrowser?
 
   private def response : ::HTTP::Server::Response
