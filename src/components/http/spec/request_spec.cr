@@ -566,4 +566,53 @@ struct AHTTP::RequestTest < ASPEC::TestCase
     params.should eq p = URI::Params.new({"foo" => ["bar"], "biz" => ["baz"]})
     request.request_data.should eq p
   end
+
+  def test_session : Nil
+    request = AHTTP::Request.new "GET", "/"
+    request.has_session?.should be_false
+
+    expect_raises AHTTP::Exception::SessionNotFound, "Session has not been set." do
+      request.session
+    end
+
+    session = new_session
+    request.session = session
+
+    request.has_session?.should be_true
+    request.has_session?(skip_if_uninitialized: true).should be_true
+    request.session.should be session
+  end
+
+  def test_session_factory : Nil
+    request = AHTTP::Request.new "GET", "/"
+    calls = 0
+    session = new_session
+
+    request.session_factory = -> { calls += 1; session }
+
+    request.has_session?.should be_true
+    request.has_session?(skip_if_uninitialized: true).should be_false
+    calls.should eq 0
+
+    request.session.should be session
+    request.session.should be session
+    request.has_session?(skip_if_uninitialized: true).should be_true
+    calls.should eq 1
+  end
+
+  def test_has_previous_session : Nil
+    request = AHTTP::Request.new "GET", "/", ::HTTP::Headers{"cookie" => "athena_session_id=foo"}
+    request.has_previous_session?.should be_false
+
+    request.session = new_session
+    request.has_previous_session?.should be_true
+
+    request = AHTTP::Request.new "GET", "/"
+    request.session = new_session
+    request.has_previous_session?.should be_false
+  end
+
+  private def new_session : AHTTP::Session
+    AHTTP::Session.new AHTTP::Session::Storage.new AHTTP::Session::Storage::Handler::Memory.new
+  end
 end
