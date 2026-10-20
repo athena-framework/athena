@@ -1,0 +1,8 @@
+project: http-kernel
+kind: Added
+body: Add `AHK::Listeners::Session` and `AHK::Controller::ValueResolvers::Session` to persist the AHTTP::Session of each request and provide it to controllers
+time: 2026-10-20T14:31:02.458482-04:00
+custom:
+    Author: George Dietrich
+    PR: "776"
+    Username: blacksmoke16

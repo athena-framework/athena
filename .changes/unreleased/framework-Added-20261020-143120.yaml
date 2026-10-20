@@ -1,0 +1,8 @@
+project: framework
+kind: Added
+body: Add `framework.session` bundle configuration to enable sessions
+time: 2026-10-20T14:31:20.366343-04:00
+custom:
+    Author: George Dietrich
+    PR: "776"
+    Username: blacksmoke16

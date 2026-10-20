@@ -215,6 +215,75 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
       # Defaults to 10 MiB.
       property max_file_size : Int64 = 1024 * 1024 * 10
     end
+
+    # Configures sessions, which store data about the client across requests, such as flash messages.
+    #
+    # ```
+    # ATH.configure({
+    #   framework: {
+    #     session: {
+    #       enabled: true,
+    #     },
+    #   },
+    # })
+    # ```
+    #
+    # The session of the current request is available via `AHTTP::Request#session`, or by typing an action parameter as `AHTTP::Session`.
+    # See `AHK::Listeners::Session` for more information on how it is persisted.
+    module Session
+      include ADI::Extension::Schema
+
+      # If `false`, sessions are disabled and the related types are not included in the resulting binary.
+      property enabled : Bool = false
+
+      # The ID of the service used to persist sessions, which must implement `AHTTP::Session::Storage::Handler::Interface`.
+      # If `nil`, an `AHTTP::Session::Storage::Handler::File` storing sessions in the `#save_path` directory is used.
+      property handler_id : String? = nil
+
+      # The directory the default `AHTTP::Session::Storage::Handler::File` stores sessions in, which is created if it does not exist.
+      # If `nil`, a directory called `athena_sessions` within the system's [tempdir](https://crystal-lang.org/api/Dir.html#tempdir:String-class-method) is used.
+      # It must be owned by the user running the application, without permissions for its group and others.
+      property save_path : String? = nil
+
+      # The name of the session cookie.
+      # Prefixing it with `__Host-` keeps other subdomains from setting a cookie with the same name, which browsers only accept if it is secure, its `#cookie_path` is `/`, and it has no `#cookie_domain`.
+      property name : String = "athena_session_id"
+
+      # The lifetime of the session cookie in seconds, `0` meaning until the browser is closed.
+      property cookie_lifetime : Int32 = 0
+
+      # The path the session cookie is sent for.
+      property cookie_path : String = "/"
+
+      # The domain the session cookie is sent to.
+      # If `nil`, only the host that set it.
+      property cookie_domain : String? = nil
+
+      # If the session cookie is only sent over HTTPS.
+      # If `nil`, only if the request that set it was made over HTTPS, as determined by [AHTTP::Request#secure?](/HTTP/Request/#Athena::HTTP::Request#secure?).
+      # Behind a reverse proxy, this requires [trusted proxies](/guides/proxies) to be configured.
+      property cookie_secure : Bool? = nil
+
+      # If the session cookie is inaccessible to JavaScript.
+      property cookie_httponly : Bool = true
+
+      # If the session cookie is sent along with cross-site requests.
+      property cookie_samesite : ::HTTP::Cookie::SameSite = :lax
+
+      # How many seconds a session may go unused before it expires.
+      property gc_maxlifetime : Int32 = 1440
+
+      # Expired sessions are removed on `#gc_probability` / `#gc_divisor` of the requests starting a session.
+      property gc_probability : Int32 = 1
+
+      # See `#gc_probability`.
+      # Must be greater than `0`.
+      property gc_divisor : Int32 = 100
+
+      # How many seconds to wait before updating when the session was last used.
+      # Otherwise each request using the session would write it, even if its data did not change.
+      property metadata_update_threshold : Int32 = 60
+    end
   end
 
   # :nodoc:
@@ -541,6 +610,71 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
                   max_uploads:   {value: cfg["max_uploads"]},
                   max_file_size: {value: cfg["max_file_size"]},
                 },
+              }
+            end
+          %}
+
+          # Session
+          {%
+            cfg = CONFIG["framework"]["session"]
+
+            if cfg["enabled"]
+              if cfg["gc_divisor"] < 1
+                cfg["gc_divisor"].raise "'gc_divisor' must be greater than 0."
+              end
+
+              unless handler_id = cfg["handler_id"]
+                SERVICE_HASH[handler_id = "athena_http_session_storage_handler_file"] = {
+                  class:      AHTTP::Session::Storage::Handler::File,
+                  parameters: {
+                    max_lifetime: {value: cfg["gc_maxlifetime"]},
+                  },
+                }
+
+                if save_path = cfg["save_path"]
+                  SERVICE_HASH[handler_id]["parameters"]["save_path"] = {value: save_path}
+                end
+              end
+
+              ALIASES[AHTTP::Session::Storage::Handler::Interface] = [
+                {id: handler_id, public: false},
+              ]
+
+              SERVICE_HASH[storage_factory_id = "athena_http_session_storage_factory"] = {
+                class:      AHTTP::Session::Storage::Factory,
+                parameters: {
+                  name:                      {value: cfg["name"]},
+                  gc_max_lifetime:           {value: cfg["gc_maxlifetime"]},
+                  gc_probability:            {value: cfg["gc_probability"]},
+                  gc_divisor:                {value: cfg["gc_divisor"]},
+                  cookie_lifetime:           {value: cfg["cookie_lifetime"]},
+                  metadata_update_threshold: {value: cfg["metadata_update_threshold"]},
+                },
+              }
+
+              ALIASES[AHTTP::Session::Storage::FactoryInterface] = [
+                {id: storage_factory_id, public: false},
+              ]
+
+              SERVICE_HASH["athena_http_session_factory"] = {
+                class: AHTTP::Session::Factory,
+              }
+
+              SERVICE_HASH["athena_http_kernel_listeners_session"] = {
+                class:      AHK::Listeners::Session,
+                parameters: {
+                  debug:            {value: "%framework.debug%"},
+                  cookie_path:      {value: cfg["cookie_path"]},
+                  cookie_domain:    {value: cfg["cookie_domain"]},
+                  cookie_secure:    {value: cfg["cookie_secure"]},
+                  cookie_http_only: {value: cfg["cookie_httponly"]},
+                  cookie_samesite:  {value: cfg["cookie_samesite"]},
+                },
+              }
+
+              SERVICE_HASH["athena_http_kernel_controller_value_resolvers_session"] = {
+                class: AHK::Controller::ValueResolvers::Session,
+                tags:  [{name: ATHR::Interface::TAG, priority: 50}],
               }
             end
           %}

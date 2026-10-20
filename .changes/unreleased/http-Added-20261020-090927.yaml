@@ -1,0 +1,8 @@
+project: http
+kind: Added
+body: Add a tls argument to AHTTP::Request.new, which AHTTP::Request#secure? uses when the request did not come from a trusted proxy
+time: 2026-10-20T09:09:27.188037661-04:00
+custom:
+    Author: George Dietrich
+    PR: "776"
+    Username: blacksmoke16
