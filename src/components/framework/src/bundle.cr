@@ -37,6 +37,20 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
     # See the [external documentation](/guides/proxies/#custom-headers) for more information.
     property trusted_header_overrides : Hash(Athena::HTTP::Request::ProxyHeader, String) = {} of NoReturn => NoReturn
 
+    # If `true`, configures the framework for testing, so should only be enabled when running specs, e.g. within your `spec_helper.cr`.
+    #
+    # * [Sessions](/Framework/Bundle/Schema/Session/) are kept in memory, ignoring `Session#handler_id`, so each test starts without any.
+    # * `ATH::Spec::HTTPBrowser#session` provides the session of the browser.
+    #
+    # ```
+    # ATH.configure({
+    #   framework: {
+    #     test: true,
+    #   },
+    # })
+    # ```
+    property test : Bool = false
+
     # Configuration related to the `ATH::Listeners::Format` listener.
     # Enabling it requires the [Negotiation](/Negotiation/) component.
     #
@@ -623,7 +637,14 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
                 cfg["gc_divisor"].raise "'gc_divisor' must be greater than 0."
               end
 
-              unless handler_id = cfg["handler_id"]
+              if CONFIG["framework"]["test"]
+                SERVICE_HASH[handler_id = "athena_http_session_storage_handler_memory"] = {
+                  class:      AHTTP::Session::Storage::Handler::Memory,
+                  parameters: {
+                    max_lifetime: {value: cfg["gc_maxlifetime"]},
+                  },
+                }
+              elsif !(handler_id = cfg["handler_id"])
                 SERVICE_HASH[handler_id = "athena_http_session_storage_handler_file"] = {
                   class:      AHTTP::Session::Storage::Handler::File,
                   parameters: {
@@ -658,6 +679,8 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
 
               SERVICE_HASH["athena_http_session_factory"] = {
                 class: AHTTP::Session::Factory,
+                # Allows `ATH::Spec::HTTPBrowser#session` to create the session of the browser.
+                public: CONFIG["framework"]["test"],
               }
 
               SERVICE_HASH["athena_http_kernel_listeners_session"] = {

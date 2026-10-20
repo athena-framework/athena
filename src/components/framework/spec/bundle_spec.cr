@@ -210,6 +210,7 @@ describe ATH::Bundle, tags: "compiled" do
       assert_compiles <<-'CR'
         ATH.configure({
           framework: {
+            test:    false,
             session: {
               enabled:                   true,
               handler_id:                nil,
@@ -289,6 +290,7 @@ describe ATH::Bundle, tags: "compiled" do
       assert_compiles <<-'CR'
         ATH.configure({
           framework: {
+            test:    false,
             session: {
               handler_id: nil,
             },
@@ -308,13 +310,79 @@ describe ATH::Bundle, tags: "compiled" do
 
     it "uses the configured handler" do
       assert_compiles <<-'CR'
+        @[ADI::Register(name: "custom_session_handler")]
+        class CustomSessionHandler < AHTTP::Session::Storage::Handler::Memory; end
+
+        ATH.configure({
+          framework: {
+            test:    false,
+            session: {
+              handler_id: "custom_session_handler",
+            },
+          },
+        })
+
         macro finished
           macro finished
             \{%
                parameters = ADI::ServiceContainer::SERVICE_HASH["athena_http_session_storage_factory"]["parameters"]
             %}
-            ASPEC.compile_time_assert(\{{ parameters["handler"]["value"].stringify == "memory_session_handler" }}, "Expected handler to be memory_session_handler")
+            ASPEC.compile_time_assert(\{{ parameters["handler"]["value"].stringify == "custom_session_handler" }}, "Expected handler to be custom_session_handler")
             ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::SERVICE_HASH["athena_http_session_storage_handler_file"].nil? }}, "Expected athena_http_session_storage_handler_file service to not exist")
+            ASPEC.compile_time_assert(\{{ !ADI::ServiceContainer::SERVICE_HASH["athena_http_session_factory"]["public"] }}, "Expected athena_http_session_factory to be private")
+          end
+        end
+      CR
+    end
+
+    it "requires sessions to be enabled to use the session of the browser" do
+      assert_compile_time_error "'ATH::Spec::HTTPBrowser#session' requires sessions to be enabled via 'framework.session.enabled'.", <<-'CR'
+        ATH.configure({
+          framework: {
+            session: {
+              enabled: false,
+            },
+          },
+        })
+
+        ATH::Spec::HTTPBrowser.new.session
+      CR
+    end
+
+    it "requires test mode to use the session of the browser" do
+      assert_compile_time_error "'ATH::Spec::HTTPBrowser#session' requires 'framework.test' to be enabled.", <<-'CR'
+        ATH.configure({
+          framework: {
+            test: false,
+          },
+        })
+
+        ATH::Spec::HTTPBrowser.new.session
+      CR
+    end
+
+    it "keeps sessions in memory in test mode" do
+      assert_compiles <<-'CR'
+        ATH.configure({
+          framework: {
+            test:    true,
+            session: {
+              handler_id:     "custom_session_handler",
+              gc_maxlifetime: 600,
+            },
+          },
+        })
+
+        macro finished
+          macro finished
+            \{%
+               services = ADI::ServiceContainer::SERVICE_HASH
+               parameters = services["athena_http_session_storage_factory"]["parameters"]
+            %}
+            ASPEC.compile_time_assert(\{{ parameters["handler"]["value"].stringify == "athena_http_session_storage_handler_memory" }}, "Expected handler to be athena_http_session_storage_handler_memory")
+            ASPEC.compile_time_assert(\{{ services["athena_http_session_storage_handler_memory"]["parameters"]["max_lifetime"]["value"] == 600 }}, "Expected max_lifetime to be 600")
+            ASPEC.compile_time_assert(\{{ services["athena_http_session_storage_handler_file"].nil? }}, "Expected athena_http_session_storage_handler_file service to not exist")
+            ASPEC.compile_time_assert(\{{ services["athena_http_session_factory"]["public"] }}, "Expected athena_http_session_factory to be public")
           end
         end
       CR

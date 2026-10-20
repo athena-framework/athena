@@ -1,0 +1,8 @@
+project: framework
+kind: Added
+body: Add `framework.test` bundle configuration, which keeps sessions in memory, along with `ATH::Spec::HTTPBrowser#session` and `assert_session_has_flash_message`
+time: 2026-10-20T18:05:42.070061-04:00
+custom:
+    Author: George Dietrich
+    PR: "777"
+    Username: blacksmoke16
