@@ -181,6 +181,8 @@ class Athena::HTTP::Request
 
   @trusted_values_cache = Hash(String, Array(String)).new
 
+  @session : AHTTP::Session | Proc(AHTTP::Session) | Nil = nil
+
   # :nodoc:
   forward_missing_to @request
 
@@ -315,6 +317,41 @@ class Athena::HTTP::Request
   # Otherwise returns `false`.
   def safe? : Bool
     @request.method.in? "GET", "HEAD", "OPTIONS", "TRACE"
+  end
+
+  # Returns the session of this request, creating it via the factory set by `#session_factory=` if needed.
+  #
+  # Raises an `AHTTP::Exception::SessionNotFound` if this request does not have a session.
+  def session : AHTTP::Session
+    session = @session
+
+    if session.is_a? Proc
+      @session = session = session.call
+    end
+
+    session || raise AHTTP::Exception::SessionNotFound.new "Session has not been set."
+  end
+
+  # Sets the session of this request.
+  def session=(@session : AHTTP::Session)
+  end
+
+  # Sets the provided *factory* to create the session of this request once it is first used.
+  def session_factory=(factory : Proc(AHTTP::Session))
+    @session = factory
+  end
+
+  # Returns `true` if this request has a session, otherwise `false`.
+  #
+  # Does not take a session that was not created yet by the factory set by `#session_factory=` into account if *skip_if_uninitialized* is `true`.
+  def has_session?(skip_if_uninitialized : Bool = false) : Bool
+    !@session.nil? && (!skip_if_uninitialized || @session.is_a?(AHTTP::Session))
+  end
+
+  # Returns `true` if this request has a session that was started in a previous request, i.e. it has a cookie for it, otherwise `false`.
+  def has_previous_session? : Bool
+    # Checking for the session first keeps a client from faking a session by sending a cookie with its name.
+    self.has_session? && @request.cookies.has_key?(self.session.name)
   end
 
   # Returns the port on which the request is made.
