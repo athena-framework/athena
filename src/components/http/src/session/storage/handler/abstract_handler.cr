@@ -5,6 +5,8 @@
 # E.g. a request still using a session that another request destroyed, such as when logging out, does not bring it back.
 #
 # Also removes the session when it is written with empty data, and skips removing a session that was never persisted.
+#
+# As it keeps track of the session it last read, an instance must not be shared between concurrent requests, e.g. by storing it in a class variable.
 abstract class Athena::HTTP::Session::Storage::Handler::AbstractHandler
   include Athena::HTTP::Session::Storage::Handler::Interface
 

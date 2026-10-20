@@ -45,7 +45,7 @@
 
 ### Fixed
 
-- Fix CORS error when using HTTP/2 but providing uppercase header names ([#670]) (George Dietrich) <!-- blackmsoke16 -->
+- Fix CORS error when using HTTP/2 but providing uppercase header names ([#670]) (George Dietrich) <!-- blacksmoke16 -->
 - Fix compile time error when inadvertently using a type name that conflicts with an internal component type ([#678]) (George Dietrich) <!-- blacksmoke16 -->
 
 [0.22.0]: https://github.com/athena-framework/framework/releases/tag/v0.22.0

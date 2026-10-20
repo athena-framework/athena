@@ -182,4 +182,142 @@ describe ATH::Bundle, tags: "compiled" do
       CR
     end
   end
+
+  describe AHTTP::Session do
+    it "is not wired if not enabled" do
+      assert_compiles <<-'CR'
+        ATH.configure({
+          framework: {
+            session: {
+              enabled: false,
+            },
+          },
+        })
+
+        macro finished
+          macro finished
+            \{%
+               services = ADI::ServiceContainer::SERVICE_HASH
+            %}
+            ASPEC.compile_time_assert(\{{ services["athena_http_kernel_listeners_session"].nil? }}, "Expected athena_http_kernel_listeners_session service to not exist")
+            ASPEC.compile_time_assert(\{{ services["athena_http_kernel_controller_value_resolvers_session"].nil? }}, "Expected athena_http_kernel_controller_value_resolvers_session service to not exist")
+          end
+        end
+      CR
+    end
+
+    it "correctly wires up the services based on its configuration" do
+      assert_compiles <<-'CR'
+        ATH.configure({
+          framework: {
+            session: {
+              enabled:                   true,
+              handler_id:                nil,
+              save_path:                 "/tmp/dir",
+              name:                      "SESSION",
+              cookie_lifetime:           3600,
+              cookie_path:               "/path",
+              cookie_domain:             "example.com",
+              cookie_secure:             true,
+              cookie_httponly:           false,
+              cookie_samesite:           :strict,
+              gc_maxlifetime:            600,
+              gc_probability:            2,
+              gc_divisor:                1000,
+              metadata_update_threshold: 30,
+            },
+          },
+        })
+
+        macro finished
+          macro finished
+            \{%
+               parameters = ADI::ServiceContainer::SERVICE_HASH["athena_http_session_storage_handler_file"]["parameters"]
+            %}
+            ASPEC.compile_time_assert(\{{ parameters["save_path"]["value"] == "/tmp/dir" }}, "Expected save_path to be /tmp/dir")
+            ASPEC.compile_time_assert(\{{ parameters["max_lifetime"]["value"] == 600 }}, "Expected max_lifetime to be 600")
+
+            \{%
+               parameters = ADI::ServiceContainer::SERVICE_HASH["athena_http_session_storage_factory"]["parameters"]
+            %}
+            ASPEC.compile_time_assert(\{{ parameters["handler"]["value"].stringify == "athena_http_session_storage_handler_file" }}, "Expected handler to be athena_http_session_storage_handler_file")
+            ASPEC.compile_time_assert(\{{ parameters["name"]["value"] == "SESSION" }}, "Expected name to be SESSION")
+            ASPEC.compile_time_assert(\{{ parameters["gc_max_lifetime"]["value"] == 600 }}, "Expected gc_max_lifetime to be 600")
+            ASPEC.compile_time_assert(\{{ parameters["gc_probability"]["value"] == 2 }}, "Expected gc_probability to be 2")
+            ASPEC.compile_time_assert(\{{ parameters["gc_divisor"]["value"] == 1000 }}, "Expected gc_divisor to be 1000")
+            ASPEC.compile_time_assert(\{{ parameters["cookie_lifetime"]["value"] == 3600 }}, "Expected cookie_lifetime to be 3600")
+            ASPEC.compile_time_assert(\{{ parameters["metadata_update_threshold"]["value"] == 30 }}, "Expected metadata_update_threshold to be 30")
+
+            \{%
+               parameters = ADI::ServiceContainer::SERVICE_HASH["athena_http_session_factory"]["parameters"]
+            %}
+            ASPEC.compile_time_assert(\{{ parameters["storage_factory"]["value"].stringify == "athena_http_session_storage_factory" }}, "Expected storage_factory to be athena_http_session_storage_factory")
+
+            \{%
+               parameters = ADI::ServiceContainer::SERVICE_HASH["athena_http_kernel_listeners_session"]["parameters"]
+            %}
+            ASPEC.compile_time_assert(\{{ parameters["session_factory"]["value"].stringify == "athena_http_session_factory" }}, "Expected session_factory to be athena_http_session_factory")
+            ASPEC.compile_time_assert(\{{ parameters["debug"]["value"] == true }}, "Expected debug to be true")
+            ASPEC.compile_time_assert(\{{ parameters["cookie_path"]["value"] == "/path" }}, "Expected cookie_path to be /path")
+            ASPEC.compile_time_assert(\{{ parameters["cookie_domain"]["value"] == "example.com" }}, "Expected cookie_domain to be example.com")
+            ASPEC.compile_time_assert(\{{ parameters["cookie_secure"]["value"] == true }}, "Expected cookie_secure to be true")
+            ASPEC.compile_time_assert(\{{ parameters["cookie_http_only"]["value"] == false }}, "Expected cookie_http_only to be false")
+            ASPEC.compile_time_assert(\{{ parameters["cookie_samesite"]["value"].stringify == "::HTTP::Cookie::SameSite.new(:strict)" }}, "Expected cookie_samesite to be strict")
+
+            \{%
+               service = ADI::ServiceContainer::SERVICE_HASH["athena_http_kernel_controller_value_resolvers_session"]
+            %}
+            ASPEC.compile_time_assert(\{{ service["tags"][ATHR::Interface::TAG][0]["priority"] == 50 }}, "Expected the session value resolver to have a priority of 50")
+          end
+        end
+      CR
+    end
+
+    it "requires a positive gc_divisor" do
+      assert_compile_time_error "'gc_divisor' must be greater than 0.", <<-'CR'
+        ATH.configure({
+          framework: {
+            session: {
+              gc_divisor: 0,
+            },
+          },
+        })
+      CR
+    end
+
+    it "uses the default save path of the file handler" do
+      assert_compiles <<-'CR'
+        ATH.configure({
+          framework: {
+            session: {
+              handler_id: nil,
+            },
+          },
+        })
+
+        macro finished
+          macro finished
+            \{%
+               parameters = ADI::ServiceContainer::SERVICE_HASH["athena_http_session_storage_handler_file"]["parameters"]
+            %}
+            ASPEC.compile_time_assert(\{{ parameters["save_path"]["value"] == parameters["save_path"]["default_value"] }}, "Expected save_path to be its default value")
+          end
+        end
+      CR
+    end
+
+    it "uses the configured handler" do
+      assert_compiles <<-'CR'
+        macro finished
+          macro finished
+            \{%
+               parameters = ADI::ServiceContainer::SERVICE_HASH["athena_http_session_storage_factory"]["parameters"]
+            %}
+            ASPEC.compile_time_assert(\{{ parameters["handler"]["value"].stringify == "memory_session_handler" }}, "Expected handler to be memory_session_handler")
+            ASPEC.compile_time_assert(\{{ ADI::ServiceContainer::SERVICE_HASH["athena_http_session_storage_handler_file"].nil? }}, "Expected athena_http_session_storage_handler_file service to not exist")
+          end
+        end
+      CR
+    end
+  end
 end

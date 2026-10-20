@@ -101,6 +101,8 @@ module Athena::Framework
   #
   # 1. `AHK::Controller::ValueResolvers::Request` (50) - Provides the current `AHTTP::Request` if the related parameter is typed as such.
   #
+  # 1. `AHK::Controller::ValueResolvers::Session` (50) - If [sessions](/Framework/Bundle/Schema/Session/) are enabled, provides the `AHTTP::Session` of the current request if the related parameter is typed as such.
+  #
   # 1. `AHK::Controller::ValueResolvers::DefaultValue` (-100) - Provides the default value of the parameter if it has one, or `nil` if it is nilable.
   #
   # See each resolver for more detailed information.
@@ -197,6 +199,9 @@ module Athena::Framework
       @ssl_context : ATH::SSLContext? = nil,
       prepend_handlers handlers : Array(::HTTP::Handler) = [] of ::HTTP::Handler,
     )
+      # Captured as a local variable, as the proc would otherwise see the instance variable of a copy of this struct made before it was set.
+      tls = !@ssl_context.nil?
+
       handler_proc = ::HTTP::Handler::HandlerProc.new do |context|
         # Reinitialize the container since keep-alive requests reuse the same fiber.
         Fiber.current.container = ADI::ServiceContainer.new
@@ -205,7 +210,7 @@ module Athena::Framework
           handler = ADI.container.athena_http_kernel
 
           # Convert the raw `HTTP::Request` into an `AHTTP::Request` instance.
-          request = AHTTP::Request.new context.request
+          request = AHTTP::Request.new context.request, tls: tls
 
           # Handle the request.
           athena_response = handler.handle request

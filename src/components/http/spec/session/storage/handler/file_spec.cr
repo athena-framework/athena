@@ -22,6 +22,17 @@ struct AHTTP::Session::Storage::Handler::FileTest < HandlerTestCase
     Dir.exists?(save_path).should be_true
   end
 
+  def test_rejects_a_save_path_others_have_permissions_on : Nil
+    pending! "Windows does not have POSIX permissions" if {{ flag? :windows }}
+
+    Dir.mkdir_p @save_path
+    ::File.chmod @save_path, 0o755
+
+    expect_raises AHTTP::Exception::InvalidArgument, "The session save path '#{@save_path}' must be owned by the current user, without permissions for its group and others." do
+      self.create_handler
+    end
+  end
+
   def test_stores_each_session_in_its_own_private_file : Nil
     self.create_handler.create SESSION_ID, "data"
 

@@ -1,8 +1,8 @@
 project: framework
 kind: Added
-body: Add improved cookie DX in specs
+body: Add `ATH::Spec::CookieJar` so `ATH::Spec::AbstractBrowser` keeps cookies between requests
 time: 2026-10-19T16:46:05.361565-04:00
 custom:
     Author: George Dietrich
     PR: "774"
-    Username: blackmsoke16
+    Username: blacksmoke16

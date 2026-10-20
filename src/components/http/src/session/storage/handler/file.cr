@@ -10,8 +10,20 @@ class Athena::HTTP::Session::Storage::Handler::File < Athena::HTTP::Session::Sto
 
   # Creates a new handler storing sessions in the provided *save_path* directory, creating it if needed.
   # Sessions expire once they were not used for *max_lifetime* seconds.
+  #
+  # Raises an `AHTTP::Exception::InvalidArgument` if the directory is not owned by the current user, or its group or others have permissions on it.
+  # Otherwise they could read the session IDs from its file names, or add sessions of their own.
   def initialize(@save_path : String = ::File.join(Dir.tempdir, "athena_sessions"), @max_lifetime : Int32 = 1440)
     Dir.mkdir_p @save_path, 0o700
+
+    {% unless flag? :windows %}
+      # The directory may already exist, e.g. created by another user within the shared temporary directory.
+      info = ::File.info @save_path
+
+      unless info.owner_id == LibC.getuid.to_s && (info.permissions & (::File::Permissions::GroupAll | ::File::Permissions::OtherAll)).none?
+        raise AHTTP::Exception::InvalidArgument.new "The session save path '#{@save_path}' must be owned by the current user, without permissions for its group and others."
+      end
+    {% end %}
   end
 
   # :inherit:

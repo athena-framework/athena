@@ -194,7 +194,8 @@ class Athena::HTTP::Request
     request
   end
 
-  def initialize(@request : ::HTTP::Request); end
+  # Wraps the provided *request*, which was received over TLS if *tls* is `true`.
+  def initialize(@request : ::HTTP::Request, @tls : Bool = false); end
 
   # Returns the first `MIME` type for the provided *format* if defined, otherwise returns `nil`.
   #
@@ -392,6 +393,7 @@ class Athena::HTTP::Request
   # Returns `true` the request was made over HTTPS, otherwise returns `false`.
   #
   # Supports reading from `AHTTP::Request::ProxyHeader::FORWARDED_PROTO`.
+  # Otherwise returns whether the request was received over TLS, see `.new`.
   #
   # See the [external documentation](/guides/proxies) for more information.
   def secure? : Bool
@@ -399,9 +401,7 @@ class Athena::HTTP::Request
       return proto.first.downcase.in? "https", "on", "ssl", "1"
     end
 
-    # TODO: Possibly have this be based on if server was started with `bind_tls`
-    # or if there is eventually some way to access TLS info off `@request`.
-    false
+    @tls
   end
 
   # Returns `true` if this request originated from a trusted proxy.

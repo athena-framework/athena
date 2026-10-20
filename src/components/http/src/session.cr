@@ -116,7 +116,8 @@ class Athena::HTTP::Session
   # Gives the session a new ID while keeping its data, optionally removing the data of the current ID if *destroy* is `true`.
   # Optionally sets the *lifetime* of its cookie in seconds, `0` meaning until the browser is closed.
   #
-  # Should be used whenever the privileges of the client change, such as when logging in, to prevent [session fixation](https://owasp.org/www-community/attacks/Session_fixation).
+  # Should be used with *destroy* set to `true` whenever the privileges of the client change, such as when logging in, to prevent [session fixation](https://owasp.org/www-community/attacks/Session_fixation).
+  # Otherwise the current ID keeps a copy of the session's data, e.g. the logged in user, which anyone knowing the current ID could then use.
   #
   # Returns `true` if the session was given a new ID, otherwise `false`.
   def migrate(destroy : Bool = false, lifetime : Int32? = nil) : Bool
@@ -131,6 +132,8 @@ class Athena::HTTP::Session
   end
 
   # Returns the ID of the session, or an empty string if it does not have one yet.
+  #
+  # Until the session is started, this is the ID sent by the client, which is only validated once the session starts.
   def id : String
     @storage.id
   end

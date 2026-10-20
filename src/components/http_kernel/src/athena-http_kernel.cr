@@ -22,6 +22,7 @@ require "./exception/http_exception"
 require "./exception/*"
 
 require "./listeners/error"
+require "./listeners/session"
 
 macro finished
   {% if @top_level.has_constant?("ART") %}

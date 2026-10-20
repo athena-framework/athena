@@ -269,6 +269,23 @@ struct AHTTP::RequestTest < ASPEC::TestCase
     request.secure?.should be_true
   end
 
+  def test_secure_over_tls : Nil
+    request = AHTTP::Request.new ::HTTP::Request.new("GET", "/", ::HTTP::Headers{"host" => "example.com"}), tls: true
+
+    request.secure?.should be_true
+    request.scheme.should eq "https"
+    request.port.should eq 443
+  end
+
+  def test_secure_over_tls_prefers_trusted_proxy : Nil
+    AHTTP::Request.set_trusted_proxies ["3.3.3.3"], :forwarded_proto
+
+    request = AHTTP::Request.new ::HTTP::Request.new("GET", "/", ::HTTP::Headers{"x-forwarded-proto" => "http"}), tls: true
+    request.remote_address = Socket::IPAddress.v4 3, 3, 3, 3, port: 1
+
+    request.secure?.should be_false
+  end
+
   @[TestWith(
     { %(a#{".a"*40_000}) },
     {":" * 101}

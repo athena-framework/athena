@@ -177,7 +177,7 @@ class Athena::HTTP::Session::Storage
     self.each_bag do |bag|
       bag.load values[bag.storage_key]?.try { |value| JSON::PullParser.new value }
     end
-  rescue JSON::ParseException
+  rescue JSON::ParseException | OverflowError
     # Data that can't be loaded is treated as an empty session.
     self.each_bag &.load(nil)
   ensure

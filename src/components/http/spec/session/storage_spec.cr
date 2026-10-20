@@ -95,6 +95,17 @@ struct AHTTP::Session::StorageTest < ASPEC::TestCase
     attributes(storage).empty?.should be_true
   end
 
+  def test_start_treats_out_of_range_metadata_as_an_empty_session : Nil
+    @handler.read "0123456789abcdef0123456789abcdef"
+    @handler.write "0123456789abcdef0123456789abcdef", %({"_athena_attributes":{"foo":"bar"},"_athena_meta":{"c":1,"u":1,"l":99999999999}})
+
+    storage = self.create_storage
+    storage.id = "0123456789abcdef0123456789abcdef"
+    storage.start
+
+    attributes(storage).empty?.should be_true
+  end
+
   def test_start_treats_invalid_json_as_an_empty_session : Nil
     @handler.read "0123456789abcdef0123456789abcdef"
     @handler.write "0123456789abcdef0123456789abcdef", "{"
