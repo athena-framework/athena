@@ -56,9 +56,12 @@ function runSpecsWithCoverage() (
 
   if [ -s "$COVERAGE_BIN_PATH.cr" ]
   then
-    $CRYSTAL build "${DEFAULT_BUILD_OPTIONS[@]}" "$COVERAGE_BIN_PATH.cr" -o "$COVERAGE_BIN_PATH" && \
+    # kcov's shared library support preloads a library into every process the specs spawn, such as the compiler for compiled specs, which stops each of them at startup.
+    # `--skip-solibs` avoids that, but kcov then can't locate a position independent binary in memory, so the binary is built without PIE.
+    $CRYSTAL build "${DEFAULT_BUILD_OPTIONS[@]}" --link-flags=-no-pie "$COVERAGE_BIN_PATH.cr" -o "$COVERAGE_BIN_PATH" && \
     ATHENA_SPEC_COVERAGE_OUTPUT_DIR="$(realpath ./coverage/$SHARD_PATH/)" \
       kcov $(if $IS_CI != "true"; then echo "--cobertura-only"; fi) \
+        --skip-solibs \
         --clean \
         --include-path="./src/$SHARD_PATH"\
         "./coverage/$SHARD_PATH"\

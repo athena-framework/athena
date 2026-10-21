@@ -282,7 +282,7 @@ struct AHTTP::Session::StorageTest < ASPEC::TestCase
   end
 
   private def create_storage(**options) : AHTTP::Session::Storage
-    AHTTP::Session::Storage.new(@handler, **options).tap do |storage|
+    AHTTP::Session::Storage.new(@handler, **{gc_probability: 0}.merge(options)).tap do |storage|
       storage.register_bag AHTTP::Session::AttributeBag.new
     end
   end
