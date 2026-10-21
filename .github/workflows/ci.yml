@@ -159,8 +159,6 @@ jobs:
       - name: Specs
         run: just test-unit
         shell: bash
-        env:
-          JOBS: ${{ matrix.os == 'macos-latest' && '1' || '' }} # Runners only have 7GB of memory, which is not enough to build multiple spec binaries concurrently
       - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.crystal == vars.COVERAGE_CHANNEL && github.event_name != 'schedule' }} # Only want to upload coverage report once in the matrix
         with:
