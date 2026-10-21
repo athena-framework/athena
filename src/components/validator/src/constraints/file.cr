@@ -1,6 +1,3 @@
-require "athena-mime"
-require "athena-http"
-
 # Validates that a value is a valid file.
 # If the underlying value is a [::File](https://crystal-lang.org/api/File.html), then its path is used as the value.
 # Otherwise the value is converted to a string via `#to_s` before being validated, which is assumed to be a path to a file.
@@ -44,6 +41,7 @@ require "athena-http"
 #
 # If set, allows checking that the MIME type of the file is one of an allowed set of types.
 # This value is ignored if the MIME type of the file could not be determined.
+# Requires the [MIME](/MIME/) component, see the [installation](/Validator/#installation) instructions.
 #
 # ### binary_format
 #
@@ -247,16 +245,28 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
   end
 
   class Validator < Athena::Validator::ConstraintValidator
+    # Without the optional HTTP component, its file types are `NoReturn` so that checking for them is always `false`.
+    macro finished
+      {% if @top_level.has_constant?("AHTTP") %}
+        private alias AbstractFile = Athena::HTTP::AbstractFile
+        private alias UploadedFile = Athena::HTTP::UploadedFile
+      {% else %}
+        private alias AbstractFile = NoReturn
+        private alias UploadedFile = NoReturn
+      {% end %}
+    end
+
     # :inherit:
     #
     # ameba:disable Metrics/CyclomaticComplexity
     def validate(value : _, constraint : AVD::Constraints::File) : Nil
       return if value.nil? || value == ""
 
-      if value.is_a?(Athena::HTTP::UploadedFile) && !value.valid?
+      if value.is_a?(UploadedFile) && !value.valid?
         case value.status
         when .size_limit_exceeded?
-          max_allowed_file_size = Athena::HTTP::UploadedFile.max_file_size
+          # Called on the value's class as `UploadedFile` itself may be `NoReturn`.
+          max_allowed_file_size = value.class.max_file_size
           if (constraint_max_size = constraint.max_size) && (constraint_max_size < max_allowed_file_size)
             limit_in_bytes = constraint_max_size
             binary_format = constraint.binary_format
@@ -279,8 +289,8 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
       end
 
       path = case value
-             when Path                               then value
-             when ::File, Athena::HTTP::AbstractFile then value.path
+             when Path                 then value
+             when ::File, AbstractFile then value.path
              else
                value.to_s
              end
@@ -306,7 +316,7 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
       end
 
       size_in_bytes = ::File.size path
-      base_name = value.is_a?(Athena::HTTP::UploadedFile) ? value.client_original_name : ::File.basename path
+      base_name = value.is_a?(UploadedFile) ? value.client_original_name : ::File.basename path
 
       if size_in_bytes.zero?
         self
@@ -336,10 +346,14 @@ class Athena::Validator::Constraints::File < Athena::Validator::Constraint
       end
 
       if mime_types = constraint.mime_types
-        mime = if value.is_a? Athena::HTTP::AbstractFile
+        mime = if value.is_a? AbstractFile
                  value.mime_type
                else
-                 AMIME::Types.default.guess_mime_type path
+                 {% if @top_level.has_constant?("AMIME") %}
+                   AMIME::Types.default.guess_mime_type path
+                 {% else %}
+                   raise AVD::Exception::Logic.new "You cannot validate the MIME type of files as the MIME component is not installed. Add `athena-mime` to your `shard.yml` and `require \"athena-mime\"`."
+                 {% end %}
                end
 
         if mime

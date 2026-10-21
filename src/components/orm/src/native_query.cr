@@ -52,8 +52,8 @@
 # ## Results
 #
 # * `#get_result` returns every result
-# * `#get_single_result` returns the only result, raising `AORM::Exceptions::NoResult` if there is none, or `AORM::Exceptions::NonUniqueResult` if there is more than one
-# * `#get_one_or_nil_result` returns the only result, or `nil` if there is none, raising `AORM::Exceptions::NonUniqueResult` if there is more than one
+# * `#get_single_result` returns the only result, raising `AORM::Exception::NoResult` if there is none, or `AORM::Exception::NonUniqueResult` if there is more than one
+# * `#get_one_or_nil_result` returns the only result, or `nil` if there is none, raising `AORM::Exception::NonUniqueResult` if there is more than one
 #
 # Each executes the query when called.
 # Results are typed as `AORM::Entity`, so cast them to the mapped entity class.
@@ -99,20 +99,20 @@ class Athena::ORM::NativeQuery
 
   # Executes the query and returns its only result.
   #
-  # Raises `AORM::Exceptions::NoResult` if there are no results, or `AORM::Exceptions::NonUniqueResult` if there is more than one.
+  # Raises `AORM::Exception::NoResult` if there are no results, or `AORM::Exception::NonUniqueResult` if there is more than one.
   def get_single_result : Entity
     results = get_result
-    raise Exceptions::NoResult.new if results.empty?
-    raise Exceptions::NonUniqueResult.new if results.size > 1
+    raise Exception::NoResult.new if results.empty?
+    raise Exception::NonUniqueResult.new if results.size > 1
     results.first
   end
 
   # Executes the query and returns its only result, or `nil` if there are none.
   #
-  # Raises `AORM::Exceptions::NonUniqueResult` if there is more than one result.
+  # Raises `AORM::Exception::NonUniqueResult` if there is more than one result.
   def get_one_or_nil_result : Entity?
     results = get_result
-    raise Exceptions::NonUniqueResult.new if results.size > 1
+    raise Exception::NonUniqueResult.new if results.size > 1
     results.first?
   end
 

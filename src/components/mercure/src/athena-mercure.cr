@@ -3,15 +3,19 @@ require "http/cookie"
 require "http/request"
 require "http/headers"
 require "http/server/response"
+require "json"
 
 require "./authorization"
 require "./discovery"
+require "./grant"
+require "./protocol_version"
 require "./update"
 
 require "./exception/*"
 require "./hub/*"
 require "./token_provider/*"
 require "./token_factory/interface"
+require "./token_factory/default_claims"
 
 # The JWT token factory requires the optional `jwt` shard, which may be required after this component.
 macro finished
@@ -28,7 +32,7 @@ alias AMC = Athena::Mercure
 #
 # Mercure comes with an authorization mechanism, automatic reconnection in case of network issues with retrieving of lost updates, a presence API, "connection-less" push for smartphones and auto-discoverability (a supported client can automatically discover and subscribe to updates of a given resource thanks to a specific HTTP header).
 module Athena::Mercure
-  VERSION = "0.1.0"
+  VERSION = "0.2.0"
 
   # See `AMC::TokenFactory::Interface`
   module TokenFactory; end

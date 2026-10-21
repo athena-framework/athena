@@ -8,13 +8,18 @@
 # | `mysql` | `AORM::Platforms::MySQL` or `AORM::Platforms::Maria`, depending on the server's version string |
 # | `sqlite3` | `AORM::Platforms::SQLite` |
 #
-# NOTE: Connections of any other driver aren't supported, and creating an entity manager on one raises `NotImplementedError`.
+# NOTE: Connections of any other driver aren't supported, and creating an entity manager on one raises `AORM::Exception::UnknownDriver`.
 abstract class Athena::ORM::Platforms::Platform
   # Returns *identifier* quoted for use as a table or column name.
   #
   # By default, identifiers are wrapped in double quotes, with any embedded double quotes doubled.
   def quote_single_identifier(identifier : String) : String
     %("#{identifier.gsub('"', "\"\"")}")
+  end
+
+  # Returns *str* quoted as a string literal, with any embedded single quotes doubled.
+  def quote_string_literal(str : String) : String
+    "'#{str.gsub('\'', "''")}'"
   end
 
   # Returns the `Time::Format` pattern used to parse date and time values that a driver returns as strings.
@@ -31,10 +36,10 @@ abstract class Athena::ORM::Platforms::Platform
 
   # Returns *sql* with clauses limiting its result to *limit* rows, skipping the first *offset* rows.
   #
-  # Raises if *offset* is negative.
+  # Raises `AORM::Exception::InvalidArgument` if *offset* is negative.
   def modify_limit_query(sql : String, limit : Int?, offset : Int = 0) : String
     if offset < 0
-      raise "Offset must be a positive integer or zero, #{offset} given."
+      raise AORM::Exception::InvalidArgument.new "Offset must be a positive integer or zero, #{offset} given."
     end
 
     self.do_modify_limit_query sql, limit, offset
@@ -75,7 +80,7 @@ abstract class Athena::ORM::Platforms::Platform
   # Converts *value* into the value bound for a boolean column.
   # Returns it unchanged by default.
   #
-  # Raises if *value* isn't a `Bool`, `nil`, or an `Array(Bool)`.
+  # Raises `AORM::Exception::InvalidType` if *value* isn't a `Bool`, `nil`, or an `Array(Bool)`.
   def convert_booleans_to_db_value(value : Bool?) : Bool?
     # Passthrough by default: the underlying driver binds `Bool` natively against boolean columns (Postgres `BOOLEAN`, SQLite stored as `INTEGER 0/1`), so there's no value conversion to do at this layer.
     value
@@ -88,13 +93,13 @@ abstract class Athena::ORM::Platforms::Platform
 
   # :ditto:
   def convert_booleans_to_db_value(value : _)
-    raise "#{self.class} cannot convert #{value.class} to a boolean DB value"
+    raise AORM::Exception::InvalidType.new value, AORM::Types::BOOLEAN, ["Bool", "Nil", "Array(Bool)"]
   end
 
   # Converts *value*, as read from a boolean column, into a `Bool`, or `nil` for a `NULL` value.
   #
   # Integers are `true` unless they're `0`.
-  # Raises if *value* can't be converted.
+  # Raises `AORM::Exception::ValueNotConvertible` if *value* can't be converted.
   def convert_from_boolean(value : Nil) : Nil
     nil
   end
@@ -113,19 +118,29 @@ abstract class Athena::ORM::Platforms::Platform
 
   # :ditto:
   def convert_from_boolean(value : _) : Bool
-    raise "#{self.class} cannot convert #{value.class} to Bool"
+    raise AORM::Exception::ValueNotConvertible.new value.to_s, AORM::Types::BOOLEAN
   end
+
+  # Returns the metadata provider that reads the metadata of the schema objects of the database *connection* is to.
+  abstract def create_metadata_provider(connection : AORM::Connection) : Schema::Metadata::MetadataProviderInterface
+
+  # Returns the schema manager that inspects the schema of the database *connection* is to, see `AORM::Connection#create_schema_manager`.
+  abstract def create_schema_manager(connection : AORM::Connection) : Schema::AbstractSchemaManager
 
   # SQL Declarations
 
   # Returns the SQL declaring *column* as a string column, e.g. `VARCHAR(255)`, or `CHAR(2)` for a fixed-length column.
   #
-  # Raises if a variable-length *column* has no length, on platforms that require one.
+  # Raises `AORM::Exception::InvalidColumnDeclaration` if a variable-length *column* has no length, on platforms that require one.
   def string_type_declaration_sql(column : Schema::Column) : String
     length = column.length
 
     unless column.fixed?
-      return self.varchar_type_declaration_sql length
+      begin
+        return self.varchar_type_declaration_sql length
+      rescue ex : AORM::Exception::InvalidColumnType
+        raise AORM::Exception::InvalidColumnDeclaration.from_invalid_column_type column.name, ex
+      end
     end
 
     self.char_type_declaration_sql length
@@ -167,19 +182,21 @@ abstract class Athena::ORM::Platforms::Platform
 
   # Returns the SQL declaring *column* as an exact numeric column, e.g. `NUMERIC(10, 2)`.
   #
-  # Raises if *column* has no precision or scale.
+  # Raises `AORM::Exception::InvalidColumnDeclaration` if *column* has no precision or scale.
   def decimal_type_declaration_sql(column : Schema::Column) : String
-    raise "Precision required" unless precision = column.precision
-    raise "Scale required" unless scale = column.scale
+    raise AORM::Exception::InvalidColumnDeclaration.from_invalid_column_type column.name, AORM::Exception::ColumnPrecisionRequired.new unless precision = column.precision
+    raise AORM::Exception::InvalidColumnDeclaration.from_invalid_column_type column.name, AORM::Exception::ColumnScaleRequired.new unless scale = column.scale
 
     "NUMERIC(#{precision}, #{scale})"
   end
 
   # Returns the SQL declaring *column* as a fixed or variable-length binary column, e.g. `VARBINARY(16)`.
   #
-  # Raises if a variable-length *column* has no length.
+  # Raises `AORM::Exception::InvalidColumnDeclaration` if a variable-length *column* has no length.
   def binary_type_declaration_sql(column : Schema::Column) : String
     column.fixed? ? self.binary_type_declaration_sql_snippet(column.length) : self.varbinary_type_declaration_sql_snippet(column.length)
+  rescue ex : AORM::Exception::InvalidColumnType
+    raise AORM::Exception::InvalidColumnDeclaration.from_invalid_column_type column.name, ex
   end
 
   protected def binary_type_declaration_sql_snippet(length : Int32?) : String
@@ -187,7 +204,7 @@ abstract class Athena::ORM::Platforms::Platform
   end
 
   protected def varbinary_type_declaration_sql_snippet(length : Int32?) : String
-    raise "Length required" unless length
+    raise AORM::Exception::ColumnLengthRequired.new self, "VARBINARY" unless length
 
     "VARBINARY(#{length})"
   end
@@ -199,7 +216,7 @@ abstract class Athena::ORM::Platforms::Platform
   private abstract def common_integer_type_declaration_sql(column : Schema::Column) : String
 
   private def varchar_type_declaration_sql(length : Int32?) : String
-    raise "Length required" unless length
+    raise AORM::Exception::ColumnLengthRequired.new self, "VARCHAR" unless length
 
     "VARCHAR(#{length})"
   end

@@ -22,6 +22,7 @@ require "./exception/http_exception"
 require "./exception/*"
 
 require "./listeners/error"
+require "./listeners/session"
 
 macro finished
   {% if @top_level.has_constant?("ART") %}
@@ -33,7 +34,7 @@ end
 alias AHK = Athena::HTTPKernel
 
 module Athena::HTTPKernel
-  VERSION = "0.1.0"
+  VERSION = "0.2.0"
   Log     = ::Log.for "athena.http_kernel"
 
   # This type includes all of the built-in resolvers that the HTTPKernel uses to try and resolve an argument for a particular controller action parameter.

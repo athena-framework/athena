@@ -181,6 +181,8 @@ class Athena::HTTP::Request
 
   @trusted_values_cache = Hash(String, Array(String)).new
 
+  @session : AHTTP::Session | Proc(AHTTP::Session) | Nil = nil
+
   # :nodoc:
   forward_missing_to @request
 
@@ -192,7 +194,8 @@ class Athena::HTTP::Request
     request
   end
 
-  def initialize(@request : ::HTTP::Request); end
+  # Wraps the provided *request*, which was received over TLS if *tls* is `true`.
+  def initialize(@request : ::HTTP::Request, @tls : Bool = false); end
 
   # Returns the first `MIME` type for the provided *format* if defined, otherwise returns `nil`.
   #
@@ -317,6 +320,41 @@ class Athena::HTTP::Request
     @request.method.in? "GET", "HEAD", "OPTIONS", "TRACE"
   end
 
+  # Returns the session of this request, creating it via the factory set by `#session_factory=` if needed.
+  #
+  # Raises an `AHTTP::Exception::SessionNotFound` if this request does not have a session.
+  def session : AHTTP::Session
+    session = @session
+
+    if session.is_a? Proc
+      @session = session = session.call
+    end
+
+    session || raise AHTTP::Exception::SessionNotFound.new "Session has not been set."
+  end
+
+  # Sets the session of this request.
+  def session=(@session : AHTTP::Session)
+  end
+
+  # Sets the provided *factory* to create the session of this request once it is first used.
+  def session_factory=(factory : Proc(AHTTP::Session))
+    @session = factory
+  end
+
+  # Returns `true` if this request has a session, otherwise `false`.
+  #
+  # Does not take a session that was not created yet by the factory set by `#session_factory=` into account if *skip_if_uninitialized* is `true`.
+  def has_session?(skip_if_uninitialized : Bool = false) : Bool
+    !@session.nil? && (!skip_if_uninitialized || @session.is_a?(AHTTP::Session))
+  end
+
+  # Returns `true` if this request has a session that was started in a previous request, i.e. it has a cookie for it, otherwise `false`.
+  def has_previous_session? : Bool
+    # Checking for the session first keeps a client from faking a session by sending a cookie with its name.
+    self.has_session? && @request.cookies.has_key?(self.session.name)
+  end
+
   # Returns the port on which the request is made.
   #
   # Supports reading from both `AHTTP::Request::ProxyHeader::FORWARDED_PORT` and `AHTTP::Request::ProxyHeader::FORWARDED_HOST`, falling back on the `"host"` header, then `#scheme`.
@@ -355,6 +393,7 @@ class Athena::HTTP::Request
   # Returns `true` the request was made over HTTPS, otherwise returns `false`.
   #
   # Supports reading from `AHTTP::Request::ProxyHeader::FORWARDED_PROTO`.
+  # Otherwise returns whether the request was received over TLS, see `.new`.
   #
   # See the [external documentation](/guides/proxies) for more information.
   def secure? : Bool
@@ -362,9 +401,7 @@ class Athena::HTTP::Request
       return proto.first.downcase.in? "https", "on", "ssl", "1"
     end
 
-    # TODO: Possibly have this be based on if server was started with `bind_tls`
-    # or if there is eventually some way to access TLS info off `@request`.
-    false
+    @tls
   end
 
   # Returns `true` if this request originated from a trusted proxy.

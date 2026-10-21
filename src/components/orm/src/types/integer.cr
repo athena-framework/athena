@@ -19,8 +19,10 @@ struct Athena::ORM::Types::Integer < Athena::ORM::Types::Type
     case value
     when Nil                      then nil
     when ::Int, ::String, ::Float then value.to_i32
-    else                               raise "Integer cannot accept #{value.class}"
+    else                               raise AORM::Exception::ValueNotConvertible.new value.to_s, AORM::Types::INTEGER
     end
+  rescue ex : ArgumentError | OverflowError
+    raise AORM::Exception::ValueNotConvertible.new value.to_s, AORM::Types::INTEGER, cause: ex
   end
 
   # :inherit:

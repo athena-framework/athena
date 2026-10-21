@@ -43,13 +43,23 @@ describe AORM::Bundle::Registry do
       connection.driver_name = "unknown"
       released = PooledMockConnection.released
 
-      expect_raises AORM::Exceptions::UnknownDriver do
+      expect_raises AORM::Exception::UnknownDriver do
         registry.manager
       end
 
       PooledMockConnection.released.should eq released + 1
     ensure
       connection.try &.driver_name = "sqlite3"
+    end
+  end
+
+  describe ".connection" do
+    it "is the connection of the entity manager" do
+      registry = AORM::Bundle::Registry.new "mock://"
+
+      AORM::Bundle::Registry.connection(registry).should be registry.manager.connection
+    ensure
+      registry.try &.close
     end
   end
 

@@ -4,15 +4,14 @@ struct BundleAuthorizationTest < ASPEC::TestCase
   def test_set_cookie : Nil
     token_factory = AMC::Spec::AssertingTokenFactory.new(
       "JWT",
-      ["foo"],
-      ["bar"],
+      [AMC::Grant.new(:subscribe, ["foo"]), AMC::Grant.new(:publish, ["bar"])],
       {"x-foo" => "baz"},
     )
 
     authorization = AMC::Bundle::Authorization.new new_hub_registry(token_factory: token_factory)
     request = new_request(headers: ::HTTP::Headers{"host" => "example.com"})
 
-    authorization.set_cookie request, ["foo"], ["bar"], {"x-foo" => "baz"}
+    authorization.set_cookie request, [AMC::Grant.new(:subscribe, ["foo"]), AMC::Grant.new(:publish, ["bar"])], {"x-foo" => "baz"}
     token_factory.called?.should be_true
 
     cookies = request.attributes.get?("_mercure_authorization_cookies", Hash(String, ::HTTP::Cookie)).should_not be_nil
@@ -33,7 +32,7 @@ struct BundleAuthorizationTest < ASPEC::TestCase
     authorization = AMC::Bundle::Authorization.new new_hub_registry
     request = new_request(headers: ::HTTP::Headers{"host" => "example.com"})
 
-    expect_raises AMC::Exception::Runtime, "The 'mercureAuthorization' cookie for the 'default hub' has already been set." do
+    expect_raises AMC::Exception::Runtime, "The '__Secure-mercure_access_token' cookie for the 'default hub' has already been set." do
       authorization.set_cookie request
       authorization.set_cookie request
     end
@@ -53,8 +52,11 @@ struct BundleAuthorizationTest < ASPEC::TestCase
     authorization = AMC::Bundle::Authorization.new new_hub_registry
     request = new_request(headers: ::HTTP::Headers{"host" => "example.com"})
 
-    cookie = authorization.create_cookie request
-    cookie.name.should eq "mercureAuthorization"
-    cookie.value.should_not be_empty
+    cookie = authorization.create_cookie request, "https://example.com/books/1"
+    cookie.name.should eq "__Secure-mercure_access_token"
+
+    payload, _ = JWT.decode cookie.value, verify: false, validate: false
+    payload["aud"].should eq "https://example.com/.well-known/mercure"
+    payload["authorization_details"][0]["topics"].should eq JSON.parse %([{"match": "https://example.com/books/1"}])
   end
 end

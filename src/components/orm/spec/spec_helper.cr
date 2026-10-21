@@ -17,6 +17,13 @@ class SpecCollectionTypes
   @@persistent_entity : AORM::PersistentCollection(AORM::Entity)? = nil
 end
 
+# Connects with a `MockPlatform`, whatever driver shard the wrapped connection is from.
+struct MockPlatformDriver < AORM::Driver
+  def database_platform(connection : DB::Connection) : AORM::Platforms::Platform
+    MockPlatform.new
+  end
+end
+
 class MockPlatform < AORM::Platforms::Platform
   setter db_boolean : Bool?
   setter crystal_boolean : Bool?
@@ -26,6 +33,14 @@ class MockPlatform < AORM::Platforms::Platform
     @db_boolean : Bool? = nil,
     @crystal_boolean : Bool? = nil,
   ); end
+
+  def create_metadata_provider(connection : AORM::Connection) : AORM::Schema::Metadata::MetadataProviderInterface
+    AORM::Platforms::SQLiteMetadataProvider.new connection
+  end
+
+  def create_schema_manager(connection : AORM::Connection) : AORM::Schema::AbstractSchemaManager
+    AORM::Schema::SQLiteSchemaManager.new connection, self
+  end
 
   def boolean_type_declaration_sql(column : AORM::Schema::Column) : String
     "BOOLEAN"

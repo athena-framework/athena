@@ -73,9 +73,7 @@ struct SimpleObjectHydratorTest < ASPEC::TestCase
     result.map(&.as(CmsPhonenumber).phonenumber).should eq ["555-0001", "555-0002", "555-0003"]
   end
 
-  # Doctrine: testExtraFieldInResultSetShouldBeIgnore. Columns the RSM hasn't
-  # mapped (e.g., a window-function `rownum` tagged on by the platform) should
-  # be silently dropped instead of raising.
+  # Columns the RSM hasn't mapped (e.g., a window-function `rownum` tagged on by the platform) should be silently dropped instead of raising.
   def test_extra_columns_in_the_result_set_are_ignored : Nil
     em = MockEntityManager.new(MockConnection.new)
     rsm = AORM::Query::ResultSetMapping.new
@@ -105,7 +103,7 @@ struct SimpleObjectHydratorTest < ASPEC::TestCase
 
     rs = FakeResultSet.new([] of Hash(String, DB::Any))
 
-    expect_raises(Exception, /more than one object result/) do
+    expect_raises(AORM::Exception::Runtime, "Cannot use the SimpleObject hydrator with a ResultSetMapping that contains more than one object result.") do
       AORM::Internal::Hydrators::SimpleObject.new(em).hydrate_all(rs, rsm)
     end
   end

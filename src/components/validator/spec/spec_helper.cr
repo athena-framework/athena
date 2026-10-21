@@ -2,6 +2,11 @@ require "spec"
 require "../src/athena-validator"
 require "../src/spec"
 
+# Optional components the `File` and `Image` constraints use, required after the validator as they may be in an application.
+require "athena-http"
+require "athena-image_size"
+require "athena-mime"
+
 ASPEC.run_all
 
 class MockConstraint < AVD::Constraint

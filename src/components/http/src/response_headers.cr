@@ -56,6 +56,16 @@ class Athena::HTTP::Response::Headers
     self.cookies[key] = value
   end
 
+  # Adds a cookie with the provided *name* that instructs the client to remove it.
+  #
+  # The *path*, *domain*, *secure*, *http_only*, and *samesite* values must match the ones the cookie was set with for the client to remove it.
+  def clear_cookie(name : String, path : String? = "/", domain : String? = nil, secure : Bool = false, http_only : Bool = true, samesite : ::HTTP::Cookie::SameSite? = nil) : Nil
+    cookie = ::HTTP::Cookie.new name, "", path: path, domain: domain, secure: secure, http_only: http_only, samesite: samesite
+    cookie.expire
+
+    self.cookies << cookie
+  end
+
   # Sets a header with the provided *key* to the provided *value*.
   #
   # NOTE: This method will override the *value* of the provided *key*.
@@ -125,7 +135,7 @@ class Athena::HTTP::Response::Headers
   # Adds the provided *directive*; updating the `cache-control` header.
   def add_cache_control_directive(directive : String, value : String | Bool = true)
     @cache_control[directive] = value == true ? value : value.to_s
-    @headers["cache-control"] = self.cache_control_header
+    self.["cache-control"] = self.cache_control_header
   end
 
   # Returns a `Time` instance by parsing the datetime string from the header with the provided *key*.
@@ -186,7 +196,7 @@ class Athena::HTTP::Response::Headers
   # Removes the provided [directive](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#directives) from the `cache-control` header.
   def remove_cache_control_directive(directive : String) : Nil
     @cache_control.delete directive
-    @headers["cache-control"] = self.cache_control_header
+    self.["cache-control"] = self.cache_control_header
   end
 
   private def compute_cache_control_value : String

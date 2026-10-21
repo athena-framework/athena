@@ -93,7 +93,7 @@ class Athena::ORM::EntityRepository(EntityType) < Athena::ORM::RepositoryInterfa
   end
 
   # Returns the entity with the identifier *id*.
-  # Raises an `AORM::Exceptions::NoResult` if there isn't one.
+  # Raises an `AORM::Exception::EntityNotFound` if there isn't one.
   #
   # See `AORM::EntityManager#find`.
   def find!(id : Hash(String, Int | String) | Int | String, lock_mode : AORM::LockMode = :none, lock_version : Int32? = nil) : EntityType

@@ -26,4 +26,10 @@ struct DecimalTypeTest < ASPEC::TestCase
 
     @type.to_crystal_value(rs, @platform).should eq "12.3400"
   end
+
+  def test_rejects_other_values : Nil
+    expect_raises(AORM::Exception::ValueNotConvertible, %(Could not convert database value "true" to type "decimal".)) do
+      @type.to_crystal_value(true, @platform)
+    end
+  end
 end

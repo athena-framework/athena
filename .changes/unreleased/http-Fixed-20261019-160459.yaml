@@ -1,0 +1,8 @@
+project: http
+kind: Fixed
+body: Fix `cache-control` directives added or removed via `#add_cache_control_directive`/`#remove_cache_control_directive` not being seen by `#has_cache_control_directive?`/`#get_cache_control_directive`
+time: 2026-10-19T16:04:59.619827-04:00
+custom:
+    Author: George Dietrich
+    PR: "773"
+    Username: blacksmoke16

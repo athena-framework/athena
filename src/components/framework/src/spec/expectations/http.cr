@@ -1,3 +1,4 @@
+require "./browser/*"
 require "./response/*"
 require "./request/*"
 
@@ -82,6 +83,22 @@ module Athena::Framework::Spec::Expectations::HTTP
     self.response.should Response::CookieValueEquals.new(name, value, path, domain, description), file: file, line: line
   end
 
+  # Asserts the browser has a cookie with the provided *name*, and optionally *path* and *domain*, that would be sent with subsequent requests.
+  def assert_browser_has_cookie(name : String, path : String = "/", domain : String? = nil, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
+    self.client.should Browser::HasCookie.new(name, path, domain, description), file: file, line: line
+  end
+
+  # Asserts the browser does not have a cookie with the provided *name*, and optionally *path* and *domain*.
+  def assert_browser_not_has_cookie(name : String, path : String = "/", domain : String? = nil, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
+    self.client.should_not Browser::HasCookie.new(name, path, domain, description), file: file, line: line
+  end
+
+  # Asserts the value of the browser's cookie with the provided *name*, and optionally *path* and *domain*, equals that of the provided *value*.
+  def assert_browser_cookie_has_value(name : String, value : String, path : String = "/", domain : String? = nil, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
+    self.client.should Browser::HasCookie.new(name, path, domain, description), file: file, line: line
+    self.client.should Browser::CookieValueEquals.new(name, value, path, domain, description), file: file, line: line
+  end
+
   # Asserts the request attribute with the provided *name* equals the provided *value*.
   def assert_request_attribute_equals(name : String, value : _, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
     self.request.should Request::AttributeEquals.new(name, value, description), file: file, line: line
@@ -94,6 +111,14 @@ module Athena::Framework::Spec::Expectations::HTTP
     parameters.try &.each do |k, v|
       self.request.should Request::AttributeEquals.new(k, v, description), file: file, line: line
     end
+  end
+
+  # Asserts the session of the request has a flash message of the provided *type*.
+  # Optionally asserts one of its messages is the provided *message*, or one of the provided *messages*.
+  #
+  # Flash messages read by the request, e.g. via `AHTTP::Session::FlashBag#get`, are no longer in the session.
+  def assert_session_has_flash_message(type : String, message : String | Array(String) | Nil = nil, description : String? = nil, *, file : String = __FILE__, line : Int32 = __LINE__) : Nil
+    self.request.should Request::SessionHasFlashMessage.new(type, message.is_a?(String) ? [message] : message, description), file: file, line: line
   end
 
   private abstract def client : AbstractBrowser?

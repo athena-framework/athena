@@ -1,0 +1,7 @@
+# Changelog
+
+## [0.1.0] - 2026-10-20
+
+_Initial release._
+
+[0.1.0]: https://github.com/athena-framework/password-hasher/releases/tag/v0.1.0

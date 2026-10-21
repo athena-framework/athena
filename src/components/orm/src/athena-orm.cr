@@ -2,7 +2,7 @@ require "db"
 require "athena-contracts/event_dispatcher"
 
 require "./collection/*"
-require "./exceptions/*"
+require "./exception/*"
 require "./events/*"
 require "./internal/**"
 require "./id/*"
@@ -12,7 +12,7 @@ require "./persisters/entity/*"
 require "./persisters/collection/*"
 require "./platforms/*"
 require "./query/*"
-require "./schema/*"
+require "./schema/**"
 require "./sql/parser"
 require "./types/*"
 require "./utility/*"
@@ -45,8 +45,12 @@ module Athena::ORM
   # Contains the events emitted during the lifecycle of an entity and of a flush, see `AORM::Events::EventArgs`.
   module Events; end
 
-  # Contains the exceptions raised by the ORM.
-  module Exceptions; end
+  # Both acts as a namespace for exceptions related to the `Athena::ORM` component, as well as a way to check for exceptions from the component.
+  #
+  # NOTE: Errors that indicate a bug in the ORM itself are raised as plain `::Exception`s, so rescuing this type doesn't catch them.
+  #
+  # TODO: Using a feature that isn't supported yet, such as the `SEQUENCE` identifier generation strategy, raises a plain `::Exception`.
+  module Exception; end
 
   # Contains the database platforms, which account for the differences between databases, see `AORM::Platforms::Platform`.
   module Platforms; end

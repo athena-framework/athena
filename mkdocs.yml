@@ -48,6 +48,7 @@ nav:
       - project://mime
       - project://negotiation
       - project://orm
+      - project://password_hasher
       - project://routing
       - project://serializer
       - project://spec

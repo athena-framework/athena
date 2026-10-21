@@ -253,6 +253,84 @@ describe AHTTP::Response do
     response.headers["cache-control"].should_not contain "private"
   end
 
+  it "#set_private" do
+    response = AHTTP::Response.new
+    response.set_public
+    response.set_private
+
+    response.headers.has_cache_control_directive?("private").should be_true
+    response.headers.has_cache_control_directive?("public").should be_false
+  end
+
+  describe "#expires" do
+    it "returns nil if the header is not set" do
+      AHTTP::Response.new.expires.should be_nil
+    end
+
+    it "parses the header" do
+      response = AHTTP::Response.new headers: ::HTTP::Headers{"expires" => "Wed, 07 Apr 2021 12:00:00 GMT"}
+      response.expires.should eq Time.utc 2021, 4, 7, 12, 0, 0
+    end
+
+    it "treats an invalid value as being in the past" do
+      response = AHTTP::Response.new headers: ::HTTP::Headers{"expires" => "-1"}
+      response.expires.not_nil!.should be < Time.utc
+    end
+  end
+
+  describe "#expires=" do
+    it "sets the expires header" do
+      now = Time.utc
+
+      response = AHTTP::Response.new
+      response.expires = now
+      response.expires.should eq now.at_beginning_of_second
+    end
+
+    it "removes the header if the value is `nil`" do
+      response = AHTTP::Response.new headers: ::HTTP::Headers{"expires" => "TIME"}
+      response.expires = nil
+      response.expires.should be_nil
+    end
+  end
+
+  describe "#max_age" do
+    it "returns nil if no cache information is set" do
+      AHTTP::Response.new.max_age.should be_nil
+    end
+
+    it "prefers s-maxage" do
+      response = AHTTP::Response.new headers: ::HTTP::Headers{"cache-control" => "max-age=10, s-maxage=20"}
+      response.max_age.should eq 20
+    end
+
+    it "uses max-age" do
+      response = AHTTP::Response.new headers: ::HTTP::Headers{"cache-control" => "max-age=10"}
+      response.max_age.should eq 10
+    end
+
+    it "uses the difference between expires and date" do
+      response = AHTTP::Response.new headers: ::HTTP::Headers{
+        "date"    => "Wed, 07 Apr 2021 12:00:00 GMT",
+        "expires" => "Wed, 07 Apr 2021 12:01:00 GMT",
+      }
+      response.max_age.should eq 60
+    end
+
+    it "does not return a negative value for an expires in the past" do
+      response = AHTTP::Response.new headers: ::HTTP::Headers{"expires" => "-1"}
+      response.max_age.should eq 0
+    end
+  end
+
+  it "#max_age=" do
+    response = AHTTP::Response.new
+    response.max_age = 10
+
+    response.headers.get_cache_control_directive("max-age").should eq "10"
+    response.max_age.should eq 10
+  end
+
   describe "#set_etag" do
     it "sets the etag" do
       response = AHTTP::Response.new

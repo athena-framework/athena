@@ -25,7 +25,7 @@ class Athena::ORM::Internal::Hydrators::Object < Athena::ORM::Internal::Hydrator
       unless self.rsm.alias_map.has_key? parent
         # TODO: Skip nested entities
 
-        raise "parent object of relation not found"
+        raise AORM::Exception::Hydration.parent_object_of_relation_not_found alias_name, parent
       end
 
       source_entity_class = self.rsm.alias_map[parent]

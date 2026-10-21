@@ -138,4 +138,34 @@ module Athena::ORM::Spec
       self.container.athena_orm_registry.manager
     end
   end
+
+  # Migrates the database of `AORM::Bundle` to the latest version, for applications using [migrations](/ORM/database_migrations/), such as before the specs run:
+  #
+  # ```
+  # # spec/spec_helper.cr
+  # require "athena-orm/spec"
+  #
+  # Spec.before_suite do
+  #   AORM::Spec.migrate_database
+  # end
+  # ```
+  #
+  # Like `orm:migrations:migrate`, it only executes the migrations that haven't been executed yet, so it does nothing once the database is up to date.
+  # A migration changed after it was executed isn't executed again; revert it first, such as via `orm:migrations:execute --down`, or recreate the database.
+  #
+  # The migrations are executed on the connection of *container*, whose closeable services are closed once they're done, returning the connection to the pool.
+  def self.migrate_database(container : ADI::ServiceContainer = ADI::ServiceContainer.new) : Nil
+    {% unless ADI::ServiceContainer::EXTENSIONS["orm"] && Athena::ORM.has_constant?("Migrations") %}
+      {% raise "'AORM::Spec.migrate_database' requires the ORM bundle and migrations. Add `require \"athena-orm/bundle\"` and `require \"athena-orm/migrations\"`." %}
+    {% end %}
+
+    container.athena_orm_migrations_metadata_storage.ensure_initialized
+
+    version = container.athena_orm_migrations_alias_resolver.resolve_version_alias "latest"
+    plan = container.athena_orm_migrations_plan_calculator.plan_until_version version
+
+    container.athena_orm_migrations_migrator.migrate plan, AORM::Migrations::MigratorConfiguration.new
+  ensure
+    container.athena_dependency_injection_services_closer.close
+  end
 end

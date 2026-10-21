@@ -121,4 +121,14 @@ struct ObjectHydratorTest < ASPEC::TestCase
       .map { |e| {e.id1, e.id2} }
     pairs.should eq [{"a", "x"}, {"a", "y"}]
   end
+
+  def test_joined_entity_without_its_parent_raises : Nil
+    em = MockEntityManager.new(MockConnection.new)
+    rsm = AORM::Query::ResultSetMapping.new
+    rsm.add_joined_entity_result CmsPhonenumber, "p", "u", "phonenumbers"
+
+    expect_raises AORM::Exception::Hydration, "The parent object of entity result with alias 'p' was not found. The parent alias is 'u'." do
+      AORM::Internal::Hydrators::Object.new(em).hydrate_all FakeResultSet.new([] of Hash(String, DB::Any)), rsm
+    end
+  end
 end

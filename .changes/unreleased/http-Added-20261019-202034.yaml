@@ -1,0 +1,8 @@
+project: http
+kind: Added
+body: Add support for file based sessions
+time: 2026-10-19T20:20:34.682755-04:00
+custom:
+    Author: George Dietrich
+    PR: "775"
+    Username: blacksmoke16

@@ -8,7 +8,7 @@ private struct MarkerType < AORM::Types::Type
 
   def initialize(@marker : Int32 = 0); end
 
-  def sql_declaration(column : Sechema::Column, platform : AORM::Platforms::Platform) : String
+  def sql_declaration(column : AORM::Schema::Column, platform : AORM::Platforms::Platform) : String
     "MARKER#{@marker}"
   end
 
@@ -21,7 +21,7 @@ struct TypeRegistryTest < ASPEC::TestCase
   def test_get_returns_the_registered_type : Nil
     registry = AORM::Types::TypeRegistry.new({"x" => MarkerType.new(7).as(AORM::Types::Type)})
 
-    registry.get("x").as(MarkerType).marker.should eq 7
+    registry.get("x").sql_declaration(AORM::Schema::Column.new("c", MarkerType.new), MockPlatform.new).should eq "MARKER7"
   end
 
   def test_get_returns_an_equivalent_value_on_repeated_lookups : Nil
@@ -35,7 +35,7 @@ struct TypeRegistryTest < ASPEC::TestCase
   def test_get_raises_for_an_unknown_name : Nil
     registry = AORM::Types::TypeRegistry.new
 
-    expect_raises(Exception, /Unknown type: nope/) do
+    expect_raises(AORM::Exception::UnknownColumnType, %(Unknown column type "nope" requested.)) do
       registry.get("nope")
     end
   end
@@ -58,7 +58,7 @@ struct TypeRegistryTest < ASPEC::TestCase
   def test_register_raises_when_the_name_already_exists : Nil
     registry = AORM::Types::TypeRegistry.new({"x" => MarkerType.new(1).as(AORM::Types::Type)})
 
-    expect_raises(Exception, /'x' already exists/) do
+    expect_raises(AORM::Exception::TypesAlreadyExists, %(Type "x" already exists.)) do
       registry.register("x", MarkerType.new(2))
     end
   end
@@ -74,7 +74,7 @@ struct TypeRegistryTest < ASPEC::TestCase
   def test_override_raises_for_an_unknown_name : Nil
     registry = AORM::Types::TypeRegistry.new
 
-    expect_raises(Exception, /'nope' not found/) do
+    expect_raises(AORM::Exception::TypeNotFound, %(Type to be overwritten "nope" does not exist.)) do
       registry.override("nope", MarkerType.new(1))
     end
   end

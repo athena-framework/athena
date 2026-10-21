@@ -86,7 +86,7 @@ end
 The column types are inferred from the Crystal types of the instance variables, see [AORMA::Column](/ORM/Annotations/Column/) for how, and how to configure each column.
 [AORMA::GeneratedValue](/ORM/Annotations/GeneratedValue/) has the database generate the identifier when the row is inserted, such as via an `AUTO_INCREMENT` column.
 
-NOTE: The ORM doesn't create or migrate tables; they must already exist in the database.
+NOTE: The ORM doesn't create tables from the mapping; they must already exist in the database, such as by creating them via [migrations](database_migrations.md).
 
 ### Obtaining an Entity Manager
 
@@ -144,7 +144,7 @@ The simplest way to find an entity is by its identifier:
 ```crystal
 em.find User, 1  # => #<User:0x7f3a1c2b5e40 @id=1, @name="Jim", @active=true>
 em.find User, 99 # => nil
-em.find! User, 99 # => raises AORM::Exceptions::NoResult
+em.find! User, 99 # => raises AORM::Exception::EntityNotFound
 ```
 
 The [AORM::EntityRepository](/ORM/EntityRepository/) of each entity finds entities by simple conditions:
@@ -332,6 +332,17 @@ struct UserControllerTest < ATH::Spec::APITestCase
 end
 ```
 
+Applications using [migrations](database_migrations.md) through [AORM::Bundle](/ORM/Bundle/) can bring the test database up to date before the specs run with [AORM::Spec.migrate_database](/ORM/Spec/#Athena::ORM::Spec.migrate_database(container)), which executes the migrations that haven't been executed yet:
+
+```crystal
+# spec/spec_helper.cr
+require "athena-orm/spec"
+
+Spec.before_suite do
+  AORM::Spec.migrate_database
+end
+```
+
 ## Learn More
 
 * Working with entities in an [AORM::EntityManager](/ORM/EntityManager/), and transactions
@@ -340,3 +351,4 @@ end
 * Querying with [native SQL](/ORM/NativeQuery/)
 * Custom [types](/ORM/Types/Type/) for value objects
 * Listening to [events](/ORM/Events/EventArgs/)
+* Versioning the database's schema with [migrations](database_migrations.md)

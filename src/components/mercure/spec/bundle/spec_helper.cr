@@ -3,7 +3,10 @@ require "../../src/bundle"
 
 def new_hub_registry(
   url : String = "https://example.com/.well-known/mercure",
-  token_factory : AMC::TokenFactory::Interface? = AMC::TokenFactory::JWT.new("looooooooooooongenoughtestsecret", jwt_lifetime: 4000),
+  token_factory : AMC::TokenFactory::Interface? = AMC::TokenFactory::DefaultClaims.new(
+    AMC::TokenFactory::JWT.new("looooooooooooongenoughtestsecret", jwt_lifetime: 4000),
+    {"iss" => "https://example.com", "aud" => url, "sub" => "urn:uuid:1", "client_id" => "https://example.com"} of String => String | Array(String)
+  ),
 ) : AMC::Hub::Registry
   AMC::Hub::Registry.new(AMC::Spec::MockHub.new(url, AMC::TokenProvider::Static.new("JWT"), token_factory: token_factory) { "ID" })
 end

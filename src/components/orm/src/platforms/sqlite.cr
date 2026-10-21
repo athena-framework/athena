@@ -3,6 +3,16 @@
 # Database-generated identifiers are read back with `INSERT ... RETURNING`.
 class Athena::ORM::Platforms::SQLite < Athena::ORM::Platforms::Platform
   # :inherit:
+  def create_metadata_provider(connection : AORM::Connection) : Schema::Metadata::MetadataProviderInterface
+    SQLiteMetadataProvider.new connection
+  end
+
+  # :inherit:
+  def create_schema_manager(connection : AORM::Connection) : Schema::AbstractSchemaManager
+    Schema::SQLiteSchemaManager.new connection, self
+  end
+
+  # :inherit:
   def boolean_type_declaration_sql(column : Schema::Column) : String
     "BOOLEAN"
   end

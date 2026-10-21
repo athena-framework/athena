@@ -132,7 +132,7 @@ class Athena::ORM::EntityManager
   #
   # An entity in the identity map is returned without querying the database.
   # Entities with a composite identifier are found with a `Hash` holding a value for each identifier field, see [Composite Keys][Athena::ORM::Annotations::ID--composite-keys].
-  # Raises an `AORM::Exceptions::MissingIdentifierField` if the hash is missing a field, or if a single value is given for a composite identifier.
+  # Raises an `AORM::Exception::MissingIdentifierField` if the hash is missing a field, an `AORM::Exception::UnrecognizedIdentifierFields` if it has a field that isn't part of the identifier, or an `AORM::Exception::ORMInvalidArgument` if a single value is given for a composite identifier.
   #
   # TODO: Row locking isn't supported yet, see `AORM::LockMode`.
   def find(
@@ -159,15 +159,16 @@ class Athena::ORM::EntityManager
     # TODO: Handle locking
 
     if id.is_a? Hash
-      missing = class_metadata.identifier.reject { |field| id.has_key? field }
-      unless missing.empty?
-        raise AORM::Exceptions::MissingIdentifierField.new entity_class, missing
+      class_metadata.identifier.each do |field|
+        raise AORM::Exception::MissingIdentifierField.from_field_and_class field, entity_class.to_s unless id.has_key? field
+      end
+
+      unless (unrecognized_fields = id.keys.reject { |field| class_metadata.identifier.includes? field }).empty?
+        raise AORM::Exception::UnrecognizedIdentifierFields.from_class_and_field_names entity_class.to_s, unrecognized_fields
       end
     else
-      if class_metadata.identifier.size > 1
-        raise AORM::Exceptions::MissingIdentifierField.new entity_class,
-          "scalar id passed for composite primary key (fields: #{class_metadata.identifier.to_a.join(", ")})"
-      end
+      raise AORM::Exception::ORMInvalidArgument.invalid_composite_identifier if class_metadata.identifier.size > 1
+
       id = {class_metadata.single_identifier_field_name => id}
     end
 
@@ -194,7 +195,7 @@ class Athena::ORM::EntityManager
   end
 
   # Returns the entity of type *entity_class* with the identifier *id*.
-  # Raises an `AORM::Exceptions::NoResult` if there isn't one.
+  # Raises an `AORM::Exception::EntityNotFound` if there isn't one.
   #
   # See `#find`.
   def find!(
@@ -203,7 +204,14 @@ class Athena::ORM::EntityManager
     lock_mode : AORM::LockMode = :none,
     lock_version : Int32? = nil,
   ) : AORM::Entity forall T
-    self.find(entity_class, id, lock_mode, lock_version) || raise AORM::Exceptions::NoResult.new
+    self.find(entity_class, id, lock_mode, lock_version) || self.raise_entity_not_found entity_class.as(AORM::Entity.class), id
+  end
+
+  private def raise_entity_not_found(entity_class : AORM::Entity.class, id : Hash(String, Int | String) | Int | String) : NoReturn
+    class_metadata = self.class_metadata entity_class
+    id = {class_metadata.single_identifier_field_name => id} unless id.is_a? Hash
+
+    raise AORM::Exception::EntityNotFound.from_class_name_and_identifier class_metadata.entity_class.to_s, id
   end
 
   # :inherit:
@@ -380,9 +388,18 @@ class Athena::ORM::EntityManager
     NativeQuery.new(self, sql, rsm)
   end
 
+  # Appends the class name and object address of this entity manager to *io*, leaving out its state, such as the unit of work and its identity map.
+  # Values referencing the entity manager, such as `AORM::Events::LifecycleEventArgs`, print it this way too.
+  #
+  # ```
+  # em.inspect # => "#<Athena::ORM::EntityManager:0x7f3a1c2b5e40>"
+  # ```
+  def inspect(io : IO) : Nil
+    self.to_s io
+  end
+
   private def unless_closed(&) : Nil
-    # Use an actual Exception type for this
-    raise "EM IS CLOSED" if @closed
+    raise AORM::Exception::EntityManagerClosed.create if @closed
     yield
   end
 end

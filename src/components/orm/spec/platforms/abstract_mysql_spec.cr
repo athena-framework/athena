@@ -14,6 +14,10 @@ struct AbstractMySQLPlatformTest < ASPEC::TestCase
   def test_quote_single_identifier_escapes_backticks : Nil
     AORM::Platforms::MySQL.new.quote_single_identifier("we`ird").should eq "`we``ird`"
   end
+
+  def test_quote_string_literal_also_escapes_backslashes : Nil
+    AORM::Platforms::MySQL.new.quote_string_literal(%q(it's a\b)).should eq %q('it''s a\\b')
+  end
 end
 
 struct MySQLPlatformDeclarationTest < ASPEC::TestCase
@@ -26,7 +30,9 @@ struct MySQLPlatformDeclarationTest < ASPEC::TestCase
   end
 
   def test_varchar_declaration_requires_a_length : Nil
-    expect_raises(Exception, "Length required") { @platform.string_type_declaration_sql column }
+    ex = expect_raises(AORM::Exception::InvalidColumnDeclaration, %(Column "c" has invalid type)) { @platform.string_type_declaration_sql column }
+    ex.cause.should be_a AORM::Exception::ColumnLengthRequired
+    ex.cause.try(&.message).should eq "Athena::ORM::Platforms::MySQL requires the length of a VARCHAR column to be specified"
   end
 
   def test_guid_declaration_is_a_fixed_length_string : Nil
@@ -78,7 +84,8 @@ struct MySQLPlatformDeclarationTest < ASPEC::TestCase
   end
 
   def test_varbinary_declaration_requires_a_length : Nil
-    expect_raises(Exception, "Length required") { @platform.binary_type_declaration_sql column }
+    ex = expect_raises(AORM::Exception::InvalidColumnDeclaration, %(Column "c" has invalid type)) { @platform.binary_type_declaration_sql column }
+    ex.cause.try(&.message).should eq "Athena::ORM::Platforms::MySQL requires the length of a VARBINARY column to be specified"
   end
 
   private def column(*, length : Int32? = nil, precision : Int32? = nil, scale : Int32? = nil, unsigned : Bool = false, fixed : Bool = false, auto_increment : Bool = false) : AORM::Schema::Column

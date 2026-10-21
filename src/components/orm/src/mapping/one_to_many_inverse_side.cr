@@ -10,7 +10,7 @@ class Athena::ORM::Mapping::OneToManyInverseSide < Athena::ORM::Mapping::Inverse
 
   # :nodoc:
   def self.new(mapping : Driver::ColumnMapping) : self
-    raise "OneToMany requires `mapped_by`" unless mapping.mapped_by
+    raise AORM::Exception::Mapping.one_to_many_requires_mapped_by mapping.source_entity.to_s, mapping.field_name unless mapping.mapped_by
 
     instance = new(
       mapping.field_name,

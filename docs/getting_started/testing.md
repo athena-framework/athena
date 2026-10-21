@@ -97,6 +97,32 @@ end
 ASPEC.run_all
 ```
 
+### Sessions
+
+If the application uses [sessions](/Framework/Bundle/Schema/Session/), enable [framework.test](/Framework/Bundle/Schema/#Athena::Framework::Bundle::Schema#test) within your `spec/spec_helper.cr` file.
+Sessions are then kept in memory, so each test starts without any.
+[ATH::Spec::HTTPBrowser#session](/Framework/Spec/HTTPBrowser/#Athena::Framework::Spec::HTTPBrowser#session) provides the session of the browser, e.g. to set it up before making a request.
+
+```crystal
+ATH.configure({
+  framework: {
+    test: true,
+  },
+})
+
+struct CartControllerTest < ATH::Spec::APITestCase
+  def test_checkout : Nil
+    session = self.client.session
+    session.set "cart", [1, 2, 3]
+    session.save
+
+    self.post "/checkout"
+
+    self.assert_session_has_flash_message "notice", "Your order was placed!"
+  end
+end
+```
+
 ## Testing Commands
 
 Similar to controllers, [commands](./commands.md) also have additional moving parts that need to accounted for when testing.

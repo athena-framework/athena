@@ -19,8 +19,10 @@ struct Athena::ORM::Types::BigInt < Athena::ORM::Types::Type
     case value
     when Nil                      then nil
     when ::Int, ::Float, ::String then value.to_i64
-    else                               raise "BigInt cannot accept #{value.class}"
+    else                               raise AORM::Exception::ValueNotConvertible.new value.to_s, AORM::Types::BIGINT
     end
+  rescue ex : ArgumentError | OverflowError
+    raise AORM::Exception::ValueNotConvertible.new value.to_s, AORM::Types::BIGINT, cause: ex
   end
 
   # :inherit:

@@ -257,6 +257,13 @@ struct LifecycleCallbackTest < ASPEC::TestCase
     metadata.lifecycle_callbacks.empty?.should be_true
   end
 
+  def test_event_pretty_prints_inspect_on_one_line : Nil
+    event = AORM::Events::PrePersistEventArgs(LifecycleCallbackTestEntity).new LifecycleCallbackTestEntity.new, @em
+
+    event.pretty_inspect.should eq event.inspect
+    event.inspect.should contain "@entity_manager=#<MockEntityManager:0x"
+  end
+
   def test_pre_persist_invoked_with_args_on_persist : Nil
     persister = MockEntityPersister.new @em, @em.class_metadata LifecycleCallbackTestEntity
     @uow.set_entity_persister LifecycleCallbackTestEntity, persister

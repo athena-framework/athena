@@ -355,7 +355,7 @@ class Athena::ORM::UnitOfWork
 
     return if entities_needing_cascade_persist.empty?
 
-    raise "new entities found through relationships"
+    raise AORM::Exception::ORMInvalidArgument.new_entities_found_through_relationships entities_needing_cascade_persist.values
   end
 
   private def post_commit_cleanup : Nil
@@ -559,7 +559,8 @@ class Athena::ORM::UnitOfWork
   def persist(entity : AORM::Entity) : Nil
     visited = Set(AORM::Entity).new
 
-    self.persist entity, visited
+    # Upcast so the persist internals are compiled once rather than once per entity class, also for callers that don't go through `EntityManager#persist`.
+    self.persist entity.as(AORM::Entity), visited
   end
 
   private def persist(entity : AORM::Entity, visited : Set(AORM::Entity)) : Nil
@@ -587,7 +588,7 @@ class Athena::ORM::UnitOfWork
       # TODO: Handle change tracking
 
       @entity_states[entity] = :managed
-    in .detached? then raise "Detached entity #{entity.class} cannot be persisted"
+    in .detached? then raise AORM::Exception::ORMInvalidArgument.detached_entity_cannot entity, "persisted"
     end
 
     self.cascade_persist entity, visited
@@ -618,7 +619,7 @@ class Athena::ORM::UnitOfWork
       @listeners_invoker.invoke class_metadata, entity, class_metadata.create_pre_remove_event entity.as(AORM::Entity), @em
 
       self.schedule_for_delete entity
-    in .detached? then raise "Detached entity #{entity.class} cannot be removed" # TODO: Make this an actual exception
+    in .detached? then raise AORM::Exception::ORMInvalidArgument.detached_entity_cannot entity, "removed"
     end
   end
 
@@ -629,7 +630,7 @@ class Athena::ORM::UnitOfWork
   def refresh(entity : AORM::Entity, lock_mode : AORM::LockMode? = nil) : Nil
     # TODO: Handle pessimistic locking
     state = self.entity_state entity
-    raise "Cannot refresh entity that is not managed" unless state.managed?
+    raise AORM::Exception::ORMInvalidArgument.entity_not_managed entity unless state.managed?
 
     class_metadata = @em.class_metadata entity.class
     id = self.entity_identifier(entity).transform_values &.value
@@ -825,7 +826,7 @@ class Athena::ORM::UnitOfWork
 
       if related_entities.is_a?(AORM::BaseCollection) || related_entities.is_a?(Enumerable(AORM::Entity))
         unless assoc.is_a? Mapping::ToMany
-          raise "invalid association"
+          raise AORM::Exception::ORMInvalidArgument.invalid_association assoc, related_entities.class.to_s
         end
 
         # Elements arrive typed as their concrete class; upcast so `persist` is compiled once rather than once per entity class.
@@ -843,11 +844,10 @@ class Athena::ORM::UnitOfWork
   end
 
   private def schedule_for_insert(entity : AORM::Entity) : Nil
-    # TODO: Use proper exception classes for these
-    raise "Dirty entity cannot be scheduled for insertion" if @entity_updates.includes? entity
-    raise "Entity scheduled for deletion" if @entity_deletions.includes? entity
-    raise "scheduled insert for managed entity" if @original_entity_data.has_key?(entity) && !@entity_insertions.includes?(entity)
-    raise "Entity already scheduled for insertion" unless @entity_insertions.add? entity
+    raise AORM::Exception::InvalidArgument.new "Dirty entity can not be scheduled for insertion." if @entity_updates.includes? entity
+    raise AORM::Exception::ORMInvalidArgument.schedule_insert_for_removed_entity entity if @entity_deletions.includes? entity
+    raise AORM::Exception::ORMInvalidArgument.schedule_insert_for_managed_entity entity if @original_entity_data.has_key?(entity) && !@entity_insertions.includes?(entity)
+    raise AORM::Exception::ORMInvalidArgument.schedule_insert_twice entity unless @entity_insertions.add? entity
 
     @entity_insertions << entity
 
@@ -897,9 +897,8 @@ class Athena::ORM::UnitOfWork
 
   # :nodoc:
   def schedule_for_update(entity : AORM::Entity) : Nil
-    # TODO: Use proper exception classes for these
-    raise "Entity has no identity" unless @entity_identifiers.has_key? entity
-    raise "Entity scheduled for deletion" if @entity_deletions.includes? entity
+    raise AORM::Exception::ORMInvalidArgument.entity_has_no_identity entity, "scheduling for update" unless @entity_identifiers.has_key? entity
+    raise AORM::Exception::ORMInvalidArgument.entity_is_removed entity, "schedule for update" if @entity_deletions.includes? entity
 
     if !@entity_updates.includes?(entity) && !@entity_insertions.includes?(entity)
       @entity_updates << entity
@@ -943,7 +942,7 @@ class Athena::ORM::UnitOfWork
     class_metadata = @em.class_metadata entity.class
 
     if class_metadata.is_identifier_composite
-      raise "illegal composite identifier"
+      raise AORM::Exception::ORMInvalidArgument.invalid_composite_identifier
     end
 
     values = self.is_in_identity_map?(entity) ? self.entity_identifier(entity) : class_metadata.identifier_values(entity)
@@ -1028,7 +1027,7 @@ class Athena::ORM::UnitOfWork
   #
   # Raises if the unit of work doesn't know the identifier of *entity*, such as when it isn't managed, or is new and its identifier is generated on insert.
   def entity_identifier(entity : AORM::Entity) : Hash(String, AORM::Mapping::Value)
-    @entity_identifiers[entity]? || raise "Unable to find \"#{entity.class.name}\" entity identifier associated with the UnitOfWork"
+    @entity_identifiers[entity]? || raise AORM::Exception::EntityNotFound.no_identifier_found entity.class.name
   end
 
   protected def entity_persister(entity_class : AORM::Entity.class) : AORM::Persisters::Entity::Interface
@@ -1042,7 +1041,7 @@ class Athena::ORM::UnitOfWork
     persister = case class_metadata.inheritance_type
                 when .none? then AORM::Persisters::Entity::Basic.new @em, class_metadata
                 else
-                  raise "No persister found"
+                  raise AORM::Exception::Runtime.new "No persister found for entity."
                 end
 
     # TODO: Handle caching?
@@ -1071,8 +1070,8 @@ class Athena::ORM::UnitOfWork
     entity_class = class_metadata.entity_class
 
     if @identity_map.has_key?(entity_class) && @identity_map[entity_class].has_key?(id_hash)
-      if @identity_map[entity_class][id_hash] != entity
-        raise "entity identity collision"
+      if (existing_entity = @identity_map[entity_class][id_hash]) != entity
+        raise AORM::Exception::EntityIdentityCollision.create existing_entity, entity, id_hash
       end
 
       return false
@@ -1088,7 +1087,7 @@ class Athena::ORM::UnitOfWork
     identifier = @entity_identifiers[entity]?
 
     if !identifier || identifier.empty? || identifier.values.any?(&.value.nil?)
-      raise "entity without identity"
+      raise AORM::Exception::ORMInvalidArgument.entity_without_identity entity.class.to_s, entity
     end
 
     self.class.id_hash_by_identifier identifier
@@ -1121,8 +1120,7 @@ class Athena::ORM::UnitOfWork
     class_metadata = @em.class_metadata self.metadata_class_for(entity)
     id_hash = self.id_hash_of_entity entity
 
-    # TODO: Use proper exception type
-    raise "Entity has no identity" if id_hash.empty?
+    raise AORM::Exception::ORMInvalidArgument.entity_has_no_identity entity, "remove from identity map" if id_hash.empty?
 
     if (identity = @identity_map[class_metadata.entity_class]?) && identity.has_key?(id_hash)
       identity.delete id_hash
@@ -1422,7 +1420,7 @@ class Athena::ORM::UnitOfWork
   #
   # ameba:disable Metrics/CyclomaticComplexity
   def recompute_single_entity_change_set(class_metadata : AORM::Mapping::ClassInterface, entity : AORM::Entity) : Nil
-    raise "Entity is not managed" unless @entity_states[entity]? == EntityState::Managed
+    raise AORM::Exception::ORMInvalidArgument.entity_not_managed entity unless @entity_states[entity]? == EntityState::Managed
 
     unless class_metadata.inheritance_type.none?
       class_metadata = @em.class_metadata entity.class
@@ -1442,7 +1440,7 @@ class Athena::ORM::UnitOfWork
     end
 
     unless original_data = @original_entity_data[entity]?
-      raise "Cannot call recompute_single_entity_change_set before compute_change_set on an entity"
+      raise AORM::Exception::Runtime.new "Cannot call recompute_single_entity_change_set before compute_change_set on an entity."
     end
 
     change_set = Hash(String, Change).new

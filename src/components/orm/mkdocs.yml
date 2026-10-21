@@ -6,6 +6,7 @@ repo_url: https://github.com/athena-framework/orm
 
 nav:
   - Introduction: README.md
+  - Migrations: database_migrations.md
   - Back to Manual: project://.
   - API:
       - Aliases: aliases.md
@@ -28,8 +29,10 @@ plugins:
             - ../../../docs/index.cr
             - ./lib/athena-contracts/src/event_dispatcher.cr
             - ./lib/athena-contracts/src/service.cr
+            - ./lib/athena-console/src/athena-console.cr
             - ./lib/athena-dependency_injection/src/athena-dependency_injection.cr
             - ./lib/athena-orm/src/athena-orm.cr
+            - ./lib/athena-orm/src/migrations.cr
             - ./lib/athena-orm/src/bundle/bundle.cr
             - ./lib/athena-orm/src/bundle/registry.cr
             - ./lib/athena-orm/src/spec.cr

@@ -4,6 +4,15 @@
 class Athena::Validator::Validator::RecursiveContextualValidator
   private alias GroupsTypes = Array(String) | Array(String | AVD::Constraints::GroupSequence)
 
+  # Without the optional HTTP component, its uploaded file type is `NoReturn` so that checking for it is always `false`.
+  macro finished
+    {% if @top_level.has_constant?("AHTTP") %}
+      private alias UploadedFile = Athena::HTTP::UploadedFile
+    {% else %}
+      private alias UploadedFile = NoReturn
+    {% end %}
+  end
+
   include Athena::Validator::Validator::ContextualValidatorInterface
 
   @default_groups : Array(String)
@@ -89,7 +98,7 @@ class Athena::Validator::Validator::RecursiveContextualValidator
       @context.group = previous_group
 
       self
-    when Athena::HTTP::UploadedFile
+    when UploadedFile
       # Won't result in violations, but is still supported explicitly.
 
       self

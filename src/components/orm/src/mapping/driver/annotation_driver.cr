@@ -125,7 +125,7 @@ module Athena::ORM::Mapping::Driver
           one_to_one_ann = AORM::Mapping::Annotations::OneToOne.new({{ann.named_args.double_splat}})
 
           if metadata.embedded_class?
-            raise "Can't use OneToOne on embedded class"
+            raise AORM::Exception::Mapping.invalid_attribute_on_embeddable T.to_s, "OneToOne"
           end
 
           {% if ivar.annotation AORMA::ID %}
@@ -162,7 +162,7 @@ module Athena::ORM::Mapping::Driver
           one_to_many_ann = AORM::Mapping::Annotations::OneToMany.new({{ann.named_args.double_splat}})
 
           if metadata.embedded_class?
-            raise "Can't use OneToMany on embedded class"
+            raise AORM::Exception::Mapping.invalid_attribute_on_embeddable T.to_s, "OneToMany"
           end
 
           mapping = mapping.copy_with(
@@ -179,7 +179,7 @@ module Athena::ORM::Mapping::Driver
           many_to_one_ann = AORM::Mapping::Annotations::ManyToOne.new({{ann.named_args.double_splat}})
 
           if metadata.embedded_class?
-            raise "Can't use ManyToOne on embedded class"
+            raise AORM::Exception::Mapping.invalid_attribute_on_embeddable T.to_s, "ManyToOne"
           end
 
           {% if ivar.annotation AORMA::ID %}
@@ -214,7 +214,7 @@ module Athena::ORM::Mapping::Driver
           many_to_many_ann = AORM::Mapping::Annotations::ManyToMany.new({{ann.named_args.double_splat}})
 
           if metadata.embedded_class?
-            raise "Can't use ManyToMany on embedded class"
+            raise AORM::Exception::Mapping.invalid_attribute_on_embeddable T.to_s, "ManyToMany"
           end
 
           mapping = mapping.copy_with(

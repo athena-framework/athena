@@ -165,7 +165,6 @@ module Athena::Spec::Methods
 
     args = [] of String
 
-    # Generating the macro code coverage report adds overhead, so only do so if the report is going to be saved.
     macro_code_coverage = false unless ENV["ATHENA_SPEC_COVERAGE_OUTPUT_DIR"]?.presence
 
     if macro_code_coverage

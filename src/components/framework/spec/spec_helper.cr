@@ -166,7 +166,11 @@ end
 
 ATH.configure({
   framework: {
+    test:         true,
     file_uploads: {
+      enabled: true,
+    },
+    session: {
       enabled: true,
     },
   },

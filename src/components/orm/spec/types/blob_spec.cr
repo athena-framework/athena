@@ -19,7 +19,7 @@ struct BlobTypeTest < ASPEC::TestCase
   end
 
   def test_rejects_other_values : Nil
-    expect_raises(Exception, "Blob cannot accept Int32") do
+    expect_raises(AORM::Exception::ValueNotConvertible, %(Could not convert database value "1" to type "blob".)) do
       @type.to_crystal_value(1, @platform)
     end
   end
