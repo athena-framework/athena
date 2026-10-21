@@ -17,6 +17,7 @@ These include:
 * [MIME](/MIME/) (`AMIME`) - Allows manipulating `MIME` messages
 * [Negotiation](/Negotiation/) (`ANG`) - Framework agnostic content negotiation library
 * [ORM](/ORM/) (`AORM`) - Annotation driven object-relational mapper
+* [PasswordHasher](/PasswordHasher/) (`APH`) - Provides secure password hashing utilities
 * [Routing](/Routing/) (`ART`) - A performant and robust HTTP based routing library/framework
 * [Serializer](/Serializer/) (`ASR`) - Object (de)serialization library
 * [Spec](/Spec/) (`ASPEC`) - Common/helpful [Spec](https://crystal-lang.org/api/Spec.html) compliant testing utilities
