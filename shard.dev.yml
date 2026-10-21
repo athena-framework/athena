@@ -28,6 +28,8 @@ dependencies:
     path: ./src/components/negotiation
   athena-orm:
     path: ./src/components/orm
+  athena-password_hasher:
+    path: ./src/components/password_hasher
   athena-routing:
     path: ./src/components/routing
   athena-serializer:

@@ -45,6 +45,8 @@ dependencies:
     github: athena-framework/negotiation
   athena-orm:
     github: athena-framework/orm
+  athena-password_hasher:
+    github: athena-framework/password-hasher
   athena-routing:
     github: athena-framework/routing
   athena-serializer:

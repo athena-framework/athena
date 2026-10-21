@@ -43,6 +43,9 @@ dependencies:
   athena-orm:
     github: athena-framework/orm
     branch: docs
+  athena-password_hasher:
+    github: athena-framework/password-hasher
+    branch: docs
   athena-routing:
     github: athena-framework/routing
     branch: docs

@@ -65,6 +65,10 @@ component_management:
       name: ORM Component
       paths:
         - src/components/orm/**
+    - component_id: password_hasher_component
+      name: Password Hasher Component
+      paths:
+        - src/components/password_hasher/**
     - component_id: routing_component
       name: Routing Component
       paths:
