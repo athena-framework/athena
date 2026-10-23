@@ -68,7 +68,7 @@ jobs:
         run: |
           sudo apt-get update &&
           sudo apt-get install binutils-dev libssl-dev libcurl4-openssl-dev libelf-dev libstdc++-12-dev zlib1g-dev libdw-dev libiberty-dev
-          curl -L -o ./kcov.tar.gz https://github.com/SimonKagstrom/kcov/archive/refs/tags/v43.tar.gz &&
+          curl -L -o ./kcov.tar.gz https://github.com/Blacksmoke16/kcov/archive/fc63c1f1a291e2743a201cbd343f5a2aeda5ce30.tar.gz &&
           mkdir kcov-source &&
           tar xzf kcov.tar.gz -C kcov-source --strip-components=1 &&
           cd kcov-source &&
@@ -133,7 +133,7 @@ jobs:
         run: |
           sudo apt-get update &&
           sudo apt-get install binutils-dev libssl-dev libcurl4-openssl-dev libelf-dev libstdc++-12-dev zlib1g-dev libdw-dev libiberty-dev
-          curl -L -o ./kcov.tar.gz https://github.com/SimonKagstrom/kcov/archive/refs/tags/v43.tar.gz &&
+          curl -L -o ./kcov.tar.gz https://github.com/Blacksmoke16/kcov/archive/fc63c1f1a291e2743a201cbd343f5a2aeda5ce30.tar.gz &&
           mkdir kcov-source &&
           tar xzf kcov.tar.gz -C kcov-source --strip-components=1 &&
           cd kcov-source &&
