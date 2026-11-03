@@ -32,6 +32,8 @@ dependencies:
     path: ./src/components/password_hasher
   athena-routing:
     path: ./src/components/routing
+  athena-security:
+    path: ./src/components/security
   athena-serializer:
     path: ./src/components/serializer
   athena-spec:

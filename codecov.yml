@@ -73,6 +73,10 @@ component_management:
       name: Routing Component
       paths:
         - src/components/routing/**
+    - component_id: security_component
+      name: Security Component
+      paths:
+        - src/components/security/**
     - component_id: serializer_component
       name: Serializer Component
       paths:

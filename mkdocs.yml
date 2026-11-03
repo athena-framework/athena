@@ -50,6 +50,7 @@ nav:
       - project://orm
       - project://password_hasher
       - project://routing
+      - project://security
       - project://serializer
       - project://spec
       - project://validator

@@ -127,6 +127,13 @@ projects:
       - { path: src/components/routing/shard.yml, find: '^version: .*', replace: 'version: {{.VersionNoPrefix}}' }
       - { path: src/components/routing/src/athena-routing.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
       - { path: src/components/routing/docs/README.md, find: "routing\n    version: ~> .*", replace: "routing\n    version: ~> {{.Major}}.{{.Minor}}.0" }
+  - label: Security
+    key: security
+    changelog: src/components/security/CHANGELOG.md
+    replacements:
+      - { path: src/components/security/shard.yml, find: '^version: .*', replace: 'version: {{.VersionNoPrefix}}' }
+      - { path: src/components/security/src/athena-security.cr, find: '  VERSION = ".*"', replace: '  VERSION = "{{.VersionNoPrefix}}"' }
+      - { path: src/components/security/docs/README.md, find: "security\n    version: ~> .*", replace: "security\n    version: ~> {{.Major}}.{{.Minor}}.0" }
   - label: Serializer
     key: serializer
     changelog: src/components/serializer/CHANGELOG.md
