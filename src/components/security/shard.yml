@@ -1,0 +1,25 @@
+name: athena-security
+
+version: 0.1.0
+
+crystal: ~> 1.17
+
+license: MIT
+
+repository: https://github.com/athena-framework/security
+
+documentation: https://athenaframework.org/Security
+
+description: |
+  Provides authentication and authorization utilities.
+
+authors:
+  - George Dietrich <dev@dietrich.pub>
+
+dependencies:
+  athena-contracts:
+    github: athena-framework/contracts
+    version: ~> 0.1.1
+  athena-password_hasher:
+    github: athena-framework/password-hasher
+    version: ~> 0.1.0
