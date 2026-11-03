@@ -32,6 +32,11 @@ class ::HTTP::Server::Response
     previous_def
   end
 
+  # Routes single bytes through `#write` so they're captured in the body too.
+  def write_byte(byte : UInt8) : Nil
+    self.write Bytes[byte]
+  end
+
   def body : String
     @body ||= @body_io.to_s
   end
