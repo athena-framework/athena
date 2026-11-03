@@ -19,6 +19,7 @@ These include:
 * [ORM](/ORM/) (`AORM`) - Annotation driven object-relational mapper
 * [PasswordHasher](/PasswordHasher/) (`APH`) - Provides secure password hashing utilities
 * [Routing](/Routing/) (`ART`) - A performant and robust HTTP based routing library/framework
+* [Security](/Security/) (`ASEC`) - Provides authentication and authorization utilities
 * [Serializer](/Serializer/) (`ASR`) - Object (de)serialization library
 * [Spec](/Spec/) (`ASPEC`) - Common/helpful [Spec](https://crystal-lang.org/api/Spec.html) compliant testing utilities
 * [Validator](/Validator/) (`AVD`) - Object/value validation library
