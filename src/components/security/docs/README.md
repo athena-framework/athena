@@ -195,43 +195,16 @@ The listeners of the [ASEC::Events::CheckPassport](/Security/Events/CheckPasspor
 * [ASEC::Listeners::UserChecker](/Security/Listeners/UserChecker/) - Checks the account of the user via a user checker
 * [ASEC::Listeners::PasswordMigrating](/Security/Listeners/PasswordMigrating/) - Upgrades the hashed password of the user once it is authenticated, if needed
 
-An [ASEC::Firewall](/Security/Firewall/) calls the listeners of the firewall each request belongs to, as mapped by an [ASEC::FirewallMap](/Security/FirewallMap/).
-A firewall typically authenticates its requests via an [ASEC::Firewall::AuthenticatorManagerListener](/Security/Firewall/AuthenticatorManagerListener/), then requires the attribute an [ASEC::AccessMap](/Security/AccessMap/) maps them to via an [ASEC::Firewall::AccessListener](/Security/Firewall/AccessListener/).
-Its [ASEC::Firewall::ExceptionListener](/Security/Firewall/ExceptionListener/) turns the security exceptions raised while handling its requests into responses, e.g. a `403` response if the user is denied access:
+Requests are authenticated by firewalls, each handling the requests matching it, e.g. the ones whose path starts with `/api`.
+A firewall:
 
-```crystal
-# The events of a firewall are dispatched via its own dispatcher, so that its listeners only handle its authentications.
-firewall_dispatcher = AED::EventDispatcher.new
-firewall_dispatcher.listener ASEC::Listeners::UserProvider.new provider
-firewall_dispatcher.listener ASEC::Listeners::UserChecker.new ASEC::User::Checker::InMemory.new
+1. Authenticates the user of the request via its authenticators, if they support the request
+2. Checks that the user is granted the attribute required for the request, e.g. `ROLE_ADMIN` for paths starting with `/admin`
+3. Turns the security exceptions raised while handling the request into responses, e.g. a `403` response if the user is denied access
 
-authenticator_manager = ASEC::Authentication::AuthenticatorManager.new(
-  [APITokenAuthenticator.new] of ASEC::Authenticator::Interface,
-  token_storage,
-  firewall_dispatcher,
-  "api",
-)
+A user who must authenticate to access a resource gets a `401` response, unless the firewall has an [ASEC::EntryPoint::Interface](/Security/EntryPoint/Interface/) starting the authentication, e.g. by redirecting to the login page.
 
-access_map = ASEC::AccessMap.new
-access_map.add AHTTP::RequestMatcher::Path.new(%r(^/api/admin)), "ROLE_ADMIN"
-access_map.add AHTTP::RequestMatcher::Path.new(%r(^/api)), "IS_AUTHENTICATED"
-
-firewall_map = ASEC::FirewallMap.new
-firewall_map.add(
-  AHTTP::RequestMatcher::Path.new(%r(^/api)),
-  [
-    ASEC::Firewall::AuthenticatorManagerListener.new(authenticator_manager),
-    ASEC::Firewall::AccessListener.new(token_storage, access_decision_manager, access_map),
-  ] of ASEC::Firewall::ListenerInterface,
-  ASEC::Firewall::ExceptionListener.new(token_storage, ASEC::Authentication::TrustResolver.new, "api"),
-)
-
-# The `AED::EventDispatcherInterface` of the `AHK::HTTPKernel`.
-event_dispatcher.listener ASEC::Firewall.new firewall_map
-```
-
-An [ASEC::EntryPoint::Interface](/Security/EntryPoint/Interface/) passed to the exception listener starts the authentication of users who must authenticate to access a resource, e.g. by redirecting to the login page.
-Without one, they get a `401` response.
+See [ASEC::Firewall](/Security/Firewall/) for how to set up firewalls.
 
 ### Exceptions
 
