@@ -3,6 +3,7 @@ The `Athena::Security` component provides the building blocks to authenticate us
 * Users, represented by an [ASEC::User::Interface](/Security/User/Interface/), and loaded by an [ASEC::User::Provider::Interface](/Security/User/Provider/Interface/)
 * Tokens, representing the authentication of a user, held by an [ASEC::Authentication::Token::Storage](/Security/Authentication/Token/Storage/)
 * Voters, which decide whether a user is granted an attribute, such as a role or a permission on an object, via an [ASEC::Authorization::Checker](/Security/Authorization/Checker/)
+* Firewalls, which authenticate the users of requests via authenticators, and check their access, via an [ASEC::Firewall](/Security/Firewall/)
 
 ## Installation
 
@@ -153,6 +154,84 @@ voter = ASEC::Authorization::Voter::RoleHierarchy.new hierarchy
 
 A user with `ROLE_SUPER_ADMIN` is then also granted `ROLE_ADMIN` and `ROLE_USER`.
 A role may contain wildcards, such as `ROLE_EDITOR_*`, which grants its roles to each role it matches, e.g. `ROLE_EDITOR_BLOG`.
+
+### Authenticating Requests
+
+Requiring `athena-security/http` adds the types authenticating the requests handled by the [HTTPKernel](/HTTPKernel/) component, which must also be installed.
+
+An [ASEC::Authenticator::Interface](/Security/Authenticator/Interface/) authenticates the requests it supports, e.g. via an API token.
+It creates an [ASEC::Authenticator::Passport](/Security/Authenticator/Passport/) holding the user being authenticated and its credentials, as badges:
+
+```crystal
+class APITokenAuthenticator < ASEC::Authenticator::AbstractAuthenticator
+  def supports?(request : AHTTP::Request) : Bool?
+    request.headers.has_key? "x-api-token"
+  end
+
+  def authenticate(request : AHTTP::Request) : ASEC::Authenticator::Passport
+    api_token = request.headers["x-api-token"]
+
+    # The API token identifies the user, so there are no other credentials to check.
+    ASEC::Authenticator::Passport::SelfValidating.new(
+      ASEC::Authenticator::Passport::Badge::User.new(api_token) { |token| User.find_by_api_token token }
+    )
+  end
+
+  def on_authentication_success(request : AHTTP::Request, token : ASEC::Authentication::Token::Interface, firewall_name : String) : AHTTP::Response?
+    # Let the request continue.
+    nil
+  end
+
+  def on_authentication_failure(request : AHTTP::Request, exception : ASEC::Exception::Authentication) : AHTTP::Response?
+    AHTTP::Response.new exception.message_key, :unauthorized
+  end
+end
+```
+
+The listeners of the [ASEC::Events::CheckPassport](/Security/Events/CheckPassport/) event check the passport before the user is authenticated:
+
+* [ASEC::Listeners::UserProvider](/Security/Listeners/UserProvider/) - Loads the user via a user provider, unless the authenticator loads it itself
+* [ASEC::Listeners::CheckCredentials](/Security/Listeners/CheckCredentials/) - Verifies [password](/Security/Authenticator/Passport/Credentials/Password/) and [custom](/Security/Authenticator/Passport/Credentials/Custom/) credentials
+* [ASEC::Listeners::UserChecker](/Security/Listeners/UserChecker/) - Checks the account of the user via a user checker
+* [ASEC::Listeners::PasswordMigrating](/Security/Listeners/PasswordMigrating/) - Upgrades the hashed password of the user once it is authenticated, if needed
+
+An [ASEC::Firewall](/Security/Firewall/) calls the listeners of the firewall each request belongs to, as mapped by an [ASEC::FirewallMap](/Security/FirewallMap/).
+A firewall typically authenticates its requests via an [ASEC::Firewall::AuthenticatorManagerListener](/Security/Firewall/AuthenticatorManagerListener/), then requires the attribute an [ASEC::AccessMap](/Security/AccessMap/) maps them to via an [ASEC::Firewall::AccessListener](/Security/Firewall/AccessListener/).
+Its [ASEC::Firewall::ExceptionListener](/Security/Firewall/ExceptionListener/) turns the security exceptions raised while handling its requests into responses, e.g. a `403` response if the user is denied access:
+
+```crystal
+# The events of a firewall are dispatched via its own dispatcher, so that its listeners only handle its authentications.
+firewall_dispatcher = AED::EventDispatcher.new
+firewall_dispatcher.listener ASEC::Listeners::UserProvider.new provider
+firewall_dispatcher.listener ASEC::Listeners::UserChecker.new ASEC::User::Checker::InMemory.new
+
+authenticator_manager = ASEC::Authentication::AuthenticatorManager.new(
+  [APITokenAuthenticator.new] of ASEC::Authenticator::Interface,
+  token_storage,
+  firewall_dispatcher,
+  "api",
+)
+
+access_map = ASEC::AccessMap.new
+access_map.add AHTTP::RequestMatcher::Path.new(%r(^/api/admin)), "ROLE_ADMIN"
+access_map.add AHTTP::RequestMatcher::Path.new(%r(^/api)), "IS_AUTHENTICATED"
+
+firewall_map = ASEC::FirewallMap.new
+firewall_map.add(
+  AHTTP::RequestMatcher::Path.new(%r(^/api)),
+  [
+    ASEC::Firewall::AuthenticatorManagerListener.new(authenticator_manager),
+    ASEC::Firewall::AccessListener.new(token_storage, access_decision_manager, access_map),
+  ] of ASEC::Firewall::ListenerInterface,
+  ASEC::Firewall::ExceptionListener.new(token_storage, ASEC::Authentication::TrustResolver.new, "api"),
+)
+
+# The `AED::EventDispatcherInterface` of the `AHK::HTTPKernel`.
+event_dispatcher.listener ASEC::Firewall.new firewall_map
+```
+
+An [ASEC::EntryPoint::Interface](/Security/EntryPoint/Interface/) passed to the exception listener starts the authentication of users who must authenticate to access a resource, e.g. by redirecting to the login page.
+Without one, they get a `401` response.
 
 ### Exceptions
 
