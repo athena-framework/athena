@@ -95,7 +95,8 @@ describe ACON::Bundle do
             %}
             ASPEC.compile_time_assert(\{{ sh["lazy_command"]["tags"]["console.command"] != nil }}, "Expected commands to be tagged 'console.command'")
             ASPEC.compile_time_assert(\{{ loader["public"] }}, "Expected the command loader to be public")
-            ASPEC.compile_time_assert(\{{ loader["parameters"]["command_map"]["value"].stringify.includes?(%("lazy" => LazyCommand)) }}, "Expected the lazy command to be in the command map")
+            ASPEC.compile_time_assert(\{{ loader["parameters"]["command_map"]["value"].stringify.includes?(%("lazy" => "_lazy_command_lazy")) }}, "Expected the lazy command to be in the command map")
+            ASPEC.compile_time_assert(\{{ loader["parameters"]["loader"]["value"].stringify.includes?(%("_lazy_command_lazy" => ->{ _lazy_command_lazy.as(ACON::Command) })) }}, "Expected the service locator to provide the lazy command")
             ASPEC.compile_time_assert(\{{ loader["parameters"]["eager_commands"]["value"].stringify == "[_eager_command_public] of ACON::Command" }}, "Expected the eager command to be provided to the command loader")
           end
         end
