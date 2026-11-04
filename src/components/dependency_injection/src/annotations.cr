@@ -408,6 +408,24 @@ module Athena::DependencyInjection
   # proxy.instantiated? # => true
   # ```
   #
+  # ### Service Locators
+  #
+  # A service that only needs some of many services at runtime, e.g. based on the request, can be provided them via an `ADI::ServiceLocator`.
+  # The services are keyed by the ID they are requested with, and are only instantiated once they are requested.
+  #
+  # ```
+  # @[ADI::Register(public: true, _formatters: {"json" => "@json_formatter", "xml" => "@xml_formatter"})]
+  # class Renderer
+  #   def initialize(@formatters : ADI::ServiceLocator(FormatterInterface)); end
+  #
+  #   def render(format : String, data : String) : String
+  #     @formatters.get(format).format data
+  #   end
+  # end
+  # ```
+  #
+  # See `ADI::ServiceLocator` for more information.
+  #
   # ### Parameters
   #
   # Reusable configuration [parameters](/getting_started/configuration#parameters) can be injected directly into services using the same syntax as when used within `ADI.configure`.

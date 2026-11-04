@@ -6,6 +6,7 @@ require "./annotation_configurations"
 require "./extension"
 require "./proxy"
 require "./service_container"
+require "./service_locator"
 require "./services_closer"
 require "./services_resetter"
 
