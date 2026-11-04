@@ -7,8 +7,11 @@ module Athena::Console::Bundle::CompilerPasses::RegisterCommands
     macro finished
       {% verbatim do %}
         {%
+          # The ID of the lazy command service of each command name, including aliases.
           command_map = {} of Nil => Nil
-          command_refs = {} of Nil => Nil
+
+          # The IDs of the services wrapping the commands configured via the annotation in an `ACON::Commands::Lazy`.
+          lazy_service_ids = [] of Nil
 
           # Services that are not configured via the annotation so must be registered eagerly.
           eager_service_ids = [] of Nil
@@ -46,14 +49,15 @@ module Athena::Console::Bundle::CompilerPasses::RegisterCommands
                 aliases = aliases[1..]
               end
 
-              command_map[command_name] = metadata["class"]
-              command_refs[metadata["class"]] = service_id
+              lazy_service_id = "_#{service_id.id}_lazy"
+
+              command_map[command_name] = lazy_service_id
 
               aliases.each do |a|
-                command_map[a] = metadata["class"]
+                command_map[a] = lazy_service_id
               end
 
-              SERVICE_HASH[lazy_service_id = "_#{service_id.id}_lazy"] = {
+              SERVICE_HASH[lazy_service_id] = {
                 class:               ACON::Commands::Lazy,
                 tags:                [] of Nil,
                 generics:            [] of Nil,
@@ -69,21 +73,12 @@ module Athena::Console::Bundle::CompilerPasses::RegisterCommands
                 },
               }
 
-              command_refs[metadata["class"]] = lazy_service_id
+              lazy_service_ids << lazy_service_id
             end
           end
 
-          SERVICE_HASH[locator_id = "console_command_loader_locator"] = {
-            class:               "Athena::Console::Bundle::ContainerCommandLoaderLocator",
-            tags:                [] of Nil,
-            generics:            [] of Nil,
-            calls:               [] of Nil,
-            public:              false,
-            referenced_services: command_refs.values,
-            parameters:          {
-              container: {value: "self".id},
-            },
-          }
+          # Built here as this pass runs after the values of service locator parameters are resolved.
+          lazy_command_factories = lazy_service_ids.map { |lazy_service_id| "#{lazy_service_id} => ->{ #{lazy_service_id.id}.as(ACON::Command) }" }
 
           SERVICE_HASH["console_command_loader"] = {
             class:    Athena::Console::Bundle::ContainerCommandLoader,
@@ -91,40 +86,15 @@ module Athena::Console::Bundle::CompilerPasses::RegisterCommands
             generics: [] of Nil,
             calls:    [] of Nil,
             public:   true,
-            # Track eager commands as referenced services to ensure their getters are generated
-            referenced_services: eager_service_ids,
+            # Track the commands as referenced services to ensure their getters are generated
+            referenced_services: eager_service_ids + lazy_service_ids,
             parameters:          {
-              command_map:    {value: "#{command_map} of String => ACON::Command.class".id},
-              loader:         {value: locator_id.id},
+              command_map:    {value: "#{command_map} of String => String".id},
+              loader:         {value: "ADI::ServiceLocator(ACON::Command).new({#{lazy_command_factories.join(", ").id}} of String => Proc(ACON::Command))".id},
               eager_commands: {value: "#{eager_service_ids} of ACON::Command".id},
             },
           }
         %}
-
-        # :nodoc:
-        #
-        # TODO: Define some more generic way to create these
-        struct ::Athena::Console::Bundle::ContainerCommandLoaderLocator
-          def initialize(@container : ::ADI::ServiceContainer); end
-
-          {% for service_type, service_id in command_refs %}
-            def get(service : {{service_type}}.class) : ACON::Command
-              @container.{{service_id.id}}
-            end
-          {% end %}
-
-          def get(service) : ACON::Command
-            {% begin %}
-              case service
-              {% for service_type, service_id in command_refs %}
-                when {{service_type}} then @container.{{service_id.id}}
-              {% end %}
-              else
-                raise "BUG: Couldn't find correct service."
-              end
-            {% end %}
-          end
-        end
       {% end %}
     end
   end

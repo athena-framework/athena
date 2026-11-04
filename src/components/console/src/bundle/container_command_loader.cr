@@ -8,8 +8,8 @@ class Athena::Console::Bundle::ContainerCommandLoader
   getter eager_commands : Array(ACON::Command)
 
   def initialize(
-    @command_map : Hash(String, ACON::Command.class),
-    @loader : ACON::Bundle::ContainerCommandLoaderLocator,
+    @command_map : Hash(String, String),
+    @loader : ADI::ServiceLocator(ACON::Command),
     @eager_commands : Array(ACON::Command),
   ); end
 
@@ -32,8 +32,3 @@ class Athena::Console::Bundle::ContainerCommandLoader
     @command_map.keys
   end
 end
-
-# :nodoc:
-#
-# Defined by `ACON::Bundle::CompilerPasses::RegisterCommands` with a method to get each lazy command from the container.
-struct Athena::Console::Bundle::ContainerCommandLoaderLocator; end
