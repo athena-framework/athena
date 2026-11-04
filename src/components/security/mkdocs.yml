@@ -29,5 +29,6 @@ plugins:
             - ./lib/athena-contracts/src/service.cr
             - ./lib/athena-password_hasher/src/athena-password_hasher.cr
             - ./lib/athena-security/src/athena-security.cr
+            - ./lib/athena-security/src/http.cr
           source_locations:
             lib/athena-security: https://github.com/athena-framework/security/blob/v{shard_version}/{file}#L{line}
