@@ -47,6 +47,15 @@ record ImplicitArrayClient, services : Array(ArrayServiceInterface)
 @[ADI::Register(public: true)]
 record ExplicitArrayClient, services : Array(ArrayServiceInterface) = [] of ArrayServiceInterface
 
+@[ADI::Register(public: true)]
+class EnumerableArrayClient
+  getter services : Array(ArrayServiceInterface)
+
+  def initialize(services : Enumerable(ArrayServiceInterface) = [] of ArrayServiceInterface)
+    @services = services.map &.as(ArrayServiceInterface)
+  end
+end
+
 describe ADI::ServiceContainer::DefineGetters, tags: "compiled" do
   describe "compiler errors" do
     describe "aliases" do
@@ -103,6 +112,10 @@ describe ADI::ServiceContainer::DefineGetters, tags: "compiled" do
 
     it "does not apply `of Type` restriction to values that already explicitly have one" do
       ADI.container.explicit_array_client.services.should be_empty
+    end
+
+    it "keeps the `of Type` of an array value whose parameter is restricted to another collection type" do
+      ADI.container.enumerable_array_client.services.should be_empty
     end
   end
 end

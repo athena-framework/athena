@@ -1,0 +1,8 @@
+project: dependency-injection
+kind: Fixed
+body: Fix the `of Type` of an array value being dropped for parameters restricted to a collection type other than `Array`
+time: 2026-11-03T19:36:41.676718057-05:00
+custom:
+    Author: George Dietrich
+    PR: "786"
+    Username: blacksmoke16
