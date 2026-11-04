@@ -432,6 +432,25 @@ class NonInlinedCallArgClient
   end
 end
 
+# Inlined service whose array parameter is restricted to another collection type, using its default value
+module InlinedEnumerableItem; end
+
+@[ADI::Register]
+class InlinedEnumerableArrayService
+  getter items : Array(InlinedEnumerableItem)
+
+  def initialize(items : Enumerable(InlinedEnumerableItem) = [] of InlinedEnumerableItem)
+    @items = items.map &.as(InlinedEnumerableItem)
+  end
+end
+
+@[ADI::Register(public: true)]
+class InlinedEnumerableArrayClient
+  getter service : InlinedEnumerableArrayService
+
+  def initialize(@service : InlinedEnumerableArrayService); end
+end
+
 describe ADI::ServiceContainer::InlineServiceDefinitions do
   it "compiles when a ServiceContainer type conflicts with internal ADI types", tags: "compiled" do
     assert_compiles <<-CR
@@ -484,6 +503,10 @@ describe ADI::ServiceContainer::InlineServiceDefinitions do
 
   it "supports inlined services with array parameters containing inlined services" do
     ADI.container.array_parent_client.total.should eq 30
+  end
+
+  it "keeps the `of Type` of an array value whose parameter is restricted to another collection type" do
+    ADI.container.inlined_enumerable_array_client.service.items.should be_empty
   end
 
   it "supports inlined services with calls using inlined service args" do

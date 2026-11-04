@@ -1,0 +1,8 @@
+project: dependency-injection
+kind: Added
+body: Allow using DI tags to control which event dispatchers a listener is registered with
+time: 2026-11-03T18:43:36.285097316-05:00
+custom:
+    Author: George Dietrich
+    PR: "784"
+    Username: blacksmoke16

@@ -91,6 +91,9 @@ module Athena::DependencyInjection::ServiceContainer::DefineGetters
                                                                                               str = "#{name.id}: [#{elements.splat}]"
                                                                                               if (resolved_restriction = param["resolved_restriction"]) && resolved_restriction <= Array && (value.of.is_a?(Nop) || elements.empty?)
                                                                                                 str += " of Union(#{resolved_restriction.type_vars.splat})"
+                                                                                              elsif !value.of.is_a?(Nop)
+                                                                                                # Keeps the type of the array, e.g. of an empty default value of a parameter restricted to another collection type.
+                                                                                                str += " of #{value.of}"
                                                                                               end
                                                                                               str.id
                                                                                             else

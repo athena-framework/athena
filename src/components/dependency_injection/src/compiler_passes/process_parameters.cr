@@ -27,12 +27,11 @@ module Athena::DependencyInjection::ServiceContainer::ProcessParameters
               param_name = initializer_arg.name.id.stringify
               default_value = nil
 
-              # Inherit value if it was already configured on the param
-              value = if (p = parameters[param_name]) && p.keys.map(&.stringify).includes?("value")
-                        p["value"]
-                      else
-                        nil
-                      end
+              # Inherit value if it was already configured on the param.
+              # Explicitly configured values are not autowired.
+              explicit = (p = parameters[param_name]) && p.keys.map(&.stringify).includes?("value")
+
+              value = explicit ? p["value"] : nil
 
               # Set the default value is there is one.
               if !(dv = initializer_arg.default_value).is_a?(Nop)
@@ -48,6 +47,7 @@ module Athena::DependencyInjection::ServiceContainer::ProcessParameters
                 resolved_restriction: ((r = initializer_arg.restriction).is_a?(Nop) ? nil : r.resolve),
                 default_value:        default_value,
                 value:                value.nil? ? default_value : value,
+                explicit:             explicit == true,
               }
             end
           end

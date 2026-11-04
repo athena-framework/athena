@@ -53,7 +53,8 @@ module Athena::DependencyInjection::ServiceContainer::AutoWire
                                    alias_id == service_id ? nil : alias_id
                                  end
 
-              if resolved_service
+              # Parameters whose definition explicitly configured their value, even `nil`, are never autowired.
+              if resolved_service && !param["explicit"]
                 if param["resolved_restriction"] < ADI::Proxy
                   param["value"] = "ADI::Proxy.new(#{resolved_service}, ->#{resolved_service.id})".id
                   # Track proxy references to ensure getters are generated

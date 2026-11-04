@@ -142,4 +142,81 @@ describe ADI::ServiceContainer do
   it "does not resolve a service as its own dependency via an alias" do
     ADI.container.self_alias_service.inner.should be_a SelfAliasDefault
   end
+
+  describe "explicitly configured values", tags: "compiled" do
+    it "does not autowire a parameter explicitly configured as nil" do
+      ASPEC::Methods.assert_compiles <<-'CR', preamble: %(require "../spec_helper.cr")
+        module EntryPointInterface; end
+
+        class EntryPoint
+          include EntryPointInterface
+        end
+
+        class Listener
+          def initialize(@entry_point : EntryPointInterface? = nil); end
+        end
+
+        module MyExtension
+          macro included
+            macro finished
+              {% verbatim do %}
+                {%
+                  SERVICE_HASH["entry_point"] = {class: EntryPoint}
+                  SERVICE_HASH["listener"] = {class: Listener, public: true, parameters: {entry_point: {value: nil}}}
+                %}
+              {% end %}
+            end
+          end
+        end
+
+        ADI.add_compiler_pass MyExtension, :before_optimization, 1028
+
+        macro finished
+          macro finished
+            \{% value = ADI::ServiceContainer::SERVICE_HASH["listener"]["parameters"]["entry_point"]["value"] %}
+            ASPEC.compile_time_assert(\{{ value == nil }}, "Expected the explicit nil value to not be autowired")
+          end
+        end
+      CR
+    end
+
+    it "does not replace an explicitly configured service with an alias" do
+      ASPEC::Methods.assert_compiles <<-'CR', preamble: %(require "../spec_helper.cr")
+        module ProviderInterface; end
+
+        class Provider
+          include ProviderInterface
+        end
+
+        class Listener
+          def initialize(@user_provider : ProviderInterface); end
+        end
+
+        module MyExtension
+          macro included
+            macro finished
+              {% verbatim do %}
+                {%
+                  SERVICE_HASH["provider_one"] = {class: Provider}
+                  SERVICE_HASH["provider_two"] = {class: Provider}
+                  SERVICE_HASH["listener"] = {class: Listener, public: true, parameters: {user_provider: {value: "@provider_two"}}}
+
+                  ALIASES[ProviderInterface] = [{id: "provider_one", public: false}]
+                %}
+              {% end %}
+            end
+          end
+        end
+
+        ADI.add_compiler_pass MyExtension, :before_optimization, 1028
+
+        macro finished
+          macro finished
+            \{% value = ADI::ServiceContainer::SERVICE_HASH["listener"]["parameters"]["user_provider"]["value"] %}
+            ASPEC.compile_time_assert(\{{ value.stringify == "provider_two" }}, "Expected the explicitly configured service to not be replaced with the aliased one")
+          end
+        end
+      CR
+    end
+  end
 end
