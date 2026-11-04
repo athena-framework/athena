@@ -1,0 +1,8 @@
+project: dependency-injection
+kind: Fixed
+body: Fix explicitly configured service parameters being replaced by autowiring
+time: 2026-11-03T19:14:41.85826296-05:00
+custom:
+    Author: George Dietrich
+    PR: "785"
+    Username: blacksmoke16
