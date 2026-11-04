@@ -204,7 +204,42 @@ A firewall:
 
 A user who must authenticate to access a resource gets a `401` response, unless the firewall has an [ASEC::EntryPoint::Interface](/Security/EntryPoint/Interface/) starting the authentication, e.g. by redirecting to the login page.
 
-See [ASEC::Firewall](/Security/Firewall/) for how to set up firewalls.
+Firewalls are configured via the [ASEC::Bundle](/Security/Bundle/), such as within an [Athena Framework](/Framework/) application.
+Require `athena-security/bundle` to register it, register the authenticators as services, then configure the firewalls:
+
+```crystal
+require "athena"
+require "athena-security/bundle"
+
+@[ADI::Register]
+class APITokenAuthenticator < ASEC::Authenticator::AbstractAuthenticator
+  # ...
+end
+
+ADI.configure({
+  security: {
+    password_hashers: {
+      User => :auto,
+    },
+    providers: {
+      app_users: {id: "app_user_provider"},
+    },
+    firewalls: {
+      api: {
+        pattern:               /^\/api/,
+        custom_authenticators: ["api_token_authenticator"],
+      },
+    },
+    access_control: [
+      {path: /^\/api\/admin/, role: "ROLE_ADMIN"},
+      {path: /^\/api/, role: "IS_AUTHENTICATED"},
+    ],
+  },
+})
+```
+
+The bundle also registers the services checking the access of users, such as the [ASEC::Authorization::CheckerInterface](/Security/Authorization/CheckerInterface/), which decide via every service inheriting from [ASEC::Authorization::Voter](/Security/Authorization/Voter/).
+See [ASEC::Bundle::Schema](/Security/Bundle/Schema/) for the full set of configuration options, or [ASEC::Firewall](/Security/Firewall/) to set up firewalls without the bundle.
 
 ### Exceptions
 
