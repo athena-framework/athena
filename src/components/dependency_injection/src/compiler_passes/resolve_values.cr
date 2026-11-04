@@ -60,6 +60,45 @@ module Athena::DependencyInjection::ServiceContainer::ResolveValues
 
                 resolved_value = tagged_services.map &.first.id
 
+                # Service locator, providing the services of the hash by their key
+              elsif unresolved_value.is_a?(HashLiteral) &&
+                    (!reference || "scalar" == reference["type"]) &&
+                    (restriction = param["resolved_restriction"]) && restriction < ADI::ServiceLocator
+                service_type = restriction.type_vars.first.resolve
+                factories = [] of Nil
+
+                unresolved_value.each do |key, value|
+                  unless key.is_a?(StringLiteral)
+                    key.raise "Service '#{service_id.id}' (#{definition["class"]}) must key the services of its '#{param["name"].id}' service locator by a 'StringLiteral', got '#{key.class_name.id}'."
+                  end
+
+                  unless value.is_a?(StringLiteral) && value.starts_with?('@')
+                    value.raise "Service '#{service_id.id}' (#{definition["class"]}) must provide the services of its '#{param["name"].id}' service locator as service references, e.g. '@service_id', got '#{value}'."
+                  end
+
+                  service_name = value[1..-1]
+
+                  # Resolve the alias ID to its underlying ID
+                  if aliases = ALIASES[service_name]
+                    service_name = aliases.first["id"]
+                  end
+
+                  unless provided_service = SERVICE_HASH[service_name]
+                    value.raise "Service '#{service_id.id}' (#{definition["class"]}) references undefined service '#{service_name.id}'."
+                  end
+
+                  if (provided_class = provided_service["class"]).is_a?(TypeNode) && !(provided_class <= service_type)
+                    value.raise "Service '#{service_id.id}' (#{definition["class"]}) cannot provide the '#{service_name.id}' service (#{provided_class}) via its '#{param["name"].id}' service locator, as it is not a '#{service_type}'."
+                  end
+
+                  # Track the provided services to ensure their getters are generated
+                  definition["referenced_services"] << service_name
+
+                  factories << "#{key} => ->{ #{service_name.id}.as(#{service_type}) }"
+                end
+
+                resolved_value = "ADI::ServiceLocator(#{service_type}).new({#{factories.join(", ").id}} of String => Proc(#{service_type}))".id
+
                 # Array, could contain nested references
               elsif unresolved_value.is_a?(ArrayLiteral) || unresolved_value.is_a?(TupleLiteral)
                 # Pseudo recurse over each array element

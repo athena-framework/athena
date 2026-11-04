@@ -1,0 +1,8 @@
+project: dependency-injection
+kind: Added
+body: Add `ADI::ServiceLocator`, providing a set of services by their ID while only instantiating the ones requested
+time: 2026-11-03T21:09:10.670741539-05:00
+custom:
+    Author: George Dietrich
+    PR: "787"
+    Username: blacksmoke16
