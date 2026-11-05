@@ -72,7 +72,7 @@ token_storage.token = ASEC::Authentication::Token::UsernamePassword.new user, "m
 ### Checking Access
 
 Whether the current user is granted an attribute is decided by an [ASEC::Authorization::Checker](/Security/Authorization/Checker/).
-An attribute is a string that is either a role, such as `ROLE_ADMIN`, or a permission, such as `EDIT`, optionally on a subject, such as a blog post:
+An attribute is either a role, such as `ROLE_ADMIN`, or a permission, such as editing, optionally on a subject, such as a blog post:
 
 ```crystal
 access_decision_manager = ASEC::Authorization::AccessDecisionManager.new [
@@ -83,9 +83,9 @@ access_decision_manager = ASEC::Authorization::AccessDecisionManager.new [
 
 checker = ASEC::Authorization::Checker.new token_storage, access_decision_manager
 
-checker.granted? "ROLE_ADMIN"       # => true
-checker.granted? "IS_AUTHENTICATED" # => true
-checker.granted? "EDIT", post       # => Depends on PostVoter
+checker.granted? "ROLE_ADMIN"                     # => true
+checker.granted? "IS_AUTHENTICATED"               # => true
+checker.granted? PostVoter::Attribute::EDIT, post # => Depends on PostVoter
 ```
 
 The checker asks an [ASEC::Authorization::AccessDecisionManager](/Security/Authorization/AccessDecisionManager/) for the decision, which in turn asks each of its voters for their [vote](/Security/Authorization/Voter/Access/).
@@ -113,29 +113,37 @@ The component provides voters for common attributes:
 * [ASEC::Authorization::Voter::RoleHierarchy](/Security/Authorization/Voter/RoleHierarchy/) - Also grants the roles reachable from them via an [ASEC::Role::Hierarchy](/Security/Role/Hierarchy/)
 * [ASEC::Authorization::Voter::Authenticated](/Security/Authorization/Voter/Authenticated/) - Grants `IS_AUTHENTICATED` and `IS_AUTHENTICATED_FULLY` based on how the user authenticated, and `PUBLIC_ACCESS` to everyone
 
-Permissions on objects are decided by custom voters, which include [ASEC::Authorization::Voter::Subject(T)](/Security/Authorization/Voter/Subject/) for the type of object they vote on:
+Permissions on objects are decided by custom voters, which include [ASEC::Authorization::Voter::Subject(T, A)](/Security/Authorization/Voter/Subject/) for the type of object they vote on, and the type of the attributes they vote on:
 
 ```crystal
 class PostVoter < ASEC::Authorization::Voter
-  include ASEC::Authorization::Voter::Subject(Post)
-
-  protected def supports?(attribute : String, subject : Post) : Bool
-    attribute.in? "VIEW", "EDIT"
+  enum Attribute
+    View
+    Edit
   end
 
-  protected def vote_on_attribute(attribute : String, subject : Post, token : ASEC::Authentication::Token::Interface, vote : ASEC::Authorization::Voter::Vote?) : Bool
-    return true if attribute == "VIEW" && subject.published?
+  include ASEC::Authorization::Voter::Subject(Post, Attribute)
 
-    subject.author == token.user
+  protected def supports?(attribute : Attribute, subject : Post) : Bool
+    true
+  end
+
+  protected def vote_on_attribute(attribute : Attribute, subject : Post, token : ASEC::Authentication::Token::Interface, vote : ASEC::Authorization::Voter::Vote?) : Bool
+    case attribute
+    in .view? then subject.published?
+    in .edit? then subject.author == token.user
+    end
   end
 end
 ```
 
 The voter abstains unless it supports the attribute, otherwise it grants the access if `#vote_on_attribute` returns `true`, and denies it if not.
+With an enum, the voter only votes on its members, which are decided as strings like `"PostVoter::Attribute::Edit"` (see [ASEC::Authorization::Voter.attribute_name](/Security/Authorization/Voter/#Athena::Security::Authorization::Voter.attribute_name(attribute))), and its methods receive the member.
+A voter whose attributes are free-form strings uses `String` instead, e.g. `ASEC::Authorization::Voter::Subject(Post, String)`, and its methods receive the string.
 It is only asked to vote on subjects of the type it handles, including subtypes and, for a module, the types including it.
 The subject types are known at compile time, so a voter never has to check the type of the subject itself.
 
-A voter may handle multiple types by including [ASEC::Authorization::Voter::Subject(T)](/Security/Authorization/Voter/Subject/) once per type, with overloads of its methods for each of them.
+A voter may handle multiple types by including [ASEC::Authorization::Voter::Subject(T, A)](/Security/Authorization/Voter/Subject/) once per type, with overloads of its methods for each of them.
 Voters that vote on attributes alone, whatever the subject, include [ASEC::Authorization::Voter::AttributeOnly](/Security/Authorization/Voter/AttributeOnly/) instead.
 
 ### Role Hierarchy

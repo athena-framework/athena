@@ -175,7 +175,7 @@ end
 
 # Grants viewing published posts, and editing posts to their author.
 class PostVoter < ASEC::Authorization::Voter
-  include ASEC::Authorization::Voter::Subject(Post)
+  include ASEC::Authorization::Voter::Subject(Post, String)
 
   getter calls = [] of String
 
@@ -198,7 +198,7 @@ end
 
 # Like `PostVoter`, but also grants editing comments to their author.
 class PostAndCommentVoter < PostVoter
-  include ASEC::Authorization::Voter::Subject(Comment)
+  include ASEC::Authorization::Voter::Subject(Comment, String)
 
   protected def supports?(attribute : String, subject : Comment) : Bool
     attribute == "EDIT"
@@ -213,7 +213,7 @@ end
 
 # Grants deleting anything `Ownable` to its author.
 class OwnableVoter < ASEC::Authorization::Voter
-  include ASEC::Authorization::Voter::Subject(Ownable)
+  include ASEC::Authorization::Voter::Subject(Ownable, String)
 
   getter calls = [] of String
 
@@ -230,7 +230,7 @@ end
 
 # Grants archiving anything `Archivable` to its author.
 class ArchivableVoter < ASEC::Authorization::Voter
-  include ASEC::Authorization::Voter::Subject(Archivable)
+  include ASEC::Authorization::Voter::Subject(Archivable, String)
 
   getter calls = [] of String
 
@@ -247,7 +247,7 @@ end
 
 # Grants or denies the access based on a `String` subject.
 class StringVoter < ASEC::Authorization::Voter
-  include ASEC::Authorization::Voter::Subject(String)
+  include ASEC::Authorization::Voter::Subject(String, String)
 
   protected def supports?(attribute : String, subject : String) : Bool
     attribute == "MATCH"
@@ -255,6 +255,61 @@ class StringVoter < ASEC::Authorization::Voter
 
   protected def vote_on_attribute(attribute : String, subject : String, token : ASEC::Authentication::Token::Interface, vote : ASEC::Authorization::Voter::Vote?) : Bool
     subject == token.user_identifier
+  end
+end
+
+# Grants viewing published posts, and editing posts to their author, via the members of its attribute enum.
+class EnumPostVoter < ASEC::Authorization::Voter
+  enum Attribute
+    View
+    Edit
+  end
+
+  include ASEC::Authorization::Voter::Subject(Post, Attribute)
+
+  getter calls = [] of Attribute
+
+  protected def supports?(attribute : Attribute, subject : Post) : Bool
+    true
+  end
+
+  protected def vote_on_attribute(attribute : Attribute, subject : Post, token : ASEC::Authentication::Token::Interface, vote : ASEC::Authorization::Voter::Vote?) : Bool
+    @calls << attribute
+
+    case attribute
+    in .view? then subject.published?
+    in .edit? then subject.author == token.user_identifier
+    end
+  end
+end
+
+# Like `EnumPostVoter`, but also grants deleting comments to their author, via the members of another attribute enum.
+class EnumPostAndCommentVoter < EnumPostVoter
+  enum CommentAttribute
+    Delete
+  end
+
+  include ASEC::Authorization::Voter::Subject(Comment, CommentAttribute)
+
+  protected def supports?(attribute : CommentAttribute, subject : Comment) : Bool
+    true
+  end
+
+  protected def vote_on_attribute(attribute : CommentAttribute, subject : Comment, token : ASEC::Authentication::Token::Interface, vote : ASEC::Authorization::Voter::Vote?) : Bool
+    subject.author == token.user_identifier
+  end
+end
+
+# Like `EnumPostVoter`, but also grants the `"EDIT"` string attribute on comments to their author.
+class EnumPostAndStringCommentVoter < EnumPostVoter
+  include ASEC::Authorization::Voter::Subject(Comment, String)
+
+  protected def supports?(attribute : String, subject : Comment) : Bool
+    attribute == "EDIT"
+  end
+
+  protected def vote_on_attribute(attribute : String, subject : Comment, token : ASEC::Authentication::Token::Interface, vote : ASEC::Authorization::Voter::Vote?) : Bool
+    subject.author == token.user_identifier
   end
 end
 
