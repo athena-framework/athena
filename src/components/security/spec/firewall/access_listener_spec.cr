@@ -138,7 +138,7 @@ end
 
 # Grants the access to requests, while recording them.
 class RequestVoter < ASEC::Authorization::Voter
-  include ASEC::Authorization::Voter::Subject(AHTTP::Request)
+  include ASEC::Authorization::Voter::Subject(AHTTP::Request, String)
 
   getter subjects = [] of AHTTP::Request
 

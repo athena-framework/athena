@@ -77,4 +77,13 @@ struct AuthorizationCheckerTest < ASPEC::TestCase
   private def checker : ASEC::Authorization::Checker
     ASEC::Authorization::Checker.new @token_storage, ASEC::Authorization::AccessDecisionManager.new([@voter] of ASEC::Authorization::Voter)
   end
+
+  def test_granted_with_an_attribute_enum : Nil
+    token_storage = ASEC::Authentication::Token::Storage.new
+    token_storage.token = TestToken.new ["ROLE_USER"], TestUser.new("author")
+    checker = ASEC::Authorization::Checker.new token_storage, ASEC::Authorization::AccessDecisionManager.new([EnumPostVoter.new] of ASEC::Authorization::Voter)
+
+    checker.granted?(EnumPostVoter::Attribute::Edit, Post.new("author")).should be_true
+    checker.granted?(EnumPostVoter::Attribute::Edit, Post.new("other")).should be_false
+  end
 end
