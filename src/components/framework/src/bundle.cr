@@ -617,8 +617,10 @@ struct Athena::Framework::Bundle < ADI::AbstractBundle
                 class: Athena::Framework::Listeners::File,
               }
 
+              # Public so that `AHTTP::UploadedFile` can check if a file was uploaded via the container.
               SERVICE_HASH["athena_framework_file_parser"] = {
                 class:      ATH::FileParser,
+                public:     true,
                 parameters: {
                   temp_dir:      {value: cfg["temp_dir"]},
                   max_uploads:   {value: cfg["max_uploads"]},
