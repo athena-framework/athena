@@ -67,7 +67,7 @@ struct FileUploadControllerTest < ATH::Spec::APITestCase
     self.upload_file "/move_file"
 
     self.assert_response_is_successful
-    self.response.body.should eq %("foo\\n")
+    self.response.body.should eq File.read("#{__DIR__}/assets/foo.txt").to_json
   end
 
   private def upload_file(route : String, name : String = "file") : Nil
