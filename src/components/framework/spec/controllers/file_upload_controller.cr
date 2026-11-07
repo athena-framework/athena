@@ -51,4 +51,12 @@ class FileUploadController < ATH::Controller
   def optional_array_empty(@[ATHA::MapUploadedFile] file : AHTTP::UploadedFile?) : String?
     file.try &.client_original_name
   end
+
+  @[ARTA::Post("/move_file")]
+  def move_file(@[ATHA::MapUploadedFile] file : AHTTP::UploadedFile) : String
+    moved_file = file.move Dir.tempdir, "athena_moved_upload.#{Random::Secure.hex 8}.txt"
+    moved_file.content
+  ensure
+    moved_file.try { |f| ::File.delete? f.path }
+  end
 end

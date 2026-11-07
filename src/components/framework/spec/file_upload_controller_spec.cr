@@ -63,6 +63,13 @@ struct FileUploadControllerTest < ATH::Spec::APITestCase
     self.assert_response_is_successful
   end
 
+  def test_move_file : Nil
+    self.upload_file "/move_file"
+
+    self.assert_response_is_successful
+    self.response.body.should eq %("foo\\n")
+  end
+
   private def upload_file(route : String, name : String = "file") : Nil
     self.post(
       route,

@@ -1,0 +1,8 @@
+project: framework
+kind: Fixed
+body: Fix `AHTTP::UploadedFile#move` raising for files uploaded via the framework
+time: 2026-11-07T17:15:51.958665193-05:00
+custom:
+    Author: George Dietrich
+    PR: "792"
+    Username: blacksmoke16
